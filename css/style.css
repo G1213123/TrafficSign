@@ -1,0 +1,216 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0px;
+  overflow: hidden;
+}
+
+
+body {
+  min-height: 100%;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.side-bar[data-position="right"]{
+  position: absolute;
+  top: 50%;
+  right: 0;
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  min-height: 100%;
+  width: 64px;
+  background-color: #43a;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+
+.side-bar[data-position="left"]{
+  position: absolute;
+  left: 400px;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  min-height: 100%;
+  width: 64px;
+  background-color: #333;
+}
+
+div.item {
+  color: white;
+  height: 64px;
+  width: 64px;
+  background-color: #444;
+  line-height: 64px;
+  text-align: center;
+  font-size: 20px;
+}
+
+div.item.bottom {
+  position: absolute;
+  bottom: 0;
+}
+
+div.heading {
+  font-size: 16px;
+  font-family: 'Lato', sans-serif;
+  color: white;
+  height: 44px;
+  line-height: 44px;
+  font-weight: 700;
+  padding: 10px;
+  background-color: #333;
+}
+
+div.item:hover {
+  background-color: #6761A8 ;
+  cursor: pointer;
+}
+
+div.side-panel {
+  z-index: 999;
+  left: -400px;
+  position: absolute;
+  min-width: 400px;
+  min-height: 100%;
+  background-color: #222;
+  display: inline-block;
+}
+
+div.side-panel.open{
+  animation-name: sidebar-open;
+  animation-duration: .25s;
+  left: 0;
+}
+
+div.side-panel.close{
+  animation-name: sidebar-close;
+  animation-duration: .25s;
+  left: -400px;
+}
+
+/* Keyframes */
+@keyframes sidebar-open {
+  0% {
+    left: -400px;
+  }
+  
+  100% {
+    left: 0;
+  }
+}
+
+@keyframes sidebar-close {
+  0% {
+    left: 0;
+  }
+  
+  100% {
+    left: -400px;
+  }
+}
+
+
+#canvas {
+  background: #111;
+}
+
+#canvas-container {
+  width: 100%;
+  height: 100%;
+}
+
+@font-face {
+  font-family: 'TransportHeavy';
+  src: url('/font/TransportHeavy.woff2') format('woff2'),
+      url('/font/TransportHeavy.woff') format('woff'),
+      url("/font/Transport\ Heavy.ttf") format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TransportMedium';
+  src: url('/font/TransportMedium.woff2') format('woff2'),
+      url('/font/TransportMedium.woff') format('woff'),
+      url("/font/Transport\ Medium.ttf") format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+/*https://codepen.io/ainalem/pen/GRqPwoz side panel form component*/
+
+.input-container {
+  height: 50px;
+  position: relative;
+  width: 90%;
+  padding: 4px 20px ;
+  margin-top: 10px;
+}
+
+
+.input {
+  background-color: #404042;
+  border-radius: 12px;
+  border: 0;
+  box-sizing: border-box;
+  color: #eee;
+  font-size: 18px;
+  height: 100%;
+  outline: 0;
+  padding: 4px 20px ;
+  width: 100%;
+}
+
+.cut {
+  background-color: #222;
+  border-radius: 10px;
+  height: 20px;
+  left: 30px;
+  position: absolute;
+  top: -20px;
+  transform: translateY(0);
+  transition: transform 200ms;
+  width: 76px;
+}
+
+.cut-short {
+  width: 50px;
+}
+
+.input:focus ~ .cut,
+.input:not(:placeholder-shown) ~ .cut {
+  transform: translateY(8px);
+  border:1px solid #eee;
+}
+
+.placeholder {
+  color: #dddddd;
+  font-family: sans-serif;
+  left: 35px;
+  line-height: 14px;
+  pointer-events: none;
+  position: absolute;
+  transform-origin: 0 50%;
+  transition: transform 200ms, color 200ms;
+  top: 20px;
+}
+
+.input:focus ~ .placeholder,
+.input:not(:placeholder-shown) ~ .placeholder {
+  transform: translateY(-30px) translateX(10px) scale(0.75);
+}
+
+.input:not(:placeholder-shown) ~ .placeholder {
+  color: #808097;
+}
+
+.input:focus ~ .placeholder {
+  color: #e3e3e3;
+}

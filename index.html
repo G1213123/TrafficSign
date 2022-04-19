@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Traffic Sign Generator</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script type="text/javascript" src="https://unpkg.com/fabric@latest/dist/fabric.js"></script>
+    <script src="https://kit.fontawesome.com/d9b171ca69.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="side-panel" id="side-panel">
+        <div id="sidepanel-heading" class="heading">
+            <span id="content-heading">Traffic Sign</span>
+        </div>
+        <div id="content-frame"
+            style="height: 90%; border:none; display: block; width: 400px; position: absolute;">
+        <form id="input-form" class="input-container ic1"></form>
+        </div>
+        <div data-position="left" class="side-bar">
+            <div class="item" id="btn_draw"><i class="fa-solid fa-pen"></i></div>
+            <div class="item" id="btn_text"><i class="fa-solid fa-font"></i></div>
+            <div class="item"><i class="fa fa-comments-o"></i></div>
+            <div class="item"><i class="fa fa-folder-o"></i></div>
+            <div class="item"><i class="fa fa-file-code-o"></i></div>
+
+            <div class="item bottom" id="show_hide"><i class="fa fa-angle-double-right"></i></div>
+        </div>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script type="text/javascript" src="js/canvas.js"></script>
+    <script type="text/javascript" src="js/draw.js"></script>
+    <script type="text/javascript" src="js/sidebar.js"></script>
+</body>
+
+</html>
