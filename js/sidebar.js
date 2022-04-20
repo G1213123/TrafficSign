@@ -51,6 +51,7 @@ let EventHandler = {
         left: left_pos,
         top: 1.5,
         fill: '#fff',
+        fontSize:parseInt(document.getElementById('input-xheight').value)
       })
       left_pos += txt_char.width
       cursor.addWithUpdate(txt_char)
@@ -73,12 +74,13 @@ let FormAddComponent = {
     if (document.getElementById("side-panel").className.indexOf("open") !== -1) {
       var parent = document.getElementById("input-form");
       parent.innerHTML = ''
-      FormAddComponent.createinput('input-text','Add Text',parent)
+      FormAddComponent.createinput('input-text','Add Text',parent, '',EventHandler.TextinputHandler, 'input')
+      FormAddComponent.createinput('input-xheight','x Height',parent,100)
       canvas.on('mouse:move', EventHandler.TextonMouseMove)
       canvas.on('mouse:down', EventHandler.TextonMouseClick)
     }
   },
-  createNode: function (type, attribute, parent, callback = null, event = null) {
+  createNode: function (type, attribute, parent, callback, event) {
     var node = document.createElement(type);
     for (const [key, value] of Object.entries(attribute)) {
       node.setAttribute(key, value)
@@ -89,12 +91,13 @@ let FormAddComponent = {
     }
     return node
   },
-  createinput: function (name, labelTxt, parent) {
+  createinput: function (name, labelTxt, parent, defaultv=null, callback=null, event =null) {
     var inputContainer = FormAddComponent.createNode("div",{'class':'input-container'},parent)
-    FormAddComponent.createNode("input", { 'type': 'text', 'class': 'input', 'id': name, 'placeholder':' ' }, inputContainer, EventHandler.TextinputHandler, 'input')
+    var input = FormAddComponent.createNode("input", { 'type': 'text', 'class': 'input', 'id': name, 'placeholder':' ' }, inputContainer, callback,event)
     FormAddComponent.createNode("div", { 'class': 'cut' }, inputContainer)
     var label = FormAddComponent.createNode("label", { 'class': 'placeholder', 'for': name }, inputContainer)
     label.innerHTML = labelTxt
+    defaultv? input.value=defaultv:input.value=''
   }
 }
 

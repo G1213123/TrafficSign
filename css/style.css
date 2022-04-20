@@ -56,7 +56,7 @@ div.item.bottom {
 
 div.heading {
   font-size: 16px;
-  font-family: 'Lato', sans-serif;
+  font-family: 'Lato', TransportMedium;
   color: white;
   height: 44px;
   line-height: 44px;
@@ -151,7 +151,7 @@ div.side-panel.close{
   position: relative;
   width: 90%;
   padding: 4px 20px ;
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
 
@@ -171,13 +171,13 @@ div.side-panel.close{
 .cut {
   background-color: #222;
   border-radius: 10px;
-  height: 20px;
+  height: 25px;
   left: 30px;
   position: absolute;
-  top: -20px;
-  transform: translateY(0);
-  transition: transform 200ms;
+  top: -14px;
+  transition: border 100ms ease-out, width 100ms ease-out, height 100ms ease-out;
   width: 76px;
+  border:1px solid #ccc;
 }
 
 .cut-short {
@@ -186,31 +186,23 @@ div.side-panel.close{
 
 .input:focus ~ .cut,
 .input:not(:placeholder-shown) ~ .cut {
-  transform: translateY(8px);
-  border:1px solid #eee;
+  border:2px solid #eee;
+  width: 74px;
+  height: 15px;
+  top: -12px;
 }
 
 .placeholder {
-  color: #dddddd;
-  font-family: sans-serif;
+  color: #dadada;
+  font-family: TransportMedium;
   left: 35px;
   line-height: 14px;
   pointer-events: none;
   position: absolute;
-  transform-origin: 0 50%;
-  transition: transform 200ms, color 200ms;
-  top: 20px;
+  font-size: 12px;
+  top: -10px;
+  text-align: center;
+  font-weight:lighter;
+  transition: font-weight 500ms ease-out, top 500ms ease-out, color 500ms ease-out;
 }
 
-.input:focus ~ .placeholder,
-.input:not(:placeholder-shown) ~ .placeholder {
-  transform: translateY(-30px) translateX(10px) scale(0.75);
-}
-
-.input:not(:placeholder-shown) ~ .placeholder {
-  color: #808097;
-}
-
-.input:focus ~ .placeholder {
-  color: #e3e3e3;
-}
