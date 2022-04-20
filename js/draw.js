@@ -32,7 +32,7 @@ function AddPlate() {
 function LoadShape(name, setoptions, group) {
   var setoptions = setoptions
   var group = group
-  var loadedObjects = fabric.loadSVGFromURL("/shapes/" + name + ".svg", function (objects, options) {
+  var loadedObjects = fabric.loadSVGFromURL("shapes/" + name + ".svg", function (objects, options) {
     loadedObjects = new fabric.Group(objects);
     loadedObjects.set(setoptions);
     group.addWithUpdate(loadedObjects);

@@ -125,9 +125,9 @@ div.side-panel.close{
 
 @font-face {
   font-family: 'TransportHeavy';
-  src: url('/font/TransportHeavy.woff2') format('woff2'),
-      url('/font/TransportHeavy.woff') format('woff'),
-      url("/font/Transport\ Heavy.ttf") format('truetype');
+  src: url('font/TransportHeavy.woff2') format('woff2'),
+      url('font/TransportHeavy.woff') format('woff'),
+      url("font/Transport\ Heavy.ttf") format('truetype');
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -135,9 +135,9 @@ div.side-panel.close{
 
 @font-face {
   font-family: 'TransportMedium';
-  src: url('/font/TransportMedium.woff2') format('woff2'),
-      url('/font/TransportMedium.woff') format('woff'),
-      url("/font/Transport\ Medium.ttf") format('truetype');
+  src: url('font/TransportMedium.woff2') format('woff2'),
+      url('font/TransportMedium.woff') format('woff'),
+      url("font/Transport\ Medium.ttf") format('truetype');
   font-weight: 900;
   font-style: normal;
   font-display: swap;
