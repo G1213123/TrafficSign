@@ -49,7 +49,7 @@ let EventHandler = {
       txt_char = new fabric.Text(txt.charAt(i), {
         fontFamily: 'TransportMedium',
         left: left_pos,
-        top: 1.5,
+        top: -5,
         fill: '#fff',
         fontSize:parseInt(document.getElementById('input-xheight').value)
       })
