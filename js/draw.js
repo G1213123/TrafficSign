@@ -15,7 +15,7 @@ function AddPlate() {
   var rect = new fabric.Rect({
     left: -100,
     top: -50,
-    fill: '#2E607C',
+    fill: '#005FB9',
     width: 70,
     height: 100,
     objectCaching: false,
