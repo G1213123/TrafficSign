@@ -108,12 +108,11 @@ let FormTextAddComponent = {
   },
 
   TextonMouseClick: function (event) {
+    //permenent cursor object 
     if (document.getElementById("input-text").value !== '' && event.button === 1) {
       cursor.clone(function (clonedObj) {
         canvas.add(clonedObj)
         canvas.setActiveObject(clonedObj)
-        //EventHandler.TextHandlerOff()
-
       })
     }
   },
@@ -125,11 +124,75 @@ let FormDrawAddComponent = {
   drawPanelInit: function () {
     parent= GeneralHandler.PanelInit()
     if (parent){
-    GeneralHandler.createbutton('button-approach-arm', 'Add Approach arm', parent, 0)
-    canvas.on('mouse:move', FormTextAddComponent.TextonMouseMove)
-    canvas.on('mouse:down', FormTextAddComponent.TextonMouseClick)
+    GeneralHandler.createbutton('button-approach-arm', 'Add Approach arm', parent, 0, FormDrawAddComponent.drawApproachClick, 'click')
     }
   },
+  drawApproachClick: (event) => {
+    //$(event.target).toggleClass('active')
+    draw_btn = document.getElementById('button-approach-arm')
+    if (draw_btn.classList.contains('active')){
+      draw_btn.classList.remove('active')
+      canvas.off('mouse:down', FormDrawAddComponent.drawApprochMousedown)
+      canvas.off('mouse:move', FormDrawAddComponent.drawApproachMousemove)
+      canvas.off('mouse:up', FormDrawAddComponent.drawApproachMouseup)}
+    else {
+      draw_btn.classList.add('active')
+      canvas.on('mouse:down', FormDrawAddComponent.drawApprochMousedown)
+      canvas.on('mouse:move', FormDrawAddComponent.drawApproachMousemove)
+      canvas.on('mouse:up', FormDrawAddComponent.drawApproachMouseup)
+      canvas.approachConstrLline = new fabric.Line([0,0,100,100], {
+        stroke: "red",
+        strokeWidth: 3,
+        lockScalingX: true,
+        lockScalingY: true,
+        
+    });
+    canvas.add(canvas.approachConstrLline)
+    }
+  },
+
+  drawApprochMousedown: function(opt) {
+    //cursor.forEachObject(function (o) { cursor.remove(o) })
+      var evt = opt.e;
+      var point = canvas.getPointer(evt)
+      if (evt.button == 0) {
+        this.isDrawing = true;
+        this.selection = false;
+        this.lastPosX =point.x;
+        this.lastPosY = point.y;
+        this.approachConstrLline.set({
+          x1: this.lastPosX, 
+          y1: this.lastPosY, 
+          x2: this.lastPosX, 
+          y1: this.lastPosY, 
+        })
+      }
+  },
+  drawApproachMousemove: function (opt) {
+    if (this.isDrawing) {
+      var e = opt.e;
+      var pointer = canvas.getPointer(e);
+      // Initiate a line instance
+      this.approachConstrLline.set({
+        x2: pointer.x, 
+        y2: pointer.y
+      })
+      canvas.setActiveObject(this.approachConstrLline)
+      canvas.renderAll()
+    }
+  },
+
+  drawApproachMouseup: function() {
+      this.isDrawing=false
+      this.selection = true;
+      FormDrawAddComponent.drawApproachClick()
+    },
+
+  calcApproachPts: function() {
+    st_pt = new fabric.point([this.approachConstrLline.x1,this.approachConstrLline.y1])
+    ed_pt = new fabric.point([this.approachConstrLline.x2,this.approachConstrLline.y2])
+  }
+  
 
 }
 
