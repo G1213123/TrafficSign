@@ -1,11 +1,15 @@
 xHeight = 100
 
+function PolarPoint(r, a) {
+  return new fabric.Point(r * Math.cos(a), r * Math.sin(a))
+}
+
 var TextBlock = fabric.util.createClass(fabric.Textbox, {
-  initialize: function(x, y, color) {
+  initialize: function (x, y, color) {
     this.callSuper('initialize', x, y);
     this.color = color || '#000';
   },
-  toString: function() {
+  toString: function () {
     return this.callSuper('toString') + ' (color: ' + this.color + ')';
   }
 });
@@ -35,8 +39,10 @@ function LoadShape(name, setoptions, group) {
   var loadedObjects = fabric.loadSVGFromURL("shapes/" + name + ".svg", function (objects, options) {
     loadedObjects = new fabric.Group(objects);
     loadedObjects.set(setoptions);
-    group.addWithUpdate(loadedObjects);
-    canvas.renderAll();
+    if (group) {
+      group.addWithUpdate(loadedObjects);
+      canvas.renderAll();
+    }
   })
 }
 
@@ -44,20 +50,22 @@ function LoadShape(name, setoptions, group) {
 
 function initShape() {
   routeMap = new fabric.Group()
-  var base = LoadShape("base",{ scaleY:(31/2+21.92+2.828+12+10)/31, top: -(31/2+21.92+2.828+12+10)},routeMap)
-  var arm = LoadShape("base",{ left: -21.92, top: -(31/2+21.92) , scaleX : 4/6, angle : -45},routeMap)
+  var base = LoadShape("base", { scaleY: (31 / 2 + 21.92 + 2.828 + 12 + 10) / 31, top: -(31 / 2 + 21.92 + 2.828 + 12 + 10) }, routeMap)
+  var arm = LoadShape("base", { left: -21.92, top: -(31 / 2 + 21.92), scaleX: 4 / 6, angle: -45 }, routeMap)
   canvas.add(routeMap)
 
   block = new fabric.Textbox("Central", {
     fontFamily: 'TransportMedium',
     fill: '#ffffff',
-    fontSize: 10})
+    fontSize: 10
+  })
   canvas.add(block)
 
   block = new fabric.Textbox("Kowloon", {
     fontFamily: 'TransportMedium',
     fill: '#ffffff',
-    fontSize: 10})
+    fontSize: 10
+  })
   canvas.add(block)
 }
 AddPlate()

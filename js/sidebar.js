@@ -6,6 +6,8 @@ cursor.lockUniScaling = true;
 
 canvas.add(cursor);
 
+canvas.snap_pts = [];
+
 /* General Sidebar Panel */
 let GeneralHandler = {
   ShowHideSideBar: function (event, force = null) {
@@ -43,8 +45,8 @@ let GeneralHandler = {
     }
     return node
   },
-  createbutton: function (name, labelTxt, parent, defaultState = 0, callback = null, event = null){
-    var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent) 
+  createbutton: function (name, labelTxt, parent, defaultState = 0, callback = null, event = null) {
+    var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent)
     var input = GeneralHandler.createNode("button", { 'type': 'button', 'class': 'button', 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
     input.innerHTML = labelTxt
   },
@@ -62,15 +64,15 @@ let GeneralHandler = {
 /* Text panel */
 let FormTextAddComponent = {
   textPanelInit: function () {
-    parent= GeneralHandler.PanelInit()
-    if (parent){
-    GeneralHandler.createinput('input-text', 'Add Text', parent, '', FormTextAddComponent.TextinputHandler, 'input')
-    GeneralHandler.createinput('input-xheight', 'x Height', parent, 100)
-    canvas.on('mouse:move', FormTextAddComponent.TextonMouseMove)
-    canvas.on('mouse:down', FormTextAddComponent.TextonMouseClick)
+    parent = GeneralHandler.PanelInit()
+    if (parent) {
+      GeneralHandler.createinput('input-text', 'Add Text', parent, '', FormTextAddComponent.TextinputHandler, 'input')
+      GeneralHandler.createinput('input-xheight', 'x Height', parent, 100)
+      canvas.on('mouse:move', FormTextAddComponent.TextonMouseMove)
+      canvas.on('mouse:down', FormTextAddComponent.TextonMouseClick)
     }
   },
-  
+
   TextHandlerOff: function (event) {
     cursor.forEachObject(function (o) { cursor.remove(o) })
     canvas.off('mouse:move', FormTextAddComponent.TextonMouseMove)
@@ -122,77 +124,112 @@ let FormTextAddComponent = {
 /* Draw Panel */
 let FormDrawAddComponent = {
   drawPanelInit: function () {
-    parent= GeneralHandler.PanelInit()
-    if (parent){
-    GeneralHandler.createbutton('button-approach-arm', 'Add Approach arm', parent, 0, FormDrawAddComponent.drawApproachClick, 'click')
+    parent = GeneralHandler.PanelInit()
+    if (parent) {
+      GeneralHandler.createbutton('button-approach-arm', 'Add Approach arm', parent, 0, FormDrawAddComponent.drawApproachClick, 'click')
     }
   },
   drawApproachClick: (event) => {
     //$(event.target).toggleClass('active')
     draw_btn = document.getElementById('button-approach-arm')
-    if (draw_btn.classList.contains('active')){
+    if (draw_btn.classList.contains('active')) {
       draw_btn.classList.remove('active')
-      canvas.off('mouse:down', FormDrawAddComponent.drawApprochMousedown)
+      canvas.off('mouse:down', FormDrawAddComponent.drawApproachMousedown)
       canvas.off('mouse:move', FormDrawAddComponent.drawApproachMousemove)
-      canvas.off('mouse:up', FormDrawAddComponent.drawApproachMouseup)}
+      canvas.off('mouse:up', FormDrawAddComponent.drawApproachMouseup)
+    }
     else {
       draw_btn.classList.add('active')
-      canvas.on('mouse:down', FormDrawAddComponent.drawApprochMousedown)
+      canvas.on('mouse:down', FormDrawAddComponent.drawApproachMousedown)
       canvas.on('mouse:move', FormDrawAddComponent.drawApproachMousemove)
       canvas.on('mouse:up', FormDrawAddComponent.drawApproachMouseup)
-      canvas.approachConstrLline = new fabric.Line([0,0,100,100], {
+      canvas.approachConstrLline = new fabric.Line([0, 0, 100, 100], {
         stroke: "red",
         strokeWidth: 3,
         lockScalingX: true,
         lockScalingY: true,
-        
-    });
-    canvas.add(canvas.approachConstrLline)
+
+      });
+      canvas.approach_grp = new fabric.Group()
     }
   },
 
-  drawApprochMousedown: function(opt) {
-    //cursor.forEachObject(function (o) { cursor.remove(o) })
-      var evt = opt.e;
-      var point = canvas.getPointer(evt)
-      if (evt.button == 0) {
-        this.isDrawing = true;
-        this.selection = false;
-        this.lastPosX =point.x;
-        this.lastPosY = point.y;
-        this.approachConstrLline.set({
-          x1: this.lastPosX, 
-          y1: this.lastPosY, 
-          x2: this.lastPosX, 
-          y1: this.lastPosY, 
-        })
-      }
+  drawApproachMousedown: function (opt) {
+    var evt = opt.e;
+    var point = canvas.getPointer(evt);
+    if (evt.button == 0) {
+      this.isDrawing = true;
+      this.selection = false;
+      this.lastPosX = point.x;
+      this.lastPosY = point.y;
+      this.approachConstrLline.set({
+        x1: this.lastPosX,
+        y1: this.lastPosY,
+        x2: this.lastPosX,
+        y1: this.lastPosY,
+      })
+    }
   },
+
   drawApproachMousemove: function (opt) {
+    this.selection = false;
     if (this.isDrawing) {
       var e = opt.e;
       var pointer = canvas.getPointer(e);
       // Initiate a line instance
       this.approachConstrLline.set({
-        x2: pointer.x, 
+        x2: pointer.x,
         y2: pointer.y
       })
-      canvas.setActiveObject(this.approachConstrLline)
-      canvas.renderAll()
+
+      this.approach_grp.forEachObject(function (o) { if (o) { canvas.approach_grp.remove(o) } })
+      FormDrawAddComponent.calcApproachPts(this.approach_grp)
+      this.add(this.approachConstrLline)
+      this.add(this.approach_grp)
+      //this.setActiveObject(this.approach_grp)
+      this.renderAll()
     }
   },
 
-  drawApproachMouseup: function() {
-      this.isDrawing=false
-      this.selection = true;
-      FormDrawAddComponent.drawApproachClick()
-    },
+  drawApproachMouseup: function () {
+    this.isDrawing = false
+    this.selection = true;
+    this.snap_pts.push(this.approachConstrLline.st, this.approachConstrLline.ed)
+    FormDrawAddComponent.drawApproachClick()
+  },
 
-  calcApproachPts: function() {
-    st_pt = new fabric.point([this.approachConstrLline.x1,this.approachConstrLline.y1])
-    ed_pt = new fabric.point([this.approachConstrLline.x2,this.approachConstrLline.y2])
+  calcApproachPts: function (group) {
+    var line = canvas.approachConstrLline
+    var w = line.width
+    var h = line.height
+    var d = Math.sqrt(w ** 2 + h ** 2)
+    var r = Math.atan2((line.y2 - line.y1), (line.x2 - line.x1)) 
+    var st = new fabric.Point(line.x1, line.y1)
+    st.snap_type = 'end'
+    if (d < 600) {
+      new_end = st.add(PolarPoint(600, r))
+      line.x2=new_end.x
+      line.y2=new_end.y
+    }
+    var ed = new fabric.Point(line.x2, line.y2)
+    ed.snap_type = 'end'
+    line.st = st
+    line.ed = ed
+    var approach_pts = [
+      ed.add(PolarPoint(Math.sqrt(2 * 150 ** 2), r - 0.75 * Math.PI)),
+      ed,
+      ed.add(PolarPoint(Math.sqrt(2 * 150 ** 2), r + 0.75 * Math.PI)),
+      st.add(PolarPoint(300 / 2, r + 0.5 * Math.PI)),
+      st.add(PolarPoint(300 / 2, r - 0.5 * Math.PI)),
+    ]
+    console.log(approach_pts)
+    var arm = new fabric.Polygon(approach_pts, {
+      fill: 'white'
+    });
+    group.addWithUpdate(arm)
+
   }
-  
+
 
 }
 
@@ -200,8 +237,10 @@ window.onload = () => {
   document.getElementById('show_hide').onclick = GeneralHandler.ShowHideSideBar;
   document.getElementById('btn_draw').onclick = FormDrawAddComponent.drawPanelInit
   document.getElementById('btn_text').onclick = FormTextAddComponent.textPanelInit
-  document.onkeydown = function(e) {
-      switch (e.keyCode) {
-        case 27: // esc
-          GeneralHandler.ShowHideSideBar(e,'off')  
-      }}}
+  document.onkeydown = function (e) {
+    switch (e.keyCode) {
+      case 27: // esc
+        GeneralHandler.ShowHideSideBar(e, 'off')
+    }
+  }
+}
