@@ -1,4 +1,4 @@
-var canvas = this.__canvas = new fabric.Canvas('canvas', { fireMiddleClick: true, });
+var canvas = this.__canvas = new fabric.Canvas('canvas', { fireMiddleClick: true, fireRightClick: true, });
 
 window.addEventListener('resize', resizeCanvas, false);
 
@@ -6,20 +6,11 @@ function resizeCanvas() {
   canvasContainer = document.getElementById('canvas-container')
   canvas.setWidth(canvasContainer.clientWidth)
   canvas.setHeight(canvasContainer.clientHeight)
-  canvas.absolutePan({x:-canvas.width/2, y:-canvas.height/2})
+  canvas.absolutePan({ x: -canvas.width / 2, y: -canvas.height / 2 })
   canvas.renderAll();
   DrawGrid()
 }
 
-canvas.on('mouse:down', function (opt) {
-  var evt = opt.e;
-  if (evt.button == 1) {
-    this.isDragging = true;
-    this.selection = false;
-    this.lastPosX = evt.clientX;
-    this.lastPosY = evt.clientY;
-  }
-})
 
 canvas.on('mouse:move', function (opt) {
   if (this.isDragging) {
@@ -64,14 +55,14 @@ function DrawGrid() {
     }
   },
 
-  corners = canvas.calcViewportBoundaries()
+    corners = canvas.calcViewportBoundaries()
   xmin = Math.floor((corners.tl.x) / 50) * 50,
-  xmax = Math.ceil((corners.br.x) / 50) * 50,
-  ymin = Math.floor((corners.tl.y) / 50) * 50,
-  ymax = Math.ceil((corners.br.y) / 50) * 50,
-  width = xmax - xmin,
-  height = ymax - ymin,
-  gridLen = Math.max(width, height) / options.distance;
+    xmax = Math.ceil((corners.br.x) / 50) * 50,
+    ymin = Math.floor((corners.tl.y) / 50) * 50,
+    ymax = Math.ceil((corners.br.y) / 50) * 50,
+    width = xmax - xmin,
+    height = ymax - ymin,
+    gridLen = Math.max(width, height) / options.distance;
   grid_set = [];
 
   for (var i = 0; i < gridLen + 1; i++) {
@@ -83,7 +74,7 @@ function DrawGrid() {
       horizontal.set({ strokeWidth: 0.5 });
       vertical.set({ strokeWidth: 0.5 });
       vText = new fabric.Text(String(distance + xmin), { left: distance + xmin, top: 0, fill: options.param.stroke, fontSize: 10 })
-      hText = new fabric.Text(String(distance + ymin), { left: 0, top: distance + ymin, fill: options.param.stroke, fontSize: 10 })
+      hText = new fabric.Text(String(- distance - ymin), { left: 0, top: distance + ymin, fill: options.param.stroke, fontSize: 10 })
       grid_set.push(hText);
       grid_set.push(vText);
     };

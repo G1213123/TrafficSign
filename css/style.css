@@ -13,7 +13,7 @@ body {
   margin: 0 auto;
 }
 
-.side-bar[data-position="right"]{
+.side-bar[data-position="right"] {
   position: absolute;
   top: 50%;
   right: 0;
@@ -27,7 +27,7 @@ body {
   border-bottom-left-radius: 6px;
 }
 
-.side-bar[data-position="left"]{
+.side-bar[data-position="left"] {
   position: absolute;
   left: 400px;
   top: 50%;
@@ -66,7 +66,7 @@ div.heading {
 }
 
 div.item:hover {
-  background-color: #6761A8 ;
+  background-color: #6761A8;
   cursor: pointer;
 }
 
@@ -80,13 +80,13 @@ div.side-panel {
   display: inline-block;
 }
 
-div.side-panel.open{
+div.side-panel.open {
   animation-name: sidebar-open;
   animation-duration: .25s;
   left: 0;
 }
 
-div.side-panel.close{
+div.side-panel.close {
   animation-name: sidebar-close;
   animation-duration: .25s;
   left: -400px;
@@ -97,7 +97,7 @@ div.side-panel.close{
   0% {
     left: -400px;
   }
-  
+
   100% {
     left: 0;
   }
@@ -107,7 +107,7 @@ div.side-panel.close{
   0% {
     left: 0;
   }
-  
+
   100% {
     left: -400px;
   }
@@ -126,8 +126,8 @@ div.side-panel.close{
 @font-face {
   font-family: 'TransportHeavy';
   src: url('font/TransportHeavy.woff2') format('woff2'),
-      url('font/TransportHeavy.woff') format('woff'),
-      url("font/Transport\ Heavy.ttf") format('truetype');
+    url('font/TransportHeavy.woff') format('woff'),
+    url("font/Transport\ Heavy.ttf") format('truetype');
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -136,8 +136,8 @@ div.side-panel.close{
 @font-face {
   font-family: 'TransportMedium';
   src: url('font/TransportMedium.woff2') format('woff2'),
-      url('font/TransportMedium.woff') format('woff'),
-      url("font/Transport\ Medium.ttf") format('truetype');
+    url('font/TransportMedium.woff') format('woff'),
+    url("font/Transport\ Medium.ttf") format('truetype');
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -150,7 +150,7 @@ div.side-panel.close{
   height: 50px;
   position: relative;
   width: 90%;
-  padding: 4px 20px ;
+  padding: 4px 20px;
   margin-top: 20px;
 }
 
@@ -164,7 +164,7 @@ div.side-panel.close{
   font-size: 18px;
   height: 100%;
   outline: 0;
-  padding: 4px 20px ;
+  padding: 4px 20px;
   width: 100%;
 }
 
@@ -177,16 +177,16 @@ div.side-panel.close{
   top: -14px;
   transition: border 100ms ease-out, width 100ms ease-out, height 100ms ease-out;
   width: 76px;
-  border:1px solid #ccc;
+  border: 1px solid #ccc;
 }
 
 .cut-short {
   width: 50px;
 }
 
-.input:focus ~ .cut,
-.input:not(:placeholder-shown) ~ .cut {
-  border:2px solid #eee;
+.input:focus~.cut,
+.input:not(:placeholder-shown)~.cut {
+  border: 2px solid #eee;
   width: 74px;
   height: 15px;
   top: -12px;
@@ -202,7 +202,7 @@ div.side-panel.close{
   font-size: 12px;
   top: -10px;
   text-align: center;
-  font-weight:lighter;
+  font-weight: lighter;
   transition: font-weight 500ms ease-out, top 500ms ease-out, color 500ms ease-out;
 }
 
@@ -231,4 +231,27 @@ div.side-panel.close{
   transition-duration: 0.4s;
   cursor: pointer;
   border-radius: 10px;
+}
+
+#context-menu {
+  display: none;
+  position: absolute;
+  background-color: white;
+  border: 1px solid black;
+  z-index: 1000;
+}
+
+#context-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#context-menu li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+#context-menu li:hover {
+  background-color: #ddd;
 }
