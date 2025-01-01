@@ -17,21 +17,57 @@ var TextBlock = fabric.util.createClass(fabric.Textbox, {
   }
 });
 
+class GlyphGroup extends fabric.Group{
+  constructor(polygons, options){
+    super(polygons, options);
+    this.subObjects = []
+    polygons.forEach(p =>{
+      p.vertex.forEach(v => {
+        // Draw a halftone circle 
+      const circle = new fabric.Circle({
+        left: v.x,
+        top: v.y,
+        radius: 15,
+        fill: 'rgba(180, 180, 180, 0.5)',
+        selectable: false,
+        originX: 'center',
+        originY: 'center',
+      });
+      this.subObjects.push(circle);
+
+      // Add a text label 
+      const text = new fabric.Text(v.label, {
+        left: v.x,
+        top: v.y - 30,
+        fontSize: 20,
+        fill: 'red',
+        selectable: false,
+        originX: 'center',
+        originY: 'center',
+      });
+      this.subObjects.push(text);
+      })
+    })
+
+  }
+}
+
 class GlyphPolygon extends fabric.Polygon {
   constructor(vertex, options) {
     super(vertex.map(p => ({ x: p.x, y: p.y })), options);
-    vertex.forEach((p) =>{
+    vertex.forEach((p) => {
       p.x = p.x + options.left;
       p.y = p.y + options.top
     });
     this.vertex = vertex // Add a list inside the object
-    this.hints = [];
-    this.labels = [];
     this.on('moving', this.onMoving.bind(this)); // Listen for modifications
     this.on('modified', this.onMoving.bind(this)); // Listen for modifications
     this.on('selected', this.onSelected.bind(this)); // Show vertex hints when selected
     this.on('deselected', this.onDeselected.bind(this));
   }
+
+  }
+
 
   // Method to get the corners
   getCorners() {
@@ -66,13 +102,8 @@ class GlyphPolygon extends fabric.Polygon {
     transformedPoints.forEach((point, index) => {
       this.vertex[index].x = point.x;
       this.vertex[index].y = point.y;
-      this.hints[index].left = point.x;
-      this.hints[index].top = point.y;
-      this.labels[index].left = point.x;
-      this.labels[index].top = point.y - 30;
     });
 
-   
     canvas.renderAll();
 
   }
@@ -92,44 +123,16 @@ class GlyphPolygon extends fabric.Polygon {
   }
 
   onSelected() {
-    this.vertex.forEach((v) => {
-      // Draw a halftone circle 
-      const circle = new fabric.Circle({
-        left: v.x,
-        top: v.y,
-        radius: 15,
-        fill: 'rgba(180, 180, 180, 0.5)',
-        selectable: false,
-        originX: 'center',
-        originY: 'center',
-      });
-      this.hints.push(circle)
-      canvas.add(circle);
-
-      // Add a text label 
-      const text = new fabric.Text(v.label, {
-        left: v.x, 
-        top: v.y - 30,
-        fontSize: 20,
-        fill: 'red',
-        selectable: false,
-      });
-      this.labels.push(text)
-      canvas.add(text);
-      circle.bringToFront(); 
-      text.bringToFront();
-    })
+    if (this.group) {
+      this.group.set('opacity', 1);
+      canvas.renderAll();
+    }
   }
 
   onDeselected() {
-    this.hints.forEach((v) => {
-      if (v) canvas.remove(v);
-    });
-    this.labels.forEach((v) => {
-      if (v) canvas.remove(v);
-    });
-    this.hints = [];
-    this.labels = [];
+    if (this.group) { 
+      this.group.set('opacity', 1); 
+      canvas.renderAll(); }
   }
 
 }
