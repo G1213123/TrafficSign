@@ -45,6 +45,34 @@ canvas.on('mouse:wheel', function (opt) {
   DrawGrid()
 })
 
+
+// Add event listener for object:moving event on the canvas 
+canvas.on('object:moving', handleGroupMoving);
+
+// Function to handle the moving event for all selected objects
+function handleGroupMoving(event) {
+  const activeObject = event.target;
+
+  // Check if multiple objects are selected (active selection)
+  if (activeObject.type === 'activeSelection') {
+    // Iterate over all selected objects
+    activeObject._objects.forEach((obj) => {
+      // Check if the object has an onMoving function and call it
+      if (typeof obj.onMoving === 'function') {
+        obj.onMoving();
+      }
+    });
+  } else {
+    // Single object is selected, call its onMoving function if it exists
+    if (typeof activeObject.onMoving === 'function') {
+      activeObject.onMoving();
+    }
+  }
+
+  // Re-render the canvas
+  canvas.renderAll();
+}
+
 function DrawGrid() {
   options = {
     distance: 10,

@@ -90,7 +90,7 @@ let FormTextAddComponent = {
         left: left_pos,
         top: -5,
         fill: '#fff',
-        fontSize: parseInt(document.getElementById('input-xheight').value),
+        fontSize: parseInt(document.getElementById('input-xheight').value*2),
       })
       txt_char.lockScalingX = txt_char.lockScalingY = true;
       left_pos += txt_char.width

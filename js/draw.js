@@ -1,6 +1,6 @@
 xHeight = 100
-let canvasShapes = []; 
-let selectedArrow = null; 
+let canvasShapes = [];
+let selectedArrow = null;
 let selectedVertex = null;
 
 function PolarPoint(r, a) {
@@ -20,8 +20,17 @@ var TextBlock = fabric.util.createClass(fabric.Textbox, {
 class GlyphPolygon extends fabric.Polygon {
   constructor(vertex, options) {
     super(vertex.map(p => ({ x: p.x, y: p.y })), options);
-    this.vertex = vertex; // Add a list inside the object
-    this.on('modified', this.updateVertices.bind(this)); // Listen for modifications
+    vertex.forEach((p) =>{
+      p.x = p.x + options.left;
+      p.y = p.y + options.top
+    });
+    this.vertex = vertex // Add a list inside the object
+    this.hints = [];
+    this.labels = [];
+    this.on('moving', this.onMoving.bind(this)); // Listen for modifications
+    this.on('modified', this.onMoving.bind(this)); // Listen for modifications
+    this.on('selected', this.onSelected.bind(this)); // Show vertex hints when selected
+    this.on('deselected', this.onDeselected.bind(this));
   }
 
   // Method to get the corners
@@ -46,19 +55,26 @@ class GlyphPolygon extends fabric.Polygon {
   }
 
   // Method to update vertices
-  updateVertices() {
+  onMoving() {
     const transformedPoints = this.calculateTransformedPoints(this.points, {
       x: this.left,
       y: this.top,
       angle: this.angle
     });
-    // this.points = transformedPoints;
+
     // Update customList with new coordinates 
-    transformedPoints.forEach((point, index) => { 
-      this.vertex[index].x = point.x; 
-      this.vertex[index].y = point.y; 
+    transformedPoints.forEach((point, index) => {
+      this.vertex[index].x = point.x;
+      this.vertex[index].y = point.y;
+      this.hints[index].left = point.x;
+      this.hints[index].top = point.y;
+      this.labels[index].left = point.x;
+      this.labels[index].top = point.y - 30;
     });
-    console.log('Vertices updated:', this.vertex);
+
+   
+    canvas.renderAll();
+
   }
 
   // Method to calculate transformed points
@@ -74,6 +90,48 @@ class GlyphPolygon extends fabric.Polygon {
       return { x: rotatedX + x, y: rotatedY + y };
     });
   }
+
+  onSelected() {
+    this.vertex.forEach((v) => {
+      // Draw a halftone circle 
+      const circle = new fabric.Circle({
+        left: v.x,
+        top: v.y,
+        radius: 15,
+        fill: 'rgba(180, 180, 180, 0.5)',
+        selectable: false,
+        originX: 'center',
+        originY: 'center',
+      });
+      this.hints.push(circle)
+      canvas.add(circle);
+
+      // Add a text label 
+      const text = new fabric.Text(v.label, {
+        left: v.x, 
+        top: v.y - 30,
+        fontSize: 20,
+        fill: 'red',
+        selectable: false,
+      });
+      this.labels.push(text)
+      canvas.add(text);
+      circle.bringToFront(); 
+      text.bringToFront();
+    })
+  }
+
+  onDeselected() {
+    this.hints.forEach((v) => {
+      if (v) canvas.remove(v);
+    });
+    this.labels.forEach((v) => {
+      if (v) canvas.remove(v);
+    });
+    this.hints = [];
+    this.labels = [];
+  }
+
 }
 
 
@@ -152,6 +210,7 @@ function drawLabeledArrow(canvas, options) {
     top: y,
     fill: color || 'black',
     angle: angle || 0,
+    originX: 'center',
     objectCaching: false
   });
 
@@ -190,33 +249,36 @@ document.getElementById('set-anchor').addEventListener('click', function () {
     // Implement vertex selection logic here
 
     // For simplicity, we'll use prompt for input
-    const vertexIndex1 = parseInt(prompt('Enter vertex index for Arrow 1 (e.g., 0 for V1):', '0'));
-    const vertexIndex2 = parseInt(prompt('Enter vertex index for Arrow 2 (e.g., 0 for V1):', '0'));
+    const vertexIndex1 = parseInt(prompt('Enter vertex index for Arrow 1 (e.g., 1 for V1):', '0'));
+    const vertexIndex2 = parseInt(prompt('Enter vertex index for Arrow 2 (e.g., 1 for V1):', '0'));
     const spacingX = parseFloat(prompt('Enter spacing in X:', '0'));
     const spacingY = parseFloat(prompt('Enter spacing in Y:', '0'));
 
     const arrow1 = selectedArrow;
     const arrow2 = canvasShapes.find(a => a !== arrow1);
 
-    const point1 = arrow1.points[vertexIndex1];
-    const point2 = arrow2.points[vertexIndex2];
-    
+    const point1 = arrow1.points[vertexIndex1 - 1];
+    const point2 = arrow2.points[vertexIndex2 - 1];
+
     const transformedPointsArrow2 = calculateTransformedPoints(arrow2.points, {
       x: arrow2.left,
       y: arrow2.top,
       angle: arrow2.angle
     });
 
-    const targetPoint = transformedPointsArrow2[vertexIndex2];
+    const targetPoint = transformedPointsArrow2[vertexIndex2 - 1];
 
     // Snap arrow 1 to arrow 2 with the specified spacing
     arrow1.set({
       left: targetPoint.x - point1.x + spacingX,
       top: targetPoint.y - point1.y + spacingY
     });
+
+    arrow1.updateVertices()
     canvas.renderAll();
   }
 });
+
 
 
 function initShape() {
@@ -238,9 +300,10 @@ function initShape() {
     fontSize: 10
   })
   canvas.add(block)
-  const arrowOptions = { x: 100, y: 100, length: 25, angle: 0, color: 'white' };
-  arrow1 = drawLabeledArrow(canvas, arrowOptions);
-  arrow2 = drawLabeledArrow(canvas, arrowOptions);
+  const arrowOptions1 = { x: 0, y: 0, length: 25, angle: 0, color: 'white' };
+  const arrowOptions2 = { x: 100, y: 100, length: 25, angle: 0, color: 'white' };
+  arrow1 = drawLabeledArrow(canvas, arrowOptions1);
+  arrow2 = drawLabeledArrow(canvas, arrowOptions2);
 }
 AddPlate()
 initShape()
