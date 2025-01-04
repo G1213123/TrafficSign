@@ -255,3 +255,22 @@ div.side-panel.close {
 #context-menu li:hover {
   background-color: #ddd;
 }
+
+.cursor-box {
+  background-color: lightyellow;
+  padding: 5px;
+  border: 1px solid black;
+  display: none;
+  margin-bottom: 5px;
+  /* Initially hidden */
+}
+
+.cursor-box-contained{
+  position: absolute;
+  display: flex; 
+  flex-direction: column;
+  align-items: left;
+}
+
+
+  /* Position the answer box 5px to the right of the prompt box */

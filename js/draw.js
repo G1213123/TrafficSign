@@ -2,6 +2,7 @@ xHeight = 100
 let canvasShapes = [];
 let selectedArrow = null;
 let selectedVertex = null;
+let cursorClickMode = 'normal'
 
 function PolarPoint(r, a) {
   return new fabric.Point(r * Math.cos(a), r * Math.sin(a))
@@ -147,6 +148,19 @@ function drawBasePolygon(points, options){
   baseGroup.addWithUpdate(baseGroup.polygons);
 
   baseGroup.subObjects = []
+  
+  const loactionText = new fabric.Text(
+    `X: ${baseGroup.left} \nY: ${baseGroup.top}`,
+    {
+    left: baseGroup.left,
+    top: baseGroup.top,
+    fontSize: 20,
+    fill: 'red',
+    selectable: false,
+    opacity: 0,
+  });
+  baseGroup.subObjects.push(loactionText);
+  baseGroup.loactionText = loactionText
 
   baseGroup.polygons.vertex.forEach(v => {
       // Draw a halftone circle 
@@ -154,7 +168,9 @@ function drawBasePolygon(points, options){
       left: v.x,
       top: v.y,
       radius: 15,
-      fill: 'rgba(180, 180, 180, 0.5)',
+      strokeWidth: 1,
+      stroke: "red",
+      fill: 'rgba(180, 180, 180, 0.2)',
       selectable: false,
       originX: 'center',
       originY: 'center',
@@ -206,6 +222,12 @@ function drawBasePolygon(points, options){
       opacity: 1 }); 
       canvas.renderAll(); 
     });
+
+  baseGroup.on('modified', function() { 
+    baseGroup.loactionText.set(
+      'text', `X: ${baseGroup.left} \nY: ${baseGroup.top}`
+    );
+  })
   
   return baseGroup
   
@@ -247,15 +269,31 @@ function drawLabeledArrow(canvas, options) {
 // Context menu
 const contextMenu = document.getElementById('context-menu');
 
-canvas.on('mouse:down', function (event) {
-  if (event.e.button === 2) { // Right click
-    event.e.preventDefault();
-    const pointer = canvas.getPointer(event.e);
-    contextMenu.style.top = `${event.e.clientY}px`;
-    contextMenu.style.left = `${event.e.clientX}px`;
-    contextMenu.style.display = 'block';
-    selectedArrow = canvas.getActiveObject();
+function clickModelHandler (event){
+  switch (cursorClickMode){
+    case 'normal':{
+      if (event.e.button === 2 && event.target) { // Right click
+        event.e.preventDefault();
+        contextMenu.style.top = `${event.e.clientY}px`;
+        contextMenu.style.left = `${event.e.clientX}px`;
+        contextMenu.style.display = 'block';
+        selectedArrow = event.target;
+        cursorClickMode = 'select'
+      }
+    }
+    break;
+    case 'select':{
+      if (event.e.button === 0 && event.target){
+        selectedArrow = event.target;
+        cursorClickMode = 'normal'
+      }
+    }
+    break;
   }
+}
+
+canvas.on('mouse:down', function (event) {
+  clickModelHandler(event)
 });
 
 document.addEventListener('click', function () {
@@ -266,42 +304,97 @@ document.addEventListener('contextmenu', function (event) {
   event.preventDefault();
 });
 
+function updatePosition(event) { 
+  const promptBox = document.getElementById('cursorBoxContainer');
+  promptBox.style.left = `${event.clientX + 10}px`; 
+  promptBox.style.top = `${event.clientY + 10}px`; 
+}
+
+document.addEventListener('mousemove', updatePosition);
+
+let resolveAnswer;
+
+function showTextBox(text, withAnswerBox = null) {
+  const promptBox = document.getElementById('cursorTextBox');
+  const answerBox = document.getElementById('cursorAnswerBox');
+
+  promptBox.innerText = text;
+  promptBox.style.display = 'block';
+
+  if (withAnswerBox) {
+    answerBox.style.display = 'block';
+    answerBox.value = withAnswerBox;
+    answerBox.focus();
+
+    // Handle user input and resolve the answer
+    return new Promise((resolve) => {
+      answerBox.addEventListener('keydown', function handleKeyDown(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          resolve(answerBox.value);
+          hideTextBox();
+          answerBox.removeEventListener('keydown', handleKeyDown);
+        }
+      });
+    });
+  } else {
+    answerBox.style.display = 'none';
+    return Promise.resolve();
+  }
+  // document.dispatchEvent(new Event('mousemove'))
+}
+
+function hideTextBox() { 
+  const promptBox = document.getElementById('cursorTextBox'); 
+  const answerBox = document.getElementById('cursorAnswerBox'); 
+  promptBox.style.display = 'none'; 
+  answerBox.style.display = 'none'; 
+}
+
 document.getElementById('set-anchor').addEventListener('click', function () {
   if (selectedArrow) {
     // Implement vertex selection logic here
+    const shape1 = selectedArrow
+    selectedArrow = null
+    // prompt for user to select shape
+    showTextBox('Select shape to anchor to')
+    // Update text box position to follow the cursor 
 
-    // For simplicity, we'll use prompt for input
-    const vertexIndex1 = parseInt(prompt('Enter vertex index for Arrow 1 (e.g., 1 for V1):', '1'));
-    const vertexIndex2 = parseInt(prompt('Enter vertex index for Arrow 2 (e.g., 1 for V1):', '1'));
-    const spacingX = parseFloat(prompt('Enter spacing in X:', '100'));
-    const spacingY = parseFloat(prompt('Enter spacing in Y:', '0'));
-
-    const arrow1 = selectedArrow;
-    const arrow2 = canvasShapes.find(a => a !== arrow1);
-
-    const point1 = arrow1.polygons.points[vertexIndex1 - 1];
-    const point2 = arrow2.polygons.points[vertexIndex2 - 1];
-
-    const transformedPointsArrow2 = calculateTransformedPoints(arrow2.polygons.points, {
-      x: arrow2.left,
-      y: arrow2.top,
-      angle: arrow2.angle
-    });
-
-    const targetPoint = transformedPointsArrow2[vertexIndex2 - 1];
-
-    // Snap arrow 1 to arrow 2 with the specified spacing
-    arrow1.set({
-      left: targetPoint.x - point1.x + spacingX,
-      top: targetPoint.y - point1.y + spacingY
-    });
-
-    //arrow1.polygons.updateVertices()
-    canvas.renderAll();
+    // Periodically check if shape is selected 
+    const checkShapeInterval = setInterval(() => 
+      { if (selectedArrow) { 
+        clearInterval(checkShapeInterval)
+        hideTextBox()
+        anchorShape(shape1, selectedArrow); 
+      } }, 100); // Check every 100ms
   }
 });
 
+async function anchorShape (arrow1, arrow2){
+  // For simplicity, we'll use prompt for input
+  const vertexIndex1 = await showTextBox('Enter vertex index for Arrow 1 (e.g., 1 for V1):', 1);
+  const vertexIndex2 = await showTextBox('Enter vertex index for Arrow 2 (e.g., 1 for V1):', 1);
+  const spacingX = await showTextBox('Enter spacing in X:', 100);
+  const spacingY = await showTextBox('Enter spacing in Y:', 100);
 
+  const point1 = arrow1.  polygons.points[vertexIndex1 - 1];
+
+  const transformedPointsArrow2 = calculateTransformedPoints(arrow2.polygons.points, {
+    x: arrow2.left,
+    y: arrow2.top,
+    angle: arrow2.angle
+  });
+
+  const targetPoint = transformedPointsArrow2[vertexIndex2 - 1];
+
+  // Snap arrow 1 to arrow 2 with the specified spacing
+  arrow1.set({
+    left: targetPoint.x - point1.x + spacingX,
+    top: targetPoint.y - point1.y + spacingY
+  });
+
+  //arrow1.polygons.updateVertices()
+  canvas.renderAll();
+}
 
 function initShape() {
   routeMap = new fabric.Group()
