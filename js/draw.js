@@ -80,7 +80,8 @@ class GlyphPolygon extends fabric.Polygon {
       p.y = p.y + options.top
     });
     this.vertex = vertex // Add a list inside the object
-    this.on('moving', this.onMoving.bind(this)); // Listen for modifications
+    this.insertPoint = vertex[0]
+    // this.on('moving', this.onMoving.bind(this)); // Listen for modifications
     this.on('modified', this.onMoving.bind(this)); // Listen for modifications
   }
 
@@ -119,38 +120,21 @@ class GlyphPolygon extends fabric.Polygon {
       this.vertex[index].y = point.y;
     });
 
+    this.insertPoint = this.vertex[0]
     canvas.renderAll();
 
   }
 
-  // Method to calculate transformed points
-  calculateTransformedPoints(points, options) {
-    const { x, y, angle } = options;
-    const radians = fabric.util.degreesToRadians(angle);
-
-    return points.map(point => {
-      const translatedX = point.x;
-      const translatedY = point.y;
-      const rotatedX = translatedX * Math.cos(radians) - translatedY * Math.sin(radians);
-      const rotatedY = translatedX * Math.sin(radians) + translatedY * Math.cos(radians);
-      return { x: rotatedX + x, y: rotatedY + y };
-    });
-  }
-
-  updateVertices(){
-
-  }
 }
 
 function drawBasePolygon(points, options){
   const baseGroup = new fabric.Group();
   baseGroup.polygons = new GlyphPolygon(points, options)
   baseGroup.addWithUpdate(baseGroup.polygons);
-
   baseGroup.subObjects = []
   
   const loactionText = new fabric.Text(
-    `X: ${baseGroup.left} \nY: ${baseGroup.top}`,
+    `X: ${baseGroup.polygons.insertPoint.x} \nY: ${baseGroup.polygons.insertPoint.x}`,
     {
     left: baseGroup.left,
     top: baseGroup.top,
@@ -196,6 +180,8 @@ function drawBasePolygon(points, options){
     baseGroup.addWithUpdate(obj);
   })
 
+  baseGroup.refTopLeft = {top:baseGroup.top, left:baseGroup.left}
+  
   baseGroup.on('selected', ()=>{
     baseGroup.subObjects.forEach(obj => {
       obj.set('opacity', 1)
@@ -224,10 +210,36 @@ function drawBasePolygon(points, options){
     });
 
   baseGroup.on('modified', function() { 
-    baseGroup.loactionText.set(
-      'text', `X: ${baseGroup.left} \nY: ${baseGroup.top}`
-    );
+    updateCoord(baseGroup, baseGroup.refTopLeft)  
   })
+
+  baseGroup.on('moving', function(){
+    updateCoord(baseGroup, baseGroup.refTopLeft)  
+  })
+
+  function updateCoord (newTopLeft, baseTopLeft){
+    updateX = newTopLeft.left - baseTopLeft.left
+    updateY = newTopLeft.top - baseTopLeft.top
+
+    const transformedPoints = calculateTransformedPoints(baseGroup.polygons.vertex, {
+      x: updateX,
+      y: updateY,
+      angle: baseGroup.angle
+    });
+
+    // Update customList with new coordinates 
+    transformedPoints.forEach((point, index) => {
+      baseGroup.polygons.vertex[index].x = point.x;
+      baseGroup.polygons.vertex[index].y = point.y;
+    });
+
+    baseGroup.polygons.insertPoint = transformedPoints[0]
+    baseGroup.loactionText.set(
+      'text', `X: ${baseGroup.polygons.insertPoint.x} \nY: ${baseGroup.polygons.insertPoint.y}`
+    );
+    baseGroup.refTopLeft = {top:newTopLeft.top, left:newTopLeft.left}
+    canvas.renderAll();
+  }
   
   return baseGroup
   
@@ -278,8 +290,10 @@ function clickModelHandler (event){
         contextMenu.style.left = `${event.e.clientX}px`;
         contextMenu.style.display = 'block';
         selectedArrow = event.target;
-        cursorClickMode = 'select'
+      } else {
+        contextMenu.style.display = 'none';
       }
+      
     }
     break;
     case 'select':{
@@ -287,6 +301,7 @@ function clickModelHandler (event){
         selectedArrow = event.target;
         cursorClickMode = 'normal'
       }
+
     }
     break;
   }
@@ -296,9 +311,6 @@ canvas.on('mouse:down', function (event) {
   clickModelHandler(event)
 });
 
-document.addEventListener('click', function () {
-  contextMenu.style.display = 'none';
-});
 
 document.addEventListener('contextmenu', function (event) {
   event.preventDefault();
@@ -330,7 +342,7 @@ function showTextBox(text, withAnswerBox = null) {
     return new Promise((resolve) => {
       answerBox.addEventListener('keydown', function handleKeyDown(event) {
         if (event.key === 'Enter' || event.key === ' ') {
-          resolve(answerBox.value);
+          resolve(parseInt(answerBox.value));
           hideTextBox();
           answerBox.removeEventListener('keydown', handleKeyDown);
         }
@@ -352,13 +364,14 @@ function hideTextBox() {
 
 document.getElementById('set-anchor').addEventListener('click', function () {
   if (selectedArrow) {
+    this.style.display = 'none';
     // Implement vertex selection logic here
     const shape1 = selectedArrow
     selectedArrow = null
     // prompt for user to select shape
     showTextBox('Select shape to anchor to')
     // Update text box position to follow the cursor 
-
+    cursorClickMode = 'select'
     // Periodically check if shape is selected 
     const checkShapeInterval = setInterval(() => 
       { if (selectedArrow) { 
@@ -376,20 +389,25 @@ async function anchorShape (arrow1, arrow2){
   const spacingX = await showTextBox('Enter spacing in X:', 100);
   const spacingY = await showTextBox('Enter spacing in Y:', 100);
 
-  const point1 = arrow1.  polygons.points[vertexIndex1 - 1];
+  const point1 = calculateTransformedPoints(arrow1.polygons.vertex, {
+    x: arrow1.left,
+    y: arrow1.top,
+    angle: arrow1.angle
+  });
 
-  const transformedPointsArrow2 = calculateTransformedPoints(arrow2.polygons.points, {
+  const transformedPointsArrow2 = calculateTransformedPoints(arrow2.polygons.vertex, {
     x: arrow2.left,
     y: arrow2.top,
     angle: arrow2.angle
   });
 
-  const targetPoint = transformedPointsArrow2[vertexIndex2 - 1];
+  const movingPoint = arrow1.polygons.vertex[vertexIndex1-1]
+  const targetPoint = arrow2.polygons.vertex[vertexIndex2 - 1];
 
   // Snap arrow 1 to arrow 2 with the specified spacing
   arrow1.set({
-    left: targetPoint.x - point1.x + spacingX,
-    top: targetPoint.y - point1.y + spacingY
+    left: arrow1.left + targetPoint.x - movingPoint.x + spacingX,
+    top: arrow1.top + targetPoint.y - movingPoint.y + spacingY
   });
 
   //arrow1.polygons.updateVertices()
