@@ -82,7 +82,7 @@ class GlyphPolygon extends fabric.Polygon {
     this.vertex = vertex // Add a list inside the object
     this.insertPoint = vertex[0]
     // this.on('moving', this.onMoving.bind(this)); // Listen for modifications
-    this.on('modified', this.onMoving.bind(this)); // Listen for modifications
+    // this.on('modified', this.onMoving.bind(this)); // Listen for modifications
   }
 
   // Method to get the corners
@@ -106,25 +106,6 @@ class GlyphPolygon extends fabric.Polygon {
     });
   }
 
-  // Method to update vertices
-  onMoving() {
-    const transformedPoints = this.calculateTransformedPoints(this.points, {
-      x: this.left,
-      y: this.top,
-      angle: this.angle
-    });
-
-    // Update customList with new coordinates 
-    transformedPoints.forEach((point, index) => {
-      this.vertex[index].x = point.x;
-      this.vertex[index].y = point.y;
-    });
-
-    this.insertPoint = this.vertex[0]
-    canvas.renderAll();
-
-  }
-
 }
 
 function drawBasePolygon(points, options){
@@ -133,6 +114,7 @@ function drawBasePolygon(points, options){
   baseGroup.addWithUpdate(baseGroup.polygons);
   baseGroup.subObjects = []
   
+  // debug text of the location of the group
   const loactionText = new fabric.Text(
     `X: ${baseGroup.polygons.insertPoint.x} \nY: ${baseGroup.polygons.insertPoint.x}`,
     {
@@ -146,6 +128,7 @@ function drawBasePolygon(points, options){
   baseGroup.subObjects.push(loactionText);
   baseGroup.loactionText = loactionText
 
+  // Draw the vertices and labels
   baseGroup.polygons.vertex.forEach(v => {
       // Draw a halftone circle 
     const circle = new fabric.Circle({
@@ -240,6 +223,8 @@ function drawBasePolygon(points, options){
     baseGroup.refTopLeft = {top:newTopLeft.top, left:newTopLeft.left}
     canvas.renderAll();
   }
+
+  baseGroup.updateCoord = updateCoord
   
   return baseGroup
   
@@ -281,9 +266,9 @@ function drawLabeledArrow(canvas, options) {
 // Context menu
 const contextMenu = document.getElementById('context-menu');
 
-function clickModelHandler (event){
-  switch (cursorClickMode){
-    case 'normal':{
+function clickModelHandler(event) {
+  switch (cursorClickMode) {
+    case 'normal': {
       if (event.e.button === 2 && event.target) { // Right click
         event.e.preventDefault();
         contextMenu.style.top = `${event.e.clientY}px`;
@@ -293,15 +278,14 @@ function clickModelHandler (event){
       } else {
         contextMenu.style.display = 'none';
       }
-      
     }
     break;
-    case 'select':{
-      if (event.e.button === 0 && event.target){
+    case 'select': {
+      if (event.e.button === 0 && event.target) {
         selectedArrow = event.target;
-        cursorClickMode = 'normal'
+        cursorClickMode = 'normal';
+        contextMenu.style.display = 'none'; // Ensure context menu is hidden
       }
-
     }
     break;
   }
@@ -364,7 +348,7 @@ function hideTextBox() {
 
 document.getElementById('set-anchor').addEventListener('click', function () {
   if (selectedArrow) {
-    this.style.display = 'none';
+    this.parentElement.parentElement.style.display = 'none';
     // Implement vertex selection logic here
     const shape1 = selectedArrow
     selectedArrow = null
@@ -375,6 +359,7 @@ document.getElementById('set-anchor').addEventListener('click', function () {
     // Periodically check if shape is selected 
     const checkShapeInterval = setInterval(() => 
       { if (selectedArrow) { 
+        cursorClickMode = 'normal'
         clearInterval(checkShapeInterval)
         hideTextBox()
         anchorShape(shape1, selectedArrow); 
@@ -409,8 +394,9 @@ async function anchorShape (arrow1, arrow2){
     left: arrow1.left + targetPoint.x - movingPoint.x + spacingX,
     top: arrow1.top + targetPoint.y - movingPoint.y + spacingY
   });
+  arrow1.setCoords()
+  arrow1.updateCoord(arrow1, arrow1.refTopLeft)
 
-  //arrow1.polygons.updateVertices()
   canvas.renderAll();
 }
 
