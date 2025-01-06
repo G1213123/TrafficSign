@@ -237,10 +237,11 @@ window.onload = () => {
   document.getElementById('show_hide').onclick = GeneralHandler.ShowHideSideBar;
   document.getElementById('btn_draw').onclick = FormDrawAddComponent.drawPanelInit
   document.getElementById('btn_text').onclick = FormTextAddComponent.textPanelInit
+  FormTextAddComponent.textPanelInit()
   document.onkeydown = function (e) {
     switch (e.keyCode) {
       case 27: // esc
-        GeneralHandler.ShowHideSideBar(e, 'off')
+        GeneralHandler.ShowHideSideBar(e)
     }
   }
 }
