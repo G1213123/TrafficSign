@@ -10,23 +10,47 @@ canvas.snap_pts = [];
 
 /* General Sidebar Panel */
 let GeneralHandler = {
+  panelOpened : true,
+  currentTab : 2,
   ShowHideSideBar: function (event, force = null) {
-    if (document.getElementById("side-panel").className.indexOf("open") !== -1 || force === 'off') {
-      document.getElementById("side-panel").className = "side-panel"
-      document.getElementById("side-panel").className += " close"
-      document.getElementById('show_hide').childNodes[0].className = "fa fa-angle-double-right"
-      GeneralHandler.PanelHandlerOff()
-      return
+    if (force === null){
+      if (document.getElementById("side-panel").className.indexOf("open") !== -1) {
+        GeneralHandler.HideSideBar()
+      }
+      if (document.getElementById("side-panel").className.indexOf("close") !== -1) {
+        GeneralHandler.ShowSideBar()
+      }
+    } else if (force === 'on'){
+      GeneralHandler.ShowSideBar()
+    } else {
+      GeneralHandler.HideSideBar()
     }
+  },
+  ShowSideBar: function (){
     document.getElementById("side-panel").className = "side-panel"
     document.getElementById("side-panel").className += " open"
     document.getElementById('show_hide').childNodes[0].className = "fa fa-angle-double-left"
+    GeneralHandler.panelOpened = true
   },
-  PanelHandlerOff: () => {
-    FormTextAddComponent.TextHandlerOff()
+  HideSideBar: function (){
+    document.getElementById("side-panel").className = "side-panel"
+    document.getElementById("side-panel").className += " close"
+    document.getElementById('show_hide').childNodes[0].className = "fa fa-angle-double-right"
+    GeneralHandler.panelOpened = false
+    GeneralHandler.PanelHandlerOff()
+  },
+  PanelHandlerOff: (tabNum) => {
+    switch(tabNum){
+      case 1:
+        FormTextAddComponent.TextHandlerOff()
+        FormTextAddComponent.textPanelInit()
+      case 2:
+        FormDrawAddComponent.drawPanelInit()
+    }
+    
   },
   PanelInit: () => {
-    GeneralHandler.ShowHideSideBar()
+    GeneralHandler.ShowHideSideBar(null, "on")
     GeneralHandler.PanelHandlerOff()
     if (document.getElementById("side-panel").className.indexOf("open") !== -1) {
       var parent = document.getElementById("input-form");
@@ -64,7 +88,7 @@ let GeneralHandler = {
 /* Text panel */
 let FormTextAddComponent = {
   textPanelInit: function () {
-    parent = GeneralHandler.PanelInit()
+    var parent = GeneralHandler.PanelInit()
     if (parent) {
       GeneralHandler.createinput('input-text', 'Add Text', parent, '', FormTextAddComponent.TextinputHandler, 'input')
       GeneralHandler.createinput('input-xheight', 'x Height', parent, 100)
@@ -124,7 +148,7 @@ let FormTextAddComponent = {
 /* Draw Panel */
 let FormDrawAddComponent = {
   drawPanelInit: function () {
-    parent = GeneralHandler.PanelInit()
+    var parent = GeneralHandler.PanelInit()
     if (parent) {
       GeneralHandler.createbutton('button-approach-arm', 'Add Approach arm', parent, 0, FormDrawAddComponent.drawApproachClick, 'click')
     }
