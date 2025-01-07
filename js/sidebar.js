@@ -83,6 +83,18 @@ let GeneralHandler = {
     label.innerHTML = labelTxt
     defaultv ? input.value = defaultv : input.value = ''
   },
+
+  createselect: function (name, labelTxt, options, parent, defaultv = null, callback = null, event = null) {
+    var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent)
+    var input = GeneralHandler.createNode("select", { 'class': 'input', 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
+    var label = GeneralHandler.createNode("label", { 'class': 'placeholder', 'for': name }, inputContainer)
+    for (var i = 0; i < options.length; i++) {
+      var option = document.createElement("option");
+      option.value = options[i];
+      option.text = options[i];
+      input.appendChild(option);
+  }
+  }
 }
 
 /* Text panel */
@@ -178,7 +190,7 @@ let FormDrawAddComponent = {
     }
   },
 
-  drawApproachMousedown: function (opt) {
+  drawApproachMousedown: (opt) => {
     var evt = opt.e;
     var point = canvas.getPointer(evt);
     if (evt.button == 0) {
@@ -257,10 +269,46 @@ let FormDrawAddComponent = {
 
 }
 
+/* Border Panel */
+let FormBorderWrapComponent = {
+  BorderType: {
+    "Blue Background": {
+      Fill: '#005FB9',
+      PaddingLeft: 2.5,
+      PaddingRight: 2.5,
+      PaddingTop: 2.5,
+      PaddingNBottom: 1.5,
+      FrameWidth: 1.5,
+      InnerCornerRadius: 1.5,
+      OuterCornerRadius: 1.5
+    },
+    "Green Background": {
+      Fill: '#00B95F',
+      PaddingLeft: 2.5,
+      PaddingRight: 2.5,
+      PaddingTop: 2.5,
+      PaddingNBottom: 1.5,
+      FrameWidth: 1.5,
+      InnerCornerRadius: 1.5,
+      OuterCornerRadius: 1.5
+    },
+  },
+  BorderPanelInit: function () {
+    var parent = GeneralHandler.PanelInit()
+    if (parent) {
+      GeneralHandler.createinput('input-xheight', 'x Height', parent, 100)
+      GeneralHandler.createselect('input-type', 'Select Border Type', Object.keys(FormBorderWrapComponent.BorderType), parent,'','','select')
+      GeneralHandler.createbutton('input-text', 'Select Objects for border', parent, '', FormTextAddComponent.TextinputHandler, 'input')
+    }
+  }
+}
+
+
 window.onload = () => {
   document.getElementById('show_hide').onclick = GeneralHandler.ShowHideSideBar;
   document.getElementById('btn_draw').onclick = FormDrawAddComponent.drawPanelInit
-  document.getElementById('btn_text').onclick = FormTextAddComponent.textPanelInit
+  document.getElementById('btn_text').onclick = FormTextAddComponent.textPanelInit 
+  document.getElementById('btn_border').onclick = FormBorderWrapComponent.BorderPanelInit 
   FormTextAddComponent.textPanelInit()
   document.onkeydown = function (e) {
     switch (e.keyCode) {
