@@ -1,4 +1,7 @@
 var canvas = this.__canvas = new fabric.Canvas('canvas', { fireMiddleClick: true, fireRightClick: true, });
+const ctx = canvas.getContext("2d")
+let activeObject = null
+let canvasObject = []
 
 window.addEventListener('resize', resizeCanvas, false);
 

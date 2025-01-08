@@ -4,35 +4,36 @@ cursor.lockScalingX = true;
 cursor.lockScalingY = true;
 cursor.lockUniScaling = true;
 
+
 canvas.add(cursor);
 
 canvas.snap_pts = [];
 
 /* General Sidebar Panel */
 let GeneralHandler = {
-  panelOpened : true,
-  currentTab : 2,
+  panelOpened: true,
+  currentTab: 2,
   ShowHideSideBar: function (event, force = null) {
-    if (force === null){
+    if (force === null) {
       if (document.getElementById("side-panel").className.indexOf("open") !== -1) {
         GeneralHandler.HideSideBar()
       }
       if (document.getElementById("side-panel").className.indexOf("close") !== -1) {
         GeneralHandler.ShowSideBar()
       }
-    } else if (force === 'on'){
+    } else if (force === 'on') {
       GeneralHandler.ShowSideBar()
     } else {
       GeneralHandler.HideSideBar()
     }
   },
-  ShowSideBar: function (){
+  ShowSideBar: function () {
     document.getElementById("side-panel").className = "side-panel"
     document.getElementById("side-panel").className += " open"
     document.getElementById('show_hide').childNodes[0].className = "fa fa-angle-double-left"
     GeneralHandler.panelOpened = true
   },
-  HideSideBar: function (){
+  HideSideBar: function () {
     document.getElementById("side-panel").className = "side-panel"
     document.getElementById("side-panel").className += " close"
     document.getElementById('show_hide').childNodes[0].className = "fa fa-angle-double-right"
@@ -40,14 +41,14 @@ let GeneralHandler = {
     GeneralHandler.PanelHandlerOff()
   },
   PanelHandlerOff: (tabNum) => {
-    switch(tabNum){
+    switch (tabNum) {
       case 1:
         FormTextAddComponent.TextHandlerOff()
         FormTextAddComponent.textPanelInit()
       case 2:
         FormDrawAddComponent.drawPanelInit()
     }
-    
+
   },
   PanelInit: () => {
     GeneralHandler.ShowHideSideBar(null, "on")
@@ -93,7 +94,7 @@ let GeneralHandler = {
       option.value = options[i];
       option.text = options[i];
       input.appendChild(option);
-  }
+    }
   }
 }
 
@@ -126,7 +127,7 @@ let FormTextAddComponent = {
         left: left_pos,
         top: -5,
         fill: '#fff',
-        fontSize: parseInt(document.getElementById('input-xheight').value*2),
+        fontSize: parseInt(document.getElementById('input-xheight').value * 2),
       })
       txt_char.lockScalingX = txt_char.lockScalingY = true;
       left_pos += txt_char.width
@@ -150,6 +151,7 @@ let FormTextAddComponent = {
     if (document.getElementById("input-text").value !== '' && event.button === 1) {
       cursor.clone(function (clonedObj) {
         canvas.add(clonedObj)
+        canvasObject.push(clonedObj)
         canvas.setActiveObject(clonedObj)
       })
     }
@@ -239,13 +241,13 @@ let FormDrawAddComponent = {
     var w = line.width
     var h = line.height
     var d = Math.sqrt(w ** 2 + h ** 2)
-    var r = Math.atan2((line.y2 - line.y1), (line.x2 - line.x1)) 
+    var r = Math.atan2((line.y2 - line.y1), (line.x2 - line.x1))
     var st = new fabric.Point(line.x1, line.y1)
     st.snap_type = 'end'
     if (d < 600) {
       new_end = st.add(PolarPoint(600, r))
-      line.x2=new_end.x
-      line.y2=new_end.y
+      line.x2 = new_end.x
+      line.y2 = new_end.y
     }
     var ed = new fabric.Point(line.x2, line.y2)
     ed.snap_type = 'end'
@@ -297,18 +299,64 @@ let FormBorderWrapComponent = {
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       GeneralHandler.createinput('input-xheight', 'x Height', parent, 100)
-      GeneralHandler.createselect('input-type', 'Select Border Type', Object.keys(FormBorderWrapComponent.BorderType), parent,'','','select')
-      GeneralHandler.createbutton('input-text', 'Select Objects for border', parent, '', FormTextAddComponent.TextinputHandler, 'input')
+      GeneralHandler.createselect('input-type', 'Select Border Type', Object.keys(FormBorderWrapComponent.BorderType), parent, '', '', 'select')
+      GeneralHandler.createbutton('input-text', 'Select Objects for border', parent, '', FormBorderWrapComponent.BorderCreateHandler, 'click')
     }
-  }
+  },
+  BorderCreateHandler: function () {
+    let xheight = parseInt(document.getElementById("input-xheight").value)
+    let borderType = FormBorderWrapComponent.BorderType[document.getElementById("input-type").value]
+    if (xheight > 0) {
+      if (canvas.getActiveObject()) {
+        const coords = canvas.getActiveObject().getCoords();
+        /*
+          coords[0]: Top-left corner
+          coords[1]: Top-right corner
+          coords[2]: Bottom-right corner
+          coords[3]: Bottom-left corner
+        */
+        // Function to calculate padded coordinates 
+        paddingCoords = function getPaddedCoords(coords, padLeft, padRight, padTop, padBottom) {
+          return [
+            { x: coords[0].x - padLeft, y: coords[0].y - padTop * xheight / 4 }, // Top-left 
+            { x: coords[1].x + padRight, y: coords[1].y - padTop * xheight / 4 }, // Top-right 
+            { x: coords[2].x + padRight, y: coords[2].y + padBottom * xheight / 4 }, // Bottom-right 
+            { x: coords[3].x - padLeft, y: coords[3].y + padBottom * xheight / 4 } // Bottom-left 
+          ];
+        }
+        innerBorder = paddingCoords(coords, borderType.PaddingLeft, borderType.PaddingRight, borderType.PaddingTop, borderType.PaddingNBottom,)
+        outerBorder = paddingCoords(innerBorder, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth,)
+        // draw rounded shape
+        var innerRect = new fabric.Rect({
+          left: innerBorder[0].x,
+          top: innerBorder[0].y,
+          fill: '#005FB9',
+          width: innerBorder[1].x - innerBorder[0].x,
+          height: innerBorder[2].x - innerBorder[0].y,
+          objectCaching: false,
+          rx: borderType.InnerCornerRadius *xheight /4,
+          ry: borderType.InnerCornerRadius *xheight /4,
+        });
+        canvas.add(innerRect);
+        canvas.setActiveObject(innerRect);
+        canvasObject.push(innerRect)
+
+      } else {
+        showTextBox('no shapes are being selected on canvas', 1)
+      }
+    } else {
+      showTextBox('x-height is incorrect', 1)
+    }
+  },
+
 }
 
 
 window.onload = () => {
   document.getElementById('show_hide').onclick = GeneralHandler.ShowHideSideBar;
   document.getElementById('btn_draw').onclick = FormDrawAddComponent.drawPanelInit
-  document.getElementById('btn_text').onclick = FormTextAddComponent.textPanelInit 
-  document.getElementById('btn_border').onclick = FormBorderWrapComponent.BorderPanelInit 
+  document.getElementById('btn_text').onclick = FormTextAddComponent.textPanelInit
+  document.getElementById('btn_border').onclick = FormBorderWrapComponent.BorderPanelInit
   FormTextAddComponent.textPanelInit()
   document.onkeydown = function (e) {
     switch (e.keyCode) {

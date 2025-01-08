@@ -1,8 +1,5 @@
 
 xHeight = 100
-let canvasShapes = [];
-let selectedArrow = null;
-let selectedVertex = null;
 let cursorClickMode = 'normal'
 
 function PolarPoint(r, a) {
@@ -226,6 +223,7 @@ function drawBasePolygon(points, options){
   }
 
   baseGroup.updateCoord = updateCoord
+  canvasObject.push(baseGroup)
   
   return baseGroup
   
@@ -261,7 +259,7 @@ function drawLabeledArrow(canvas, options) {
   canvas.add(arrow);
 
   // Register shape in canvas
-  canvasShapes.push(arrow)
+  canvasObject.push(arrow)
 }
 
 // Context menu
@@ -326,7 +324,7 @@ function showTextBox(text, withAnswerBox = null) {
     // Handle user input and resolve the answer
     return new Promise((resolve) => {
       answerBox.addEventListener('keydown', function handleKeyDown(event) {
-        if (event.key === 'Enter' || event.key === ' ') {
+        if (event.key === 'Enter' || event.key === ' ') { 
           resolve(parseInt(answerBox.value));
           hideTextBox();
           answerBox.removeEventListener('keydown', handleKeyDown);
