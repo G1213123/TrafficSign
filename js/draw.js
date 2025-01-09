@@ -7,7 +7,7 @@ let cursorClickMode = 'normal'
 const originalToObject = fabric.Object.prototype.toObject;
 const myAdditional = ['functionalType'];
 fabric.Object.prototype.toObject = function (additionalProperties) {
-    return originalToObject.call(this, myAdditional.concat(additionalProperties));
+  return originalToObject.call(this, myAdditional.concat(additionalProperties));
 }
 
 function PolarPoint(r, a) {
@@ -80,66 +80,64 @@ function calculateTransformedPoints(points, options) {
 
 class GlyphPolygon extends fabric.Polygon {
   constructor(vertex, options) {
-    super(vertex.map(p => ({ x: p.x, y: p.y })), options);
     vertex.forEach((p) => {
       p.x = p.x + options.left;
       p.y = p.y + options.top
     });
+    super(vertex.map(p => ({ x: p.x, y: p.y })), options);
     this.vertex = vertex // Add a list inside the object
     this.insertPoint = vertex[0]
     // this.on('moving', this.onMoving.bind(this)); // Listen for modifications
     // this.on('modified', this.onMoving.bind(this)); // Listen for modifications
+    this.left = this.getCorners().left
+    this.top = this.getCorners().top
+    this.setCoords()
   }
 
   // Method to get the corners
   getCorners() {
-    const { left, top, width, height, angle } = this.getBoundingRect();
-    const rad = fabric.util.degreesToRadians(angle);
+    const minX = Math.min(...this.vertex.map(v => v.x));
+    const maxX = Math.max(...this.vertex.map(v => v.x));
+    const minY = Math.min(...this.vertex.map(v => v.y));
+    const maxY = Math.max(...this.vertex.map(v => v.y));
 
-    // Calculate corners based on bounding box and rotation
-    const corners = [
-      { x: left, y: top }, // Top-left
-      { x: left + width, y: top }, // Top-right
-      { x: left + width, y: top + height }, // Bottom-right
-      { x: left, y: top + height } // Bottom-left
-    ];
-
-    return corners.map(corner => {
-      return {
-        x: (corner.x - left) * Math.cos(rad) - (corner.y - top) * Math.sin(rad) + left,
-        y: (corner.x - left) * Math.sin(rad) + (corner.y - top) * Math.cos(rad) + top
-      };
-    });
+    return {
+      left: minX,
+      right: maxX,
+      top: minY,
+      bottom: maxY
+    };
+    ;
   }
 
 }
 
-function drawBasePolygon(points, options){
+function drawBasePolygon(points, options) {
   const baseGroup = new fabric.Group();
   baseGroup.basePolygon = new GlyphPolygon(points, options)
   baseGroup.basePolygon.functinoalType = 'Polygon'
   baseGroup.anchoredPolygon = []
   baseGroup.addWithUpdate(baseGroup.basePolygon);
   baseGroup.subObjects = []
-  
+
   // debug text of the location of the group
   const loactionText = new fabric.Text(
     `X: ${baseGroup.basePolygon.insertPoint.x} \nY: ${baseGroup.basePolygon.insertPoint.x}`,
     {
-    left: baseGroup.left,
-    top: baseGroup.top,
-    fontSize: 20,
-    fill: 'red',
-    selectable: false,
-    opacity: 0,
-    functinoalType: 'locationText',
-  });
+      left: baseGroup.left,
+      top: baseGroup.top,
+      fontSize: 20,
+      fill: 'red',
+      selectable: false,
+      opacity: 0,
+      functinoalType: 'locationText',
+    });
   baseGroup.subObjects.push(loactionText);
   baseGroup.loactionText = loactionText
 
   // Draw the vertices and labels
   baseGroup.basePolygon.vertex.forEach(v => {
-      // Draw a halftone circle 
+    // Draw a halftone circle 
     const circle = new fabric.Circle({
       left: v.x,
       top: v.y,
@@ -168,53 +166,54 @@ function drawBasePolygon(points, options){
       functinoalType: 'vertexText',
     });
     baseGroup.subObjects.push(text);
-    })
-  
+  })
+
   baseGroup.subObjects.forEach(obj => {
     baseGroup.addWithUpdate(obj);
   })
 
-  baseGroup.refTopLeft = {top:baseGroup.top, left:baseGroup.left}
-  
-  baseGroup.on('selected', ()=>{
+  baseGroup.refTopLeft = { top: baseGroup.top, left: baseGroup.left }
+
+  baseGroup.on('selected', () => {
     baseGroup.subObjects.forEach(obj => {
       obj.set('opacity', 1)
     })
-    canvas.renderAll(); 
+    canvas.renderAll();
   });
 
-  baseGroup.on('deselected', ()=>{
+  baseGroup.on('deselected', () => {
     baseGroup.subObjects.forEach(obj => {
       obj.set('opacity', 0)
     })
-    canvas.renderAll(); 
+    canvas.renderAll();
   });
 
-  baseGroup.on('mouseover', function() { 
-    baseGroup.set({ 
+  baseGroup.on('mouseover', function () {
+    baseGroup.set({
       opacity: 0.5
-    }); 
-    canvas.renderAll(); 
-  }); 
-  
-  baseGroup.on('mouseout', function() { 
-    baseGroup.set({ 
-      opacity: 1 }); 
-      canvas.renderAll(); 
     });
+    canvas.renderAll();
+  });
+
+  baseGroup.on('mouseout', function () {
+    baseGroup.set({
+      opacity: 1
+    });
+    canvas.renderAll();
+  });
 
   baseGroup.on('modified', updateAllCoord)
 
   baseGroup.on('moving', updateAllCoord)
 
-  function updateAllCoord (){
+  function updateAllCoord() {
     updateCoord(baseGroup.basePolygon, baseGroup, baseGroup.refTopLeft, true)
-    baseGroup.anchoredPolygon.forEach((p)=>{
-      updateCoord(p, baseGroup, baseGroup.refTopLeft)   
+    baseGroup.anchoredPolygon.forEach((p) => {
+      updateCoord(p, baseGroup, baseGroup.refTopLeft)
     })
   }
 
-  function updateCoord (polygon, newTopLeft, baseTopLeft, updateLocationTex = false){
+  function updateCoord(polygon, newTopLeft, baseTopLeft, updateLocationTex = false) {
     updateX = newTopLeft.left - baseTopLeft.left
     updateY = newTopLeft.top - baseTopLeft.top
 
@@ -232,20 +231,20 @@ function drawBasePolygon(points, options){
 
     polygon.insertPoint = transformedPoints[0]
 
-    if (updateLocationTex){
+    if (updateLocationTex) {
       baseGroup.loactionText.set(
         'text', `X: ${polygon.insertPoint.x} \nY: ${polygon.insertPoint.y}`
       );
     }
-    baseGroup.refTopLeft = {top:newTopLeft.top, left:newTopLeft.left}
+    baseGroup.refTopLeft = { top: newTopLeft.top, left: newTopLeft.left }
     canvas.renderAll();
   }
 
   baseGroup.updateAllCoord = updateAllCoord
   canvasObject.push(baseGroup)
-  
+
   return baseGroup
-  
+
 }
 
 function drawLabeledArrow(canvas, options) {
@@ -270,7 +269,7 @@ function drawLabeledArrow(canvas, options) {
     top: y,
     fill: color || 'black',
     angle: angle || 0,
-    originX: 'center',
+    // originX: 'center',
     objectCaching: false
   });
 
@@ -297,7 +296,7 @@ function clickModelHandler(event) {
         contextMenu.style.display = 'none';
       }
     }
-    break;
+      break;
     case 'select': {
       if (event.e.button === 0 && event.target) {
         selectedArrow = event.target;
@@ -305,7 +304,7 @@ function clickModelHandler(event) {
         contextMenu.style.display = 'none'; // Ensure context menu is hidden
       }
     }
-    break;
+      break;
   }
 }
 
@@ -318,10 +317,10 @@ document.addEventListener('contextmenu', function (event) {
   event.preventDefault();
 });
 
-function updatePosition(event) { 
+function updatePosition(event) {
   const promptBox = document.getElementById('cursorBoxContainer');
-  promptBox.style.left = `${event.clientX + 10}px`; 
-  promptBox.style.top = `${event.clientY + 10}px`; 
+  promptBox.style.left = `${event.clientX + 10}px`;
+  promptBox.style.top = `${event.clientY + 10}px`;
 }
 
 document.addEventListener('mousemove', updatePosition);
@@ -343,7 +342,7 @@ function showTextBox(text, withAnswerBox = null) {
     // Handle user input and resolve the answer
     return new Promise((resolve) => {
       answerBox.addEventListener('keydown', function handleKeyDown(event) {
-        if (event.key === 'Enter' || event.key === ' ') { 
+        if (event.key === 'Enter' || event.key === ' ') {
           resolve(parseInt(answerBox.value));
           hideTextBox();
           answerBox.removeEventListener('keydown', handleKeyDown);
@@ -357,11 +356,11 @@ function showTextBox(text, withAnswerBox = null) {
   // document.dispatchEvent(new Event('mousemove'))
 }
 
-function hideTextBox() { 
-  const promptBox = document.getElementById('cursorTextBox'); 
-  const answerBox = document.getElementById('cursorAnswerBox'); 
-  promptBox.style.display = 'none'; 
-  answerBox.style.display = 'none'; 
+function hideTextBox() {
+  const promptBox = document.getElementById('cursorTextBox');
+  const answerBox = document.getElementById('cursorAnswerBox');
+  promptBox.style.display = 'none';
+  answerBox.style.display = 'none';
 }
 
 document.getElementById('set-anchor').addEventListener('click', function () {
@@ -375,24 +374,25 @@ document.getElementById('set-anchor').addEventListener('click', function () {
     // Update text box position to follow the cursor 
     cursorClickMode = 'select'
     // Periodically check if shape is selected 
-    const checkShapeInterval = setInterval(() => 
-      { if (selectedArrow) { 
+    const checkShapeInterval = setInterval(() => {
+      if (selectedArrow) {
         cursorClickMode = 'normal'
         clearInterval(checkShapeInterval)
         hideTextBox()
-        anchorShape(shape1, selectedArrow); 
-      } }, 100); // Check every 100ms
+        anchorShape(shape1, selectedArrow);
+      }
+    }, 100); // Check every 100ms
   }
 });
 
-async function anchorShape (Polygon1, Polygon2){
+async function anchorShape(Polygon1, Polygon2) {
   // For simplicity, we'll use prompt for input
   const vertexIndex1 = await showTextBox('Enter vertex index for Polygon 1 (e.g., 1 for V1):', 1);
   const vertexIndex2 = await showTextBox('Enter vertex index for Polygon 2 (e.g., 1 for V1):', 1);
   const spacingX = await showTextBox('Enter spacing in X:', 100);
   const spacingY = await showTextBox('Enter spacing in Y:', 100);
 
-  const movingPoint = Polygon1.basePolygon.vertex[vertexIndex1-1]
+  const movingPoint = Polygon1.basePolygon.vertex[vertexIndex1 - 1]
   const targetPoint = Polygon2.basePolygon.vertex[vertexIndex2 - 1];
 
   // Snap arrow 1 to arrow 2 with the specified spacing
@@ -401,28 +401,26 @@ async function anchorShape (Polygon1, Polygon2){
     top: Polygon1.top + targetPoint.y - movingPoint.y + spacingY
   });
   Polygon1.setCoords()
+  Polygon1.updateAllCoord()
+  
+  // Get the objects from group1 
+  const objectsInGroup1 = Polygon1.getObjects();
 
-  // Detach arrow1 object and reattach to arrow2
-  subObjectsToRegroup = Polygon1.subObjects.filter((obj) => {
-    return obj.functinoalType != 'locationText'
-  })
+  // Remove objects from group1 
+  Polygon1._restoreObjectsState(); 
 
-  subObjectsToRegroup.forEach((obj) => {
-    obj.clone((newObj) => {
-      Polygon2.addWithUpdate(newObj)
-      Polygon2.subObjects.push(newObj)
-    })
-    Polygon1.remove(obj)
-    canvas.remove(obj)
-  })
-  Polygon1.basePolygon.clone((newObj) =>{
-    newObj.left = Polygon1.basePolygon.left - Polygon2.left
-    newObj.top = Polygon1.basePolygon.top - Polygon2.top
-    newObj.vertex = Polygon1.basePolygon.vertex
-    Polygon2.anchoredPolygon.push(newObj)
-    Polygon2.addWithUpdate(newObj)
-  })
-  // Polygon2.vertex.push(Polygon1.vertex)
+  // Add the objects to group2 
+  objectsInGroup1.forEach(obj => { 
+    // Calculate the object's position relative to the canvas 
+    if (obj == Polygon1.basePolygon){
+      Polygon2.anchoredPolygon.push(obj)
+    } else if (obj.functinoalType != 'locationText'){
+      Polygon2.subObjects.push(obj)
+    }
+
+    Polygon2.addWithUpdate(obj); 
+    obj.setCoords(); });
+
   Polygon2.updateAllCoord()
 
   canvas.remove(Polygon1.basePolygon)
