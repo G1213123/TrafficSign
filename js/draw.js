@@ -1,6 +1,14 @@
 
 xHeight = 100
+let canvasObjectNumbering = 0
 let cursorClickMode = 'normal'
+
+// additional property for fabric object
+const originalToObject = fabric.Object.prototype.toObject;
+const myAdditional = ['functionalType'];
+fabric.Object.prototype.toObject = function (additionalProperties) {
+    return originalToObject.call(this, myAdditional.concat(additionalProperties));
+}
 
 function PolarPoint(r, a) {
   return new fabric.Point(r * Math.cos(a), r * Math.sin(a))
@@ -108,13 +116,15 @@ class GlyphPolygon extends fabric.Polygon {
 
 function drawBasePolygon(points, options){
   const baseGroup = new fabric.Group();
-  baseGroup.polygons = new GlyphPolygon(points, options)
-  baseGroup.addWithUpdate(baseGroup.polygons);
+  baseGroup.basePolygon = new GlyphPolygon(points, options)
+  baseGroup.basePolygon.functinoalType = 'Polygon'
+  baseGroup.anchoredPolygon = []
+  baseGroup.addWithUpdate(baseGroup.basePolygon);
   baseGroup.subObjects = []
   
   // debug text of the location of the group
   const loactionText = new fabric.Text(
-    `X: ${baseGroup.polygons.insertPoint.x} \nY: ${baseGroup.polygons.insertPoint.x}`,
+    `X: ${baseGroup.basePolygon.insertPoint.x} \nY: ${baseGroup.basePolygon.insertPoint.x}`,
     {
     left: baseGroup.left,
     top: baseGroup.top,
@@ -122,12 +132,13 @@ function drawBasePolygon(points, options){
     fill: 'red',
     selectable: false,
     opacity: 0,
+    functinoalType: 'locationText',
   });
   baseGroup.subObjects.push(loactionText);
   baseGroup.loactionText = loactionText
 
   // Draw the vertices and labels
-  baseGroup.polygons.vertex.forEach(v => {
+  baseGroup.basePolygon.vertex.forEach(v => {
       // Draw a halftone circle 
     const circle = new fabric.Circle({
       left: v.x,
@@ -140,6 +151,7 @@ function drawBasePolygon(points, options){
       originX: 'center',
       originY: 'center',
       opacity: 0,
+      functinoalType: 'vertexCircle',
     });
     baseGroup.subObjects.push(circle);
 
@@ -153,6 +165,7 @@ function drawBasePolygon(points, options){
       originX: 'center',
       originY: 'center',
       opacity: 0,
+      functinoalType: 'vertexText',
     });
     baseGroup.subObjects.push(text);
     })
@@ -190,19 +203,22 @@ function drawBasePolygon(points, options){
       canvas.renderAll(); 
     });
 
-  baseGroup.on('modified', function() { 
-    updateCoord(baseGroup, baseGroup.refTopLeft)  
-  })
+  baseGroup.on('modified', updateAllCoord)
 
-  baseGroup.on('moving', function(){
-    updateCoord(baseGroup, baseGroup.refTopLeft)  
-  })
+  baseGroup.on('moving', updateAllCoord)
 
-  function updateCoord (newTopLeft, baseTopLeft){
+  function updateAllCoord (){
+    updateCoord(baseGroup.basePolygon, baseGroup, baseGroup.refTopLeft, true)
+    baseGroup.anchoredPolygon.forEach((p)=>{
+      updateCoord(p, baseGroup, baseGroup.refTopLeft)   
+    })
+  }
+
+  function updateCoord (polygon, newTopLeft, baseTopLeft, updateLocationTex = false){
     updateX = newTopLeft.left - baseTopLeft.left
     updateY = newTopLeft.top - baseTopLeft.top
 
-    const transformedPoints = calculateTransformedPoints(baseGroup.polygons.vertex, {
+    const transformedPoints = calculateTransformedPoints(polygon.vertex, {
       x: updateX,
       y: updateY,
       angle: baseGroup.angle
@@ -210,19 +226,22 @@ function drawBasePolygon(points, options){
 
     // Update customList with new coordinates 
     transformedPoints.forEach((point, index) => {
-      baseGroup.polygons.vertex[index].x = point.x;
-      baseGroup.polygons.vertex[index].y = point.y;
+      polygon.vertex[index].x = point.x;
+      polygon.vertex[index].y = point.y;
     });
 
-    baseGroup.polygons.insertPoint = transformedPoints[0]
-    baseGroup.loactionText.set(
-      'text', `X: ${baseGroup.polygons.insertPoint.x} \nY: ${baseGroup.polygons.insertPoint.y}`
-    );
+    polygon.insertPoint = transformedPoints[0]
+
+    if (updateLocationTex){
+      baseGroup.loactionText.set(
+        'text', `X: ${polygon.insertPoint.x} \nY: ${polygon.insertPoint.y}`
+      );
+    }
     baseGroup.refTopLeft = {top:newTopLeft.top, left:newTopLeft.left}
     canvas.renderAll();
   }
 
-  baseGroup.updateCoord = updateCoord
+  baseGroup.updateAllCoord = updateAllCoord
   canvasObject.push(baseGroup)
   
   return baseGroup
@@ -366,35 +385,49 @@ document.getElementById('set-anchor').addEventListener('click', function () {
   }
 });
 
-async function anchorShape (arrow1, arrow2){
+async function anchorShape (Polygon1, Polygon2){
   // For simplicity, we'll use prompt for input
-  const vertexIndex1 = await showTextBox('Enter vertex index for Arrow 1 (e.g., 1 for V1):', 1);
-  const vertexIndex2 = await showTextBox('Enter vertex index for Arrow 2 (e.g., 1 for V1):', 1);
+  const vertexIndex1 = await showTextBox('Enter vertex index for Polygon 1 (e.g., 1 for V1):', 1);
+  const vertexIndex2 = await showTextBox('Enter vertex index for Polygon 2 (e.g., 1 for V1):', 1);
   const spacingX = await showTextBox('Enter spacing in X:', 100);
   const spacingY = await showTextBox('Enter spacing in Y:', 100);
 
-  const point1 = calculateTransformedPoints(arrow1.polygons.vertex, {
-    x: arrow1.left,
-    y: arrow1.top,
-    angle: arrow1.angle
-  });
-
-  const transformedPointsArrow2 = calculateTransformedPoints(arrow2.polygons.vertex, {
-    x: arrow2.left,
-    y: arrow2.top,
-    angle: arrow2.angle
-  });
-
-  const movingPoint = arrow1.polygons.vertex[vertexIndex1-1]
-  const targetPoint = arrow2.polygons.vertex[vertexIndex2 - 1];
+  const movingPoint = Polygon1.basePolygon.vertex[vertexIndex1-1]
+  const targetPoint = Polygon2.basePolygon.vertex[vertexIndex2 - 1];
 
   // Snap arrow 1 to arrow 2 with the specified spacing
-  arrow1.set({
-    left: arrow1.left + targetPoint.x - movingPoint.x + spacingX,
-    top: arrow1.top + targetPoint.y - movingPoint.y + spacingY
+  Polygon1.set({
+    left: Polygon1.left + targetPoint.x - movingPoint.x + spacingX,
+    top: Polygon1.top + targetPoint.y - movingPoint.y + spacingY
   });
-  arrow1.setCoords()
-  arrow1.updateCoord(arrow1, arrow1.refTopLeft)
+  Polygon1.setCoords()
+
+  // Detach arrow1 object and reattach to arrow2
+  subObjectsToRegroup = Polygon1.subObjects.filter((obj) => {
+    return obj.functinoalType != 'locationText'
+  })
+
+  subObjectsToRegroup.forEach((obj) => {
+    obj.clone((newObj) => {
+      Polygon2.addWithUpdate(newObj)
+      Polygon2.subObjects.push(newObj)
+    })
+    Polygon1.remove(obj)
+    canvas.remove(obj)
+  })
+  Polygon1.basePolygon.clone((newObj) =>{
+    newObj.left = Polygon1.basePolygon.left - Polygon2.left
+    newObj.top = Polygon1.basePolygon.top - Polygon2.top
+    newObj.vertex = Polygon1.basePolygon.vertex
+    Polygon2.anchoredPolygon.push(newObj)
+    Polygon2.addWithUpdate(newObj)
+  })
+  // Polygon2.vertex.push(Polygon1.vertex)
+  Polygon2.updateAllCoord()
+
+  canvas.remove(Polygon1.basePolygon)
+  canvas.remove(Polygon1)
+  canvasObject.pop(Polygon1)
 
   canvas.renderAll();
 }
@@ -420,8 +453,8 @@ function initShape() {
   canvas.add(block)
   const arrowOptions1 = { x: 0, y: 0, length: 25, angle: 0, color: 'white' };
   const arrowOptions2 = { x: 100, y: 100, length: 25, angle: 0, color: 'white' };
-  arrow1 = drawLabeledArrow(canvas, arrowOptions1);
-  arrow2 = drawLabeledArrow(canvas, arrowOptions2);
+  Polygon1 = drawLabeledArrow(canvas, arrowOptions1);
+  Polygon2 = drawLabeledArrow(canvas, arrowOptions2);
 }
 AddPlate()
 initShape()

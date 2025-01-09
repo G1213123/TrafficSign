@@ -307,8 +307,9 @@ let FormBorderWrapComponent = {
     let xheight = parseInt(document.getElementById("input-xheight").value)
     let borderType = FormBorderWrapComponent.BorderType[document.getElementById("input-type").value]
     if (xheight > 0) {
-      if (canvas.getActiveObject()) {
-        const coords = canvas.getActiveObject().getCoords();
+      let activeObject = canvas.getActiveObject()
+      if (activeObject) {
+        const coords = activeObject.getCoords();
         /*
           coords[0]: Top-left corner
           coords[1]: Top-right corner
@@ -330,12 +331,12 @@ let FormBorderWrapComponent = {
         var innerRect = new fabric.Rect({
           left: innerBorder[0].x,
           top: innerBorder[0].y,
-          fill: '#005FB9',
+          fill: borderType.fill,
           width: innerBorder[1].x - innerBorder[0].x,
           height: innerBorder[2].x - innerBorder[0].y,
           objectCaching: false,
-          rx: borderType.InnerCornerRadius *xheight /4,
-          ry: borderType.InnerCornerRadius *xheight /4,
+          rx: borderType.InnerCornerRadius * xheight /4,
+          ry: borderType.InnerCornerRadius * xheight /4,
         });
         canvas.add(innerRect);
         canvas.setActiveObject(innerRect);
