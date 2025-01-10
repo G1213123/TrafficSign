@@ -114,6 +114,7 @@ class GlyphPolygon extends fabric.Polygon {
 
 function drawBasePolygon(points, options) {
   const baseGroup = new fabric.Group();
+  canvas.add(baseGroup)
   baseGroup.basePolygon = new GlyphPolygon(points, options)
   baseGroup.basePolygon.functinoalType = 'Polygon'
   baseGroup.anchoredPolygon = []
@@ -237,6 +238,7 @@ function drawBasePolygon(points, options) {
       );
     }
     baseGroup.refTopLeft = { top: newTopLeft.top, left: newTopLeft.left }
+    polygon.setCoords();
     canvas.renderAll();
   }
 
@@ -273,11 +275,6 @@ function drawLabeledArrow(canvas, options) {
     objectCaching: false
   });
 
-  // Add the arrow to the canvas
-  canvas.add(arrow);
-
-  // Register shape in canvas
-  canvasObject.push(arrow)
 }
 
 // Context menu

@@ -275,14 +275,15 @@ let FormDrawAddComponent = {
 let FormBorderWrapComponent = {
   BorderType: {
     "Blue Background": {
-      Fill: '#005FB9',
+      Fill: '#0000FE',
       PaddingLeft: 2.5,
       PaddingRight: 2.5,
       PaddingTop: 2.5,
       PaddingNBottom: 1.5,
       FrameWidth: 1.5,
+      FrameFill : 'white',
       InnerCornerRadius: 1.5,
-      OuterCornerRadius: 1.5
+      OuterCornerRadius: 3
     },
     "Green Background": {
       Fill: '#00B95F',
@@ -308,8 +309,32 @@ let FormBorderWrapComponent = {
     let borderType = FormBorderWrapComponent.BorderType[document.getElementById("input-type").value]
     if (xheight > 0) {
       let activeObject = canvas.getActiveObject()
-      if (activeObject) {
-        const coords = activeObject.getCoords();
+      if (activeObject.basePolygon) {
+        let borderinginObjects = activeObject.anchoredPolygon
+        borderinginObjects.push(activeObject.basePolygon)
+
+        // Function to get the bounding box of specific objects
+        function getBoundingBox(objects, group) {
+          let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+          objects.forEach(obj => {
+            obj.setCoords(); // Update the coordinates
+            const aCoords = obj.aCoords;
+            minX = Math.min(minX, aCoords.tl.x + group.left + group.width / 2);
+            minY = Math.min(minY, aCoords.tl.y + group.top + group.height / 2); // https://stackoverflow.com/questions/29829475/how-to-get-the-canvas-relative-position-of-an-object-that-is-in-a-group
+            maxX = Math.max(maxX, aCoords.br.x+ group.left + group.width / 2);
+            maxY = Math.max(maxY, aCoords.br.y+ group.top + group.height / 2);
+          });
+
+          return [
+            { x: minX, y: minY }, // Top-left corner
+            { x: maxX, y: minY }, // Top-right corner
+            { x: maxX, y: maxY }, // Bottom-right corner
+            { x: minX, y: maxY }  // Bottom-left corner
+          ];
+        }
+        // Get the bounding box of the active selection 
+        const coords = getBoundingBox(borderinginObjects, activeObject)
         /*
           coords[0]: Top-left corner
           coords[1]: Top-right corner
@@ -319,31 +344,36 @@ let FormBorderWrapComponent = {
         // Function to calculate padded coordinates 
         paddingCoords = function getPaddedCoords(coords, padLeft, padRight, padTop, padBottom) {
           return [
-            { x: coords[0].x - padLeft, y: coords[0].y - padTop * xheight / 4 }, // Top-left 
-            { x: coords[1].x + padRight, y: coords[1].y - padTop * xheight / 4 }, // Top-right 
-            { x: coords[2].x + padRight, y: coords[2].y + padBottom * xheight / 4 }, // Bottom-right 
-            { x: coords[3].x - padLeft, y: coords[3].y + padBottom * xheight / 4 } // Bottom-left 
+            { x: coords[0].x - padLeft * xheight / 4, y: coords[0].y - padTop * xheight / 4 }, // Top-left 
+            { x: coords[1].x + padRight* xheight / 4, y: coords[1].y - padTop * xheight / 4 }, // Top-right 
+            { x: coords[2].x + padRight* xheight / 4, y: coords[2].y + padBottom * xheight / 4 }, // Bottom-right 
+            { x: coords[3].x - padLeft * xheight / 4, y: coords[3].y + padBottom * xheight / 4 } // Bottom-left 
           ];
         }
         innerBorder = paddingCoords(coords, borderType.PaddingLeft, borderType.PaddingRight, borderType.PaddingTop, borderType.PaddingNBottom,)
         outerBorder = paddingCoords(innerBorder, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth,)
+        
         // draw rounded shape
-        var innerRect = new fabric.Rect({
-          left: innerBorder[0].x,
-          top: innerBorder[0].y,
-          fill: borderType.fill,
-          width: innerBorder[1].x - innerBorder[0].x,
-          height: innerBorder[2].x - innerBorder[0].y,
-          objectCaching: false,
-          rx: borderType.InnerCornerRadius * xheight /4,
-          ry: borderType.InnerCornerRadius * xheight /4,
-        });
-        canvas.add(innerRect);
-        canvas.setActiveObject(innerRect);
-        canvasObject.push(innerRect)
+        drawBorder = function (BorderCoord, fill, radius, addToGroup){
+          var Rect =  new fabric.Rect({
+            left: BorderCoord[0].x,
+            top: BorderCoord[0].y,
+            fill: fill,
+            width: BorderCoord[1].x - BorderCoord[0].x,
+            height: BorderCoord[2].y - BorderCoord[0].y,
+            objectCaching: false,
+            rx: radius * xheight / 4,
+            ry: radius * xheight / 4,
+          });
+          canvas.add(Rect);
+          canvas.sendToBack(Rect)
+        }
 
+        drawBorder(innerBorder, borderType.Fill, borderType.InnerCornerRadius)
+        drawBorder(outerBorder, borderType.FrameFill, borderType.OuterCornerRadius)
+        canvas.renderAll()
       } else {
-        showTextBox('no shapes are being selected on canvas', 1)
+        showTextBox('no or more than one shapes are being selected on canvas', 1)
       }
     } else {
       showTextBox('x-height is incorrect', 1)
