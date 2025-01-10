@@ -428,28 +428,29 @@ async function anchorShape(Polygon1, Polygon2) {
 }
 
 function initShape() {
-  routeMap = new fabric.Group()
+  /*routeMap = new fabric.Group()
   var base = LoadShape("base", { scaleY: (31 / 2 + 21.92 + 2.828 + 12 + 10) / 31, top: -(31 / 2 + 21.92 + 2.828 + 12 + 10) }, routeMap)
   var arm = LoadShape("base", { left: -21.92, top: -(31 / 2 + 21.92), scaleX: 4 / 6, angle: -45 }, routeMap)
-  canvas.add(routeMap)
+  canvas.add(routeMap)*/
 
   block = new fabric.Textbox("Central", {
     fontFamily: 'TransportMedium',
     fill: '#ffffff',
-    fontSize: 10
+    fontSize: 200
   })
   canvas.add(block)
 
   block = new fabric.Textbox("Kowloon", {
     fontFamily: 'TransportMedium',
     fill: '#ffffff',
-    fontSize: 10
+    fontSize: 200
   })
   canvas.add(block)
+
   const arrowOptions1 = { x: 0, y: 0, length: 25, angle: 0, color: 'white' };
   const arrowOptions2 = { x: 100, y: 100, length: 25, angle: 0, color: 'white' };
   Polygon1 = drawLabeledArrow(canvas, arrowOptions1);
   Polygon2 = drawLabeledArrow(canvas, arrowOptions2);
 }
-AddPlate()
+//AddPlate()
 initShape()

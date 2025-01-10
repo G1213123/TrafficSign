@@ -281,7 +281,7 @@ let FormBorderWrapComponent = {
       PaddingTop: 2.5,
       PaddingNBottom: 1.5,
       FrameWidth: 1.5,
-      FrameFill : 'white',
+      FrameFill: 'white',
       InnerCornerRadius: 1.5,
       OuterCornerRadius: 3
     },
@@ -304,9 +304,32 @@ let FormBorderWrapComponent = {
       GeneralHandler.createbutton('input-text', 'Select Objects for border', parent, '', FormBorderWrapComponent.BorderCreateHandler, 'click')
     }
   },
-  BorderCreateHandler: function () {
+  BorderCreateHandler: async function () {
     let xheight = parseInt(document.getElementById("input-xheight").value)
     let borderType = FormBorderWrapComponent.BorderType[document.getElementById("input-type").value]
+
+    const borderGroup = new fabric.Group()
+    
+    cursorClickMode = 'select'
+    let borderHeightObjects = null
+    showTextBox('Select shape to calculate border height')
+    const checkShapeInterval = setInterval(() => {
+      if (canvas.getActiveObject()) {
+        cursorClickMode = 'normal'
+        clearInterval(checkShapeInterval)
+        hideTextBox()
+        borderHeightObjects = canvas.getActiveObject()
+
+      }
+    }, 100); // Check every 100ms
+
+    /*
+    const borderWidthtObjects = showTextBox('Select shape to calculate border width')
+    if (borderWidthtObjects) {
+      borderWidthtObjects = canvas.activeObject()
+      
+    }*/
+
     if (xheight > 0) {
       let activeObject = canvas.getActiveObject()
       if (activeObject.basePolygon) {
@@ -322,8 +345,8 @@ let FormBorderWrapComponent = {
             const aCoords = obj.aCoords;
             minX = Math.min(minX, aCoords.tl.x + group.left + group.width / 2);
             minY = Math.min(minY, aCoords.tl.y + group.top + group.height / 2); // https://stackoverflow.com/questions/29829475/how-to-get-the-canvas-relative-position-of-an-object-that-is-in-a-group
-            maxX = Math.max(maxX, aCoords.br.x+ group.left + group.width / 2);
-            maxY = Math.max(maxY, aCoords.br.y+ group.top + group.height / 2);
+            maxX = Math.max(maxX, aCoords.br.x + group.left + group.width / 2);
+            maxY = Math.max(maxY, aCoords.br.y + group.top + group.height / 2);
           });
 
           return [
@@ -345,17 +368,17 @@ let FormBorderWrapComponent = {
         paddingCoords = function getPaddedCoords(coords, padLeft, padRight, padTop, padBottom) {
           return [
             { x: coords[0].x - padLeft * xheight / 4, y: coords[0].y - padTop * xheight / 4 }, // Top-left 
-            { x: coords[1].x + padRight* xheight / 4, y: coords[1].y - padTop * xheight / 4 }, // Top-right 
-            { x: coords[2].x + padRight* xheight / 4, y: coords[2].y + padBottom * xheight / 4 }, // Bottom-right 
+            { x: coords[1].x + padRight * xheight / 4, y: coords[1].y - padTop * xheight / 4 }, // Top-right 
+            { x: coords[2].x + padRight * xheight / 4, y: coords[2].y + padBottom * xheight / 4 }, // Bottom-right 
             { x: coords[3].x - padLeft * xheight / 4, y: coords[3].y + padBottom * xheight / 4 } // Bottom-left 
           ];
         }
         innerBorder = paddingCoords(coords, borderType.PaddingLeft, borderType.PaddingRight, borderType.PaddingTop, borderType.PaddingNBottom,)
         outerBorder = paddingCoords(innerBorder, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth,)
-        
+
         // draw rounded shape
-        drawBorder = function (BorderCoord, fill, radius, addToGroup){
-          var Rect =  new fabric.Rect({
+        drawBorder = function (BorderCoord, fill, radius, addToGroup) {
+          var Rect = new fabric.Rect({
             left: BorderCoord[0].x,
             top: BorderCoord[0].y,
             fill: fill,
