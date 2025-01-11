@@ -94,8 +94,8 @@ let GeneralHandler = {
       option.value = options[i];
       option.text = options[i];
       input.appendChild(option);
-    }
   }
+}
 }
 
 /* Text panel */
@@ -305,23 +305,29 @@ let FormBorderWrapComponent = {
     }
   },
   BorderCreateHandler: async function () {
-    let xheight = parseInt(document.getElementById("input-xheight").value)
-    let borderType = FormBorderWrapComponent.BorderType[document.getElementById("input-type").value]
-
     const borderGroup = new fabric.Group()
-    
-    cursorClickMode = 'select'
-    let borderHeightObjects = null
-    showTextBox('Select shape to calculate border height')
-    const checkShapeInterval = setInterval(() => {
-      if (canvas.getActiveObject()) {
-        cursorClickMode = 'normal'
-        clearInterval(checkShapeInterval)
-        hideTextBox()
-        borderHeightObjects = canvas.getActiveObject()
+    borderGroup.xheight = parseInt(document.getElementById("input-xheight").value)
+    borderGroup.borderType = FormBorderWrapComponent.BorderType[document.getElementById("input-type").value]
 
-      }
-    }, 100); // Check every 100ms
+    selectObjectHandler('Select shape to calculate border width', function (widthObjects) {
+      selectObjectHandler('Select shape to calculate border height', function (heightObjects) {
+        borderObject = FormBorderWrapComponent.BorderCreate(heightObjects, widthObjects, borderGroup)
+        borderGroup.basePolygon = borderObject
+        borderGroup.basePolygon.functinoalType = 'Border'
+        borderGroup.widthObjects = [...widthObjects]
+        borderGroup.heightObjects = [...heightObjects]
+
+        // Combine the arrays and create a Set to remove duplicates
+        const unionSet = new Set([...heightObjects, ...widthObjects]);
+        const unionObject = Array.from(unionSet);
+        borderGroup.addWithUpdate([borderObject, unionObject])
+        canvas.add(borderGroup)
+        canvas.sendToBack(borderGroup)
+        canvas.setActiveObject(borderGroup)
+        canvasObject.push(borderGroup)
+        canvas.renderAll() 
+      })
+    })
 
     /*
     const borderWidthtObjects = showTextBox('Select shape to calculate border width')
@@ -329,20 +335,26 @@ let FormBorderWrapComponent = {
       borderWidthtObjects = canvas.activeObject()
       
     }*/
+  },
+
+
+  BorderCreate: function(heightObjects, widthObjects, borderGroup) {
+    const xheight = borderGroup.xheight
+    const borderType = borderGroup.borderType
 
     if (xheight > 0) {
-      let activeObject = canvas.getActiveObject()
-      if (activeObject.basePolygon) {
-        let borderinginObjects = activeObject.anchoredPolygon
-        borderinginObjects.push(activeObject.basePolygon)
+
+        borderWidthObjects = loopAnchoredObjects(widthObjects)
+        borderHeightObjects = loopAnchoredObjects(heightObjects)
 
         // Function to get the bounding box of specific objects
-        function getBoundingBox(objects, group) {
+        function getBoundingBox(objects) {
           let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
           objects.forEach(obj => {
             obj.setCoords(); // Update the coordinates
             const aCoords = obj.aCoords;
+            const group = obj.group;
             minX = Math.min(minX, aCoords.tl.x + group.left + group.width / 2);
             minY = Math.min(minY, aCoords.tl.y + group.top + group.height / 2); // https://stackoverflow.com/questions/29829475/how-to-get-the-canvas-relative-position-of-an-object-that-is-in-a-group
             maxX = Math.max(maxX, aCoords.br.x + group.left + group.width / 2);
@@ -357,7 +369,11 @@ let FormBorderWrapComponent = {
           ];
         }
         // Get the bounding box of the active selection 
-        const coords = getBoundingBox(borderinginObjects, activeObject)
+        const coordsWidth = getBoundingBox(borderWidthObjects)
+        const coordsHeight = getBoundingBox(borderHeightObjects)
+        const coords = coordsWidth.map((point, i) => {return {
+          x: (point.x) , 
+          y: (coordsHeight[i].y) }})
         /*
           coords[0]: Top-left corner
           coords[1]: Top-right corner
@@ -373,11 +389,11 @@ let FormBorderWrapComponent = {
             { x: coords[3].x - padLeft * xheight / 4, y: coords[3].y + padBottom * xheight / 4 } // Bottom-left 
           ];
         }
-        innerBorder = paddingCoords(coords, borderType.PaddingLeft, borderType.PaddingRight, borderType.PaddingTop, borderType.PaddingNBottom,)
-        outerBorder = paddingCoords(innerBorder, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth,)
+        innerBorderCoords = paddingCoords(coords, borderType.PaddingLeft, borderType.PaddingRight, borderType.PaddingTop, borderType.PaddingNBottom,)
+        outerBorderCoords = paddingCoords(innerBorderCoords, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth,)
 
         // draw rounded shape
-        drawBorder = function (BorderCoord, fill, radius, addToGroup) {
+        drawBorder = function (BorderCoord, fill, radius) {
           var Rect = new fabric.Rect({
             left: BorderCoord[0].x,
             top: BorderCoord[0].y,
@@ -388,22 +404,21 @@ let FormBorderWrapComponent = {
             rx: radius * xheight / 4,
             ry: radius * xheight / 4,
           });
-          canvas.add(Rect);
-          canvas.sendToBack(Rect)
+          return Rect
         }
 
-        drawBorder(innerBorder, borderType.Fill, borderType.InnerCornerRadius)
-        drawBorder(outerBorder, borderType.FrameFill, borderType.OuterCornerRadius)
-        canvas.renderAll()
-      } else {
-        showTextBox('no or more than one shapes are being selected on canvas', 1)
-      }
+        innerBorderObject = drawBorder(innerBorderCoords, borderType.Fill, borderType.InnerCornerRadius)
+        outerBorderObject = drawBorder(outerBorderCoords, borderType.FrameFill, borderType.OuterCornerRadius)
+        return new fabric.Group([outerBorderObject, innerBorderObject], {
+          objectCaching: false,
+        });
     } else {
       showTextBox('x-height is incorrect', 1)
     }
-  },
-
+  }
 }
+
+
 
 
 window.onload = () => {

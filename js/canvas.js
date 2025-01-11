@@ -1,7 +1,9 @@
 var canvas = this.__canvas = new fabric.Canvas('canvas', { fireMiddleClick: true, fireRightClick: true, });
 const ctx = canvas.getContext("2d")
 let activeObject = null
+let selectedArrow = null
 let canvasObject = []
+
 
 window.addEventListener('resize', resizeCanvas, false);
 
@@ -14,6 +16,23 @@ function resizeCanvas() {
   DrawGrid()
 }
 
+// function to loop through anchored objects and add them to the borderinginObjects array
+function loopAnchoredObjects(obj, objList = []) {
+  if (obj.basePolygon){
+    if (obj.anchoredPolygon.length) {
+    obj.anchoredPolygon.forEach((anchoredObj) => {
+      objList = loopAnchoredObjects(anchoredObj, objList)
+    })}
+    objList.push(obj.basePolygon)
+    return objList
+  
+  } else {
+    obj.forEach((o) => {
+      objList = loopAnchoredObjects(o, objList)
+    })
+    return objList
+  }
+}
 
 canvas.on('mouse:move', function (opt) {
   if (this.isDragging) {

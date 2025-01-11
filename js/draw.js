@@ -319,8 +319,15 @@ function updatePosition(event) {
   promptBox.style.left = `${event.clientX + 10}px`;
   promptBox.style.top = `${event.clientY + 10}px`;
 }
-
 document.addEventListener('mousemove', updatePosition);
+
+function answerBoxFocus (event) {
+  const answerBox = document.getElementById('cursorAnswerBox');
+  if (answerBox.style.display === 'block') {
+    answerBox.focus();
+  }
+}
+document.addEventListener('mouseup', answerBoxFocus);
 
 let resolveAnswer;
 
@@ -340,7 +347,7 @@ function showTextBox(text, withAnswerBox = null) {
     return new Promise((resolve) => {
       answerBox.addEventListener('keydown', function handleKeyDown(event) {
         if (event.key === 'Enter' || event.key === ' ') {
-          resolve(parseInt(answerBox.value));
+          resolve(answerBox.value);
           hideTextBox();
           answerBox.removeEventListener('keydown', handleKeyDown);
         }
@@ -360,34 +367,42 @@ function hideTextBox() {
   answerBox.style.display = 'none';
 }
 
+async function selectObjectHandler(text, callback, options = null) {
+  // prompt for user to select shape
+  const response = await showTextBox(text, ' ')
+  // Update text box position to follow the cursor 
+  cursorClickMode = 'select'
+  // Periodically check if shape is selected 
+  const checkShapeInterval = setInterval(() => {
+    if (response !== null) {
+      cursorClickMode = 'normal'
+      clearInterval(checkShapeInterval)
+      hideTextBox()
+      successSelected = canvas.getActiveObjects()
+      // Clear the selected object from active
+      canvas.discardActiveObject();
+      canvas.renderAll();
+      callback(successSelected, options);
+    }
+  }, 100); // Check every 100ms
+}
+
 document.getElementById('set-anchor').addEventListener('click', function () {
   if (selectedArrow) {
     this.parentElement.parentElement.style.display = 'none';
     // Implement vertex selection logic here
     const shape1 = selectedArrow
     selectedArrow = null
-    // prompt for user to select shape
-    showTextBox('Select shape to anchor to')
-    // Update text box position to follow the cursor 
-    cursorClickMode = 'select'
-    // Periodically check if shape is selected 
-    const checkShapeInterval = setInterval(() => {
-      if (selectedArrow) {
-        cursorClickMode = 'normal'
-        clearInterval(checkShapeInterval)
-        hideTextBox()
-        anchorShape(shape1, selectedArrow);
-      }
-    }, 100); // Check every 100ms
+    selectObjectHandler('Select shape to anchor to', anchorShape, shape1)
   }
 });
 
-async function anchorShape(Polygon1, Polygon2) {
+async function anchorShape(Polygon2, Polygon1) {
   // For simplicity, we'll use prompt for input
-  const vertexIndex1 = await showTextBox('Enter vertex index for Polygon 1 (e.g., 1 for V1):', 1);
-  const vertexIndex2 = await showTextBox('Enter vertex index for Polygon 2 (e.g., 1 for V1):', 1);
-  const spacingX = await showTextBox('Enter spacing in X:', 100);
-  const spacingY = await showTextBox('Enter spacing in Y:', 100);
+  const vertexIndex1 = parseInt(await showTextBox('Enter vertex index for Polygon 1 (e.g., 1 for V1):', 1))
+  const vertexIndex2 = parseInt(await showTextBox('Enter vertex index for Polygon 2 (e.g., 1 for V1):', 1))
+  const spacingX = parseInt(await showTextBox('Enter spacing in X:', 100))
+  const spacingY = parseInt(await showTextBox('Enter spacing in Y:', 100))
 
   const movingPoint = Polygon1.basePolygon.vertex[vertexIndex1 - 1]
   const targetPoint = Polygon2.basePolygon.vertex[vertexIndex2 - 1];
@@ -399,24 +414,25 @@ async function anchorShape(Polygon1, Polygon2) {
   });
   Polygon1.setCoords()
   Polygon1.updateAllCoord()
-  
+
   // Get the objects from group1 
   const objectsInGroup1 = Polygon1.getObjects();
 
   // Remove objects from group1 
-  Polygon1._restoreObjectsState(); 
+  Polygon1._restoreObjectsState();
 
   // Add the objects to group2 
-  objectsInGroup1.forEach(obj => { 
+  objectsInGroup1.forEach(obj => {
     // Calculate the object's position relative to the canvas 
-    if (obj == Polygon1.basePolygon){
+    if (obj == Polygon1.basePolygon) {
       Polygon2.anchoredPolygon.push(obj)
-    } else if (obj.functinoalType != 'locationText'){
+    } else if (obj.functinoalType != 'locationText') {
       Polygon2.subObjects.push(obj)
     }
 
-    Polygon2.addWithUpdate(obj); 
-    obj.setCoords(); });
+    Polygon2.addWithUpdate(obj);
+    obj.setCoords();
+  });
 
   Polygon2.updateAllCoord()
 
