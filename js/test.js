@@ -2,24 +2,21 @@ let borderTest = function(){
     canvas.setActiveObject(canvasObject[1])
     FormBorderWrapComponent.BorderPanelInit()
     borderGroup = new fabric.Group()
-    borderGroup.xheight = 100
-    borderGroup.borderType = FormBorderWrapComponent.BorderType["Blue Background"]
+    xheight = 100
+    borderType = FormBorderWrapComponent.BorderType["Blue Background"]
+    widthObjects = canvas.getActiveObjects()
+    heightObjects = canvas.getActiveObjects()
 
-    borderObject = FormBorderWrapComponent.BorderCreate(canvas.getActiveObjects(), canvas.getActiveObjects(), borderGroup)
-    borderGroup.basePolygon = borderObject
-    borderGroup.basePolygon.functinoalType = 'Border'
-    borderGroup.widthObjects = [...canvas.getActiveObjects()]
-    borderGroup.heightObjects = [...canvas.getActiveObjects()]
+    borderObject = FormBorderWrapComponent.BorderCreate(heightObjects, widthObjects, xheight, borderType)
+    borderGroup = drawBasePolygon(borderObject)
+    borderGroup.widthObjects = [...widthObjects]
+    borderGroup.heightObjects = [...heightObjects]
+
     // Combine the arrays and create a Set to remove duplicates
-    let combinedArray = [...borderGroup.widthObjects, ...borderGroup.heightObjects, borderObject]
-    combinedArray.forEach(element => {
-        borderGroup.addWithUpdate(element)
-    });
     canvas.add(borderGroup)
     canvas.sendToBack(borderGroup)
     canvas.setActiveObject(borderGroup)
-    canvasObject.push(borderGroup)
-    canvas.renderAll()  
+    canvas.renderAll() 
 }
 
 let loopAnchoredObjectsTest = function(){

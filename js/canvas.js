@@ -21,15 +21,18 @@ function loopAnchoredObjects(obj, objList = []) {
   if (obj.basePolygon){
     if (obj.anchoredPolygon.length) {
     obj.anchoredPolygon.forEach((anchoredObj) => {
-      objList = loopAnchoredObjects(anchoredObj, objList)
+      objList .push(anchoredObj)
     })}
     objList.push(obj.basePolygon)
     return objList
   
   } else {
-    obj.forEach((o) => {
-      objList = loopAnchoredObjects(o, objList)
-    })
+    if (obj.length) {
+      obj.forEach((o) => {
+        objList = loopAnchoredObjects(o, objList)
+      })
+    }
+
     return objList
   }
 }

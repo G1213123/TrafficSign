@@ -112,10 +112,10 @@ class GlyphPolygon extends fabric.Polygon {
 
 }
 
-function drawBasePolygon(points, options) {
+function drawBasePolygon(basePolygon) {
   const baseGroup = new fabric.Group();
   canvas.add(baseGroup)
-  baseGroup.basePolygon = new GlyphPolygon(points, options)
+  baseGroup.basePolygon = basePolygon
   baseGroup.basePolygon.functinoalType = 'Polygon'
   baseGroup.anchoredPolygon = []
   baseGroup.addWithUpdate(baseGroup.basePolygon);
@@ -266,14 +266,16 @@ function drawLabeledArrow(canvas, options) {
   ];
 
   // Create polygon with labeled vertices
-  const arrow = new drawBasePolygon(points, {
-    left: x,
-    top: y,
-    fill: color || 'black',
-    angle: angle || 0,
-    // originX: 'center',
-    objectCaching: false
-  });
+  const arrow = new drawBasePolygon(
+    new GlyphPolygon(points, 
+      {left: x,
+        top: y,
+        fill: color || 'black',
+        angle: angle || 0,
+        // originX: 'center',
+        objectCaching: false
+      }), 
+    );
 
 }
 
@@ -342,6 +344,7 @@ function showTextBox(text, withAnswerBox = null) {
     answerBox.style.display = 'block';
     answerBox.value = withAnswerBox;
     answerBox.focus();
+    answerBox.select();
 
     // Handle user input and resolve the answer
     return new Promise((resolve) => {
@@ -398,6 +401,8 @@ document.getElementById('set-anchor').addEventListener('click', function () {
 });
 
 async function anchorShape(Polygon2, Polygon1) {
+  Polygon2 = Polygon2[0]
+
   // For simplicity, we'll use prompt for input
   const vertexIndex1 = parseInt(await showTextBox('Enter vertex index for Polygon 1 (e.g., 1 for V1):', 1))
   const vertexIndex2 = parseInt(await showTextBox('Enter vertex index for Polygon 2 (e.g., 1 for V1):', 1))
@@ -435,6 +440,7 @@ async function anchorShape(Polygon2, Polygon1) {
   });
 
   Polygon2.updateAllCoord()
+  canvas.bringToFront(Polygon2)
 
   canvas.remove(Polygon1.basePolygon)
   canvas.remove(Polygon1)

@@ -305,26 +305,20 @@ let FormBorderWrapComponent = {
     }
   },
   BorderCreateHandler: async function () {
-    const borderGroup = new fabric.Group()
-    borderGroup.xheight = parseInt(document.getElementById("input-xheight").value)
-    borderGroup.borderType = FormBorderWrapComponent.BorderType[document.getElementById("input-type").value]
+    xheight = parseInt(document.getElementById("input-xheight").value)
+    borderType = FormBorderWrapComponent.BorderType[document.getElementById("input-type").value]
 
     selectObjectHandler('Select shape to calculate border width', function (widthObjects) {
       selectObjectHandler('Select shape to calculate border height', function (heightObjects) {
-        borderObject = FormBorderWrapComponent.BorderCreate(heightObjects, widthObjects, borderGroup)
-        borderGroup.basePolygon = borderObject
-        borderGroup.basePolygon.functinoalType = 'Border'
+        borderObject = FormBorderWrapComponent.BorderCreate(heightObjects, widthObjects, xheight, borderType)
+        borderGroup = drawBasePolygon(borderObject)
         borderGroup.widthObjects = [...widthObjects]
         borderGroup.heightObjects = [...heightObjects]
 
         // Combine the arrays and create a Set to remove duplicates
-        const unionSet = new Set([...heightObjects, ...widthObjects]);
-        const unionObject = Array.from(unionSet);
-        borderGroup.addWithUpdate([borderObject, unionObject])
         canvas.add(borderGroup)
         canvas.sendToBack(borderGroup)
         canvas.setActiveObject(borderGroup)
-        canvasObject.push(borderGroup)
         canvas.renderAll() 
       })
     })
@@ -338,10 +332,7 @@ let FormBorderWrapComponent = {
   },
 
 
-  BorderCreate: function(heightObjects, widthObjects, borderGroup) {
-    const xheight = borderGroup.xheight
-    const borderType = borderGroup.borderType
-
+  BorderCreate: function(heightObjects, widthObjects, xheight, borderType) {
     if (xheight > 0) {
 
         borderWidthObjects = loopAnchoredObjects(widthObjects)
@@ -409,9 +400,15 @@ let FormBorderWrapComponent = {
 
         innerBorderObject = drawBorder(innerBorderCoords, borderType.Fill, borderType.InnerCornerRadius)
         outerBorderObject = drawBorder(outerBorderCoords, borderType.FrameFill, borderType.OuterCornerRadius)
-        return new fabric.Group([outerBorderObject, innerBorderObject], {
+        GroupedBorder = new fabric.Group([outerBorderObject, innerBorderObject], {
           objectCaching: false,
         });
+        GroupedBorder.vertex = outerBorderCoords.concat(innerBorderCoords)
+        GroupedBorder.vertex = GroupedBorder.vertex.map((point, i) => {
+          return { x: point.x, y: point.y, label:`E${i+1}` }})
+        GroupedBorder.insertPoint = GroupedBorder.vertex[0]
+        GroupedBorder.setCoords()
+        return GroupedBorder;
     } else {
       showTextBox('x-height is incorrect', 1)
     }
