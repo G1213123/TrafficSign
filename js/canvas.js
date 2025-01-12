@@ -1,4 +1,4 @@
-var canvas = this.__canvas = new fabric.Canvas('canvas', { fireMiddleClick: true, fireRightClick: true, });
+var canvas = this.__canvas = new fabric.Canvas('canvas', { fireMiddleClick: true, fireRightClick: true, preserveObjectStacking :true});
 const ctx = canvas.getContext("2d")
 let activeObject = null
 let selectedArrow = null
@@ -17,19 +17,22 @@ function resizeCanvas() {
 }
 
 // function to loop through anchored objects and add them to the borderinginObjects array
-function loopAnchoredObjects(obj, objList = []) {
+function loopAnchoredObjects(obj, callback = null, options = {}, objList = []) {
   if (obj.basePolygon){
     if (obj.anchoredPolygon.length) {
     obj.anchoredPolygon.forEach((anchoredObj) => {
-      objList .push(anchoredObj)
+      loopAnchoredObjects(anchoredObj, callback, options, objList = objList)
     })}
     objList.push(obj.basePolygon)
+    if (callback){
+      callback(obj, options)
+    }
     return objList
   
   } else {
     if (obj.length) {
       obj.forEach((o) => {
-        objList = loopAnchoredObjects(o, objList)
+        objList = loopAnchoredObjects(o, callback, options, objList = objList)
       })
     }
 

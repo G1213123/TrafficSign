@@ -94,8 +94,8 @@ let GeneralHandler = {
       option.value = options[i];
       option.text = options[i];
       input.appendChild(option);
+    }
   }
-}
 }
 
 /* Text panel */
@@ -318,8 +318,10 @@ let FormBorderWrapComponent = {
         // Combine the arrays and create a Set to remove duplicates
         canvas.add(borderGroup)
         canvas.sendToBack(borderGroup)
+        widthObjects.forEach(obj => { canvas.bringToFront(obj) })
+        heightObjects.forEach(obj => { canvas.bringToFront(obj) })
         canvas.setActiveObject(borderGroup)
-        canvas.renderAll() 
+        canvas.renderAll()
       })
     })
 
@@ -332,83 +334,94 @@ let FormBorderWrapComponent = {
   },
 
 
-  BorderCreate: function(heightObjects, widthObjects, xheight, borderType) {
+  BorderCreate: function (heightObjects, widthObjects, xheight, borderType) {
     if (xheight > 0) {
 
-        borderWidthObjects = loopAnchoredObjects(widthObjects)
-        borderHeightObjects = loopAnchoredObjects(heightObjects)
-
-        // Function to get the bounding box of specific objects
-        function getBoundingBox(objects) {
-          let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-
-          objects.forEach(obj => {
-            obj.setCoords(); // Update the coordinates
-            const aCoords = obj.aCoords;
-            const group = obj.group;
-            minX = Math.min(minX, aCoords.tl.x + group.left + group.width / 2);
-            minY = Math.min(minY, aCoords.tl.y + group.top + group.height / 2); // https://stackoverflow.com/questions/29829475/how-to-get-the-canvas-relative-position-of-an-object-that-is-in-a-group
-            maxX = Math.max(maxX, aCoords.br.x + group.left + group.width / 2);
-            maxY = Math.max(maxY, aCoords.br.y + group.top + group.height / 2);
-          });
-
-          return [
-            { x: minX, y: minY }, // Top-left corner
-            { x: maxX, y: minY }, // Top-right corner
-            { x: maxX, y: maxY }, // Bottom-right corner
-            { x: minX, y: maxY }  // Bottom-left corner
-          ];
+      // Function to get the bounding box of specific objects
+      function getBoundingBox(objects) {
+        // Clone each object and add them to a temporary group
+        const clones = fabric.util.object.clone(objects)
+        loopAnchoredObjects(clones, function (obj) {
+          obj.subobjects.forEach(function (subobj) {
+            canvas.remove(subobj)
+          })
         }
-        // Get the bounding box of the active selection 
-        const coordsWidth = getBoundingBox(borderWidthObjects)
-        const coordsHeight = getBoundingBox(borderHeightObjects)
-        const coords = coordsWidth.map((point, i) => {return {
-          x: (point.x) , 
-          y: (coordsHeight[i].y) }})
-        /*
-          coords[0]: Top-left corner
-          coords[1]: Top-right corner
-          coords[2]: Bottom-right corner
-          coords[3]: Bottom-left corner
-        */
-        // Function to calculate padded coordinates 
-        paddingCoords = function getPaddedCoords(coords, padLeft, padRight, padTop, padBottom) {
-          return [
-            { x: coords[0].x - padLeft * xheight / 4, y: coords[0].y - padTop * xheight / 4 }, // Top-left 
-            { x: coords[1].x + padRight * xheight / 4, y: coords[1].y - padTop * xheight / 4 }, // Top-right 
-            { x: coords[2].x + padRight * xheight / 4, y: coords[2].y + padBottom * xheight / 4 }, // Bottom-right 
-            { x: coords[3].x - padLeft * xheight / 4, y: coords[3].y + padBottom * xheight / 4 } // Bottom-left 
-          ];
-        }
-        innerBorderCoords = paddingCoords(coords, borderType.PaddingLeft, borderType.PaddingRight, borderType.PaddingTop, borderType.PaddingNBottom,)
-        outerBorderCoords = paddingCoords(innerBorderCoords, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth,)
+      )
+      //canvas.add(clones)
+        // Update the coordinates of the temporary group
+        clones.setCoords();
+        const aCoords = clones.aCoords;
+        //clones.forEach(obj => { canvas.add(obj); obj.setCoords(); });
 
-        // draw rounded shape
-        drawBorder = function (BorderCoord, fill, radius) {
-          var Rect = new fabric.Rect({
-            left: BorderCoord[0].x,
-            top: BorderCoord[0].y,
-            fill: fill,
-            width: BorderCoord[1].x - BorderCoord[0].x,
-            height: BorderCoord[2].y - BorderCoord[0].y,
-            objectCaching: false,
-            rx: radius * xheight / 4,
-            ry: radius * xheight / 4,
-          });
-          return Rect
-        }
+        // Delete the temporary group and clones
+        //canvas.remove(clones);
 
-        innerBorderObject = drawBorder(innerBorderCoords, borderType.Fill, borderType.InnerCornerRadius)
-        outerBorderObject = drawBorder(outerBorderCoords, borderType.FrameFill, borderType.OuterCornerRadius)
-        GroupedBorder = new fabric.Group([outerBorderObject, innerBorderObject], {
+        // Return the bounding box coordinates
+        return [
+          { x: aCoords.tl.x, y: aCoords.tl.y }, // Top-left corner
+          { x: aCoords.tr.x, y: aCoords.tr.y }, // Top-right corner
+          { x: aCoords.br.x, y: aCoords.br.y }, // Bottom-right corner
+          { x: aCoords.bl.x, y: aCoords.bl.y }  // Bottom-left corner
+        ];
+      }
+      // Get the bounding box of the active selection 
+      widthObjectsGroup = new fabric.Group(widthObjects)
+      heightObjectsGroup = new fabric.Group(heightObjects)
+      //canvas.add(widthObjectsGroup)
+      //canvas.add(heightObjectsGroup)
+      const coordsWidth = getBoundingBox(new fabric.Group(widthObjects))
+      const coordsHeight = getBoundingBox(new fabric.Group(widthObjects))
+      const coords = coordsWidth.map((point, i) => {
+        return {
+          x: (point.x),
+          y: (coordsHeight[i].y)
+        }
+      })
+      /*
+        coords[0]: Top-left corner
+        coords[1]: Top-right corner
+        coords[2]: Bottom-right corner
+        coords[3]: Bottom-left corner
+      */
+      // Function to calculate padded coordinates 
+      paddingCoords = function getPaddedCoords(coords, padLeft, padRight, padTop, padBottom) {
+        return [
+          { x: coords[0].x - padLeft * xheight / 4, y: coords[0].y - padTop * xheight / 4 }, // Top-left 
+          { x: coords[1].x + padRight * xheight / 4, y: coords[1].y - padTop * xheight / 4 }, // Top-right 
+          { x: coords[2].x + padRight * xheight / 4, y: coords[2].y + padBottom * xheight / 4 }, // Bottom-right 
+          { x: coords[3].x - padLeft * xheight / 4, y: coords[3].y + padBottom * xheight / 4 } // Bottom-left 
+        ];
+      }
+      innerBorderCoords = paddingCoords(coords, borderType.PaddingLeft, borderType.PaddingRight, borderType.PaddingTop, borderType.PaddingNBottom,)
+      outerBorderCoords = paddingCoords(innerBorderCoords, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth,)
+
+      // draw rounded shape
+      drawBorder = function (BorderCoord, fill, radius) {
+        var Rect = new fabric.Rect({
+          left: BorderCoord[0].x,
+          top: BorderCoord[0].y,
+          fill: fill,
+          width: BorderCoord[1].x - BorderCoord[0].x,
+          height: BorderCoord[2].y - BorderCoord[0].y,
           objectCaching: false,
+          rx: radius * xheight / 4,
+          ry: radius * xheight / 4,
         });
-        GroupedBorder.vertex = outerBorderCoords.concat(innerBorderCoords)
-        GroupedBorder.vertex = GroupedBorder.vertex.map((point, i) => {
-          return { x: point.x, y: point.y, label:`E${i+1}` }})
-        GroupedBorder.insertPoint = GroupedBorder.vertex[0]
-        GroupedBorder.setCoords()
-        return GroupedBorder;
+        return Rect
+      }
+
+      innerBorderObject = drawBorder(innerBorderCoords, borderType.Fill, borderType.InnerCornerRadius)
+      outerBorderObject = drawBorder(outerBorderCoords, borderType.FrameFill, borderType.OuterCornerRadius)
+      GroupedBorder = new fabric.Group([outerBorderObject, innerBorderObject], {
+        objectCaching: false,
+      });
+      GroupedBorder.vertex = outerBorderCoords.concat(innerBorderCoords)
+      GroupedBorder.vertex = GroupedBorder.vertex.map((point, i) => {
+        return { x: point.x, y: point.y, label: `E${i + 1}` }
+      })
+      GroupedBorder.insertPoint = GroupedBorder.vertex[0]
+      GroupedBorder.setCoords()
+      return GroupedBorder;
     } else {
       showTextBox('x-height is incorrect', 1)
     }

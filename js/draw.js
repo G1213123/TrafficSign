@@ -176,19 +176,24 @@ function drawBasePolygon(basePolygon) {
   baseGroup.refTopLeft = { top: baseGroup.top, left: baseGroup.left }
 
   baseGroup.on('selected', () => {
-    baseGroup.subObjects.forEach(obj => {
-      obj.set('opacity', 1)
-    })
-    canvas.renderAll();
-  });
+    loopAnchoredObjects(baseGroup, function (obj) {
+      obj.subObjects.forEach(obj => {
+        obj.set('opacity', 1)
+      })
+    }, null)
+    canvas.renderAll()
+  }
+  );
 
   baseGroup.on('deselected', () => {
-    baseGroup.subObjects.forEach(obj => {
-      obj.set('opacity', 0)
-    })
-    canvas.renderAll();
-  });
-
+    loopAnchoredObjects(baseGroup, function (obj) {
+      obj.subObjects.forEach(obj => {
+        obj.set('opacity', 0)
+      })
+    }, null)
+    canvas.renderAll()
+  }
+  );
   baseGroup.on('mouseover', function () {
     baseGroup.set({
       opacity: 0.5
@@ -208,15 +213,16 @@ function drawBasePolygon(basePolygon) {
   baseGroup.on('moving', updateAllCoord)
 
   function updateAllCoord() {
-    updateCoord(baseGroup.basePolygon, baseGroup, baseGroup.refTopLeft, true)
+    updateCoord(baseGroup, true)
     baseGroup.anchoredPolygon.forEach((p) => {
-      updateCoord(p, baseGroup, baseGroup.refTopLeft)
+      loopAnchoredObjects(p, updateCoord, false)
     })
   }
 
-  function updateCoord(polygon, newTopLeft, baseTopLeft, updateLocationTex = false) {
-    updateX = newTopLeft.left - baseTopLeft.left
-    updateY = newTopLeft.top - baseTopLeft.top
+  function updateCoord(baseGroup, updateLocationTex = false) {
+    polygon = baseGroup.basePolygon
+    updateX = baseGroup.left - baseGroup.refTopLeft.left
+    updateY = baseGroup.top - baseGroup.refTopLeft.top
 
     const transformedPoints = calculateTransformedPoints(polygon.vertex, {
       x: updateX,
@@ -237,7 +243,7 @@ function drawBasePolygon(basePolygon) {
         'text', `X: ${polygon.insertPoint.x} \nY: ${polygon.insertPoint.y}`
       );
     }
-    baseGroup.refTopLeft = { top: newTopLeft.top, left: newTopLeft.left }
+    baseGroup.refTopLeft = { top: baseGroup.top, left: baseGroup.left }
     polygon.setCoords();
     canvas.renderAll();
   }
@@ -267,15 +273,16 @@ function drawLabeledArrow(canvas, options) {
 
   // Create polygon with labeled vertices
   const arrow = new drawBasePolygon(
-    new GlyphPolygon(points, 
-      {left: x,
+    new GlyphPolygon(points,
+      {
+        left: x,
         top: y,
         fill: color || 'black',
         angle: angle || 0,
         // originX: 'center',
         objectCaching: false
-      }), 
-    );
+      }),
+  );
 
 }
 
@@ -323,7 +330,7 @@ function updatePosition(event) {
 }
 document.addEventListener('mousemove', updatePosition);
 
-function answerBoxFocus (event) {
+function answerBoxFocus(event) {
   const answerBox = document.getElementById('cursorAnswerBox');
   if (answerBox.style.display === 'block') {
     answerBox.focus();
@@ -400,14 +407,21 @@ document.getElementById('set-anchor').addEventListener('click', function () {
   }
 });
 
-async function anchorShape(Polygon2, Polygon1) {
+async function anchorShape(Polygon2, Polygon1, options = null) {
   Polygon2 = Polygon2[0]
 
   // For simplicity, we'll use prompt for input
-  const vertexIndex1 = parseInt(await showTextBox('Enter vertex index for Polygon 1 (e.g., 1 for V1):', 1))
-  const vertexIndex2 = parseInt(await showTextBox('Enter vertex index for Polygon 2 (e.g., 1 for V1):', 1))
-  const spacingX = parseInt(await showTextBox('Enter spacing in X:', 100))
-  const spacingY = parseInt(await showTextBox('Enter spacing in Y:', 100))
+  if (options) {
+    vertexIndex1 = options.vertexIndex1
+    vertexIndex2 = options.vertexIndex2
+    spacingX = options.spacingX
+    spacingY = options.spacingY
+  } else {
+    vertexIndex1 = parseInt(await showTextBox('Enter vertex index for Polygon 1 (e.g., 1 for V1):', 1))
+    vertexIndex2 = parseInt(await showTextBox('Enter vertex index for Polygon 2 (e.g., 1 for V1):', 1))
+    spacingX = parseInt(await showTextBox('Enter spacing in X:', 100))
+    spacingY = parseInt(await showTextBox('Enter spacing in Y:', 100))
+  }
 
   const movingPoint = Polygon1.basePolygon.vertex[vertexIndex1 - 1]
   const targetPoint = Polygon2.basePolygon.vertex[vertexIndex2 - 1];
@@ -423,6 +437,7 @@ async function anchorShape(Polygon2, Polygon1) {
   // Get the objects from group1 
   const objectsInGroup1 = Polygon1.getObjects();
 
+  /*
   // Remove objects from group1 
   Polygon1._restoreObjectsState();
 
@@ -438,7 +453,10 @@ async function anchorShape(Polygon2, Polygon1) {
     Polygon2.addWithUpdate(obj);
     obj.setCoords();
   });
+*/
 
+  Polygon2.addWithUpdate(Polygon1)
+  Polygon2.anchoredPolygon.push(Polygon1)
   Polygon2.updateAllCoord()
   canvas.bringToFront(Polygon2)
 
