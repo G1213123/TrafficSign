@@ -150,9 +150,14 @@ let FormTextAddComponent = {
     //permenent cursor object 
     if (document.getElementById("input-text").value !== '' && event.button === 1) {
       cursor.clone(function (clonedObj) {
-        canvas.add(clonedObj)
-        canvasObject.push(clonedObj)
-        canvas.setActiveObject(clonedObj)
+        clonedObj.vertex = Object.values(clonedObj.aCoords).map((point, i) => {
+          return { x: point.x, y: point.y, label: `E${i + 1}` }
+        })
+        clonedObj.insertPoint = clonedObj.vertex[0]
+        TextGroup = drawBasePolygon(clonedObj)
+        canvas.add(TextGroup)
+        canvasObject.push(TextGroup)
+        canvas.setActiveObject(TextGroup)
       })
     }
   },

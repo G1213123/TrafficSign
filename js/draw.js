@@ -122,6 +122,7 @@ function drawBasePolygon(basePolygon) {
   baseGroup.subObjects = []
 
   // debug text of the location of the group
+  if (baseGroup.basePolygon.insertPoint) {
   const loactionText = new fabric.Text(
     `X: ${baseGroup.basePolygon.insertPoint.x} \nY: ${baseGroup.basePolygon.insertPoint.x}`,
     {
@@ -135,8 +136,10 @@ function drawBasePolygon(basePolygon) {
     });
   baseGroup.subObjects.push(loactionText);
   baseGroup.loactionText = loactionText
+  }
 
   // Draw the vertices and labels
+  if (baseGroup.basePolygon.vertex) {
   baseGroup.basePolygon.vertex.forEach(v => {
     // Draw a halftone circle 
     const circle = new fabric.Circle({
@@ -168,6 +171,7 @@ function drawBasePolygon(basePolygon) {
     });
     baseGroup.subObjects.push(text);
   })
+}
 
   baseGroup.subObjects.forEach(obj => {
     baseGroup.addWithUpdate(obj);
@@ -472,20 +476,19 @@ function initShape() {
   var base = LoadShape("base", { scaleY: (31 / 2 + 21.92 + 2.828 + 12 + 10) / 31, top: -(31 / 2 + 21.92 + 2.828 + 12 + 10) }, routeMap)
   var arm = LoadShape("base", { left: -21.92, top: -(31 / 2 + 21.92), scaleX: 4 / 6, angle: -45 }, routeMap)
   canvas.add(routeMap)*/
-
-  block = new fabric.Textbox("Central", {
+  text1 = new fabric.Textbox("Central", {
     fontFamily: 'TransportMedium',
     fill: '#ffffff',
     fontSize: 200
   })
+  text1.vertex = Object.values(text1.aCoords).map((point, i) => {
+    return { x: point.x, y: point.y, label: `E${i + 1}` }
+  })
+  text1.insertPoint = text1.vertex[0]
+
+  block = drawBasePolygon(text1)
   canvas.add(block)
 
-  block = new fabric.Textbox("Kowloon", {
-    fontFamily: 'TransportMedium',
-    fill: '#ffffff',
-    fontSize: 200
-  })
-  canvas.add(block)
 
   const arrowOptions1 = { x: 0, y: 0, length: 25, angle: 0, color: 'white' };
   const arrowOptions2 = { x: 100, y: 100, length: 25, angle: 0, color: 'white' };
