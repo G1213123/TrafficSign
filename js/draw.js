@@ -118,16 +118,35 @@ function drawBasePolygon(basePolygon) {
   baseGroup.basePolygon = basePolygon
   baseGroup.basePolygon.functinoalType = 'Polygon'
   baseGroup.anchoredPolygon = []
-  baseGroup.addWithUpdate(baseGroup.basePolygon);
+
   baseGroup.subObjects = []
+
+  // calculated vertex points for anchoring
+  if (!baseGroup.basePolygon.vertex){
+    baseGroup.basePolygon.vertex = []
+  }
+  let basePolygonCoords = Object.values(baseGroup.basePolygon.aCoords)
+  basePolygonCoords = [basePolygonCoords[0], basePolygonCoords[1], basePolygonCoords[3], basePolygonCoords[2]] // tl, tr, bl, br ==> tl, tr, br, bl
+  basePolygonCoords.forEach((p, i)=>{
+    baseGroup.basePolygon.vertex.push({x:p.x, y:p.y, label:`E${baseGroup.basePolygon.vertex.length+1}`})
+    midpoint = {
+      x:(p.x + basePolygonCoords[(i+1 == basePolygonCoords.length)? 0:i+1].x) / 2,
+      y:(p.y + basePolygonCoords[(i+1 == basePolygonCoords.length)? 0:i+1].y) / 2,
+      label: `E${baseGroup.basePolygon.vertex.length+1}`
+    }
+    baseGroup.basePolygon.vertex.push(midpoint)
+  })
+  baseGroup.basePolygon.insertPoint = baseGroup.basePolygon.vertex[0]
+
+  baseGroup.addWithUpdate(baseGroup.basePolygon);
 
   // debug text of the location of the group
   if (baseGroup.basePolygon.insertPoint) {
   const loactionText = new fabric.Text(
-    `X: ${baseGroup.basePolygon.insertPoint.x} \nY: ${baseGroup.basePolygon.insertPoint.x}`,
+    `placeholder`,
     {
       left: baseGroup.left,
-      top: baseGroup.top,
+      top: baseGroup.top - 125,
       fontSize: 20,
       fill: 'red',
       selectable: false,
@@ -159,10 +178,10 @@ function drawBasePolygon(basePolygon) {
 
     // Add a text label 
     const text = new fabric.Text(v.label, {
-      left: v.x,
-      top: v.y - 30,
+      left:v.x,
+      top:  v.label.includes('E')?v.y-30:v.y+30,
       fontSize: 20,
-      fill: 'red',
+      fill:  v.label.includes('E')?'red':'violet',
       selectable: false,
       originX: 'center',
       originY: 'center',
@@ -218,10 +237,10 @@ function drawBasePolygon(basePolygon) {
 
   function updateAllCoord() {
     updateCoord(baseGroup, true)
-    baseGroup.anchoredPolygon.forEach((p) => {
-      loopAnchoredObjects(p, updateCoord, false)
-    })
-  }
+    //baseGroup.anchoredPolygon.forEach((p) => {
+    //  loopAnchoredObjects(p, updateCoord, false)
+    //})
+  }//
 
   function updateCoord(baseGroup, updateLocationTex = false) {
     polygon = baseGroup.basePolygon
@@ -244,7 +263,7 @@ function drawBasePolygon(basePolygon) {
 
     if (updateLocationTex) {
       baseGroup.loactionText.set(
-        'text', `X: ${polygon.insertPoint.x} \nY: ${polygon.insertPoint.y}`
+        'text', `Node: ${polygon.insertPoint.label} \nX: ${polygon.insertPoint.x} \nY: ${polygon.insertPoint.y}`
       );
     }
     baseGroup.refTopLeft = { top: baseGroup.top, left: baseGroup.left }
@@ -254,6 +273,9 @@ function drawBasePolygon(basePolygon) {
 
   baseGroup.updateAllCoord = updateAllCoord
   canvasObject.push(baseGroup)
+  canvas.add(baseGroup)
+  baseGroup.updateAllCoord()
+  canvas.setActiveObject(baseGroup)
 
   return baseGroup
 
@@ -421,14 +443,14 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
     spacingX = options.spacingX
     spacingY = options.spacingY
   } else {
-    vertexIndex1 = parseInt(await showTextBox('Enter vertex index for Polygon 1 (e.g., 1 for V1):', 1))
-    vertexIndex2 = parseInt(await showTextBox('Enter vertex index for Polygon 2 (e.g., 1 for V1):', 1))
+    vertexIndex1 = await showTextBox('Enter vertex index for Polygon 1 (e.g., 1 for V1):', 1)
+    vertexIndex2 = await showTextBox('Enter vertex index for Polygon 2 (e.g., 1 for V1):', 1)
     spacingX = parseInt(await showTextBox('Enter spacing in X:', 100))
     spacingY = parseInt(await showTextBox('Enter spacing in Y:', 100))
   }
 
-  const movingPoint = Polygon1.basePolygon.vertex[vertexIndex1 - 1]
-  const targetPoint = Polygon2.basePolygon.vertex[vertexIndex2 - 1];
+  const movingPoint = Polygon1.basePolygon.vertex.find(el => el.label = vertexIndex1.toUpperCase())
+  const targetPoint = Polygon2.basePolygon.vertex.find(el => el.label = vertexIndex2.toUpperCase())
 
   // Snap arrow 1 to arrow 2 with the specified spacing
   Polygon1.set({
@@ -437,27 +459,6 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
   });
   Polygon1.setCoords()
   Polygon1.updateAllCoord()
-
-  // Get the objects from group1 
-  const objectsInGroup1 = Polygon1.getObjects();
-
-  /*
-  // Remove objects from group1 
-  Polygon1._restoreObjectsState();
-
-  // Add the objects to group2 
-  objectsInGroup1.forEach(obj => {
-    // Calculate the object's position relative to the canvas 
-    if (obj == Polygon1.basePolygon) {
-      Polygon2.anchoredPolygon.push(obj)
-    } else if (obj.functinoalType != 'locationText') {
-      Polygon2.subObjects.push(obj)
-    }
-
-    Polygon2.addWithUpdate(obj);
-    obj.setCoords();
-  });
-*/
 
   Polygon2.addWithUpdate(Polygon1)
   Polygon2.anchoredPolygon.push(Polygon1)
@@ -471,29 +472,3 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
   canvas.renderAll();
 }
 
-function initShape() {
-  /*routeMap = new fabric.Group()
-  var base = LoadShape("base", { scaleY: (31 / 2 + 21.92 + 2.828 + 12 + 10) / 31, top: -(31 / 2 + 21.92 + 2.828 + 12 + 10) }, routeMap)
-  var arm = LoadShape("base", { left: -21.92, top: -(31 / 2 + 21.92), scaleX: 4 / 6, angle: -45 }, routeMap)
-  canvas.add(routeMap)*/
-  text1 = new fabric.Textbox("Central", {
-    fontFamily: 'TransportMedium',
-    fill: '#ffffff',
-    fontSize: 200
-  })
-  text1.vertex = Object.values(text1.aCoords).map((point, i) => {
-    return { x: point.x, y: point.y, label: `E${i + 1}` }
-  })
-  text1.insertPoint = text1.vertex[0]
-
-  block = drawBasePolygon(text1)
-  canvas.add(block)
-
-
-  const arrowOptions1 = { x: 0, y: 0, length: 25, angle: 0, color: 'white' };
-  const arrowOptions2 = { x: 100, y: 100, length: 25, angle: 0, color: 'white' };
-  Polygon1 = drawLabeledArrow(canvas, arrowOptions1);
-  Polygon2 = drawLabeledArrow(canvas, arrowOptions2);
-}
-//AddPlate()
-initShape()

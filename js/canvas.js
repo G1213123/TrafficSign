@@ -1,4 +1,4 @@
-var canvas = this.__canvas = new fabric.Canvas('canvas', { fireMiddleClick: true, fireRightClick: true, preserveObjectStacking :true});
+var canvas = this.__canvas = new fabric.Canvas('canvas', { fireMiddleClick: true, fireRightClick: true, preserveObjectStacking: true });
 const ctx = canvas.getContext("2d")
 let activeObject = null
 let selectedArrow = null
@@ -18,17 +18,18 @@ function resizeCanvas() {
 
 // function to loop through anchored objects and add them to the borderinginObjects array
 function loopAnchoredObjects(obj, callback = null, options = {}, objList = []) {
-  if (obj.basePolygon){
+  if (obj.basePolygon) {
     if (obj.anchoredPolygon.length) {
-    obj.anchoredPolygon.forEach((anchoredObj) => {
-      loopAnchoredObjects(anchoredObj, callback, options, objList = objList)
-    })}
+      obj.anchoredPolygon.forEach((anchoredObj) => {
+        loopAnchoredObjects(anchoredObj, callback, options, objList = objList)
+      })
+    }
     objList.push(obj.basePolygon)
-    if (callback){
+    if (callback) {
       callback(obj, options)
     }
     return objList
-  
+
   } else {
     if (obj.length) {
       obj.forEach((o) => {
@@ -112,7 +113,7 @@ function DrawGrid() {
   },
 
     corners = canvas.calcViewportBoundaries()
-  xmin = Math.floor((corners.tl.x) / 50) * 50,
+    xmin = Math.floor((corners.tl.x) / 50) * 50,
     xmax = Math.ceil((corners.br.x) / 50) * 50,
     ymin = Math.floor((corners.tl.y) / 50) * 50,
     ymax = Math.ceil((corners.br.y) / 50) * 50,
@@ -130,7 +131,7 @@ function DrawGrid() {
       horizontal.set({ strokeWidth: 0.5 });
       vertical.set({ strokeWidth: 0.5 });
       vText = new fabric.Text(String(distance + xmin), { left: distance + xmin, top: 0, fill: options.param.stroke, fontSize: 10 })
-      hText = new fabric.Text(String(- distance - ymin), { left: 0, top: distance + ymin, fill: options.param.stroke, fontSize: 10 })
+      hText = new fabric.Text(String(distance + ymin), { left: 0, top: distance + ymin, fill: options.param.stroke, fontSize: 10 })
       grid_set.push(hText);
       grid_set.push(vText);
     };
