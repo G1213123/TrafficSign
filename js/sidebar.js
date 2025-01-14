@@ -99,7 +99,7 @@ let FormTextAddComponent = {
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       GeneralHandler.createinput('input-text', 'Add Text', parent, '', FormTextAddComponent.TextinputHandler, 'input')
-      GeneralHandler.createinput('input-xheight', 'x Height', parent, 100)
+      GeneralHandler.createinput('input-xheight', 'x Height', parent, 100, FormTextAddComponent.TextinputHandler,'input')
       canvas.on('mouse:move', FormTextAddComponent.TextonMouseMove)
       canvas.on('mouse:down', FormTextAddComponent.TextonMouseClick)
     }
@@ -112,11 +112,16 @@ let FormTextAddComponent = {
     canvas.renderAll()
   },
 
-  TextinputHandler: function (event) {
+  TextinputHandler: function (event, options = null) {
     cursor.forEachObject(function (o) { cursor.remove(o) })
-    var txt = event.target.value
     var left_pos = 0
-    var xHeight = parseInt(document.getElementById('input-xheight').value)
+    if (options) {
+      var txt = options.text
+      var xHeight = options.xHeight
+    }
+    else {
+    var txt = document.getElementById('input-text').value
+    var xHeight = parseInt(document.getElementById('input-xheight').value)}
     for (var i = 0; i < txt.length; i++) {
       charWidth = FormTextAddComponent.textWidthMedium.find(e => e.char == txt.charAt(i)).width
 
@@ -133,20 +138,21 @@ let FormTextAddComponent = {
       txt_frame = new fabric.Rect({
         left: left_pos,
         top: 0,
-        width: charWidth,
+        width: charWidth * xHeight / 100,
         height: xHeight * 2,
         fill: 'rgba(0,0,0,0)',
         stroke: 'red',
         strokeDashArray: [9, 2],
       })
 
-      txt_char.clipPath = txt_frame;
+      //txt_char.clipPath = txt_frame;
 
-      left_pos += charWidth
+      left_pos += charWidth * xHeight / 100
       cursor.addWithUpdate(txt_char)
       cursor.addWithUpdate(txt_frame)
-            // Update the coordinates
-        txt_char.setCoords();
+      // Update the coordinates
+      txt_char.setCoords();
+      txt_frame.setCoords()
     }
     canvas.renderAll();
   },
@@ -161,15 +167,65 @@ let FormTextAddComponent = {
     canvas.renderAll();
   },
 
-  TextonMouseClick: function (event) {
+  TextonMouseClick: function (event, options = null) {
     //permenent cursor object 
-    if (document.getElementById("input-text").value !== '' && event.button === 1) {
+    if (options){
+      cursor.setCoords(
+        {left: options.left, top: options.top}
+      )
+      textValue = 'Go'
+      eventButton = 1
+    } else{
+      textValue = document.getElementById("input-text").value
+      eventButton = event.button
+    }
+    if (textValue !== '' && eventButton === 1) {
       cursor.clone(function (clonedObj) {
-        //clonedObj.vertex = Object.values(clonedObj.aCoords).map((point, i) => {
+        function getCombinedBoundingBoxOfRects(cursor) {
+          let combinedBBox = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
+          let points = [];
+          cursor.forEachObject(obj => {
+            if (obj.type === 'rect') {
+              obj.setCoords();
+              const aCoords = obj.aCoords;
+
+
+              // Transform the coordinates to the canvas coordinate system
+              Object.values(aCoords).forEach(point => {
+                const absPoint = fabric.util.transformPoint(point, cursor.calcTransformMatrix());
+                combinedBBox.left = Math.min(combinedBBox.left, absPoint.x);
+                combinedBBox.top = Math.min(combinedBBox.top, absPoint.y);
+                combinedBBox.right = Math.max(combinedBBox.right, absPoint.x);
+                combinedBBox.bottom = Math.max(combinedBBox.bottom, absPoint.y);
+              });
+            }
+          });
+
+          // Calculate the 8 points (excluding the center point) from the combined bounding box
+          const centerX = (combinedBBox.left + combinedBBox.right) / 2;
+          const centerY = (combinedBBox.top + combinedBBox.bottom) / 2;
+
+          points = [
+            { x: combinedBBox.left, y: combinedBBox.top, label: 'E1' }, // Top-left corner
+            { x: centerX, y: combinedBBox.top, label: 'E2' }, // Top-middle
+            { x: combinedBBox.right, y: combinedBBox.top, label: 'E3' }, // Top-right corner
+            { x: combinedBBox.right, y: centerY, label: 'E4' }, // Middle-right
+            { x: combinedBBox.right, y: combinedBBox.bottom, label: 'E5' }, // Bottom-right corner
+            { x: centerX, y: combinedBBox.bottom, label: 'E6' }, // Bottom-middle
+            { x: combinedBBox.left, y: combinedBBox.bottom, label: 'E7' }, // Bottom-left corner
+            { x: combinedBBox.left, y: centerY, label: 'E8' } // Middle-left
+          ];
+
+          return points;
+
+        }
+        clonedObj.setCoords()
+        clonedObj.vertex = getCombinedBoundingBoxOfRects(clonedObj)
+        //Object.values(clonedObj.aCoords).map((point, i) => {
         //  return { x: point.x, y: point.y, label: `E${i + 1}` }
         //})
         //clonedObj.insertPoint = clonedObj.vertex[0]
-        TextGroup = drawBasePolygon(clonedObj)
+        TextGroup = drawBasePolygon(clonedObj, false)
       })
     }
   },
@@ -354,17 +410,23 @@ let FormBorderWrapComponent = {
 
       // Function to get the bounding box of specific objects
       function getBoundingBox(objects) {
+        var clones = []
         // Clone each object and add them to a temporary group
-        const clones = fabric.util.object.clone(objects)
-        loopAnchoredObjects(clones, function (obj) {
-          obj.subobjects.forEach(function (subobj) {
-            canvas.remove(subobj)
-          })
-        }
-        )
+        objects.forEach(obj => {
+          obj.clone(function (cloneObj) {
+          loopAnchoredObjects(cloneObj, function (obj) {
+            obj.subObjects.forEach(function (subobj) {
+              canvas.remove(subobj)
+            })
+          }
+          )
+          cloneObj.setCoords()
+          clones.push(cloneObj)
+        })
+      })
         // Update the coordinates of the temporary group
-        clones.setCoords();
-        const aCoords = clones.aCoords;
+        let tempGroup = new fabric.Group(clones)
+        const aCoords = tempGroup.aCoords;
 
         // Return the bounding box coordinates
         return [
@@ -380,8 +442,8 @@ let FormBorderWrapComponent = {
       heightObjectsGroup = new fabric.Group(heightObjects)
       //canvas.add(widthObjectsGroup)
       //canvas.add(heightObjectsGroup)
-      const coordsWidth = getBoundingBox(new fabric.Group(widthObjects))
-      const coordsHeight = getBoundingBox(new fabric.Group(widthObjects))
+      const coordsWidth = getBoundingBox(widthObjects)
+      const coordsHeight = getBoundingBox(heightObjects)
       const coords = coordsWidth.map((point, i) => {
         return {
           x: (point.x),

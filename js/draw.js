@@ -112,7 +112,7 @@ class GlyphPolygon extends fabric.Polygon {
 
 }
 
-function drawBasePolygon(basePolygon) {
+function drawBasePolygon(basePolygon, calcVertex = true) {
   const baseGroup = new fabric.Group();
   canvas.add(baseGroup)
   baseGroup.basePolygon = basePolygon
@@ -122,75 +122,77 @@ function drawBasePolygon(basePolygon) {
   baseGroup.subObjects = []
 
   // calculated vertex points for anchoring
-  if (!baseGroup.basePolygon.vertex){
+  if (!baseGroup.basePolygon.vertex) {
     baseGroup.basePolygon.vertex = []
   }
-  let basePolygonCoords = Object.values(baseGroup.basePolygon.aCoords)
-  basePolygonCoords = [basePolygonCoords[0], basePolygonCoords[1], basePolygonCoords[3], basePolygonCoords[2]] // tl, tr, bl, br ==> tl, tr, br, bl
-  basePolygonCoords.forEach((p, i)=>{
-    baseGroup.basePolygon.vertex.push({x:p.x, y:p.y, label:`E${baseGroup.basePolygon.vertex.length+1}`})
-    midpoint = {
-      x:(p.x + basePolygonCoords[(i+1 == basePolygonCoords.length)? 0:i+1].x) / 2,
-      y:(p.y + basePolygonCoords[(i+1 == basePolygonCoords.length)? 0:i+1].y) / 2,
-      label: `E${baseGroup.basePolygon.vertex.length+1}`
-    }
-    baseGroup.basePolygon.vertex.push(midpoint)
-  })
+  if (calcVertex) {
+    let basePolygonCoords = Object.values(baseGroup.basePolygon.aCoords)
+    basePolygonCoords = [basePolygonCoords[0], basePolygonCoords[1], basePolygonCoords[3], basePolygonCoords[2]] // tl, tr, bl, br ==> tl, tr, br, bl
+    basePolygonCoords.forEach((p, i) => {
+      baseGroup.basePolygon.vertex.push({ x: p.x, y: p.y, label: `E${baseGroup.basePolygon.vertex.length + 1}` })
+      midpoint = {
+        x: (p.x + basePolygonCoords[(i + 1 == basePolygonCoords.length) ? 0 : i + 1].x) / 2,
+        y: (p.y + basePolygonCoords[(i + 1 == basePolygonCoords.length) ? 0 : i + 1].y) / 2,
+        label: `E${baseGroup.basePolygon.vertex.length + 1}`
+      }
+      baseGroup.basePolygon.vertex.push(midpoint)
+    })
+  }
   baseGroup.basePolygon.insertPoint = baseGroup.basePolygon.vertex[0]
 
   baseGroup.addWithUpdate(baseGroup.basePolygon);
 
   // debug text of the location of the group
   if (baseGroup.basePolygon.insertPoint) {
-  const loactionText = new fabric.Text(
-    `placeholder`,
-    {
-      left: baseGroup.left,
-      top: baseGroup.top - 125,
-      fontSize: 20,
-      fill: 'red',
-      selectable: false,
-      opacity: 0,
-      functinoalType: 'locationText',
-    });
-  baseGroup.subObjects.push(loactionText);
-  baseGroup.loactionText = loactionText
+    const loactionText = new fabric.Text(
+      `placeholder`,
+      {
+        left: baseGroup.left,
+        top: baseGroup.top - 125,
+        fontSize: 20,
+        fill: 'red',
+        selectable: false,
+        opacity: 0,
+        functinoalType: 'locationText',
+      });
+    baseGroup.subObjects.push(loactionText);
+    baseGroup.loactionText = loactionText
   }
 
   // Draw the vertices and labels
   if (baseGroup.basePolygon.vertex) {
-  baseGroup.basePolygon.vertex.forEach(v => {
-    // Draw a halftone circle 
-    const circle = new fabric.Circle({
-      left: v.x,
-      top: v.y,
-      radius: 15,
-      strokeWidth: 1,
-      stroke: "red",
-      fill: 'rgba(180, 180, 180, 0.2)',
-      selectable: false,
-      originX: 'center',
-      originY: 'center',
-      opacity: 0,
-      functinoalType: 'vertexCircle',
-    });
-    baseGroup.subObjects.push(circle);
+    baseGroup.basePolygon.vertex.forEach(v => {
+      // Draw a halftone circle 
+      const circle = new fabric.Circle({
+        left: v.x,
+        top: v.y,
+        radius: 15,
+        strokeWidth: 1,
+        stroke: "red",
+        fill: 'rgba(180, 180, 180, 0.2)',
+        selectable: false,
+        originX: 'center',
+        originY: 'center',
+        opacity: 0,
+        functinoalType: 'vertexCircle',
+      });
+      baseGroup.subObjects.push(circle);
 
-    // Add a text label 
-    const text = new fabric.Text(v.label, {
-      left:v.x,
-      top:  v.label.includes('E')?v.y-30:v.y+30,
-      fontSize: 20,
-      fill:  v.label.includes('E')?'red':'violet',
-      selectable: false,
-      originX: 'center',
-      originY: 'center',
-      opacity: 0,
-      functinoalType: 'vertexText',
-    });
-    baseGroup.subObjects.push(text);
-  })
-}
+      // Add a text label 
+      const text = new fabric.Text(v.label, {
+        left: v.x,
+        top: v.label.includes('E') ? v.y - 30 : v.y + 30,
+        fontSize: 20,
+        fill: v.label.includes('E') ? 'red' : 'violet',
+        selectable: false,
+        originX: 'center',
+        originY: 'center',
+        opacity: 0,
+        functinoalType: 'vertexText',
+      });
+      baseGroup.subObjects.push(text);
+    })
+  }
 
   baseGroup.subObjects.forEach(obj => {
     baseGroup.addWithUpdate(obj);
@@ -204,7 +206,7 @@ function drawBasePolygon(basePolygon) {
         obj.set('opacity', 1)
       })
     }, null)
-    canvas.renderAll()
+
   }
   );
 
@@ -214,7 +216,7 @@ function drawBasePolygon(basePolygon) {
         obj.set('opacity', 0)
       })
     }, null)
-    canvas.renderAll()
+
   }
   );
   baseGroup.on('mouseover', function () {
@@ -274,7 +276,7 @@ function drawBasePolygon(basePolygon) {
   baseGroup.updateAllCoord = updateAllCoord
   canvasObject.push(baseGroup)
   canvas.add(baseGroup)
-  baseGroup.updateAllCoord()
+  //baseGroup.updateAllCoord()
   canvas.setActiveObject(baseGroup)
 
   return baseGroup
@@ -386,6 +388,10 @@ function showTextBox(text, withAnswerBox = null) {
           resolve(answerBox.value);
           hideTextBox();
           answerBox.removeEventListener('keydown', handleKeyDown);
+        } else if (event.key === 'Escape') {
+          resolve(null); // or any specific value indicating the user wants to quit
+          hideTextBox();
+          answerBox.removeEventListener('keydown', handleKeyDown);
         }
       });
     });
@@ -406,11 +412,17 @@ function hideTextBox() {
 async function selectObjectHandler(text, callback, options = null) {
   // prompt for user to select shape
   const response = await showTextBox(text, ' ')
+  // Check if the response is null (user pressed 'Esc')
+  if (response === null) {
+    hideTextBox();
+    return;
+  }
   // Update text box position to follow the cursor 
   cursorClickMode = 'select'
   // Periodically check if shape is selected 
   const checkShapeInterval = setInterval(() => {
-    if (response !== null) {
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects.length > 0) {
       cursorClickMode = 'normal'
       clearInterval(checkShapeInterval)
       hideTextBox()
@@ -444,9 +456,13 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
     spacingY = options.spacingY
   } else {
     vertexIndex1 = await showTextBox('Enter vertex index for Polygon 1 (e.g., 1 for V1):', 1)
+    if (vertexIndex1 === null) return;
     vertexIndex2 = await showTextBox('Enter vertex index for Polygon 2 (e.g., 1 for V1):', 1)
+    if (vertexIndex2 === null) return;
     spacingX = parseInt(await showTextBox('Enter spacing in X:', 100))
+    if (isNaN(spacingX)) return;
     spacingY = parseInt(await showTextBox('Enter spacing in Y:', 100))
+    if (isNaN(spacingY)) return;
   }
 
   const movingPoint = Polygon1.basePolygon.vertex.find(el => el.label = vertexIndex1.toUpperCase())

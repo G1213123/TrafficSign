@@ -16,6 +16,16 @@ function resizeCanvas() {
   DrawGrid()
 }
 
+// Use this code to save and get custom properties at initialization of component
+fabric.Object.prototype.toObject = (function (toObject) {
+  return function (propertiesToInclude) {
+    propertiesToInclude = (propertiesToInclude || []).concat(
+      ["basePolygon", "anchoredPolygon", "functinoalType", "subObjects"] // custom attributes
+    );
+    return toObject.apply(this, [propertiesToInclude]);
+  };
+})(fabric.Object.prototype.toObject);
+
 // function to loop through anchored objects and add them to the borderinginObjects array
 function loopAnchoredObjects(obj, callback = null, options = {}, objList = []) {
   if (obj.basePolygon) {
