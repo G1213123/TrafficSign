@@ -20,7 +20,7 @@ function resizeCanvas() {
 fabric.Object.prototype.toObject = (function (toObject) {
   return function (propertiesToInclude) {
     propertiesToInclude = (propertiesToInclude || []).concat(
-      ["basePolygon", "anchoredPolygon", "functinoalType", "subObjects"] // custom attributes
+      ["basePolygon", "anchoredPolygon", "functinoalType", "subObjects", "txtChar", "text"] // custom attributes
     );
     return toObject.apply(this, [propertiesToInclude]);
   };

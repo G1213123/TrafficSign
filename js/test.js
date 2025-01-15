@@ -2,7 +2,7 @@ let borderTest = function () {
     canvas.setActiveObject(canvasObject[0])
     FormBorderWrapComponent.BorderPanelInit()
     borderGroup = new fabric.Group()
-    xheight = 100
+    xheight = 200
     borderType = FormBorderWrapComponent.BorderType["Blue Background"]
     widthObjects = canvas.getActiveObjects()
     heightObjects = canvas.getActiveObjects()
@@ -25,7 +25,7 @@ let loopAnchoredObjectsTest = function () {
 }
 
 let anchorTest = function () {
-    anchorShape([canvasObject[1]], canvasObject[0], {
+    anchorShape([canvasObject[1]], canvasObject[2], {
         vertexIndex1: 'E2',
         vertexIndex2: 'E2',
         spacingX: -200,
@@ -49,7 +49,7 @@ function initShape() {
     //text1.insertPoint = text1.vertex[0]
 
     FormTextAddComponent.textPanelInit()
-    FormTextAddComponent.TextinputHandler(null,{text:'Central', xHeight: 200})
+    FormTextAddComponent.TextinputHandler(null,{text:'Hong Kong', xHeight: 200})
     FormTextAddComponent.TextonMouseClick(null,{left: 100, top: 100})
 
     const arrowOptions1 = { x: 0, y: 0, length: 25, angle: 0, color: 'white' };
@@ -59,7 +59,7 @@ function initShape() {
 }
 
 
-testToRun = [initShape,  borderTest]
+testToRun = [initShape,  anchorTest]
 
 testToRun.forEach(element => {
     element()

@@ -113,9 +113,10 @@ class GlyphPolygon extends fabric.Polygon {
 }
 
 function drawBasePolygon(basePolygon, calcVertex = true) {
-  const baseGroup = new fabric.Group();
+  const baseGroup = new fabric.Group([],{subTargetCheck: true});
   canvas.add(baseGroup)
   baseGroup.basePolygon = basePolygon
+  baseGroup.basePolygon.set('dirty', true)
   baseGroup.basePolygon.functinoalType = 'Polygon'
   baseGroup.anchoredPolygon = []
 
@@ -129,17 +130,17 @@ function drawBasePolygon(basePolygon, calcVertex = true) {
     let basePolygonCoords = Object.values(baseGroup.basePolygon.aCoords)
     basePolygonCoords = [basePolygonCoords[0], basePolygonCoords[1], basePolygonCoords[3], basePolygonCoords[2]] // tl, tr, bl, br ==> tl, tr, br, bl
     basePolygonCoords.forEach((p, i) => {
-      baseGroup.basePolygon.vertex.push({ x: p.x, y: p.y, label: `E${baseGroup.basePolygon.vertex.length + 1}` })
+      baseGroup.basePolygon.vertex.push({ x: p.x, y: p.y, label: `E${i*2 + 1}` })
       midpoint = {
         x: (p.x + basePolygonCoords[(i + 1 == basePolygonCoords.length) ? 0 : i + 1].x) / 2,
         y: (p.y + basePolygonCoords[(i + 1 == basePolygonCoords.length) ? 0 : i + 1].y) / 2,
-        label: `E${baseGroup.basePolygon.vertex.length + 1}`
+        label: `E${(i+1)*2}`
       }
       baseGroup.basePolygon.vertex.push(midpoint)
     })
   }
   baseGroup.basePolygon.insertPoint = baseGroup.basePolygon.vertex[0]
-
+  canvas.remove(baseGroup.basePolygon)
   baseGroup.addWithUpdate(baseGroup.basePolygon);
 
   // debug text of the location of the group
@@ -168,7 +169,7 @@ function drawBasePolygon(basePolygon, calcVertex = true) {
         top: v.y,
         radius: 15,
         strokeWidth: 1,
-        stroke: "red",
+        stroke:  v.label.includes('E') ? 'red' : 'violet',
         fill: 'rgba(180, 180, 180, 0.2)',
         selectable: false,
         originX: 'center',
@@ -239,6 +240,7 @@ function drawBasePolygon(basePolygon, calcVertex = true) {
 
   function updateAllCoord() {
     updateCoord(baseGroup, true)
+    loopAnchoredObjects(baseGroup, updateCoord, true)
     //baseGroup.anchoredPolygon.forEach((p) => {
     //  loopAnchoredObjects(p, updateCoord, false)
     //})
@@ -465,8 +467,8 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
     if (isNaN(spacingY)) return;
   }
 
-  const movingPoint = Polygon1.basePolygon.vertex.find(el => el.label = vertexIndex1.toUpperCase())
-  const targetPoint = Polygon2.basePolygon.vertex.find(el => el.label = vertexIndex2.toUpperCase())
+  const movingPoint = Polygon1.basePolygon.vertex.find(el => el.label == vertexIndex1.toUpperCase())
+  const targetPoint = Polygon2.basePolygon.vertex.find(el => el.label == vertexIndex2.toUpperCase())
 
   // Snap arrow 1 to arrow 2 with the specified spacing
   Polygon1.set({
@@ -476,13 +478,22 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
   Polygon1.setCoords()
   Polygon1.updateAllCoord()
 
+  
   Polygon2.addWithUpdate(Polygon1)
   Polygon2.anchoredPolygon.push(Polygon1)
+
+  Polygon1.forEachObject(function (obj) {
+    //Polygon1.removeWithUpdate(obj)
+    canvas.remove(obj)
+  })
+  canvas.remove(Polygon1)
   Polygon2.updateAllCoord()
   canvas.bringToFront(Polygon2)
 
-  canvas.remove(Polygon1.basePolygon)
-  canvas.remove(Polygon1)
+  
+
+  //
+  //
   canvasObject.pop(Polygon1)
 
   canvas.renderAll();

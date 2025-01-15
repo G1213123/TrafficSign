@@ -114,6 +114,8 @@ let FormTextAddComponent = {
 
   TextinputHandler: function (event, options = null) {
     cursor.forEachObject(function (o) { cursor.remove(o) })
+    cursor.txtChar = []
+    cursor.text = ''
     var left_pos = 0
     if (options) {
       var txt = options.text
@@ -131,7 +133,7 @@ let FormTextAddComponent = {
         top: 6,
         fill: '#fff',
         fontSize: xHeight * 1.88,
-        origin: 'centerX',
+        //origin: 'centerX',
       })
       txt_char.lockScalingX = txt_char.lockScalingY = true;
 
@@ -153,7 +155,10 @@ let FormTextAddComponent = {
       // Update the coordinates
       txt_char.setCoords();
       txt_frame.setCoords()
+
+      cursor.txtChar.push(txt_char)
     }
+    cursor.text = txt
     canvas.renderAll();
   },
   TextonMouseMove: function (event) {
@@ -170,9 +175,10 @@ let FormTextAddComponent = {
   TextonMouseClick: function (event, options = null) {
     //permenent cursor object 
     if (options){
-      cursor.setCoords(
+      cursor.set(
         {left: options.left, top: options.top}
       )
+      canvas.renderAll()
       textValue = 'Go'
       eventButton = 1
     } else{
@@ -414,10 +420,14 @@ let FormBorderWrapComponent = {
         // Clone each object and add them to a temporary group
         objects.forEach(obj => {
           obj.clone(function (cloneObj) {
+          canvas.add(obj)
           loopAnchoredObjects(cloneObj, function (obj) {
-            obj.subObjects.forEach(function (subobj) {
-              canvas.remove(subobj)
-            })
+            subObjects = obj.subObjects
+            obj._restoreObjectsState();
+            canvas.remove(subObjects);
+            if (obj.basePolygon.text) {
+              obj.basePolygon.txtChar.forEach(subobj => canvas.remove(subobj));
+            }
           }
           )
           cloneObj.setCoords()
@@ -438,8 +448,8 @@ let FormBorderWrapComponent = {
       }
 
       // Get the bounding box of the active selection 
-      widthObjectsGroup = new fabric.Group(widthObjects)
-      heightObjectsGroup = new fabric.Group(heightObjects)
+      //widthObjectsGroup = new fabric.Group(widthObjects)
+      //heightObjectsGroup = new fabric.Group(heightObjects)
       //canvas.add(widthObjectsGroup)
       //canvas.add(heightObjectsGroup)
       const coordsWidth = getBoundingBox(widthObjects)
@@ -491,7 +501,7 @@ let FormBorderWrapComponent = {
       });
       GroupedBorder.vertex = innerBorderCoords
       GroupedBorder.vertex = GroupedBorder.vertex.map((point, i) => {
-        return { x: point.x, y: point.y, label: `E${i + 1}` }
+        return { x: point.x, y: point.y, label: `V${i + 1}` }
       })
       //GroupedBorder.insertPoint = GroupedBorder.vertex[0]
       GroupedBorder.setCoords()
