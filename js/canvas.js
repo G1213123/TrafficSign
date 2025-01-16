@@ -3,6 +3,9 @@ const ctx = canvas.getContext("2d")
 let activeObject = null
 let selectedArrow = null
 let canvasObject = []
+canvas.isDragging = false;
+canvas.lastPosX = 0;
+canvas.lastPosY = 0;
 
 
 window.addEventListener('resize', resizeCanvas, false);
@@ -50,25 +53,33 @@ function loopAnchoredObjects(obj, callback = null, options = {}, objList = []) {
     return objList
   }
 }
-
+// Handle mousedown event
+canvas.on('mouse:down', function (opt) {
+  var e = opt.e;
+  if (e.button === 1) { // Middle mouse button
+    canvas.isDragging = true;
+    canvas.selection = false;
+    canvas.lastPosX = e.clientX;
+    canvas.lastPosY = e.clientY;
+  }
+});
 canvas.on('mouse:move', function (opt) {
   if (this.isDragging) {
     var e = opt.e;
     var vpt = this.viewportTransform;
-    vpt[4] += e.clientX - this.lastPosX;
-    vpt[5] += e.clientY - this.lastPosY;
-    this.requestRenderAll();
-    this.lastPosX = e.clientX;
-    this.lastPosY = e.clientY;
+    vpt[4] += e.clientX - canvas.lastPosX;
+    vpt[5] += e.clientY - canvas.lastPosY;
+    canvas.requestRenderAll();
+    canvas.lastPosX = e.clientX;
+    canvas.lastPosY = e.clientY;
     DrawGrid()
   }
 });
 canvas.on('mouse:up', function (opt) {
   // on mouse up we want to recalculate new interaction
-  // for all objects, so we call setViewportTransform
-  this.setViewportTransform(this.viewportTransform);
-  this.isDragging = false;
-  this.selection = true;
+  // for all objects, so we call setViewportTransform\
+  canvas.isDragging = false;
+  canvas.selection = true;
 
 });
 
@@ -86,7 +97,7 @@ canvas.on('mouse:wheel', function (opt) {
 
 
 // Add event listener for object:moving event on the canvas 
-canvas.on('object:moving', handleGroupMoving);
+//canvas.on('object:moving', handleGroupMoving);
 
 // Function to handle the moving event for all selected objects
 function handleGroupMoving(event) {
@@ -155,7 +166,7 @@ function DrawGrid() {
 
   grid_group = new fabric.Group(grid_set, { id: 'grid', "selectable": false, "evented": false });
   canvas.add(grid_group);
-  canvas.sendToBack(grid_group)
+  canvas.sendObjectToBack (grid_group)
 };
 
 

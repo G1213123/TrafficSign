@@ -25,7 +25,7 @@ let loopAnchoredObjectsTest = function () {
 }
 
 let anchorTest = function () {
-    anchorShape([canvasObject[1]], canvasObject[2], {
+    anchorShape([canvasObject[1]], canvasObject[0], {
         vertexIndex1: 'E2',
         vertexIndex2: 'E2',
         spacingX: -200,

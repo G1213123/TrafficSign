@@ -150,8 +150,8 @@ let FormTextAddComponent = {
       //txt_char.clipPath = txt_frame;
 
       left_pos += charWidth * xHeight / 100
-      cursor.addWithUpdate(txt_char)
-      cursor.addWithUpdate(txt_frame)
+      cursor.add(txt_char)
+      cursor.add(txt_frame)
       // Update the coordinates
       txt_char.setCoords();
       txt_frame.setCoords()
@@ -173,7 +173,7 @@ let FormTextAddComponent = {
   },
 
   TextonMouseClick: function (event, options = null) {
-    //permenent cursor object 
+    //permanent cursor object 
     if (options){
       cursor.set(
         {left: options.left, top: options.top}
@@ -186,7 +186,7 @@ let FormTextAddComponent = {
       eventButton = event.button
     }
     if (textValue !== '' && eventButton === 1) {
-      cursor.clone(function (clonedObj) {
+      cursor.clone().then(function (clonedObj) {
         function getCombinedBoundingBoxOfRects(cursor) {
           let combinedBBox = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
           let points = [];
@@ -419,20 +419,15 @@ let FormBorderWrapComponent = {
         var clones = []
         // Clone each object and add them to a temporary group
         objects.forEach(obj => {
-          obj.clone(function (cloneObj) {
-          canvas.add(obj)
-          loopAnchoredObjects(cloneObj, function (obj) {
-            subObjects = obj.subObjects
-            obj._restoreObjectsState();
-            canvas.remove(subObjects);
+
+          loopAnchoredObjects(obj, function (obj) {
+            obj.basePolygon.getCoords()
             if (obj.basePolygon.text) {
               obj.basePolygon.txtChar.forEach(subobj => canvas.remove(subobj));
             }
           }
           )
-          cloneObj.setCoords()
-          clones.push(cloneObj)
-        })
+
       })
         // Update the coordinates of the temporary group
         let tempGroup = new fabric.Group(clones)

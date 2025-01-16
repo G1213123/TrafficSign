@@ -14,6 +14,7 @@ function PolarPoint(r, a) {
   return new fabric.Point(r * Math.cos(a), r * Math.sin(a))
 }
 
+/*
 var TextBlock = fabric.util.createClass(fabric.Textbox, {
   initialize: function (x, y, color) {
     this.callSuper('initialize', x, y);
@@ -23,7 +24,7 @@ var TextBlock = fabric.util.createClass(fabric.Textbox, {
     return this.callSuper('toString') + ' (color: ' + this.color + ')';
   }
 });
-
+*/
 
 function AddPlate() {
   var rect = new fabric.Rect({
@@ -113,7 +114,7 @@ class GlyphPolygon extends fabric.Polygon {
 }
 
 function drawBasePolygon(basePolygon, calcVertex = true) {
-  const baseGroup = new fabric.Group([],{subTargetCheck: true});
+  const baseGroup = new fabric.Group([], { subTargetCheck: true });
   canvas.add(baseGroup)
   baseGroup.basePolygon = basePolygon
   baseGroup.basePolygon.set('dirty', true)
@@ -130,18 +131,18 @@ function drawBasePolygon(basePolygon, calcVertex = true) {
     let basePolygonCoords = Object.values(baseGroup.basePolygon.aCoords)
     basePolygonCoords = [basePolygonCoords[0], basePolygonCoords[1], basePolygonCoords[3], basePolygonCoords[2]] // tl, tr, bl, br ==> tl, tr, br, bl
     basePolygonCoords.forEach((p, i) => {
-      baseGroup.basePolygon.vertex.push({ x: p.x, y: p.y, label: `E${i*2 + 1}` })
+      baseGroup.basePolygon.vertex.push({ x: p.x, y: p.y, label: `E${i * 2 + 1}` })
       midpoint = {
         x: (p.x + basePolygonCoords[(i + 1 == basePolygonCoords.length) ? 0 : i + 1].x) / 2,
         y: (p.y + basePolygonCoords[(i + 1 == basePolygonCoords.length) ? 0 : i + 1].y) / 2,
-        label: `E${(i+1)*2}`
+        label: `E${(i + 1) * 2}`
       }
       baseGroup.basePolygon.vertex.push(midpoint)
     })
   }
   baseGroup.basePolygon.insertPoint = baseGroup.basePolygon.vertex[0]
   canvas.remove(baseGroup.basePolygon)
-  baseGroup.addWithUpdate(baseGroup.basePolygon);
+  baseGroup.add(baseGroup.basePolygon);
 
   // debug text of the location of the group
   if (baseGroup.basePolygon.insertPoint) {
@@ -169,7 +170,7 @@ function drawBasePolygon(basePolygon, calcVertex = true) {
         top: v.y,
         radius: 15,
         strokeWidth: 1,
-        stroke:  v.label.includes('E') ? 'red' : 'violet',
+        stroke: v.label.includes('E') ? 'red' : 'violet',
         fill: 'rgba(180, 180, 180, 0.2)',
         selectable: false,
         originX: 'center',
@@ -196,7 +197,7 @@ function drawBasePolygon(basePolygon, calcVertex = true) {
   }
 
   baseGroup.subObjects.forEach(obj => {
-    baseGroup.addWithUpdate(obj);
+    baseGroup.add(obj);
   })
 
   baseGroup.refTopLeft = { top: baseGroup.top, left: baseGroup.left }
@@ -239,12 +240,32 @@ function drawBasePolygon(basePolygon, calcVertex = true) {
   baseGroup.on('moving', updateAllCoord)
 
   function updateAllCoord() {
+    const deltaX = this.left - this.refTopLeft.left;
+    const deltaY = this.top - this.refTopLeft.top;
     updateCoord(baseGroup, true)
-    loopAnchoredObjects(baseGroup, updateCoord, true)
+    emitDelta(deltaX, deltaY);
+    //loopAnchoredObjects(baseGroup, updateCoord, true)
     //baseGroup.anchoredPolygon.forEach((p) => {
     //  loopAnchoredObjects(p, updateCoord, false)
     //})
   }//
+
+  // Method to emit deltaX and deltaY to anchored groups
+  function emitDelta(deltaX, deltaY) {
+    baseGroup.anchoredPolygon.forEach(anchoredGroup => {
+      anchoredGroup.receiveDelta(deltaX, deltaY);
+    });
+  }
+
+  // Method to receive deltaX and deltaY and update position
+  function receiveDelta(deltaX, deltaY) {
+    baseGroup.set({
+      left: baseGroup.left + deltaX,
+      top: baseGroup.top + deltaY
+    });
+    baseGroup.setCoords();
+    baseGroup.updateAllCoord();
+  }
 
   function updateCoord(baseGroup, updateLocationTex = false) {
     polygon = baseGroup.basePolygon
@@ -276,6 +297,8 @@ function drawBasePolygon(basePolygon, calcVertex = true) {
   }
 
   baseGroup.updateAllCoord = updateAllCoord
+  baseGroup.receiveDelta = receiveDelta
+  baseGroup.emitDelta = emitDelta
   canvasObject.push(baseGroup)
   canvas.add(baseGroup)
   //baseGroup.updateAllCoord()
@@ -478,19 +501,19 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
   Polygon1.setCoords()
   Polygon1.updateAllCoord()
 
-  
-  Polygon2.addWithUpdate(Polygon1)
+
+  //Polygon2.add(Polygon1.basePolygon)
   Polygon2.anchoredPolygon.push(Polygon1)
 
-  Polygon1.forEachObject(function (obj) {
-    //Polygon1.removeWithUpdate(obj)
-    canvas.remove(obj)
-  })
-  canvas.remove(Polygon1)
+  //Polygon1.forEachObject(function (obj) {
+  //  //Polygon1.removeWithUpdate(obj)
+  //  canvas.remove(obj)
+  //})
+  //canvas.remove(Polygon1)
   Polygon2.updateAllCoord()
-  canvas.bringToFront(Polygon2)
+  canvas.bringObjectToFront(Polygon2)
 
-  
+
 
   //
   //
