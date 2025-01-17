@@ -13,9 +13,9 @@ let borderTest = function () {
     borderGroup.heightObjects = [...heightObjects]
 
     // Combine the arrays and create a Set to remove duplicates
-    canvas.sendToBack(borderGroup)
-    widthObjects.forEach(obj => { canvas.bringToFront(obj) })
-    heightObjects.forEach(obj => { canvas.bringToFront(obj) })
+    canvas.sendObjectToBack(borderGroup)
+    widthObjects.forEach(obj => { canvas.bringObjectToFront(obj) })
+    heightObjects.forEach(obj => { canvas.bringObjectToFront(obj) })
     canvas.renderAll()
 }
 
@@ -52,14 +52,14 @@ function initShape() {
     FormTextAddComponent.TextinputHandler(null,{text:'Hong Kong', xHeight: 200})
     FormTextAddComponent.TextonMouseClick(null,{left: 100, top: 100})
 
-    const arrowOptions1 = { x: 0, y: 0, length: 25, angle: 0, color: 'white' };
+    const arrowOptions1 = { x: 0, y: 0, length: 25, angle: 0, color: 'white', };
     const arrowOptions2 = { x: 100, y: 100, length: 25, angle: 0, color: 'white' };
     Polygon1 = drawLabeledArrow(canvas, arrowOptions1);
     Polygon2 = drawLabeledArrow(canvas, arrowOptions2);
 }
 
 
-testToRun = [initShape,  anchorTest]
+testToRun = [initShape,  borderTest, anchorTest]
 
 testToRun.forEach(element => {
     element()

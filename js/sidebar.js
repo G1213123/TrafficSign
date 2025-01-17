@@ -99,7 +99,7 @@ let FormTextAddComponent = {
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       GeneralHandler.createinput('input-text', 'Add Text', parent, '', FormTextAddComponent.TextinputHandler, 'input')
-      GeneralHandler.createinput('input-xheight', 'x Height', parent, 100, FormTextAddComponent.TextinputHandler,'input')
+      GeneralHandler.createinput('input-xheight', 'x Height', parent, 100, FormTextAddComponent.TextinputHandler, 'input')
       canvas.on('mouse:move', FormTextAddComponent.TextonMouseMove)
       canvas.on('mouse:down', FormTextAddComponent.TextonMouseClick)
     }
@@ -122,8 +122,9 @@ let FormTextAddComponent = {
       var xHeight = options.xHeight
     }
     else {
-    var txt = document.getElementById('input-text').value
-    var xHeight = parseInt(document.getElementById('input-xheight').value)}
+      var txt = document.getElementById('input-text').value
+      var xHeight = parseInt(document.getElementById('input-xheight').value)
+    }
     for (var i = 0; i < txt.length; i++) {
       charWidth = FormTextAddComponent.textWidthMedium.find(e => e.char == txt.charAt(i)).width
 
@@ -174,14 +175,14 @@ let FormTextAddComponent = {
 
   TextonMouseClick: function (event, options = null) {
     //permanent cursor object 
-    if (options){
+    if (options) {
       cursor.set(
-        {left: options.left, top: options.top}
+        { left: options.left, top: options.top }
       )
       canvas.renderAll()
       textValue = 'Go'
       eventButton = 1
-    } else{
+    } else {
       textValue = document.getElementById("input-text").value
       eventButton = event.button
     }
@@ -226,6 +227,7 @@ let FormTextAddComponent = {
 
         }
         clonedObj.setCoords()
+        clonedObj.getCombinedBoundingBoxOfRects = getCombinedBoundingBoxOfRects
         clonedObj.vertex = getCombinedBoundingBoxOfRects(clonedObj)
         //Object.values(clonedObj.aCoords).map((point, i) => {
         //  return { x: point.x, y: point.y, label: `E${i + 1}` }
@@ -395,9 +397,9 @@ let FormBorderWrapComponent = {
         borderGroup.heightObjects = [...heightObjects]
 
         // Combine the arrays and create a Set to remove duplicates
-        canvas.sendToBack(borderGroup)
-        widthObjects.forEach(obj => { canvas.bringToFront(obj) })
-        heightObjects.forEach(obj => { canvas.bringToFront(obj) })
+        canvas.sendObjectToBack(borderGroup)
+        widthObjects.forEach(obj => { canvas.bringObjectToFront(obj) })
+        heightObjects.forEach(obj => { canvas.bringObjectToFront(obj) })
         canvas.renderAll()
       })
     })
@@ -416,30 +418,34 @@ let FormBorderWrapComponent = {
 
       // Function to get the bounding box of specific objects
       function getBoundingBox(objects) {
-        var clones = []
-        // Clone each object and add them to a temporary group
+        // Loop through each object and its basePolygon
+        let combinedBBox = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
         objects.forEach(obj => {
 
-          loopAnchoredObjects(obj, function (obj) {
-            obj.basePolygon.getCoords()
-            if (obj.basePolygon.text) {
-              obj.basePolygon.txtChar.forEach(subobj => canvas.remove(subobj));
-            }
-          }
-          )
 
-      })
-        // Update the coordinates of the temporary group
-        let tempGroup = new fabric.Group(clones)
-        const aCoords = tempGroup.aCoords;
+          if (!obj.basePolygon.text) {
+            coord = obj.basePolygon.getCoords()
+            // Update the combined bounding box
+            combinedBBox.left = Math.min(combinedBBox.left, coord[0].x,);
+            combinedBBox.top = Math.min(combinedBBox.top, coord[0].y,);
+            combinedBBox.right = Math.max(combinedBBox.right, coord[2].x,);
+            combinedBBox.bottom = Math.max(combinedBBox.bottom, coord[2].y,);
+          } else {
+            rects = obj.basePolygon.getObjects().filter(obj => obj.type != 'text')
+            rects.forEach(basePolygon => {
+              coord = basePolygon.getCoords()
+              // Update the combined bounding box
+              combinedBBox.left = Math.min(combinedBBox.left, coord[0].x,);
+              combinedBBox.top = Math.min(combinedBBox.top, coord[0].y,);
+              combinedBBox.right = Math.max(combinedBBox.right, coord[2].x,);
+              combinedBBox.bottom = Math.max(combinedBBox.bottom, coord[2].y,);
+            })
+          }
+        })
+
 
         // Return the bounding box coordinates
-        return [
-          { x: aCoords.tl.x, y: aCoords.tl.y }, // Top-left corner
-          { x: aCoords.tr.x, y: aCoords.tr.y }, // Top-right corner
-          { x: aCoords.br.x, y: aCoords.br.y }, // Bottom-right corner
-          { x: aCoords.bl.x, y: aCoords.bl.y }  // Bottom-left corner
-        ];
+        return combinedBBox
       }
 
       // Get the bounding box of the active selection 
@@ -449,12 +455,12 @@ let FormBorderWrapComponent = {
       //canvas.add(heightObjectsGroup)
       const coordsWidth = getBoundingBox(widthObjects)
       const coordsHeight = getBoundingBox(heightObjects)
-      const coords = coordsWidth.map((point, i) => {
-        return {
-          x: (point.x),
-          y: (coordsHeight[i].y)
-        }
-      })
+      const coords = [
+      { x: coordsWidth.left, y: coordsHeight.top },
+      { x: coordsWidth.right, y: coordsHeight.top },
+      { x: coordsWidth.right, y: coordsHeight.bottom },
+      { x: coordsWidth.left, y: coordsHeight.bottom }]
+
       /*
         coords[0]: Top-left corner
         coords[1]: Top-right corner
