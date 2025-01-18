@@ -73,6 +73,10 @@ canvas.on('mouse:move', function (opt) {
     canvas.lastPosX = e.clientX;
     canvas.lastPosY = e.clientY;
     DrawGrid()
+        // Update the coordinates of all objects to ensure controls are updated
+        canvas.getObjects().forEach(obj => {
+          obj.setCoords();
+        });
   }
 });
 canvas.on('mouse:up', function (opt) {

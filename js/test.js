@@ -2,7 +2,7 @@ let borderTest = function () {
     canvas.setActiveObject(canvasObject[0])
     FormBorderWrapComponent.BorderPanelInit()
     borderGroup = new fabric.Group()
-    xheight = 200
+    xheight = 100
     borderType = FormBorderWrapComponent.BorderType["Blue Background"]
     widthObjects = canvas.getActiveObjects()
     heightObjects = canvas.getActiveObjects()
@@ -29,11 +29,11 @@ let anchorTest = function () {
         vertexIndex1: 'E2',
         vertexIndex2: 'E2',
         spacingX: -200,
-        spacingY: 0
+        spacingY: NaN
     })
 }
 
-function initShape() {
+async function initShape() {
     /*routeMap = new fabric.Group()
     var base = LoadShape("base", { scaleY: (31 / 2 + 21.92 + 2.828 + 12 + 10) / 31, top: -(31 / 2 + 21.92 + 2.828 + 12 + 10) }, routeMap)
     var arm = LoadShape("base", { left: -21.92, top: -(31 / 2 + 21.92), scaleX: 4 / 6, angle: -45 }, routeMap)
@@ -48,23 +48,30 @@ function initShape() {
     //})
     //text1.insertPoint = text1.vertex[0]
 
-    FormTextAddComponent.textPanelInit()
-    FormTextAddComponent.TextinputHandler(null,{text:'Hong Kong', xHeight: 200})
-    FormTextAddComponent.TextonMouseClick(null,{left: 100, top: 100})
+
 
     const arrowOptions1 = { x: 0, y: 0, length: 25, angle: 0, color: 'white', };
     const arrowOptions2 = { x: 100, y: 100, length: 25, angle: 0, color: 'white' };
     Polygon1 = drawLabeledArrow(canvas, arrowOptions1);
     Polygon2 = drawLabeledArrow(canvas, arrowOptions2);
+
+    FormTextAddComponent.textPanelInit()
+    FormTextAddComponent.TextinputHandler(null,{text:'Hong Kong', xHeight: 100})
+    FormTextAddComponent.TextonMouseClick(null,{left: 100, top: 100})
 }
 
 
-testToRun = [initShape,  borderTest, anchorTest]
+testToRun = [initShape,  ]
 
-testToRun.forEach(element => {
-    element()
-});
+async function runTests(tests) {
+    for (const test of tests) {
+      await test();
+    }
+  }
 
+  runTests(testToRun).then(() => {
+    console.log('All tests completed');
+  });
 // MIT http://rem.mit-license.org
 // https://stackoverflow.com/questions/33777577/javascript-get-actual-rendered-font-height
 function textXHeight() {

@@ -55,7 +55,7 @@ div.item.bottom {
 }
 
 div.heading {
-  font-size: 16px;
+  font-size: 30px;
   font-family: 'Lato', TransportMedium;
   color: white;
   height: 44px;
@@ -174,9 +174,9 @@ div.side-panel.close {
   height: 25px;
   left: 30px;
   position: absolute;
-  top: -14px;
+  top: -18px;
   transition: border 100ms ease-out, width 100ms ease-out, height 100ms ease-out;
-  width: 76px;
+  width: 140px;
   border: 1px solid #ccc;
 }
 
@@ -187,9 +187,9 @@ div.side-panel.close {
 .input:focus~.cut,
 .input:not(:placeholder-shown)~.cut {
   border: 2px solid #eee;
-  width: 74px;
-  height: 15px;
-  top: -12px;
+  width: 140px;
+  height: 25px;
+  top: -18x;
 }
 
 .placeholder {
@@ -199,7 +199,7 @@ div.side-panel.close {
   line-height: 14px;
   pointer-events: none;
   position: absolute;
-  font-size: 12px;
+  font-size: 20px;
   top: -10px;
   text-align: center;
   font-weight: lighter;

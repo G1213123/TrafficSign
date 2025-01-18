@@ -99,7 +99,7 @@ let FormTextAddComponent = {
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       GeneralHandler.createinput('input-text', 'Add Text', parent, '', FormTextAddComponent.TextinputHandler, 'input')
-      GeneralHandler.createinput('input-xheight', 'x Height', parent, 100, FormTextAddComponent.TextinputHandler, 'input')
+      GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100, FormTextAddComponent.TextinputHandler, 'input')
       canvas.on('mouse:move', FormTextAddComponent.TextonMouseMove)
       canvas.on('mouse:down', FormTextAddComponent.TextonMouseClick)
     }
@@ -123,34 +123,62 @@ let FormTextAddComponent = {
     }
     else {
       var txt = document.getElementById('input-text').value
-      var xHeight = parseInt(document.getElementById('input-xheight').value)
+      var xHeight = parseInt(document.getElementById('input-xHeight').value)
     }
+
     for (var i = 0; i < txt.length; i++) {
-      charWidth = FormTextAddComponent.textWidthMedium.find(e => e.char == txt.charAt(i)).width
+      // Check if the character is a Chinese character
+      if (/[\u4E00-\u9FFF\u3040-\u30FF\u31F0-\u31FF]/.test(txt.charAt(i))) {
+        charWidth = 2.25 * xHeight / 100
+        txt_char = new fabric.Text(txt.charAt(i), {
+          fontFamily: 'Noto Sans Hong Kong',
+          left: left_pos + 0.25 * xHeight,
+          top: 0.1 * xHeight / 100,
+          fill: '#fff',
+          fontSize: xHeight * 2.25,
+          //origin: 'centerX',
+        })
+        txt_char.lockScalingX = txt_char.lockScalingY = true;
+        txt_frame = new fabric.Rect({
+          left: left_pos,
+          top: 0,
+          width: 2.75 * xHeight,
+          height: 2.75 * xHeight,
+          fill: 'rgba(0,0,0,0)', // Transparent fill
+          stroke: '#FFFFFF', // White stroke color to match the canvas style
+          strokeWidth: 2, // Adjust stroke width for consistency
+          strokeDashArray: [xHeight / 10, xHeight / 10],
+        })
 
-      txt_char = new fabric.Text(txt.charAt(i), {
-        fontFamily: 'TransportMedium',
-        left: left_pos,
-        top: 6,
-        fill: '#fff',
-        fontSize: xHeight * 1.88,
-        //origin: 'centerX',
-      })
-      txt_char.lockScalingX = txt_char.lockScalingY = true;
+        left_pos += 2.75 * xHeight
+      } else {
+        charWidth = FormTextAddComponent.textWidthMedium.find(e => e.char == txt.charAt(i)).width
 
-      txt_frame = new fabric.Rect({
-        left: left_pos,
-        top: 0,
-        width: charWidth * xHeight / 100,
-        height: xHeight * 2,
-        fill: 'rgba(0,0,0,0)',
-        stroke: 'red',
-        strokeDashArray: [9, 2],
-      })
+        txt_char = new fabric.Text(txt.charAt(i), {
+          fontFamily: 'TransportMedium',
+          left: left_pos,
+          top: 6,
+          fill: '#fff',
+          fontSize: xHeight * 1.88,
+          //origin: 'centerX',
+        })
+        txt_char.lockScalingX = txt_char.lockScalingY = true;
 
-      //txt_char.clipPath = txt_frame;
+        txt_frame = new fabric.Rect({
+          left: left_pos,
+          top: 0,
+          width: charWidth * xHeight / 100,
+          height: xHeight * 2,
+          fill: 'rgba(0,0,0,0)', // Transparent fill
+          stroke: '#FFFFFF', // White stroke color to match the canvas style
+          strokeWidth: 2, // Adjust stroke width for consistency
+          strokeDashArray: [xHeight / 10, xHeight / 10],
+        })
 
-      left_pos += charWidth * xHeight / 100
+        //txt_char.clipPath = txt_frame;
+
+        left_pos += charWidth * xHeight / 100
+      }
       cursor.add(txt_char)
       cursor.add(txt_frame)
       // Update the coordinates
@@ -158,10 +186,11 @@ let FormTextAddComponent = {
       txt_frame.setCoords()
 
       cursor.txtChar.push(txt_char)
+      cursor.text = txt
+      canvas.renderAll();
     }
-    cursor.text = txt
-    canvas.renderAll();
-  },
+  }
+  ,
   TextonMouseMove: function (event) {
     var pointer = canvas.getPointer(event.e);
     var posx = pointer.x;
@@ -179,19 +208,19 @@ let FormTextAddComponent = {
       cursor.set(
         { left: options.left, top: options.top }
       )
-      canvas.renderAll()
+
       textValue = 'Go'
-      eventButton = 1
+      eventButton = 0
     } else {
       textValue = document.getElementById("input-text").value
-      eventButton = event.button
+      eventButton = event.e.button
     }
-    if (textValue !== '' && eventButton === 1) {
+    if (textValue !== '' && eventButton === 0) {
       cursor.clone().then(function (clonedObj) {
-        function getCombinedBoundingBoxOfRects(cursor) {
+        clonedObj.getCombinedBoundingBoxOfRects = function () {
           let combinedBBox = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
           let points = [];
-          cursor.forEachObject(obj => {
+          this.forEachObject(obj => {
             if (obj.type === 'rect') {
               obj.setCoords();
               const aCoords = obj.aCoords;
@@ -199,7 +228,7 @@ let FormTextAddComponent = {
 
               // Transform the coordinates to the canvas coordinate system
               Object.values(aCoords).forEach(point => {
-                const absPoint = fabric.util.transformPoint(point, cursor.calcTransformMatrix());
+                const absPoint = fabric.util.transformPoint(point, this.calcTransformMatrix());
                 combinedBBox.left = Math.min(combinedBBox.left, absPoint.x);
                 combinedBBox.top = Math.min(combinedBBox.top, absPoint.y);
                 combinedBBox.right = Math.max(combinedBBox.right, absPoint.x);
@@ -227,8 +256,7 @@ let FormTextAddComponent = {
 
         }
         clonedObj.setCoords()
-        clonedObj.getCombinedBoundingBoxOfRects = getCombinedBoundingBoxOfRects
-        clonedObj.vertex = getCombinedBoundingBoxOfRects(clonedObj)
+        clonedObj.vertex = clonedObj.getCombinedBoundingBoxOfRects()
         //Object.values(clonedObj.aCoords).map((point, i) => {
         //  return { x: point.x, y: point.y, label: `E${i + 1}` }
         //})
@@ -380,18 +408,18 @@ let FormBorderWrapComponent = {
   BorderPanelInit: function () {
     var parent = GeneralHandler.PanelInit()
     if (parent) {
-      GeneralHandler.createinput('input-xheight', 'x Height', parent, 100)
+      GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100)
       GeneralHandler.createselect('input-type', 'Select Border Type', Object.keys(FormBorderWrapComponent.BorderType), parent, '', '', 'select')
       GeneralHandler.createbutton('input-text', 'Select Objects for border', parent, '', FormBorderWrapComponent.BorderCreateHandler, 'click')
     }
   },
   BorderCreateHandler: async function () {
-    xheight = parseInt(document.getElementById("input-xheight").value)
+    xHeight = parseInt(document.getElementById("input-xHeight").value)
     borderType = FormBorderWrapComponent.BorderType[document.getElementById("input-type").value]
 
     selectObjectHandler('Select shape to calculate border width', function (widthObjects) {
       selectObjectHandler('Select shape to calculate border height', function (heightObjects) {
-        borderObject = FormBorderWrapComponent.BorderCreate(heightObjects, widthObjects, xheight, borderType)
+        borderObject = FormBorderWrapComponent.BorderCreate(heightObjects, widthObjects, xHeight, borderType)
         borderGroup = drawBasePolygon(borderObject)
         borderGroup.widthObjects = [...widthObjects]
         borderGroup.heightObjects = [...heightObjects]
@@ -413,8 +441,8 @@ let FormBorderWrapComponent = {
   },
 
 
-  BorderCreate: function (heightObjects, widthObjects, xheight, borderType) {
-    if (xheight > 0) {
+  BorderCreate: function (heightObjects, widthObjects, xHeight, borderType) {
+    if (xHeight > 0) {
 
       // Function to get the bounding box of specific objects
       function getBoundingBox(objects) {
@@ -423,24 +451,13 @@ let FormBorderWrapComponent = {
         objects.forEach(obj => {
 
 
-          if (!obj.basePolygon.text) {
-            coord = obj.basePolygon.getCoords()
-            // Update the combined bounding box
-            combinedBBox.left = Math.min(combinedBBox.left, coord[0].x,);
-            combinedBBox.top = Math.min(combinedBBox.top, coord[0].y,);
-            combinedBBox.right = Math.max(combinedBBox.right, coord[2].x,);
-            combinedBBox.bottom = Math.max(combinedBBox.bottom, coord[2].y,);
-          } else {
-            rects = obj.basePolygon.getObjects().filter(obj => obj.type != 'text')
-            rects.forEach(basePolygon => {
-              coord = basePolygon.getCoords()
-              // Update the combined bounding box
-              combinedBBox.left = Math.min(combinedBBox.left, coord[0].x,);
-              combinedBBox.top = Math.min(combinedBBox.top, coord[0].y,);
-              combinedBBox.right = Math.max(combinedBBox.right, coord[2].x,);
-              combinedBBox.bottom = Math.max(combinedBBox.bottom, coord[2].y,);
-            })
-          }
+
+          coord = obj.getEffectiveCoords()
+          // Update the combined bounding box
+          combinedBBox.left = Math.min(combinedBBox.left, coord[0].x,);
+          combinedBBox.top = Math.min(combinedBBox.top, coord[0].y,);
+          combinedBBox.right = Math.max(combinedBBox.right, coord[2].x,);
+          combinedBBox.bottom = Math.max(combinedBBox.bottom, coord[2].y,);
         })
 
 
@@ -455,11 +472,7 @@ let FormBorderWrapComponent = {
       //canvas.add(heightObjectsGroup)
       const coordsWidth = getBoundingBox(widthObjects)
       const coordsHeight = getBoundingBox(heightObjects)
-      const coords = [
-      { x: coordsWidth.left, y: coordsHeight.top },
-      { x: coordsWidth.right, y: coordsHeight.top },
-      { x: coordsWidth.right, y: coordsHeight.bottom },
-      { x: coordsWidth.left, y: coordsHeight.bottom }]
+      const coords = { left: coordsWidth.left, top: coordsHeight.top, right: coordsWidth.right, bottom: coordsHeight.bottom }
 
       /*
         coords[0]: Top-left corner
@@ -469,27 +482,55 @@ let FormBorderWrapComponent = {
       */
       // Function to calculate padded coordinates 
       paddingCoords = function getPaddedCoords(coords, padLeft, padRight, padTop, padBottom) {
-        return [
-          { x: coords[0].x - padLeft * xheight / 4, y: coords[0].y - padTop * xheight / 4 }, // Top-left 
-          { x: coords[1].x + padRight * xheight / 4, y: coords[1].y - padTop * xheight / 4 }, // Top-right 
-          { x: coords[2].x + padRight * xheight / 4, y: coords[2].y + padBottom * xheight / 4 }, // Bottom-right 
-          { x: coords[3].x - padLeft * xheight / 4, y: coords[3].y + padBottom * xheight / 4 } // Bottom-left 
-        ];
+        return {
+          left: coords.left - padLeft * xHeight / 4,
+          top: coords.top - padTop * xHeight / 4,
+          right: coords.right + padRight * xHeight / 4,
+          bottom: coords.bottom + padBottom * xHeight / 4
+        }
+
       }
       innerBorderCoords = paddingCoords(coords, borderType.PaddingLeft, borderType.PaddingRight, borderType.PaddingTop, borderType.PaddingNBottom,)
       outerBorderCoords = paddingCoords(innerBorderCoords, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth,)
 
+      // Border Rounding
+      borderWidth = outerBorderCoords.right - outerBorderCoords.left
+      borderHeight = outerBorderCoords.bottom - outerBorderCoords.top
+      if (borderWidth > 2000 || borderHeight > 2000) {
+        roundingX = (50.0 * Math.round(borderWidth / 50.0) - borderWidth) / 2
+        roundingY = (50.0 * Math.round(borderHeight / 50.0) - borderHeight) / 2
+      } else {
+        roundingX = (25.0 * Math.round(borderWidth / 25.0) - borderWidth) / 2
+        roundingY = (25.0 * Math.round(borderHeight / 25.0) - borderHeight) / 2
+        roundingX = roundingX < -2.5 ? roundingX = 25 / 2 + roundingX : roundingX
+        roundingY = roundingY < -2.5 ? roundingY = 25 / 2 + roundingY : roundingY
+      }
+
+      outerBorderCoords = {
+        left: outerBorderCoords.left - roundingX,
+        top: outerBorderCoords.top - roundingY,
+        right: outerBorderCoords.right + roundingX,
+        bottom: outerBorderCoords.bottom + roundingY
+      }
+
+      innerBorderCoords = {
+        left: innerBorderCoords.left + roundingX,
+        top: innerBorderCoords.top + roundingY,
+        right: innerBorderCoords.right - roundingX,
+        bottom: innerBorderCoords.bottom - roundingY
+      }
+
       // draw rounded shape
       drawBorder = function (BorderCoord, fill, radius) {
         var Rect = new fabric.Rect({
-          left: BorderCoord[0].x,
-          top: BorderCoord[0].y,
+          left: BorderCoord.left,
+          top: BorderCoord.top,
           fill: fill,
-          width: BorderCoord[1].x - BorderCoord[0].x,
-          height: BorderCoord[2].y - BorderCoord[0].y,
+          width: BorderCoord.right - BorderCoord.left,
+          height: BorderCoord.bottom - BorderCoord.top,
           objectCaching: false,
-          rx: radius * xheight / 4,
-          ry: radius * xheight / 4,
+          rx: radius * xHeight / 4,
+          ry: radius * xHeight / 4,
           objectCaching: false
         });
         return Rect
@@ -500,10 +541,20 @@ let FormBorderWrapComponent = {
       GroupedBorder = new fabric.Group([outerBorderObject, innerBorderObject], {
         objectCaching: false,
       });
-      GroupedBorder.vertex = innerBorderCoords
-      GroupedBorder.vertex = GroupedBorder.vertex.map((point, i) => {
-        return { x: point.x, y: point.y, label: `V${i + 1}` }
-      })
+
+      const cornerPoints = [
+        { x: innerBorderCoords.left, y: innerBorderCoords.top }, // Top-left
+        { x: innerBorderCoords.right, y: innerBorderCoords.top }, // Top-right
+        { x: innerBorderCoords.right, y: innerBorderCoords.bottom }, // Bottom-right
+        { x: innerBorderCoords.left, y: innerBorderCoords.bottom } // Bottom-left
+      ];
+
+      // Generate the corner point list with labels
+      const labeledCornerPoints = cornerPoints.map((point, i) => {
+        return { x: point.x, y: point.y, label: `V${i + 1}` };
+      });
+      GroupedBorder.vertex = labeledCornerPoints
+
       //GroupedBorder.insertPoint = GroupedBorder.vertex[0]
       GroupedBorder.setCoords()
       return GroupedBorder;

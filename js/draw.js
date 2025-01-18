@@ -2,6 +2,9 @@
 xHeight = 100
 let canvasObjectNumbering = 0
 let cursorClickMode = 'normal'
+const deleteIcon =
+  "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
+
 
 // additional property for fabric object
 const originalToObject = fabric.Object.prototype.toObject;
@@ -111,19 +114,34 @@ class GlyphPolygon extends fabric.Polygon {
     ;
   }
 
+  getEffectiveCoords() {
+    return this.getCoords()
+  }
 }
 
 // Define the BaseGroup class using ES6 class syntax
 class BaseGroup extends fabric.Group {
   constructor(basePolygon, options = {}) {
     super([], options);
-    this.type = 'baseGroup';
+    //this.type = 'baseGroup';
     this.basePolygon = basePolygon;
-    this.basePolygon.set({ 'dirty': true });
+    //this.basePolygon.set({ 'dirty': true });
     this.basePolygon.functinoalType = 'Polygon';
     this.anchoredPolygon = [];
     this.subObjects = [];
-    
+
+    Object.values(this.controls).forEach((control) => {
+      control.visible = false;
+    })
+    this.controls.deleteControl = new fabric.Control({
+      x: 0.5,
+      y: -0.5,
+      offsetY: 16,
+      cursorStyle: 'pointer',
+      mouseUpHandler: this.deleteObject,
+      render: this.renderIcon,
+      cornerSize: 24,
+    });
 
     // Calculate vertex points for anchoring
     if (!this.basePolygon.vertex) {
@@ -149,15 +167,25 @@ class BaseGroup extends fabric.Group {
     // Debug text of the location of the group
     if (this.basePolygon.insertPoint) {
       const loactionText = new fabric.Text(
-        `Node: ${this.basePolygon.insertPoint.label} \nX: ${this.basePolygon.insertPoint.x} \nY: ${this.basePolygon.insertPoint.y}`,
+        `Node: ${this.basePolygon.insertPoint.label} \nX: ${this.basePolygon.insertPoint.x.toFixed(0)} \nY: ${this.basePolygon.insertPoint.y.toFixed(0)}`,
         {
           left: this.left,
           top: this.top - 125,
           fontSize: 20,
-          fill: 'red',
+          fill: 'white', // Text color
           selectable: false,
-          opacity: 0,
+          opacity: 1,
           functinoalType: 'locationText',
+          stroke: '#000', // Text stroke color
+          strokeWidth: 3,
+          paintFirst: 'stroke', // Stroke behind fill
+          fontFamily: 'Arial, sans-serif', // Modern font family
+          padding: 10, // Padding around the text
+          shadow: new fabric.Shadow({
+            color: 'rgba(0, 0, 0, 0.5)',
+            blur: 10,
+            offsetX: 2,
+            offsetY: 2})
         });
       this.subObjects.push(loactionText);
       this.loactionText = loactionText;
@@ -170,10 +198,10 @@ class BaseGroup extends fabric.Group {
         const circle = new fabric.Circle({
           left: v.x,
           top: v.y,
-          radius: 15,
+          radius: 10,
           strokeWidth: 1,
-          stroke: v.label.includes('E') ? 'red' : 'violet',
-          fill: 'rgba(180, 180, 180, 0.2)',
+          stroke:v.label.includes('E') ? 'red' : 'violet', // Changed fill color for better contrast
+          fill: 'rgba(255, 255, 255, 0.2)',
           selectable: false,
           originX: 'center',
           originY: 'center',
@@ -187,12 +215,15 @@ class BaseGroup extends fabric.Group {
           left: v.x,
           top: v.label.includes('E') ? v.y - 30 : v.y + 30,
           fontSize: 20,
-          fill: v.label.includes('E') ? 'red' : 'violet',
+          fill: v.label.includes('E') ? 'red' : 'violet', // Changed fill color for better contrast
           selectable: false,
           originX: 'center',
           originY: 'center',
-          opacity: 0,
+          opacity: 1,
           functinoalType: 'vertexText',
+          fontFamily: 'Arial, sans-serif', // Modern font family
+          //stroke: '#000', // Black stroke for better contrast
+          //strokeWidth: 1,
         });
         this.subObjects.push(text);
       });
@@ -286,12 +317,46 @@ class BaseGroup extends fabric.Group {
 
     if (updateLocationText) {
       this.loactionText.set(
-        'text', `Node: ${polygon.insertPoint.label} \nX: ${polygon.insertPoint.x} \nY: ${polygon.insertPoint.y}`
+        'text', `Node: ${polygon.insertPoint.label} \nX: ${polygon.insertPoint.x.toFixed(0)} \nY: ${polygon.insertPoint.y.toFixed(0)}`
       );
     }
     polygon.setCoords();
     canvas.renderAll();
   }
+
+  getEffectiveCoords() {
+    if (this.basePolygon.getCombinedBoundingBoxOfRects) {
+      var allCoords = this.basePolygon.getCombinedBoundingBoxOfRects();
+      return [allCoords[0], allCoords[2], allCoords[4], allCoords[6]];
+    }
+    return this.basePolygon.getEffectiveCoords();
+
+  }
+
+  // Method to delete the object
+  deleteObject(_eventData, transform) {
+    canvas.remove(transform.target);
+    canvasObject.pop(transform.target);
+    if (transform.target.anchoredPolygon) {
+      transform.target.anchoredPolygon.forEach(anchoredGroup => {
+        anchoredGroup.set({ lockMovementX: false, lockMovementY: false });
+      })
+    }
+    canvas.requestRenderAll();
+  }
+
+  renderIcon(ctx, left, top, _styleOverride, fabricObject) {
+    const size = this.cornerSize;
+
+    var deleteImg = document.createElement('img');
+    deleteImg.src = deleteIcon;
+    ctx.save();
+    ctx.translate(left, top);
+    ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle));
+    ctx.drawImage(deleteImg, -size / 2, -size / 2, size, size);
+    ctx.restore();
+  }
+
 }
 
 // Register the custom class with Fabric.js
@@ -299,7 +364,10 @@ fabric.BaseGroup = BaseGroup;
 
 // Function to draw base polygon
 function drawBasePolygon(basePolygon, calcVertex = true) {
-  const baseGroup = new fabric.BaseGroup(basePolygon, { calcVertex: calcVertex, subTargetCheck: true });
+  const baseGroup = new fabric.BaseGroup(basePolygon, {
+    calcVertex: calcVertex, subTargetCheck: true, lockScalingX: true,// lock scaling
+    lockScalingY: true
+  });
   canvas.add(baseGroup);
   canvasObject.push(baseGroup);
   canvas.setActiveObject(baseGroup);
@@ -483,15 +551,14 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
     vertexIndex2 = await showTextBox('Enter vertex index for Polygon 2 (e.g., V1 for V1):', 'V1')
     if (vertexIndex2 === null) return;
     spacingX = parseInt(await showTextBox('Enter spacing in X:', 100))
-    if (isNaN(spacingX)) return;
     spacingY = parseInt(await showTextBox('Enter spacing in Y:', 100))
-    if (isNaN(spacingY)) return;
+
   }
 
   const movingPoint = Polygon1.basePolygon.vertex.find(el => el.label == vertexIndex1.toUpperCase())
   const targetPoint = Polygon2.basePolygon.vertex.find(el => el.label == vertexIndex2.toUpperCase())
 
-  if (spacingX != NaN){
+  if (!isNaN(spacingX)) {
     // Snap arrow 1 to arrow 2 with the specified spacing
     Polygon1.set({
       left: Polygon1.left + targetPoint.x - movingPoint.x + spacingX,
@@ -499,13 +566,13 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
     });
   }
 
-  if (spacingY != NaN){
+  if (!isNaN(spacingY)) {
     // Snap arrow 1 to arrow 2 with the specified spacing
     Polygon1.set({
       top: Polygon1.top + targetPoint.y - movingPoint.y + spacingY,
       lockMovementY: true,
     });
-  
+
   }
   Polygon1.setCoords()
   Polygon1.updateAllCoord()
