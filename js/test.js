@@ -29,7 +29,7 @@ let anchorTest = function () {
         vertexIndex1: 'E2',
         vertexIndex2: 'E2',
         spacingX: -200,
-        spacingY: NaN
+        spacingY: 300
     })
 }
 
@@ -61,7 +61,7 @@ async function initShape() {
 }
 
 
-testToRun = [initShape,  ]
+testToRun = [initShape,  anchorTest]
 
 async function runTests(tests) {
     for (const test of tests) {

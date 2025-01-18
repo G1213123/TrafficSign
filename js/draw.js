@@ -129,6 +129,8 @@ class BaseGroup extends fabric.Group {
     this.basePolygon.functinoalType = 'Polygon';
     this.anchoredPolygon = [];
     this.subObjects = [];
+    this.lockXToPolygon = {};
+    this.lockYToPolygon = {};
 
     Object.values(this.controls).forEach((control) => {
       control.visible = false;
@@ -185,7 +187,8 @@ class BaseGroup extends fabric.Group {
             color: 'rgba(0, 0, 0, 0.5)',
             blur: 10,
             offsetX: 2,
-            offsetY: 2})
+            offsetY: 2
+          })
         });
       this.subObjects.push(loactionText);
       this.loactionText = loactionText;
@@ -200,7 +203,7 @@ class BaseGroup extends fabric.Group {
           top: v.y,
           radius: 10,
           strokeWidth: 1,
-          stroke:v.label.includes('E') ? 'red' : 'violet', // Changed fill color for better contrast
+          stroke: v.label.includes('E') ? 'red' : 'violet', // Changed fill color for better contrast
           fill: 'rgba(255, 255, 255, 0.2)',
           selectable: false,
           originX: 'center',
@@ -236,19 +239,19 @@ class BaseGroup extends fabric.Group {
     this.refTopLeft = { top: this.top, left: this.left };
 
     this.on('selected', () => {
-      loopAnchoredObjects(this, function (obj) {
-        obj.subObjects.forEach(obj => {
-          obj.set('opacity', 1);
-        });
-      }, null);
+
+      this.subObjects.forEach(obj => {
+        obj.set('opacity', 1);
+      });
+
     });
 
     this.on('deselected', () => {
-      loopAnchoredObjects(this, function (obj) {
-        obj.subObjects.forEach(obj => {
-          obj.set('opacity', 0);
-        });
-      }, null);
+
+      this.subObjects.forEach(obj => {
+        obj.set('opacity', 0);
+      });
+
     });
 
     this.on('mouseover', function () {
@@ -286,6 +289,97 @@ class BaseGroup extends fabric.Group {
     this.updateAllCoord();
   }
 
+  getBasePolygonVertex(label) {
+    return this.basePolygon.vertex.find(v => v.label === label);
+  }
+  drawAnchorLinkage() {
+    if (Object.keys(this.lockXToPolygon).length) {
+      let sourcePoint = this.getBasePolygonVertex(
+        this.lockXToPolygon.sourcePoint)
+      let targetPoint = this.lockXToPolygon.TargetObject.getBasePolygonVertex(this.lockXToPolygon.targetPoint)
+
+      const line1 = new fabric.Line([sourcePoint.x, sourcePoint.y, targetPoint.x, sourcePoint.y], {
+        stroke: 'red',
+        strokeWidth: 5,
+        selectable: false,
+        functinoalType: 'anchorLine',
+      });
+      const line2 = new fabric.Line([targetPoint.x, sourcePoint.y, targetPoint.x, targetPoint.y], {
+        stroke: 'red',
+        strokeWidth: 5,
+        selectable: false,
+        strokeDashArray: [10, 5],
+        functinoalType: 'anchorLine',
+      });
+
+      // Calculate the midpoint of line1
+      const midX = (sourcePoint.x + targetPoint.x) / 2;
+      const midY = sourcePoint.y;
+
+      // Create a lock icon using Font Awesome
+      const lockIcon = new fabric.Text('\uf023', {
+        fontFamily: 'Font Awesome 5 Free',
+        fontWeight: 900,
+        left: midX,
+        top: midY,
+        fontSize: 20,
+        fill: 'gold', // Gold fill color
+        stroke: 'black', // Black border
+        strokeWidth: 1, // Border width
+        originX: 'center',
+        originY: 'center',
+        selectable: false,
+        functinoalType: 'lockIcon',
+      });
+
+      this.subObjects.push(line1, line2, lockIcon);
+      this.add(line1, line2, lockIcon);
+
+    }
+    if (Object.keys(this.lockYToPolygon).length) {
+      let sourcePoint = this.getBasePolygonVertex(
+        this.lockYToPolygon.sourcePoint)
+      let targetPoint = this.lockYToPolygon.TargetObject.getBasePolygonVertex(this.lockYToPolygon.targetPoint)
+
+      const line1 = new fabric.Line([sourcePoint.x, sourcePoint.y, sourcePoint.x, targetPoint.y], {
+        stroke: 'red',
+        strokeWidth: 5,
+        selectable: false,
+        functinoalType: 'anchorLine',
+      });
+      const line2 = new fabric.Line([sourcePoint.x, targetPoint.y, targetPoint.x, targetPoint.y], {
+        stroke: 'red',
+        strokeWidth: 5,
+        selectable: false,
+        strokeDashArray: [10, 5],
+        functinoalType: 'anchorLine',
+      });
+
+      // Calculate the midpoint of line1
+      const midX = sourcePoint.x;
+      const midY = (sourcePoint.y + targetPoint.y) / 2;
+
+      // Create a lock icon using Font Awesome
+      const lockIcon = new fabric.Text('\uf023', {
+        fontFamily: 'Font Awesome 5 Free',
+        fontWeight: 900,
+        left: midX,
+        top: midY,
+        fontSize: 20,
+        fill: 'gold', // Gold fill color
+        stroke: 'black', // Black border
+        strokeWidth: 1, // Border width
+        originX: 'center',
+        originY: 'center',
+        selectable: false,
+        functinoalType: 'lockIcon',
+      });
+
+      this.subObjects.push(line1, line2, lockIcon);
+      this.add(line1, line2, lockIcon);
+
+    }
+  }
   // Method to update coordinates and emit delta
   updateAllCoord() {
     const deltaX = this.left - this.refTopLeft.left;
@@ -555,8 +649,8 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
 
   }
 
-  const movingPoint = Polygon1.basePolygon.vertex.find(el => el.label == vertexIndex1.toUpperCase())
-  const targetPoint = Polygon2.basePolygon.vertex.find(el => el.label == vertexIndex2.toUpperCase())
+  const movingPoint = Polygon1.getBasePolygonVertex(vertexIndex1.toUpperCase())
+  const targetPoint = Polygon2.getBasePolygonVertex(vertexIndex2.toUpperCase())
 
   if (!isNaN(spacingX)) {
     // Snap arrow 1 to arrow 2 with the specified spacing
@@ -564,6 +658,9 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
       left: Polygon1.left + targetPoint.x - movingPoint.x + spacingX,
       lockMovementX: true,
     });
+    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, TargetObject: Polygon2 }
+    Polygon1.lockXToPolygon = anchor
+    Polygon1.drawAnchorLinkage()
   }
 
   if (!isNaN(spacingY)) {
@@ -572,7 +669,9 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
       top: Polygon1.top + targetPoint.y - movingPoint.y + spacingY,
       lockMovementY: true,
     });
-
+    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, TargetObject: Polygon2 }
+    Polygon1.lockYToPolygon = anchor
+    Polygon1.drawAnchorLinkage()
   }
   Polygon1.setCoords()
   Polygon1.updateAllCoord()
