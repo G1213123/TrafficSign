@@ -272,5 +272,19 @@ div.side-panel.close {
   align-items: left;
 }
 
+/* Debug panel container */
+#debug-info-panel {
+  background-color: #333; /* Deep grey background */
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+}
 
+/* Debug panel text */
+#debug-info-panel div {
+  color: #fff; /* White text for readability */
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
   /* Position the answer box 5px to the right of the prompt box */

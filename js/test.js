@@ -29,7 +29,7 @@ let anchorTest = function () {
         vertexIndex1: 'E2',
         vertexIndex2: 'E2',
         spacingX: -200,
-        spacingY: 300
+        spacingY: NaN
     })
 }
 
@@ -48,16 +48,16 @@ async function initShape() {
     //})
     //text1.insertPoint = text1.vertex[0]
 
+    
+        FormTextAddComponent.textPanelInit()
+        FormTextAddComponent.TextinputHandler(null,{text:'Hong Kong', xHeight: 100})
+        FormTextAddComponent.TextonMouseClick(null,{left: 100, top: 100})
 
 
     const arrowOptions1 = { x: 0, y: 0, length: 25, angle: 0, color: 'white', };
     const arrowOptions2 = { x: 100, y: 100, length: 25, angle: 0, color: 'white' };
     Polygon1 = drawLabeledArrow(canvas, arrowOptions1);
     Polygon2 = drawLabeledArrow(canvas, arrowOptions2);
-
-    FormTextAddComponent.textPanelInit()
-    FormTextAddComponent.TextinputHandler(null,{text:'Hong Kong', xHeight: 100})
-    FormTextAddComponent.TextonMouseClick(null,{left: 100, top: 100})
 }
 
 

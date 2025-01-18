@@ -13,6 +13,16 @@ fabric.Object.prototype.toObject = function (additionalProperties) {
   return originalToObject.call(this, myAdditional.concat(additionalProperties));
 }
 
+// Define a debounce function
+function debounce(func, wait) {
+  let timeout;
+  return function (...args) {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), wait);
+  };
+}
+
 function PolarPoint(r, a) {
   return new fabric.Point(r * Math.cos(a), r * Math.sin(a))
 }
@@ -236,22 +246,23 @@ class BaseGroup extends fabric.Group {
       this.add(obj);
     });
 
-    this.refTopLeft = { top: this.top, left: this.left };
+    this.refTopLeft = { top: this.basePolygon.getCoords()[0].y, 
+      left: this.basePolygon.getCoords()[0].x };
 
     this.on('selected', () => {
-
       this.subObjects.forEach(obj => {
         obj.set('opacity', 1);
       });
-
+      //canvas.bringObjectToFront(this)
     });
 
     this.on('deselected', () => {
-
-      this.subObjects.forEach(obj => {
-        obj.set('opacity', 0);
-      });
-
+      setTimeout(() => {
+        this.subObjects.forEach(obj => {
+          obj.set('opacity', 0);
+        });
+        // canvas.sendObjectToBack(this)
+      }, 0)
     });
 
     this.on('mouseover', function () {
@@ -293,6 +304,14 @@ class BaseGroup extends fabric.Group {
     return this.basePolygon.vertex.find(v => v.label === label);
   }
   drawAnchorLinkage() {
+    for (let i = this.subObjects.length - 1; i >= 0; i--) {
+      const obj = this.subObjects[i];
+      if (obj.functinoalType === 'anchorLine' || obj.functinoalType === 'lockIcon') {
+        this.subObjects.splice(i, 1); // Remove the element from the array
+        this.remove(obj); // Remove the object from the group
+        canvas.remove(obj); // Remove the object from the canvas
+      }
+    }
     if (Object.keys(this.lockXToPolygon).length) {
       let sourcePoint = this.getBasePolygonVertex(
         this.lockXToPolygon.sourcePoint)
@@ -317,7 +336,7 @@ class BaseGroup extends fabric.Group {
       const midY = sourcePoint.y;
 
       // Create a lock icon using Font Awesome
-      const lockIcon = new fabric.Text('\uf023', {
+      const lockIcon1 = new fabric.Text('\uf023', {
         fontFamily: 'Font Awesome 5 Free',
         fontWeight: 900,
         left: midX,
@@ -332,8 +351,8 @@ class BaseGroup extends fabric.Group {
         functinoalType: 'lockIcon',
       });
 
-      this.subObjects.push(line1, line2, lockIcon);
-      this.add(line1, line2, lockIcon);
+      this.subObjects.push(line1, line2, lockIcon1);
+      this.add(line1, line2, lockIcon1);
 
     }
     if (Object.keys(this.lockYToPolygon).length) {
@@ -341,13 +360,13 @@ class BaseGroup extends fabric.Group {
         this.lockYToPolygon.sourcePoint)
       let targetPoint = this.lockYToPolygon.TargetObject.getBasePolygonVertex(this.lockYToPolygon.targetPoint)
 
-      const line1 = new fabric.Line([sourcePoint.x, sourcePoint.y, sourcePoint.x, targetPoint.y], {
+      const line3 = new fabric.Line([sourcePoint.x, sourcePoint.y, sourcePoint.x, targetPoint.y], {
         stroke: 'red',
         strokeWidth: 5,
         selectable: false,
         functinoalType: 'anchorLine',
       });
-      const line2 = new fabric.Line([sourcePoint.x, targetPoint.y, targetPoint.x, targetPoint.y], {
+      const line4 = new fabric.Line([sourcePoint.x, targetPoint.y, targetPoint.x, targetPoint.y], {
         stroke: 'red',
         strokeWidth: 5,
         selectable: false,
@@ -360,7 +379,7 @@ class BaseGroup extends fabric.Group {
       const midY = (sourcePoint.y + targetPoint.y) / 2;
 
       // Create a lock icon using Font Awesome
-      const lockIcon = new fabric.Text('\uf023', {
+      const lockIcon2 = new fabric.Text('\uf023', {
         fontFamily: 'Font Awesome 5 Free',
         fontWeight: 900,
         left: midX,
@@ -375,25 +394,28 @@ class BaseGroup extends fabric.Group {
         functinoalType: 'lockIcon',
       });
 
-      this.subObjects.push(line1, line2, lockIcon);
-      this.add(line1, line2, lockIcon);
+      this.subObjects.push(line3, line4, lockIcon2);
+      this.add(line3, line4, lockIcon2);
 
     }
   }
   // Method to update coordinates and emit delta
   updateAllCoord() {
-    const deltaX = this.left - this.refTopLeft.left;
-    const deltaY = this.top - this.refTopLeft.top;
+    const deltaX = this.basePolygon.getCoords()[0].x - this.refTopLeft.left;
+    const deltaY = this.basePolygon.getCoords()[0].y - this.refTopLeft.top;
     this.updateCoord(true);
     this.emitDelta(deltaX, deltaY);
-    this.refTopLeft = { top: this.top, left: this.left };
+    this.refTopLeft = { top: this.basePolygon.getCoords()[0].y, left: this.basePolygon.getCoords()[0].x};
+    if (canvas.getActiveObject() === this) {
+      this.drawAnchorLinkage();
+    }
   }
 
   // Method to update coordinates
   updateCoord(updateLocationText = false) {
     const polygon = this.basePolygon;
-    const updateX = this.left - this.refTopLeft.left;
-    const updateY = this.top - this.refTopLeft.top;
+    const updateX = this.basePolygon.getCoords()[0].x - this.refTopLeft.left;
+    const updateY = this.basePolygon.getCoords()[0].y - this.refTopLeft.top;
 
     const transformedPoints = calculateTransformedPoints(polygon.vertex, {
       x: updateX,
@@ -660,7 +682,6 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
     });
     anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, TargetObject: Polygon2 }
     Polygon1.lockXToPolygon = anchor
-    Polygon1.drawAnchorLinkage()
   }
 
   if (!isNaN(spacingY)) {
@@ -671,7 +692,6 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
     });
     anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, TargetObject: Polygon2 }
     Polygon1.lockYToPolygon = anchor
-    Polygon1.drawAnchorLinkage()
   }
   Polygon1.setCoords()
   Polygon1.updateAllCoord()
@@ -686,6 +706,7 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
   //})
   //canvas.remove(Polygon1)
   Polygon2.updateAllCoord()
+  Polygon1.drawAnchorLinkage()
   canvas.bringObjectToFront(Polygon2)
 
 
