@@ -129,6 +129,91 @@ class GlyphPolygon extends fabric.Polygon {
   }
 }
 
+class GlyphPath extends fabric.Path {
+  constructor(vertex, options) {
+    const pathData = GlyphPath.vertexToPath(vertex);
+    super(pathData, options);
+    this.vertex = vertex; // Store the vertex points
+    this.insertPoint = vertex[0];
+    this.setCoords();
+  }
+
+  // Convert vertex points to SVG path string with circular trims
+  static vertexToPath(vertex) {
+    if (!vertex || vertex.length === 0) {
+      return '';
+    }
+
+    let pathString = `M ${vertex[0].x} ${vertex[0].y}`;
+    for (let i = 1; i < vertex.length; i++) {
+      const current = vertex[i];
+      const previous = vertex[i - 1];
+      const next = vertex[(i + 1) % vertex.length];
+
+      if (current.radius) {
+        // Calculate the arc center
+        const arcCenter = GlyphPath.calculateArcCenter(previous, current, next, current.radius);
+
+        // Calculate the tangent points for the arc
+        const prevTangent = GlyphPath.calculateTangentPoint(previous, arcCenter, current.radius);
+        const nextTangent = GlyphPath.calculateTangentPoint(next, arcCenter, current.radius);
+
+        // Line to the start of the arc
+        pathString += ` L ${prevTangent.x} ${prevTangent.y}`;
+
+        // Arc to the end of the arc
+        pathString += ` A ${current.radius} ${current.radius} 0 0 1 ${nextTangent.x} ${nextTangent.y}`;
+      } else {
+        // Line to the next point
+        pathString += ` L ${current.x} ${current.y}`;
+      }
+    }
+    pathString += ' Z'; // Close the path
+    return pathString;
+  }
+
+  // Calculate the arc center by offsetting both edges by the radius
+  static calculateArcCenter(prev, current, next, radius) {
+    const offsetPrev = GlyphPath.offsetPoint(prev, current, radius);
+    const offsetNext = GlyphPath.offsetPoint(next, current, radius);
+
+    return GlyphPath.intersectLines(offsetPrev, current, offsetNext, current);
+  }
+
+  // Offset a point by the radius
+  static offsetPoint(point, center, radius) {
+    const angle = Math.atan2(point.y - center.y, point.x - center.x);
+    const offsetX = radius * Math.cos(angle);
+    const offsetY = radius * Math.sin(angle);
+    return {
+      x: center.x - offsetX,
+      y: center.y - offsetY
+    };
+  }
+
+  // Calculate the intersection point of two lines
+  static intersectLines(p1, p2, p3, p4) {
+    const denom = (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x);
+    if (denom === 0) return null; // Lines are parallel
+
+    const intersectX = ((p1.x * p2.y - p1.y * p2.x) * (p3.x - p4.x) - (p1.x - p2.x) * (p3.x * p4.y - p3.y * p4.x)) / denom;
+    const intersectY = ((p1.x * p2.y - p1.y * p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x * p4.y - p3.y * p4.x)) / denom;
+
+    return { x: intersectX, y: intersectY };
+  }
+
+  // Calculate the tangent point for the arc
+  static calculateTangentPoint(point, center, radius) {
+    const angle = Math.atan2(point.y - center.y, point.x - center.x);
+    const offsetX = radius * Math.cos(angle);
+    const offsetY = radius * Math.sin(angle);
+    return {
+      x: center.x + offsetX,
+      y: center.y + offsetY
+    };
+  }
+}
+
 // Define the BaseGroup class using ES6 class syntax
 class BaseGroup extends fabric.Group {
   constructor(basePolygon, options = {}) {
@@ -301,7 +386,7 @@ class BaseGroup extends fabric.Group {
   }
 
   getBasePolygonVertex(label) {
-    return this.basePolygon.vertex.find(v => v.label === label.toUpperCase());
+    return this.basePolygon.vertex.find(v => v.label === label);
   }
   drawAnchorLinkage() {
     for (let i = this.subObjects.length - 1; i >= 0; i--) {
@@ -445,25 +530,17 @@ class BaseGroup extends fabric.Group {
       var allCoords = this.basePolygon.getCombinedBoundingBoxOfRects();
       return [allCoords[0], allCoords[2], allCoords[4], allCoords[6]];
     }
-    return this.basePolygon.getCoords();
+    return this.basePolygon.getEffectiveCoords();
 
   }
 
   // Method to delete the object
   deleteObject(_eventData, transform) {
-    let deleteTarget = transform.target; 
-    canvas.remove(deleteTarget);
-    canvasObject.pop(deleteTarget);
-    if (deleteTarget.anchoredPolygon) {
-      deleteTarget.anchoredPolygon.forEach(anchoredGroup => {
+    canvas.remove(transform.target);
+    canvasObject.pop(transform.target);
+    if (transform.target.anchoredPolygon) {
+      transform.target.anchoredPolygon.forEach(anchoredGroup => {
         anchoredGroup.set({ lockMovementX: false, lockMovementY: false });
-        if (anchoredGroup.lockXToPolygon.TargetObject == deleteTarget) {
-           anchoredGroup.lockXToPolygon = {};
-        }
-        if (anchoredGroup.lockYToPolygon.TargetObject == deleteTarget) {
-           anchoredGroup.lockYToPolygon = {};
-        }
-        anchoredGroup.drawAnchorLinkage();
       })
     }
     canvas.requestRenderAll();
@@ -503,20 +580,20 @@ function drawLabeledArrow(canvas, options) {
 
   // Define points for the arrow polygon
   const points = [
-    { x: 0, y: 0, label: 'V1' },
-    { x: length * 4, y: length * 4, label: 'V2' },
-    { x: length * 4, y: length * 8, label: 'V3' },
-    { x: length * 4 / 3, y: length * 16 / 3, label: 'V4' },
-    { x: length * 4 / 3, y: length * 16, label: 'V5' },
-    { x: - length * 4 / 3, y: length * 16, label: 'V6' },
-    { x: - length * 4 / 3, y: length * 16 / 3, label: 'V7' },
-    { x: - length * 4, y: length * 8, label: 'V8' },
-    { x: - length * 4, y: length * 4, label: 'V9' },
+    { x: 0, y: 0, radius:10, label: 'V1' },
+    { x: length * 4, y: length * 4,            radius:10, label: 'V2' },
+    { x: length * 4, y: length * 8,            radius:10, label: 'V3' },
+    { x: length * 4 / 3, y: length * 16 / 3,   radius:10, label: 'V4' },
+    { x: length * 4 / 3, y: length * 16,       radius:10, label: 'V5' },
+    { x: - length * 4 / 3, y: length * 16,     radius:10, label: 'V6' },
+    { x: - length * 4 / 3, y: length * 16 / 3, radius:10, label: 'V7' },
+    { x: - length * 4, y: length * 8,          radius:10, label: 'V8' },
+    { x: - length * 4, y: length * 4,          radius:10, label: 'V9' },
   ];
 
   // Create polygon with labeled vertices
   const arrow = new drawBasePolygon(
-    new GlyphPolygon(points,
+    new GlyphPath(points,
       {
         left: x,
         top: y,
@@ -670,9 +747,9 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
     spacingX = options.spacingX
     spacingY = options.spacingY
   } else {
-    vertexIndex1 = await showTextBox('Enter vertex index for Polygon 1 (e.g., V1 for V1):', 'E1')
+    vertexIndex1 = await showTextBox('Enter vertex index for Polygon 1 (e.g., V1 for V1):', 'V1')
     if (vertexIndex1 === null) return;
-    vertexIndex2 = await showTextBox('Enter vertex index for Polygon 2 (e.g., V1 for V1):', 'E1')
+    vertexIndex2 = await showTextBox('Enter vertex index for Polygon 2 (e.g., V1 for V1):', 'V1')
     if (vertexIndex2 === null) return;
     spacingX = parseInt(await showTextBox('Enter spacing in X:', 100))
     spacingY = parseInt(await showTextBox('Enter spacing in Y:', 100))
@@ -715,7 +792,7 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
   //canvas.remove(Polygon1)
   Polygon2.updateAllCoord()
   Polygon1.drawAnchorLinkage()
-  //canvas.bringObjectToFront(Polygon2)
+  canvas.bringObjectToFront(Polygon2)
 
 
 
