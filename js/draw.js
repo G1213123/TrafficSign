@@ -131,10 +131,17 @@ class GlyphPolygon extends fabric.Polygon {
 
 class GlyphPath extends fabric.Path {
   constructor(vertex, options) {
+    const vertexleft = vertex[0].x - Math.min(...vertex.map(v => v.x));
+    const vertextop = vertex[0].y - Math.min(...vertex.map(v => v.y));
+    vertex.forEach((p) => {
+      p.x = p.x + options.left+ vertexleft;
+      p.y = p.y + options.top + vertextop;
+    });
     const pathData = GlyphPath.vertexToPath(vertex);
     super(pathData, options);
     this.vertex = vertex; // Store the vertex points
     this.insertPoint = vertex[0];
+
     this.setCoords();
   }
 
@@ -144,42 +151,133 @@ class GlyphPath extends fabric.Path {
       return '';
     }
 
-    let pathString = `M ${vertex[0].x} ${vertex[0].y}`;
+    let pathString = '';
+    const first = vertex[0];
+    const second = vertex[1];
+    const last = vertex[vertex.length - 1];
+  
+    if (first.radius) {
+      // Calculate the exterior angle θ for the first corner
+      const angle = GlyphPath.calculateAngle(last, first, second);
+  
+      // Calculate the offset distance d = r × tan(θ/2)
+      const offsetDistance = first.radius * Math.tan(angle / 2);
+  
+      // Calculate the tangent point for the first vertex
+      const firstTangent = GlyphPath.calculateTangentPoint(second, first, offsetDistance);
+  
+      // Move to the tangent point
+      pathString = `M ${firstTangent.x} ${firstTangent.y}`;
+    } else {
+      // Move to the first vertex
+      pathString = `M ${first.x} ${first.y}`;
+    }
+  
     for (let i = 1; i < vertex.length; i++) {
       const current = vertex[i];
       const previous = vertex[i - 1];
       const next = vertex[(i + 1) % vertex.length];
-
+  
       if (current.radius) {
-        // Calculate the arc center
-        const arcCenter = GlyphPath.calculateArcCenter(previous, current, next, current.radius);
-
+        // Calculate the exterior angle θ
+        const angle = GlyphPath.calculateAngle(previous, current, next);
+  
+        // Calculate the offset distance d = r × tan(θ/2)
+        const offsetDistance = current.radius * Math.tan(angle / 2);
+  
         // Calculate the tangent points for the arc
-        const prevTangent = GlyphPath.calculateTangentPoint(previous, arcCenter, current.radius);
-        const nextTangent = GlyphPath.calculateTangentPoint(next, arcCenter, current.radius);
-
+        const prevTangent = GlyphPath.calculateTangentPoint(previous, current, offsetDistance);
+        const nextTangent = GlyphPath.calculateTangentPoint(next, current, offsetDistance);
+  
+        // Determine the arc direction (clockwise or counterclockwise)
+        const arcDirection = GlyphPath.getArcDirection(previous, current, next);
+  
         // Line to the start of the arc
         pathString += ` L ${prevTangent.x} ${prevTangent.y}`;
-
+  
         // Arc to the end of the arc
-        pathString += ` A ${current.radius} ${current.radius} 0 0 1 ${nextTangent.x} ${nextTangent.y}`;
+        pathString += ` A ${current.radius} ${current.radius} 0 0 ${1-arcDirection} ${nextTangent.x} ${nextTangent.y}`;
       } else {
         // Line to the next point
         pathString += ` L ${current.x} ${current.y}`;
       }
     }
+  
+    // Handle the last corner (which is also the first corner)
+    if (first.radius) {
+      // Calculate the exterior angle θ
+      const angle = GlyphPath.calculateAngle(last, first, second);
+  
+      // Calculate the offset distance d = r × tan(θ/2)
+      const offsetDistance = first.radius * Math.tan(angle / 2);
+  
+      // Calculate the tangent points for the arc
+      const prevTangent = GlyphPath.calculateTangentPoint(last, first, offsetDistance);
+      const nextTangent = GlyphPath.calculateTangentPoint(second, first, offsetDistance);
+  
+      // Determine the arc direction (clockwise or counterclockwise)
+      const arcDirection = GlyphPath.getArcDirection(last, first, second);
+  
+      // Line to the start of the arc
+      pathString += ` L ${prevTangent.x} ${prevTangent.y}`;
+  
+      // Arc to the end of the arc
+      pathString += ` A ${first.radius} ${first.radius} 0 0 ${1-arcDirection} ${nextTangent.x} ${nextTangent.y}`;
+    } else {
+      // Line to the first point
+      pathString += ` L ${first.x} ${first.y}`;
+    }
+    
     pathString += ' Z'; // Close the path
     return pathString;
   }
-
+  
+  // Calculate the exterior angle between the edges
+  static calculateAngle(prev, current, next) {
+    const v1 = { x: current.x - prev.x, y: current.y - prev.y };
+    const v2 = { x: next.x - current.x, y: next.y - current.y };
+    const dotProduct = v1.x * v2.x + v1.y * v2.y;
+    const magnitude1 = Math.sqrt(v1.x * v1.x + v1.y * v1.y);
+    const magnitude2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y);
+    return Math.acos(dotProduct / (magnitude1 * magnitude2));
+  }
+  
+  // Calculate the tangent point for the arc
+  static calculateTangentPoint(point, center, offsetDistance) {
+    const angle = Math.atan2(point.y - center.y, point.x - center.x);
+    const offsetX = offsetDistance * Math.cos(angle);
+    const offsetY = offsetDistance * Math.sin(angle);
+    return {
+      x: center.x + offsetX,
+      y: center.y + offsetY
+    };
+  }
+  
+  // Determine the arc direction (clockwise or counterclockwise)
+  static getArcDirection(prev, current, next) {
+    const crossProduct = (current.x - prev.x) * (next.y - prev.y) - (current.y - prev.y) * (next.x - prev.x);
+    return crossProduct > 0 ? 0 : 1; // 0 for counterclockwise, 1 for clockwise
+  }
+  
+  // Calculate the intersection point of two lines
+  static intersectLines(p1, p2, p3, p4) {
+    const denom = (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x);
+    if (denom === 0) return null; // Lines are parallel
+  
+    const intersectX = ((p1.x * p2.y - p1.y * p2.x) * (p3.x - p4.x) - (p1.x - p2.x) * (p3.x * p4.y - p3.y * p4.x)) / denom;
+    const intersectY = ((p1.x * p2.y - p1.y * p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x * p4.y - p3.y * p4.x)) / denom;
+  
+    return { x: intersectX, y: intersectY };
+  }
+  
   // Calculate the arc center by offsetting both edges by the radius
   static calculateArcCenter(prev, current, next, radius) {
     const offsetPrev = GlyphPath.offsetPoint(prev, current, radius);
     const offsetNext = GlyphPath.offsetPoint(next, current, radius);
-
+  
     return GlyphPath.intersectLines(offsetPrev, current, offsetNext, current);
   }
-
+  
   // Offset a point by the radius
   static offsetPoint(point, center, radius) {
     const angle = Math.atan2(point.y - center.y, point.x - center.x);
@@ -189,30 +287,7 @@ class GlyphPath extends fabric.Path {
       x: center.x - offsetX,
       y: center.y - offsetY
     };
-  }
-
-  // Calculate the intersection point of two lines
-  static intersectLines(p1, p2, p3, p4) {
-    const denom = (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x);
-    if (denom === 0) return null; // Lines are parallel
-
-    const intersectX = ((p1.x * p2.y - p1.y * p2.x) * (p3.x - p4.x) - (p1.x - p2.x) * (p3.x * p4.y - p3.y * p4.x)) / denom;
-    const intersectY = ((p1.x * p2.y - p1.y * p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x * p4.y - p3.y * p4.x)) / denom;
-
-    return { x: intersectX, y: intersectY };
-  }
-
-  // Calculate the tangent point for the arc
-  static calculateTangentPoint(point, center, radius) {
-    const angle = Math.atan2(point.y - center.y, point.x - center.x);
-    const offsetX = radius * Math.cos(angle);
-    const offsetY = radius * Math.sin(angle);
-    return {
-      x: center.x + offsetX,
-      y: center.y + offsetY
-    };
-  }
-}
+  }}
 
 // Define the BaseGroup class using ES6 class syntax
 class BaseGroup extends fabric.Group {
