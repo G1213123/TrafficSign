@@ -640,6 +640,13 @@ class BaseGroup extends fabric.Group {
     if (transform.target.anchoredPolygon) {
       transform.target.anchoredPolygon.forEach(anchoredGroup => {
         anchoredGroup.set({ lockMovementX: false, lockMovementY: false });
+        if (anchoredGroup.lockXToPolygon.TargetObject  == transform.target){
+          anchoredGroup.lockXToPolygon = {}
+        }
+        if (anchoredGroup.lockYToPolygon.TargetObject  == transform.target){
+          anchoredGroup.lockYToPolygon = {}
+        }
+        anchoredGroup.drawAnchorLinkage()
       })
     }
     canvas.requestRenderAll();
