@@ -128,7 +128,7 @@ function handleGroupMoving(event) {
 }
 
 function DrawGrid() {
-  
+  // TODO: resize grid to fit the canvas zoom level
   options = {
     distance: 10,
     param: {
@@ -174,6 +174,126 @@ function DrawGrid() {
   canvas.sendObjectToBack (grid_group)
 };
 
+// Context menu
+const contextMenu = document.getElementById('context-menu');
+
+function clickModelHandler(event) {
+  switch (cursorClickMode) {
+    case 'normal': {
+      if (event.e.button === 2 && event.target) { // Right click
+        event.e.preventDefault();
+        contextMenu.style.top = `${event.e.clientY}px`;
+        contextMenu.style.left = `${event.e.clientX}px`;
+        contextMenu.style.display = 'block';
+        selectedArrow = event.target;
+      } else {
+        contextMenu.style.display = 'none';
+      }
+    }
+      break;
+    case 'select': {
+      if (event.e.button === 0 && event.target) {
+        selectedArrow = event.target;
+        cursorClickMode = 'normal';
+        contextMenu.style.display = 'none'; // Ensure context menu is hidden
+      }
+    }
+      break;
+  }
+}
+
+canvas.on('mouse:down', function (event) {
+  clickModelHandler(event)
+});
+
+
+document.addEventListener('contextmenu', function (event) {
+  event.preventDefault();
+});
+
+function updatePosition(event) {
+  const promptBox = document.getElementById('cursorBoxContainer');
+  promptBox.style.left = `${event.clientX + 10}px`;
+  promptBox.style.top = `${event.clientY + 10}px`;
+}
+document.addEventListener('mousemove', updatePosition);
+
+function answerBoxFocus(event) {
+  const answerBox = document.getElementById('cursorAnswerBox');
+  if (answerBox.style.display === 'block') {
+    answerBox.focus();
+  }
+}
+document.addEventListener('mouseup', answerBoxFocus);
+
+let resolveAnswer;
+
+function showTextBox(text, withAnswerBox = null) {
+  const promptBox = document.getElementById('cursorTextBox');
+  const answerBox = document.getElementById('cursorAnswerBox');
+
+  promptBox.innerText = text;
+  promptBox.style.display = 'block';
+
+  if (withAnswerBox) {
+    answerBox.style.display = 'block';
+    answerBox.value = withAnswerBox;
+    answerBox.focus();
+    answerBox.select();
+
+    // Handle user input and resolve the answer
+    return new Promise((resolve) => {
+      answerBox.addEventListener('keydown', function handleKeyDown(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          resolve(answerBox.value);
+          hideTextBox();
+          answerBox.removeEventListener('keydown', handleKeyDown);
+        } else if (event.key === 'Escape') {
+          resolve(null); // or any specific value indicating the user wants to quit
+          hideTextBox();
+          answerBox.removeEventListener('keydown', handleKeyDown);
+        }
+      });
+    });
+  } else {
+    answerBox.style.display = 'none';
+    return Promise.resolve();
+  }
+  // document.dispatchEvent(new Event('mousemove'))
+}
+
+function hideTextBox() {
+  const promptBox = document.getElementById('cursorTextBox');
+  const answerBox = document.getElementById('cursorAnswerBox');
+  promptBox.style.display = 'none';
+  answerBox.style.display = 'none';
+}
+
+async function selectObjectHandler(text, callback, options = null) {
+  // prompt for user to select shape
+  const response = await showTextBox(text, ' ')
+  // Check if the response is null (user pressed 'Esc')
+  if (response === null) {
+    hideTextBox();
+    return;
+  }
+  // Update text box position to follow the cursor 
+  cursorClickMode = 'select'
+  // Periodically check if shape is selected 
+  const checkShapeInterval = setInterval(() => {
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects.length > 0) {
+      cursorClickMode = 'normal'
+      clearInterval(checkShapeInterval)
+      hideTextBox()
+      successSelected = canvas.getActiveObjects()
+      // Clear the selected object from active
+      canvas.discardActiveObject();
+      canvas.renderAll();
+      callback(successSelected, options);
+    }
+  }, 100); // Check every 100ms
+}
 
 resizeCanvas();
 

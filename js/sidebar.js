@@ -426,16 +426,7 @@ let FormBorderWrapComponent = {
 
     selectObjectHandler('Select shape to calculate border width', function (widthObjects) {
       selectObjectHandler('Select shape to calculate border height', function (heightObjects) {
-        borderObject = FormBorderWrapComponent.BorderCreate(heightObjects, widthObjects, xHeight, borderType)
-        borderGroup = drawBasePolygon(borderObject)
-        borderGroup.widthObjects = [...widthObjects]
-        borderGroup.heightObjects = [...heightObjects]
-
-        // Combine the arrays and create a Set to remove duplicates
-        canvas.sendObjectToBack(borderGroup)
-        widthObjects.forEach(obj => { canvas.bringObjectToFront(obj) })
-        heightObjects.forEach(obj => { canvas.bringObjectToFront(obj) })
-        canvas.renderAll()
+        FormBorderWrapComponent.BorderGroupCreate(heightObjects, widthObjects, xHeight, borderType)
       })
     })
 
@@ -568,7 +559,27 @@ let FormBorderWrapComponent = {
     } else {
       showTextBox('x-height is incorrect', 1)
     }
-  }
+  },
+
+BorderGroupCreate: function (heightObjects, widthObjects, xHeight, borderType) {
+  borderObject = FormBorderWrapComponent.BorderCreate(heightObjects, widthObjects, xHeight, borderType)
+  borderGroup = drawBasePolygon(borderObject)
+        borderGroup.widthObjects = [...widthObjects]
+        borderGroup.heightObjects = [...heightObjects]
+        borderGroup.borderType = borderType
+        borderGroup.xHeight = xHeight
+        borderGroup.BorderResize = FormBorderWrapComponent.BorderResize
+
+        // Combine the arrays and create a Set to remove duplicates
+        canvas.sendObjectToBack(borderGroup)
+        widthObjects.forEach(obj => { canvas.bringObjectToFront(obj) 
+          obj.borderGroup = borderGroup
+        })
+        heightObjects.forEach(obj => { canvas.bringObjectToFront(obj) 
+          obj.borderGroup = borderGroup
+        })
+        canvas.requestRenderAll();
+}
 }
 
 /* Debug Panel */

@@ -134,7 +134,7 @@ class GlyphPath extends fabric.Path {
     const vertexleft = vertex[0].x - Math.min(...vertex.map(v => v.x));
     const vertextop = vertex[0].y - Math.min(...vertex.map(v => v.y));
     vertex.forEach((p) => {
-      p.x = p.x + options.left+ vertexleft;
+      p.x = p.x + options.left + vertexleft;
       p.y = p.y + options.top + vertextop;
     });
     const pathData = GlyphPath.vertexToPath(vertex);
@@ -155,83 +155,83 @@ class GlyphPath extends fabric.Path {
     const first = vertex[0];
     const second = vertex[1];
     const last = vertex[vertex.length - 1];
-  
+
     if (first.radius) {
       // Calculate the exterior angle θ for the first corner
       const angle = GlyphPath.calculateAngle(last, first, second);
-  
+
       // Calculate the offset distance d = r × tan(θ/2)
       const offsetDistance = first.radius * Math.tan(angle / 2);
-  
+
       // Calculate the tangent point for the first vertex
       const firstTangent = GlyphPath.calculateTangentPoint(second, first, offsetDistance);
-  
+
       // Move to the tangent point
       pathString = `M ${firstTangent.x} ${firstTangent.y}`;
     } else {
       // Move to the first vertex
       pathString = `M ${first.x} ${first.y}`;
     }
-  
+
     for (let i = 1; i < vertex.length; i++) {
       const current = vertex[i];
       const previous = vertex[i - 1];
       const next = vertex[(i + 1) % vertex.length];
-  
+
       if (current.radius) {
         // Calculate the exterior angle θ
         const angle = GlyphPath.calculateAngle(previous, current, next);
-  
+
         // Calculate the offset distance d = r × tan(θ/2)
         const offsetDistance = current.radius * Math.tan(angle / 2);
-  
+
         // Calculate the tangent points for the arc
         const prevTangent = GlyphPath.calculateTangentPoint(previous, current, offsetDistance);
         const nextTangent = GlyphPath.calculateTangentPoint(next, current, offsetDistance);
-  
+
         // Determine the arc direction (clockwise or counterclockwise)
         const arcDirection = GlyphPath.getArcDirection(previous, current, next);
-  
+
         // Line to the start of the arc
         pathString += ` L ${prevTangent.x} ${prevTangent.y}`;
-  
+
         // Arc to the end of the arc
-        pathString += ` A ${current.radius} ${current.radius} 0 0 ${1-arcDirection} ${nextTangent.x} ${nextTangent.y}`;
+        pathString += ` A ${current.radius} ${current.radius} 0 0 ${1 - arcDirection} ${nextTangent.x} ${nextTangent.y}`;
       } else {
         // Line to the next point
         pathString += ` L ${current.x} ${current.y}`;
       }
     }
-  
+
     // Handle the last corner (which is also the first corner)
     if (first.radius) {
       // Calculate the exterior angle θ
       const angle = GlyphPath.calculateAngle(last, first, second);
-  
+
       // Calculate the offset distance d = r × tan(θ/2)
       const offsetDistance = first.radius * Math.tan(angle / 2);
-  
+
       // Calculate the tangent points for the arc
       const prevTangent = GlyphPath.calculateTangentPoint(last, first, offsetDistance);
       const nextTangent = GlyphPath.calculateTangentPoint(second, first, offsetDistance);
-  
+
       // Determine the arc direction (clockwise or counterclockwise)
       const arcDirection = GlyphPath.getArcDirection(last, first, second);
-  
+
       // Line to the start of the arc
       pathString += ` L ${prevTangent.x} ${prevTangent.y}`;
-  
+
       // Arc to the end of the arc
-      pathString += ` A ${first.radius} ${first.radius} 0 0 ${1-arcDirection} ${nextTangent.x} ${nextTangent.y}`;
+      pathString += ` A ${first.radius} ${first.radius} 0 0 ${1 - arcDirection} ${nextTangent.x} ${nextTangent.y}`;
     } else {
       // Line to the first point
       pathString += ` L ${first.x} ${first.y}`;
     }
-    
+
     pathString += ' Z'; // Close the path
     return pathString;
   }
-  
+
   // Calculate the exterior angle between the edges
   static calculateAngle(prev, current, next) {
     const v1 = { x: current.x - prev.x, y: current.y - prev.y };
@@ -241,7 +241,7 @@ class GlyphPath extends fabric.Path {
     const magnitude2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y);
     return Math.acos(dotProduct / (magnitude1 * magnitude2));
   }
-  
+
   // Calculate the tangent point for the arc
   static calculateTangentPoint(point, center, offsetDistance) {
     const angle = Math.atan2(point.y - center.y, point.x - center.x);
@@ -252,32 +252,32 @@ class GlyphPath extends fabric.Path {
       y: center.y + offsetY
     };
   }
-  
+
   // Determine the arc direction (clockwise or counterclockwise)
   static getArcDirection(prev, current, next) {
     const crossProduct = (current.x - prev.x) * (next.y - prev.y) - (current.y - prev.y) * (next.x - prev.x);
     return crossProduct > 0 ? 0 : 1; // 0 for counterclockwise, 1 for clockwise
   }
-  
+
   // Calculate the intersection point of two lines
   static intersectLines(p1, p2, p3, p4) {
     const denom = (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x);
     if (denom === 0) return null; // Lines are parallel
-  
+
     const intersectX = ((p1.x * p2.y - p1.y * p2.x) * (p3.x - p4.x) - (p1.x - p2.x) * (p3.x * p4.y - p3.y * p4.x)) / denom;
     const intersectY = ((p1.x * p2.y - p1.y * p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x * p4.y - p3.y * p4.x)) / denom;
-  
+
     return { x: intersectX, y: intersectY };
   }
-  
+
   // Calculate the arc center by offsetting both edges by the radius
   static calculateArcCenter(prev, current, next, radius) {
     const offsetPrev = GlyphPath.offsetPoint(prev, current, radius);
     const offsetNext = GlyphPath.offsetPoint(next, current, radius);
-  
+
     return GlyphPath.intersectLines(offsetPrev, current, offsetNext, current);
   }
-  
+
   // Offset a point by the radius
   static offsetPoint(point, center, radius) {
     const angle = Math.atan2(point.y - center.y, point.x - center.x);
@@ -287,7 +287,8 @@ class GlyphPath extends fabric.Path {
       x: center.x - offsetX,
       y: center.y - offsetY
     };
-  }}
+  }
+}
 
 // Define the BaseGroup class using ES6 class syntax
 class BaseGroup extends fabric.Group {
@@ -346,7 +347,7 @@ class BaseGroup extends fabric.Group {
           fontSize: 20,
           fill: 'white', // Text color
           selectable: false,
-          opacity: 1,
+          opacity: 0,
           functinoalType: 'locationText',
           stroke: '#000', // Text stroke color
           strokeWidth: 3,
@@ -392,7 +393,7 @@ class BaseGroup extends fabric.Group {
           selectable: false,
           originX: 'center',
           originY: 'center',
-          opacity: 1,
+          opacity: 0,
           functinoalType: 'vertexText',
           fontFamily: 'Arial, sans-serif', // Modern font family
           //stroke: '#000', // Black stroke for better contrast
@@ -406,8 +407,10 @@ class BaseGroup extends fabric.Group {
       this.add(obj);
     });
 
-    this.refTopLeft = { top: this.basePolygon.getCoords()[0].y, 
-      left: this.basePolygon.getCoords()[0].x };
+    this.refTopLeft = {
+      top: this.basePolygon.getCoords()[0].y,
+      left: this.basePolygon.getCoords()[0].x
+    };
 
     this.on('selected', () => {
       this.subObjects.forEach(obj => {
@@ -460,8 +463,28 @@ class BaseGroup extends fabric.Group {
     this.updateAllCoord();
   }
 
+  // Method to call for border resizing
+  borderResize() {
+    if (this.borderGroup) {
+      const oldBorderGroup = this.borderGroup;
+      this.borderGroup = null
+      const newBorderGroup = FormBorderWrapComponent.BorderGroupCreate(oldBorderGroup.widthObjects,
+        oldBorderGroup.heightObjects,
+        oldBorderGroup.xHeight,
+        oldBorderGroup.borderType);
+
+
+      canvas.remove(oldBorderGroup)
+      canvasObject.pop(oldBorderGroup);
+      if (oldBorderGroup.anchoredPolygon) {
+        oldBorderGroup.anchoredPolygon.forEach(anchoredGroup => {
+          anchoredGroup.set({ lockMovementX: false, lockMovementY: false });
+        })
+      }
+    }
+  }
   getBasePolygonVertex(label) {
-    return this.basePolygon.vertex.find(v => v.label === label);
+    return this.basePolygon.vertex.find(v => v.label === label.toUpperCase());
   }
   drawAnchorLinkage() {
     for (let i = this.subObjects.length - 1; i >= 0; i--) {
@@ -565,10 +588,11 @@ class BaseGroup extends fabric.Group {
     const deltaY = this.basePolygon.getCoords()[0].y - this.refTopLeft.top;
     this.updateCoord(true);
     this.emitDelta(deltaX, deltaY);
-    this.refTopLeft = { top: this.basePolygon.getCoords()[0].y, left: this.basePolygon.getCoords()[0].x};
+    this.refTopLeft = { top: this.basePolygon.getCoords()[0].y, left: this.basePolygon.getCoords()[0].x };
     if (canvas.getActiveObject() === this) {
       this.drawAnchorLinkage();
     }
+    this.borderResize();
   }
 
   // Method to update coordinates
@@ -605,7 +629,7 @@ class BaseGroup extends fabric.Group {
       var allCoords = this.basePolygon.getCombinedBoundingBoxOfRects();
       return [allCoords[0], allCoords[2], allCoords[4], allCoords[6]];
     }
-    return this.basePolygon.getEffectiveCoords();
+    return this.basePolygon.getCoords();
 
   }
 
@@ -646,29 +670,16 @@ function drawBasePolygon(basePolygon, calcVertex = true) {
   });
   canvas.add(baseGroup);
   canvasObject.push(baseGroup);
-  canvas.setActiveObject(baseGroup);
+  //canvas.setActiveObject(baseGroup);
   return baseGroup;
 }
 
-function drawLabeledArrow(canvas, options) {
+function drawLabeledArrow(ShapePoints, options) {
   const { x, y, length, angle, color } = options;
-
-  // Define points for the arrow polygon
-  const points = [
-    { x: 0, y: 0, radius:10, label: 'V1' },
-    { x: length * 4, y: length * 4,            radius:10, label: 'V2' },
-    { x: length * 4, y: length * 8,            radius:10, label: 'V3' },
-    { x: length * 4 / 3, y: length * 16 / 3,   radius:10, label: 'V4' },
-    { x: length * 4 / 3, y: length * 16,       radius:10, label: 'V5' },
-    { x: - length * 4 / 3, y: length * 16,     radius:10, label: 'V6' },
-    { x: - length * 4 / 3, y: length * 16 / 3, radius:10, label: 'V7' },
-    { x: - length * 4, y: length * 8,          radius:10, label: 'V8' },
-    { x: - length * 4, y: length * 4,          radius:10, label: 'V9' },
-  ];
 
   // Create polygon with labeled vertices
   const arrow = new drawBasePolygon(
-    new GlyphPath(points,
+    new GlyphPath(ShapePoints,
       {
         left: x,
         top: y,
@@ -681,126 +692,6 @@ function drawLabeledArrow(canvas, options) {
 
 }
 
-// Context menu
-const contextMenu = document.getElementById('context-menu');
-
-function clickModelHandler(event) {
-  switch (cursorClickMode) {
-    case 'normal': {
-      if (event.e.button === 2 && event.target) { // Right click
-        event.e.preventDefault();
-        contextMenu.style.top = `${event.e.clientY}px`;
-        contextMenu.style.left = `${event.e.clientX}px`;
-        contextMenu.style.display = 'block';
-        selectedArrow = event.target;
-      } else {
-        contextMenu.style.display = 'none';
-      }
-    }
-      break;
-    case 'select': {
-      if (event.e.button === 0 && event.target) {
-        selectedArrow = event.target;
-        cursorClickMode = 'normal';
-        contextMenu.style.display = 'none'; // Ensure context menu is hidden
-      }
-    }
-      break;
-  }
-}
-
-canvas.on('mouse:down', function (event) {
-  clickModelHandler(event)
-});
-
-
-document.addEventListener('contextmenu', function (event) {
-  event.preventDefault();
-});
-
-function updatePosition(event) {
-  const promptBox = document.getElementById('cursorBoxContainer');
-  promptBox.style.left = `${event.clientX + 10}px`;
-  promptBox.style.top = `${event.clientY + 10}px`;
-}
-document.addEventListener('mousemove', updatePosition);
-
-function answerBoxFocus(event) {
-  const answerBox = document.getElementById('cursorAnswerBox');
-  if (answerBox.style.display === 'block') {
-    answerBox.focus();
-  }
-}
-document.addEventListener('mouseup', answerBoxFocus);
-
-let resolveAnswer;
-
-function showTextBox(text, withAnswerBox = null) {
-  const promptBox = document.getElementById('cursorTextBox');
-  const answerBox = document.getElementById('cursorAnswerBox');
-
-  promptBox.innerText = text;
-  promptBox.style.display = 'block';
-
-  if (withAnswerBox) {
-    answerBox.style.display = 'block';
-    answerBox.value = withAnswerBox;
-    answerBox.focus();
-    answerBox.select();
-
-    // Handle user input and resolve the answer
-    return new Promise((resolve) => {
-      answerBox.addEventListener('keydown', function handleKeyDown(event) {
-        if (event.key === 'Enter' || event.key === ' ') {
-          resolve(answerBox.value);
-          hideTextBox();
-          answerBox.removeEventListener('keydown', handleKeyDown);
-        } else if (event.key === 'Escape') {
-          resolve(null); // or any specific value indicating the user wants to quit
-          hideTextBox();
-          answerBox.removeEventListener('keydown', handleKeyDown);
-        }
-      });
-    });
-  } else {
-    answerBox.style.display = 'none';
-    return Promise.resolve();
-  }
-  // document.dispatchEvent(new Event('mousemove'))
-}
-
-function hideTextBox() {
-  const promptBox = document.getElementById('cursorTextBox');
-  const answerBox = document.getElementById('cursorAnswerBox');
-  promptBox.style.display = 'none';
-  answerBox.style.display = 'none';
-}
-
-async function selectObjectHandler(text, callback, options = null) {
-  // prompt for user to select shape
-  const response = await showTextBox(text, ' ')
-  // Check if the response is null (user pressed 'Esc')
-  if (response === null) {
-    hideTextBox();
-    return;
-  }
-  // Update text box position to follow the cursor 
-  cursorClickMode = 'select'
-  // Periodically check if shape is selected 
-  const checkShapeInterval = setInterval(() => {
-    const activeObjects = canvas.getActiveObjects();
-    if (activeObjects.length > 0) {
-      cursorClickMode = 'normal'
-      clearInterval(checkShapeInterval)
-      hideTextBox()
-      successSelected = canvas.getActiveObjects()
-      // Clear the selected object from active
-      canvas.discardActiveObject();
-      canvas.renderAll();
-      callback(successSelected, options);
-    }
-  }, 100); // Check every 100ms
-}
 
 document.getElementById('set-anchor').addEventListener('click', function () {
   if (selectedArrow) {
@@ -822,9 +713,9 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
     spacingX = options.spacingX
     spacingY = options.spacingY
   } else {
-    vertexIndex1 = await showTextBox('Enter vertex index for Polygon 1 (e.g., V1 for V1):', 'V1')
+    vertexIndex1 = await showTextBox('Enter vertex index for Polygon 1 (e.g., V1 for V1):', 'E1')
     if (vertexIndex1 === null) return;
-    vertexIndex2 = await showTextBox('Enter vertex index for Polygon 2 (e.g., V1 for V1):', 'V1')
+    vertexIndex2 = await showTextBox('Enter vertex index for Polygon 2 (e.g., V1 for V1):', 'E1')
     if (vertexIndex2 === null) return;
     spacingX = parseInt(await showTextBox('Enter spacing in X:', 100))
     spacingY = parseInt(await showTextBox('Enter spacing in Y:', 100))
