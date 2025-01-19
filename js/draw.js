@@ -479,7 +479,16 @@ class BaseGroup extends fabric.Group {
       if (oldBorderGroup.anchoredPolygon) {
         oldBorderGroup.anchoredPolygon.forEach(anchoredGroup => {
           anchoredGroup.set({ lockMovementX: false, lockMovementY: false });
+
+          if (anchoredGroup.lockXToPolygon.TargetObject == oldBorderGroup) {
+            anchoredGroup.lockXToPolygon = {}
+          }
+          if (anchoredGroup.lockYToPolygon.TargetObject == oldBorderGroup) {
+            anchoredGroup.lockYToPolygon = {}
+          }
+          anchoredGroup.drawAnchorLinkage()
         })
+
       }
     }
   }
@@ -640,10 +649,10 @@ class BaseGroup extends fabric.Group {
     if (transform.target.anchoredPolygon) {
       transform.target.anchoredPolygon.forEach(anchoredGroup => {
         anchoredGroup.set({ lockMovementX: false, lockMovementY: false });
-        if (anchoredGroup.lockXToPolygon.TargetObject  == transform.target){
+        if (anchoredGroup.lockXToPolygon.TargetObject == transform.target) {
           anchoredGroup.lockXToPolygon = {}
         }
-        if (anchoredGroup.lockYToPolygon.TargetObject  == transform.target){
+        if (anchoredGroup.lockYToPolygon.TargetObject == transform.target) {
           anchoredGroup.lockYToPolygon = {}
         }
         anchoredGroup.drawAnchorLinkage()
