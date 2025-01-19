@@ -128,6 +128,7 @@ function handleGroupMoving(event) {
 }
 
 function DrawGrid() {
+  
   options = {
     distance: 10,
     param: {

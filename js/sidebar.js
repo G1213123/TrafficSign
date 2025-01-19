@@ -132,12 +132,13 @@ let FormTextAddComponent = {
 
     for (var i = 0; i < txt.length; i++) {
       // Check if the character is a Chinese character
-      if (/[\u4E00-\u9FFF\u3040-\u30FF\u31F0-\u31FF]/.test(txt.charAt(i))) {
+      if (!FormTextAddComponent.textWidthMedium.map(item => item.char).includes(txt.charAt(i))) {
         charWidth = 2.25 * xHeight / 100
         txt_char = new fabric.Text(txt.charAt(i), {
           fontFamily: 'Noto Sans Hong Kong',
+          fontWeight: 700,
           left: left_pos + 0.25 * xHeight,
-          top: 0.1 * xHeight / 100,
+          top: 0.1 * xHeight ,
           fill: '#fff',
           fontSize: xHeight * 2.25,
           //origin: 'centerX',
@@ -146,8 +147,8 @@ let FormTextAddComponent = {
         txt_frame = new fabric.Rect({
           left: left_pos,
           top: 0,
-          width: 2.75 * xHeight,
-          height: 2.75 * xHeight,
+          width: 2.75 * xHeight -2 , // Adjust the width border stroke
+          height: 2.75 * xHeight-2 ,
           fill: 'rgba(0,0,0,0)', // Transparent fill
           stroke: '#FFFFFF', // White stroke color to match the canvas style
           strokeWidth: 2, // Adjust stroke width for consistency
@@ -171,8 +172,8 @@ let FormTextAddComponent = {
         txt_frame = new fabric.Rect({
           left: left_pos,
           top: 0,
-          width: charWidth * xHeight / 100,
-          height: xHeight * 2,
+          width: charWidth * xHeight / 100 -2, // Adjust the width border stroke
+          height: xHeight * 2 - 2, 
           fill: 'rgba(0,0,0,0)', // Transparent fill
           stroke: '#FFFFFF', // White stroke color to match the canvas style
           strokeWidth: 2, // Adjust stroke width for consistency
@@ -583,6 +584,9 @@ let FormDebugComponent = {
       canvas.on('object:modified', FormDebugComponent.selectionListener);
       // Clear the sidebar when no object is selected
       canvas.on('selection:cleared', FormDebugComponent.clearSelectionListener);
+      if (canvas.getActiveObject()){
+        FormDebugComponent.updateDebugInfo(canvas.getActiveObject());
+      }
     }
   },
   selectionListener: function (event) {
@@ -608,23 +612,27 @@ let FormDebugComponent = {
 
   updateDebugInfo: function (object) {
     const debugInfoPanel = document.getElementById('debug-info-panel');
-    debugInfoPanel.innerHTML = ''; // Clear previous info
-    point = object.basePolygon.getCoords()[0]
-    const properties = [
-      { label: 'Top', value: Math.round(object.top) },
-      { label: 'Left', value: Math.round(object.left) },
-      { label: 'Width', value: Math.round(object.width) },
-      { label: 'Height', value: Math.round(object.height) },
-      { label: 'Effective Position', value: `x: ${Math.round(point.x)}, y: ${Math.round(point.y)}`
-       },
-
-    ];
-
-    properties.forEach(prop => {
-      const div = document.createElement('div');
-      div.innerText = `${prop.label}: ${prop.value}`;
-      debugInfoPanel.appendChild(div);
-    });
+    if (debugInfoPanel) {
+      
+      debugInfoPanel.innerHTML = ''; // Clear previous info
+      point = object.getEffectiveCoords()
+      const properties = [
+        { label: 'Top', value: Math.round(object.top) },
+        { label: 'Left', value: Math.round(object.left) },
+        { label: 'Width', value: Math.round(object.width) },
+        { label: 'Height', value: Math.round(object.height) },
+        { label: 'Effective Position', value: `x: ${Math.round(point[0].x)}, y: ${Math.round(point[0].y)}`},
+        { label: 'Effective Width', value: Math.round(point[1].x - point[0].x) },
+        { label: 'Effective Height', value: Math.round(point[2].y-point[0].y) },
+  
+      ];
+  
+      properties.forEach(prop => {
+        const div = document.createElement('div');
+        div.innerText = `${prop.label}: ${prop.value}`;
+        debugInfoPanel.appendChild(div);
+      });
+    }
   },
 
   DebugHandlerOff: function (event) {

@@ -301,7 +301,7 @@ class BaseGroup extends fabric.Group {
   }
 
   getBasePolygonVertex(label) {
-    return this.basePolygon.vertex.find(v => v.label === label);
+    return this.basePolygon.vertex.find(v => v.label === label.toUpperCase());
   }
   drawAnchorLinkage() {
     for (let i = this.subObjects.length - 1; i >= 0; i--) {
@@ -445,17 +445,25 @@ class BaseGroup extends fabric.Group {
       var allCoords = this.basePolygon.getCombinedBoundingBoxOfRects();
       return [allCoords[0], allCoords[2], allCoords[4], allCoords[6]];
     }
-    return this.basePolygon.getEffectiveCoords();
+    return this.basePolygon.getCoords();
 
   }
 
   // Method to delete the object
   deleteObject(_eventData, transform) {
-    canvas.remove(transform.target);
-    canvasObject.pop(transform.target);
-    if (transform.target.anchoredPolygon) {
-      transform.target.anchoredPolygon.forEach(anchoredGroup => {
+    let deleteTarget = transform.target; 
+    canvas.remove(deleteTarget);
+    canvasObject.pop(deleteTarget);
+    if (deleteTarget.anchoredPolygon) {
+      deleteTarget.anchoredPolygon.forEach(anchoredGroup => {
         anchoredGroup.set({ lockMovementX: false, lockMovementY: false });
+        if (anchoredGroup.lockXToPolygon.TargetObject == deleteTarget) {
+           anchoredGroup.lockXToPolygon = {};
+        }
+        if (anchoredGroup.lockYToPolygon.TargetObject == deleteTarget) {
+           anchoredGroup.lockYToPolygon = {};
+        }
+        anchoredGroup.drawAnchorLinkage();
       })
     }
     canvas.requestRenderAll();
@@ -662,9 +670,9 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
     spacingX = options.spacingX
     spacingY = options.spacingY
   } else {
-    vertexIndex1 = await showTextBox('Enter vertex index for Polygon 1 (e.g., V1 for V1):', 'V1')
+    vertexIndex1 = await showTextBox('Enter vertex index for Polygon 1 (e.g., V1 for V1):', 'E1')
     if (vertexIndex1 === null) return;
-    vertexIndex2 = await showTextBox('Enter vertex index for Polygon 2 (e.g., V1 for V1):', 'V1')
+    vertexIndex2 = await showTextBox('Enter vertex index for Polygon 2 (e.g., V1 for V1):', 'E1')
     if (vertexIndex2 === null) return;
     spacingX = parseInt(await showTextBox('Enter spacing in X:', 100))
     spacingY = parseInt(await showTextBox('Enter spacing in Y:', 100))
@@ -707,7 +715,7 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
   //canvas.remove(Polygon1)
   Polygon2.updateAllCoord()
   Polygon1.drawAnchorLinkage()
-  canvas.bringObjectToFront(Polygon2)
+  //canvas.bringObjectToFront(Polygon2)
 
 
 
