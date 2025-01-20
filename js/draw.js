@@ -93,14 +93,14 @@ function calculateTransformedPoints(points, options) {
 }
 
 class GlyphPolygon extends fabric.Polygon {
-  constructor(vertex, options) {
-    vertex.forEach((p) => {
+  constructor(shapeMeta, options) {
+    shapeMeta.vertex.forEach((p) => {
       p.x = p.x + options.left;
       p.y = p.y + options.top
     });
-    super(vertex.map(p => ({ x: p.x, y: p.y })), options);
-    this.vertex = vertex // Add a list inside the object
-    this.insertPoint = vertex[0]
+    super(shapeMeta.vertex.map(p => ({ x: p.x, y: p.y })), options);
+    this.shapeMeta.vertex = shapeMeta.vertex // Add a list inside the object
+    this.insertPoint = shapeMeta.vertex[0]
     // this.on('moving', this.onMoving.bind(this)); // Listen for modifications
     // this.on('modified', this.onMoving.bind(this)); // Listen for modifications
     this.left = this.getCorners().left
@@ -110,10 +110,10 @@ class GlyphPolygon extends fabric.Polygon {
 
   // Method to get the corners
   getCorners() {
-    const minX = Math.min(...this.vertex.map(v => v.x));
-    const maxX = Math.max(...this.vertex.map(v => v.x));
-    const minY = Math.min(...this.vertex.map(v => v.y));
-    const maxY = Math.max(...this.vertex.map(v => v.y));
+    const minX = Math.min(...this.shapeMeta.vertex.map(v => v.x));
+    const maxX = Math.max(...this.shapeMeta.vertex.map(v => v.x));
+    const minY = Math.min(...this.shapeMeta.vertex.map(v => v.y));
+    const maxY = Math.max(...this.shapeMeta.vertex.map(v => v.y));
 
     return {
       left: minX,
@@ -130,31 +130,32 @@ class GlyphPolygon extends fabric.Polygon {
 }
 
 class GlyphPath extends fabric.Path {
-  constructor(vertex, options) {
-    const vertexleft = vertex[0].x - Math.min(...vertex.map(v => v.x));
-    const vertextop = vertex[0].y - Math.min(...vertex.map(v => v.y));
-    vertex.forEach((p) => {
+  constructor(shapeMeta, options) {
+    const vertexleft = shapeMeta.vertex[0].x - Math.min(...shapeMeta.vertex.map(v => v.x));
+    const vertextop = shapeMeta.vertex[0].y - Math.min(...shapeMeta.vertex.map(v => v.y));
+    shapeMeta.vertex.forEach((p) => {
       p.x = p.x + options.left + vertexleft;
       p.y = p.y + options.top + vertextop;
     });
-    const pathData = GlyphPath.vertexToPath(vertex);
+    const pathData = GlyphPath.vertexToPath(shapeMeta);
     super(pathData, options);
-    this.vertex = vertex; // Store the vertex points
-    this.insertPoint = vertex[0];
+    this.vertex = shapeMeta.vertex; // Store the shapeMeta.vertex points
+    this.insertPoint = shapeMeta.vertex[0];
 
     this.setCoords();
   }
 
-  // Convert vertex points to SVG path string with circular trims
-  static vertexToPath(vertex) {
-    if (!vertex || vertex.length === 0) {
+  // Convert shapeMeta.vertex points to SVG path string with circular trims
+  static vertexToPath(shapeMeta) {
+    if (!shapeMeta.vertex || shapeMeta.vertex.length === 0) {
       return '';
     }
 
     let pathString = '';
-    const first = vertex[0];
-    const second = vertex[1];
-    const last = vertex[vertex.length - 1];
+    const first = shapeMeta.vertex[0];
+    const second = shapeMeta.vertex[1];
+    const last = shapeMeta.vertex[shapeMeta.vertex.length - 1];
+    const firstArc = shapeMeta.arcs.find(arc => (arc.start == first.label))
 
     if (first.radius) {
       // Calculate the exterior angle θ for the first corner
@@ -163,20 +164,23 @@ class GlyphPath extends fabric.Path {
       // Calculate the offset distance d = r × tan(θ/2)
       const offsetDistance = first.radius * Math.tan(angle / 2);
 
-      // Calculate the tangent point for the first vertex
+      // Calculate the tangent point for the first shapeMeta.vertex
       const firstTangent = GlyphPath.calculateTangentPoint(second, first, offsetDistance);
 
       // Move to the tangent point
       pathString = `M ${firstTangent.x} ${firstTangent.y}`;
+    } else if (firstArc){
+      pathString = `A ${first.x} ${first.y} 0 0 ${firstArc.direcition} ${second.x} ${second.y} `
     } else {
-      // Move to the first vertex
+      // Move to the first shapeMeta.vertex
       pathString = `M ${first.x} ${first.y}`;
     }
 
-    for (let i = 1; i < vertex.length; i++) {
-      const current = vertex[i];
-      const previous = vertex[i - 1];
-      const next = vertex[(i + 1) % vertex.length];
+    for (let i = 1; i < shapeMeta.vertex.length; i++) {
+      const current = shapeMeta.vertex[i];
+      const previous = shapeMeta.vertex[i - 1];
+      const next = shapeMeta.vertex[(i + 1) % shapeMeta.vertex.length];
+      const nextArc = shapeMeta.arcs.find(arc => (arc.start == first.label))
 
       if (current.radius) {
         // Calculate the exterior angle θ
@@ -197,6 +201,8 @@ class GlyphPath extends fabric.Path {
 
         // Arc to the end of the arc
         pathString += ` A ${current.radius} ${current.radius} 0 0 ${1 - arcDirection} ${nextTangent.x} ${nextTangent.y}`;
+      } else if (nextArc){
+        pathString = `A ${current.x} ${current.y} 0 0 ${firstArc.direcition} ${previous.x} ${previous.y} `
       } else {
         // Line to the next point
         pathString += ` L ${current.x} ${current.y}`;
@@ -317,7 +323,7 @@ class BaseGroup extends fabric.Group {
       cornerSize: 24,
     });
 
-    // Calculate vertex points for anchoring
+    // Calculate shapeMeta.vertex points for anchoring
     if (!this.basePolygon.vertex) {
       this.basePolygon.vertex = [];
     }
@@ -696,12 +702,12 @@ function drawBasePolygon(basePolygon, calcVertex = true) {
   return baseGroup;
 }
 
-function drawLabeledArrow(ShapePoints, options) {
+function drawLabeledArrow(ShapeMeta, options) {
   const { x, y, length, angle, color } = options;
 
   // Create polygon with labeled vertices
   const arrow = new drawBasePolygon(
-    new GlyphPath(ShapePoints,
+    new GlyphPath(ShapeMeta,
       {
         left: x,
         top: y,
@@ -718,7 +724,7 @@ function drawLabeledArrow(ShapePoints, options) {
 document.getElementById('set-anchor').addEventListener('click', function () {
   if (selectedArrow) {
     this.parentElement.parentElement.style.display = 'none';
-    // Implement vertex selection logic here
+    // Implement shapeMeta.vertex selection logic here
     const shape1 = selectedArrow
     selectedArrow = null
     selectObjectHandler('Select shape to anchor to', anchorShape, shape1)
@@ -735,9 +741,9 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
     spacingX = options.spacingX
     spacingY = options.spacingY
   } else {
-    vertexIndex1 = await showTextBox('Enter vertex index for Polygon 1:', 'E1')
+    vertexIndex1 = await showTextBox('Enter shapeMeta.vertex index for Polygon 1:', 'E1')
     if (vertexIndex1 === null) return;
-    vertexIndex2 = await showTextBox('Enter vertex index for Polygon 2:', 'E1')
+    vertexIndex2 = await showTextBox('Enter shapeMeta.vertex index for Polygon 2:', 'E1')
     if (vertexIndex2 === null) return;
     spacingX = parseInt(await showTextBox('Enter spacing in X (Leave empty if no need for axis):', 100))
     spacingY = parseInt(await showTextBox('Enter spacing in Y (Leave empty if no need for axis):', 100))
