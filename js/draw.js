@@ -299,6 +299,7 @@ class BaseGroup extends fabric.Group {
     //this.basePolygon.set({ 'dirty': true });
     this.basePolygon.functinoalType = 'Polygon';
     this.anchoredPolygon = [];
+    this.anchorageLink = [];
     this.subObjects = [];
     this.lockXToPolygon = {};
     this.lockYToPolygon = {};
@@ -416,12 +417,17 @@ class BaseGroup extends fabric.Group {
       this.subObjects.forEach(obj => {
         obj.set('opacity', 1);
       });
+
+      this.drawAnchorLinkage()
       //canvas.bringObjectToFront(this)
     });
 
     this.on('deselected', () => {
       setTimeout(() => {
         this.subObjects.forEach(obj => {
+          obj.set('opacity', 0);
+        });
+        this.anchorageLink.forEach(obj => {
           obj.set('opacity', 0);
         });
         // canvas.sendObjectToBack(this)
@@ -481,10 +487,10 @@ class BaseGroup extends fabric.Group {
           anchoredGroup.set({ lockMovementX: false, lockMovementY: false });
 
           if (anchoredGroup.lockXToPolygon.TargetObject == oldBorderGroup) {
-            anchoredGroup.lockXToPolygon = {}
+            anchoredGroup.lockXToPolygon.TargetObject = newBorderGroup
           }
           if (anchoredGroup.lockYToPolygon.TargetObject == oldBorderGroup) {
-            anchoredGroup.lockYToPolygon = {}
+            anchoredGroup.lockYToPolygon.TargetObject = newBorderGroup
           }
           anchoredGroup.drawAnchorLinkage()
         })
@@ -496,10 +502,10 @@ class BaseGroup extends fabric.Group {
     return this.basePolygon.vertex.find(v => v.label === label.toUpperCase());
   }
   drawAnchorLinkage() {
-    for (let i = this.subObjects.length - 1; i >= 0; i--) {
-      const obj = this.subObjects[i];
+    for (let i = this.anchorageLink.length - 1; i >= 0; i--) {
+      const obj = this.anchorageLink[i];
       if (obj.functinoalType === 'anchorLine' || obj.functinoalType === 'lockIcon') {
-        this.subObjects.splice(i, 1); // Remove the element from the array
+        this.anchorageLink.splice(i, 1); // Remove the element from the array
         this.remove(obj); // Remove the object from the group
         canvas.remove(obj); // Remove the object from the canvas
       }
@@ -543,8 +549,8 @@ class BaseGroup extends fabric.Group {
         functinoalType: 'lockIcon',
       });
 
-      this.subObjects.push(line1, line2, lockIcon1);
-      this.add(line1, line2, lockIcon1);
+      this.anchorageLink.push(line1, line2, lockIcon1);
+      canvas.add(line1, line2, lockIcon1);
 
     }
     if (Object.keys(this.lockYToPolygon).length) {
@@ -586,8 +592,8 @@ class BaseGroup extends fabric.Group {
         functinoalType: 'lockIcon',
       });
 
-      this.subObjects.push(line3, line4, lockIcon2);
-      this.add(line3, line4, lockIcon2);
+      this.anchorageLink.push(line3, line4, lockIcon2);
+      canvas.add(line3, line4, lockIcon2);
 
     }
   }
@@ -729,12 +735,12 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
     spacingX = options.spacingX
     spacingY = options.spacingY
   } else {
-    vertexIndex1 = await showTextBox('Enter vertex index for Polygon 1 (e.g., V1 for V1):', 'E1')
+    vertexIndex1 = await showTextBox('Enter vertex index for Polygon 1:', 'E1')
     if (vertexIndex1 === null) return;
-    vertexIndex2 = await showTextBox('Enter vertex index for Polygon 2 (e.g., V1 for V1):', 'E1')
+    vertexIndex2 = await showTextBox('Enter vertex index for Polygon 2:', 'E1')
     if (vertexIndex2 === null) return;
-    spacingX = parseInt(await showTextBox('Enter spacing in X:', 100))
-    spacingY = parseInt(await showTextBox('Enter spacing in Y:', 100))
+    spacingX = parseInt(await showTextBox('Enter spacing in X (Leave empty if no need for axis):', 100))
+    spacingY = parseInt(await showTextBox('Enter spacing in Y (Leave empty if no need for axis):', 100))
 
   }
 
@@ -776,11 +782,11 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
   Polygon1.drawAnchorLinkage()
   canvas.bringObjectToFront(Polygon2)
 
-
+  canvas.setActiveObject(Polygon1)
 
   //
   //
-  canvasObject.pop(Polygon1)
+  //anvasObject.pop(Polygon1)
 
   canvas.renderAll();
 }

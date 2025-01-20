@@ -570,6 +570,9 @@ BorderGroupCreate: function (heightObjects, widthObjects, xHeight, borderType) {
         borderGroup.xHeight = xHeight
         borderGroup.BorderResize = FormBorderWrapComponent.BorderResize
 
+        borderGroup.lockMovementX= true
+        borderGroup.lockMovementY= true
+
         // Combine the arrays and create a Set to remove duplicates
         canvas.sendObjectToBack(borderGroup)
         widthObjects.forEach(obj => { canvas.bringObjectToFront(obj) 

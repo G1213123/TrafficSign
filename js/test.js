@@ -7,16 +7,7 @@ let borderTest = function () {
     widthObjects = canvas.getActiveObjects()
     heightObjects = canvas.getActiveObjects()
 
-    borderObject = FormBorderWrapComponent.BorderCreate(heightObjects, widthObjects, xheight, borderType)
-    borderGroup = drawBasePolygon(borderObject)
-    borderGroup.widthObjects = [...widthObjects]
-    borderGroup.heightObjects = [...heightObjects]
-
-    // Combine the arrays and create a Set to remove duplicates
-    canvas.sendObjectToBack(borderGroup)
-    widthObjects.forEach(obj => { canvas.bringObjectToFront(obj) })
-    heightObjects.forEach(obj => { canvas.bringObjectToFront(obj) })
-    canvas.renderAll()
+FormBorderWrapComponent.BorderGroupCreate(heightObjects, widthObjects, xheight, borderType)
 }
 
 let loopAnchoredObjectsTest = function () {
@@ -51,7 +42,11 @@ async function initShape() {
     
         FormTextAddComponent.textPanelInit()
         FormTextAddComponent.TextinputHandler(null,{text:'Hong Kong', xHeight: 100})
-        FormTextAddComponent.TextonMouseClick(null,{left: 100, top: 100})
+        FormTextAddComponent.TextonMouseClick(null,{left: 300, top: 300})
+
+        FormTextAddComponent.textPanelInit()
+        FormTextAddComponent.TextinputHandler(null,{text:'香港', xHeight: 100})
+        FormTextAddComponent.TextonMouseClick(null,{left: 250, top: 250})
 
 
     const arrowOptions1 = { x: 0, y: 0, length: 25, angle: 0, color: 'white', };
