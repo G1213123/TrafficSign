@@ -1,4 +1,3 @@
-
 xHeight = 100
 let canvasObjectNumbering = 0
 let cursorClickMode = 'normal'
@@ -152,35 +151,13 @@ class GlyphPath extends fabric.Path {
     }
 
     let pathString = '';
-    const first = shapeMeta.vertex[0];
-    const second = shapeMeta.vertex[1];
-    const last = shapeMeta.vertex[shapeMeta.vertex.length - 1];
-    const firstArc = shapeMeta.arcs.find(arc => (arc.start == first.label))
 
-    if (first.radius) {
-      // Calculate the exterior angle θ for the first corner
-      const angle = GlyphPath.calculateAngle(last, first, second);
 
-      // Calculate the offset distance d = r × tan(θ/2)
-      const offsetDistance = first.radius * Math.tan(angle / 2);
-
-      // Calculate the tangent point for the first shapeMeta.vertex
-      const firstTangent = GlyphPath.calculateTangentPoint(second, first, offsetDistance);
-
-      // Move to the tangent point
-      pathString = `M ${firstTangent.x} ${firstTangent.y}`;
-    } else if (firstArc){
-      pathString = `A ${first.x} ${first.y} 0 0 ${firstArc.direcition} ${second.x} ${second.y} `
-    } else {
-      // Move to the first shapeMeta.vertex
-      pathString = `M ${first.x} ${first.y}`;
-    }
-
-    for (let i = 1; i < shapeMeta.vertex.length; i++) {
+    for (let i = 0; i < shapeMeta.vertex.length; i++) {
       const current = shapeMeta.vertex[i];
-      const previous = shapeMeta.vertex[i - 1];
       const next = shapeMeta.vertex[(i + 1) % shapeMeta.vertex.length];
-      const nextArc = shapeMeta.arcs.find(arc => (arc.start == first.label))
+      const previous = shapeMeta.vertex.at(i - 1);
+      const nextArc = shapeMeta.arcs.find(arc => (arc.start == current.label))
 
       if (current.radius) {
         // Calculate the exterior angle θ
@@ -197,19 +174,29 @@ class GlyphPath extends fabric.Path {
         const arcDirection = GlyphPath.getArcDirection(previous, current, next);
 
         // Line to the start of the arc
-        pathString += ` L ${prevTangent.x} ${prevTangent.y}`;
+
+        pathString += ` ${current.start?'M':'L'} ${prevTangent.x} ${prevTangent.y}`;
 
         // Arc to the end of the arc
-        pathString += ` A ${current.radius} ${current.radius} 0 0 ${1 - arcDirection} ${nextTangent.x} ${nextTangent.y}`;
+
+          pathString += ` A ${current.radius} ${current.radius} 0 0 ${1 - arcDirection} ${nextTangent.x} ${nextTangent.y}`
+
       } else if (nextArc){
-        pathString = `A ${current.x} ${current.y} 0 0 ${firstArc.direcition} ${previous.x} ${previous.y} `
+        pathString = `A ${current.x} ${current.y} 0 0 ${nextArc.direcition} ${previous.x} ${previous.y} `
       } else {
         // Line to the next point
-        pathString += ` L ${current.x} ${current.y}`;
+        pathString += ` ${current.start?'M':'L'} ${current.x} ${current.y}`;
+      }
+      if (next.start){
+        pathString += ' Z'
       }
     }
 
     // Handle the last corner (which is also the first corner)
+    const first = shapeMeta.vertex[0];
+    const second = shapeMeta.vertex[1];
+    const last = shapeMeta.vertex.at(-1);
+    const finalArc = shapeMeta.arcs.find(arc => (arc.start == last.label))
     if (first.radius) {
       // Calculate the exterior angle θ
       const angle = GlyphPath.calculateAngle(last, first, second);
@@ -227,8 +214,6 @@ class GlyphPath extends fabric.Path {
       // Line to the start of the arc
       pathString += ` L ${prevTangent.x} ${prevTangent.y}`;
 
-      // Arc to the end of the arc
-      pathString += ` A ${first.radius} ${first.radius} 0 0 ${1 - arcDirection} ${nextTangent.x} ${nextTangent.y}`;
     } else {
       // Line to the first point
       pathString += ` L ${first.x} ${first.y}`;
@@ -251,8 +236,8 @@ class GlyphPath extends fabric.Path {
   // Calculate the tangent point for the arc
   static calculateTangentPoint(point, center, offsetDistance) {
     const angle = Math.atan2(point.y - center.y, point.x - center.x);
-    const offsetX = offsetDistance * Math.cos(angle);
-    const offsetY = offsetDistance * Math.sin(angle);
+    const offsetX = Math.round(offsetDistance * Math.cos(angle) * 100)/100;
+    const offsetY = Math.round(offsetDistance * Math.sin(angle) * 100)/100;
     return {
       x: center.x + offsetX,
       y: center.y + offsetY
@@ -310,9 +295,12 @@ class BaseGroup extends fabric.Group {
     this.lockXToPolygon = {};
     this.lockYToPolygon = {};
 
+    // remove default fabric control
     Object.values(this.controls).forEach((control) => {
       control.visible = false;
     })
+
+    // add delete control
     this.controls.deleteControl = new fabric.Control({
       x: 0.5,
       y: -0.5,
@@ -323,7 +311,7 @@ class BaseGroup extends fabric.Group {
       cornerSize: 24,
     });
 
-    // Calculate shapeMeta.vertex points for anchoring
+    // Calculate vertex points for anchoring
     if (!this.basePolygon.vertex) {
       this.basePolygon.vertex = [];
     }
@@ -488,6 +476,8 @@ class BaseGroup extends fabric.Group {
 
       canvas.remove(oldBorderGroup)
       canvasObject.pop(oldBorderGroup);
+
+      // Replace polygon anchored to border
       if (oldBorderGroup.anchoredPolygon) {
         oldBorderGroup.anchoredPolygon.forEach(anchoredGroup => {
           anchoredGroup.set({ lockMovementX: false, lockMovementY: false });
@@ -500,8 +490,8 @@ class BaseGroup extends fabric.Group {
           }
           anchoredGroup.drawAnchorLinkage()
         })
-
       }
+
     }
   }
   getBasePolygonVertex(label) {
@@ -658,6 +648,8 @@ class BaseGroup extends fabric.Group {
   deleteObject(_eventData, transform) {
     canvas.remove(transform.target);
     canvasObject.pop(transform.target);
+
+    // Free anchored Polygon
     if (transform.target.anchoredPolygon) {
       transform.target.anchoredPolygon.forEach(anchoredGroup => {
         anchoredGroup.set({ lockMovementX: false, lockMovementY: false });
@@ -669,6 +661,14 @@ class BaseGroup extends fabric.Group {
         }
         anchoredGroup.drawAnchorLinkage()
       })
+    }
+
+    // If this is a borderGroup
+    if (transform.target.widthObjects){
+      transform.target.widthObjects.forEach(obj=> obj.borderGroup = null)
+    }
+    if (transform.target.heightObjects){
+      transform.target.heightObjects.forEach(obj=> obj.borderGroup = null)
     }
     canvas.requestRenderAll();
   }
@@ -702,15 +702,16 @@ function drawBasePolygon(basePolygon, calcVertex = true) {
   return baseGroup;
 }
 
-function drawLabeledArrow(ShapeMeta, options) {
+function drawLabeledArrow(shapeMeta, options) {
   const { x, y, length, angle, color } = options;
-
+  const vertexleft = shapeMeta.vertex[0].x - Math.min(...shapeMeta.vertex.map(v => v.x));
+    const vertextop = shapeMeta.vertex[0].y - Math.min(...shapeMeta.vertex.map(v => v.y));
   // Create polygon with labeled vertices
   const arrow = new drawBasePolygon(
-    new GlyphPath(ShapeMeta,
+    new GlyphPath(shapeMeta,
       {
-        left: x,
-        top: y,
+        left: x - vertexleft,
+        top: y - vertextop,
         fill: color || 'black',
         angle: angle || 0,
         // originX: 'center',
@@ -724,7 +725,7 @@ function drawLabeledArrow(ShapeMeta, options) {
 document.getElementById('set-anchor').addEventListener('click', function () {
   if (selectedArrow) {
     this.parentElement.parentElement.style.display = 'none';
-    // Implement shapeMeta.vertex selection logic here
+    // Implement vertex selection logic here
     const shape1 = selectedArrow
     selectedArrow = null
     selectObjectHandler('Select shape to anchor to', anchorShape, shape1)
@@ -741,9 +742,9 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
     spacingX = options.spacingX
     spacingY = options.spacingY
   } else {
-    vertexIndex1 = await showTextBox('Enter shapeMeta.vertex index for Polygon 1:', 'E1')
+    vertexIndex1 = await showTextBox('Enter vertex index for Polygon 1:', 'E1')
     if (vertexIndex1 === null) return;
-    vertexIndex2 = await showTextBox('Enter shapeMeta.vertex index for Polygon 2:', 'E1')
+    vertexIndex2 = await showTextBox('Enter vertex index for Polygon 2:', 'E1')
     if (vertexIndex2 === null) return;
     spacingX = parseInt(await showTextBox('Enter spacing in X (Leave empty if no need for axis):', 100))
     spacingY = parseInt(await showTextBox('Enter spacing in Y (Leave empty if no need for axis):', 100))

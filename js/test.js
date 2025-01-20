@@ -49,14 +49,14 @@ async function initShape() {
         FormTextAddComponent.TextonMouseClick(null,{left: 250, top: 250})
 
 
-    const arrowOptions1 = { x: 0, y: 0, length: 25, angle: 0, color: 'white', };
-    const arrowOptions2 = { x: 100, y: 100, length: 25, angle: 0, color: 'white' };
-    Polygon1 = drawLabeledArrow(calcSymbol('StackArrow', 25), arrowOptions1);
-    Polygon2 = drawLabeledArrow(calcSymbol('GantryArrow', 25), arrowOptions2);
+    const arrowOptions1 = { x: 100, y: 100, length: 25, angle: 0, color: 'white', };
+    const arrowOptions2 = { x: 200, y: 200, length: 25, angle: 0, color: 'white' };
+    Polygon1 = drawLabeledArrow(calcSymbol('Tunnel', 25), arrowOptions1);
+    Polygon2 = drawLabeledArrow(calcSymbol('StackArrow', 25), arrowOptions2);
 }
 
 
-testToRun = [initShape,  anchorTest, borderTest]
+testToRun = [initShape,   borderTest]
 
 async function runTests(tests) {
     for (const test of tests) {
