@@ -24,7 +24,7 @@ let anchorTest = function () {
     })
 }
 
-async function initShape() {
+let initShape = function() {
     /*routeMap = new fabric.Group()
     var base = LoadShape("base", { scaleY: (31 / 2 + 21.92 + 2.828 + 12 + 10) / 31, top: -(31 / 2 + 21.92 + 2.828 + 12 + 10) }, routeMap)
     var arm = LoadShape("base", { left: -21.92, top: -(31 / 2 + 21.92), scaleX: 4 / 6, angle: -45 }, routeMap)
@@ -55,18 +55,25 @@ async function initShape() {
     Polygon2 = drawLabeledArrow(calcSymbol('StackArrow', 25), arrowOptions2);
 }
 
+let movingObjectTest = function(){
+    canvas.setActiveObject(canvasObject[0])
+    const specimen = canvas.getActiveObject()
+    const left = specimen.getEffectiveCoords()[0].x
+    const top = specimen.getEffectiveCoords()[0].y
+    specimen.set({left: left + 100, top: top + 100})
+    specimen.setCoords()
+    //console.assert(specimen.getEffectiveCoords()[0].x == left + 100, 'Moving failed');
+}
 
-testToRun = [initShape,   ]
+testToRun = [initShape,   movingObjectTest]
 
-async function runTests(tests) {
+function runTests(tests) {
     for (const test of tests) {
-      await test();
+      test();
     }
   }
 
-  runTests(testToRun).then(() => {
-    console.log('All tests completed');
-  });
+  runTests(testToRun)
 // MIT http://rem.mit-license.org
 // https://stackoverflow.com/questions/33777577/javascript-get-actual-rendered-font-height
 function textXHeight() {
