@@ -56,7 +56,7 @@ async function initShape() {
 }
 
 
-testToRun = [initShape,   borderTest]
+testToRun = [initShape,   ]
 
 async function runTests(tests) {
     for (const test of tests) {

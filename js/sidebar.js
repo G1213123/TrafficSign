@@ -66,9 +66,9 @@ let GeneralHandler = {
     }
     return node
   },
-  createbutton: function (name, labelTxt, parent, defaultState = 0, callback = null, event = null) {
-    var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent)
-    var input = GeneralHandler.createNode("button", { 'type': 'button', 'class': 'button', 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
+  createbutton: function (name, labelTxt, parent, container = 'input', callback = null, event = null) {
+    var inputContainer = GeneralHandler.createNode("div", { 'class': `${container}-container` }, parent)
+    var input = GeneralHandler.createNode("button", { 'type': 'button', 'class': `${container}-button`, 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
     input.innerHTML = labelTxt
   },
 
@@ -138,7 +138,7 @@ let FormTextAddComponent = {
           fontFamily: 'Noto Sans Hong Kong',
           fontWeight: 700,
           left: left_pos + 0.25 * xHeight,
-          top: 0.1 * xHeight ,
+          top: 0.1 * xHeight,
           fill: '#fff',
           fontSize: xHeight * 2.25,
           //origin: 'centerX',
@@ -147,8 +147,8 @@ let FormTextAddComponent = {
         txt_frame = new fabric.Rect({
           left: left_pos,
           top: 0,
-          width: 2.75 * xHeight -2 , // Adjust the width border stroke
-          height: 2.75 * xHeight-2 ,
+          width: 2.75 * xHeight - 2, // Adjust the width border stroke
+          height: 2.75 * xHeight - 2,
           fill: 'rgba(0,0,0,0)', // Transparent fill
           stroke: '#FFFFFF', // White stroke color to match the canvas style
           strokeWidth: 2, // Adjust stroke width for consistency
@@ -172,8 +172,8 @@ let FormTextAddComponent = {
         txt_frame = new fabric.Rect({
           left: left_pos,
           top: 0,
-          width: charWidth * xHeight / 100 -2, // Adjust the width border stroke
-          height: xHeight * 2 - 2, 
+          width: charWidth * xHeight / 100 - 2, // Adjust the width border stroke
+          height: xHeight * 2 - 2,
           fill: 'rgba(0,0,0,0)', // Transparent fill
           stroke: '#FFFFFF', // White stroke color to match the canvas style
           strokeWidth: 2, // Adjust stroke width for consistency
@@ -279,8 +279,36 @@ let FormDrawAddComponent = {
     tabNum = 1
     var parent = GeneralHandler.PanelInit()
     if (parent) {
-      GeneralHandler.createbutton('button-approach-arm', 'Add Approach arm', parent, 0, FormDrawAddComponent.drawApproachClick, 'click')
+      //GeneralHandler.createbutton('button-approach-arm', 'Add Approach arm', parent, 0, FormDrawAddComponent.drawApproachClick, 'click')
+      Object.keys(symbolsTemplate).forEach(symbol => {
+        const button = FormDrawAddComponent.createButtonSVG(symbol, 10)
+        GeneralHandler.createbutton(`button-${symbol}`, button, parent, 'symbol', FormDrawAddComponent.drawApproachClick, 'click')
+      })
     }
+  },
+  createButtonSVG: (symbolType, length) => {
+    const symbolData = calcSymbol(symbolType, length);
+    const pathData = vertexToPath(symbolData);
+
+    const svgWidth = 100;
+    const svgHeight = 100;
+
+    // Calculate the bounding box of the path
+    const bbox = new fabric.Path(pathData).getBoundingRect();
+    const scaleX = svgWidth / bbox.width;
+    const scaleY = svgHeight / bbox.height;
+    const scale = Math.min(scaleX, scaleY);
+
+    // Calculate the translation to center the path
+    const translateX = (svgWidth - bbox.width * scale) / 2 - bbox.left * scale;
+    const translateY = (svgHeight - bbox.height * scale) / 2 - bbox.top * scale;
+
+    const svg = `<svg width="100%" height="100%" viewBox="0 0 ${svgWidth} ${svgHeight}" preserveAspectRatio="xMidYMid meet">
+               <path d="${pathData}" fill="none" stroke="black" stroke-width="2" transform="translate(${translateX}, ${translateY}) scale(${scale})"/>
+             </svg>`;
+
+
+    return svg;
   },
   drawApproachClick: (event) => {
     //$(event.target).toggleClass('active')
@@ -417,7 +445,7 @@ let FormBorderWrapComponent = {
     if (parent) {
       GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100)
       GeneralHandler.createselect('input-type', 'Select Border Type', Object.keys(FormBorderWrapComponent.BorderType), parent, '', '', 'select')
-      GeneralHandler.createbutton('input-text', 'Select Objects for border', parent, '', FormBorderWrapComponent.BorderCreateHandler, 'click')
+      GeneralHandler.createbutton('input-text', 'Select Objects for border', parent, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
     }
   },
   BorderCreateHandler: async function () {
@@ -561,28 +589,30 @@ let FormBorderWrapComponent = {
     }
   },
 
-BorderGroupCreate: function (heightObjects, widthObjects, xHeight, borderType) {
-  borderObject = FormBorderWrapComponent.BorderCreate(heightObjects, widthObjects, xHeight, borderType)
-  borderGroup = drawBasePolygon(borderObject)
-        borderGroup.widthObjects = [...widthObjects]
-        borderGroup.heightObjects = [...heightObjects]
-        borderGroup.borderType = borderType
-        borderGroup.xHeight = xHeight
-        borderGroup.BorderResize = FormBorderWrapComponent.BorderResize
+  BorderGroupCreate: function (heightObjects, widthObjects, xHeight, borderType) {
+    borderObject = FormBorderWrapComponent.BorderCreate(heightObjects, widthObjects, xHeight, borderType)
+    borderGroup = drawBasePolygon(borderObject)
+    borderGroup.widthObjects = [...widthObjects]
+    borderGroup.heightObjects = [...heightObjects]
+    borderGroup.borderType = borderType
+    borderGroup.xHeight = xHeight
+    borderGroup.BorderResize = FormBorderWrapComponent.BorderResize
 
-        borderGroup.lockMovementX= true
-        borderGroup.lockMovementY= true
+    borderGroup.lockMovementX = true
+    borderGroup.lockMovementY = true
 
-        // Combine the arrays and create a Set to remove duplicates
-        canvas.sendObjectToBack(borderGroup)
-        widthObjects.forEach(obj => { canvas.bringObjectToFront(obj) 
-          obj.borderGroup = borderGroup
-        })
-        heightObjects.forEach(obj => { canvas.bringObjectToFront(obj) 
-          obj.borderGroup = borderGroup
-        })
-        canvas.requestRenderAll();
-}
+    // Combine the arrays and create a Set to remove duplicates
+    canvas.sendObjectToBack(borderGroup)
+    widthObjects.forEach(obj => {
+      canvas.bringObjectToFront(obj)
+      obj.borderGroup = borderGroup
+    })
+    heightObjects.forEach(obj => {
+      canvas.bringObjectToFront(obj)
+      obj.borderGroup = borderGroup
+    })
+    canvas.requestRenderAll();
+  }
 }
 
 /* Debug Panel */
@@ -598,17 +628,17 @@ let FormDebugComponent = {
       canvas.on('object:modified', FormDebugComponent.selectionListener);
       // Clear the sidebar when no object is selected
       canvas.on('selection:cleared', FormDebugComponent.clearSelectionListener);
-      if (canvas.getActiveObject()){
+      if (canvas.getActiveObject()) {
         FormDebugComponent.updateDebugInfo(canvas.getActiveObject());
       }
     }
   },
   selectionListener: function (event) {
     let selectedObject = null
-    if (event.target){
-       selectedObject = event.target;
-    } else{
-     selectedObject = event.selected[0];
+    if (event.target) {
+      selectedObject = event.target;
+    } else {
+      selectedObject = event.selected[0];
     }
     FormDebugComponent.updateDebugInfo(selectedObject);
   },
@@ -627,7 +657,7 @@ let FormDebugComponent = {
   updateDebugInfo: function (object) {
     const debugInfoPanel = document.getElementById('debug-info-panel');
     if (debugInfoPanel) {
-      
+
       debugInfoPanel.innerHTML = ''; // Clear previous info
       point = object.getEffectiveCoords()
       const properties = [
@@ -635,12 +665,12 @@ let FormDebugComponent = {
         { label: 'Left', value: Math.round(object.left) },
         { label: 'Width', value: Math.round(object.width) },
         { label: 'Height', value: Math.round(object.height) },
-        { label: 'Effective Position', value: `x: ${Math.round(point[0].x)}, y: ${Math.round(point[0].y)}`},
+        { label: 'Effective Position', value: `x: ${Math.round(point[0].x)}, y: ${Math.round(point[0].y)}` },
         { label: 'Effective Width', value: Math.round(point[1].x - point[0].x) },
-        { label: 'Effective Height', value: Math.round(point[2].y-point[0].y) },
-  
+        { label: 'Effective Height', value: Math.round(point[2].y - point[0].y) },
+
       ];
-  
+
       properties.forEach(prop => {
         const div = document.createElement('div');
         div.innerText = `${prop.label}: ${prop.value}`;
@@ -651,7 +681,7 @@ let FormDebugComponent = {
 
   DebugHandlerOff: function (event) {
     canvas.off('selection:created', this.selectionListener)
-    canvas.off('selection:updated', this.selectionListener )
+    canvas.off('selection:updated', this.selectionListener)
     canvas.off('selection:cleared', this.clearSelectionListener)
   },
 };

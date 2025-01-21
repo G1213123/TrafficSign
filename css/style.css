@@ -154,6 +154,14 @@ div.side-panel.close {
   margin-top: 20px;
 }
 
+.symbol-container {
+  display: flex;
+  flex-wrap: wrap; /* Allow buttons to wrap to the next line if necessary */
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%; /* Ensure the container takes the full width of its parent */
+}
+
 
 .input {
   background-color: #404042;
@@ -206,19 +214,19 @@ div.side-panel.close {
   transition: font-weight 500ms ease-out, top 500ms ease-out, color 500ms ease-out;
 }
 
-.button:hover {
+.input-button:hover {
   background-color: white;
   color: black;
   border: 2px solid #555555;
 }
 
-.button.active {
+.input-button.active {
   background-color: white;
   color: black;
   border: 2px solid #555555;
 }
 
-.button {
+.input-button {
   background-color: #555555;
   color: white;
   transition-duration: 0.4s;
@@ -231,6 +239,34 @@ div.side-panel.close {
   transition-duration: 0.4s;
   cursor: pointer;
   border-radius: 10px;
+}
+
+.symbol-button:hover {
+  background-color: white;
+  color: black;
+  border: 2px solid #555555;
+}
+
+.symbol-button.active {
+  background-color: white;
+  color: black;
+  border: 2px solid #555555;
+}
+
+.symbol-button {
+  background-color: #555555;
+  color: white;
+  transition-duration: 0.4s;
+  padding: 16px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 10px;
+  max-width: 48%; /* Ensure the button takes a maximum of half of its parent width */
+  flex: 1 1 48%; /* Allow the button to grow and fill the available space, with a minimum width */
 }
 
 #context-menu {
