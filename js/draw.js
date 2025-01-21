@@ -130,96 +130,101 @@ class GlyphPolygon extends fabric.Polygon {
 
 class GlyphPath extends fabric.Path {
   constructor(shapeMeta, options) {
-    const vertexleft = shapeMeta.vertex[0].x - Math.min(...shapeMeta.vertex.map(v => v.x));
-    const vertextop = shapeMeta.vertex[0].y - Math.min(...shapeMeta.vertex.map(v => v.y));
-    shapeMeta.vertex.forEach((p) => {
+    const vertexleft = shapeMeta[0].vertex[0].x - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.x));
+    const vertextop = shapeMeta[0].vertex[0].y - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.y));
+
+    shapeMeta.forEach(p => {p.vertex.forEach((p) => {
       p.x = p.x + options.left + vertexleft;
       p.y = p.y + options.top + vertextop;
     });
+  })
     const pathData = GlyphPath.vertexToPath(shapeMeta);
     super(pathData, options);
     this.vertex = shapeMeta.vertex; // Store the shapeMeta.vertex points
-    this.insertPoint = shapeMeta.vertex[0];
+    this.insertPoint = shapeMeta[0].vertex[0];
 
     this.setCoords();
   }
 
   // Convert shapeMeta.vertex points to SVG path string with circular trims
   static vertexToPath(shapeMeta) {
-    if (!shapeMeta.vertex || shapeMeta.vertex.length === 0) {
-      return '';
-    }
-
     let pathString = '';
 
+    shapeMeta.forEach((path,pathindex) =>{
 
-    for (let i = 0; i < shapeMeta.vertex.length; i++) {
-      const current = shapeMeta.vertex[i];
-      const next = shapeMeta.vertex[(i + 1) % shapeMeta.vertex.length];
-      const previous = shapeMeta.vertex.at(i - 1);
-      const nextArc = shapeMeta.arcs.find(arc => (arc.start == current.label))
-
-      if (current.radius) {
+      for (let i = 0; i < path.vertex.length; i++) {
+        const current = path.vertex[i];
+        const next = path.vertex[(i + 1) % path.vertex.length];
+        const previous = path.vertex.at(i - 1);
+        const prevArc = path.arcs.find(arc => (arc.end == current.label))
+  
+        if (current.radius) {
+          // Calculate the exterior angle θ
+          const angle = GlyphPath.calculateAngle(previous, current, next);
+  
+          // Calculate the offset distance d = r × tan(θ/2)
+          const offsetDistance = current.radius * Math.tan(angle / 2);
+  
+          // Calculate the tangent points for the arc
+          const prevTangent = GlyphPath.calculateTangentPoint(previous, current, offsetDistance);
+          const nextTangent = GlyphPath.calculateTangentPoint(next, current, offsetDistance);
+  
+          // Determine the arc direction (clockwise or counterclockwise)
+          const arcDirection = GlyphPath.getArcDirection(previous, current, next);
+  
+          // Line to the start of the arc
+          if (pathinex != 0){
+            pathString += ' Z'
+          }
+          pathString += ` ${current.start?'M':'L'} ${prevTangent.x} ${prevTangent.y}`;
+  
+          // Arc to the end of the arc
+  
+            pathString += ` A ${current.radius} ${current.radius} 0 0 ${1 - arcDirection} ${nextTangent.x} ${nextTangent.y}`
+  
+        } else if (prevArc && !current.start){
+          let arcEnd = path.vertex.find(v => v.label = prevArc.start)
+          pathString += `A ${current.x} ${current.y} 0 0 ${prevArc.direction} ${arcEnd.x} ${arcEnd.y} `
+        } else {
+          // Line to the next point
+          pathString += ` ${current.start?'M':'L'} ${current.x} ${current.y}`;
+        }
+        //if (next.start){
+        //  pathString += ' Z'
+        //}
+      }
+  
+      // Handle the last corner (which is also the first corner)
+      const first = path.vertex[0];
+      const second = path.vertex[1];
+      const last = path.vertex.at(-1);
+      const finalArc = path.arcs.find(arc => (arc.start == last.label))
+      if (first.radius) {
         // Calculate the exterior angle θ
-        const angle = GlyphPath.calculateAngle(previous, current, next);
-
+        const angle = GlyphPath.calculateAngle(last, first, second);
+  
         // Calculate the offset distance d = r × tan(θ/2)
-        const offsetDistance = current.radius * Math.tan(angle / 2);
-
+        const offsetDistance = first.radius * Math.tan(angle / 2);
+  
         // Calculate the tangent points for the arc
-        const prevTangent = GlyphPath.calculateTangentPoint(previous, current, offsetDistance);
-        const nextTangent = GlyphPath.calculateTangentPoint(next, current, offsetDistance);
-
+        const prevTangent = GlyphPath.calculateTangentPoint(last, first, offsetDistance);
+        const nextTangent = GlyphPath.calculateTangentPoint(second, first, offsetDistance);
+  
         // Determine the arc direction (clockwise or counterclockwise)
-        const arcDirection = GlyphPath.getArcDirection(previous, current, next);
-
+        const arcDirection = GlyphPath.getArcDirection(last, first, second);
+  
         // Line to the start of the arc
-
-        pathString += ` ${current.start?'M':'L'} ${prevTangent.x} ${prevTangent.y}`;
-
-        // Arc to the end of the arc
-
-          pathString += ` A ${current.radius} ${current.radius} 0 0 ${1 - arcDirection} ${nextTangent.x} ${nextTangent.y}`
-
-      } else if (nextArc){
-        pathString = `A ${current.x} ${current.y} 0 0 ${nextArc.direcition} ${previous.x} ${previous.y} `
+        pathString += ` L ${prevTangent.x} ${prevTangent.y}`;
+      } else if (finalArc){
+        let arcEnd = path.vertex.find(v => v.label = finalArc.end)
+        pathString += ` A ${last.x} ${last.y} 0 0 ${finalArc.direction} ${arcEnd.x} ${arcEnd.y} `
       } else {
-        // Line to the next point
-        pathString += ` ${current.start?'M':'L'} ${current.x} ${current.y}`;
+        // Line to the first point
+        pathString += ` L ${first.x} ${first.y}`;
       }
-      if (next.start){
-        pathString += ' Z'
-      }
-    }
-
-    // Handle the last corner (which is also the first corner)
-    const first = shapeMeta.vertex[0];
-    const second = shapeMeta.vertex[1];
-    const last = shapeMeta.vertex.at(-1);
-    const finalArc = shapeMeta.arcs.find(arc => (arc.start == last.label))
-    if (first.radius) {
-      // Calculate the exterior angle θ
-      const angle = GlyphPath.calculateAngle(last, first, second);
-
-      // Calculate the offset distance d = r × tan(θ/2)
-      const offsetDistance = first.radius * Math.tan(angle / 2);
-
-      // Calculate the tangent points for the arc
-      const prevTangent = GlyphPath.calculateTangentPoint(last, first, offsetDistance);
-      const nextTangent = GlyphPath.calculateTangentPoint(second, first, offsetDistance);
-
-      // Determine the arc direction (clockwise or counterclockwise)
-      const arcDirection = GlyphPath.getArcDirection(last, first, second);
-
-      // Line to the start of the arc
-      pathString += ` L ${prevTangent.x} ${prevTangent.y}`;
-
-    } else {
-      // Line to the first point
-      pathString += ` L ${first.x} ${first.y}`;
-    }
-
-    pathString += ' Z'; // Close the path
+  
+      pathString += ' Z'; // Close the path
+    })
     return pathString;
   }
 
@@ -704,8 +709,8 @@ function drawBasePolygon(basePolygon, calcVertex = true) {
 
 function drawLabeledArrow(shapeMeta, options) {
   const { x, y, length, angle, color } = options;
-  const vertexleft = shapeMeta.vertex[0].x - Math.min(...shapeMeta.vertex.map(v => v.x));
-    const vertextop = shapeMeta.vertex[0].y - Math.min(...shapeMeta.vertex.map(v => v.y));
+  const vertexleft = shapeMeta[0].vertex[0].x - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.x));
+    const vertextop = shapeMeta[0].vertex[0].y - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.y));
   // Create polygon with labeled vertices
   const arrow = new drawBasePolygon(
     new GlyphPath(shapeMeta,
@@ -715,7 +720,8 @@ function drawLabeledArrow(shapeMeta, options) {
         fill: color || 'black',
         angle: angle || 0,
         // originX: 'center',
-        objectCaching: false
+        objectCaching: false,
+        stroke: '#FFF'
       }),
   );
 
