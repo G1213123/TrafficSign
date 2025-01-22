@@ -510,8 +510,9 @@ let FormBorderWrapComponent = {
       PaddingTop: 2.5,
       PaddingNBottom: 1.5,
       FrameWidth: 1.5,
+      FrameFill: 'white',
       InnerCornerRadius: 1.5,
-      OuterCornerRadius: 1.5
+      OuterCornerRadius: 3
     },
   },
   BorderPanelInit: function () {
@@ -687,6 +688,7 @@ let FormBorderWrapComponent = {
       obj.borderGroup = borderGroup
     })
     canvas.requestRenderAll();
+    return borderGroup
   }
 }
 

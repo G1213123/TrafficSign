@@ -316,7 +316,13 @@ class BaseGroup extends fabric.Group {
   // Method to emit deltaX and deltaY to anchored groups
   emitDelta(deltaX, deltaY) {
     this.anchoredPolygon.forEach(anchoredGroup => {
-      anchoredGroup.receiveDelta(deltaX, deltaY);
+      if (this.widthObjects || this.heightObjects){
+        if (!this.widthObjects.includes(anchoredGroup) || !this.heightObjects.includes(anchoredGroup)){
+          // pass
+        }
+      } else {
+        anchoredGroup.receiveDelta(deltaX, deltaY);
+      }
     });
   }
 
@@ -346,8 +352,9 @@ class BaseGroup extends fabric.Group {
 
       // Replace polygon anchored to border
       if (oldBorderGroup.anchoredPolygon) {
+        newBorderGroup.anchoredPolygon = oldBorderGroup.anchoredPolygon
         oldBorderGroup.anchoredPolygon.forEach(anchoredGroup => {
-          anchoredGroup.set({ lockMovementX: false, lockMovementY: false });
+          //anchoredGroup.set({ lockMovementX: false, lockMovementY: false });
 
           if (anchoredGroup.lockXToPolygon.TargetObject == oldBorderGroup) {
             anchoredGroup.lockXToPolygon.TargetObject = newBorderGroup
@@ -357,8 +364,10 @@ class BaseGroup extends fabric.Group {
           }
           anchoredGroup.drawAnchorLinkage()
         })
+        newBorderGroup.emitDelta(newBorderGroup.left - oldBorderGroup.left, newBorderGroup.top - oldBorderGroup.top)
       }
 
+      // Reattach border anchor to polygon
     }
   }
   getBasePolygonVertex(label) {
@@ -458,6 +467,12 @@ class BaseGroup extends fabric.Group {
       this.anchorageLink.push(line3, line4, lockIcon2);
       canvas.add(line3, line4, lockIcon2);
 
+      const isActive = canvas.getActiveObject() === this;
+      const opacity = isActive ? 1 : 0;
+      this.anchorageLink.forEach(obj => {
+        obj.set('opacity', opacity);
+      });
+      canvas.renderAll();
     }
   }
   // Method to update coordinates and emit delta
@@ -655,7 +670,9 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
   //canvas.remove(Polygon1)
   Polygon2.updateAllCoord()
   Polygon1.drawAnchorLinkage()
-  canvas.bringObjectToFront(Polygon2)
+  if (!Polygon2.borderType){
+    canvas.bringObjectToFront(Polygon2)
+  }
 
   canvas.setActiveObject(Polygon1)
 

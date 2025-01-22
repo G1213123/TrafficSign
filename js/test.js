@@ -65,7 +65,7 @@ let movingObjectTest = function(){
     //console.assert(specimen.getEffectiveCoords()[0].x == left + 100, 'Moving failed');
 }
 
-testToRun = [initShape,   movingObjectTest]
+testToRun = [initShape,   borderTest, anchorTest]
 
 function runTests(tests) {
     for (const test of tests) {
