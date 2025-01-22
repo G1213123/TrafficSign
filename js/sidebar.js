@@ -41,6 +41,7 @@ let GeneralHandler = {
   },
   PanelHandlerOff: () => {
     FormTextAddComponent.TextHandlerOff()
+    FormDrawAddComponent.DrawHandlerOff()
     if (tabNum != 5) {
       FormDebugComponent.DebugHandlerOff()
     }
@@ -214,10 +215,12 @@ let FormTextAddComponent = {
         { left: options.left, top: options.top }
       )
 
-      textValue = 'Go'
+      textValue = options.text
+      xHeight = options.xHeight
       eventButton = 0
     } else {
       textValue = document.getElementById("input-text").value
+      xHeight = parseInt(document.getElementById('input-xHeight').value)
       eventButton = event.e.button
     }
     if (textValue !== '' && eventButton === 0) {
@@ -262,6 +265,8 @@ let FormTextAddComponent = {
         }
         clonedObj.setCoords()
         clonedObj.vertex = clonedObj.getCombinedBoundingBoxOfRects()
+        clonedObj.text = textValue
+        clonedObj.xHeight = xHeight
         //Object.values(clonedObj.aCoords).map((point, i) => {
         //  return { x: point.x, y: point.y, label: `E${i + 1}` }
         //})
@@ -279,13 +284,48 @@ let FormDrawAddComponent = {
     tabNum = 1
     var parent = GeneralHandler.PanelInit()
     if (parent) {
+      GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100, null, 'input')
       //GeneralHandler.createbutton('button-approach-arm', 'Add Approach arm', parent, 0, FormDrawAddComponent.drawApproachClick, 'click')
       Object.keys(symbolsTemplate).forEach(symbol => {
         const button = FormDrawAddComponent.createButtonSVG(symbol, 10)
-        GeneralHandler.createbutton(`button-${symbol}`, button, parent, 'symbol', FormDrawAddComponent.drawApproachClick, 'click')
+        GeneralHandler.createbutton(`button-${symbol}`, button, parent, 'symbol', FormDrawAddComponent.drawSymbol, 'click')
       })
+      canvas.on('mouse:move', FormTextAddComponent.TextonMouseMove)
+      canvas.on('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
     }
   },
+
+  DrawHandlerOff: function (event) {
+    cursor.forEachObject(function (o) { cursor.remove(o) })
+    canvas.off('mouse:move', FormTextAddComponent.TextonMouseMove)
+    canvas.off('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
+    canvas.renderAll()
+  },
+
+  SymbolonMouseClick: function (event, options = null) {
+      //permanent cursor object 
+      if (options) {
+        cursor.set(
+          { left: options.left, top: options.top }
+        )
+  
+        textValue = 'Go'
+        eventButton = 0
+      } else {
+        eventButton = event.e.button
+      }
+      if (eventButton === 0) {
+        cursor.clone().then(function (clonedObj) {
+          canvas.remove(clonedObj)
+          var symbolitem = clonedObj.removeAll()[0];
+          offset = getInsertOffset (calcSymbol(symbolitem.symbol,symbolitem.xHeight/4))
+          coords = symbolitem.getCoords()
+          symbolitem.vertex = symbolitem.vertex.map(v=>{return {x:v.x+offset.left +coords[0].x , y:v.y+offset.top +coords[0].y, label:v.label}} )
+          SymbolGroup = drawBasePolygon(symbolitem)
+        })
+      }
+    },
+
   createButtonSVG: (symbolType, length) => {
     const symbolData = calcSymbol(symbolType, length);
     const pathData = vertexToPath(symbolData);
@@ -309,6 +349,41 @@ let FormDrawAddComponent = {
 
 
     return svg;
+  },
+  drawSymbol: (event, options = null) =>{
+      let symbol =  event.currentTarget.id.replace('button-', '')
+
+      cursor.forEachObject(function (o) { cursor.remove(o) })
+      cursor.txtChar = []
+      cursor.text = ''
+      if (options) {
+        symbol = option.symbol
+        var xHeight = options.xHeight
+      }
+      else {
+        var xHeight = parseInt(document.getElementById('input-xHeight').value)
+      }
+      
+      let symbolObject = calcSymbol(symbol, xHeight/4)
+      symbolOffset = getInsertOffset (symbolObject)
+      const arrowOptions1 =       {
+        left: - symbolOffset.left,
+        top: - symbolOffset.top,
+        fill: '#FFF',
+        angle: 0,
+        // originX: 'center',
+        objectCaching: false,
+        strokeWidth: 0
+      },
+      Polygon1 = new GlyphPath(symbolObject, arrowOptions1);
+      Polygon1.symbol = symbol
+      Polygon1.xHeight = xHeight
+
+      cursor.add(Polygon1)
+
+      Polygon1.setCoords();
+
+      canvas.renderAll();
   },
   drawApproachClick: (event) => {
     //$(event.target).toggleClass('active')

@@ -42,15 +42,15 @@ let initShape = function() {
     
         FormTextAddComponent.textPanelInit()
         FormTextAddComponent.TextinputHandler(null,{text:'Hong Kong', xHeight: 100})
-        FormTextAddComponent.TextonMouseClick(null,{left: 300, top: 300})
+        FormTextAddComponent.TextonMouseClick(null,{left: 300, top: 300,text:'Hong Kong', xHeight: 100})
 
         FormTextAddComponent.textPanelInit()
         FormTextAddComponent.TextinputHandler(null,{text:'香港', xHeight: 100})
-        FormTextAddComponent.TextonMouseClick(null,{left: 250, top: 250})
+        FormTextAddComponent.TextonMouseClick(null,{left: 250, top: 250, text:'香港', xHeight: 100})
 
 
-    const arrowOptions1 = { x: 100, y: 100, length: 25, angle: 0, color: 'white', };
-    const arrowOptions2 = { x: 200, y: 200, length: 25, angle: 0, color: 'white' };
+    const arrowOptions1 = { x: 100, y: 100, length: 25, angle: 0, color: 'white',};
+    const arrowOptions2 = { x: 200, y: 200, length: 25, angle: 0, color: 'white', };
     Polygon1 = drawLabeledArrow(calcSymbol('Tunnel', 25), arrowOptions1);
     Polygon2 = drawLabeledArrow(calcSymbol('StackArrow', 25), arrowOptions2);
 }

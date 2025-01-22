@@ -35,7 +35,7 @@ const symbolsTemplate = {
     ], 'arcs': []
   }],
 
-  'Tunnel': [
+  'Tunnel': [ // 3.5.7.7
     {
       'vertex': [
         { x: 0, y: 0, label: 'V1', start: 1 },
@@ -53,6 +53,76 @@ const symbolsTemplate = {
         { x: 5.25, y: 13, label: 'V9', start: 0 },
       ], 'arcs': [{ start: 'V9', end: 'V8', radius: 6.5, direction: 0, sweep: 1 }]
     },
+  ],
+
+  'Expressway': [ // Diagram 3.5.7.11
+    {
+      'vertex': [
+        { x: 0, y: 0, label: 'V1', start: 1 },
+        { x: 4.5, y: 0, label: 'V2', radius:0.75, start: 0 },
+        { x: 4.5, y: 9, label: 'V3', radius:0.75, start: 0 },
+        { x: -4.5, y: 9, label: 'V4', radius:0.75, start: 0 },
+        { x: -4.5, y: 0, label: 'V5', radius:0.75, start: 0 },
+      ], 'arcs': []
+    },
+    {
+        'vertex': [
+          { x: 0, y: 0.25, label: 'V6', start: 1 },
+          { x: -4.25, y: 0.25, label: 'V7', radius:0.5, start: 0 },
+          { x: -4.25, y: 8.75, label: 'V8', radius:0.5, start: 0 },
+          { x: 4.25, y: 8.75, label: 'V9', radius:0.5, start: 0 },
+          { x: 4.25, y: 0.25, label: 'V10', radius:0.5, start: 0 },
+        ], 'arcs': []
+      },
+      {
+        'vertex': [
+          { x: 0.25, y: 1.25, label: 'V11', start: 1 },
+          { x: 0.75, y: 1.25, label: 'V12',  start: 0 },
+          { x: 0.972, y: 2.75, label: 'V13', start: 0 },
+          { x: 0.25, y: 2.75, label: 'V14', start: 0 },
+        ], 'arcs': []
+      },
+      {
+        'vertex': [
+          { x: -0.25, y: 1.25, label: 'V15', start: 1 },
+          { x: -0.25, y: 2.75, label: 'V16', start: 0 },
+          { x: -0.972, y: 2.75, label: 'V17', start: 0 },
+          { x: -0.75, y: 1.25, label: 'V18',  start: 0 },
+        ], 'arcs': []
+      },
+      {
+        'vertex': [
+          { x: 0, y: 3.25, label: 'V19', start: 1 },
+          { x: 3.5, y: 3.25, label: 'V20', start: 0 },
+          { x: 3.5, y: 3.75, label: 'V21', start: 0 },
+          { x: 2.75, y: 3.75, label: 'V22', radius: 0.25, start: 0 },
+          { x: 2.75, y: 4.75, label: 'V23', start: 0 },
+          { x: 2.25, y: 4.75, label: 'V24', start: 0 },
+          { x: 2, y: 3.75, label: 'V25', radius: 0.25, start: 0 },
+          { x: -2, y: 3.75, label: 'V26', radius: 0.25, start: 0 },
+          { x: -2.25, y: 4.75, label: 'V27', start: 0 },
+          { x: -2.75, y: 4.75, label: 'V28', start: 0 },
+          { x: -2.75, y: 3.75, label: 'V29', radius: 0.25, start: 0 },
+          { x: -3.5, y: 3.75, label: 'V30', start: 0 },
+          { x: -3.5, y: 3.25, label: 'V31', start: 0 },
+        ], 'arcs': []
+      },
+      {
+        'vertex': [
+          { x: 0.25, y: 4.25, label: 'V32', start: 1 },
+          { x: 1.194, y: 4.25, label: 'V33',  start: 0 },
+          { x: 1.5, y: 8, label: 'V34', start: 0 },
+          { x: 0.25, y: 8, label: 'V35', start: 0 },
+        ], 'arcs': []
+      },
+      {
+        'vertex': [
+          { x: -0.25, y: 4.25, label: 'V36', start: 1 },
+          { x: -0.25, y: 8, label: 'V371', start: 0 },
+          { x: -1.5, y: 8, label: 'V38', start: 0 },
+          { x: -1.194, y: 4.25, label: 'V39',  start: 0 },
+        ], 'arcs': []
+      },
   ],
 };
 
@@ -73,11 +143,20 @@ function calcSymbol(type, length) {
   return symbols[type];
 }
 
+function getInsertOffset (shapeMeta){
+    const vertexleft = shapeMeta[0].vertex[0].x - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.x));
+    const vertextop = shapeMeta[0].vertex[0].y - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.y));
+    return {left:vertexleft, top:vertextop}
+}
+
 // Convert shapeMeta.vertex points to SVG path string with circular trims
 function vertexToPath(shapeMeta) {
     let pathString = '';
 
     shapeMeta.forEach((path,pathindex) =>{
+        if (pathindex != 0){
+            pathString += ' Z'
+          }
 
       for (let i = 0; i < path.vertex.length; i++) {
         const current = path.vertex[i];
@@ -100,9 +179,6 @@ function vertexToPath(shapeMeta) {
           const arcDirection = getArcDirection(previous, current, next);
   
           // Line to the start of the arc
-          if (pathindex != 0){
-            pathString += ' Z'
-          }
           pathString += ` ${current.start?'M':'L'} ${prevTangent.x} ${prevTangent.y}`;
   
           // Arc to the end of the arc
@@ -150,7 +226,7 @@ function vertexToPath(shapeMeta) {
         pathString += ` L ${first.x} ${first.y}`;
       }
   
-      pathString += ' Z'; // Close the path
+      //pathString += ' Z'; // Close the path
     })
     return pathString;
   }

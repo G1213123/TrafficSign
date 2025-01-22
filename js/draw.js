@@ -583,7 +583,7 @@ function drawLabeledArrow(shapeMeta, options) {
         angle: angle || 0,
         // originX: 'center',
         objectCaching: false,
-        stroke: '#FFF'
+        strokeWidth: 0
       }),
   );
 
