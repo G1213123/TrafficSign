@@ -7,7 +7,7 @@ let borderTest = function () {
     widthObjects = canvas.getActiveObjects()
     heightObjects = canvas.getActiveObjects()
 
-FormBorderWrapComponent.BorderGroupCreate(heightObjects, widthObjects, xheight, borderType)
+    FormBorderWrapComponent.BorderGroupCreate(heightObjects, widthObjects, xheight, borderType)
 }
 
 let loopAnchoredObjectsTest = function () {
@@ -16,15 +16,27 @@ let loopAnchoredObjectsTest = function () {
 }
 
 let anchorTest = function () {
-    anchorShape([canvasObject[1]], canvasObject[0], {
-        vertexIndex1: 'E2',
-        vertexIndex2: 'E2',
-        spacingX: -200,
+    anchorShape(canvasObject[0], canvasObject[1], {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 0,
+        spacingY: 0
+    })
+    anchorShape(canvasObject[2], canvasObject[0], {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E3',
+        spacingX: 50,
         spacingY: NaN
+    })
+    anchorShape(canvasObject[0], canvasObject[3], {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E3',
+        spacingX: 50,
+        spacingY: 0
     })
 }
 
-let initShape = function() {
+let initShape = async function () {
     /*routeMap = new fabric.Group()
     var base = LoadShape("base", { scaleY: (31 / 2 + 21.92 + 2.828 + 12 + 10) / 31, top: -(31 / 2 + 21.92 + 2.828 + 12 + 10) }, routeMap)
     var arm = LoadShape("base", { left: -21.92, top: -(31 / 2 + 21.92), scaleX: 4 / 6, angle: -45 }, routeMap)
@@ -39,41 +51,42 @@ let initShape = function() {
     //})
     //text1.insertPoint = text1.vertex[0]
 
-    
-        FormTextAddComponent.textPanelInit()
-        FormTextAddComponent.TextinputHandler(null,{text:'Hong Kong', xHeight: 100})
-        FormTextAddComponent.TextonMouseClick(null,{left: 300, top: 300,text:'Hong Kong', xHeight: 100})
 
-        FormTextAddComponent.textPanelInit()
-        FormTextAddComponent.TextinputHandler(null,{text:'香港', xHeight: 100})
-        FormTextAddComponent.TextonMouseClick(null,{left: 250, top: 250, text:'香港', xHeight: 100})
+    FormTextAddComponent.textPanelInit()
+    FormTextAddComponent.TextinputHandler(null, { text: 'Hong Kong', xHeight: 100 })
+    await FormTextAddComponent.TextonMouseClick(null, { left: 300, top: 300, text: 'Hong Kong', xHeight: 100 })
+
+    FormTextAddComponent.textPanelInit()
+    FormTextAddComponent.TextinputHandler(null, { text: '香港', xHeight: 100 })
+    await FormTextAddComponent.TextonMouseClick(null, { left: 250, top: 250, text: '香港', xHeight: 100 })
 
 
-    const arrowOptions1 = { x: 100, y: 100, length: 25, angle: 0, color: 'white',};
+    const arrowOptions1 = { x: 100, y: 100, length: 25, angle: 0, color: 'white', };
     const arrowOptions2 = { x: 200, y: 200, length: 25, angle: 0, color: 'white', };
-    Polygon1 = drawLabeledArrow(calcSymbol('Tunnel', 25), arrowOptions1);
-    Polygon2 = drawLabeledArrow(calcSymbol('StackArrow', 25), arrowOptions2);
+    Polygon1 = drawLabeledArrow(calcSymbol('StackArrow', 25), arrowOptions2);
+    Polygon2 = drawLabeledArrow(calcSymbol('Tunnel', 25), arrowOptions1);
+    //console.log(canvasObject)
 }
 
-let movingObjectTest = function(){
+let movingObjectTest = function () {
     canvas.setActiveObject(canvasObject[0])
     const specimen = canvas.getActiveObject()
     const left = specimen.getEffectiveCoords()[0].x
     const top = specimen.getEffectiveCoords()[0].y
-    specimen.set({left: left + 100, top: top + 100})
+    specimen.set({ left: left + 100, top: top + 100 })
     specimen.setCoords()
     //console.assert(specimen.getEffectiveCoords()[0].x == left + 100, 'Moving failed');
 }
 
-testToRun = [initShape,   borderTest, anchorTest]
+testToRun = [initShape, anchorTest]
 
-function runTests(tests) {
+async function  runTests(tests) {
     for (const test of tests) {
-      test();
+        await test();
     }
-  }
+}
 
-  runTests(testToRun)
+runTests(testToRun)
 // MIT http://rem.mit-license.org
 // https://stackoverflow.com/questions/33777577/javascript-get-actual-rendered-font-height
 function textXHeight() {

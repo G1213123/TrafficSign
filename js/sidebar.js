@@ -208,7 +208,7 @@ let FormTextAddComponent = {
     canvas.renderAll();
   },
 
-  TextonMouseClick: function (event, options = null) {
+  TextonMouseClick: async function (event, options = null) {
     //permanent cursor object 
     if (options) {
       cursor.set(
@@ -224,7 +224,7 @@ let FormTextAddComponent = {
       eventButton = event.e.button
     }
     if (textValue !== '' && eventButton === 0) {
-      cursor.clone().then(function (clonedObj) {
+      clonedObj = await cursor.clone()
         clonedObj.getCombinedBoundingBoxOfRects = function () {
           let combinedBBox = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
           let points = [];
@@ -272,7 +272,7 @@ let FormTextAddComponent = {
         //})
         //clonedObj.insertPoint = clonedObj.vertex[0]
         TextGroup = drawBasePolygon(clonedObj, false)
-      })
+
     }
   },
 

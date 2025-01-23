@@ -146,20 +146,25 @@ div.side-panel.close {
 
 /*https://codepen.io/ainalem/pen/GRqPwoz side panel form component*/
 
+.input-form {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: wrap;
+}
 .input-container {
   height: 50px;
   position: relative;
   width: 90%;
   padding: 4px 20px;
   margin-top: 20px;
+  flex:0
 }
 
 .symbol-container {
-  display: flex;
-  flex-wrap: wrap; /* Allow buttons to wrap to the next line if necessary */
-  justify-content: space-between;
   gap: 10px;
-  width: 100%; /* Ensure the container takes the full width of its parent */
+  width: 48%; /* Ensure the container takes the full width of its parent */
+  flex:1
 }
 
 
@@ -265,8 +270,7 @@ div.side-panel.close {
   margin: 4px 2px;
   cursor: pointer;
   border-radius: 10px;
-  max-width: 48%; /* Ensure the button takes a maximum of half of its parent width */
-  flex: 1 1 48%; /* Allow the button to grow and fill the available space, with a minimum width */
+  max-width: 100%; /* Ensure the button takes a maximum of half of its parent width */
 }
 
 #context-menu {

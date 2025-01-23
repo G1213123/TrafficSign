@@ -133,11 +133,12 @@ class GlyphPath extends fabric.Path {
     const vertexleft = shapeMeta[0].vertex[0].x - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.x));
     const vertextop = shapeMeta[0].vertex[0].y - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.y));
 
-    shapeMeta.forEach(p => {p.vertex.forEach((p) => {
-      p.x = p.x + options.left + vertexleft;
-      p.y = p.y + options.top + vertextop;
-    });
-  })
+    shapeMeta.forEach(p => {
+      p.vertex.forEach((p) => {
+        p.x = p.x + options.left + vertexleft;
+        p.y = p.y + options.top + vertextop;
+      });
+    })
     const pathData = vertexToPath(shapeMeta);
     super(pathData, options);
     this.vertex = shapeMeta.map(p => p.vertex).flat(); // Store the shapeMeta.vertex points
@@ -314,13 +315,14 @@ class BaseGroup extends fabric.Group {
   }
 
   // Method to emit deltaX and deltaY to anchored groups
-  emitDelta(deltaX, deltaY) {
+  emitDelta(deltaX, deltaY, source = null) {
     this.anchoredPolygon.forEach(anchoredGroup => {
-      if (this.widthObjects || this.heightObjects){
-        if (!this.widthObjects.includes(anchoredGroup) || !this.heightObjects.includes(anchoredGroup)){
-          // pass
-        }
-      } else {
+
+      // check receive change object to avoid self reference in border resize
+      if (anchoredGroup == source){
+        // pass
+      } else
+      {
         anchoredGroup.receiveDelta(deltaX, deltaY);
       }
     });
@@ -333,6 +335,7 @@ class BaseGroup extends fabric.Group {
       top: this.top + deltaY
     });
     this.setCoords();
+    this.emitDelta(deltaX, deltaY, this);
     this.updateAllCoord();
   }
 
@@ -480,7 +483,6 @@ class BaseGroup extends fabric.Group {
     const deltaX = this.basePolygon.getCoords()[0].x - this.refTopLeft.left;
     const deltaY = this.basePolygon.getCoords()[0].y - this.refTopLeft.top;
     this.updateCoord(true);
-    this.emitDelta(deltaX, deltaY);
     this.refTopLeft = { top: this.basePolygon.getCoords()[0].y, left: this.basePolygon.getCoords()[0].x };
     if (canvas.getActiveObject() === this) {
       this.drawAnchorLinkage();
@@ -546,11 +548,11 @@ class BaseGroup extends fabric.Group {
     }
 
     // If this is a borderGroup
-    if (transform.target.widthObjects){
-      transform.target.widthObjects.forEach(obj=> obj.borderGroup = null)
+    if (transform.target.widthObjects) {
+      transform.target.widthObjects.forEach(obj => obj.borderGroup = null)
     }
-    if (transform.target.heightObjects){
-      transform.target.heightObjects.forEach(obj=> obj.borderGroup = null)
+    if (transform.target.heightObjects) {
+      transform.target.heightObjects.forEach(obj => obj.borderGroup = null)
     }
     canvas.requestRenderAll();
   }
@@ -587,7 +589,7 @@ function drawBasePolygon(basePolygon, calcVertex = true) {
 function drawLabeledArrow(shapeMeta, options) {
   const { x, y, length, angle, color } = options;
   const vertexleft = shapeMeta[0].vertex[0].x - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.x));
-    const vertextop = shapeMeta[0].vertex[0].y - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.y));
+  const vertextop = shapeMeta[0].vertex[0].y - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.y));
   // Create polygon with labeled vertices
   const arrow = new drawBasePolygon(
     new GlyphPath(shapeMeta,
@@ -616,7 +618,9 @@ document.getElementById('set-anchor').addEventListener('click', function () {
 });
 
 async function anchorShape(Polygon2, Polygon1, options = null) {
-  Polygon2 = Polygon2[0]
+  if (Array.isArray(Polygon2)){
+    Polygon2 = Polygon2[0]
+  }
 
   // For simplicity, we'll use prompt for input
   if (options) {
@@ -670,7 +674,7 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
   //canvas.remove(Polygon1)
   Polygon2.updateAllCoord()
   Polygon1.drawAnchorLinkage()
-  if (!Polygon2.borderType){
+  if (!Polygon2.borderType) {
     canvas.bringObjectToFront(Polygon2)
   }
 
