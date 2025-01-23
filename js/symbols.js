@@ -22,18 +22,18 @@ const symbolsTemplate = {
     ], 'arcs': []
   }],
 
-  //'GantryArrow': [{
-  //  'vertex': [
-  //    { x: 0, y: 0, label: 'V1', start: 1 },
-  //    { x: 3, y: 0, label: 'V2', start: 0 },
-  //    { x: 3, y: 4, label: 'V3', start: 0 },
-  //    { x: 9, y: 4, label: 'V4', start: 0 },
-  //    { x: 0, y: 8, label: 'V5', start: 0 },
-  //    { x: -9, y: 4, label: 'V6', start: 0 },
-  //    { x: -3, y: 4, label: 'V7', start: 0 },
-  //    { x: -3, y: 0, label: 'V8', start: 0 },
-  //  ], 'arcs': []
-  //}],
+  'GantryArrow': [{
+    'vertex': [
+      { x: 0, y: 0, label: 'V1', start: 1 },
+      { x: 3, y: 0, label: 'V2', start: 0 },
+      { x: 3, y: 4, label: 'V3', start: 0 },
+      { x: 9, y: 4, label: 'V4', start: 0 },
+      { x: 0, y: 8, label: 'V5', start: 0 },
+      { x: -9, y: 4, label: 'V6', start: 0 },
+      { x: -3, y: 4, label: 'V7', start: 0 },
+      { x: -3, y: 0, label: 'V8', start: 0 },
+    ], 'arcs': []
+  }],
 
   'Tunnel': [ // 3.5.7.7
     {

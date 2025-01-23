@@ -75,9 +75,9 @@ let GeneralHandler = {
 
   createinput: function (name, labelTxt, parent, defaultv = null, callback = null, event = null) {
     var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent)
-    var input = GeneralHandler.createNode("input", { 'type': 'text', 'class': 'input', 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
-    GeneralHandler.createNode("div", { 'class': 'cut' }, inputContainer)
+    //var labelEdge = GeneralHandler.createNode("div", { 'class': 'cut' }, inputContainer)
     var label = GeneralHandler.createNode("label", { 'class': 'placeholder', 'for': name }, inputContainer)
+    var input = GeneralHandler.createNode("input", { 'type': 'text', 'class': 'input', 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
     label.innerHTML = labelTxt
     defaultv ? input.value = defaultv : input.value = ''
   },
@@ -225,53 +225,53 @@ let FormTextAddComponent = {
     }
     if (textValue !== '' && eventButton === 0) {
       clonedObj = await cursor.clone()
-        clonedObj.getCombinedBoundingBoxOfRects = function () {
-          let combinedBBox = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
-          let points = [];
-          this.forEachObject(obj => {
-            if (obj.type === 'rect') {
-              obj.setCoords();
-              const aCoords = obj.aCoords;
+      clonedObj.getCombinedBoundingBoxOfRects = function () {
+        let combinedBBox = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
+        let points = [];
+        this.forEachObject(obj => {
+          if (obj.type === 'rect') {
+            obj.setCoords();
+            const aCoords = obj.aCoords;
 
 
-              // Transform the coordinates to the canvas coordinate system
-              Object.values(aCoords).forEach(point => {
-                const absPoint = fabric.util.transformPoint(point, this.calcTransformMatrix());
-                combinedBBox.left = Math.min(combinedBBox.left, absPoint.x);
-                combinedBBox.top = Math.min(combinedBBox.top, absPoint.y);
-                combinedBBox.right = Math.max(combinedBBox.right, absPoint.x);
-                combinedBBox.bottom = Math.max(combinedBBox.bottom, absPoint.y);
-              });
-            }
-          });
+            // Transform the coordinates to the canvas coordinate system
+            Object.values(aCoords).forEach(point => {
+              const absPoint = fabric.util.transformPoint(point, this.calcTransformMatrix());
+              combinedBBox.left = Math.min(combinedBBox.left, absPoint.x);
+              combinedBBox.top = Math.min(combinedBBox.top, absPoint.y);
+              combinedBBox.right = Math.max(combinedBBox.right, absPoint.x);
+              combinedBBox.bottom = Math.max(combinedBBox.bottom, absPoint.y);
+            });
+          }
+        });
 
-          // Calculate the 8 points (excluding the center point) from the combined bounding box
-          const centerX = (combinedBBox.left + combinedBBox.right) / 2;
-          const centerY = (combinedBBox.top + combinedBBox.bottom) / 2;
+        // Calculate the 8 points (excluding the center point) from the combined bounding box
+        const centerX = (combinedBBox.left + combinedBBox.right) / 2;
+        const centerY = (combinedBBox.top + combinedBBox.bottom) / 2;
 
-          points = [
-            { x: combinedBBox.left, y: combinedBBox.top, label: 'E1' }, // Top-left corner
-            { x: centerX, y: combinedBBox.top, label: 'E2' }, // Top-middle
-            { x: combinedBBox.right, y: combinedBBox.top, label: 'E3' }, // Top-right corner
-            { x: combinedBBox.right, y: centerY, label: 'E4' }, // Middle-right
-            { x: combinedBBox.right, y: combinedBBox.bottom, label: 'E5' }, // Bottom-right corner
-            { x: centerX, y: combinedBBox.bottom, label: 'E6' }, // Bottom-middle
-            { x: combinedBBox.left, y: combinedBBox.bottom, label: 'E7' }, // Bottom-left corner
-            { x: combinedBBox.left, y: centerY, label: 'E8' } // Middle-left
-          ];
+        points = [
+          { x: combinedBBox.left, y: combinedBBox.top, label: 'E1' }, // Top-left corner
+          { x: centerX, y: combinedBBox.top, label: 'E2' }, // Top-middle
+          { x: combinedBBox.right, y: combinedBBox.top, label: 'E3' }, // Top-right corner
+          { x: combinedBBox.right, y: centerY, label: 'E4' }, // Middle-right
+          { x: combinedBBox.right, y: combinedBBox.bottom, label: 'E5' }, // Bottom-right corner
+          { x: centerX, y: combinedBBox.bottom, label: 'E6' }, // Bottom-middle
+          { x: combinedBBox.left, y: combinedBBox.bottom, label: 'E7' }, // Bottom-left corner
+          { x: combinedBBox.left, y: centerY, label: 'E8' } // Middle-left
+        ];
 
-          return points;
+        return points;
 
-        }
-        clonedObj.setCoords()
-        clonedObj.vertex = clonedObj.getCombinedBoundingBoxOfRects()
-        clonedObj.text = textValue
-        clonedObj.xHeight = xHeight
-        //Object.values(clonedObj.aCoords).map((point, i) => {
-        //  return { x: point.x, y: point.y, label: `E${i + 1}` }
-        //})
-        //clonedObj.insertPoint = clonedObj.vertex[0]
-        TextGroup = drawBasePolygon(clonedObj, false)
+      }
+      clonedObj.setCoords()
+      clonedObj.vertex = clonedObj.getCombinedBoundingBoxOfRects()
+      clonedObj.text = textValue
+      clonedObj.xHeight = xHeight
+      //Object.values(clonedObj.aCoords).map((point, i) => {
+      //  return { x: point.x, y: point.y, label: `E${i + 1}` }
+      //})
+      //clonedObj.insertPoint = clonedObj.vertex[0]
+      TextGroup = drawBasePolygon(clonedObj, false)
 
     }
   },
@@ -303,28 +303,28 @@ let FormDrawAddComponent = {
   },
 
   SymbolonMouseClick: function (event, options = null) {
-      //permanent cursor object 
-      if (options) {
-        cursor.set(
-          { left: options.left, top: options.top }
-        )
-  
-        textValue = 'Go'
-        eventButton = 0
-      } else {
-        eventButton = event.e.button
-      }
-      if (eventButton === 0) {
-        cursor.clone().then(function (clonedObj) {
-          canvas.remove(clonedObj)
-          var symbolitem = clonedObj.removeAll()[0];
-          offset = getInsertOffset (calcSymbol(symbolitem.symbol,symbolitem.xHeight/4))
-          coords = symbolitem.getCoords()
-          symbolitem.vertex = symbolitem.vertex.map(v=>{return {x:v.x+offset.left +coords[0].x , y:v.y+offset.top +coords[0].y, label:v.label}} )
-          SymbolGroup = drawBasePolygon(symbolitem)
-        })
-      }
-    },
+    //permanent cursor object 
+    if (options) {
+      cursor.set(
+        { left: options.left, top: options.top }
+      )
+
+      textValue = 'Go'
+      eventButton = 0
+    } else {
+      eventButton = event.e.button
+    }
+    if (eventButton === 0 && cursor._objects.length) {
+      cursor.clone().then(function (clonedObj) {
+        canvas.remove(clonedObj)
+        var symbolitem = clonedObj.removeAll()[0];
+        offset = getInsertOffset(calcSymbol(symbolitem.symbol, symbolitem.xHeight / 4))
+        coords = symbolitem.getCoords()
+        symbolitem.vertex = symbolitem.vertex.map(v => { return { x: v.x + offset.left + coords[0].x, y: v.y + offset.top + coords[0].y, label: v.label } })
+        SymbolGroup = drawBasePolygon(symbolitem)
+      })
+    }
+  },
 
   createButtonSVG: (symbolType, length) => {
     const symbolData = calcSymbol(symbolType, length);
@@ -350,40 +350,40 @@ let FormDrawAddComponent = {
 
     return svg;
   },
-  drawSymbol: (event, options = null) =>{
-      let symbol =  event.currentTarget.id.replace('button-', '')
+  drawSymbol: (event, options = null) => {
+    let symbol = event.currentTarget.id.replace('button-', '')
 
-      cursor.forEachObject(function (o) { cursor.remove(o) })
-      cursor.txtChar = []
-      cursor.text = ''
-      if (options) {
-        symbol = option.symbol
-        var xHeight = options.xHeight
-      }
-      else {
-        var xHeight = parseInt(document.getElementById('input-xHeight').value)
-      }
-      
-      let symbolObject = calcSymbol(symbol, xHeight/4)
-      symbolOffset = getInsertOffset (symbolObject)
-      const arrowOptions1 =       {
-        left: - symbolOffset.left,
-        top: - symbolOffset.top,
-        fill: '#FFF',
-        angle: 0,
-        // originX: 'center',
-        objectCaching: false,
-        strokeWidth: 0
-      },
+    cursor.forEachObject(function (o) { cursor.remove(o) })
+    cursor.txtChar = []
+    cursor.text = ''
+    if (options) {
+      symbol = option.symbol
+      var xHeight = options.xHeight
+    }
+    else {
+      var xHeight = parseInt(document.getElementById('input-xHeight').value)
+    }
+
+    let symbolObject = calcSymbol(symbol, xHeight / 4)
+    symbolOffset = getInsertOffset(symbolObject)
+    const arrowOptions1 = {
+      left: - symbolOffset.left,
+      top: - symbolOffset.top,
+      fill: '#FFF',
+      angle: 0,
+      // originX: 'center',
+      objectCaching: false,
+      strokeWidth: 0
+    },
       Polygon1 = new GlyphPath(symbolObject, arrowOptions1);
-      Polygon1.symbol = symbol
-      Polygon1.xHeight = xHeight
+    Polygon1.symbol = symbol
+    Polygon1.xHeight = xHeight
 
-      cursor.add(Polygon1)
+    cursor.add(Polygon1)
 
-      Polygon1.setCoords();
+    Polygon1.setCoords();
 
-      canvas.renderAll();
+    canvas.renderAll();
   },
   drawApproachClick: (event) => {
     //$(event.target).toggleClass('active')
@@ -542,88 +542,87 @@ let FormBorderWrapComponent = {
     }*/
   },
 
-
-  BorderCreate: function (heightObjects, widthObjects, xHeight, borderType) {
-    if (xHeight > 0) {
-
-      // Function to get the bounding box of specific objects
-      function getBoundingBox(objects) {
-        // Loop through each object and its basePolygon
-        let combinedBBox = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
-        objects.forEach(obj => {
+  // Function to get the bounding box of specific objects
+  getBoundingBox: function (objects) {
+    // Loop through each object and its basePolygon
+    let combinedBBox = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
+    objects.forEach(obj => {
 
 
 
-          coord = obj.getEffectiveCoords()
-          // Update the combined bounding box
-          combinedBBox.left = Math.min(combinedBBox.left, coord[0].x,);
-          combinedBBox.top = Math.min(combinedBBox.top, coord[0].y,);
-          combinedBBox.right = Math.max(combinedBBox.right, coord[2].x,);
-          combinedBBox.bottom = Math.max(combinedBBox.bottom, coord[2].y,);
-        })
+      coord = obj.getEffectiveCoords()
+      // Update the combined bounding box
+      combinedBBox.left = Math.min(combinedBBox.left, coord[0].x,);
+      combinedBBox.top = Math.min(combinedBBox.top, coord[0].y,);
+      combinedBBox.right = Math.max(combinedBBox.right, coord[2].x,);
+      combinedBBox.bottom = Math.max(combinedBBox.bottom, coord[2].y,);
+    })
 
 
-        // Return the bounding box coordinates
-        return combinedBBox
-      }
+    // Return the bounding box coordinates
+    return combinedBBox
+  },
 
-      // Get the bounding box of the active selection 
-      //widthObjectsGroup = new fabric.Group(widthObjects)
-      //heightObjectsGroup = new fabric.Group(heightObjects)
-      //canvas.add(widthObjectsGroup)
-      //canvas.add(heightObjectsGroup)
-      const coordsWidth = getBoundingBox(widthObjects)
-      const coordsHeight = getBoundingBox(heightObjects)
-      const coords = { left: coordsWidth.left, top: coordsHeight.top, right: coordsWidth.right, bottom: coordsHeight.bottom }
+  // Function to calculate padded coordinates 
+  paddingCoords: function getPaddedCoords(coords, padLeft, padRight, padTop, padBottom) {
+    return {
+      left: coords.left - padLeft * xHeight / 4,
+      top: coords.top - padTop * xHeight / 4,
+      right: coords.right + padRight * xHeight / 4,
+      bottom: coords.bottom + padBottom * xHeight / 4
+    }
 
-      /*
-        coords[0]: Top-left corner
-        coords[1]: Top-right corner
-        coords[2]: Bottom-right corner
-        coords[3]: Bottom-left corner
-      */
-      // Function to calculate padded coordinates 
-      paddingCoords = function getPaddedCoords(coords, padLeft, padRight, padTop, padBottom) {
-        return {
-          left: coords.left - padLeft * xHeight / 4,
-          top: coords.top - padTop * xHeight / 4,
-          right: coords.right + padRight * xHeight / 4,
-          bottom: coords.bottom + padBottom * xHeight / 4
-        }
+  },
 
-      }
-      innerBorderCoords = paddingCoords(coords, borderType.PaddingLeft, borderType.PaddingRight, borderType.PaddingTop, borderType.PaddingNBottom,)
-      outerBorderCoords = paddingCoords(innerBorderCoords, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth,)
+  calcBorder: function (heightObjects, widthObjects, xHeight, borderType) {
+    // Get the bounding box of the active selection 
+    const coordsWidth = FormBorderWrapComponent.getBoundingBox(widthObjects)
+    const coordsHeight = FormBorderWrapComponent.getBoundingBox(heightObjects)
+    const coords = { left: coordsWidth.left, top: coordsHeight.top, right: coordsWidth.right, bottom: coordsHeight.bottom }
 
-      // Border Rounding
-      borderWidth = outerBorderCoords.right - outerBorderCoords.left
-      borderHeight = outerBorderCoords.bottom - outerBorderCoords.top
-      if (borderWidth > 2000 || borderHeight > 2000) {
-        roundingX = (50.0 * Math.round(borderWidth / 50.0) - borderWidth) / 2
-        roundingY = (50.0 * Math.round(borderHeight / 50.0) - borderHeight) / 2
-      } else {
-        roundingX = (25.0 * Math.round(borderWidth / 25.0) - borderWidth) / 2
-        roundingY = (25.0 * Math.round(borderHeight / 25.0) - borderHeight) / 2
-        roundingX = roundingX < -2.5 ? roundingX = 25 / 2 + roundingX : roundingX
-        roundingY = roundingY < -2.5 ? roundingY = 25 / 2 + roundingY : roundingY
-      }
+    /*
+      coords[0]: Top-left corner
+      coords[1]: Top-right corner
+      coords[2]: Bottom-right corner
+      coords[3]: Bottom-left corner
+    */
 
-      outerBorderCoords = {
-        left: outerBorderCoords.left - roundingX,
-        top: outerBorderCoords.top - roundingY,
-        right: outerBorderCoords.right + roundingX,
-        bottom: outerBorderCoords.bottom + roundingY
-      }
+    innerBorderCoords = FormBorderWrapComponent.paddingCoords(coords, borderType.PaddingLeft, borderType.PaddingRight, borderType.PaddingTop, borderType.PaddingNBottom,)
+    outerBorderCoords = FormBorderWrapComponent.paddingCoords(innerBorderCoords, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth, borderType.FrameWidth,)
 
-      innerBorderCoords = {
-        left: innerBorderCoords.left + roundingX,
-        top: innerBorderCoords.top + roundingY,
-        right: innerBorderCoords.right - roundingX,
-        bottom: innerBorderCoords.bottom - roundingY
-      }
+    // Border Rounding
+    borderWidth = outerBorderCoords.right - outerBorderCoords.left
+    borderHeight = outerBorderCoords.bottom - outerBorderCoords.top
+    if (borderWidth > 2000 || borderHeight > 2000) {
+      roundingX = (50.0 * Math.round(borderWidth / 50.0) - borderWidth) / 2
+      roundingY = (50.0 * Math.round(borderHeight / 50.0) - borderHeight) / 2
+    } else {
+      roundingX = (25.0 * Math.round(borderWidth / 25.0) - borderWidth) / 2
+      roundingY = (25.0 * Math.round(borderHeight / 25.0) - borderHeight) / 2
+      roundingX = roundingX < -2.5 ? roundingX = 25 / 2 + roundingX : roundingX
+      roundingY = roundingY < -2.5 ? roundingY = 25 / 2 + roundingY : roundingY
+    }
 
+    outerBorderCoords = {
+      left: outerBorderCoords.left - roundingX,
+      top: outerBorderCoords.top - roundingY,
+      right: outerBorderCoords.right + roundingX,
+      bottom: outerBorderCoords.bottom + roundingY
+    }
+
+    innerBorderCoords = {
+      left: innerBorderCoords.left - roundingX,
+      top: innerBorderCoords.top - roundingY,
+      right: innerBorderCoords.right + roundingX,
+      bottom: innerBorderCoords.bottom + roundingY
+    }
+    console.log(outerBorderCoords.top - innerBorderCoords.top)
+    return {in:innerBorderCoords, out: outerBorderCoords}
+  },
+
+        
       // draw rounded shape
-      drawBorder = function (BorderCoord, fill, radius) {
+      drawBorder : function (BorderCoord, fill, radius) {
         var Rect = new fabric.Rect({
           left: BorderCoord.left,
           top: BorderCoord.top,
@@ -636,10 +635,15 @@ let FormBorderWrapComponent = {
           objectCaching: false
         });
         return Rect
-      }
+      },
 
-      innerBorderObject = drawBorder(innerBorderCoords, borderType.Fill, borderType.InnerCornerRadius)
-      outerBorderObject = drawBorder(outerBorderCoords, borderType.FrameFill, borderType.OuterCornerRadius)
+  BorderCreate: function (heightObjects, widthObjects, xHeight, borderType) {
+    if (xHeight > 0) {
+
+      bordersCoords = FormBorderWrapComponent.calcBorder(heightObjects, widthObjects, xHeight, borderType)
+
+      innerBorderObject = FormBorderWrapComponent.drawBorder(bordersCoords.in, borderType.Fill, borderType.InnerCornerRadius)
+      outerBorderObject = FormBorderWrapComponent.drawBorder(bordersCoords.out, borderType.FrameFill, borderType.OuterCornerRadius)
       GroupedBorder = new fabric.Group([outerBorderObject, innerBorderObject], {
         objectCaching: false,
       });
@@ -656,6 +660,8 @@ let FormBorderWrapComponent = {
         return { x: point.x, y: point.y, label: `V${i + 1}` };
       });
       GroupedBorder.vertex = labeledCornerPoints
+      GroupedBorder.inner = innerBorderObject
+      GroupedBorder.outer = outerBorderObject
 
       //GroupedBorder.insertPoint = GroupedBorder.vertex[0]
       GroupedBorder.setCoords()

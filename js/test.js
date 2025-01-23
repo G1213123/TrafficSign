@@ -1,11 +1,10 @@
 let borderTest = function () {
     canvas.setActiveObject(canvasObject[0])
     FormBorderWrapComponent.BorderPanelInit()
-    borderGroup = new fabric.Group()
     xheight = 100
     borderType = FormBorderWrapComponent.BorderType["Blue Background"]
-    widthObjects = canvas.getActiveObjects()
-    heightObjects = canvas.getActiveObjects()
+    widthObjects = canvasObject
+    heightObjects = [canvasObject[0],canvasObject[1],canvasObject[3]]
 
     FormBorderWrapComponent.BorderGroupCreate(heightObjects, widthObjects, xheight, borderType)
 }
@@ -78,7 +77,7 @@ let movingObjectTest = function () {
     //console.assert(specimen.getEffectiveCoords()[0].x == left + 100, 'Moving failed');
 }
 
-testToRun = [initShape, anchorTest]
+testToRun = [initShape, anchorTest ]
 
 async function  runTests(tests) {
     for (const test of tests) {

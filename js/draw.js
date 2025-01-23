@@ -163,6 +163,10 @@ class BaseGroup extends fabric.Group {
     this.lockXToPolygon = {};
     this.lockYToPolygon = {};
 
+    this.basePolygon.insertPoint = this.basePolygon.vertex[0];
+    canvas.remove(this.basePolygon);
+    this.add(this.basePolygon);
+
     // remove default fabric control
     Object.values(this.controls).forEach((control) => {
       control.visible = false;
@@ -179,97 +183,8 @@ class BaseGroup extends fabric.Group {
       cornerSize: 24,
     });
 
-    // Calculate vertex points for anchoring
-    if (!this.basePolygon.vertex) {
-      this.basePolygon.vertex = [];
-    }
-    if (options.calcVertex !== false) {
-      let basePolygonCoords = Object.values(this.basePolygon.aCoords);
-      basePolygonCoords = [basePolygonCoords[0], basePolygonCoords[1], basePolygonCoords[3], basePolygonCoords[2]]; // tl, tr, bl, br ==> tl, tr, br, bl
-      basePolygonCoords.forEach((p, i) => {
-        this.basePolygon.vertex.push({ x: p.x, y: p.y, label: `E${i * 2 + 1}` });
-        const midpoint = {
-          x: (p.x + basePolygonCoords[(i + 1 === basePolygonCoords.length) ? 0 : i + 1].x) / 2,
-          y: (p.y + basePolygonCoords[(i + 1 === basePolygonCoords.length) ? 0 : i + 1].y) / 2,
-          label: `E${(i + 1) * 2}`
-        };
-        this.basePolygon.vertex.push(midpoint);
-      });
-    }
-    this.basePolygon.insertPoint = this.basePolygon.vertex[0];
-    canvas.remove(this.basePolygon);
-    this.add(this.basePolygon);
-
-    // Debug text of the location of the group
-    if (this.basePolygon.insertPoint) {
-      const loactionText = new fabric.Text(
-        `Node: ${this.basePolygon.insertPoint.label} \nX: ${this.basePolygon.insertPoint.x.toFixed(0)} \nY: ${this.basePolygon.insertPoint.y.toFixed(0)}`,
-        {
-          left: this.left,
-          top: this.top - 125,
-          fontSize: 20,
-          fill: 'white', // Text color
-          selectable: false,
-          opacity: 0,
-          functinoalType: 'locationText',
-          stroke: '#000', // Text stroke color
-          strokeWidth: 3,
-          paintFirst: 'stroke', // Stroke behind fill
-          fontFamily: 'Arial, sans-serif', // Modern font family
-          padding: 10, // Padding around the text
-          shadow: new fabric.Shadow({
-            color: 'rgba(0, 0, 0, 0.5)',
-            blur: 10,
-            offsetX: 2,
-            offsetY: 2
-          })
-        });
-      this.subObjects.push(loactionText);
-      this.loactionText = loactionText;
-    }
-
-    // Draw the vertices and labels
-    if (this.basePolygon.vertex) {
-      this.basePolygon.vertex.forEach(v => {
-        // Draw a halftone circle
-        const circle = new fabric.Circle({
-          left: v.x,
-          top: v.y,
-          radius: 10,
-          strokeWidth: 1,
-          stroke: v.label.includes('E') ? 'red' : 'violet', // Changed fill color for better contrast
-          fill: 'rgba(255, 255, 255, 0.2)',
-          selectable: false,
-          originX: 'center',
-          originY: 'center',
-          opacity: 0,
-          functinoalType: 'vertexCircle',
-        });
-        this.subObjects.push(circle);
-
-        // Add a text label
-        const text = new fabric.Text(v.label, {
-          left: v.x,
-          top: v.label.includes('E') ? v.y - 30 : v.y + 30,
-          fontSize: 20,
-          fill: v.label.includes('E') ? 'red' : 'violet', // Changed fill color for better contrast
-          selectable: false,
-          originX: 'center',
-          originY: 'center',
-          opacity: 0,
-          functinoalType: 'vertexText',
-          fontFamily: 'Arial, sans-serif', // Modern font family
-          //stroke: '#000', // Black stroke for better contrast
-          //strokeWidth: 1,
-        });
-        this.subObjects.push(text);
-      });
-    }
-
-    this.subObjects.forEach(obj => {
-      this.add(obj);
-    });
-
+    this.drawVertex(options.calcVertex)
+    
     this.refTopLeft = {
       top: this.basePolygon.getCoords()[0].y,
       left: this.basePolygon.getCoords()[0].x
@@ -290,7 +205,9 @@ class BaseGroup extends fabric.Group {
           obj.set('opacity', 0);
         });
         this.anchorageLink.forEach(obj => {
-          obj.set('opacity', 0);
+          obj.forEach(o =>{
+            o.set('opacity', 0);
+          })
         });
         // canvas.sendObjectToBack(this)
       }, 0)
@@ -314,16 +231,114 @@ class BaseGroup extends fabric.Group {
     this.on('moving', this.updateAllCoord.bind(this));
   }
 
+  drawVertex(calc){
+  // Calculate vertex points for anchoring
+
+  if (!this.basePolygon.vertex) {
+    this.basePolygon.vertex = [];
+  }
+  if (calc !== false) {
+    this.subObjects= []
+    let basePolygonCoords = Object.values(this.basePolygon.getCoords());
+    //basePolygonCoords = [basePolygonCoords[0], basePolygonCoords[1], basePolygonCoords[3], basePolygonCoords[2]]; // tl, tr, bl, br ==> tl, tr, br, bl
+    basePolygonCoords.forEach((p, i) => {
+      this.basePolygon.vertex.push({ x: p.x, y: p.y, label: `E${i * 2 + 1}` });
+      const midpoint = {
+        x: (p.x + basePolygonCoords[(i + 1 === basePolygonCoords.length) ? 0 : i + 1].x) / 2,
+        y: (p.y + basePolygonCoords[(i + 1 === basePolygonCoords.length) ? 0 : i + 1].y) / 2,
+        label: `E${(i + 1) * 2}`
+      };
+      this.basePolygon.vertex.push(midpoint);
+    });
+  }
+
+
+
+  // Debug text of the location of the group
+  if (this.basePolygon.insertPoint) {
+    const loactionText = new fabric.Text(
+      `Node: ${this.basePolygon.insertPoint.label} \nX: ${this.basePolygon.insertPoint.x.toFixed(0)} \nY: ${this.basePolygon.insertPoint.y.toFixed(0)}`,
+      {
+        left: this.left,
+        top: this.top - 125,
+        fontSize: 20,
+        fill: 'white', // Text color
+        selectable: false,
+        opacity: 0,
+        functinoalType: 'locationText',
+        stroke: '#000', // Text stroke color
+        strokeWidth: 3,
+        paintFirst: 'stroke', // Stroke behind fill
+        fontFamily: 'Arial, sans-serif', // Modern font family
+        padding: 10, // Padding around the text
+        shadow: new fabric.Shadow({
+          color: 'rgba(0, 0, 0, 0.5)',
+          blur: 10,
+          offsetX: 2,
+          offsetY: 2
+        })
+      });
+    this.subObjects.push(loactionText);
+    this.loactionText = loactionText;
+  }
+
+  // Draw the vertices and labels
+  if (this.basePolygon.vertex) {
+    this.basePolygon.vertex.forEach(v => {
+      // Draw a halftone circle
+      const circle = new fabric.Circle({
+        left: v.x,
+        top: v.y,
+        radius: 10,
+        strokeWidth: 1,
+        stroke: v.label.includes('E') ? 'red' : 'violet', // Changed fill color for better contrast
+        fill: 'rgba(255, 255, 255, 0.2)',
+        selectable: false,
+        originX: 'center',
+        originY: 'center',
+        opacity: 0,
+        functinoalType: 'vertexCircle',
+      });
+      this.subObjects.push(circle);
+
+      // Add a text label
+      const text = new fabric.Text(v.label, {
+        left: v.x,
+        top: v.label.includes('E') ? v.y - 30 : v.y + 30,
+        fontSize: 20,
+        fill: v.label.includes('E') ? 'red' : 'violet', // Changed fill color for better contrast
+        selectable: false,
+        originX: 'center',
+        originY: 'center',
+        opacity: 0,
+        functinoalType: 'vertexText',
+        fontFamily: 'Arial, sans-serif', // Modern font family
+        //stroke: '#000', // Black stroke for better contrast
+        //strokeWidth: 1,
+      });
+      this.subObjects.push(text);
+    });
+  }
+  this.subObjects.forEach(obj => {
+    this.add(obj);
+  });
+  }
+
   // Method to emit deltaX and deltaY to anchored groups
   emitDelta(deltaX, deltaY, source = null) {
     this.anchoredPolygon.forEach(anchoredGroup => {
+      if (anchoredGroup.borderType || this.borderType){
+        //pass
+      } else {
 
-      // check receive change object to avoid self reference in border resize
-      if (anchoredGroup == source){
-        // pass
-      } else
-      {
-        anchoredGroup.receiveDelta(deltaX, deltaY);
+        // check receive change object to avoid self reference in border resize
+        if (anchoredGroup.lockXToPolygon.TargetObject == this){
+          anchoredGroup.receiveDelta(deltaX, 0);
+        } 
+        if (anchoredGroup.lockYToPolygon.TargetObject == this)
+        {
+          anchoredGroup.receiveDelta(0, deltaY);
+        }
       }
     });
   }
@@ -335,97 +350,46 @@ class BaseGroup extends fabric.Group {
       top: this.top + deltaY
     });
     this.setCoords();
-    this.emitDelta(deltaX, deltaY, this);
     this.updateAllCoord();
   }
 
   // Method to call for border resizing
   borderResize() {
     if (this.borderGroup) {
-      const oldBorderGroup = this.borderGroup;
-      this.borderGroup = null
-      const newBorderGroup = FormBorderWrapComponent.BorderGroupCreate(oldBorderGroup.widthObjects,
-        oldBorderGroup.heightObjects,
-        oldBorderGroup.xHeight,
-        oldBorderGroup.borderType);
-
-
-      canvas.remove(oldBorderGroup)
-      canvasObject.pop(oldBorderGroup);
-
-      // Replace polygon anchored to border
-      if (oldBorderGroup.anchoredPolygon) {
-        newBorderGroup.anchoredPolygon = oldBorderGroup.anchoredPolygon
-        oldBorderGroup.anchoredPolygon.forEach(anchoredGroup => {
-          //anchoredGroup.set({ lockMovementX: false, lockMovementY: false });
-
-          if (anchoredGroup.lockXToPolygon.TargetObject == oldBorderGroup) {
-            anchoredGroup.lockXToPolygon.TargetObject = newBorderGroup
-          }
-          if (anchoredGroup.lockYToPolygon.TargetObject == oldBorderGroup) {
-            anchoredGroup.lockYToPolygon.TargetObject = newBorderGroup
-          }
-          anchoredGroup.drawAnchorLinkage()
-        })
-        newBorderGroup.emitDelta(newBorderGroup.left - oldBorderGroup.left, newBorderGroup.top - oldBorderGroup.top)
-      }
-
-      // Reattach border anchor to polygon
+      const BG = this.borderGroup
+      borderObject = FormBorderWrapComponent.BorderCreate(BG.heightObjects, BG.widthObjects,BG.xHeight, BG.borderType)
+      BG.removeAll()
+      BG.add(borderObject)
+      BG.basePolygon = borderObject
+      BG.setCoords()
+      BG.updateAllCoord()
+      BG.drawVertex()
     }
   }
+
   getBasePolygonVertex(label) {
     return this.basePolygon.vertex.find(v => v.label === label.toUpperCase());
   }
+
   drawAnchorLinkage() {
     for (let i = this.anchorageLink.length - 1; i >= 0; i--) {
       const obj = this.anchorageLink[i];
-      if (obj.functinoalType === 'anchorLine' || obj.functinoalType === 'lockIcon') {
+
         this.anchorageLink.splice(i, 1); // Remove the element from the array
-        this.remove(obj); // Remove the object from the group
-        canvas.remove(obj); // Remove the object from the canvas
-      }
+        obj.forEach(e => {
+          this.remove(e); // Remove the object from the group
+          canvas.remove(e); // Remove the object from the canvas
+        })
+      
     }
     if (Object.keys(this.lockXToPolygon).length) {
       let sourcePoint = this.getBasePolygonVertex(
         this.lockXToPolygon.sourcePoint)
       let targetPoint = this.lockXToPolygon.TargetObject.getBasePolygonVertex(this.lockXToPolygon.targetPoint)
 
-      const line1 = new fabric.Line([sourcePoint.x, sourcePoint.y, targetPoint.x, sourcePoint.y], {
-        stroke: 'red',
-        strokeWidth: 5,
-        selectable: false,
-        functinoalType: 'anchorLine',
-      });
-      const line2 = new fabric.Line([targetPoint.x, sourcePoint.y, targetPoint.x, targetPoint.y], {
-        stroke: 'red',
-        strokeWidth: 5,
-        selectable: false,
-        strokeDashArray: [10, 5],
-        functinoalType: 'anchorLine',
-      });
-
-      // Calculate the midpoint of line1
-      const midX = (sourcePoint.x + targetPoint.x) / 2;
-      const midY = sourcePoint.y;
-
-      // Create a lock icon using Font Awesome
-      const lockIcon1 = new fabric.Text('\uf023', {
-        fontFamily: 'Font Awesome 5 Free',
-        fontWeight: 900,
-        left: midX,
-        top: midY,
-        fontSize: 20,
-        fill: 'gold', // Gold fill color
-        stroke: 'black', // Black border
-        strokeWidth: 1, // Border width
-        originX: 'center',
-        originY: 'center',
-        selectable: false,
-        functinoalType: 'lockIcon',
-      });
-
-      this.anchorageLink.push(line1, line2, lockIcon1);
-      canvas.add(line1, line2, lockIcon1);
+      let lockAnno1 = new LockIcon(this, sourcePoint, targetPoint, 'x')
+      this.anchorageLink.push(lockAnno1.objects);
+      canvas.add(...lockAnno1.objects);
 
     }
     if (Object.keys(this.lockYToPolygon).length) {
@@ -433,50 +397,20 @@ class BaseGroup extends fabric.Group {
         this.lockYToPolygon.sourcePoint)
       let targetPoint = this.lockYToPolygon.TargetObject.getBasePolygonVertex(this.lockYToPolygon.targetPoint)
 
-      const line3 = new fabric.Line([sourcePoint.x, sourcePoint.y, sourcePoint.x, targetPoint.y], {
-        stroke: 'red',
-        strokeWidth: 5,
-        selectable: false,
-        functinoalType: 'anchorLine',
-      });
-      const line4 = new fabric.Line([sourcePoint.x, targetPoint.y, targetPoint.x, targetPoint.y], {
-        stroke: 'red',
-        strokeWidth: 5,
-        selectable: false,
-        strokeDashArray: [10, 5],
-        functinoalType: 'anchorLine',
-      });
+      let lockAnno2 = new LockIcon(this, sourcePoint, targetPoint, 'y')
+      this.anchorageLink.push(lockAnno2.objects);
+      canvas.add(...lockAnno2.objects);
 
-      // Calculate the midpoint of line1
-      const midX = sourcePoint.x;
-      const midY = (sourcePoint.y + targetPoint.y) / 2;
-
-      // Create a lock icon using Font Awesome
-      const lockIcon2 = new fabric.Text('\uf023', {
-        fontFamily: 'Font Awesome 5 Free',
-        fontWeight: 900,
-        left: midX,
-        top: midY,
-        fontSize: 20,
-        fill: 'gold', // Gold fill color
-        stroke: 'black', // Black border
-        strokeWidth: 1, // Border width
-        originX: 'center',
-        originY: 'center',
-        selectable: false,
-        functinoalType: 'lockIcon',
-      });
-
-      this.anchorageLink.push(line3, line4, lockIcon2);
-      canvas.add(line3, line4, lockIcon2);
-
+      }
       const isActive = canvas.getActiveObject() === this;
       const opacity = isActive ? 1 : 0;
       this.anchorageLink.forEach(obj => {
-        obj.set('opacity', opacity);
+        obj.forEach(o =>{
+          o.set('opacity', opacity);
+        })
       });
       canvas.renderAll();
-    }
+    
   }
   // Method to update coordinates and emit delta
   updateAllCoord() {
@@ -487,6 +421,7 @@ class BaseGroup extends fabric.Group {
     if (canvas.getActiveObject() === this) {
       this.drawAnchorLinkage();
     }
+    this.emitDelta(deltaX, deltaY, this);
     this.borderResize();
   }
 
@@ -573,6 +508,84 @@ class BaseGroup extends fabric.Group {
 
 // Register the custom class with Fabric.js
 fabric.BaseGroup = BaseGroup;
+
+class LockIcon {
+  constructor(baseGroup, sourcePoint, targetPoint, direction) {
+    this.baseGroup = baseGroup;
+    this.direction = direction
+
+    // Create lock lines
+    this.line1 = new fabric.Line([sourcePoint.x, sourcePoint.y, sourcePoint.x, targetPoint.y], {
+      stroke: 'red',
+      strokeWidth: 5,
+      selectable: false,
+      functinoalType: 'anchorLine',
+    });
+    this.line2 = new fabric.Line([sourcePoint.x, targetPoint.y, targetPoint.x, targetPoint.y], {
+      stroke: 'red',
+      strokeWidth: 5,
+      selectable: false,
+      strokeDashArray: [10, 5],
+      functinoalType: 'anchorLine',
+    });
+
+    // Calculate the midpoint of line1
+    const midX = sourcePoint.x;
+    const midY = (sourcePoint.y + targetPoint.y) / 2;
+
+    // Create a lock icon using Font Awesome
+    this.lockIcon = new fabric.Text('\uf023', {
+      fontFamily: 'Font Awesome 5 Free',
+      fontWeight: 900,
+      left: midX,
+      top: midY,
+      fontSize: 20,
+      fill: 'gold', // Gold fill color
+      stroke: 'black', // Black border
+      strokeWidth: 1, // Border width
+      originX: 'center',
+      originY: 'center',
+      selectable: false,
+      functinoalType: 'lockIcon',
+    });
+
+    // Add hover and click event listeners
+    this.lockIcon.on('mouseover', this.onHover.bind(this));
+    this.lockIcon.on('mouseout', this.onMouseOut.bind(this));
+    this.lockIcon.on('mousedown', this.onClick.bind(this));
+
+    // Add lock lines and lock icon to the canvas
+    //return[this.line1, this.line2, this.lockIcon]
+    this.objects = [this.line1, this.line2, this.lockIcon]
+  }
+
+
+  onHover() {
+    this.lockIcon.set('text','\uf3c1');
+    this.lockIcon.set('fill','brown');
+    canvas.renderAll();
+  }
+
+  onMouseOut() {
+    this.lockIcon.set('text','\uf023');
+    this.lockIcon.set('fill','gold');
+    canvas.renderAll();
+  }
+
+  onClick() {
+    // Remove lock lines and lock icon from the canvas and baseGroup
+    canvas.remove(this.line1, this.line2, this.lockIcon);
+    this.baseGroup.anchorageLink = this.baseGroup.anchorageLink.filter(obj => obj !== this.line1 && obj !== this.line2 && obj !== this.lockIcon);
+    if (this.direction == 'x'){
+      this.baseGroup.lockMovementX = false
+      this.baseGroup.lockXToPolygon = {}
+    } else {
+      this.baseGroup.lockMovementY = false
+      this.baseGroup.lockYToPolygon = {}
+    }
+    canvas.renderAll();
+  }
+}
 
 // Function to draw base polygon
 function drawBasePolygon(basePolygon, calcVertex = true) {
