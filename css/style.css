@@ -378,6 +378,7 @@ div.side-panel.close {
   box-sizing: border-box;
   margin: 4px 0px;
   padding: 5px ;
+  cursor: pointer;
 }
 
 .object-list-item.selected {
