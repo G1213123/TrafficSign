@@ -23,7 +23,7 @@ function resizeCanvas() {
 fabric.Object.prototype.toObject = (function (toObject) {
   return function (propertiesToInclude) {
     propertiesToInclude = (propertiesToInclude || []).concat(
-      ["basePolygon", "anchoredPolygon", "functinoalType", "subObjects", "txtChar", "text", "insertionPoint", "vertex","anchorageLink","refTopLeft","symbol","xHeight"] // custom attributes
+      ["basePolygon", "anchoredPolygon", "functinoalType", "subObjects", "txtChar", "text", "insertionPoint", "vertex", "anchorageLink", "refTopLeft", "symbol", "xHeight"] // custom attributes
     );
     return toObject.apply(this, [propertiesToInclude]);
   };
@@ -73,10 +73,10 @@ canvas.on('mouse:move', function (opt) {
     canvas.lastPosX = e.clientX;
     canvas.lastPosY = e.clientY;
     DrawGrid()
-        // Update the coordinates of all objects to ensure controls are updated
-        canvas.getObjects().forEach(obj => {
-          obj.setCoords();
-        });
+    // Update the coordinates of all objects to ensure controls are updated
+    canvas.getObjects().forEach(obj => {
+      obj.setCoords();
+    });
   }
 });
 canvas.on('mouse:up', function (opt) {
@@ -128,50 +128,75 @@ function handleGroupMoving(event) {
 }
 
 function DrawGrid() {
-  // TODO: resize grid to fit the canvas zoom level
-  options = {
-    distance: 10,
+  // Calculate the appropriate grid distance based on the viewport boundaries
+  const corners = canvas.calcViewportBoundaries();
+  var xmin = corners.tl.x// Math.floor(corners.tl.x / 50) * 50;
+  var xmax = corners.br.x// Math.ceil(corners.br.x / 50) * 50;
+  var ymin = corners.tl.y// Math.floor(corners.tl.y / 50) * 50;
+  var ymax = corners.br.y// Math.ceil(corners.br.y / 50) * 50;
+  const width = xmax - xmin;
+  const height = ymax - ymin;
+  const maxDimension = Math.max(width, height);
+
+  // Determine the grid distance based on the max dimension
+  let gridDistance = 10;
+  if (maxDimension > 10000) {
+    gridDistance = 500;
+  } else if (maxDimension > 2000) {
+    gridDistance = 100;
+  } else if (maxDimension > 1000) {
+    gridDistance = 50;
+  }
+
+  xmin = Math.floor(corners.tl.x / gridDistance) * gridDistance;
+  xmax = Math.ceil(corners.br.x / gridDistance) * gridDistance;
+  ymin = Math.floor(corners.tl.y / gridDistance) * gridDistance;
+  ymax = Math.ceil(corners.br.y / gridDistance) * gridDistance;
+
+  const options = {
+    distance: gridDistance,
     param: {
       stroke: '#ebebeb',
-      strokeWidth: 0.1,
+      strokeWidth: gridDistance/500,
       selectable: false
     }
-  },
-
-    corners = canvas.calcViewportBoundaries()
-    xmin = Math.floor((corners.tl.x) / 50) * 50,
-    xmax = Math.ceil((corners.br.x) / 50) * 50,
-    ymin = Math.floor((corners.tl.y) / 50) * 50,
-    ymax = Math.ceil((corners.br.y) / 50) * 50,
-    width = xmax - xmin,
-    height = ymax - ymin,
-    gridLen = Math.max(width, height) / options.distance;
-  grid_set = [];
-
-  for (var i = 0; i < gridLen + 1; i++) {
-    var distance = i * options.distance,
-      vertical = new fabric.Line([distance + xmin, ymin, distance + xmin, gridLen * 10 + ymin], options.param)
-    horizontal = new fabric.Line([xmin, distance + ymin, gridLen * 10 + xmin, distance + ymin], options.param);
-
-    if (i % 5 === 0) {
-      horizontal.set({ strokeWidth: 0.5 });
-      vertical.set({ strokeWidth: 0.5 });
-      vText = new fabric.Text(String(distance + xmin), { left: distance + xmin, top: 0, fill: options.param.stroke, fontSize: 10 })
-      hText = new fabric.Text(String(distance + ymin), { left: 0, top: distance + ymin, fill: options.param.stroke, fontSize: 10 })
-      grid_set.push(hText);
-      grid_set.push(vText);
-    };
-
-    grid_set.push(horizontal);
-    grid_set.push(vertical);
   };
 
-  let obj = canvas.getObjects().find(obj => obj.id === 'grid');
+  const grid_set = [];
+
+  // Calculate the grid lines relative to the canvas origin
+  for (let x = xmin; x <= xmax; x += options.distance) {
+    const vertical = new fabric.Line([x, ymin, x, ymax], options.param);
+    if (Math.abs(x % (5 * options.distance)) < 1e-6) {
+      vertical.set({ strokeWidth: gridDistance/100 });
+      const vText = new fabric.Text(String(x), { left: x, top: 0, fill: options.param.stroke, fontSize: gridDistance/5 });
+      grid_set.push(vText);
+    }
+    grid_set.push(vertical);
+  }
+
+  for (let y = ymin; y <= ymax; y += options.distance) {
+    const horizontal = new fabric.Line([xmin, y, xmax, y], options.param);
+    if (Math.abs(y % (5 * options.distance)) < 1e-6) {
+      horizontal.set({ strokeWidth: gridDistance/100 });
+      const hText = new fabric.Text(String(y), { left: 0, top: y, fill: options.param.stroke, fontSize: gridDistance/5 });
+      grid_set.push(hText);
+    }
+    grid_set.push(horizontal);
+  }
+
+  // Ensure the origin (0, 0) is included in the grid
+  const originLineX = new fabric.Line([0, ymin, 0, ymax], { stroke: options.param.stroke, strokeWidth: 1, selectable: false });
+  const originLineY = new fabric.Line([xmin, 0, xmax, 0], { stroke: options.param.stroke, strokeWidth: 1, selectable: false });
+  grid_set.push(originLineX);
+  grid_set.push(originLineY);
+
+  const obj = canvas.getObjects().find(obj => obj.id === 'grid');
   canvas.remove(obj);
 
-  grid_group = new fabric.Group(grid_set, { id: 'grid', "selectable": false, "evented": false });
+  const grid_group = new fabric.Group(grid_set, { id: 'grid', selectable: false, evented: false });
   canvas.add(grid_group);
-  canvas.sendObjectToBack (grid_group)
+  canvas.sendObjectToBack(grid_group);
 };
 
 // Context menu
@@ -234,6 +259,7 @@ function showTextBox(text, withAnswerBox = null) {
 
   promptBox.innerText = text;
   promptBox.style.display = 'block';
+  document.removeEventListener('keydown', ShowHideSideBarEvent);
 
   if (withAnswerBox) {
     answerBox.style.display = 'block';
@@ -248,15 +274,18 @@ function showTextBox(text, withAnswerBox = null) {
           resolve(answerBox.value);
           hideTextBox();
           answerBox.removeEventListener('keydown', handleKeyDown);
+          //document.addEventListener('keydown', ShowHideSideBarEvent)
         } else if (event.key === 'Escape') {
           resolve(null); // or any specific value indicating the user wants to quit
           hideTextBox();
           answerBox.removeEventListener('keydown', handleKeyDown);
+          //document.addEventListener('keydown', ShowHideSideBarEvent)
         }
       });
     });
   } else {
     answerBox.style.display = 'none';
+    document.addEventListener('keydown', handleKeyDownEvent)
     return Promise.resolve();
   }
   // document.dispatchEvent(new Event('mousemove'))
@@ -267,6 +296,9 @@ function hideTextBox() {
   const answerBox = document.getElementById('cursorAnswerBox');
   promptBox.style.display = 'none';
   answerBox.style.display = 'none';
+  setTimeout(() => {
+    document.addEventListener('keydown', ShowHideSideBarEvent);
+  }, 1000); // Delay in milliseconds (e.g., 1000ms = 1 second)
 }
 
 async function selectObjectHandler(text, callback, options = null) {

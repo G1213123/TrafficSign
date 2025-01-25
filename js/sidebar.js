@@ -290,8 +290,6 @@ let FormDrawAddComponent = {
         const button = FormDrawAddComponent.createButtonSVG(symbol, 10)
         GeneralHandler.createbutton(`button-${symbol}`, button, parent, 'symbol', FormDrawAddComponent.drawSymbol, 'click')
       })
-      canvas.on('mouse:move', FormTextAddComponent.TextonMouseMove)
-      canvas.on('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
     }
   },
 
@@ -352,6 +350,8 @@ let FormDrawAddComponent = {
   },
   drawSymbol: (event, options = null) => {
     let symbol = event.currentTarget.id.replace('button-', '')
+    canvas.on('mouse:move', FormTextAddComponent.TextonMouseMove)
+    canvas.on('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
 
     cursor.forEachObject(function (o) { cursor.remove(o) })
     cursor.txtChar = []
@@ -375,16 +375,30 @@ let FormDrawAddComponent = {
       objectCaching: false,
       strokeWidth: 0
     },
-      Polygon1 = new GlyphPath(symbolObject, arrowOptions1);
+    Polygon1 = new GlyphPath(symbolObject, arrowOptions1);
     Polygon1.symbol = symbol
     Polygon1.xHeight = xHeight
 
     cursor.add(Polygon1)
-
     Polygon1.setCoords();
+
+    document.removeEventListener('keydown', ShowHideSideBarEvent);
+    document.addEventListener('keydown', FormDrawAddComponent.cancelDraw)
 
     canvas.renderAll();
   },
+
+  cancelDraw: (event) => {
+    if (event.key === 'Escape') {
+      cursor.forEachObject(function (o) { cursor.remove(o) })
+      canvas.off('mouse:move', FormTextAddComponent.TextonMouseMove)
+      canvas.off('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
+      canvas.requestRenderAll()
+      setTimeout(() => {
+        document.addEventListener('keydown', ShowHideSideBarEvent);
+      }, 1000); // Delay in milliseconds (e.g., 1000ms = 1 second)
+  }},
+
   drawApproachClick: (event) => {
     //$(event.target).toggleClass('active')
     draw_btn = document.getElementById('button-approach-arm')
@@ -617,25 +631,25 @@ let FormBorderWrapComponent = {
       bottom: innerBorderCoords.bottom + roundingY
     }
     console.log(outerBorderCoords.top - innerBorderCoords.top)
-    return {in:innerBorderCoords, out: outerBorderCoords}
+    return { in: innerBorderCoords, out: outerBorderCoords }
   },
 
-        
-      // draw rounded shape
-      drawBorder : function (BorderCoord, fill, radius) {
-        var Rect = new fabric.Rect({
-          left: BorderCoord.left,
-          top: BorderCoord.top,
-          fill: fill,
-          width: BorderCoord.right - BorderCoord.left,
-          height: BorderCoord.bottom - BorderCoord.top,
-          objectCaching: false,
-          rx: radius * xHeight / 4,
-          ry: radius * xHeight / 4,
-          objectCaching: false
-        });
-        return Rect
-      },
+
+  // draw rounded shape
+  drawBorder: function (BorderCoord, fill, radius) {
+    var Rect = new fabric.Rect({
+      left: BorderCoord.left,
+      top: BorderCoord.top,
+      fill: fill,
+      width: BorderCoord.right - BorderCoord.left,
+      height: BorderCoord.bottom - BorderCoord.top,
+      objectCaching: false,
+      rx: radius * xHeight / 4,
+      ry: radius * xHeight / 4,
+      objectCaching: false
+    });
+    return Rect
+  },
 
   BorderCreate: function (heightObjects, widthObjects, xHeight, borderType) {
     if (xHeight > 0) {
@@ -770,8 +784,14 @@ let FormDebugComponent = {
 };
 
 
-
-
+// Define the event handler function
+function ShowHideSideBarEvent(e) {
+  switch (e.keyCode) {
+    case 27: // esc
+      GeneralHandler.ShowHideSideBar(e);
+      break;
+  }
+}
 
 window.onload = () => {
   document.getElementById('show_hide').onclick = GeneralHandler.ShowHideSideBar;
@@ -780,10 +800,5 @@ window.onload = () => {
   document.getElementById('btn_border').onclick = FormBorderWrapComponent.BorderPanelInit
   document.getElementById('btn_debug').onclick = FormDebugComponent.DebugPanelInit
   FormTextAddComponent.textPanelInit()
-  document.onkeydown = function (e) {
-    switch (e.keyCode) {
-      case 27: // esc
-        GeneralHandler.ShowHideSideBar(e)
-    }
-  }
+  document.addEventListener('keydown', ShowHideSideBarEvent);
 }
