@@ -115,14 +115,24 @@ let FormTextAddComponent = {
     cursor.forEachObject(function (o) { cursor.remove(o) })
     canvas.off('mouse:move', FormTextAddComponent.TextonMouseMove)
     canvas.off('mouse:down', FormTextAddComponent.TextonMouseClick)
+    document.addEventListener('keydown', ShowHideSideBarEvent);
+    document.removeEventListener('keydown', FormTextAddComponent.cancelInput)
     canvas.renderAll()
   },
 
+  cancelInput: function(event){
+    if(event.key === 'Escape'){
+      document.getElementById('input-text').value = ''
+      cursor.forEachObject(function (o) { cursor.remove(o) })
+    }
+  },
+
   TextinputHandler: function (event, options = null) {
+    document.removeEventListener('keydown', ShowHideSideBarEvent);
+    document.addEventListener('keydown', FormTextAddComponent.cancelInput)
     cursor.forEachObject(function (o) { cursor.remove(o) })
     cursor.txtChar = []
     cursor.text = ''
-    var left_pos = 0
     if (options) {
       var txt = options.text
       var xHeight = options.xHeight
@@ -131,7 +141,44 @@ let FormTextAddComponent = {
       var txt = document.getElementById('input-text').value
       var xHeight = parseInt(document.getElementById('input-xHeight').value)
     }
+      txtObjects = FormTextAddComponent.createTextObject(txt,xHeight)
 
+      // Get cursor position
+  const cursorLeft = cursor.left || 0;
+  const cursorTop = cursor.top || 0;
+
+  // Offset object positions relative to cursor position
+  txtObjects[0].forEach(obj => {
+    obj.set({
+      left: obj.left + cursorLeft,
+      top: obj.top + cursorTop
+    });
+  });
+
+  txtObjects[1].forEach(obj => {
+    obj.set({
+      left: obj.left + cursorLeft,
+      top: obj.top + cursorTop
+    });
+  });
+
+      cursor.add(...txtObjects[0])
+      cursor.add(...txtObjects[1])
+      // Update the coordinates
+      //txt_char.setCoords();
+      //txt_frame.setCoords()
+//
+      //cursor.txtChar.push(txt_char)
+      cursor.text = txt
+      cursor.xHeight = xHeight
+      canvas.renderAll();
+    
+  },
+
+  createTextObject: function(txt, xHeight) {
+    txtCharList = []
+    txtFrameList = []
+    left_pos = 0
     for (var i = 0; i < txt.length; i++) {
       // Check if the character is a Chinese character
       if (!FormTextAddComponent.textWidthMedium.map(item => item.char).includes(txt.charAt(i))) {
@@ -186,18 +233,12 @@ let FormTextAddComponent = {
 
         left_pos += charWidth * xHeight / 100
       }
-      cursor.add(txt_char)
-      cursor.add(txt_frame)
-      // Update the coordinates
-      txt_char.setCoords();
-      txt_frame.setCoords()
-
-      cursor.txtChar.push(txt_char)
-      cursor.text = txt
-      canvas.renderAll();
-    }
+      txtCharList.push(txt_char)
+      txtFrameList.push(txt_frame)
   }
-  ,
+  return [txtCharList, txtFrameList]
+},
+  
   TextonMouseMove: function (event) {
     var pointer = canvas.getPointer(event.e);
     var posx = pointer.x;
@@ -225,8 +266,14 @@ let FormTextAddComponent = {
       eventButton = event.e.button
     }
     if (textValue !== '' && eventButton === 0) {
-      clonedObj = await cursor.clone()
-      clonedObj.getCombinedBoundingBoxOfRects = function () {
+
+      const group = new fabric.Group()
+      txtObjects = FormTextAddComponent.createTextObject(cursor.text,cursor.xHeight)
+    
+      group.add(...txtObjects[0])
+      group.add(...txtObjects[1])
+      group.set({left:cursor.left, top:cursor.top})
+      group.getCombinedBoundingBoxOfRects = function () {
         let combinedBBox = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
         let points = [];
         this.forEachObject(obj => {
@@ -264,15 +311,20 @@ let FormTextAddComponent = {
         return points;
 
       }
-      clonedObj.setCoords()
-      clonedObj.vertex = clonedObj.getCombinedBoundingBoxOfRects()
-      clonedObj.text = textValue
-      clonedObj.xHeight = xHeight
+      group.setCoords()
+      group.vertex = group.getCombinedBoundingBoxOfRects()
+      group.text = textValue
+      group.xHeight = xHeight
+  
+      drawBasePolygon(group, 'Text', false)
+
+      FormTextAddComponent.TextinputHandler(null, { text: cursor.text, xHeight: cursor.xHeight })
+      canvas.renderAll()
       //Object.values(clonedObj.aCoords).map((point, i) => {
       //  return { x: point.x, y: point.y, label: `E${i + 1}` }
       //})
       //clonedObj.insertPoint = clonedObj.vertex[0]
-      TextGroup = drawBasePolygon(clonedObj, 'Text', false)
+      //TextGroup = drawBasePolygon(clonedObj, 'Text', false)
 
     }
   },
@@ -780,7 +832,6 @@ let FormDebugComponent = {
 
 let CanvasObjectInspector = {
   createObjectListPanelInit: function () {
-    const sidePanel = document.getElementById('side-panel');
     const objectListPanel = document.getElementById('objectListPanel');
 
     // Clear the existing content
@@ -790,8 +841,8 @@ let CanvasObjectInspector = {
     canvasObject.forEach((obj, index) => {
       const div = document.createElement('div');
       div.className = 'object-list-item';
-      div.innerText = String(obj) + ' : ' + obj.functionalType;
-      div.id = String(obj)
+      div.innerText = `Group (${index}) : ${obj.functionalType}`;
+      div.id = `Group (${index})`
       div.addEventListener('click', () => {
         // Remove 'selected' class from all items
         document.querySelectorAll('.object-list-item').forEach(item => item.classList.remove('selected'));
@@ -805,9 +856,10 @@ let CanvasObjectInspector = {
   },
 
   SetActiveObjectList: function (setActive) {
+    const index = canvasObject.indexOf(setActive)
     // Remove 'selected' class from all items
     document.querySelectorAll('.object-list-item').forEach(item => {
-      if(item.id == String(setActive)){
+      if(item.id == `Group (${index})`){
         item.classList.add('selected');
       } else {
         item.classList.remove('selected')}
@@ -830,9 +882,9 @@ window.onload = () => {
   document.getElementById('btn_text').onclick = FormTextAddComponent.textPanelInit
   document.getElementById('btn_border').onclick = FormBorderWrapComponent.BorderPanelInit
   document.getElementById('btn_debug').onclick = FormDebugComponent.DebugPanelInit
-  canvas.on('object:added', CanvasObjectInspector.createObjectListPanel);
-  canvas.on('object:removed', CanvasObjectInspector.createObjectListPanel);
-  canvas.on('object:modified', CanvasObjectInspector.createObjectListPanel);
+ //canvas.on('object:added', CanvasObjectInspector.createObjectListPanel);
+ //canvas.on('object:removed', CanvasObjectInspector.createObjectListPanel);
+ //canvas.on('object:modified', CanvasObjectInspector.createObjectListPanel);
   FormTextAddComponent.textPanelInit()
   document.addEventListener('keydown', ShowHideSideBarEvent);
 }

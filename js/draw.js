@@ -228,7 +228,7 @@ class BaseGroup extends fabric.Group {
       });
       canvas.renderAll();
     });
-
+    
     this.on('modified', this.updateAllCoord.bind(this));
     this.on('moving', this.updateAllCoord.bind(this));
   }
@@ -468,7 +468,11 @@ class BaseGroup extends fabric.Group {
   // Method to delete the object
   deleteObject(_eventData, transform) {
     canvas.remove(transform.target);
-    canvasObject.pop(transform.target);
+
+    const index = canvasObject.indexOf(transform.target)
+    if (index>-1){
+      canvasObject.splice(index,1);
+    }
 
     // Free anchored Polygon
     if (transform.target.anchoredPolygon) {
@@ -668,12 +672,13 @@ class LockIcon {
 
 // Function to draw base polygon
 function drawBasePolygon(basePolygon, functionalType, calcVertex = true) {
-  const baseGroup = new fabric.BaseGroup(basePolygon, functionalType, {
+  let baseGroup = new fabric.BaseGroup(basePolygon, functionalType, {
     calcVertex: calcVertex, subTargetCheck: true, lockScalingX: true,// lock scaling
     lockScalingY: true
   });
   canvas.add(baseGroup);
   canvasObject.push(baseGroup);
+  CanvasObjectInspector.createObjectListPanelInit()
   //canvas.setActiveObject(baseGroup);
   return baseGroup;
 }
