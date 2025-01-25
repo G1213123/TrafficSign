@@ -54,6 +54,7 @@ let GeneralHandler = {
       var parent = document.getElementById("input-form");
       parent.innerHTML = ''
     }
+    CanvasObjectInspector.createObjectListPanelInit()
     return parent
   },
   createNode: function (type, attribute, parent, callback, event) {
@@ -271,7 +272,7 @@ let FormTextAddComponent = {
       //  return { x: point.x, y: point.y, label: `E${i + 1}` }
       //})
       //clonedObj.insertPoint = clonedObj.vertex[0]
-      TextGroup = drawBasePolygon(clonedObj, false)
+      TextGroup = drawBasePolygon(clonedObj, 'Text', false)
 
     }
   },
@@ -319,7 +320,7 @@ let FormDrawAddComponent = {
         offset = getInsertOffset(calcSymbol(symbolitem.symbol, symbolitem.xHeight / 4))
         coords = symbolitem.getCoords()
         symbolitem.vertex = symbolitem.vertex.map(v => { return { x: v.x + offset.left + coords[0].x, y: v.y + offset.top + coords[0].y, label: v.label } })
-        SymbolGroup = drawBasePolygon(symbolitem)
+        SymbolGroup = drawBasePolygon(symbolitem, 'Symbol')
       })
     }
   },
@@ -375,7 +376,7 @@ let FormDrawAddComponent = {
       objectCaching: false,
       strokeWidth: 0
     },
-    Polygon1 = new GlyphPath(symbolObject, arrowOptions1);
+      Polygon1 = new GlyphPath(symbolObject, arrowOptions1);
     Polygon1.symbol = symbol
     Polygon1.xHeight = xHeight
 
@@ -397,7 +398,8 @@ let FormDrawAddComponent = {
       setTimeout(() => {
         document.addEventListener('keydown', ShowHideSideBarEvent);
       }, 1000); // Delay in milliseconds (e.g., 1000ms = 1 second)
-  }},
+    }
+  },
 
   drawApproachClick: (event) => {
     //$(event.target).toggleClass('active')
@@ -547,13 +549,6 @@ let FormBorderWrapComponent = {
         FormBorderWrapComponent.BorderGroupCreate(heightObjects, widthObjects, xHeight, borderType)
       })
     })
-
-    /*
-    const borderWidthtObjects = showTextBox('Select shape to calculate border width')
-    if (borderWidthtObjects) {
-      borderWidthtObjects = canvas.activeObject()
-      
-    }*/
   },
 
   // Function to get the bounding box of specific objects
@@ -687,7 +682,7 @@ let FormBorderWrapComponent = {
 
   BorderGroupCreate: function (heightObjects, widthObjects, xHeight, borderType) {
     borderObject = FormBorderWrapComponent.BorderCreate(heightObjects, widthObjects, xHeight, borderType)
-    borderGroup = drawBasePolygon(borderObject)
+    borderGroup = drawBasePolygon(borderObject, 'Border')
     borderGroup.widthObjects = [...widthObjects]
     borderGroup.heightObjects = [...heightObjects]
     borderGroup.borderType = borderType
@@ -783,6 +778,42 @@ let FormDebugComponent = {
   },
 };
 
+let CanvasObjectInspector = {
+  createObjectListPanelInit: function () {
+    const sidePanel = document.getElementById('side-panel');
+    const objectListPanel = document.getElementById('objectListPanel');
+
+    // Clear the existing content
+    objectListPanel.innerHTML = '';
+
+    // Loop through the CanvasObject array and append object names to the list
+    canvasObject.forEach((obj, index) => {
+      const div = document.createElement('div');
+      div.className = 'object-list-item';
+      div.innerText = String(obj) + ' : ' + obj.functionalType;
+      div.id = String(obj)
+      div.addEventListener('click', () => {
+        // Remove 'selected' class from all items
+        document.querySelectorAll('.object-list-item').forEach(item => item.classList.remove('selected'));
+        // Add 'selected' class to the clicked item
+        div.classList.add('selected');
+        canvas.setActiveObject(obj);
+        canvas.renderAll();
+      });
+      objectListPanel.appendChild(div);
+    });
+  },
+
+  SetActiveObjectList: function (setActive) {
+    // Remove 'selected' class from all items
+    document.querySelectorAll('.object-list-item').forEach(item => {
+      if(item.id == String(setActive)){
+        item.classList.add('selected');
+      } else {
+        item.classList.remove('selected')}
+      });
+  }
+}
 
 // Define the event handler function
 function ShowHideSideBarEvent(e) {
@@ -799,6 +830,9 @@ window.onload = () => {
   document.getElementById('btn_text').onclick = FormTextAddComponent.textPanelInit
   document.getElementById('btn_border').onclick = FormBorderWrapComponent.BorderPanelInit
   document.getElementById('btn_debug').onclick = FormDebugComponent.DebugPanelInit
+  canvas.on('object:added', CanvasObjectInspector.createObjectListPanel);
+  canvas.on('object:removed', CanvasObjectInspector.createObjectListPanel);
+  canvas.on('object:modified', CanvasObjectInspector.createObjectListPanel);
   FormTextAddComponent.textPanelInit()
   document.addEventListener('keydown', ShowHideSideBarEvent);
 }

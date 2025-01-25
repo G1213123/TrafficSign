@@ -148,7 +148,7 @@ div.side-panel.close {
 
 .input-form {
   width: 100%;
-  height: 100%;
+  height: 80%;
   margin-top: 10px;
   display: flex;
   flex-wrap: wrap;
@@ -158,21 +158,29 @@ div.side-panel.close {
   overflow-y: auto;
   gap: 0px 10px;
 }
+
 .input-container {
-  width: 100%; /* Span 100% of the input form */
-  padding: 5px 10px ;
-  margin-top: 10px; /* Ensure the container is always 20px down from the top */
-  box-sizing: border-box; /* Include padding in the element's total width and height */
+  width: 100%;
+  /* Span 100% of the input form */
+  padding: 5px 10px;
+  margin-top: 10px;
+  /* Ensure the container is always 20px down from the top */
+  box-sizing: border-box;
+  /* Include padding in the element's total width and height */
   display: flex;
-  flex-direction: column; /* Arrange children vertically */
-  align-items: flex-start; /* Align children to the top */
+  flex-direction: column;
+  /* Arrange children vertically */
+  align-items: flex-start;
+  /* Align children to the top */
 
 }
 
 .symbol-container {
-  width: 45%; /* Span 50% of the input form */
+  width: 45%;
+  /* Span 50% of the input form */
   padding: 10px 0px;
-  box-sizing: border-box; /* Include padding in the element's total width and height */
+  box-sizing: border-box;
+  /* Include padding in the element's total width and height */
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -198,7 +206,7 @@ div.side-panel.close {
   height: 25px;
   left: 0;
   position: relative;
-  top:-5px;
+  top: -5px;
   transition: border 100ms ease-out, width 100ms ease-out, height 100ms ease-out;
   width: 140px;
   border: 1px solid #ccc;
@@ -282,7 +290,8 @@ div.side-panel.close {
   margin: 4px 2px;
   cursor: pointer;
   border-radius: 10px;
-  max-width: 100%; /* Ensure the button takes a maximum of half of its parent width */
+  max-width: 100%;
+  /* Ensure the button takes a maximum of half of its parent width */
 }
 
 #context-menu {
@@ -317,85 +326,148 @@ div.side-panel.close {
   /* Initially hidden */
 }
 
-.cursor-box-contained{
+.cursor-box-contained {
   position: absolute;
-  display: flex; 
+  display: flex;
   flex-direction: column;
   align-items: left;
 }
 
 /* Debug panel container */
 #debug-info-panel {
-  background-color: #333; /* Deep grey background */
-  padding: 10px;
+  background-color: #333;
+  /* Deep grey background */
+  margin: 10px;
   border-radius: 5px;
-  margin-top: 10px;
+  width: 100%;
 }
 
 /* Debug panel text */
 #debug-info-panel div {
-  color: #fff; /* White text for readability */
+  color: #fff;
+  /* White text for readability */
   font-family: Arial, sans-serif;
   font-size: 16px;
-  margin-bottom: 5px;
+  margin: 4px 10px;
+  justify-content: left;
+  background-color: #333;
+  border-radius: 5px;
 }
-  /* Position the answer box 5px to the right of the prompt box */
+
+/* Position the answer box 5px to the right of the prompt box */
+
+.object-list-panel {
+  height: 20%;
+  /* Adjust the height as needed */
+  overflow-y: auto;
+  background-color: #222;
+  border-top: 1px solid #ccc;
+  margin-top: 10px;
+  color: #fff;
+  /* White text for readability */
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  margin: 4px 10px;
+  justify-content: left;
+}
+
+.object-list-item{
+  background-color: #404042;
+  border-radius: 12px;
+  border: 0;
+  box-sizing: border-box;
+  margin: 4px 0px;
+  padding: 5px ;
+}
+
+.object-list-item.selected {
+  background-color: #d0d0d0;
+  /* Paler grey background when selected */
+}
 
 @media (max-width: 768px) {
   .side-bar[data-position="right"],
 
   .side-panel {
-    min-width: 100%; /* Full width on smaller screens */
-    top: 48px; /* Position below the sidebar */
-    left: 0; /* Align to the left edge */
-    height: calc(100% - 48px); /* Adjust height */
-    display: block; /* Ensure side panel is visible */
+    min-width: 100%;
+    /* Full width on smaller screens */
+    top: 48px;
+    /* Position below the sidebar */
+    left: 0;
+    /* Align to the left edge */
+    height: calc(100% - 48px);
+    /* Adjust height */
+    display: block;
+    /* Ensure side panel is visible */
   }
 
   .side-panel.open {
-    top: 48px; /* Position below the sidebar */
+    top: 48px;
+    /* Position below the sidebar */
   }
 
   .side-panel.close {
-    top: -100%; /* Hide off-screen */
+    top: -100%;
+    /* Hide off-screen */
   }
 
   .item {
-    height: 48px; /* Adjust item height */
-    width: 48px; /* Adjust item width */
-    line-height: 48px; /* Adjust line height */
-    font-size: 16px; /* Adjust font size */
-    position: absolute; /* Position at the edge */
-    right: 0; /* Align to the right edge */
-    top: 0; /* Align to the top edge */
+    height: 48px;
+    /* Adjust item height */
+    width: 48px;
+    /* Adjust item width */
+    line-height: 48px;
+    /* Adjust line height */
+    font-size: 16px;
+    /* Adjust font size */
+    position: absolute;
+    /* Position at the edge */
+    right: 0;
+    /* Align to the right edge */
+    top: 0;
+    /* Align to the top edge */
   }
 
   .item.bottom {
-    display: block; /* Ensure bottom item is visible */
-    position: fixed; /* Fix position at the bottom */
-    bottom: 0; /* Align to the bottom edge */
-    width: 100%; /* Full width */
-    height: 48px; /* Adjust height */
-    line-height: 48px; /* Adjust line height */
-    text-align: center; /* Center text */
+    display: block;
+    /* Ensure bottom item is visible */
+    position: fixed;
+    /* Fix position at the bottom */
+    bottom: 0;
+    /* Align to the bottom edge */
+    width: 100%;
+    /* Full width */
+    height: 48px;
+    /* Adjust height */
+    line-height: 48px;
+    /* Adjust line height */
+    text-align: center;
+    /* Center text */
   }
 
   .heading {
-    font-size: 24px; /* Adjust heading font size */
-    height: 36px; /* Adjust heading height */
-    line-height: 36px; /* Adjust heading line height */
+    font-size: 24px;
+    /* Adjust heading font size */
+    height: 36px;
+    /* Adjust heading height */
+    line-height: 36px;
+    /* Adjust heading line height */
   }
 
   .input-container {
-    width: 100%; /* Full width input container */
+    width: 100%;
+    /* Full width input container */
   }
 
   .input {
-    font-size: 16px; /* Adjust input font size */
+    font-size: 16px;
+    /* Adjust input font size */
   }
 
   .button {
-    padding: 12px 24px; /* Adjust button padding */
-    font-size: 14px; /* Adjust button font size */
+    padding: 12px 24px;
+    /* Adjust button padding */
+    font-size: 14px;
+    /* Adjust button font size */
   }
 }

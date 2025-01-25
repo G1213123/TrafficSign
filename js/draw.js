@@ -151,12 +151,12 @@ class GlyphPath extends fabric.Path {
 
 // Define the BaseGroup class using ES6 class syntax
 class BaseGroup extends fabric.Group {
-  constructor(basePolygon, options = {}) {
+  constructor(basePolygon, functionalType, options = {}) {
     super([], options);
     //this.type = 'baseGroup';
     this.basePolygon = basePolygon;
     //this.basePolygon.set({ 'dirty': true });
-    this.basePolygon.functinoalType = 'Polygon';
+    this.functionalType = functionalType;
     this.anchoredPolygon = [];
     this.anchorageLink = [];
     this.subObjects = [];
@@ -196,6 +196,7 @@ class BaseGroup extends fabric.Group {
       });
 
       this.drawAnchorLinkage()
+      CanvasObjectInspector.SetActiveObjectList(this)
       //canvas.bringObjectToFront(this)
     });
 
@@ -211,6 +212,7 @@ class BaseGroup extends fabric.Group {
         });
         // canvas.sendObjectToBack(this)
       }, 0)
+      CanvasObjectInspector.SetActiveObjectList(null)
     });
 
     this.on('mouseover', function () {
@@ -265,7 +267,7 @@ class BaseGroup extends fabric.Group {
         fill: 'white', // Text color
         selectable: false,
         opacity: 0,
-        functinoalType: 'locationText',
+        functionalType: 'locationText',
         stroke: '#000', // Text stroke color
         strokeWidth: 3,
         paintFirst: 'stroke', // Stroke behind fill
@@ -297,7 +299,7 @@ class BaseGroup extends fabric.Group {
         originX: 'center',
         originY: 'center',
         opacity: 0,
-        functinoalType: 'vertexCircle',
+        functionalType: 'vertexCircle',
       });
       this.subObjects.push(circle);
 
@@ -311,7 +313,7 @@ class BaseGroup extends fabric.Group {
         originX: 'center',
         originY: 'center',
         opacity: 0,
-        functinoalType: 'vertexText',
+        functionalType: 'vertexText',
         fontFamily: 'Arial, sans-serif', // Modern font family
         //stroke: '#000', // Black stroke for better contrast
         //strokeWidth: 1,
@@ -489,6 +491,7 @@ class BaseGroup extends fabric.Group {
     if (transform.target.heightObjects) {
       transform.target.heightObjects.forEach(obj => obj.borderGroup = null)
     }
+    CanvasObjectInspector.createObjectListPanelInit()
     canvas.requestRenderAll();
   }
 
@@ -522,14 +525,14 @@ class LockIcon {
         stroke:'green',
         strokeWidth: 5,
         selectable: false,
-        functinoalType: 'anchorLine',
+        functionalType: 'anchorLine',
       });
       this.line2 = new fabric.Line([targetPoint.x, sourcePoint.y, targetPoint.x, targetPoint.y], {
         stroke: 'green',
         strokeWidth: 5,
         selectable: false,
         strokeDashArray: [10, 5],
-        functinoalType: 'anchorLine',
+        functionalType: 'anchorLine',
       });
           // Calculate the midpoint of line1
     midX = (sourcePoint.x + targetPoint.x) / 2;
@@ -561,14 +564,14 @@ class LockIcon {
         stroke:'red',
         strokeWidth: 5,
         selectable: false,
-        functinoalType: 'anchorLine',
+        functionalType: 'anchorLine',
       });
       this.line2 = new fabric.Line([sourcePoint.x, targetPoint.y, targetPoint.x, targetPoint.y], {
         stroke:   'red',
         strokeWidth: 5,
         selectable: false,
         strokeDashArray: [10, 5],
-        functinoalType: 'anchorLine',
+        functionalType: 'anchorLine',
       });
           // Calculate the midpoint of line1
     midX = sourcePoint.x ;
@@ -608,7 +611,7 @@ class LockIcon {
       originX: 'center',
       originY: 'center',
       selectable: false,
-      functinoalType: 'lockIcon',
+      functionalType: 'lockIcon',
     });
    
 
@@ -643,20 +646,29 @@ class LockIcon {
     // Remove lock lines and lock icon from the canvas and baseGroup
     canvas.remove(...this.objects);
     this.baseGroup.anchorageLink = this.baseGroup.anchorageLink.filter(obj => obj !== this.line1 && obj !== this.line2 && obj !== this.lockIcon);
+    const anchorX = this.baseGroup.lockXToPolygon.TargetObject
+    const anchorY = this.baseGroup.lockYToPolygon.TargetObject
     if (this.direction == 'x'){
       this.baseGroup.lockMovementX = false
       this.baseGroup.lockXToPolygon = {}
+      if (anchorY != anchorX){
+        anchorX.anchoredPolygon = anchorX.anchoredPolygon.filter(item => item !== this.baseGroup)
+      }
     } else {
       this.baseGroup.lockMovementY = false
       this.baseGroup.lockYToPolygon = {}
+      if (anchorX != anchorY){
+        anchorY.anchoredPolygon = anchorY.anchoredPolygon.filter(item => item !== this.baseGroup)
+      }
     }
+    
     canvas.renderAll();
   }
 }
 
 // Function to draw base polygon
-function drawBasePolygon(basePolygon, calcVertex = true) {
-  const baseGroup = new fabric.BaseGroup(basePolygon, {
+function drawBasePolygon(basePolygon, functionalType, calcVertex = true) {
+  const baseGroup = new fabric.BaseGroup(basePolygon, functionalType, {
     calcVertex: calcVertex, subTargetCheck: true, lockScalingX: true,// lock scaling
     lockScalingY: true
   });
@@ -671,7 +683,7 @@ function drawLabeledArrow(shapeMeta, options) {
   const vertexleft = shapeMeta[0].vertex[0].x - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.x));
   const vertextop = shapeMeta[0].vertex[0].y - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.y));
   // Create polygon with labeled vertices
-  const arrow = new drawBasePolygon(
+  const arrow = drawBasePolygon(
     new GlyphPath(shapeMeta,
       {
         left: x - vertexleft,
@@ -680,8 +692,9 @@ function drawLabeledArrow(shapeMeta, options) {
         angle: angle || 0,
         // originX: 'center',
         objectCaching: false,
-        strokeWidth: 0
+        strokeWidth: 0,
       }),
+      'Symbol'
   );
 
 }
@@ -745,7 +758,9 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
 
 
   //Polygon2.add(Polygon1.basePolygon)
-  Polygon2.anchoredPolygon.push(Polygon1)
+  if (!Polygon2.anchoredPolygon.includes(Polygon1)){
+    Polygon2.anchoredPolygon.push(Polygon1)
+  }
 
   //Polygon1.forEachObject(function (obj) {
   //  //Polygon1.removeWithUpdate(obj)
@@ -759,6 +774,7 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
   }
 
   canvas.setActiveObject(Polygon1)
+  CanvasObjectInspector.SetActiveObjectList(Polygon1)
 
   //
   //
