@@ -513,25 +513,87 @@ class LockIcon {
   constructor(baseGroup, sourcePoint, targetPoint, direction) {
     this.baseGroup = baseGroup;
     this.direction = direction
+    var midX
+    var midY
 
     // Create lock lines
-    this.line1 = new fabric.Line([sourcePoint.x, sourcePoint.y, sourcePoint.x, targetPoint.y], {
-      stroke: 'red',
-      strokeWidth: 5,
-      selectable: false,
-      functinoalType: 'anchorLine',
-    });
-    this.line2 = new fabric.Line([sourcePoint.x, targetPoint.y, targetPoint.x, targetPoint.y], {
-      stroke: 'red',
-      strokeWidth: 5,
-      selectable: false,
-      strokeDashArray: [10, 5],
-      functinoalType: 'anchorLine',
-    });
+    if (this.direction == 'x'){
+      this.line1 = new fabric.Line([sourcePoint.x, sourcePoint.y, targetPoint.x, sourcePoint.y], {
+        stroke:'green',
+        strokeWidth: 5,
+        selectable: false,
+        functinoalType: 'anchorLine',
+      });
+      this.line2 = new fabric.Line([targetPoint.x, sourcePoint.y, targetPoint.x, targetPoint.y], {
+        stroke: 'green',
+        strokeWidth: 5,
+        selectable: false,
+        strokeDashArray: [10, 5],
+        functinoalType: 'anchorLine',
+      });
+          // Calculate the midpoint of line1
+    midX = (sourcePoint.x + targetPoint.x) / 2;
+    midY = sourcePoint.y;
 
-    // Calculate the midpoint of line1
-    const midX = sourcePoint.x;
-    const midY = (sourcePoint.y + targetPoint.y) / 2;
+    
+    this.dimensionText = new fabric.Text( (targetPoint.x - sourcePoint.x).toFixed() + 'mm',
+      {
+        left: midX,
+        top: midY - 50,
+        fontSize: 20,
+        fill: 'green', // Text color
+        selectable: false,
+        stroke: '#000', // Text stroke color
+        strokeWidth: 3,
+        paintFirst: 'stroke', // Stroke behind fill
+        fontFamily: 'Arial, sans-serif', // Modern font family
+        padding: 10, // Padding around the text
+        shadow: new fabric.Shadow({
+          color: 'rgba(0, 0, 0, 0.5)',
+          blur: 10,
+          offsetX: 2,
+          offsetY: 2
+        })
+      })
+
+    } else {
+      this.line1 = new fabric.Line([sourcePoint.x, sourcePoint.y, sourcePoint.x, targetPoint.y], {
+        stroke:'red',
+        strokeWidth: 5,
+        selectable: false,
+        functinoalType: 'anchorLine',
+      });
+      this.line2 = new fabric.Line([sourcePoint.x, targetPoint.y, targetPoint.x, targetPoint.y], {
+        stroke:   'red',
+        strokeWidth: 5,
+        selectable: false,
+        strokeDashArray: [10, 5],
+        functinoalType: 'anchorLine',
+      });
+          // Calculate the midpoint of line1
+    midX = sourcePoint.x ;
+    midY = (sourcePoint.y + targetPoint.y) / 2;
+    
+    this.dimensionText = new fabric.Text( (targetPoint.y - sourcePoint.y).toFixed() + 'mm',
+      {
+        left: midX -50,
+        top: midY,
+        fontSize: 20,
+        fill: 'red', // Text color
+        selectable: false,
+        stroke: '#000', // Text stroke color
+        strokeWidth: 3,
+        paintFirst: 'stroke', // Stroke behind fill
+        fontFamily: 'Arial, sans-serif', // Modern font family
+        padding: 10, // Padding around the text
+        shadow: new fabric.Shadow({
+          color: 'rgba(0, 0, 0, 0.5)',
+          blur: 10,
+          offsetX: 2,
+          offsetY: 2
+        })
+      })
+    }
 
     // Create a lock icon using Font Awesome
     this.lockIcon = new fabric.Text('\uf023', {
@@ -548,6 +610,7 @@ class LockIcon {
       selectable: false,
       functinoalType: 'lockIcon',
     });
+   
 
     // Add hover and click event listeners
     this.lockIcon.on('mouseover', this.onHover.bind(this));
@@ -556,25 +619,29 @@ class LockIcon {
 
     // Add lock lines and lock icon to the canvas
     //return[this.line1, this.line2, this.lockIcon]
-    this.objects = [this.line1, this.line2, this.lockIcon]
+    this.objects = [this.line1, this.line2, this.dimensionText, this.lockIcon, ]
   }
 
 
   onHover() {
     this.lockIcon.set('text','\uf3c1');
     this.lockIcon.set('fill','brown');
+    this.dimensionText.set('fill','brown');
+    this.lockIcon.set('hoverCursor','pointer')
     canvas.renderAll();
   }
 
   onMouseOut() {
     this.lockIcon.set('text','\uf023');
     this.lockIcon.set('fill','gold');
+    this.dimensionText.set('fill',this.direction = 'x'? 'green': 'red');
+    this.lockIcon.set('hoverCursor','default')
     canvas.renderAll();
   }
 
   onClick() {
     // Remove lock lines and lock icon from the canvas and baseGroup
-    canvas.remove(this.line1, this.line2, this.lockIcon);
+    canvas.remove(...this.objects);
     this.baseGroup.anchorageLink = this.baseGroup.anchorageLink.filter(obj => obj !== this.line1 && obj !== this.line2 && obj !== this.lockIcon);
     if (this.direction == 'x'){
       this.baseGroup.lockMovementX = false
