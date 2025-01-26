@@ -130,15 +130,22 @@ class GlyphPolygon extends fabric.Polygon {
 
 class GlyphPath extends fabric.Path {
   constructor(shapeMeta, options) {
-    const vertexleft = shapeMeta[0].vertex[0].x - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.x));
-    const vertextop = shapeMeta[0].vertex[0].y - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.y));
+    const offsetx0 = shapeMeta[0].vertex[0].x 
+    const offsety0 = shapeMeta[0].vertex[0].y 
+    
+    const vertexleft = offsetx0 - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.x));
+    const vertextop = offsety0 - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.y));
 
     shapeMeta.forEach(p => {
       p.vertex.forEach((p) => {
-        p.x = p.x + options.left + vertexleft;
-        p.y = p.y + options.top + vertextop;
+        p.x = p.x + options.left - offsetx0 ;
+        p.y = p.y + options.top  - offsety0;
       });
     })
+
+    options.left = options.left - vertexleft
+    options.top = options.top - vertextop
+    
     const pathData = vertexToPath(shapeMeta);
     super(pathData, options);
     this.vertex = shapeMeta.map(p => p.vertex).flat(); // Store the shapeMeta.vertex points
@@ -327,44 +334,47 @@ class BaseGroup extends fabric.Group {
   }
 
   // Method to emit deltaX and deltaY to anchored groups
-  emitDelta(deltaX, deltaY, source = null) {
+  emitDelta(deltaX, deltaY, sourceList = []) {
+    sourceList.includes(this)?sourceList:sourceList.push(this)
     this.anchoredPolygon.forEach(anchoredGroup => {
-      if (anchoredGroup.borderType || this.borderType){
-        //pass
-      } else {
+      if (!sourceList.includes(anchoredGroup)){
+
 
         // check receive change object to avoid self reference in border resize
         if (anchoredGroup.lockXToPolygon.TargetObject == this){
-          anchoredGroup.receiveDelta(deltaX, 0);
+          anchoredGroup.receiveDelta(deltaX, 0,sourceList);
         } 
         if (anchoredGroup.lockYToPolygon.TargetObject == this)
         {
-          anchoredGroup.receiveDelta(0, deltaY);
+          anchoredGroup.receiveDelta(0, deltaY,sourceList);
         }
-      }
+      
+    }
     });
   }
 
   // Method to receive deltaX and deltaY and update position
-  receiveDelta(deltaX, deltaY) {
+  receiveDelta(deltaX, deltaY, sourceList) {
+    sourceList.includes(this)?sourceList:sourceList.push(this)
     this.set({
       left: this.left + deltaX,
       top: this.top + deltaY
     });
     this.setCoords();
-    this.updateAllCoord();
+    this.updateAllCoord(null, sourceList);
   }
 
   // Method to call for border resizing
-  borderResize() {
-    if (this.borderGroup) {
+  borderResize(sourceList = []) {
+    sourceList.includes(this)?sourceList:sourceList.push(this)
+    if (this.borderGroup && !sourceList.includes(this.borderGroup)) {
       const BG = this.borderGroup
       borderObject = FormBorderWrapComponent.BorderCreate(BG.heightObjects, BG.widthObjects,BG.xHeight, BG.borderType)
       BG.removeAll()
       BG.add(borderObject)
       BG.basePolygon = borderObject
       BG.setCoords()
-      BG.updateAllCoord()
+      BG.updateAllCoord(null, sourceList)
       BG.drawVertex()
     }
   }
@@ -415,7 +425,7 @@ class BaseGroup extends fabric.Group {
     
   }
   // Method to update coordinates and emit delta
-  updateAllCoord() {
+  updateAllCoord(event, sourceList = []) {
     const deltaX = this.basePolygon.getCoords()[0].x - this.refTopLeft.left;
     const deltaY = this.basePolygon.getCoords()[0].y - this.refTopLeft.top;
     this.updateCoord(true);
@@ -423,8 +433,9 @@ class BaseGroup extends fabric.Group {
     if (canvas.getActiveObject() === this) {
       this.drawAnchorLinkage();
     }
-    this.emitDelta(deltaX, deltaY, this);
-    this.borderResize();
+    sourceList.includes(this)?sourceList:sourceList.push(this)
+    this.emitDelta(deltaX, deltaY, sourceList);
+    this.borderResize(sourceList);
   }
 
   // Method to update coordinates
@@ -685,14 +696,14 @@ function drawBasePolygon(basePolygon, functionalType, calcVertex = true) {
 
 function drawLabeledArrow(shapeMeta, options) {
   const { x, y, length, angle, color } = options;
-  const vertexleft = shapeMeta[0].vertex[0].x - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.x));
-  const vertextop = shapeMeta[0].vertex[0].y - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.y));
+  const vertexleft =  Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.x));
+  const vertextop =  Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.y));
   // Create polygon with labeled vertices
   const arrow = drawBasePolygon(
     new GlyphPath(shapeMeta,
       {
-        left: x - vertexleft,
-        top: y - vertextop,
+        left: x ,
+        top: y ,
         fill: color || 'black',
         angle: angle || 0,
         // originX: 'center',

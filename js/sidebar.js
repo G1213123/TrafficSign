@@ -773,7 +773,7 @@ let FormDebugComponent = {
       // Clear the sidebar when no object is selected
       canvas.on('selection:cleared', FormDebugComponent.clearSelectionListener);
       if (canvas.getActiveObject()) {
-        FormDebugComponent.updateDebugInfo(canvas.getActiveObject());
+        FormDebugComponent.updateDebugInfo(canvas.getActiveObjects());
       }
     }
   },
@@ -798,10 +798,10 @@ let FormDebugComponent = {
     parent.appendChild(debugInfoPanel);
   },
 
-  updateDebugInfo: function (object) {
+  updateDebugInfo: function (objects) {
     const debugInfoPanel = document.getElementById('debug-info-panel');
     if (debugInfoPanel) {
-
+      objects.length?        object = objects[0]:object= objects
       debugInfoPanel.innerHTML = ''; // Clear previous info
       point = object.getEffectiveCoords()
       const properties = [
