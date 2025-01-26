@@ -651,13 +651,13 @@ class LockIcon {
     if (this.direction == 'x'){
       this.baseGroup.lockMovementX = false
       this.baseGroup.lockXToPolygon = {}
-      if (anchorY != anchorX){
+      if (anchorY != anchorX && anchorX){
         anchorX.anchoredPolygon = anchorX.anchoredPolygon.filter(item => item !== this.baseGroup)
       }
     } else {
       this.baseGroup.lockMovementY = false
       this.baseGroup.lockYToPolygon = {}
-      if (anchorX != anchorY){
+      if (anchorX != anchorY && anchorY){
         anchorY.anchoredPolygon = anchorY.anchoredPolygon.filter(item => item !== this.baseGroup)
       }
     }
