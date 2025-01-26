@@ -20,4 +20,4 @@ You can access the test site [here](https://g1213123.github.io/TrafficSign/).
 
 ## Contact
 
-For any questions or feedback, please contact us at [GitHub Repository] (https://github.com/G1213123/TrafficSign/tree/master).
+For any questions or feedback, please contact us at [GitHub Repository](https://github.com/G1213123/TrafficSign/tree/master).
