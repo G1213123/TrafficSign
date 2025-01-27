@@ -420,8 +420,8 @@ let FormDrawAddComponent = {
     let symbolObject = calcSymbol(symbol, xHeight / 4)
     symbolOffset = getInsertOffset(symbolObject)
     const arrowOptions1 = {
-      left: - symbolOffset.left,
-      top: - symbolOffset.top,
+      left: symbolOffset.left,
+      top: symbolOffset.top,
       fill: '#FFF',
       angle: 0,
       // originX: 'center',

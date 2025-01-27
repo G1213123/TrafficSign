@@ -176,8 +176,8 @@ function calcSymbol(type, length) {
 }
 
 function getInsertOffset(shapeMeta) {
-  const vertexleft = shapeMeta[0].vertex[0].x - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.x));
-  const vertextop = shapeMeta[0].vertex[0].y - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.y));
+  const vertexleft = Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.x));
+  const vertextop = Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.y));
   return { left: vertexleft, top: vertextop }
 }
 

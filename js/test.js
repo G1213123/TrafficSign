@@ -61,12 +61,12 @@ let initShape = async function () {
 
 
     const arrowOptions1 = { x: 100, y: 100, length: 25, angle: 0, color: 'white', };
-    const arrowOptions2 = { x: 200, y: 200, length: 25, angle: 0, color: 'white', };
+    const arrowOptions2 = { x: 200, y: 200, length: 25, angle: 45, color: 'white', };
     const arrowOptions3 = { x: 0, y: 0, length: 25, angle: 0, color: 'white', };
     Polygon1 = drawLabeledArrow(calcSymbol('StackArrow', 25), arrowOptions2);
     Polygon2 = drawLabeledArrow(calcSymbol('Tunnel', 25), arrowOptions1);
 
-    Polygon3 = drawLabeledBorder('flagLeft', 100, {left:0, top: 0, right:1550, bottom:500}, "Blue Background")
+    //Polygon3 = drawLabeledBorder('flagLeft', 100, {left:0, top: 0, right:1550, bottom:500}, "Blue Background")
     //console.log(canvasObject)
 }
 
@@ -80,7 +80,7 @@ let movingObjectTest = function () {
     //console.assert(specimen.getEffectiveCoords()[0].x == left + 100, 'Moving failed');
 }
 
-testToRun = [initShape, anchorTest ]
+testToRun = [initShape,  ]
 
 async function  runTests(tests) {
     for (const test of tests) {

@@ -84,8 +84,9 @@ function calculateTransformedPoints(points, options) {
 
     // Translate point back to the specified position
     return {
-      x: rotatedX + x,
-      y: rotatedY + y,
+      ...point,
+      x: rotatedX +x,
+      y: rotatedY+ y,
       label: point.label
     };
   });
@@ -94,8 +95,13 @@ function calculateTransformedPoints(points, options) {
 class GlyphPolygon extends fabric.Polygon {
   constructor(shapeMeta, options) {
     shapeMeta.vertex.forEach((p) => {
-      p.x = p.x + options.left;
-      p.y = p.y + options.top
+      transformed = calculateTransformedPoints(p, {
+        x: options.left,
+        y: options.top,
+        angle: options.angle
+      });
+      p.x = transformed.x
+      p.y = transformed.y
     });
     super(shapeMeta.vertex.map(p => ({ x: p.x, y: p.y })), options);
     this.shapeMeta.vertex = shapeMeta.vertex // Add a list inside the object
@@ -130,21 +136,22 @@ class GlyphPolygon extends fabric.Polygon {
 
 class GlyphPath extends fabric.Path {
   constructor(shapeMeta, options) {
-    const offsetx0 = shapeMeta[0].vertex[0].x 
-    const offsety0 = shapeMeta[0].vertex[0].y 
-    
-    const vertexleft = offsetx0 - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.x));
-    const vertextop = offsety0 - Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.y));
-
-    shapeMeta.forEach(p => {
-      p.vertex.forEach((p) => {
-        p.x = p.x + options.left - offsetx0 ;
-        p.y = p.y + options.top  - offsety0;
+    shapeMeta.map((p) => {
+      let transformed = calculateTransformedPoints(p.vertex, {
+        x: options.left,
+        y: options.top,
+        angle: options.angle
       });
-    })
+      p.vertex = transformed
+    });
+    
+    const vertexleft = Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.x));
+    const vertextop =  Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.y));
+    
+    options.left =  vertexleft
+    options.top =  vertextop
+    options.angle = 0
 
-    options.left = options.left - vertexleft
-    options.top = options.top - vertextop
     
     const pathData = vertexToPath(shapeMeta);
     super(pathData, options);
@@ -447,7 +454,7 @@ class BaseGroup extends fabric.Group {
     const transformedPoints = calculateTransformedPoints(polygon.vertex, {
       x: updateX,
       y: updateY,
-      angle: this.angle
+      angle: 0
     });
 
     // Update customList with new coordinates
