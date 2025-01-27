@@ -3,6 +3,7 @@ cursor.set({ id: 'cursor', "selectable": false })
 cursor.lockScalingX = true;
 cursor.lockScalingY = true;
 cursor.lockUniScaling = true;
+var cursorOffset = {x:0, y:0}
 tabNum = 2;
 
 canvas.add(cursor);
@@ -133,6 +134,7 @@ let FormTextAddComponent = {
     cursor.forEachObject(function (o) { cursor.remove(o) })
     cursor.txtChar = []
     cursor.text = ''
+    cursor.symbol = ''
     if (options) {
       var txt = options.text
       var xHeight = options.xHeight
@@ -338,19 +340,40 @@ let FormDrawAddComponent = {
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100, null, 'input')
+      GeneralHandler.createbutton(`button-RotateLeft`, 'Rotate Left', parent, null, FormDrawAddComponent.drawSymbol, 'click')
+      var label = GeneralHandler.createNode("div", { 'class': 'placeholder', }, parent)
+      GeneralHandler.createbutton(`button-RotateRight`, 'Rotate Right', parent, null, FormDrawAddComponent.drawSymbol, 'click')
+    
       //GeneralHandler.createbutton('button-approach-arm', 'Add Approach arm', parent, 0, FormDrawAddComponent.drawApproachClick, 'click')
       Object.keys(symbolsTemplate).forEach(symbol => {
         const button = FormDrawAddComponent.createButtonSVG(symbol, 10)
         GeneralHandler.createbutton(`button-${symbol}`, button, parent, 'symbol', FormDrawAddComponent.drawSymbol, 'click')
-      })
+       })
     }
+  },
+
+  setAngle: function (angle) {
+    // Handle the angle selection
+    console.log(`Selected angle: ${angle}`);
+    // You can add your logic here to apply the angle to the shape
   },
 
   DrawHandlerOff: function (event) {
     cursor.forEachObject(function (o) { cursor.remove(o) })
-    canvas.off('mouse:move', FormTextAddComponent.TextonMouseMove)
+    canvas.off('mouse:move', FormDrawAddComponent.DrawonMouseMove)
     canvas.off('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
     canvas.renderAll()
+  },
+
+  DrawonMouseMove: function (event) {
+    var pointer = canvas.getPointer(event.e);
+    var posx = pointer.x;
+    var posy = pointer.y;
+    cursor.set({
+      left: posx + cursorOffset.x,
+      top: posy + cursorOffset.y,
+    });
+    canvas.renderAll();
   },
 
   SymbolonMouseClick: function (event, options = null) {
@@ -366,14 +389,20 @@ let FormDrawAddComponent = {
       eventButton = event.e.button
     }
     if (eventButton === 0 && cursor._objects.length) {
-      cursor.clone().then(function (clonedObj) {
-        canvas.remove(clonedObj)
-        var symbolitem = clonedObj.removeAll()[0];
-        offset = getInsertOffset(calcSymbol(symbolitem.symbol, symbolitem.xHeight / 4))
-        coords = symbolitem.getCoords()
-        symbolitem.vertex = symbolitem.vertex.map(v => { return { x: v.x + offset.left + coords[0].x, y: v.y + offset.top + coords[0].y, label: v.label } })
-        SymbolGroup = drawBasePolygon(symbolitem, 'Symbol')
-      })
+      //cursor.clone().then(function (clonedObj) {
+      //  canvas.remove(clonedObj)
+      //  var symbolitem = clonedObj.removeAll()[0];
+      //  offset = getInsertOffset(calcSymbol(symbolitem.symbol, symbolitem.xHeight / 4))
+      //  coords = symbolitem.getCoords()
+      //  //symbolitem.vertex = symbolitem.vertex.map(v => { return { x: v.x + offset.left + coords[0].x, y: v.y + offset.top + coords[0].y, label: v.label } })
+      //  SymbolGroup = drawBasePolygon(symbolitem, 'Symbol')
+      //})
+      var pointer = canvas.getPointer(event.e);
+      var posx = pointer.x;
+      var posy = pointer.y;
+      var xHeight = parseInt(document.getElementById('input-xHeight').value)
+      const arrowOptions1 = { x: posx, y: posy, length: xHeight/4, angle: 0, color: 'white', };
+      drawLabeledArrow(calcSymbol(cursor.symbol, xHeight/4), arrowOptions1);
     }
   },
 
@@ -403,12 +432,13 @@ let FormDrawAddComponent = {
   },
   drawSymbol: (event, options = null) => {
     let symbol = event.currentTarget.id.replace('button-', '')
-    canvas.on('mouse:move', FormTextAddComponent.TextonMouseMove)
+    canvas.on('mouse:move', FormDrawAddComponent.DrawonMouseMove)
     canvas.on('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
 
     cursor.forEachObject(function (o) { cursor.remove(o) })
     cursor.txtChar = []
     cursor.text = ''
+
     if (options) {
       symbol = option.symbol
       var xHeight = options.xHeight
@@ -417,11 +447,15 @@ let FormDrawAddComponent = {
       var xHeight = parseInt(document.getElementById('input-xHeight').value)
     }
 
+    cursor.symbol = symbol
+
     let symbolObject = calcSymbol(symbol, xHeight / 4)
     symbolOffset = getInsertOffset(symbolObject)
+    cursorOffset.x = symbolOffset.left
+    cursorOffset.y = symbolOffset.top
     const arrowOptions1 = {
-      left: symbolOffset.left,
-      top: symbolOffset.top,
+      left: 0,
+      top: 0,
       fill: '#FFF',
       angle: 0,
       // originX: 'center',
