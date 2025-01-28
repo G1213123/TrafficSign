@@ -14,22 +14,39 @@ const BorderTypeScheme = {
     'flagLeft': FlagLeftBorderTemplate,
 }
 
-function StackBorderTemplate(xHeight, block, padding, border) {
-    const length = xHeight / 4
-    const borderType = {
+function StackBorderTemplate(xHeight, block, rounding) {
+    const padding = {
+        left: v.D + (block.height / length + v.E - v.D) / 2 / Math.tan(Math.PI / 3) + (v.A + v.B + v.C) / Math.cos(Math.PI / 6),
+        top: v.E,
+        right: v.E,
+        bottom: v.D,
+    }
+
+    const border = v.A
+    const returnBorder = [{
         'Stack': [{
             'vertex': [
-                { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', start: 1 },
-                { x: block.width + padding.right + border, y: 0 - padding.top - border, label: 'V2', start: 0 },
-                { x: block.width + padding.right + border, y: block.height + padding.bottom + border, label: 'V3', start: 0 },
-                { x: 0, y: block.height + padding.bottom + border, label: 'V4', start: 0 },
-            ]
-        }],
-
+                { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', radius:3, start: 1 },
+                { x: block.width + padding.right + border, y: 0 - padding.top - border, label: 'V2', radius:3, start: 0 },
+                { x: block.width + padding.right + border, y: block.height + padding.bottom + border, label: 'V3', radius:3, start: 0 },
+                { x: 0, y: block.height + padding.bottom + border, label: 'V4', radius:3, start: 0 },
+            ], 'arcs': [],
+            'fill': 'symbol'
+        },{
+            'vertex': [ // TPDM 3.5.5.10
+                { x: 0 - padding.left , y: 0 - padding.top , label: 'V1', radius:1.5, start: 1 },
+                { x: block.width + padding.right , y: 0 - padding.top , label: 'V2', radius:1.5, start: 0 },
+                { x: block.width + padding.right , y: block.height + padding.bottom , label: 'V3', radius:1.5, start: 0 },
+                { x: 0- padding.right, y: block.height + padding.bottom , label: 'V4', radius:1.5, start: 0 },
+            ], 'arcs': [],
+            'fill': 'background'
+        },],
+    }]
+    return returnBorder
     }
-}
 
-function FlagLeftBorderTemplate(xHeight, block) {
+
+function FlagLeftBorderTemplate(xHeight, block, rounding) {
     const length = xHeight / 4
     const variables = {
         '2Lines': {
@@ -56,13 +73,15 @@ function FlagLeftBorderTemplate(xHeight, block) {
     const v = block.height > 4.85 * xHeight ? variables['4Lines'] : variables['2Lines']
 
     const padding = {
-        left: v.D + (block.height / length + v.E - v.D) / 2 / Math.tan(Math.PI / 3) + (v.A + v.B + v.C) / Math.cos(Math.PI / 6),
-        top: v.E,
-        right: v.E,
+        left: v.D + (block.height / length + v.E + rounding.y- v.D) / 2 / Math.tan(Math.PI / 3) + (v.A + v.B + v.C) / Math.cos(Math.PI / 6),
+        top: v.E + rounding.y / 2,
+        right: v.E + rounding.y / 2,
         bottom: v.D,
     }
 
     const border = v.A
+
+    const panel = {top}
 
     const returnBorder = [{
         'vertex': [ // TPDM 3.5.5.10
@@ -74,7 +93,7 @@ function FlagLeftBorderTemplate(xHeight, block) {
     {
         'vertex': [ // TPDM 3.5.5.10
             // (H+E-D) / 2 / tan 60o + (A+B+C) / cos 30o - (H+E-D) / 2 * tan 30o
-            { x: 0 - padding.left + (block.height / length + v.E + v.D + v.A * 2) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top - border, radius: v.H, label: 'V1', start: 1 },
+            { x: 0 - padding.left + (block.height / length + v.E + rounding.y / 2 + v.D + v.A * 2) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top - border, radius: v.H, label: 'V1', start: 1 },
             { x: block.width / length + padding.right + border, y: 0 - padding.top - border, radius: v.H, label: 'V2', start: 0 },
             { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, radius: v.H, label: 'V3', start: 0 },
             { x: 0 - padding.left + (block.height / length + v.E + v.D + v.A * 2) / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom + border, radius: v.H, label: 'V4', start: 0 },
@@ -121,7 +140,8 @@ function FlagLeftBorderTemplate(xHeight, block) {
 function drawLabeledBorder(borderType, xHeight, bbox, color) {
 
     block = { width: bbox.right - bbox.left, height: bbox.bottom - bbox.top }
-    shapeMeta = BorderTypeScheme[borderType](xHeight, block)
+    rounding = {x:0, y:0}
+    shapeMeta = BorderTypeScheme[borderType](xHeight, block, rounding)
     baseGroup = []
     // Create polygon with labeled vertices
     shapeMeta.forEach(p => {
@@ -147,6 +167,51 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
                 })
         );
     })
+    borderWidth = 0
+    borderHeight = 0
+    baseGroup.forEach(b => {
+        borderWidth = Math.max(borderWidth, b.getBoundingRect().width)
+        borderHeight = Math.max(borderHeight, b.getBoundingRect().height)
+    })
+
+    if (borderWidth > 2000 || borderHeight > 2000) {
+      roundingX = (50.0 * Math.round(borderWidth / 50.0) - borderWidth) / 2
+      roundingY = (50.0 * Math.round(borderHeight / 50.0) - borderHeight) / 2
+    } else {
+      roundingX = (25.0 * Math.round(borderWidth / 25.0) - borderWidth) / 2
+      roundingY = (25.0 * Math.round(borderHeight / 25.0) - borderHeight) / 2
+      roundingX = roundingX < -2.5 ? roundingX = 25 / 2 + roundingX : roundingX
+      roundingY = roundingY < -2.5 ? roundingY = 25 / 2 + roundingY : roundingY
+    }
+
+    rounding = {x:roundingX, y:roundingY}
+    shapeMeta = BorderTypeScheme[borderType](xHeight, block, rounding)
+    baseGroup = []
+    // Create polygon with labeled vertices
+    shapeMeta.forEach(p => {
+        const vertexleft = - Math.min(...p.vertex.map(v => v.x));
+        const vertextop = - Math.min(...p.vertex.map(v => v.y));
+
+
+        p.vertex.forEach((p) => {
+            p.x = p.x + bbox.left;
+            p.y = p.y + bbox.top;
+        });
+
+        const pathData = vertexToPath([p]);
+        baseGroup.push(
+            new fabric.Path(pathData,
+                {
+                    left: bbox.left - vertexleft,
+                    top: bbox.top - vertextop,
+                    fill: BorderColorScheme[color][p['fill']],
+                    // originX: 'center',
+                    objectCaching: false,
+                    strokeWidth: 0,
+                })
+        );
+    })
+
     GroupedBorder = new fabric.Group(baseGroup)
     GroupedBorder.vertex = shapeMeta.map(p => p.vertex).flat()
     BaseBorder = drawBasePolygon(GroupedBorder, 'Border')
