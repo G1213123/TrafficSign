@@ -335,14 +335,17 @@ let FormTextAddComponent = {
 
 /* Draw Panel */
 let FormDrawAddComponent = {
+  symbolAngle: 0,
   drawPanelInit: function () {
     tabNum = 1
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100, null, 'input')
-      GeneralHandler.createbutton(`button-RotateLeft`, 'Rotate Left', parent, null, FormDrawAddComponent.drawSymbol, 'click')
-      var label = GeneralHandler.createNode("div", { 'class': 'placeholder', }, parent)
-      GeneralHandler.createbutton(`button-RotateRight`, 'Rotate Right', parent, null, FormDrawAddComponent.drawSymbol, 'click')
+      var angleContainer = GeneralHandler.createNode("div", { 'class': `angle-picker-container` }, parent)
+      GeneralHandler.createbutton(`button-RotateLeft`, 'Rotate Left', angleContainer, 'angle', FormDrawAddComponent.setAngle, 'click')
+      var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'id':'symbol-angle-display' }, angleContainer)
+      label.innerText = FormDrawAddComponent.symbolAngle
+      GeneralHandler.createbutton(`button-RotateRight`, 'Rotate Right', angleContainer, 'angle', FormDrawAddComponent.setAngle, 'click')
     
       //GeneralHandler.createbutton('button-approach-arm', 'Add Approach arm', parent, 0, FormDrawAddComponent.drawApproachClick, 'click')
       Object.keys(symbolsTemplate).forEach(symbol => {
@@ -352,9 +355,19 @@ let FormDrawAddComponent = {
     }
   },
 
-  setAngle: function (angle) {
+  setAngle: function (event) {
+    if (event.target.id.search('Left') > -1){
+      FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle - 45
+    } else {
+      FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle + 45
+    }
+    FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle > 90? -90:FormDrawAddComponent.symbolAngle
+    FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle < -90? +90:FormDrawAddComponent.symbolAngle
     // Handle the angle selection
-    console.log(`Selected angle: ${angle}`);
+    document.getElementById('symbol-angle-display').innerText = FormDrawAddComponent.symbolAngle
+    if (cursor._objects.length){
+      FormDrawAddComponent.drawSymbol(null,{symbol:cursor.symbol, xHeight:cursor.xHeight})
+    }
     // You can add your logic here to apply the angle to the shape
   },
 
@@ -382,11 +395,12 @@ let FormDrawAddComponent = {
       cursor.set(
         { left: options.left, top: options.top }
       )
-
+      var pointer = { x: options.left, y: options.top }
       textValue = 'Go'
       eventButton = 0
     } else {
       eventButton = event.e.button
+      var pointer = canvas.getPointer(event.e);
     }
     if (eventButton === 0 && cursor._objects.length) {
       //cursor.clone().then(function (clonedObj) {
@@ -397,11 +411,11 @@ let FormDrawAddComponent = {
       //  //symbolitem.vertex = symbolitem.vertex.map(v => { return { x: v.x + offset.left + coords[0].x, y: v.y + offset.top + coords[0].y, label: v.label } })
       //  SymbolGroup = drawBasePolygon(symbolitem, 'Symbol')
       //})
-      var pointer = canvas.getPointer(event.e);
+
       var posx = pointer.x;
       var posy = pointer.y;
       var xHeight = parseInt(document.getElementById('input-xHeight').value)
-      const arrowOptions1 = { x: posx, y: posy, length: xHeight/4, angle: 0, color: 'white', };
+      const arrowOptions1 = { x: posx, y: posy, length: xHeight/4, angle: FormDrawAddComponent.symbolAngle, color: 'white', };
       drawLabeledArrow(calcSymbol(cursor.symbol, xHeight/4), arrowOptions1);
     }
   },
@@ -431,7 +445,7 @@ let FormDrawAddComponent = {
     return svg;
   },
   drawSymbol: (event, options = null) => {
-    let symbol = event.currentTarget.id.replace('button-', '')
+    canvas.off('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
     canvas.on('mouse:move', FormDrawAddComponent.DrawonMouseMove)
     canvas.on('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
 
@@ -440,24 +454,23 @@ let FormDrawAddComponent = {
     cursor.text = ''
 
     if (options) {
-      symbol = option.symbol
+      symbol = options.symbol
       var xHeight = options.xHeight
     }
     else {
+      symbol = event.currentTarget.id.replace('button-', '')
       var xHeight = parseInt(document.getElementById('input-xHeight').value)
     }
 
     cursor.symbol = symbol
 
     let symbolObject = calcSymbol(symbol, xHeight / 4)
-    symbolOffset = getInsertOffset(symbolObject)
-    cursorOffset.x = symbolOffset.left
-    cursorOffset.y = symbolOffset.top
+
     const arrowOptions1 = {
       left: 0,
       top: 0,
       fill: '#FFF',
-      angle: 0,
+      angle: FormDrawAddComponent.symbolAngle,
       // originX: 'center',
       objectCaching: false,
       strokeWidth: 0
@@ -465,6 +478,10 @@ let FormDrawAddComponent = {
       Polygon1 = new GlyphPath(symbolObject, arrowOptions1);
     Polygon1.symbol = symbol
     Polygon1.xHeight = xHeight
+
+    symbolOffset = getInsertOffset(symbolObject)
+    cursorOffset.x = symbolOffset.left
+    cursorOffset.y = symbolOffset.top
 
     cursor.add(Polygon1)
     Polygon1.setCoords();

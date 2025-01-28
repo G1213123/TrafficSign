@@ -175,7 +175,16 @@ function calcSymbol(type, length) {
   return symbols[type];
 }
 
-function getInsertOffset(shapeMeta) {
+function getInsertOffset(shapeMeta, angle = 0) {
+  shapeMeta.map((p) => {
+    let transformed = calculateTransformedPoints(p.vertex, {
+      x:0,
+      y:0,
+      angle: angle
+    });
+    p.vertex = transformed
+  });
+
   const vertexleft = Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.x));
   const vertextop = Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.y));
   return { left: vertexleft, top: vertextop }

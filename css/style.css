@@ -186,6 +186,32 @@ div.side-panel.close {
   align-items: center;
 }
 
+.angle-picker-container{
+  width: 100%;
+  /* Span 100% of the input form */
+  padding: 0px 10px;
+  margin-top: 0px;
+  /* Ensure the container is always 20px down from the top */
+  box-sizing: border-box;
+  /* Include padding in the element's total width and height */
+  display: flex;
+  /* Arrange children vertically */
+  align-items: flex-start;
+  /* Align children to the top */
+  justify-content: space-around;
+  align-items: center;
+}
+
+
+.angle-container {
+  width: 20%;
+  /* Span 50% of the input form */
+  padding: 0px 0px;
+  box-sizing: border-box;
+  /* Include padding in the element's total width and height */
+  display: flex;
+
+}
 
 .input {
   background-color: #404042;
@@ -283,6 +309,34 @@ div.side-panel.close {
   color: white;
   transition-duration: 0.4s;
   padding: 16px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 10px;
+  max-width: 100%;
+  /* Ensure the button takes a maximum of half of its parent width */
+}
+
+.angle-button:hover {
+  background-color: white;
+  color: black;
+  border: 2px solid #555555;
+}
+
+.angle-button.active {
+  background-color: white;
+  color: black;
+  border: 2px solid #555555;
+}
+
+.angle-button {
+  background-color: #555555;
+  color: white;
+  transition-duration: 0.4s;
+  padding: 4px 8px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
