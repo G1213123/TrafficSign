@@ -96,27 +96,27 @@ function FlagLeftBorderTemplate(xHeight, block, rounding) {
             { x: 0 - padding.left + (block.height / length + v.E + rounding.y / 2 + v.D + v.A * 2) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top - border, radius: v.H, label: 'V1', start: 1 },
             { x: block.width / length + padding.right + border, y: 0 - padding.top - border, radius: v.H, label: 'V2', start: 0 },
             { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, radius: v.H, label: 'V3', start: 0 },
-            { x: 0 - padding.left + (block.height / length + v.E + v.D + v.A * 2) / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom + border, radius: v.H, label: 'V4', start: 0 },
-            { x: 0 - padding.left, y: 0 - v.E - v.A + (block.height / length + v.E + v.D + v.A * 2) / 2, radius: v.F, label: 'V5', start: 0 }
+            { x: 0 - padding.left + (block.height / length + v.E + rounding.y / 2 + v.D + v.A * 2) / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom + border, radius: v.H, label: 'V4', start: 0 },
+            { x: 0 - padding.left, y: 0 - v.E - rounding.y / 2 - v.A + (block.height / length + v.E + rounding.y / 2 + v.D + v.A * 2) / 2, radius: v.F, label: 'V5', start: 0 }
         ], 'arcs': [],
         'fill': 'symbol'
     }, {
         'vertex': [ // inner
-            { x: 0 - padding.left + v.A + (block.height / length + v.E + v.D) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top, radius: v.G, label: 'V6', start: 1 },
+            { x: 0 - padding.left + v.A + (block.height / length + v.E + rounding.y / 2 + v.D) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top, radius: v.G, label: 'V6', start: 1 },
             { x: block.width / length + padding.right, y: 0 - padding.top, radius: v.G, label: 'V7', start: 0 },
             { x: block.width / length + padding.right, y: block.height / length + padding.bottom, radius: v.G, label: 'V8', start: 0 },
-            { x: 0 - padding.left + v.A + (block.height / length + v.E + v.D) / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom, radius: v.G, label: 'V9', start: 0 },
-            { x: 0 - padding.left + v.A, y: 0 - v.E - v.A + (block.height / length + v.E + v.D + v.A * 2) / 2, label: 'V10', start: 0 }
+            { x: 0 - padding.left + v.A + (block.height / length + v.E + rounding.y / 2 + v.D) / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom, radius: v.G, label: 'V9', start: 0 },
+            { x: 0 - padding.left + v.A, y: 0 - v.E - rounding.y / 2 - v.A + (block.height / length + v.E + rounding.y / 2 + v.D + v.A * 2) / 2, label: 'V10', start: 0 }
         ], 'arcs': [],
         'fill': 'background'
     }, {
         'vertex': [ // arrow
-            { x: 0 - v.D - v.C / Math.cos(Math.PI / 6), y: 0 - v.E + v.D, label: 'V11', start: 1 },
-            { x: 0 - v.D, y: 0 - v.E + v.D, label: 'V12', start: 0 },
-            { x: -padding.left + v.A + (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - v.A + (block.height / length + v.E + v.D + v.A * 2) / 2, label: 'V13', start: 0 },
+            { x: 0 - v.D - v.C / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y / 2+ v.D, label: 'V11', start: 1 },
+            { x: 0 - v.D, y: 0 - v.E - rounding.y / 2 + v.D, label: 'V12', start: 0 },
+            { x: -padding.left + v.A + (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y / 2 - v.A + (block.height / length + v.E + rounding.y / 2 + v.D + v.A * 2) / 2, label: 'V13', start: 0 },
             { x: 0 - v.D, y: 0 + block.height / length, label: 'V14', start: 0 },
             { x: 0 - v.D - v.C / Math.cos(Math.PI / 6), y: 0 + block.height / length, label: 'V15', start: 0 },
-            { x: -padding.left + v.A + v.B / Math.cos(Math.PI / 6), y: 0 - v.E - v.A + (block.height / length + v.E + v.D + v.A * 2) / 2, label: 'V16', start: 0 },
+            { x: -padding.left + v.A + v.B / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y / 2 - v.A + (block.height / length + v.E + rounding.y / 2 + v.D + v.A * 2) / 2, label: 'V16', start: 0 },
         ], 'arcs': [],
         'fill': 'symbol'
     },
