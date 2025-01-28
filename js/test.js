@@ -66,7 +66,7 @@ let initShape = async function () {
     Polygon1 = drawLabeledArrow(calcSymbol('StackArrow', 25), arrowOptions2);
     Polygon2 = drawLabeledArrow(calcSymbol('Tunnel', 25), arrowOptions1);
 
-    Polygon3 = drawLabeledBorder('flagLeft', 100, {left:0, top: 0, right:1550, bottom:500}, "Blue Background")
+    Polygon3 = drawLabeledBorder('stack', 100, {left:0, top: 0, right:1550, bottom:500}, "Blue Background")
     //console.log(canvasObject)
 }
 

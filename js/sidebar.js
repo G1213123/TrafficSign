@@ -187,7 +187,7 @@ let FormTextAddComponent = {
         charWidth = 2.25 * xHeight / 100
         txt_char = new fabric.Text(txt.charAt(i), {
           fontFamily: 'Noto Sans Hong Kong',
-          fontWeight: 700,
+          fontWeight: 400,
           left: left_pos + 0.25 * xHeight,
           top: 0.1 * xHeight,
           fill: '#fff',
@@ -639,17 +639,15 @@ let FormBorderWrapComponent = {
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100)
-      GeneralHandler.createselect('input-type', 'Select Border Type', Object.keys(FormBorderWrapComponent.BorderType), parent, '', '', 'select')
+      GeneralHandler.createselect('input-type', 'Select Border Type', Object.keys(BorderTypeScheme), parent, '', '', 'select')
+      GeneralHandler.createselect('input-color', 'Select Color Scheme', Object.keys(BorderColorScheme), parent, '', '', 'select')
       GeneralHandler.createbutton('input-text', 'Select Objects for border', parent, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
     }
   },
   BorderCreateHandler: async function () {
-    xHeight = parseInt(document.getElementById("input-xHeight").value)
-    borderType = FormBorderWrapComponent.BorderType[document.getElementById("input-type").value]
-
     selectObjectHandler('Select shape to calculate border width', function (widthObjects) {
       selectObjectHandler('Select shape to calculate border height', function (heightObjects) {
-        FormBorderWrapComponent.BorderGroupCreate(heightObjects, widthObjects, xHeight, borderType)
+        FormBorderWrapComponent.BorderGroupCreate(heightObjects, widthObjects)
       })
     })
   },
@@ -783,14 +781,22 @@ let FormBorderWrapComponent = {
     }
   },
 
-  BorderGroupCreate: function (heightObjects, widthObjects, xHeight, borderType) {
-    borderObject = FormBorderWrapComponent.BorderCreate(heightObjects, widthObjects, xHeight, borderType)
-    borderGroup = drawBasePolygon(borderObject, 'Border')
+  BorderGroupCreate: function (heightObjects, widthObjects) {
+    xHeight = parseInt(document.getElementById("input-xHeight").value)
+    borderType = document.getElementById("input-type").value
+    colorType = document.getElementById("input-color").value
+    // Get the bounding box of the active selection 
+    const coordsWidth = FormBorderWrapComponent.getBoundingBox(widthObjects)
+    const coordsHeight = FormBorderWrapComponent.getBoundingBox(heightObjects)
+    const coords = { left: coordsWidth.left, top: coordsHeight.top, right: coordsWidth.right, bottom: coordsHeight.bottom }
+    //borderObject = FormBorderWrapComponent.BorderCreate(heightObjects, widthObjects, xHeight, borderType)
+    BaseBorder = drawLabeledBorder(borderType, xHeight, coords , colorType)
+    borderGroup = drawBasePolygon(BaseBorder, 'Border')
     borderGroup.widthObjects = [...widthObjects]
     borderGroup.heightObjects = [...heightObjects]
     borderGroup.borderType = borderType
     borderGroup.xHeight = xHeight
-    borderGroup.BorderResize = FormBorderWrapComponent.BorderResize
+    borderGroup.color = colorType
 
     borderGroup.lockMovementX = true
     borderGroup.lockMovementY = true

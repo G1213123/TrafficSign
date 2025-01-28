@@ -375,7 +375,10 @@ class BaseGroup extends fabric.Group {
     sourceList.includes(this) ? sourceList : sourceList.push(this)
     if (this.borderGroup && !sourceList.includes(this.borderGroup)) {
       const BG = this.borderGroup
-      borderObject = FormBorderWrapComponent.BorderCreate(BG.heightObjects, BG.widthObjects, BG.xHeight, BG.borderType)
+      const coordsWidth = FormBorderWrapComponent.getBoundingBox(BG.widthObjects)
+      const coordsHeight = FormBorderWrapComponent.getBoundingBox(BG.heightObjects)
+      const coords = { left: coordsWidth.left, top: coordsHeight.top, right: coordsWidth.right, bottom: coordsHeight.bottom }
+      const borderObject = drawLabeledBorder(BG.borderType, BG.xHeight, coords, BG.color)
       BG.removeAll()
       BG.add(borderObject)
       BG.basePolygon = borderObject
@@ -514,7 +517,7 @@ class BaseGroup extends fabric.Group {
       if (transform.target.borderGroup.heightObjects) {
         const index = transform.target.borderGroup.heightObjects.indexOf(transform.target);
         transform.target.borderGroup.heightObjects.splice(index, 1);
-        
+
       }
       transform.target.borderResize()
     }
