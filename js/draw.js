@@ -176,6 +176,8 @@ class BaseGroup extends fabric.Group {
     this.subObjects = [];
     this.lockXToPolygon = {};
     this.lockYToPolygon = {};
+    this.isUpdating = false; // Flag to track if the object is updating
+    this.activeCalls = 0; // Counter to track active calls
 
     this.basePolygon.insertPoint = this.basePolygon.vertex[0];
     canvas.remove(this.basePolygon);
@@ -211,7 +213,6 @@ class BaseGroup extends fabric.Group {
 
       this.drawAnchorLinkage()
       CanvasObjectInspector.SetActiveObjectList(this)
-      //canvas.bringObjectToFront(this)
     });
 
     this.on('deselected', () => {
@@ -342,32 +343,47 @@ class BaseGroup extends fabric.Group {
 
   // Method to emit deltaX and deltaY to anchored groups
   emitDelta(deltaX, deltaY, sourceList = []) {
-    sourceList.includes(this) ? sourceList : sourceList.push(this)
+    this.activeCalls++; // Increment the active calls counter
+
     this.anchoredPolygon.forEach(anchoredGroup => {
       if (!sourceList.includes(anchoredGroup)) {
 
 
         // check receive change object to avoid self reference in border resize
         if (anchoredGroup.lockXToPolygon.TargetObject == this) {
-          anchoredGroup.receiveDelta(deltaX, 0, sourceList);
+          anchoredGroup.receiveDelta(deltaX, 0, sourceList, this.isInitialCall);
         }
         if (anchoredGroup.lockYToPolygon.TargetObject == this) {
-          anchoredGroup.receiveDelta(0, deltaY, sourceList);
+          anchoredGroup.receiveDelta(0, deltaY, sourceList, this.isInitialCall);
         }
 
       }
     });
+    this.activeCalls--; // Decrement the active calls counter
+
+    // If all nodes are exhausted, call another function
+    if (this.canvasID == sourceList[0].canvasID) {
+      this.allNodesProcessed();
+      this.isInitialCall = false; // Reset the flag
+    }
+
   }
 
   // Method to receive deltaX and deltaY and update position
   receiveDelta(deltaX, deltaY, sourceList) {
-    sourceList.includes(this) ? sourceList : sourceList.push(this)
+    //sourceList.includes(this) ? sourceList : sourceList.push(this)
     this.set({
       left: this.left + deltaX,
       top: this.top + deltaY
     });
     this.setCoords();
     this.updateAllCoord(null, sourceList);
+  }
+
+  // Method to call when all nodes are processed
+  allNodesProcessed() {
+    console.log('All nodes processed');
+    // Call another function here
   }
 
   // Method to call for border resizing
@@ -443,7 +459,7 @@ class BaseGroup extends fabric.Group {
       this.drawAnchorLinkage();
     }
     sourceList.includes(this) ? sourceList : sourceList.push(this)
-    this.emitDelta(deltaX, deltaY, sourceList);
+    this.emitDelta(deltaX, deltaY, sourceList, );
     this.borderResize(sourceList);
   }
 
@@ -492,6 +508,9 @@ class BaseGroup extends fabric.Group {
     const index = canvasObject.indexOf(transform.target)
     if (index > -1) {
       canvasObject.splice(index, 1);
+      for (let i = index; i < canvasObject.length; i++) {
+        canvasObject[i].canvasID -= 1;
+      }
     }
 
     // Free anchored Polygon
@@ -712,6 +731,7 @@ function drawBasePolygon(basePolygon, functionalType, calcVertex = true) {
   });
   canvas.add(baseGroup);
   canvasObject.push(baseGroup);
+  baseGroup.canvasID = canvasObject.length
   CanvasObjectInspector.createObjectListPanelInit()
   //canvas.setActiveObject(baseGroup);
   return baseGroup;
@@ -779,7 +799,7 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
       left: Polygon1.left + targetPoint.x - movingPoint.x + spacingX,
       lockMovementX: true,
     });
-    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, TargetObject: Polygon2 }
+    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, SourceObject: Polygon1, TargetObject: Polygon2 }
     Polygon1.lockXToPolygon = anchor
   }
 
@@ -789,7 +809,7 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
       top: Polygon1.top + targetPoint.y - movingPoint.y + spacingY,
       lockMovementY: true,
     });
-    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, TargetObject: Polygon2 }
+    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, SourceObject: Polygon1, TargetObject: Polygon2 }
     Polygon1.lockYToPolygon = anchor
   }
   Polygon1.setCoords()

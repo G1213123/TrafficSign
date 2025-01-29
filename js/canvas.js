@@ -99,7 +99,51 @@ canvas.on('mouse:wheel', function (opt) {
   DrawGrid()
 })
 
+// Method to handle arrow key presses for all active objects
+function handleArrowKeys(event) {
+  const activeObjects = canvas.getActiveObjects();
+  let moved = false;
 
+  activeObjects.forEach(obj => {
+    switch (event.key) {
+      case 'ArrowUp':
+        if (!obj.lockMovementY) {
+          obj.top -= 1;
+          moved = true;
+        }
+        break;
+      case 'ArrowDown':
+        if (!obj.lockMovementY) {
+          obj.top += 1;
+          moved = true;
+        }
+        break;
+      case 'ArrowLeft':
+        if (!obj.lockMovementX) {
+          obj.left -= 1;
+          moved = true;
+        }
+        break;
+      case 'ArrowRight':
+        if (!obj.lockMovementX) {
+          obj.left += 1;
+          moved = true;
+        }
+        break;
+    }
+    if (moved) {
+      obj.updateAllCoord();
+      obj.updateAllCoord();
+    }
+  });
+
+  if (moved) {
+    canvas.renderAll();
+  }
+}
+
+// Add event listener for arrow keys to the canvas
+document.addEventListener('keydown', handleArrowKeys);
 // Add event listener for object:moving event on the canvas 
 //canvas.on('object:moving', handleGroupMoving);
 
