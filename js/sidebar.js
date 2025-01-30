@@ -475,7 +475,7 @@ let FormDrawAddComponent = {
       objectCaching: false,
       strokeWidth: 0
     },
-      Polygon1 = new GlyphPath(symbolObject, arrowOptions1);
+    Polygon1 = new GlyphPath(symbolObject, arrowOptions1);
     Polygon1.symbol = symbol
     Polygon1.xHeight = xHeight
 

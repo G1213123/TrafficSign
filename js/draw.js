@@ -3,7 +3,7 @@ let canvasObjectNumbering = 0
 let cursorClickMode = 'normal'
 const deleteIcon =
   "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
-
+let activeVertex = null
 
 // additional property for fabric object
 const originalToObject = fabric.Object.prototype.toObject;
@@ -300,39 +300,9 @@ class BaseGroup extends fabric.Group {
 
     // Draw the vertices and labels
     if (this.basePolygon.vertex) {
-      this.basePolygon.vertex.forEach(v => {
-        // Draw a halftone circle
-        const circle = new fabric.Circle({
-          left: v.x,
-          top: v.y,
-          radius: 10,
-          strokeWidth: 1,
-          stroke: v.label.includes('E') ? 'red' : 'violet', // Changed fill color for better contrast
-          fill: 'rgba(255, 255, 255, 0.2)',
-          selectable: false,
-          originX: 'center',
-          originY: 'center',
-          opacity: 0,
-          functionalType: 'vertexCircle',
-        });
-        this.subObjects.push(circle);
-
-        // Add a text label
-        const text = new fabric.Text(v.label, {
-          left: v.x,
-          top: v.label.includes('E') ? v.y - 30 : v.y + 30,
-          fontSize: 20,
-          fill: v.label.includes('E') ? 'red' : 'violet', // Changed fill color for better contrast
-          selectable: false,
-          originX: 'center',
-          originY: 'center',
-          opacity: 0,
-          functionalType: 'vertexText',
-          fontFamily: 'Arial, sans-serif', // Modern font family
-          //stroke: '#000', // Black stroke for better contrast
-          //strokeWidth: 1,
-        });
-        this.subObjects.push(text);
+      this.basePolygon.vertex.filter(v => v.label.includes('E')).forEach(v => {
+        const vControl = new vertexControl(v, this)
+        this.subObjects.push(...vControl.objects);
       });
     }
     this.subObjects.forEach(obj => {
@@ -403,6 +373,10 @@ class BaseGroup extends fabric.Group {
 
   getBasePolygonVertex(label) {
     return this.basePolygon.vertex.find(v => v.label === label.toUpperCase());
+  }
+
+  setanchor() {
+
   }
 
   drawAnchorLinkage() {
@@ -500,9 +474,10 @@ class BaseGroup extends fabric.Group {
 
   // Method to delete the object
   deleteObject(_eventData, transform) {
-    canvas.remove(transform.target);
+    const deleteObj = transform.target ? transform.target : transform
+    canvas.remove(deleteObj);
 
-    const index = canvasObject.indexOf(transform.target)
+    const index = canvasObject.indexOf(deleteObj)
     if (index > -1) {
       canvasObject.splice(index, 1);
       for (let i = index; i < canvasObject.length; i++) {
@@ -511,13 +486,13 @@ class BaseGroup extends fabric.Group {
     }
 
     // Free anchored Polygon
-    if (transform.target.anchoredPolygon) {
-      transform.target.anchoredPolygon.forEach(anchoredGroup => {
+    if (deleteObj.anchoredPolygon) {
+      deleteObj.anchoredPolygon.forEach(anchoredGroup => {
         anchoredGroup.set({ lockMovementX: false, lockMovementY: false });
-        if (anchoredGroup.lockXToPolygon.TargetObject == transform.target) {
+        if (anchoredGroup.lockXToPolygon.TargetObject == deleteObj) {
           anchoredGroup.lockXToPolygon = {}
         }
-        if (anchoredGroup.lockYToPolygon.TargetObject == transform.target) {
+        if (anchoredGroup.lockYToPolygon.TargetObject == deleteObj) {
           anchoredGroup.lockYToPolygon = {}
         }
         anchoredGroup.drawAnchorLinkage()
@@ -525,25 +500,25 @@ class BaseGroup extends fabric.Group {
     }
 
     // Free border
-    if (transform.target.borderGroup) {
-      if (transform.target.borderGroup.widthObjects) {
-        const index = transform.target.borderGroup.widthObjects.indexOf(transform.target);
-        transform.target.borderGroup.widthObjects.splice(index, 1);
+    if (deleteObj.borderGroup) {
+      if (deleteObj.borderGroup.widthObjects) {
+        const index = deleteObj.borderGroup.widthObjects.indexOf(deleteObj);
+        deleteObj.borderGroup.widthObjects.splice(index, 1);
       }
-      if (transform.target.borderGroup.heightObjects) {
-        const index = transform.target.borderGroup.heightObjects.indexOf(transform.target);
-        transform.target.borderGroup.heightObjects.splice(index, 1);
+      if (deleteObj.borderGroup.heightObjects) {
+        const index = deleteObj.borderGroup.heightObjects.indexOf(deleteObj);
+        deleteObj.borderGroup.heightObjects.splice(index, 1);
 
       }
-      transform.target.borderResize()
+      deleteObj.borderResize()
     }
 
     // If this is a borderGroup
-    if (transform.target.widthObjects) {
-      transform.target.widthObjects.forEach(obj => obj.borderGroup = null)
+    if (deleteObj.widthObjects) {
+      deleteObj.widthObjects.forEach(obj => obj.borderGroup = null)
     }
-    if (transform.target.heightObjects) {
-      transform.target.heightObjects.forEach(obj => obj.borderGroup = null)
+    if (deleteObj.heightObjects) {
+      deleteObj.heightObjects.forEach(obj => obj.borderGroup = null)
     }
     CanvasObjectInspector.createObjectListPanelInit()
     canvas.requestRenderAll();
@@ -720,6 +695,124 @@ class LockIcon {
   }
 }
 
+class vertexControl {
+  constructor(vertex, baseGroup) {
+    // Draw a halftone circle
+    this.circle = new fabric.Circle({
+      left: vertex.x,
+      top: vertex.y,
+      radius: 10,
+      strokeWidth: 1,
+      stroke: vertex.label.includes('E') ? 'red' : 'violet', // Changed fill color for better contrast
+      fill: 'rgba(255, 255, 255, 0.2)',
+      selectable: false,
+      originX: 'center',
+      originY: 'center',
+      opacity: 0,
+      functionalType: 'vertexCircle',
+    });
+
+    // Add a text label
+    this.text = new fabric.Text(vertex.label, {
+      left: vertex.x,
+      top: vertex.label.includes('E') ? vertex.y - 30 : vertex.y + 30,
+      fontSize: 20,
+      fill: vertex.label.includes('E') ? 'red' : 'violet', // Changed fill color for better contrast
+      selectable: false,
+      originX: 'center',
+      originY: 'center',
+      opacity: 0,
+      functionalType: 'vertexText',
+      fontFamily: 'Arial, sans-serif', // Modern font family
+      //stroke: '#000', // Black stroke for better contrast
+      //strokeWidth: 1,
+    });
+
+    this.vertex = vertex
+    this.baseGroup = baseGroup
+    this.objects = [this.circle, this.text]
+
+    // Add hover and click event listeners
+    this.circle.on('mouseover', this.onHover.bind(this));
+    this.circle.on('mouseout', this.onMouseOut.bind(this));
+    this.circle.on('mousedown', this.onClick.bind(this));
+  }
+
+  onHover() {
+    this.circle.set({ fill: 'brown', opacity: 1 });
+    this.circle.set('hoverCursor', 'pointer')
+    this.text.set({ fill: 'brown', opacity: 1 });
+    canvas.renderAll();
+  };
+
+  onMouseOut() {
+    this.circle.set({
+      fill: 'rgba(255, 255, 255, 0.2)',
+    });
+    this.text.set({ fill: this.vertex.label.includes('E') ? 'red' : 'violet' })
+    this.text.set('hoverCursor', 'default')
+    canvas.renderAll();
+  };
+
+  onClick(event) {
+    const vertexX = this.vertex.x
+    const vertexY = this.vertex.y
+    if (!activeVertex) {
+      activeVertex = this
+      this.isDown = true;
+      var pointer = canvas.getPointer(event.e);
+      var points = [vertexX, vertexY, pointer.x, pointer.y];
+      this.line = new fabric.Line(points, {
+        stroke: 'yellow',
+        strokeWidth: 4,
+        hasControls: false,
+        hasBorders: false,
+        lockMovementX: false,
+        lockMovementY: false,
+        hoverCursor: 'default',
+        selectable: false
+      });
+      canvas.add(this.line);
+
+      document.removeEventListener('keydown', ShowHideSideBarEvent);
+      document.addEventListener('keydown', this.cancelLink.bind(this))
+      canvas.on('mouse:move', this.handleMouseMove);
+      canvas.renderAll();
+    } else {
+      anchorShape( this.baseGroup, activeVertex.baseGroup, {vertexIndex1:activeVertex.vertex.label, vertexIndex2:this.vertex.label})
+      activeVertex.deleteLink()
+      activeVertex = null
+    }
+  }
+
+  handleMouseMove = (event) => {
+    if (!this.isDown) return;
+    var pointer = canvas.getPointer(event.e);
+    this.line.set({
+      x2: pointer.x,
+      y2: pointer.y
+    });
+    canvas.requestRenderAll();
+  };
+
+  cancelLink(event) {
+    if (event.key === 'Escape') {
+      this.deleteLink()
+    }
+  }
+
+  deleteLink() {
+    canvas.remove(this.line)
+    canvas.off('mouse:move', this.handleMouseMove);
+    this.isDown = false
+    //canvas.off('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
+    canvas.requestRenderAll()
+    setTimeout(() => {
+      document.addEventListener('keydown', ShowHideSideBarEvent);
+    }, 1000); // Delay in milliseconds (e.g., 1000ms = 1 second)
+  }
+}
+
 // Function to draw base polygon
 function drawBasePolygon(basePolygon, functionalType, calcVertex = true) {
   let baseGroup = new fabric.BaseGroup(basePolygon, functionalType, {
@@ -762,32 +855,24 @@ document.getElementById('set-anchor').addEventListener('click', function () {
     // Implement vertex selection logic here
     const shape1 = selectedArrow
     selectedArrow = null
+    document.removeEventListener('keydown', ShowHideSideBarEvent);
     selectObjectHandler('Select shape to anchor to', anchorShape, shape1)
   }
 });
 
-async function anchorShape(shape1, shape2, options = null) {
-  if (Array.isArray(shape1)) {
-    shape1 = shape1[0]
-  }
-  if (Array.isArray(shape2)) {
-    shape2 = shape2[0]
-  }
+async function anchorShape(inputShape1, inputShape2, options = {}) {
 
-  // For simplicity, we'll use prompt for input
-  if (options) {
-    vertexIndex1 = options.vertexIndex1
-    vertexIndex2 = options.vertexIndex2
-    spacingX = options.spacingX
-    spacingY = options.spacingY
-  } else {
-    vertexIndex1 = await showTextBox('Enter vertex index for Polygon 1:', 'E1')
-    if (vertexIndex1 === null) return;
-    vertexIndex2 = await showTextBox('Enter vertex index for Polygon 2:', 'E1')
-    if (vertexIndex2 === null) return;
-    spacingX = await showTextBox('Enter spacing in X (Leave empty if no need for axis):', 100)
-    spacingY = await showTextBox('Enter spacing in Y (Leave empty if no need for axis):', 100)
-  }
+  const shape1 = Array.isArray(inputShape1) ? inputShape1[0] : inputShape1
+  const shape2 = Array.isArray(inputShape2) ? inputShape2[0] : inputShape2
+
+  const vertexIndex1 = options.vertexIndex1 ? options.vertexIndex1 : await showTextBox('Enter vertex index for First Polygon:', 'E1')
+  if (!vertexIndex1) { setInterval(document.addEventListener('keydown', ShowHideSideBarEvent), 1000); return }
+  const vertexIndex2 = options.vertexIndex2 ? options.vertexIndex2 : await showTextBox('Enter vertex index for Second Polygon:', 'E1')
+  if (!vertexIndex2) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
+  const spacingX = options.spacingX != null ? options.spacingX : await showTextBox('Enter spacing in X \n (Leave empty if no need for axis):', 100)
+  if (spacingX == null) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
+  const spacingY = options.spacingY != null ? options.spacingY : await showTextBox('Enter spacing in Y (Leave empty if no need for axis):', 100)
+  if (spacingY == null) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
 
   const movingPoint = shape2.getBasePolygonVertex(vertexIndex1.toUpperCase())
   const targetPoint = shape1.getBasePolygonVertex(vertexIndex2.toUpperCase())
@@ -866,9 +951,7 @@ async function anchorShape(shape1, shape2, options = null) {
   canvas.setActiveObject(shape2)
   CanvasObjectInspector.SetActiveObjectList(shape2)
 
-  //
-  //
-  //anvasObject.pop(shape2)
+  document.addEventListener('keydown', ShowHideSideBarEvent);
 
   canvas.renderAll();
 }
