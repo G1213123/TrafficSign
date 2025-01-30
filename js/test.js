@@ -1,12 +1,8 @@
 let borderTest = function () {
-    canvas.setActiveObject(canvasObject[0])
-    FormBorderWrapComponent.BorderPanelInit()
-    xheight = 100
-    borderType = FormBorderWrapComponent.BorderType["Blue Background"]
-    widthObjects = canvasObject
+  widthObjects = [canvasObject[0],canvasObject[1],canvasObject[2],canvasObject[3]]
     heightObjects = [canvasObject[0],canvasObject[1],canvasObject[3]]
 
-    FormBorderWrapComponent.BorderGroupCreate(heightObjects, widthObjects, xheight, borderType)
+    FormBorderWrapComponent.BorderGroupCreate(heightObjects, widthObjects, {xHeight:100, borderType: 'stack', colorType:'Blue Background'})
 }
 
 let loopAnchoredObjectsTest = function () {
@@ -65,8 +61,9 @@ let initShape = async function () {
     const arrowOptions3 = { x: 0, y: 0, length: 25, angle: 0, color: 'white', };
     Polygon1 = drawLabeledArrow(calcSymbol('StackArrow', 25), arrowOptions2);
     Polygon2 = drawLabeledArrow(calcSymbol('Tunnel', 25), arrowOptions1);
+    Polygon2 = drawLabeledArrow(calcSymbol('GantryArrow', 25), arrowOptions1);
 
-    Polygon3 = drawLabeledBorder('stack', 100, {left:0, top: 0, right:1550, bottom:500}, "Blue Background")
+    //Polygon3 = drawLabeledBorder('stack', 100, {left:0, top: 0, right:1550, bottom:500}, "Blue Background")
     //console.log(canvasObject)
 }
 
@@ -80,7 +77,7 @@ let movingObjectTest = function () {
     //console.assert(specimen.getEffectiveCoords()[0].x == left + 100, 'Moving failed');
 }
 
-testToRun = [initShape, anchorTest ]
+testToRun = [initShape, anchorTest, borderTest ]
 
 async function  runTests(tests) {
     for (const test of tests) {

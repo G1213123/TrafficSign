@@ -3,7 +3,7 @@ cursor.set({ id: 'cursor', "selectable": false })
 cursor.lockScalingX = true;
 cursor.lockScalingY = true;
 cursor.lockUniScaling = true;
-var cursorOffset = {x:0, y:0}
+var cursorOffset = { x: 0, y: 0 }
 tabNum = 2;
 
 canvas.add(cursor);
@@ -121,8 +121,8 @@ let FormTextAddComponent = {
     canvas.renderAll()
   },
 
-  cancelInput: function(event){
-    if(event.key === 'Escape'){
+  cancelInput: function (event) {
+    if (event.key === 'Escape') {
       document.getElementById('input-text').value = ''
       cursor.forEachObject(function (o) { cursor.remove(o) })
     }
@@ -143,41 +143,41 @@ let FormTextAddComponent = {
       var txt = document.getElementById('input-text').value
       var xHeight = parseInt(document.getElementById('input-xHeight').value)
     }
-      txtObjects = FormTextAddComponent.createTextObject(txt,xHeight)
+    txtObjects = FormTextAddComponent.createTextObject(txt, xHeight)
 
-      // Get cursor position
-  const cursorLeft = cursor.left || 0;
-  const cursorTop = cursor.top || 0;
+    // Get cursor position
+    const cursorLeft = cursor.left || 0;
+    const cursorTop = cursor.top || 0;
 
-  // Offset object positions relative to cursor position
-  txtObjects[0].forEach(obj => {
-    obj.set({
-      left: obj.left + cursorLeft,
-      top: obj.top + cursorTop
+    // Offset object positions relative to cursor position
+    txtObjects[0].forEach(obj => {
+      obj.set({
+        left: obj.left + cursorLeft,
+        top: obj.top + cursorTop
+      });
     });
-  });
 
-  txtObjects[1].forEach(obj => {
-    obj.set({
-      left: obj.left + cursorLeft,
-      top: obj.top + cursorTop
+    txtObjects[1].forEach(obj => {
+      obj.set({
+        left: obj.left + cursorLeft,
+        top: obj.top + cursorTop
+      });
     });
-  });
 
-      cursor.add(...txtObjects[0])
-      cursor.add(...txtObjects[1])
-      // Update the coordinates
-      //txt_char.setCoords();
-      //txt_frame.setCoords()
-//
-      //cursor.txtChar.push(txt_char)
-      cursor.text = txt
-      cursor.xHeight = xHeight
-      canvas.renderAll();
-    
+    cursor.add(...txtObjects[0])
+    cursor.add(...txtObjects[1])
+    // Update the coordinates
+    //txt_char.setCoords();
+    //txt_frame.setCoords()
+    //
+    //cursor.txtChar.push(txt_char)
+    cursor.text = txt
+    cursor.xHeight = xHeight
+    canvas.renderAll();
+
   },
 
-  createTextObject: function(txt, xHeight) {
+  createTextObject: function (txt, xHeight) {
     txtCharList = []
     txtFrameList = []
     left_pos = 0
@@ -237,10 +237,10 @@ let FormTextAddComponent = {
       }
       txtCharList.push(txt_char)
       txtFrameList.push(txt_frame)
-  }
-  return [txtCharList, txtFrameList]
-},
-  
+    }
+    return [txtCharList, txtFrameList]
+  },
+
   TextonMouseMove: function (event) {
     var pointer = canvas.getPointer(event.e);
     var posx = pointer.x;
@@ -270,11 +270,11 @@ let FormTextAddComponent = {
     if (textValue !== '' && eventButton === 0) {
 
       const group = new fabric.Group()
-      txtObjects = FormTextAddComponent.createTextObject(cursor.text,cursor.xHeight)
-    
+      txtObjects = FormTextAddComponent.createTextObject(cursor.text, cursor.xHeight)
+
       group.add(...txtObjects[0])
       group.add(...txtObjects[1])
-      group.set({left:cursor.left, top:cursor.top})
+      group.set({ left: cursor.left, top: cursor.top })
       group.getCombinedBoundingBoxOfRects = function () {
         let combinedBBox = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
         let points = [];
@@ -317,7 +317,7 @@ let FormTextAddComponent = {
       group.vertex = group.getCombinedBoundingBoxOfRects()
       group.text = textValue
       group.xHeight = xHeight
-  
+
       drawBasePolygon(group, 'Text', false)
 
       FormTextAddComponent.TextinputHandler(null, { text: cursor.text, xHeight: cursor.xHeight })
@@ -343,30 +343,30 @@ let FormDrawAddComponent = {
       GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100, null, 'input')
       var angleContainer = GeneralHandler.createNode("div", { 'class': `angle-picker-container` }, parent)
       GeneralHandler.createbutton(`button-RotateLeft`, 'Rotate Left', angleContainer, 'angle', FormDrawAddComponent.setAngle, 'click')
-      var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'id':'symbol-angle-display' }, angleContainer)
+      var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'id': 'symbol-angle-display' }, angleContainer)
       label.innerText = FormDrawAddComponent.symbolAngle
       GeneralHandler.createbutton(`button-RotateRight`, 'Rotate Right', angleContainer, 'angle', FormDrawAddComponent.setAngle, 'click')
-    
+
       //GeneralHandler.createbutton('button-approach-arm', 'Add Approach arm', parent, 0, FormDrawAddComponent.drawApproachClick, 'click')
       Object.keys(symbolsTemplate).forEach(symbol => {
         const button = FormDrawAddComponent.createButtonSVG(symbol, 10)
         GeneralHandler.createbutton(`button-${symbol}`, button, parent, 'symbol', FormDrawAddComponent.drawSymbol, 'click')
-       })
+      })
     }
   },
 
   setAngle: function (event) {
-    if (event.target.id.search('Left') > -1){
+    if (event.target.id.search('Left') > -1) {
       FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle - 45
     } else {
       FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle + 45
     }
-    FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle > 90? -90:FormDrawAddComponent.symbolAngle
-    FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle < -90? +90:FormDrawAddComponent.symbolAngle
+    FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle > 90 ? -90 : FormDrawAddComponent.symbolAngle
+    FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle < -90 ? +90 : FormDrawAddComponent.symbolAngle
     // Handle the angle selection
     document.getElementById('symbol-angle-display').innerText = FormDrawAddComponent.symbolAngle
-    if (cursor._objects.length){
-      FormDrawAddComponent.drawSymbol(null,{symbol:cursor.symbol, xHeight:cursor.xHeight})
+    if (cursor._objects.length) {
+      FormDrawAddComponent.drawSymbol(null, { symbol: cursor.symbol, xHeight: cursor.xHeight })
     }
     // You can add your logic here to apply the angle to the shape
   },
@@ -415,8 +415,8 @@ let FormDrawAddComponent = {
       var posx = pointer.x;
       var posy = pointer.y;
       var xHeight = parseInt(document.getElementById('input-xHeight').value)
-      const arrowOptions1 = { x: posx, y: posy, length: xHeight/4, angle: FormDrawAddComponent.symbolAngle, color: 'white', };
-      drawLabeledArrow(calcSymbol(cursor.symbol, xHeight/4), arrowOptions1);
+      const arrowOptions1 = { x: posx, y: posy, length: xHeight / 4, angle: FormDrawAddComponent.symbolAngle, color: 'white', };
+      drawLabeledArrow(calcSymbol(cursor.symbol, xHeight / 4), arrowOptions1);
     }
   },
 
@@ -781,16 +781,17 @@ let FormBorderWrapComponent = {
     }
   },
 
-  BorderGroupCreate: function (heightObjects, widthObjects) {
-    xHeight = parseInt(document.getElementById("input-xHeight").value)
-    borderType = document.getElementById("input-type").value
-    colorType = document.getElementById("input-color").value
+  BorderGroupCreate: function (heightObjects, widthObjects, options = null) {
+
+    const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
+    const borderType = options ? options.borderType : document.getElementById("input-type").value
+    const colorType = options ? options.colorType : document.getElementById("input-color").value
     // Get the bounding box of the active selection 
     const coordsWidth = FormBorderWrapComponent.getBoundingBox(widthObjects)
     const coordsHeight = FormBorderWrapComponent.getBoundingBox(heightObjects)
     const coords = { left: coordsWidth.left, top: coordsHeight.top, right: coordsWidth.right, bottom: coordsHeight.bottom }
     //borderObject = FormBorderWrapComponent.BorderCreate(heightObjects, widthObjects, xHeight, borderType)
-    BaseBorder = drawLabeledBorder(borderType, xHeight, coords , colorType)
+    BaseBorder = drawLabeledBorder(borderType, xHeight, coords, colorType)
     borderGroup = drawBasePolygon(BaseBorder, 'Border')
     borderGroup.widthObjects = [...widthObjects]
     borderGroup.heightObjects = [...heightObjects]
@@ -858,7 +859,7 @@ let FormDebugComponent = {
   updateDebugInfo: function (objects) {
     const debugInfoPanel = document.getElementById('debug-info-panel');
     if (debugInfoPanel) {
-      objects.length?        object = objects[0]:object= objects
+      objects.length ? object = objects[0] : object = objects
       debugInfoPanel.innerHTML = ''; // Clear previous info
       point = object.getEffectiveCoords()
       const properties = [
@@ -916,11 +917,12 @@ let CanvasObjectInspector = {
     const index = canvasObject.indexOf(setActive)
     // Remove 'selected' class from all items
     document.querySelectorAll('.object-list-item').forEach(item => {
-      if(item.id == `Group (${index})`){
+      if (item.id == `Group (${index})`) {
         item.classList.add('selected');
       } else {
-        item.classList.remove('selected')}
-      });
+        item.classList.remove('selected')
+      }
+    });
   }
 }
 
@@ -939,9 +941,9 @@ window.onload = () => {
   document.getElementById('btn_text').onclick = FormTextAddComponent.textPanelInit
   document.getElementById('btn_border').onclick = FormBorderWrapComponent.BorderPanelInit
   document.getElementById('btn_debug').onclick = FormDebugComponent.DebugPanelInit
- //canvas.on('object:added', CanvasObjectInspector.createObjectListPanel);
- //canvas.on('object:removed', CanvasObjectInspector.createObjectListPanel);
- //canvas.on('object:modified', CanvasObjectInspector.createObjectListPanel);
+  //canvas.on('object:added', CanvasObjectInspector.createObjectListPanel);
+  //canvas.on('object:removed', CanvasObjectInspector.createObjectListPanel);
+  //canvas.on('object:modified', CanvasObjectInspector.createObjectListPanel);
   FormTextAddComponent.textPanelInit()
   document.addEventListener('keydown', ShowHideSideBarEvent);
 }

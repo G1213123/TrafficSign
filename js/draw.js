@@ -176,8 +176,6 @@ class BaseGroup extends fabric.Group {
     this.subObjects = [];
     this.lockXToPolygon = {};
     this.lockYToPolygon = {};
-    this.isUpdating = false; // Flag to track if the object is updating
-    this.activeCalls = 0; // Counter to track active calls
 
     this.basePolygon.insertPoint = this.basePolygon.vertex[0];
     canvas.remove(this.basePolygon);
@@ -213,6 +211,7 @@ class BaseGroup extends fabric.Group {
 
       this.drawAnchorLinkage()
       CanvasObjectInspector.SetActiveObjectList(this)
+      //canvas.bringObjectToFront(this)
     });
 
     this.on('deselected', () => {
@@ -343,47 +342,32 @@ class BaseGroup extends fabric.Group {
 
   // Method to emit deltaX and deltaY to anchored groups
   emitDelta(deltaX, deltaY, sourceList = []) {
-    this.activeCalls++; // Increment the active calls counter
-
+    sourceList.includes(this) ? sourceList : sourceList.push(this)
     this.anchoredPolygon.forEach(anchoredGroup => {
       if (!sourceList.includes(anchoredGroup)) {
 
 
         // check receive change object to avoid self reference in border resize
         if (anchoredGroup.lockXToPolygon.TargetObject == this) {
-          anchoredGroup.receiveDelta(deltaX, 0, sourceList, this.isInitialCall);
+          anchoredGroup.receiveDelta(deltaX, 0, sourceList);
         }
         if (anchoredGroup.lockYToPolygon.TargetObject == this) {
-          anchoredGroup.receiveDelta(0, deltaY, sourceList, this.isInitialCall);
+          anchoredGroup.receiveDelta(0, deltaY, sourceList);
         }
 
       }
     });
-    this.activeCalls--; // Decrement the active calls counter
-
-    // If all nodes are exhausted, call another function
-    if (this.canvasID == sourceList[0].canvasID) {
-      this.allNodesProcessed();
-      this.isInitialCall = false; // Reset the flag
-    }
-
   }
 
   // Method to receive deltaX and deltaY and update position
   receiveDelta(deltaX, deltaY, sourceList) {
-    //sourceList.includes(this) ? sourceList : sourceList.push(this)
+    sourceList.includes(this) ? sourceList : sourceList.push(this)
     this.set({
       left: this.left + deltaX,
       top: this.top + deltaY
     });
     this.setCoords();
     this.updateAllCoord(null, sourceList);
-  }
-
-  // Method to call when all nodes are processed
-  allNodesProcessed() {
-    console.log('All nodes processed');
-    // Call another function here
   }
 
   // Method to call for border resizing
@@ -459,7 +443,7 @@ class BaseGroup extends fabric.Group {
       this.drawAnchorLinkage();
     }
     sourceList.includes(this) ? sourceList : sourceList.push(this)
-    this.emitDelta(deltaX, deltaY, sourceList, );
+    this.emitDelta(deltaX, deltaY, sourceList);
     this.borderResize(sourceList);
   }
 
@@ -731,7 +715,7 @@ function drawBasePolygon(basePolygon, functionalType, calcVertex = true) {
   });
   canvas.add(baseGroup);
   canvasObject.push(baseGroup);
-  baseGroup.canvasID = canvasObject.length
+  baseGroup.canvasID = canvasObject.length - 1
   CanvasObjectInspector.createObjectListPanelInit()
   //canvas.setActiveObject(baseGroup);
   return baseGroup;
@@ -769,9 +753,12 @@ document.getElementById('set-anchor').addEventListener('click', function () {
   }
 });
 
-async function anchorShape(Polygon2, Polygon1, options = null) {
-  if (Array.isArray(Polygon2)) {
-    Polygon2 = Polygon2[0]
+async function anchorShape(shape1, shape2, options = null) {
+  if (Array.isArray(shape1)) {
+    shape1 = shape1[0]
+  }
+  if (Array.isArray(shape2)) {
+    shape2 = shape2[0]
   }
 
   // For simplicity, we'll use prompt for input
@@ -785,59 +772,87 @@ async function anchorShape(Polygon2, Polygon1, options = null) {
     if (vertexIndex1 === null) return;
     vertexIndex2 = await showTextBox('Enter vertex index for Polygon 2:', 'E1')
     if (vertexIndex2 === null) return;
-    spacingX = parseInt(await showTextBox('Enter spacing in X (Leave empty if no need for axis):', 100))
-    spacingY = parseInt(await showTextBox('Enter spacing in Y (Leave empty if no need for axis):', 100))
-
+    spacingX = await showTextBox('Enter spacing in X (Leave empty if no need for axis):', 100)
+    spacingY = await showTextBox('Enter spacing in Y (Leave empty if no need for axis):', 100)
   }
 
-  const movingPoint = Polygon1.getBasePolygonVertex(vertexIndex1.toUpperCase())
-  const targetPoint = Polygon2.getBasePolygonVertex(vertexIndex2.toUpperCase())
+  const movingPoint = shape2.getBasePolygonVertex(vertexIndex1.toUpperCase())
+  const targetPoint = shape1.getBasePolygonVertex(vertexIndex2.toUpperCase())
 
-  if (!isNaN(spacingX)) {
+  if (!isNaN(parseInt(spacingX))) {
     // Snap arrow 1 to arrow 2 with the specified spacing
-    Polygon1.set({
-      left: Polygon1.left + targetPoint.x - movingPoint.x + spacingX,
+    shape2.set({
+      left: shape2.left + targetPoint.x - movingPoint.x + parseInt(spacingX),
       lockMovementX: true,
     });
-    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, SourceObject: Polygon1, TargetObject: Polygon2 }
-    Polygon1.lockXToPolygon = anchor
+    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, TargetObject: shape1 }
+    shape2.lockXToPolygon = anchor
+  } else if (spacingX.toUpperCase() == 'EQ') {
+    selectObjectHandler('Select first shape to equal distance locking', function (shape3) {
+      // Use selectObjectHandler to select the second shape
+      selectObjectHandler('Select second shape to equal distance locking', async function (shape4) {
+        // Pass the selected shapes to your remaining code
+        vertexIndex3 = await showTextBox('Enter vertex index for Polygon 3:', 'E1')
+        if (vertexIndex3 === null) return;
+        vertexIndex4 = await showTextBox('Enter vertex index for Polygon 4:', 'E1')
+        if (vertexIndex4 === null) return;
+        const secondMovingPoint = shape3[0].getBasePolygonVertex(vertexIndex3.toUpperCase())
+        const secondTargetPoint = shape4[0].getBasePolygonVertex(vertexIndex4.toUpperCase())
+        const totalFloat = (movingPoint.x - targetPoint.x) + (secondTargetPoint.x - secondMovingPoint.x)
+        anchorShape(shape1, shape2, {
+          vertexIndex1: vertexIndex1,
+          vertexIndex2: vertexIndex2,
+          spacingX: totalFloat / 2,
+          spacingY: ''
+        })
+        anchorShape(shape4, shape3, {
+          vertexIndex1: vertexIndex4,
+          vertexIndex2: vertexIndex3,
+          spacingX: -totalFloat / 2,
+          spacingY: ''
+        })
+      });
+    });
+    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, TargetObject: shape1, secondSourcePoint: vertexIndex3, secondTargetPoint: vertexIndex3, secondSourceObject: shape3, secondTargetObject: shape4 }
+    shape2.lockXToPolygon = anchor
+    shape3.lockYToPolygon = anchor
   }
 
-  if (!isNaN(spacingY)) {
+  if (!isNaN(parseInt(spacingY))) {
     // Snap arrow 1 to arrow 2 with the specified spacing
-    Polygon1.set({
-      top: Polygon1.top + targetPoint.y - movingPoint.y + spacingY,
+    shape2.set({
+      top: shape2.top + targetPoint.y - movingPoint.y + parseInt(spacingY),
       lockMovementY: true,
     });
-    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, SourceObject: Polygon1, TargetObject: Polygon2 }
-    Polygon1.lockYToPolygon = anchor
+    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, TargetObject: shape1 }
+    shape2.lockYToPolygon = anchor
   }
-  Polygon1.setCoords()
-  Polygon1.updateAllCoord()
+  shape2.setCoords()
+  shape2.updateAllCoord()
 
 
-  //Polygon2.add(Polygon1.basePolygon)
-  if (!Polygon2.anchoredPolygon.includes(Polygon1)) {
-    Polygon2.anchoredPolygon.push(Polygon1)
+  //shape1.add(shape2.basePolygon)
+  if (!shape1.anchoredPolygon.includes(shape2)) {
+    shape1.anchoredPolygon.push(shape2)
   }
 
-  //Polygon1.forEachObject(function (obj) {
-  //  //Polygon1.removeWithUpdate(obj)
+  //shape2.forEachObject(function (obj) {
+  //  //shape2.removeWithUpdate(obj)
   //  canvas.remove(obj)
   //})
-  //canvas.remove(Polygon1)
-  Polygon2.updateAllCoord()
-  Polygon1.drawAnchorLinkage()
-  if (!Polygon2.borderType) {
-    canvas.bringObjectToFront(Polygon2)
+  //canvas.remove(shape2)
+  shape1.updateAllCoord()
+  shape2.drawAnchorLinkage()
+  if (!shape1.borderType) {
+    canvas.bringObjectToFront(shape1)
   }
 
-  canvas.setActiveObject(Polygon1)
-  CanvasObjectInspector.SetActiveObjectList(Polygon1)
+  canvas.setActiveObject(shape2)
+  CanvasObjectInspector.SetActiveObjectList(shape2)
 
   //
   //
-  //anvasObject.pop(Polygon1)
+  //anvasObject.pop(shape2)
 
   canvas.renderAll();
 }
