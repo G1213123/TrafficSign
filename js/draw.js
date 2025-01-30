@@ -348,15 +348,20 @@ class BaseGroup extends fabric.Group {
 
 
         // check receive change object to avoid self reference in border resize
-        if (anchoredGroup.lockXToPolygon.TargetObject == this) {
+        if (anchoredGroup.lockXToPolygon.TargetObject == this && !anchoredGroup.lockXToPolygon.secondTargetObject) {
           anchoredGroup.receiveDelta(deltaX, 0, sourceList);
         }
-        if (anchoredGroup.lockYToPolygon.TargetObject == this) {
+        if (anchoredGroup.lockYToPolygon.TargetObject == this && !anchoredGroup.lockXToPolygon.secondTargetObject) {
           anchoredGroup.receiveDelta(0, deltaY, sourceList);
         }
 
       }
     });
+    // If all nodes are exhausted, call another function
+    if (this.canvasID == sourceList[0].canvasID) {
+      this.allNodesProcessed();
+    }
+
   }
 
   // Method to receive deltaX and deltaY and update position
@@ -368,6 +373,14 @@ class BaseGroup extends fabric.Group {
     });
     this.setCoords();
     this.updateAllCoord(null, sourceList);
+  }
+
+  // Method to call when all nodes are processed
+  allNodesProcessed() {
+    canvasObject.map(o => o.lockXToPolygon).filter(o => o.secondSourceObject).forEach(o => { EQanchorShape(o) })
+    canvasObject.map(o => o.lockYToPolygon).filter(o => o.secondSourceObject).forEach(o => { EQanchorShape(o) })
+    console.log('All nodes processed');
+    // Call another function here
   }
 
   // Method to call for border resizing
@@ -785,37 +798,24 @@ async function anchorShape(shape1, shape2, options = null) {
       left: shape2.left + targetPoint.x - movingPoint.x + parseInt(spacingX),
       lockMovementX: true,
     });
-    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, TargetObject: shape1 }
+    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObjet: shape2, TargetObject: shape1 }
     shape2.lockXToPolygon = anchor
   } else if (spacingX.toUpperCase() == 'EQ') {
     selectObjectHandler('Select first shape to equal distance locking', function (shape3) {
       // Use selectObjectHandler to select the second shape
       selectObjectHandler('Select second shape to equal distance locking', async function (shape4) {
         // Pass the selected shapes to your remaining code
-        vertexIndex3 = await showTextBox('Enter vertex index for Polygon 3:', 'E1')
+        const vertexIndex3 = await showTextBox('Enter vertex index for Polygon 3:', 'E1')
         if (vertexIndex3 === null) return;
-        vertexIndex4 = await showTextBox('Enter vertex index for Polygon 4:', 'E1')
+        const vertexIndex4 = await showTextBox('Enter vertex index for Polygon 4:', 'E1')
         if (vertexIndex4 === null) return;
-        const secondMovingPoint = shape3[0].getBasePolygonVertex(vertexIndex3.toUpperCase())
-        const secondTargetPoint = shape4[0].getBasePolygonVertex(vertexIndex4.toUpperCase())
-        const totalFloat = (movingPoint.x - targetPoint.x) + (secondTargetPoint.x - secondMovingPoint.x)
-        anchorShape(shape1, shape2, {
-          vertexIndex1: vertexIndex1,
-          vertexIndex2: vertexIndex2,
-          spacingX: totalFloat / 2,
-          spacingY: ''
-        })
-        anchorShape(shape4, shape3, {
-          vertexIndex1: vertexIndex4,
-          vertexIndex2: vertexIndex3,
-          spacingX: -totalFloat / 2,
-          spacingY: ''
-        })
+
+        anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObjet: shape2, TargetObject: shape1, secondSourcePoint: vertexIndex3, secondTargetPoint: vertexIndex4, secondSourceObject: shape3[0], secondTargetObject: shape4[0] }
+        EQanchorShape('x', anchor)
+        shape2.lockXToPolygon = anchor
+        shape3.lockXToPolygon = anchor
       });
     });
-    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, TargetObject: shape1, secondSourcePoint: vertexIndex3, secondTargetPoint: vertexIndex3, secondSourceObject: shape3, secondTargetObject: shape4 }
-    shape2.lockXToPolygon = anchor
-    shape3.lockYToPolygon = anchor
   }
 
   if (!isNaN(parseInt(spacingY))) {
@@ -824,8 +824,24 @@ async function anchorShape(shape1, shape2, options = null) {
       top: shape2.top + targetPoint.y - movingPoint.y + parseInt(spacingY),
       lockMovementY: true,
     });
-    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, TargetObject: shape1 }
+    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObjet: shape2, TargetObject: shape1 }
     shape2.lockYToPolygon = anchor
+  } else if (spacingY.toUpperCase() == 'EQ') {
+    selectObjectHandler('Select first shape to equal distance locking', function (shape3) {
+      // Use selectObjectHandler to select the second shape
+      selectObjectHandler('Select second shape to equal distance locking', async function (shape4) {
+        // Pass the selected shapes to your remaining code
+        const vertexIndex3 = await showTextBox('Enter vertex index for Polygon 3:', 'E1')
+        if (vertexIndex3 === null) return;
+        const vertexIndex4 = await showTextBox('Enter vertex index for Polygon 4:', 'E1')
+        if (vertexIndex4 === null) return;
+
+        anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObjet: shape2, TargetObject: shape1, secondSourcePoint: vertexIndex3, secondTargetPoint: vertexIndex4, secondSourceObject: shape3[0], secondTargetObject: shape4[0] }
+        EQanchorShape('y', anchor)
+        shape2.lockYToPolygon = anchor
+        shape3.lockYToPolygon = anchor
+      });
+    });
   }
   shape2.setCoords()
   shape2.updateAllCoord()
@@ -855,5 +871,45 @@ async function anchorShape(shape1, shape2, options = null) {
   //anvasObject.pop(shape2)
 
   canvas.renderAll();
+}
+
+function EQanchorShape(direction, options) {
+  const [shape1, shape2, shape3, shape4] = [options.TargetObject, options.sourceObjet, options.secondSourceObject, options.secondTargetObject]
+  const [vertexIndex1, vertexIndex2, vertexIndex3, vertexIndex4] = [options.sourcePoint, options.targetPoint, options.secondSourcePoint, options.secondTargetPoint]
+  const movingPoint = shape2.getBasePolygonVertex(vertexIndex1.toUpperCase())
+  const targetPoint = shape1.getBasePolygonVertex(vertexIndex2.toUpperCase())
+  const secondMovingPoint = shape3.getBasePolygonVertex(vertexIndex3.toUpperCase())
+  const secondTargetPoint = shape4.getBasePolygonVertex(vertexIndex4.toUpperCase())
+
+  if (direction == 'x') {
+    const totalFloat = (movingPoint.x - targetPoint.x) + (secondTargetPoint.x - secondMovingPoint.x)
+    anchorShape(shape1, shape2, {
+      vertexIndex1: vertexIndex1,
+      vertexIndex2: vertexIndex2,
+      spacingX: totalFloat / 2,
+      spacingY: ''
+    })
+    anchorShape(shape4, shape3, {
+      vertexIndex1: vertexIndex4,
+      vertexIndex2: vertexIndex3,
+      spacingX: -totalFloat / 2,
+      spacingY: ''
+    })
+  } else {
+    const totalFloat = (movingPoint.y - targetPoint.y) + (secondTargetPoint.y - secondMovingPoint.y)
+    anchorShape(shape1, shape2, {
+      vertexIndex1: vertexIndex1,
+      vertexIndex2: vertexIndex2,
+      spacingX: '',
+      spacingY: totalFloat / 2,
+    })
+    anchorShape(shape4, shape3, {
+      vertexIndex1: vertexIndex4,
+      vertexIndex2: vertexIndex3,
+      spacingX: '',
+      spacingY: -totalFloat / 2,
+    })
+  }
+  shape3.updateAllCoord()
 }
 
