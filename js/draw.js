@@ -136,7 +136,7 @@ class GlyphPolygon extends fabric.Polygon {
 
 class GlyphPath extends fabric.Path {
   constructor(shapeMeta, options) {
-    shapeMeta.map((p) => {
+    shapeMeta.path.map((p) => {
       let transformed = calculateTransformedPoints(p.vertex, {
         x: options.left,
         y: options.top,
@@ -145,18 +145,18 @@ class GlyphPath extends fabric.Path {
       p.vertex = transformed
     });
 
-    const vertexleft = Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.x));
-    const vertextop = Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.y));
+    const vertexleft = Math.min(...shapeMeta.path.map(p => p.vertex).flat().map(v => v.x));
+    const vertextop = Math.min(...shapeMeta.path.map(p => p.vertex).flat().map(v => v.y));
 
     options.left = vertexleft
     options.top = vertextop
     options.angle = 0
 
 
-    const pathData = vertexToPath(shapeMeta);
+    const pathData = vertexToPath(shapeMeta.path);
     super(pathData, options);
-    this.vertex = shapeMeta.map(p => p.vertex).flat(); // Store the shapeMeta.vertex points
-    this.insertPoint = shapeMeta[0].vertex[0];
+    this.vertex = shapeMeta.path.map(p => p.vertex).flat(); // Store the shapeMeta.vertex points
+    this.insertPoint = shapeMeta.path[0].vertex[0];
 
     this.setCoords();
   }
@@ -829,8 +829,8 @@ function drawBasePolygon(basePolygon, functionalType, calcVertex = true) {
 
 function drawLabeledArrow(shapeMeta, options) {
   const { x, y, length, angle, color } = options;
-  const vertexleft = Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.x));
-  const vertextop = Math.min(...shapeMeta.map(p => p.vertex).flat().map(v => v.y));
+  const vertexleft = Math.min(...shapeMeta.path.map(p => p.vertex).flat().map(v => v.x));
+  const vertextop = Math.min(...shapeMeta.path.map(p => p.vertex).flat().map(v => v.y));
   // Create polygon with labeled vertices
   const arrow = drawBasePolygon(
     new GlyphPath(shapeMeta,
