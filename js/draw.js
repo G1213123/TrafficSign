@@ -145,6 +145,18 @@ class GlyphPath extends fabric.Path {
       p.vertex = transformed
     });
 
+    if (shapeMeta.text) {
+      shapeMeta.text.map((p) => {
+        let transformed = calculateTransformedPoints([{ x: p.x, y: p.y, label: '' }], {
+          x: options.left,
+          y: options.top,
+          angle: options.angle
+        });
+        p.x = transformed[0].x
+        p.y = transformed[0].y
+      });
+    }
+    //
     const vertexleft = Math.min(...shapeMeta.path.map(p => p.vertex).flat().map(v => v.x));
     const vertextop = Math.min(...shapeMeta.path.map(p => p.vertex).flat().map(v => v.y));
 
@@ -153,7 +165,7 @@ class GlyphPath extends fabric.Path {
     options.angle = 0
 
 
-    const pathData = vertexToPath(shapeMeta.path);
+    const pathData = vertexToPath(shapeMeta);
     super(pathData, options);
     this.vertex = shapeMeta.path.map(p => p.vertex).flat(); // Store the shapeMeta.vertex points
     this.insertPoint = shapeMeta.path[0].vertex[0];
@@ -779,7 +791,7 @@ class vertexControl {
       canvas.on('mouse:move', this.handleMouseMove);
       canvas.renderAll();
     } else {
-      anchorShape( this.baseGroup, activeVertex.baseGroup, {vertexIndex1:activeVertex.vertex.label, vertexIndex2:this.vertex.label})
+      anchorShape(this.baseGroup, activeVertex.baseGroup, { vertexIndex1: activeVertex.vertex.label, vertexIndex2: this.vertex.label })
       activeVertex.deleteLink()
       activeVertex = null
     }

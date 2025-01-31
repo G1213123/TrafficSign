@@ -55,7 +55,7 @@ function StackBorderTemplate(xHeight, block, rounding) {
             arc.radius *= length;
         });
     });
-    return returnBorder
+    return {path: returnBorder}
 }
 
 
@@ -148,7 +148,7 @@ function FlagLeftBorderTemplate(xHeight, block, rounding) {
             arc.radius *= length;
         });
     });
-    return returnBorder
+    return {path: returnBorder}
 
 
 }
@@ -160,7 +160,7 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
     shapeMeta = BorderTypeScheme[borderType](xHeight, block, rounding)
     baseGroup = []
     // Create polygon with labeled vertices
-    shapeMeta.forEach(p => {
+    shapeMeta.path.forEach(p => {
         const vertexleft = - Math.min(...p.vertex.map(v => v.x));
         const vertextop = - Math.min(...p.vertex.map(v => v.y));
 
@@ -170,7 +170,7 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
             p.y = p.y + bbox.top;
         });
 
-        const pathData = vertexToPath([p]);
+        const pathData = vertexToPath({path:[p]});
         baseGroup.push(
             new fabric.Path(pathData,
                 {
@@ -204,7 +204,7 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
     shapeMeta = BorderTypeScheme[borderType](xHeight, block, rounding)
     baseGroup = []
     // Create polygon with labeled vertices
-    shapeMeta.forEach(p => {
+    shapeMeta.path.forEach(p => {
         const vertexleft = - Math.min(...p.vertex.map(v => v.x));
         const vertextop = - Math.min(...p.vertex.map(v => v.y));
 
@@ -214,7 +214,7 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
             p.y = p.y + bbox.top;
         });
 
-        const pathData = vertexToPath([p]);
+        const pathData = vertexToPath({path:[p]});
         baseGroup.push(
             new fabric.Path(pathData,
                 {
@@ -229,7 +229,7 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
     })
 
     GroupedBorder = new fabric.Group(baseGroup)
-    GroupedBorder.vertex = shapeMeta.map(p => p.vertex).flat()
+    GroupedBorder.vertex = shapeMeta.path.map(p => p.vertex).flat()
 
     return GroupedBorder
 }

@@ -422,7 +422,7 @@ let FormDrawAddComponent = {
 
   createButtonSVG: (symbolType, length) => {
     const symbolData = calcSymbol(symbolType, length);
-    const pathData = vertexToPath(symbolData.path);
+    const pathData = vertexToPath(symbolData);
 
     const svgWidth = 100;
     const svgHeight = 100;

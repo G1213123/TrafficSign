@@ -8,6 +8,12 @@ const symbolsTemplate = {
   //  ], 'arcs': []
   //}],
 
+  'TestX':{
+    path:[{'vertex': [{ x: 0, y: 0, label: 'V1', start: 1 },], 'arcs': []}],
+    text:[{character:'x', x:0, y:0, fontSize:100*0.075, fontFamily: 'TransportMedium'},
+    {character:'中', x:-9, y:8 + 5.5, fontSize:5.7  * 0.94, fontFamily: 'Chinese'}]
+  },
+
   'StackArrow': {
     path: [{
       'vertex': [
@@ -205,9 +211,25 @@ const symbolsTemplate = {
         ], 'arcs': [{ start: 'V9', end: 'V8', radius: 3.25, direction: 0, sweep: 1 }]
       },
     ],
+    text:[
+      {character:'C', x:4.845, y:8 + 5.5, fontSize:6.5  * 0.94, fontFamily: 'TransportMedium'},
+      {character:'中', x:-9, y:8 + 5.5, fontSize:5.7  * 0.94, fontFamily: 'Chinese'}
+    ]
       },
 
 };
+
+let FontGlyphs = {'TransportMedium':null, 'Chinese':null}
+const TransportMediumBuffer = fetch('./css/font/TransportMedium.woff').then(res => res.arrayBuffer());
+TransportMediumBuffer.then(data => {
+  FontGlyphs.TransportMedium = opentype.parse(data);
+})
+
+const ChineseBuffer = fetch('./css/font/NotoSansHK-Bold.ttf').then(res => res.arrayBuffer());
+let ChineseFont
+ChineseBuffer.then(data => {
+  FontGlyphs.Chinese = opentype.parse(data);
+})
 
 function calcSymbol(type, length) {
   const symbols = JSON.parse(JSON.stringify(symbolsTemplate)); // Deep copy to avoid mutation
@@ -254,7 +276,7 @@ function getInsertOffset(shapeMeta, angle = 0) {
 function vertexToPath(shapeMeta) {
   let pathString = '';
 
-  shapeMeta.forEach((path, pathindex) => {
+  shapeMeta.path.forEach((path, pathindex) => {
     if (pathindex != 0) {
       pathString += ' Z'
     }
@@ -328,6 +350,13 @@ function vertexToPath(shapeMeta) {
 
     //pathString += ' Z'; // Close the path
   })
+
+  if (shapeMeta.text){
+    shapeMeta.text.forEach(t => {
+      charPath = FontGlyphs[t.fontFamily].getPath(t.character, t.x, t.y, t.fontSize)
+      pathString += charPath.toPathData()
+    })
+  }
   return pathString;
 }
 
