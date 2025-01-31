@@ -11,7 +11,7 @@ const symbolsTemplate = {
   'TestX':{
     path:[{'vertex': [{ x: 0, y: 0, label: 'V1', start: 1 },], 'arcs': []}],
     text:[{character:'x', x:0, y:0, fontSize:100*0.075, fontFamily: 'TransportMedium'},
-    {character:'中', x:-9, y:8 + 5.5, fontSize:5.7  * 0.94, fontFamily: 'Chinese'}]
+    {character:'中', x:0, y:0, fontSize:5, fontFamily: 'Chinese'}]
   },
 
   'StackArrow': {
@@ -213,7 +213,7 @@ const symbolsTemplate = {
     ],
     text:[
       {character:'C', x:4.845, y:8 + 5.5, fontSize:6.5  * 0.94, fontFamily: 'TransportMedium'},
-      {character:'中', x:-9, y:8 + 5.5, fontSize:5.7  * 0.94, fontFamily: 'Chinese'}
+      {character:'中', x:-9.8, y:- 8.5, fontSize:5.7  * 0.9, fontFamily: 'Chinese'}
     ]
       },
 
@@ -226,7 +226,6 @@ TransportMediumBuffer.then(data => {
 })
 
 const ChineseBuffer = fetch('./css/font/NotoSansHK-Bold.ttf').then(res => res.arrayBuffer());
-let ChineseFont
 ChineseBuffer.then(data => {
   FontGlyphs.Chinese = opentype.parse(data);
 })
@@ -354,6 +353,11 @@ function vertexToPath(shapeMeta) {
   if (shapeMeta.text){
     shapeMeta.text.forEach(t => {
       charPath = FontGlyphs[t.fontFamily].getPath(t.character, t.x, t.y, t.fontSize)
+      if (t.fontFamily == "Chinese"){
+        charPath.commands.map(c => {
+          c.y = - c.y
+        })
+      }
       pathString += charPath.toPathData()
     })
   }

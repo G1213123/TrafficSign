@@ -147,13 +147,13 @@ class GlyphPath extends fabric.Path {
 
     if (shapeMeta.text) {
       shapeMeta.text.map((p) => {
-        let transformed = calculateTransformedPoints([{ x: p.x, y: p.y, label: '' }], {
+        let transformed = calculateTransformedPoints([{ x: p.x, y: p.fontFamily=="Chinese"?-p.y:p.y, label: '' }], {
           x: options.left,
           y: options.top,
           angle: options.angle
         });
         p.x = transformed[0].x
-        p.y = transformed[0].y
+        p.y = p.fontFamily=="Chinese"?-transformed[0].y:transformed[0].y
       });
     }
     //
