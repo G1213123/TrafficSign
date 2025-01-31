@@ -8,10 +8,10 @@ const symbolsTemplate = {
   //  ], 'arcs': []
   //}],
 
-  'TestX':{
-    path:[{'vertex': [{ x: 0, y: 0, label: 'V1', start: 1 },], 'arcs': []}],
-    text:[{character:'x', x:0, y:0, fontSize:100*0.075, fontFamily: 'TransportMedium'},
-    {character:'中', x:0, y:0, fontSize:5, fontFamily: 'Chinese'}]
+  'TestX': {
+    path: [{ 'vertex': [{ x: 0, y: 0, label: 'V1', start: 1 },], 'arcs': [] }],
+    text: [{ character: 'x', x: 0, y: 0, fontSize: 100 * 0.075, fontFamily: 'TransportMedium' },
+    { character: '中', x: 0, y: 0, fontSize: 5, fontFamily: 'Chinese' }]
   },
 
   'StackArrow': {
@@ -186,40 +186,102 @@ const symbolsTemplate = {
       },
       {
         'vertex': [
-          { x: 0, y: 1, label: 'V1', radius: 0.5, start: 1 },
-          { x: -10, y: 1, label: 'V2', radius: 0.5, start: 0 },
-          { x: -10, y: 15, label: 'V3', radius: 0.5, start: 0 },
-          { x: 10, y: 15, label: 'V4', radius: 0.5, start: 0 },
-          { x: 10, y: 1, label: 'V5', radius: 0.5, start: 0 },
+          { x: 0, y: 1, label: 'V6', radius: 0.5, start: 1 },
+          { x: -10, y: 1, label: 'V7', radius: 0.5, start: 0 },
+          { x: -10, y: 15, label: 'V8', radius: 0.5, start: 0 },
+          { x: 10, y: 15, label: 'V9', radius: 0.5, start: 0 },
+          { x: 10, y: 1, label: 'V10', radius: 0.5, start: 0 },
         ], 'arcs': []
       },
       {
         'vertex': [
-          { x: 0, y: 6, label: 'V1', start: 1 },
-          { x: 2, y: 6, label: 'V2', start: 0 },
-          { x: 4.5, y: 8.5, label: 'V3', start: 0 },
-          { x: 4.5, y: 14, label: 'V4', start: 0 },
-          { x: -4.5, y: 14, label: 'V5', start: 0 },
-          { x: -4.5, y: 8.5, label: 'V6', start: 0 },
-          { x: -2, y: 6, label: 'V7', start: 0 },
+          { x: 0, y: 6, label: 'V11', start: 1 },
+          { x: 2, y: 6, label: 'V12', start: 0 },
+          { x: 4.5, y: 8.5, label: 'V13', start: 0 },
+          { x: 4.5, y: 14, label: 'V14', start: 0 },
+          { x: -4.5, y: 14, label: 'V15', start: 0 },
+          { x: -4.5, y: 8.5, label: 'V16', start: 0 },
+          { x: -2, y: 6, label: 'V17', start: 0 },
         ], 'arcs': []
       },
       {
         'vertex': [
-          { x: -2.625, y: 12.5, label: 'V8', start: 1 },
-          { x: 2.625, y: 12.5, label: 'V9', start: 0 },
-        ], 'arcs': [{ start: 'V9', end: 'V8', radius: 3.25, direction: 0, sweep: 1 }]
+          { x: -2.625, y: 12.5, label: 'V18', start: 1 },
+          { x: 2.625, y: 12.5, label: 'V19', start: 0 },
+        ], 'arcs': [{ start: 'V19', end: 'V18', radius: 3.25, direction: 0, sweep: 1 }]
+      },
+      {
+        'vertex': [
+          { x: -9, y: 3, label: 'V21', start: 1 },
+          { x: -8.034, y: 2.485, label: 'V22', start: 0 },
+          { x: -4.5, y: 2.583, label: 'V23', start: 0 },
+          { x: -1.5, y: 2.525, label: 'V24', start: 0 },
+          { x: 1.5, y: 2.525, label: 'V25', start: 0 },
+          { x: 4.5, y: 2.583, label: 'V26', start: 0 },
+          { x: 8.034, y: 2.485, label: 'V27', start: 0 },
+          { x: 9, y: 3, label: 'V28', start: 0 },
+          { x: 9, y: 4, label: 'V29', start: 0 },
+          { x: 8.034, y: 3.485, label: 'V30', start: 0 },
+          { x: 4.5, y: 3.583, label: 'V31', start: 0 },
+          { x: 1.5, y: 3.525, label: 'V32', start: 0 },
+          { x: -1.5, y: 3.525, label: 'V33', start: 0 },
+          { x: -4.5, y: 3.583, label: 'V34', start: 0 },
+          { x: -8.034, y: 3.485, label: 'V35', start: 0 },
+          { x: -9, y: 4, label: 'V36', start: 0 },
+        ], 'arcs': [
+          { start: 'V22', end: 'V23', radius: 3.57,   direction: 1, sweep: 0 },
+          { start: 'V23', end: 'V24', radius: 2.8,    direction: 0, sweep: 0 },
+          { start: 'V24', end: 'V25', radius: 2.456,  direction: 1, sweep: 0 },
+          { start: 'V25', end: 'V26', radius: 2.8,    direction: 0, sweep: 0 },
+          { start: 'V26', end: 'V27', radius: 3.57,   direction: 1, sweep: 0 },
+          { start: 'V30', end: 'V31', radius: 3.57,   direction: 0, sweep: 0 },
+          { start: 'V31', end: 'V32', radius: 2.8,    direction: 1, sweep: 0 },
+          { start: 'V32', end: 'V33', radius: 2.456,  direction: 0, sweep: 0 },
+          { start: 'V33', end: 'V34', radius: 2.8,    direction: 1, sweep: 0 },
+          { start: 'V34', end: 'V35', radius: 3.57,   direction: 0, sweep: 0 },
+        ]
+      },
+      {
+        'vertex': [
+          { x: -9, y: 4.5,        label: 'V41', start: 1 },
+          { x: -8.034, y: 3.985,  label: 'V42', start: 0 },
+          { x: -4.5, y: 4.083,    label: 'V43', start: 0 },
+          { x: -1.5, y: 4.025,    label: 'V44', start: 0 },
+          { x: 1.5, y: 4.025,     label: 'V45', start: 0 },
+          { x: 4.5, y: 4.083,     label: 'V46', start: 0 },
+          { x: 8.034, y: 3.985,   label: 'V47', start: 0 },
+          { x: 9, y: 4.5,         label: 'V48', start: 0 },
+          { x: 9, y: 5.5,         label: 'V49', start: 0 },
+          { x: 8.034, y: 4.985,   label: 'V50', start: 0 },
+          { x: 4.5, y: 4.983,     label: 'V51', start: 0 },
+          { x: 1.5, y: 5.025,     label: 'V52', start: 0 },
+          { x: -1.5, y: 5.025,    label: 'V53', start: 0 },
+          { x: -4.5, y: 5.083,    label: 'V54', start: 0 },
+          { x: -8.034, y: 4.985,  label: 'V55', start: 0 },
+          { x: -9, y: 5.5,        label: 'V56', start: 0 },
+        ], 'arcs': [
+          { start: 'V42', end: 'V43', radius: 3.57,   direction: 1, sweep: 0 },
+          { start: 'V43', end: 'V44', radius: 2.8,    direction: 0, sweep: 0 },
+          { start: 'V44', end: 'V45', radius: 2.456,  direction: 1, sweep: 0 },
+          { start: 'V45', end: 'V46', radius: 2.8,    direction: 0, sweep: 0 },
+          { start: 'V46', end: 'V47', radius: 3.57,   direction: 1, sweep: 0 },
+          { start: 'V50', end: 'V51', radius: 3.57,   direction: 0, sweep: 0 },
+          { start: 'V51', end: 'V52', radius: 2.8,    direction: 1, sweep: 0 },
+          { start: 'V52', end: 'V53', radius: 2.456,  direction: 0, sweep: 0 },
+          { start: 'V53', end: 'V54', radius: 2.8,    direction: 1, sweep: 0 },
+          { start: 'V54', end: 'V55', radius: 3.57,   direction: 0, sweep: 0 },
+        ]
       },
     ],
-    text:[
-      {character:'C', x:4.845, y:8 + 5.5, fontSize:6.5  * 0.94, fontFamily: 'TransportMedium'},
-      {character:'中', x:-9.8, y:- 8.5, fontSize:5.7  * 0.9, fontFamily: 'Chinese'}
+    text: [
+      { character: 'C', x: 4.845, y: 8 + 5.5, fontSize: 6.5 * 0.94, fontFamily: 'TransportMedium' },
+      { character: '中', x: -9.8, y: - 8.5, fontSize: 5.7 * 0.9, fontFamily: 'Chinese' }
     ]
-      },
+  },
 
 };
 
-let FontGlyphs = {'TransportMedium':null, 'Chinese':null}
+let FontGlyphs = { 'TransportMedium': null, 'Chinese': null }
 const TransportMediumBuffer = fetch('./css/font/TransportMedium.woff').then(res => res.arrayBuffer());
 TransportMediumBuffer.then(data => {
   FontGlyphs.TransportMedium = opentype.parse(data);
@@ -244,8 +306,8 @@ function calcSymbol(type, length) {
     });
   });
 
-  if (symbols[type].text){
-    symbols[type].text.forEach(t =>{
+  if (symbols[type].text) {
+    symbols[type].text.forEach(t => {
       t.x *= length;
       t.y *= length;
       t.fontSize *= length;
@@ -350,10 +412,10 @@ function vertexToPath(shapeMeta) {
     //pathString += ' Z'; // Close the path
   })
 
-  if (shapeMeta.text){
+  if (shapeMeta.text) {
     shapeMeta.text.forEach(t => {
       charPath = FontGlyphs[t.fontFamily].getPath(t.character, t.x, t.y, t.fontSize)
-      if (t.fontFamily == "Chinese"){
+      if (t.fontFamily == "Chinese") {
         charPath.commands.map(c => {
           c.y = - c.y
         })
