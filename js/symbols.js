@@ -171,20 +171,20 @@ const symbolsTemplate = {
     path: [ // 3.5.7.7
       {
         'vertex': [
-          { x: 0, y: 0, label: 'V1',    radius:1.5, start: 1 },
-          { x: 11, y: 0, label: 'V2',   radius:1.5, start: 0 },
-          { x: 11, y: 16, label: 'V3',  radius:1.5, start: 0 },
-          { x: -11, y: 16, label: 'V4', radius:1.5, start: 0 },
-          { x: -11, y: 0, label: 'V5',  radius:1.5, start: 0 },
-        ], 'arcs': [] 
+          { x: 0, y: 0, label: 'V1', radius: 1.5, start: 1 },
+          { x: 11, y: 0, label: 'V2', radius: 1.5, start: 0 },
+          { x: 11, y: 16, label: 'V3', radius: 1.5, start: 0 },
+          { x: -11, y: 16, label: 'V4', radius: 1.5, start: 0 },
+          { x: -11, y: 0, label: 'V5', radius: 1.5, start: 0 },
+        ], 'arcs': []
       },
-      { 
-        'vertex': [ 
-          { x: 0, y: 1, label: 'V1',    radius:0.5, start: 1 },
-        { x: -10, y: 1, label: 'V2',    radius:0.5, start: 0 },
-        { x: -10, y: 15, label: 'V3',   radius:0.5, start: 0 },
-          { x: 10, y: 15, label: 'V4',  radius:0.5, start: 0 },
-          { x: 10, y: 1, label: 'V5',   radius:0.5, start: 0 },
+      {
+        'vertex': [
+          { x: 0, y: 1, label: 'V1', radius: 0.5, start: 1 },
+          { x: -10, y: 1, label: 'V2', radius: 0.5, start: 0 },
+          { x: -10, y: 15, label: 'V3', radius: 0.5, start: 0 },
+          { x: 10, y: 15, label: 'V4', radius: 0.5, start: 0 },
+          { x: 10, y: 1, label: 'V5', radius: 0.5, start: 0 },
         ], 'arcs': []
       },
       {
@@ -205,7 +205,7 @@ const symbolsTemplate = {
         ], 'arcs': [{ start: 'V9', end: 'V8', radius: 3.25, direction: 0, sweep: 1 }]
       },
     ],
-  },
+      },
 
 };
 
@@ -222,6 +222,15 @@ function calcSymbol(type, length) {
       arc.radius *= length;
     });
   });
+
+  if (symbols[type].text){
+    symbols[type].text.forEach(t =>{
+      t.x *= length;
+      t.y *= length;
+      t.fontSize *= length;
+    }
+    )
+  }
 
   return symbols[type];
 }
