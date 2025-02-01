@@ -29,6 +29,13 @@ let anchorTest = function () {
         spacingX: 50,
         spacingY: 0
     })
+
+}
+
+let equalAnchorTest = function(){
+    const anchor = { sourcePoint: 'E1', targetPoint: 'E1', sourceObject: canvasObject[4], TargetObject: canvasObject[5], 
+        secondSourcePoint: 'E3', secondTargetPoint: 'E3', secondSourceObject:canvasObject[4], secondTargetObject: canvasObject[5] }
+    EQanchorShape('x', anchor)
 }
 
 let initShape = async function () {
@@ -57,7 +64,7 @@ let initShape = async function () {
 
 
     const arrowOptions1 = { x: 100, y: 100, length: 25, angle: 0, color: 'white', };
-    const arrowOptions2 = { x: 200, y: 200, length: 25, angle: 45, color: 'white', };
+    const arrowOptions2 = { x: 200, y: 200, length: 25, angle: -45, color: 'white', };
     const arrowOptions3 = { x: 0, y: 0, length: 25, angle: 0, color: 'white', };
     Polygon1 = drawLabeledArrow(calcSymbol('StackArrow', 25), arrowOptions2);
     Polygon2 = drawLabeledArrow(calcSymbol('Tunnel', 25), arrowOptions1);
@@ -77,7 +84,7 @@ let movingObjectTest = function () {
     //console.assert(specimen.getEffectiveCoords()[0].x == left + 100, 'Moving failed');
 }
 
-testToRun = [initShape, anchorTest, borderTest ]
+testToRun = [initShape, anchorTest, borderTest , equalAnchorTest]
 
 async function  runTests(tests) {
     for (const test of tests) {

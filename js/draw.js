@@ -147,7 +147,7 @@ class GlyphPath extends fabric.Path {
 
     if (shapeMeta.text) {
       shapeMeta.text.map((p) => {
-        let transformed = calculateTransformedPoints([{ x: p.x, y:-p.y, label: '' }], {
+        let transformed = calculateTransformedPoints([{ x: p.x, y: -p.y, label: '' }], {
           x: options.left,
           y: options.top,
           angle: options.angle
@@ -359,8 +359,8 @@ class BaseGroup extends fabric.Group {
 
   // Method to call when all nodes are processed
   allNodesProcessed() {
-    canvasObject.map(o => o.lockXToPolygon).filter(o => o.secondSourceObject).forEach(o => { EQanchorShape(o) })
-    canvasObject.map(o => o.lockYToPolygon).filter(o => o.secondSourceObject).forEach(o => { EQanchorShape(o) })
+    //canvasObject.map(o => o.lockXToPolygon).filter(o => o.secondSourceObject).forEach(o => { EQanchorShape('x',o) })
+    //canvasObject.map(o => o.lockYToPolygon).filter(o => o.secondSourceObject).forEach(o => { EQanchorShape('y',o) })
     console.log('All nodes processed');
     // Call another function here
   }
@@ -403,21 +403,13 @@ class BaseGroup extends fabric.Group {
 
     }
     if (Object.keys(this.lockXToPolygon).length) {
-      let sourcePoint = this.getBasePolygonVertex(
-        this.lockXToPolygon.sourcePoint)
-      let targetPoint = this.lockXToPolygon.TargetObject.getBasePolygonVertex(this.lockXToPolygon.targetPoint)
-
-      let lockAnno1 = new LockIcon(this, sourcePoint, targetPoint, 'x')
+      let lockAnno1 = new LockIcon(this, this.lockXToPolygon, 'x')
       this.anchorageLink.push(lockAnno1.objects);
       canvas.add(...lockAnno1.objects);
 
     }
     if (Object.keys(this.lockYToPolygon).length) {
-      let sourcePoint = this.getBasePolygonVertex(
-        this.lockYToPolygon.sourcePoint)
-      let targetPoint = this.lockYToPolygon.TargetObject.getBasePolygonVertex(this.lockYToPolygon.targetPoint)
-
-      let lockAnno2 = new LockIcon(this, sourcePoint, targetPoint, 'y')
+      let lockAnno2 = new LockIcon(this, this.lockYToPolygon, 'y')
       this.anchorageLink.push(lockAnno2.objects);
       canvas.add(...lockAnno2.objects);
 
@@ -554,33 +546,60 @@ class BaseGroup extends fabric.Group {
 fabric.BaseGroup = BaseGroup;
 
 class LockIcon {
-  constructor(baseGroup, sourcePoint, targetPoint, direction) {
+  constructor(baseGroup, lockParam, direction) {
     this.baseGroup = baseGroup;
     this.direction = direction
-    var midX
-    var midY
+    this.lines = []
+    this.dimensionTexts = []
+    this.icons = []
 
+    let sourcePoint = lockParam.sourceObject.getBasePolygonVertex(lockParam.sourcePoint)
+    let targetPoint = lockParam.TargetObject.getBasePolygonVertex(lockParam.targetPoint)
+    this.createLock(sourcePoint, targetPoint)
+
+    if (lockParam.secondSourceObject) {
+      let sourcePoint = lockParam.secondSourceObject.getBasePolygonVertex(
+        lockParam.secondSourcePoint)
+      let targetPoint = lockParam.secondTargetObject.getBasePolygonVertex(lockParam.secondTargetPoint)
+      this.createLock(sourcePoint, targetPoint)
+    }
+
+    this.icons.forEach(i => {
+      // Add hover and click event listeners
+      i.on('mouseover', this.onHover.bind(this));
+      i.on('mouseout', this.onMouseOut.bind(this));
+      i.on('mousedown', this.onClick.bind(this));
+    })
+
+    // Add lock lines and lock icon to the canvas
+    //return[this.line1, this.line2, this.lockIcon]
+    this.objects = [...this.lines, ...this.dimensionTexts, ...this.icons,]
+  }
+
+  createLock(sourcePoint, targetPoint) {
+    let midX
+    let midY
     // Create lock lines
     if (this.direction == 'x') {
-      this.line1 = new fabric.Line([sourcePoint.x, sourcePoint.y, targetPoint.x, sourcePoint.y], {
+      this.lines.push(new fabric.Line([sourcePoint.x, sourcePoint.y, targetPoint.x, sourcePoint.y], {
         stroke: 'green',
         strokeWidth: 5,
         selectable: false,
         functionalType: 'anchorLine',
-      });
-      this.line2 = new fabric.Line([targetPoint.x, sourcePoint.y, targetPoint.x, targetPoint.y], {
+      }));
+      this.lines.push(new fabric.Line([targetPoint.x, sourcePoint.y, targetPoint.x, targetPoint.y], {
         stroke: 'green',
         strokeWidth: 5,
         selectable: false,
         strokeDashArray: [10, 5],
         functionalType: 'anchorLine',
-      });
+      }));
       // Calculate the midpoint of line1
       midX = (sourcePoint.x + targetPoint.x) / 2;
       midY = sourcePoint.y;
 
 
-      this.dimensionText = new fabric.Text((targetPoint.x - sourcePoint.x).toFixed() + 'mm',
+      this.dimensionTexts.push(new fabric.Text((targetPoint.x - sourcePoint.x).toFixed() + 'mm',
         {
           left: midX,
           top: midY - 50,
@@ -599,26 +618,26 @@ class LockIcon {
             offsetY: 2
           })
         })
-
+      )
     } else {
-      this.line1 = new fabric.Line([sourcePoint.x, sourcePoint.y, sourcePoint.x, targetPoint.y], {
+      this.lines.push(new fabric.Line([sourcePoint.x, sourcePoint.y, sourcePoint.x, targetPoint.y], {
         stroke: 'red',
         strokeWidth: 5,
         selectable: false,
         functionalType: 'anchorLine',
-      });
-      this.line2 = new fabric.Line([sourcePoint.x, targetPoint.y, targetPoint.x, targetPoint.y], {
+      }));
+      this.lines.push(new fabric.Line([sourcePoint.x, targetPoint.y, targetPoint.x, targetPoint.y], {
         stroke: 'red',
         strokeWidth: 5,
         selectable: false,
         strokeDashArray: [10, 5],
         functionalType: 'anchorLine',
-      });
+      }));
       // Calculate the midpoint of line1
       midX = sourcePoint.x;
       midY = (sourcePoint.y + targetPoint.y) / 2;
 
-      this.dimensionText = new fabric.Text((targetPoint.y - sourcePoint.y).toFixed() + 'mm',
+      this.dimensionTexts.push(new fabric.Text((targetPoint.y - sourcePoint.y).toFixed() + 'mm',
         {
           left: midX - 50,
           top: midY,
@@ -637,10 +656,11 @@ class LockIcon {
             offsetY: 2
           })
         })
+      )
     }
 
     // Create a lock icon using Font Awesome
-    this.lockIcon = new fabric.Text('\uf023', {
+    this.icons.push(new fabric.Text('\uf023', {
       fontFamily: 'Font Awesome 5 Free',
       fontWeight: 900,
       left: midX,
@@ -653,33 +673,24 @@ class LockIcon {
       originY: 'center',
       selectable: false,
       functionalType: 'lockIcon',
-    });
-
-
-    // Add hover and click event listeners
-    this.lockIcon.on('mouseover', this.onHover.bind(this));
-    this.lockIcon.on('mouseout', this.onMouseOut.bind(this));
-    this.lockIcon.on('mousedown', this.onClick.bind(this));
-
-    // Add lock lines and lock icon to the canvas
-    //return[this.line1, this.line2, this.lockIcon]
-    this.objects = [this.line1, this.line2, this.dimensionText, this.lockIcon,]
+    }));
   }
 
-
-  onHover() {
-    this.lockIcon.set('text', '\uf3c1');
-    this.lockIcon.set('fill', 'brown');
-    this.dimensionText.set('fill', 'brown');
-    this.lockIcon.set('hoverCursor', 'pointer')
+  onHover(event) {
+    const i = this.icons.indexOf(event.target)
+    this.icons[i].set('text', '\uf3c1');
+    this.icons[i].set('fill', 'brown');
+    this.dimensionTexts[i].set('fill', 'brown');
+    this.icons[i].set('hoverCursor', 'pointer')
     canvas.renderAll();
   }
 
-  onMouseOut() {
-    this.lockIcon.set('text', '\uf023');
-    this.lockIcon.set('fill', 'gold');
-    this.dimensionText.set('fill', this.direction = 'x' ? 'green' : 'red');
-    this.lockIcon.set('hoverCursor', 'default')
+  onMouseOut(event) {
+    const i = this.icons.indexOf(event.target)
+    this.icons[i].set('text', '\uf023');
+    this.icons[i].set('fill', 'gold');
+    this.dimensionTexts[i].set('fill', this.direction = 'x' ? 'green' : 'red');
+    this.icons[i].set('hoverCursor', 'default')
     canvas.renderAll();
   }
 
@@ -895,7 +906,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}) {
       left: shape2.left + targetPoint.x - movingPoint.x + parseInt(spacingX),
       lockMovementX: true,
     });
-    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObjet: shape2, TargetObject: shape1 }
+    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1 }
     shape2.lockXToPolygon = anchor
   } else if (spacingX.toUpperCase() == 'EQ') {
     selectObjectHandler('Select first shape to equal distance locking', function (shape3) {
@@ -907,7 +918,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}) {
         const vertexIndex4 = await showTextBox('Enter vertex index for Polygon 4:', 'E1')
         if (vertexIndex4 === null) return;
 
-        anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObjet: shape2, TargetObject: shape1, secondSourcePoint: vertexIndex3, secondTargetPoint: vertexIndex4, secondSourceObject: shape3[0], secondTargetObject: shape4[0] }
+        anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1, secondSourcePoint: vertexIndex3, secondTargetPoint: vertexIndex4, secondSourceObject: shape3[0], secondTargetObject: shape4[0] }
         EQanchorShape('x', anchor)
         shape2.lockXToPolygon = anchor
         shape3.lockXToPolygon = anchor
@@ -921,7 +932,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}) {
       top: shape2.top + targetPoint.y - movingPoint.y + parseInt(spacingY),
       lockMovementY: true,
     });
-    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObjet: shape2, TargetObject: shape1 }
+    const anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1 }
     shape2.lockYToPolygon = anchor
   } else if (spacingY.toUpperCase() == 'EQ') {
     selectObjectHandler('Select first shape to equal distance locking', function (shape3) {
@@ -933,7 +944,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}) {
         const vertexIndex4 = await showTextBox('Enter vertex index for Polygon 4:', 'E1')
         if (vertexIndex4 === null) return;
 
-        anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObjet: shape2, TargetObject: shape1, secondSourcePoint: vertexIndex3, secondTargetPoint: vertexIndex4, secondSourceObject: shape3[0], secondTargetObject: shape4[0] }
+        const anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1, secondSourcePoint: vertexIndex3, secondTargetPoint: vertexIndex4, secondSourceObject: shape3[0], secondTargetObject: shape4[0] }
         EQanchorShape('y', anchor)
         shape2.lockYToPolygon = anchor
         shape3.lockYToPolygon = anchor
@@ -943,19 +954,11 @@ async function anchorShape(inputShape1, inputShape2, options = {}) {
   shape2.setCoords()
   shape2.updateAllCoord()
 
-
-  //shape1.add(shape2.basePolygon)
   if (!shape1.anchoredPolygon.includes(shape2)) {
     shape1.anchoredPolygon.push(shape2)
   }
 
-  //shape2.forEachObject(function (obj) {
-  //  //shape2.removeWithUpdate(obj)
-  //  canvas.remove(obj)
-  //})
-  //canvas.remove(shape2)
   shape1.updateAllCoord()
-  shape2.drawAnchorLinkage()
   if (!shape1.borderType) {
     canvas.bringObjectToFront(shape1)
   }
@@ -969,7 +972,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}) {
 }
 
 function EQanchorShape(direction, options) {
-  const [shape1, shape2, shape3, shape4] = [options.TargetObject, options.sourceObjet, options.secondSourceObject, options.secondTargetObject]
+  const [shape1, shape2, shape3, shape4] = [options.TargetObject, options.sourceObject, options.secondSourceObject, options.secondTargetObject]
   const [vertexIndex1, vertexIndex2, vertexIndex3, vertexIndex4] = [options.sourcePoint, options.targetPoint, options.secondSourcePoint, options.secondTargetPoint]
   const movingPoint = shape2.getBasePolygonVertex(vertexIndex1.toUpperCase())
   const targetPoint = shape1.getBasePolygonVertex(vertexIndex2.toUpperCase())
@@ -990,6 +993,10 @@ function EQanchorShape(direction, options) {
       spacingX: -totalFloat / 2,
       spacingY: ''
     })
+    shape2.lockXToPolygon = options
+    shape3.lockXToPolygon = options
+    shape2.updateAllCoord()
+    shape3.updateAllCoord()
   } else {
     const totalFloat = (movingPoint.y - targetPoint.y) + (secondTargetPoint.y - secondMovingPoint.y)
     anchorShape(shape1, shape2, {
@@ -1004,7 +1011,12 @@ function EQanchorShape(direction, options) {
       spacingX: '',
       spacingY: -totalFloat / 2,
     })
+    shape2.lockYToPolygon = options
+    shape3.lockYToPolygon = options
+
+    shape2.updateAllCoord()
+    shape3.updateAllCoord()
+
   }
-  shape3.updateAllCoord()
 }
 
