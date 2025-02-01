@@ -11,6 +11,25 @@ body {
   min-height: 100%;
   width: 100%;
   margin: 0 auto;
+
+}
+
+::-webkit-scrollbar{
+  width: 6px;
+}
+
+::-webkit-scrollbar-button{
+  display: none;
+}
+
+::-webkit-scrollbar-thumb{
+  border-radius: 3px;
+  background: #ccc;
+}
+
+::-webkit-scrollbar-track{
+  border-radius: 3px;
+  background: #111;
 }
 
 .side-bar[data-position="right"] {
@@ -414,13 +433,13 @@ div.side-panel.close {
   /* Adjust the height as needed */
   overflow-y: auto;
   background-color: #222;
-  border-top: 1px solid #ccc;
-  margin-top: 10px;
+  border-top: 4px solid #ccc;
   color: #fff;
   /* White text for readability */
   font-family: Arial, sans-serif;
   font-size: 16px;
-  margin: 4px 10px;
+  margin: 4px 0px;
+  padding-top: 8px;
   justify-content: left;
 }
 

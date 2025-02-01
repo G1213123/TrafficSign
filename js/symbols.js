@@ -8,11 +8,11 @@ const symbolsTemplate = {
   //  ], 'arcs': []
   //}],
 
-  'TestX': {
-    path: [{ 'vertex': [{ x: 0, y: 0, label: 'V1', start: 1 },], 'arcs': [] }],
-    text: [{ character: 'x', x: 0, y: 0, fontSize: 100 * 0.075, fontFamily: 'TransportMedium' },
-    { character: '中', x: 0, y: 0, fontSize: 5, fontFamily: 'Chinese' }]
-  },
+  //'TestX': {
+  //  path: [{ 'vertex': [{ x: 0, y: 0, label: 'V1', start: 1 },], 'arcs': [] }],
+  //  text: [{ character: 'x', x: 0, y: 0, fontSize: 100 * 0.075, fontFamily: 'TransportMedium' },
+  //  { character: '中', x: 0, y: 0, fontSize: 5, fontFamily: 'Chinese' }]
+  //},
 
   'StackArrow': {
     path: [{
@@ -275,7 +275,7 @@ const symbolsTemplate = {
     ],
     text: [
       { character: 'C', x: 4.845, y: -8, fontSize: 6.5 * 0.94, fontFamily: 'TransportMedium' },
-      { character: '中', x: -9.8, y: - 8.5, fontSize: 5.7 * 0.9, fontFamily: 'Chinese' }
+      { character: '中', x: -9.8, y: - 9, fontSize: 5.7 * 0.9, fontFamily: 'Chinese' }
     ]
   },
 
@@ -380,8 +380,8 @@ const symbolsTemplate = {
       },
     ],
     text: [
-      { character: 'E', x: 4.845, y: -8 , fontSize: 6.5 * 0.94, fontFamily: 'TransportMedium' },
-      { character: '東', x: -9.8, y: - 8.5, fontSize: 5.7 * 0.9, fontFamily: 'Chinese' }
+      { character: 'E', x: 4.945, y: -8 , fontSize: 6.5 * 0.94, fontFamily: 'TransportMedium' },
+      { character: '東', x: -9.8, y: - 9, fontSize: 5.7 * 0.9, fontFamily: 'Chinese' }
     ]
   },
 
@@ -486,8 +486,8 @@ const symbolsTemplate = {
       },
     ],
     text: [
-      { character: 'W', x: 4.845, y: -8, fontSize: 6.5 * 0.94, fontFamily: 'TransportMedium' },
-      { character: '西', x: -9.8, y: - 8.5, fontSize: 5.7 * 0.9, fontFamily: 'Chinese' }
+      { character: 'W', x: 4.2, y: -8, fontSize: 6.5 * 0.94, fontFamily: 'TransportMedium' },
+      { character: '西', x: -9.8, y: - 9, fontSize: 5.7 * 0.9, fontFamily: 'Chinese' }
     ]
   },
 

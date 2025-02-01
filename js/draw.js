@@ -883,7 +883,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}) {
   if (!vertexIndex2) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
   const spacingX = options.spacingX != null ? options.spacingX : await showTextBox('Enter spacing in X \n (Leave empty if no need for axis):', 100)
   if (spacingX == null) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
-  const spacingY = options.spacingY != null ? options.spacingY : await showTextBox('Enter spacing in Y (Leave empty if no need for axis):', 100)
+  const spacingY = options.spacingY != null ? options.spacingY : await showTextBox('Enter spacing in Y \n (Leave empty if no need for axis):', 100)
   if (spacingY == null) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
 
   const movingPoint = shape2.getBasePolygonVertex(vertexIndex1.toUpperCase())
