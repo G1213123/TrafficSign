@@ -341,7 +341,7 @@ class BaseGroup extends fabric.Group {
     });
     // If all nodes are exhausted, call another function
     if (this.canvasID == sourceList[0].canvasID) {
-      this.allNodesProcessed();
+      this.allNodesProcessed(sourceList);
     }
 
   }
@@ -358,9 +358,9 @@ class BaseGroup extends fabric.Group {
   }
 
   // Method to call when all nodes are processed
-  allNodesProcessed() {
-    //canvasObject.map(o => o.lockXToPolygon).filter(o => o.secondSourceObject).forEach(o => { EQanchorShape('x',o) })
-    //canvasObject.map(o => o.lockYToPolygon).filter(o => o.secondSourceObject).forEach(o => { EQanchorShape('y',o) })
+  allNodesProcessed(sourceList=[]) {
+    canvasObject.map(o => o.lockXToPolygon).filter(o => o.secondSourceObject).forEach(o => { EQanchorShape('x',o, sourceList) })
+    canvasObject.map(o => o.lockYToPolygon).filter(o => o.secondSourceObject).forEach(o => { EQanchorShape('y',o, sourceList) })
     console.log('All nodes processed');
     // Call another function here
   }
@@ -425,7 +425,7 @@ class BaseGroup extends fabric.Group {
 
   }
   // Method to update coordinates and emit delta
-  updateAllCoord(event, sourceList = []) {
+  updateAllCoord(event, sourceList = [], selfOnly = false) {
     const deltaX = this.basePolygon.getCoords()[0].x - this.refTopLeft.left;
     const deltaY = this.basePolygon.getCoords()[0].y - this.refTopLeft.top;
     this.updateCoord(true);
@@ -434,8 +434,10 @@ class BaseGroup extends fabric.Group {
       this.drawAnchorLinkage();
     }
     sourceList.includes(this) ? sourceList : sourceList.push(this)
-    this.emitDelta(deltaX, deltaY, sourceList);
-    this.borderResize(sourceList);
+    if (!selfOnly){
+      this.emitDelta(deltaX, deltaY, sourceList);
+      this.borderResize(sourceList);
+    }
   }
 
   // Method to update coordinates
@@ -883,7 +885,7 @@ document.getElementById('set-anchor').addEventListener('click', function () {
   }
 });
 
-async function anchorShape(inputShape1, inputShape2, options = {}) {
+async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = []) {
 
   const shape1 = Array.isArray(inputShape1) ? inputShape1[0] : inputShape1
   const shape2 = Array.isArray(inputShape2) ? inputShape2[0] : inputShape2
@@ -951,27 +953,28 @@ async function anchorShape(inputShape1, inputShape2, options = {}) {
       });
     });
   }
-  shape2.setCoords()
-  shape2.updateAllCoord()
+  //shape2.setCoords()
+    shape1.updateAllCoord(null, sourceList)
+    shape2.updateAllCoord(null, sourceList)
+  
 
   if (!shape1.anchoredPolygon.includes(shape2)) {
     shape1.anchoredPolygon.push(shape2)
   }
 
-  shape1.updateAllCoord()
   if (!shape1.borderType) {
     canvas.bringObjectToFront(shape1)
   }
 
-  canvas.setActiveObject(shape2)
-  CanvasObjectInspector.SetActiveObjectList(shape2)
+  //canvas.setActiveObject(shape2)
+  //CanvasObjectInspector.SetActiveObjectList(shape2)
 
   document.addEventListener('keydown', ShowHideSideBarEvent);
 
   canvas.renderAll();
 }
 
-function EQanchorShape(direction, options) {
+function EQanchorShape(direction, options, sourceList = []) {
   const [shape1, shape2, shape3, shape4] = [options.TargetObject, options.sourceObject, options.secondSourceObject, options.secondTargetObject]
   const [vertexIndex1, vertexIndex2, vertexIndex3, vertexIndex4] = [options.sourcePoint, options.targetPoint, options.secondSourcePoint, options.secondTargetPoint]
   const movingPoint = shape2.getBasePolygonVertex(vertexIndex1.toUpperCase())
@@ -986,17 +989,15 @@ function EQanchorShape(direction, options) {
       vertexIndex2: vertexIndex2,
       spacingX: totalFloat / 2,
       spacingY: ''
-    })
+    }, sourceList)
     anchorShape(shape4, shape3, {
       vertexIndex1: vertexIndex4,
       vertexIndex2: vertexIndex3,
       spacingX: -totalFloat / 2,
       spacingY: ''
-    })
+    }, sourceList)
     shape2.lockXToPolygon = options
     shape3.lockXToPolygon = options
-    shape2.updateAllCoord()
-    shape3.updateAllCoord()
   } else {
     const totalFloat = (movingPoint.y - targetPoint.y) + (secondTargetPoint.y - secondMovingPoint.y)
     anchorShape(shape1, shape2, {
@@ -1004,18 +1005,20 @@ function EQanchorShape(direction, options) {
       vertexIndex2: vertexIndex2,
       spacingX: '',
       spacingY: totalFloat / 2,
-    })
+    }, sourceList)
     anchorShape(shape4, shape3, {
       vertexIndex1: vertexIndex4,
       vertexIndex2: vertexIndex3,
       spacingX: '',
       spacingY: -totalFloat / 2,
-    })
+    }, sourceList)
     shape2.lockYToPolygon = options
     shape3.lockYToPolygon = options
 
-    shape2.updateAllCoord()
-    shape3.updateAllCoord()
+
+      shape2.updateAllCoord(null, sourceList)
+      shape3.updateAllCoord(null, sourceList)
+    
 
   }
 }

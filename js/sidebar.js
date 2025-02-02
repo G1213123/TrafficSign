@@ -642,6 +642,7 @@ let FormBorderWrapComponent = {
       GeneralHandler.createselect('input-type', 'Select Border Type', Object.keys(BorderTypeScheme), parent, '', '', 'select')
       GeneralHandler.createselect('input-color', 'Select Color Scheme', Object.keys(BorderColorScheme), parent, '', '', 'select')
       GeneralHandler.createbutton('input-text', 'Select Objects for border', parent, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
+      GeneralHandler.createbutton('input-text', 'Add stack border divider', parent, 'input', FormBorderWrapComponent.StackDividerHandler, 'click')
     }
   },
   BorderCreateHandler: async function () {
@@ -650,6 +651,24 @@ let FormBorderWrapComponent = {
         FormBorderWrapComponent.BorderGroupCreate(heightObjects, widthObjects)
       })
     })
+  },
+
+  StackDividerHandler: function(){
+    selectObjectHandler('Select object above divider', function (aboveObject) {
+      selectObjectHandler('Select object below divider', function (belowObject) {
+        FormBorderWrapComponent.DividerCreate(aboveObject, belowObject)
+      })
+    })
+  },
+
+  DividerCreate: function(aboveObject, belowObject, options = null){
+    const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
+    const aboveObjectBBox = FormBorderWrapComponent.getBoundingBox(aboveObject)
+    const aboveBottom = aboveObjectBBox.bottom
+    const belowTop = FormBorderWrapComponent.getBoundingBox(belowObject).top
+    const width = aboveObjectBBox.right - aboveObjectBBox.left
+    const BaseBorder = drawDivider(xHeight, aboveBottom, width)
+    const borderGroup = drawBasePolygon(BaseBorder, 'Divider')
   },
 
   // Function to get the bounding box of specific objects

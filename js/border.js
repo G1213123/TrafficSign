@@ -30,17 +30,17 @@ function StackBorderTemplate(xHeight, block, rounding) {
 
         'vertex': [
             { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', radius: 3, start: 1 },
-            { x: block.width/ length + padding.right + border, y: 0 - padding.top - border, label: 'V2', radius: 3, start: 0 },
-            { x: block.width/ length + padding.right + border, y: block.height/ length + padding.bottom + border, label: 'V3', radius: 3, start: 0 },
-            { x: 0 - padding.left - border, y: block.height/ length + padding.bottom + border, label: 'V4', radius: 3, start: 0 },
+            { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', radius: 3, start: 0 },
+            { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, label: 'V3', radius: 3, start: 0 },
+            { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, label: 'V4', radius: 3, start: 0 },
         ], 'arcs': [],
         'fill': 'symbol'
     }, {
         'vertex': [
             { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', radius: 1.5, start: 1 },
-            { x: block.width/ length + padding.right, y: 0 - padding.top, label: 'V6', radius: 1.5, start: 0 },
-            { x: block.width/ length + padding.right, y: block.height/ length + padding.bottom, label: 'V7', radius: 1.5, start: 0 },
-            { x: 0 - padding.right, y: block.height/ length + padding.bottom, label: 'V8', radius: 1.5, start: 0 },
+            { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', radius: 1.5, start: 0 },
+            { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V7', radius: 1.5, start: 0 },
+            { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V8', radius: 1.5, start: 0 },
         ], 'arcs': [],
         'fill': 'background'
     },]
@@ -55,7 +55,7 @@ function StackBorderTemplate(xHeight, block, rounding) {
             arc.radius *= length;
         });
     });
-    return {path: returnBorder}
+    return { path: returnBorder }
 }
 
 
@@ -148,7 +148,7 @@ function FlagLeftBorderTemplate(xHeight, block, rounding) {
             arc.radius *= length;
         });
     });
-    return {path: returnBorder}
+    return { path: returnBorder }
 
 
 }
@@ -170,7 +170,7 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
             p.y = p.y + bbox.top;
         });
 
-        const pathData = vertexToPath({path:[p]});
+        const pathData = vertexToPath({ path: [p] });
         baseGroup.push(
             new fabric.Path(pathData,
                 {
@@ -214,7 +214,7 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
             p.y = p.y + bbox.top;
         });
 
-        const pathData = vertexToPath({path:[p]});
+        const pathData = vertexToPath({ path: [p] });
         baseGroup.push(
             new fabric.Path(pathData,
                 {
@@ -232,4 +232,46 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
     GroupedBorder.vertex = shapeMeta.path.map(p => p.vertex).flat()
 
     return GroupedBorder
+}
+
+drawDivider = function (xHeight, top, width, frameWidth = 1) {
+    const length = xHeight / 4
+    const Xwidth = width / length
+    let dividerTemplate = [{
+        'vertex': [
+            { x: 0, y: 0, label: 'V1', start: 1 },
+            { x: Xwidth / 2, y: 0, label: 'V2', radius: 1.5, start: 0 },
+            { x: Xwidth / 2, y: -1.5, label: 'V3', start: 0 },
+            { x: Xwidth / 2, y: 2.5, label: 'V4', start: 0 },
+            { x: Xwidth / 2, y: 1, label: 'V5', radius: 1.5, start: 0 },
+            { x: -Xwidth / 2, y: 1, label: 'V6', radius: 1.5, start: 0 },
+            { x: -Xwidth / 2, y: 2.5, label: 'V7', start: 0 },
+            { x: -Xwidth / 2, y: -1.5, label: 'V8', start: 0 },
+            { x: -Xwidth / 2, y: 0, label: 'V9', radius: 1.5, start: 0 },
+        ], 'arcs': [],
+        'fill': 'symbol'
+    }]
+
+    dividerTemplate.forEach(p => {
+
+        p.vertex.forEach(vertex => {
+            vertex.x *= length;
+            vertex.y *= length;
+            if (vertex.radius) vertex.radius *= length;
+        });
+    }
+    )
+
+    const arrowOptions1 = {
+        left: 0,
+        top: top,
+        fill: '#FFF',
+        angle: 0,
+        // originX: 'center',
+        objectCaching: false,
+        strokeWidth: 0
+      },
+
+    dividerShape = new GlyphPath({ path: dividerTemplate }, arrowOptions1)
+    return dividerShape
 }

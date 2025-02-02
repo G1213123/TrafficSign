@@ -5,6 +5,13 @@ let borderTest = function () {
     FormBorderWrapComponent.BorderGroupCreate(heightObjects, widthObjects, {xHeight:100, borderType: 'stack', colorType:'Blue Background'})
 }
 
+let dividerTest = function () {
+    above = [canvasObject[5]]
+      below = [canvasObject[0]]
+  
+      FormBorderWrapComponent.DividerCreate(above, below, {xHeight:100})
+  }
+
 let loopAnchoredObjectsTest = function () {
     result = loopAnchoredObjects(canvasObject, console.log)
     console.log(result)
@@ -63,7 +70,7 @@ let initShape = async function () {
     await FormTextAddComponent.TextonMouseClick(null, { left: 250, top: 250, text: '香港', xHeight: 100 })
 
 
-    const arrowOptions1 = { x: 100, y: 100, length: 25, angle: 0, color: 'white', };
+    const arrowOptions1 = { x: 100, y: 0, length: 25, angle: 0, color: 'white', };
     const arrowOptions2 = { x: 200, y: 200, length: 25, angle: -45, color: 'white', };
     const arrowOptions3 = { x: 0, y: 0, length: 25, angle: 0, color: 'white', };
     Polygon1 = drawLabeledArrow(calcSymbol('StackArrow', 25), arrowOptions2);
@@ -84,7 +91,7 @@ let movingObjectTest = function () {
     //console.assert(specimen.getEffectiveCoords()[0].x == left + 100, 'Moving failed');
 }
 
-testToRun = [initShape, anchorTest, borderTest , equalAnchorTest]
+testToRun = [initShape, anchorTest, borderTest , equalAnchorTest, dividerTest]
 
 async function  runTests(tests) {
     for (const test of tests) {
