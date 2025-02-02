@@ -422,7 +422,7 @@ let FormDrawAddComponent = {
 
   createButtonSVG: (symbolType, length) => {
     const symbolData = calcSymbol(symbolType, length);
-    const pathData = vertexToPath(symbolData);
+    let pathData = vertexToPath(symbolData);
 
     const svgWidth = 100;
     const svgHeight = 100;
@@ -437,9 +437,9 @@ let FormDrawAddComponent = {
     const translateX = (svgWidth - bbox.width * scale) / 2 - bbox.left * scale;
     const translateY = (svgHeight - bbox.height * scale) / 2 - bbox.top * scale;
 
-    const svg = `<svg width="100%" height="100%" viewBox="0 0 ${svgWidth} ${svgHeight}" preserveAspectRatio="xMidYMid meet">
-               <path d="${pathData}" fill="none" stroke="black" stroke-width="2" transform="translate(${translateX}, ${translateY}) scale(${scale})"/>
-             </svg>`;
+    pathData =  pathData.replace(/<path/g, `<path transform="translate(${translateX}, ${translateY}) scale(${scale})"`);
+    pathData = pathData.replace(/fill="[^"]*"/g, 'fill="none" stroke="black"');
+    const svg = pathData;
 
 
     return svg;

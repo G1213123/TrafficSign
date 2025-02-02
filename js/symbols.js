@@ -491,6 +491,27 @@ const symbolsTemplate = {
     ]
   },
 
+  'WHC': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0 },
+          { x: 4.5, y: 3, label: 'V3',  start: 0 },
+          { x: 0, y: 9, label: 'V4',  start: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6,   direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6,   direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '1', x: -0.39, y: 1, fontSize: 8, fontFamily: 'TransportMedium' },
+    ]
+  },
+
 };
 
 let FontGlyphs = { 'TransportMedium': null, 'Chinese': null }
@@ -547,13 +568,11 @@ function getInsertOffset(shapeMeta, angle = 0) {
 
 // Convert shapeMeta.vertex points to SVG path string with circular trims
 function vertexToPath(shapeMeta) {
+  let svgContent = '<svg>';
   let pathString = '';
 
   shapeMeta.path.forEach((path, pathindex) => {
-    if (pathindex != 0) {
-      pathString += ' Z'
-    }
-
+    const fillColor = path.fill || 'white';
     for (let i = 0; i < path.vertex.length; i++) {
       const current = path.vertex[i];
       const next = path.vertex[(i + 1) % path.vertex.length];
@@ -622,10 +641,13 @@ function vertexToPath(shapeMeta) {
     }
 
     //pathString += ' Z'; // Close the path
+      svgContent += `<path d="${pathString}" fill="${fillColor}" />`;
+      pathString = ''
   })
 
   if (shapeMeta.text) {
     shapeMeta.text.forEach(t => {
+      const fillColor = t.fill || 'white';
       charPath = FontGlyphs[t.fontFamily].getPath(t.character, t.x, t.y, t.fontSize, {flipY:true})
 
         charPath.commands.map(c => {
@@ -635,10 +657,11 @@ function vertexToPath(shapeMeta) {
           }
         })
   
-      pathString += charPath.toPathData()
+        svgContent += `<path d="${charPath.toPathData()} Z" fill="${fillColor}" />`;
     })
   }
-  return pathString;
+  svgContent += '</svg>';
+  return svgContent;
 }
 
 // Calculate the exterior angle between the edges
