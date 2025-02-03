@@ -234,7 +234,7 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
     return GroupedBorder
 }
 
-drawDivider = function (xHeight, top, width, frameWidth = 1) {
+drawDivider = async function (xHeight, top, width, frameWidth = 1) {
     const length = xHeight / 4
     const Xwidth = width / length
     let dividerTemplate = [{
@@ -249,7 +249,7 @@ drawDivider = function (xHeight, top, width, frameWidth = 1) {
             { x: -Xwidth / 2, y: -1.5, label: 'V8', start: 0 },
             { x: -Xwidth / 2, y: 0, label: 'V9', radius: 1.5, start: 0 },
         ], 'arcs': [],
-        'fill': 'symbol'
+        'fill': 'white'
     }]
 
     dividerTemplate.forEach(p => {
@@ -272,6 +272,7 @@ drawDivider = function (xHeight, top, width, frameWidth = 1) {
         strokeWidth: 0
       },
 
-    dividerShape = new GlyphPath({ path: dividerTemplate }, arrowOptions1)
+    dividerShape = new GlyphPath()
+    await dividerShape.initialize({ path: dividerTemplate }, arrowOptions1);
     return dividerShape
 }

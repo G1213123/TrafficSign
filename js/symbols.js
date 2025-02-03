@@ -169,12 +169,12 @@ const symbolsTemplate = {
     path: [ // 3.5.7.7
       {
         'vertex': [
-          { x: 0, y: 0, label: 'V1', radius: 1.5, start: 1 },
+          { x: 0, y: 0, label: 'V1', start: 1 },
           { x: 11, y: 0, label: 'V2', radius: 1.5, start: 0 },
           { x: 11, y: 16, label: 'V3', radius: 1.5, start: 0 },
           { x: -11, y: 16, label: 'V4', radius: 1.5, start: 0 },
           { x: -11, y: 0, label: 'V5', radius: 1.5, start: 0 },
-          { x: 0, y: 1, label: 'V6', radius: 0.5, start: 1 },
+          { x: 0, y: 1, label: 'V6', start: 1 },
           { x: -10, y: 1, label: 'V7', radius: 0.5, start: 0 },
           { x: -10, y: 15, label: 'V8', radius: 0.5, start: 0 },
           { x: 10, y: 15, label: 'V9', radius: 0.5, start: 0 },
@@ -213,47 +213,47 @@ const symbolsTemplate = {
           { x: -8.034, y: 3.485, label: 'V35', start: 0 },
           { x: -9, y: 4, label: 'V36', start: 0 },
         ], 'arcs': [
-          { start: 'V22', end: 'V23', radius: 3.57,   direction: 1, sweep: 0 },
-          { start: 'V23', end: 'V24', radius: 2.8,    direction: 0, sweep: 0 },
-          { start: 'V24', end: 'V25', radius: 2.456,  direction: 1, sweep: 0 },
-          { start: 'V25', end: 'V26', radius: 2.8,    direction: 0, sweep: 0 },
-          { start: 'V26', end: 'V27', radius: 3.57,   direction: 1, sweep: 0 },
-          { start: 'V30', end: 'V31', radius: 3.57,   direction: 0, sweep: 0 },
-          { start: 'V31', end: 'V32', radius: 2.8,    direction: 1, sweep: 0 },
-          { start: 'V32', end: 'V33', radius: 2.456,  direction: 0, sweep: 0 },
-          { start: 'V33', end: 'V34', radius: 2.8,    direction: 1, sweep: 0 },
-          { start: 'V34', end: 'V35', radius: 3.57,   direction: 0, sweep: 0 },
+          { start: 'V22', end: 'V23', radius: 3.57, direction: 1, sweep: 0 },
+          { start: 'V23', end: 'V24', radius: 2.8, direction: 0, sweep: 0 },
+          { start: 'V24', end: 'V25', radius: 2.456, direction: 1, sweep: 0 },
+          { start: 'V25', end: 'V26', radius: 2.8, direction: 0, sweep: 0 },
+          { start: 'V26', end: 'V27', radius: 3.57, direction: 1, sweep: 0 },
+          { start: 'V30', end: 'V31', radius: 3.57, direction: 0, sweep: 0 },
+          { start: 'V31', end: 'V32', radius: 2.8, direction: 1, sweep: 0 },
+          { start: 'V32', end: 'V33', radius: 2.456, direction: 0, sweep: 0 },
+          { start: 'V33', end: 'V34', radius: 2.8, direction: 1, sweep: 0 },
+          { start: 'V34', end: 'V35', radius: 3.57, direction: 0, sweep: 0 },
         ]
       },
       {
         'vertex': [
-          { x: -9, y: 4.5,        label: 'V41', start: 1 },
-          { x: -8.034, y: 3.985,  label: 'V42', start: 0 },
-          { x: -4.5, y: 4.083,    label: 'V43', start: 0 },
-          { x: -1.5, y: 4.025,    label: 'V44', start: 0 },
-          { x: 1.5, y: 4.025,     label: 'V45', start: 0 },
-          { x: 4.5, y: 4.083,     label: 'V46', start: 0 },
-          { x: 8.034, y: 3.985,   label: 'V47', start: 0 },
-          { x: 9, y: 4.5,         label: 'V48', start: 0 },
-          { x: 9, y: 5.5,         label: 'V49', start: 0 },
-          { x: 8.034, y: 4.985,   label: 'V50', start: 0 },
-          { x: 4.5, y: 4.983,     label: 'V51', start: 0 },
-          { x: 1.5, y: 5.025,     label: 'V52', start: 0 },
-          { x: -1.5, y: 5.025,    label: 'V53', start: 0 },
-          { x: -4.5, y: 5.083,    label: 'V54', start: 0 },
-          { x: -8.034, y: 4.985,  label: 'V55', start: 0 },
-          { x: -9, y: 5.5,        label: 'V56', start: 0 },
+          { x: -9, y: 4.5, label: 'V41', start: 1 },
+          { x: -8.034, y: 3.985, label: 'V42', start: 0 },
+          { x: -4.5, y: 4.083, label: 'V43', start: 0 },
+          { x: -1.5, y: 4.025, label: 'V44', start: 0 },
+          { x: 1.5, y: 4.025, label: 'V45', start: 0 },
+          { x: 4.5, y: 4.083, label: 'V46', start: 0 },
+          { x: 8.034, y: 3.985, label: 'V47', start: 0 },
+          { x: 9, y: 4.5, label: 'V48', start: 0 },
+          { x: 9, y: 5.5, label: 'V49', start: 0 },
+          { x: 8.034, y: 4.985, label: 'V50', start: 0 },
+          { x: 4.5, y: 4.983, label: 'V51', start: 0 },
+          { x: 1.5, y: 5.025, label: 'V52', start: 0 },
+          { x: -1.5, y: 5.025, label: 'V53', start: 0 },
+          { x: -4.5, y: 5.083, label: 'V54', start: 0 },
+          { x: -8.034, y: 4.985, label: 'V55', start: 0 },
+          { x: -9, y: 5.5, label: 'V56', start: 0 },
         ], 'arcs': [
-          { start: 'V42', end: 'V43', radius: 3.57,   direction: 1, sweep: 0 },
-          { start: 'V43', end: 'V44', radius: 2.8,    direction: 0, sweep: 0 },
-          { start: 'V44', end: 'V45', radius: 2.456,  direction: 1, sweep: 0 },
-          { start: 'V45', end: 'V46', radius: 2.8,    direction: 0, sweep: 0 },
-          { start: 'V46', end: 'V47', radius: 3.57,   direction: 1, sweep: 0 },
-          { start: 'V50', end: 'V51', radius: 3.57,   direction: 0, sweep: 0 },
-          { start: 'V51', end: 'V52', radius: 2.8,    direction: 1, sweep: 0 },
-          { start: 'V52', end: 'V53', radius: 2.456,  direction: 0, sweep: 0 },
-          { start: 'V53', end: 'V54', radius: 2.8,    direction: 1, sweep: 0 },
-          { start: 'V54', end: 'V55', radius: 3.57,   direction: 0, sweep: 0 },
+          { start: 'V42', end: 'V43', radius: 3.57, direction: 1, sweep: 0 },
+          { start: 'V43', end: 'V44', radius: 2.8, direction: 0, sweep: 0 },
+          { start: 'V44', end: 'V45', radius: 2.456, direction: 1, sweep: 0 },
+          { start: 'V45', end: 'V46', radius: 2.8, direction: 0, sweep: 0 },
+          { start: 'V46', end: 'V47', radius: 3.57, direction: 1, sweep: 0 },
+          { start: 'V50', end: 'V51', radius: 3.57, direction: 0, sweep: 0 },
+          { start: 'V51', end: 'V52', radius: 2.8, direction: 1, sweep: 0 },
+          { start: 'V52', end: 'V53', radius: 2.456, direction: 0, sweep: 0 },
+          { start: 'V53', end: 'V54', radius: 2.8, direction: 1, sweep: 0 },
+          { start: 'V54', end: 'V55', radius: 3.57, direction: 0, sweep: 0 },
         ]
       },
     ],
@@ -267,12 +267,12 @@ const symbolsTemplate = {
     path: [ // 3.5.7.7
       {
         'vertex': [
-          { x: 0, y: 0, label: 'V1', radius: 1.5, start: 1 },
+          { x: 0, y: 0, label: 'V1', start: 1 },
           { x: 11, y: 0, label: 'V2', radius: 1.5, start: 0 },
           { x: 11, y: 16, label: 'V3', radius: 1.5, start: 0 },
           { x: -11, y: 16, label: 'V4', radius: 1.5, start: 0 },
           { x: -11, y: 0, label: 'V5', radius: 1.5, start: 0 },
-          { x: 0, y: 1, label: 'V6', radius: 0.5, start: 1 },
+          { x: 0, y: 1, label: 'V6',  start: 1 },
           { x: -10, y: 1, label: 'V7', radius: 0.5, start: 0 },
           { x: -10, y: 15, label: 'V8', radius: 0.5, start: 0 },
           { x: 10, y: 15, label: 'V9', radius: 0.5, start: 0 },
@@ -311,52 +311,52 @@ const symbolsTemplate = {
           { x: -8.034, y: 3.485, label: 'V35', start: 0 },
           { x: -9, y: 4, label: 'V36', start: 0 },
         ], 'arcs': [
-          { start: 'V22', end: 'V23', radius: 3.57,   direction: 1, sweep: 0 },
-          { start: 'V23', end: 'V24', radius: 2.8,    direction: 0, sweep: 0 },
-          { start: 'V24', end: 'V25', radius: 2.456,  direction: 1, sweep: 0 },
-          { start: 'V25', end: 'V26', radius: 2.8,    direction: 0, sweep: 0 },
-          { start: 'V26', end: 'V27', radius: 3.57,   direction: 1, sweep: 0 },
-          { start: 'V30', end: 'V31', radius: 3.57,   direction: 0, sweep: 0 },
-          { start: 'V31', end: 'V32', radius: 2.8,    direction: 1, sweep: 0 },
-          { start: 'V32', end: 'V33', radius: 2.456,  direction: 0, sweep: 0 },
-          { start: 'V33', end: 'V34', radius: 2.8,    direction: 1, sweep: 0 },
-          { start: 'V34', end: 'V35', radius: 3.57,   direction: 0, sweep: 0 },
+          { start: 'V22', end: 'V23', radius: 3.57, direction: 1, sweep: 0 },
+          { start: 'V23', end: 'V24', radius: 2.8, direction: 0, sweep: 0 },
+          { start: 'V24', end: 'V25', radius: 2.456, direction: 1, sweep: 0 },
+          { start: 'V25', end: 'V26', radius: 2.8, direction: 0, sweep: 0 },
+          { start: 'V26', end: 'V27', radius: 3.57, direction: 1, sweep: 0 },
+          { start: 'V30', end: 'V31', radius: 3.57, direction: 0, sweep: 0 },
+          { start: 'V31', end: 'V32', radius: 2.8, direction: 1, sweep: 0 },
+          { start: 'V32', end: 'V33', radius: 2.456, direction: 0, sweep: 0 },
+          { start: 'V33', end: 'V34', radius: 2.8, direction: 1, sweep: 0 },
+          { start: 'V34', end: 'V35', radius: 3.57, direction: 0, sweep: 0 },
         ]
       },
       {
         'vertex': [
-          { x: -9, y: 4.5,        label: 'V41', start: 1 },
-          { x: -8.034, y: 3.985,  label: 'V42', start: 0 },
-          { x: -4.5, y: 4.083,    label: 'V43', start: 0 },
-          { x: -1.5, y: 4.025,    label: 'V44', start: 0 },
-          { x: 1.5, y: 4.025,     label: 'V45', start: 0 },
-          { x: 4.5, y: 4.083,     label: 'V46', start: 0 },
-          { x: 8.034, y: 3.985,   label: 'V47', start: 0 },
-          { x: 9, y: 4.5,         label: 'V48', start: 0 },
-          { x: 9, y: 5.5,         label: 'V49', start: 0 },
-          { x: 8.034, y: 4.985,   label: 'V50', start: 0 },
-          { x: 4.5, y: 4.983,     label: 'V51', start: 0 },
-          { x: 1.5, y: 5.025,     label: 'V52', start: 0 },
-          { x: -1.5, y: 5.025,    label: 'V53', start: 0 },
-          { x: -4.5, y: 5.083,    label: 'V54', start: 0 },
-          { x: -8.034, y: 4.985,  label: 'V55', start: 0 },
-          { x: -9, y: 5.5,        label: 'V56', start: 0 },
+          { x: -9, y: 4.5, label: 'V41', start: 1 },
+          { x: -8.034, y: 3.985, label: 'V42', start: 0 },
+          { x: -4.5, y: 4.083, label: 'V43', start: 0 },
+          { x: -1.5, y: 4.025, label: 'V44', start: 0 },
+          { x: 1.5, y: 4.025, label: 'V45', start: 0 },
+          { x: 4.5, y: 4.083, label: 'V46', start: 0 },
+          { x: 8.034, y: 3.985, label: 'V47', start: 0 },
+          { x: 9, y: 4.5, label: 'V48', start: 0 },
+          { x: 9, y: 5.5, label: 'V49', start: 0 },
+          { x: 8.034, y: 4.985, label: 'V50', start: 0 },
+          { x: 4.5, y: 4.983, label: 'V51', start: 0 },
+          { x: 1.5, y: 5.025, label: 'V52', start: 0 },
+          { x: -1.5, y: 5.025, label: 'V53', start: 0 },
+          { x: -4.5, y: 5.083, label: 'V54', start: 0 },
+          { x: -8.034, y: 4.985, label: 'V55', start: 0 },
+          { x: -9, y: 5.5, label: 'V56', start: 0 },
         ], 'arcs': [
-          { start: 'V42', end: 'V43', radius: 3.57,   direction: 1, sweep: 0 },
-          { start: 'V43', end: 'V44', radius: 2.8,    direction: 0, sweep: 0 },
-          { start: 'V44', end: 'V45', radius: 2.456,  direction: 1, sweep: 0 },
-          { start: 'V45', end: 'V46', radius: 2.8,    direction: 0, sweep: 0 },
-          { start: 'V46', end: 'V47', radius: 3.57,   direction: 1, sweep: 0 },
-          { start: 'V50', end: 'V51', radius: 3.57,   direction: 0, sweep: 0 },
-          { start: 'V51', end: 'V52', radius: 2.8,    direction: 1, sweep: 0 },
-          { start: 'V52', end: 'V53', radius: 2.456,  direction: 0, sweep: 0 },
-          { start: 'V53', end: 'V54', radius: 2.8,    direction: 1, sweep: 0 },
-          { start: 'V54', end: 'V55', radius: 3.57,   direction: 0, sweep: 0 },
+          { start: 'V42', end: 'V43', radius: 3.57, direction: 1, sweep: 0 },
+          { start: 'V43', end: 'V44', radius: 2.8, direction: 0, sweep: 0 },
+          { start: 'V44', end: 'V45', radius: 2.456, direction: 1, sweep: 0 },
+          { start: 'V45', end: 'V46', radius: 2.8, direction: 0, sweep: 0 },
+          { start: 'V46', end: 'V47', radius: 3.57, direction: 1, sweep: 0 },
+          { start: 'V50', end: 'V51', radius: 3.57, direction: 0, sweep: 0 },
+          { start: 'V51', end: 'V52', radius: 2.8, direction: 1, sweep: 0 },
+          { start: 'V52', end: 'V53', radius: 2.456, direction: 0, sweep: 0 },
+          { start: 'V53', end: 'V54', radius: 2.8, direction: 1, sweep: 0 },
+          { start: 'V54', end: 'V55', radius: 3.57, direction: 0, sweep: 0 },
         ]
       },
     ],
     text: [
-      { character: 'E', x: 4.945, y: -8 , fontSize: 6.5 * 0.94, fontFamily: 'TransportMedium' },
+      { character: 'E', x: 4.945, y: -8, fontSize: 6.5 * 0.94, fontFamily: 'TransportMedium' },
       { character: '東', x: -9.8, y: - 9, fontSize: 5.7 * 0.9, fontFamily: 'Chinese' }
     ]
   },
@@ -365,12 +365,12 @@ const symbolsTemplate = {
     path: [ // 3.5.7.7
       {
         'vertex': [
-          { x: 0, y: 0, label: 'V1', radius: 1.5, start: 1 },
+          { x: 0, y: 0, label: 'V1', start: 1 },
           { x: 11, y: 0, label: 'V2', radius: 1.5, start: 0 },
           { x: 11, y: 16, label: 'V3', radius: 1.5, start: 0 },
           { x: -11, y: 16, label: 'V4', radius: 1.5, start: 0 },
           { x: -11, y: 0, label: 'V5', radius: 1.5, start: 0 },
-          { x: 0, y: 1, label: 'V6', radius: 0.5, start: 1 },
+          { x: 0, y: 1, label: 'V6', start: 1 },
           { x: -10, y: 1, label: 'V7', radius: 0.5, start: 0 },
           { x: -10, y: 15, label: 'V8', radius: 0.5, start: 0 },
           { x: 10, y: 15, label: 'V9', radius: 0.5, start: 0 },
@@ -409,47 +409,47 @@ const symbolsTemplate = {
           { x: -8.034, y: 3.485, label: 'V35', start: 0 },
           { x: -9, y: 4, label: 'V36', start: 0 },
         ], 'arcs': [
-          { start: 'V22', end: 'V23', radius: 3.57,   direction: 1, sweep: 0 },
-          { start: 'V23', end: 'V24', radius: 2.8,    direction: 0, sweep: 0 },
-          { start: 'V24', end: 'V25', radius: 2.456,  direction: 1, sweep: 0 },
-          { start: 'V25', end: 'V26', radius: 2.8,    direction: 0, sweep: 0 },
-          { start: 'V26', end: 'V27', radius: 3.57,   direction: 1, sweep: 0 },
-          { start: 'V30', end: 'V31', radius: 3.57,   direction: 0, sweep: 0 },
-          { start: 'V31', end: 'V32', radius: 2.8,    direction: 1, sweep: 0 },
-          { start: 'V32', end: 'V33', radius: 2.456,  direction: 0, sweep: 0 },
-          { start: 'V33', end: 'V34', radius: 2.8,    direction: 1, sweep: 0 },
-          { start: 'V34', end: 'V35', radius: 3.57,   direction: 0, sweep: 0 },
+          { start: 'V22', end: 'V23', radius: 3.57, direction: 1, sweep: 0 },
+          { start: 'V23', end: 'V24', radius: 2.8, direction: 0, sweep: 0 },
+          { start: 'V24', end: 'V25', radius: 2.456, direction: 1, sweep: 0 },
+          { start: 'V25', end: 'V26', radius: 2.8, direction: 0, sweep: 0 },
+          { start: 'V26', end: 'V27', radius: 3.57, direction: 1, sweep: 0 },
+          { start: 'V30', end: 'V31', radius: 3.57, direction: 0, sweep: 0 },
+          { start: 'V31', end: 'V32', radius: 2.8, direction: 1, sweep: 0 },
+          { start: 'V32', end: 'V33', radius: 2.456, direction: 0, sweep: 0 },
+          { start: 'V33', end: 'V34', radius: 2.8, direction: 1, sweep: 0 },
+          { start: 'V34', end: 'V35', radius: 3.57, direction: 0, sweep: 0 },
         ]
       },
       {
         'vertex': [
-          { x: -9, y: 4.5,        label: 'V41', start: 1 },
-          { x: -8.034, y: 3.985,  label: 'V42', start: 0 },
-          { x: -4.5, y: 4.083,    label: 'V43', start: 0 },
-          { x: -1.5, y: 4.025,    label: 'V44', start: 0 },
-          { x: 1.5, y: 4.025,     label: 'V45', start: 0 },
-          { x: 4.5, y: 4.083,     label: 'V46', start: 0 },
-          { x: 8.034, y: 3.985,   label: 'V47', start: 0 },
-          { x: 9, y: 4.5,         label: 'V48', start: 0 },
-          { x: 9, y: 5.5,         label: 'V49', start: 0 },
-          { x: 8.034, y: 4.985,   label: 'V50', start: 0 },
-          { x: 4.5, y: 4.983,     label: 'V51', start: 0 },
-          { x: 1.5, y: 5.025,     label: 'V52', start: 0 },
-          { x: -1.5, y: 5.025,    label: 'V53', start: 0 },
-          { x: -4.5, y: 5.083,    label: 'V54', start: 0 },
-          { x: -8.034, y: 4.985,  label: 'V55', start: 0 },
-          { x: -9, y: 5.5,        label: 'V56', start: 0 },
+          { x: -9, y: 4.5, label: 'V41', start: 1 },
+          { x: -8.034, y: 3.985, label: 'V42', start: 0 },
+          { x: -4.5, y: 4.083, label: 'V43', start: 0 },
+          { x: -1.5, y: 4.025, label: 'V44', start: 0 },
+          { x: 1.5, y: 4.025, label: 'V45', start: 0 },
+          { x: 4.5, y: 4.083, label: 'V46', start: 0 },
+          { x: 8.034, y: 3.985, label: 'V47', start: 0 },
+          { x: 9, y: 4.5, label: 'V48', start: 0 },
+          { x: 9, y: 5.5, label: 'V49', start: 0 },
+          { x: 8.034, y: 4.985, label: 'V50', start: 0 },
+          { x: 4.5, y: 4.983, label: 'V51', start: 0 },
+          { x: 1.5, y: 5.025, label: 'V52', start: 0 },
+          { x: -1.5, y: 5.025, label: 'V53', start: 0 },
+          { x: -4.5, y: 5.083, label: 'V54', start: 0 },
+          { x: -8.034, y: 4.985, label: 'V55', start: 0 },
+          { x: -9, y: 5.5, label: 'V56', start: 0 },
         ], 'arcs': [
-          { start: 'V42', end: 'V43', radius: 3.57,   direction: 1, sweep: 0 },
-          { start: 'V43', end: 'V44', radius: 2.8,    direction: 0, sweep: 0 },
-          { start: 'V44', end: 'V45', radius: 2.456,  direction: 1, sweep: 0 },
-          { start: 'V45', end: 'V46', radius: 2.8,    direction: 0, sweep: 0 },
-          { start: 'V46', end: 'V47', radius: 3.57,   direction: 1, sweep: 0 },
-          { start: 'V50', end: 'V51', radius: 3.57,   direction: 0, sweep: 0 },
-          { start: 'V51', end: 'V52', radius: 2.8,    direction: 1, sweep: 0 },
-          { start: 'V52', end: 'V53', radius: 2.456,  direction: 0, sweep: 0 },
-          { start: 'V53', end: 'V54', radius: 2.8,    direction: 1, sweep: 0 },
-          { start: 'V54', end: 'V55', radius: 3.57,   direction: 0, sweep: 0 },
+          { start: 'V42', end: 'V43', radius: 3.57, direction: 1, sweep: 0 },
+          { start: 'V43', end: 'V44', radius: 2.8, direction: 0, sweep: 0 },
+          { start: 'V44', end: 'V45', radius: 2.456, direction: 1, sweep: 0 },
+          { start: 'V45', end: 'V46', radius: 2.8, direction: 0, sweep: 0 },
+          { start: 'V46', end: 'V47', radius: 3.57, direction: 1, sweep: 0 },
+          { start: 'V50', end: 'V51', radius: 3.57, direction: 0, sweep: 0 },
+          { start: 'V51', end: 'V52', radius: 2.8, direction: 1, sweep: 0 },
+          { start: 'V52', end: 'V53', radius: 2.456, direction: 0, sweep: 0 },
+          { start: 'V53', end: 'V54', radius: 2.8, direction: 1, sweep: 0 },
+          { start: 'V54', end: 'V55', radius: 3.57, direction: 0, sweep: 0 },
         ]
       },
     ],
@@ -459,24 +459,45 @@ const symbolsTemplate = {
     ]
   },
 
-  'WHC': {
+  'Route1': {
     path: [ // 3.5.7.7
       {
         'vertex': [
           { x: 0, y: 0, label: 'V1', start: 1 },
           { x: 4.5, y: 0, label: 'V2', start: 0 },
-          { x: 4.5, y: 3, label: 'V3',  start: 0 },
-          { x: 0, y: 9, label: 'V4',  start: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0 },
           { x: -4.5, y: 3, label: 'V5', start: 0 },
           { x: -4.5, y: 0, label: 'V6', start: 0 },
         ], 'arcs': [
-          { start: 'V3', end: 'V4', radius: 6,   direction: 1, sweep: 0 },
-          { start: 'V4', end: 'V5', radius: 6,   direction: 1, sweep: 0 },
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
         ], 'fill': '#ffff01'
       },
     ],
     text: [
-      { character: '1', x: -0.39, y: 1, fontSize: 8, fontFamily: 'TransportMedium' },
+      { character: '1', x:-1.56, y: -0.9, fontSize: 8*0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route4': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '4', x:-2.64, y: -0.9, fontSize: 8*0.94, fontFamily: 'TransportMedium', fill: 'black' },
     ]
   },
 
@@ -534,6 +555,39 @@ function getInsertOffset(shapeMeta, angle = 0) {
   return { left: vertexleft, top: vertextop }
 }
 
+// draw segment in svg between vertex
+function drawSegement(current, next, previous, prevArc, final=false) {
+  let pathString = ''
+  if (current.radius) {
+    // Calculate the exterior angle θ
+    const angle = calculateAngle(previous, current, next);
+
+    // Calculate the offset distance d = r × tan(θ/2)
+    const offsetDistance = current.radius * Math.tan(angle / 2);
+
+    // Calculate the tangent points for the arc
+    const prevTangent = calculateTangentPoint(previous, current, offsetDistance);
+    const nextTangent = calculateTangentPoint(next, current, offsetDistance);
+
+    // Determine the arc direction (clockwise or counterclockwise)
+    const arcDirection = getArcDirection(previous, current, next);
+
+    // Line to the start of the arc
+    pathString += ` ${current.start ? 'M' : 'L'} ${prevTangent.x} ${prevTangent.y}`;
+
+    // Arc to the end of the arc
+
+    pathString += ` A ${current.radius} ${current.radius} 0 0 ${1 - arcDirection} ${nextTangent.x} ${nextTangent.y}`
+
+  } else if (prevArc && (!current.start || final)) {
+    pathString += ` A ${prevArc.radius} ${prevArc.radius} 0 ${prevArc.sweep} ${prevArc.direction} ${current.x} ${current.y} `
+  } else {
+    // Line to the next point
+    pathString += ` ${current.start ? 'M' : 'L'} ${current.x} ${current.y}`;
+  }
+  return pathString
+}
+
 // Convert shapeMeta.vertex points to SVG path string with circular trims
 function vertexToPath(shapeMeta) {
   let svgContent = '<svg>';
@@ -541,96 +595,48 @@ function vertexToPath(shapeMeta) {
 
   shapeMeta.path.forEach((path, pathindex) => {
     const fillColor = path.fill || 'white';
-    let pathStart
+    let pathStart = path.vertex[0]
+    let pathNext = path.vertex[1]
     for (let i = 0; i < path.vertex.length; i++) {
       const current = path.vertex[i];
       const next = path.vertex[(i + 1) % path.vertex.length];
       const previous = path.vertex.at(i - 1);
       const prevArc = path.arcs.find(arc => (arc.end == current.label))
 
-      if (current.start && i != 0){
+      pathString += drawSegement(current, next, previous, prevArc)
+
+      // at end of path
+      if (next.start == 1) {
+        // Handle the last corner (which is also the first corner)
+        const finalArc = path.arcs.find(arc => (arc.start == current.label))
+        pathString += drawSegement(pathStart, pathNext, current, finalArc, true)
         pathString += ' Z'
+        pathStart = next
+        pathNext = path.vertex[(i + 2) % path.vertex.length];
       }
 
-      if (current.radius) {
-        // Calculate the exterior angle θ
-        const angle = calculateAngle(previous, current, next);
-
-        // Calculate the offset distance d = r × tan(θ/2)
-        const offsetDistance = current.radius * Math.tan(angle / 2);
-
-        // Calculate the tangent points for the arc
-        const prevTangent = calculateTangentPoint(previous, current, offsetDistance);
-        const nextTangent = calculateTangentPoint(next, current, offsetDistance);
-
-        // Determine the arc direction (clockwise or counterclockwise)
-        const arcDirection = getArcDirection(previous, current, next);
-
-        // Line to the start of the arc
-        pathString += ` ${current.start ? 'M' : 'L'} ${prevTangent.x} ${prevTangent.y}`;
-
-        // Arc to the end of the arc
-
-        pathString += ` A ${current.radius} ${current.radius} 0 0 ${1 - arcDirection} ${nextTangent.x} ${nextTangent.y}`
-
-      } else if (prevArc && !current.start) {
-        pathString += ` A ${prevArc.radius} ${prevArc.radius} 0 ${prevArc.sweep} ${prevArc.direction} ${current.x} ${current.y} `
-      } else {
-        // Line to the next point
-        pathString += ` ${current.start ? 'M' : 'L'} ${current.x} ${current.y}`;
-      }
-      //if (next.start){
-      //  pathString += ' Z'
-      //}
-    }
-
-    // Handle the last corner (which is also the first corner)
-    const first = path.vertex[0];
-    const second = path.vertex[1];
-    const last = path.vertex.at(-1);
-    const finalArc = path.arcs.find(arc => (arc.start == last.label))
-    if (first.radius) {
-      // Calculate the exterior angle θ
-      const angle = calculateAngle(last, first, second);
-
-      // Calculate the offset distance d = r × tan(θ/2)
-      const offsetDistance = first.radius * Math.tan(angle / 2);
-
-      // Calculate the tangent points for the arc
-      const prevTangent = calculateTangentPoint(last, first, offsetDistance);
-      const nextTangent = calculateTangentPoint(second, first, offsetDistance);
-
-      // Determine the arc direction (clockwise or counterclockwise)
-      const arcDirection = getArcDirection(last, first, second);
-
-      // Line to the start of the arc
-      pathString += ` L ${prevTangent.x} ${prevTangent.y}`;
-    } else if (finalArc) {
-      let arcEnd = path.vertex.find(v => v.label == finalArc.end)
-      pathString += ` A ${finalArc.radius} ${finalArc.radius} 0 ${finalArc.sweep} ${finalArc.direction} ${arcEnd.x} ${arcEnd.y} `
-    } else {
-      // Line to the first point
-      pathString += ` L ${first.x} ${first.y}`;
     }
 
     //pathString += ' Z'; // Close the path
-      svgContent += `<path d="${pathString} Z" fill="${fillColor}" />`;
-      pathString = ''
+    svgContent += `<path d="${pathString}" fill="${fillColor}" />`;
+    pathString = ''
   })
 
   if (shapeMeta.text) {
     shapeMeta.text.forEach(t => {
       const fillColor = t.fill || 'white';
-      charPath = FontGlyphs[t.fontFamily].getPath(t.character, t.x, t.y, t.fontSize, {flipY:true})
+      charPath = FontGlyphs[t.fontFamily].getPath(t.character, t.x, t.y, t.fontSize, { flipY: true })
 
-        charPath.commands.map(c => {
-          c.y = - c.y
-          if (c.y1){
-            c.y1 = - c.y1
-          }
-        })
-  
-        svgContent += `<path d="${charPath.toPathData()} Z" fill="${fillColor}" />`;
+      charPath.commands.map(c => {
+        c.y = - c.y
+        if (c.y1) {
+          c.y1 = - c.y1
+        }
+      })
+      // Check Char Width without blocking
+      console.log(new fabric.Path( `<path d="${charPath.toPathData()}" />`).width)
+
+      svgContent += `<path d="${charPath.toPathData()}" fill="${fillColor}" />`;
     })
   }
   svgContent += '</svg>';

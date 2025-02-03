@@ -311,13 +311,13 @@ div.side-panel.close {
 }
 
 .symbol-button:hover {
-  background-color: white;
+  background-color: #0000FE;
   color: black;
   border: 2px solid #555555;
 }
 
 .symbol-button.active {
-  background-color: white;
+  background-color: #0000FE;
   color: black;
   border: 2px solid #555555;
 }

@@ -438,14 +438,14 @@ let FormDrawAddComponent = {
     const translateY = (svgHeight - bbox.height * scale) / 2 - bbox.top * scale;
 
     pathData = pathData.replace(/<svg>/g, '<svg style="width:100;height:100;">')
-    pathData =  pathData.replace(/<path/g, `<path transform="translate(${translateX}, ${translateY}) scale(${scale})"`);
+    pathData = pathData.replace(/<path/g, `<path transform="translate(${translateX}, ${translateY}) scale(${scale})"`);
     //pathData = pathData.replace(/fill="[^"]*"/g, 'fill="none" stroke="black"');
     const svg = pathData;
 
 
     return svg;
   },
-  drawSymbol: (event, options = null) => {
+  drawSymbol: async (event, options = null) => {
     canvas.off('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
     canvas.on('mouse:move', FormDrawAddComponent.DrawonMouseMove)
     canvas.on('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
@@ -475,22 +475,30 @@ let FormDrawAddComponent = {
       // originX: 'center',
       objectCaching: false,
       strokeWidth: 0
-    },
-    Polygon1 = new GlyphPath(symbolObject, arrowOptions1);
-    Polygon1.symbol = symbol
-    Polygon1.xHeight = xHeight
+    }
 
-    symbolOffset = getInsertOffset(symbolObject)
-    cursorOffset.x = symbolOffset.left
-    cursorOffset.y = symbolOffset.top
 
-    cursor.add(Polygon1)
-    Polygon1.setCoords();
+      Polygon1 = new GlyphPath()
+      await Polygon1.initialize(symbolObject, arrowOptions1)
 
-    document.removeEventListener('keydown', ShowHideSideBarEvent);
-    document.addEventListener('keydown', FormDrawAddComponent.cancelDraw)
 
-    canvas.renderAll();
+
+      Polygon1.symbol = symbol
+      Polygon1.xHeight = xHeight
+
+      symbolOffset = getInsertOffset(symbolObject)
+      cursorOffset.x = symbolOffset.left
+      cursorOffset.y = symbolOffset.top
+
+      cursor.add(Polygon1)
+      Polygon1.setCoords();
+
+      document.removeEventListener('keydown', ShowHideSideBarEvent);
+      document.addEventListener('keydown', FormDrawAddComponent.cancelDraw)
+
+      canvas.renderAll();
+    
+    
   },
 
   cancelDraw: (event) => {
@@ -654,7 +662,7 @@ let FormBorderWrapComponent = {
     })
   },
 
-  StackDividerHandler: function(){
+  StackDividerHandler: function () {
     selectObjectHandler('Select object above divider', function (aboveObject) {
       selectObjectHandler('Select object below divider', function (belowObject) {
         FormBorderWrapComponent.DividerCreate(aboveObject, belowObject)
@@ -662,15 +670,15 @@ let FormBorderWrapComponent = {
     })
   },
 
-  DividerCreate: function(aboveObject, belowObject, options = null){
+  DividerCreate: async function (aboveObject, belowObject, options = null) {
     const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
     const aboveObjectBBox = FormBorderWrapComponent.getBoundingBox(aboveObject)
     const aboveBottom = aboveObjectBBox.bottom
     const belowTop = FormBorderWrapComponent.getBoundingBox(belowObject).top
     const width = aboveObjectBBox.right - aboveObjectBBox.left
-    const BaseBorder = drawDivider(xHeight, aboveBottom, width)
+    const BaseBorder = await drawDivider(xHeight, aboveBottom, width)
     const borderGroup = drawBasePolygon(BaseBorder, 'Divider')
-    
+
   },
 
   // Function to get the bounding box of specific objects

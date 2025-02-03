@@ -134,15 +134,21 @@ class GlyphPolygon extends fabric.Polygon {
   }
 }
 
-class GlyphPath extends fabric.Path {
-  constructor(shapeMeta, options) {
+class GlyphPath extends fabric.Group {
+  constructor( options) {
+    super([], options); // Call the parent class constructor first
+
+    //this.initialize(shapeMeta, options);
+  }
+
+  async initialize(shapeMeta, options) {
     shapeMeta.path.map((p) => {
       let transformed = calculateTransformedPoints(p.vertex, {
         x: options.left,
         y: options.top,
         angle: options.angle
       });
-      p.vertex = transformed
+      p.vertex = transformed;
     });
 
     if (shapeMeta.text) {
@@ -152,28 +158,30 @@ class GlyphPath extends fabric.Path {
           y: options.top,
           angle: options.angle
         });
-        p.x = transformed[0].x
-        p.y = -transformed[0].y
+        p.x = transformed[0].x;
+        p.y = -transformed[0].y;
       });
     }
-    //
+
     const vertexleft = Math.min(...shapeMeta.path.map(p => p.vertex).flat().map(v => v.x));
     const vertextop = Math.min(...shapeMeta.path.map(p => p.vertex).flat().map(v => v.y));
 
-    options.left = vertexleft
-    options.top = vertextop
-    options.angle = 0
-
+    options.left = vertexleft;
+    options.top = vertextop;
+    options.angle = 0;
 
     const pathData = vertexToPath(shapeMeta);
-    super(pathData, options);
+
     this.vertex = shapeMeta.path.map(p => p.vertex).flat(); // Store the shapeMeta.vertex points
     this.insertPoint = shapeMeta.path[0].vertex[0];
 
+    const result = await fabric.loadSVGFromString(pathData)
+    this.add(...(result.objects.filter((obj) => !!obj)));
     this.setCoords();
-  }
 
+  }
 }
+
 
 // Define the BaseGroup class using ES6 class syntax
 class BaseGroup extends fabric.Group {
@@ -358,9 +366,9 @@ class BaseGroup extends fabric.Group {
   }
 
   // Method to call when all nodes are processed
-  allNodesProcessed(sourceList=[]) {
-    canvasObject.map(o => o.lockXToPolygon).filter(o => o.secondSourceObject).forEach(o => { EQanchorShape('x',o, sourceList) })
-    canvasObject.map(o => o.lockYToPolygon).filter(o => o.secondSourceObject).forEach(o => { EQanchorShape('y',o, sourceList) })
+  allNodesProcessed(sourceList = []) {
+    canvasObject.map(o => o.lockXToPolygon).filter(o => o.secondSourceObject).forEach(o => { EQanchorShape('x', o, sourceList) })
+    canvasObject.map(o => o.lockYToPolygon).filter(o => o.secondSourceObject).forEach(o => { EQanchorShape('y', o, sourceList) })
     console.log('All nodes processed');
     // Call another function here
   }
@@ -434,7 +442,7 @@ class BaseGroup extends fabric.Group {
       this.drawAnchorLinkage();
     }
     sourceList.includes(this) ? sourceList : sourceList.push(this)
-    if (!selfOnly){
+    if (!selfOnly) {
       this.emitDelta(deltaX, deltaY, sourceList);
       this.borderResize(sourceList);
     }
@@ -852,24 +860,25 @@ function drawBasePolygon(basePolygon, functionalType, calcVertex = true) {
   return baseGroup;
 }
 
-function drawLabeledArrow(shapeMeta, options) {
+async function drawLabeledArrow(shapeMeta, options) {
   const { x, y, length, angle, color } = options;
   const vertexleft = Math.min(...shapeMeta.path.map(p => p.vertex).flat().map(v => v.x));
   const vertextop = Math.min(...shapeMeta.path.map(p => p.vertex).flat().map(v => v.y));
   // Create polygon with labeled vertices
-  const arrow = drawBasePolygon(
-    new GlyphPath(shapeMeta,
-      {
-        left: x,
-        top: y,
-        fill: color || 'black',
-        angle: angle || 0,
-        // originX: 'center',
-        objectCaching: false,
-        strokeWidth: 0,
-      }),
-    'Symbol'
-  );
+  const arrow = new GlyphPath();
+
+  // Wait for the initialization to complete
+  const shape = await arrow.initialize(shapeMeta, {
+    left: x,
+    top: y,
+    fill: color || 'black',
+    angle: angle || 0,
+    objectCaching: false,
+    strokeWidth: 0,
+  })
+    
+  drawBasePolygon(arrow, 'Symbol');
+  
 
 }
 
@@ -954,9 +963,9 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
     });
   }
   //shape2.setCoords()
-    shape1.updateAllCoord(null, sourceList)
-    shape2.updateAllCoord(null, sourceList)
-  
+  shape1.updateAllCoord(null, sourceList)
+  shape2.updateAllCoord(null, sourceList)
+
 
   if (!shape1.anchoredPolygon.includes(shape2)) {
     shape1.anchoredPolygon.push(shape2)
@@ -1016,9 +1025,9 @@ function EQanchorShape(direction, options, sourceList = []) {
     shape3.lockYToPolygon = options
 
 
-      shape2.updateAllCoord(null, sourceList)
-      shape3.updateAllCoord(null, sourceList)
-    
+    shape2.updateAllCoord(null, sourceList)
+    shape3.updateAllCoord(null, sourceList)
+
 
   }
 }
