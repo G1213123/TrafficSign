@@ -7,7 +7,7 @@ let borderTest = function () {
 
 let dividerTest = function () {
     above = [canvasObject[5]]
-      below = [canvasObject[0]]
+      below = [canvasObject[4]]
   
       FormBorderWrapComponent.DividerCreate(above, below, {xHeight:100})
   }

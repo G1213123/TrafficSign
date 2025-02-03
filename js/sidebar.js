@@ -670,15 +670,65 @@ let FormBorderWrapComponent = {
     })
   },
 
-  DividerCreate: async function (aboveObject, belowObject, options = null) {
+  DividerCreate: async function (aboveObjects, belowObjects, options = null) {
     const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
-    const aboveObjectBBox = FormBorderWrapComponent.getBoundingBox(aboveObject)
+    const aboveObject = this.getBottomMostObject(aboveObjects)
+    const belowObject = this.getTopMostObject(belowObjects)
+
+    if (Object.keys(belowObject.lockYToPolygon ).length != 0){
+      showTextBox ('Unlock the object below divider in Y axis')
+      return
+    }
+    const aboveObjectBBox = FormBorderWrapComponent.getBoundingBox(aboveObjects)
     const aboveBottom = aboveObjectBBox.bottom
-    const belowTop = FormBorderWrapComponent.getBoundingBox(belowObject).top
     const width = aboveObjectBBox.right - aboveObjectBBox.left
     const BaseBorder = await drawDivider(xHeight, aboveBottom, width)
     const borderGroup = drawBasePolygon(BaseBorder, 'Divider')
+    anchorShape (aboveObject, borderGroup, {
+      vertexIndex1: 'E2',
+      vertexIndex2: 'E6',
+      spacingX: '',
+      spacingY: 0
+  } )
+  anchorShape (borderGroup, belowObject, {
+    vertexIndex1: 'E2',
+    vertexIndex2: 'E6',
+    spacingX: '',
+      spacingY: 1.*xHeight/4
+} )
 
+  },
+
+  getBottomMostObject: function (objects) {
+    let bottomMostObject = null;
+    let maxBottom = -Infinity;
+  
+    objects.forEach(obj => {
+      const objBottom = obj.top + obj.height * obj.scaleY; // Calculate the bottom coordinate
+  
+      if (objBottom > maxBottom) {
+        maxBottom = objBottom;
+        bottomMostObject = obj;
+      }
+    });
+  
+    return bottomMostObject;
+  },
+
+  getTopMostObject: function (objects) {
+    let topMostObject = null;
+    let minTop = Infinity;
+  
+    objects.forEach(obj => {
+      const objTop = obj.top; // Calculate the top coordinate
+  
+      if (objTop < minTop) {
+        minTop = objTop;
+        topMostObject = obj;
+      }
+    });
+  
+    return topMostObject;
   },
 
   // Function to get the bounding box of specific objects
