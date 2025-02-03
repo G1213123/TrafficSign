@@ -349,7 +349,7 @@ let FormDrawAddComponent = {
 
       //GeneralHandler.createbutton('button-approach-arm', 'Add Approach arm', parent, 0, FormDrawAddComponent.drawApproachClick, 'click')
       Object.keys(symbolsTemplate).forEach(symbol => {
-        const button = FormDrawAddComponent.createButtonSVG(symbol, 10)
+        const button = FormDrawAddComponent.createButtonSVG(symbol, 5)
         GeneralHandler.createbutton(`button-${symbol}`, button, parent, 'symbol', FormDrawAddComponent.drawSymbol, 'click')
       })
     }
@@ -437,8 +437,9 @@ let FormDrawAddComponent = {
     const translateX = (svgWidth - bbox.width * scale) / 2 - bbox.left * scale;
     const translateY = (svgHeight - bbox.height * scale) / 2 - bbox.top * scale;
 
+    pathData = pathData.replace(/<svg>/g, '<svg style="width:100;height:100;">')
     pathData =  pathData.replace(/<path/g, `<path transform="translate(${translateX}, ${translateY}) scale(${scale})"`);
-    pathData = pathData.replace(/fill="[^"]*"/g, 'fill="none" stroke="black"');
+    //pathData = pathData.replace(/fill="[^"]*"/g, 'fill="none" stroke="black"');
     const svg = pathData;
 
 
@@ -669,6 +670,7 @@ let FormBorderWrapComponent = {
     const width = aboveObjectBBox.right - aboveObjectBBox.left
     const BaseBorder = drawDivider(xHeight, aboveBottom, width)
     const borderGroup = drawBasePolygon(BaseBorder, 'Divider')
+    
   },
 
   // Function to get the bounding box of specific objects

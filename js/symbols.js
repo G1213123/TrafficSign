@@ -56,10 +56,6 @@ const symbolsTemplate = {
           { x: -9, y: 16, label: 'V5', start: 0 },
           { x: -9, y: 5, label: 'V6', start: 0 },
           { x: -4, y: 0, label: 'V7', start: 0 },
-        ], 'arcs': []
-      },
-      {
-        'vertex': [
           { x: -5.25, y: 13, label: 'V8', start: 1 },
           { x: 5.25, y: 13, label: 'V9', start: 0 },
         ], 'arcs': [{ start: 'V9', end: 'V8', radius: 6.5, direction: 0, sweep: 1 }]
@@ -76,10 +72,6 @@ const symbolsTemplate = {
           { x: 4.5, y: 9, label: 'V3', radius: 0.75, start: 0 },
           { x: -4.5, y: 9, label: 'V4', radius: 0.75, start: 0 },
           { x: -4.5, y: 0, label: 'V5', radius: 0.75, start: 0 },
-        ], 'arcs': []
-      },
-      {
-        'vertex': [
           { x: 0, y: 0.25, label: 'V6', start: 1 },
           { x: -4.25, y: 0.25, label: 'V7', radius: 0.5, start: 0 },
           { x: -4.25, y: 8.75, label: 'V8', radius: 0.5, start: 0 },
@@ -182,10 +174,6 @@ const symbolsTemplate = {
           { x: 11, y: 16, label: 'V3', radius: 1.5, start: 0 },
           { x: -11, y: 16, label: 'V4', radius: 1.5, start: 0 },
           { x: -11, y: 0, label: 'V5', radius: 1.5, start: 0 },
-        ], 'arcs': []
-      },
-      {
-        'vertex': [
           { x: 0, y: 1, label: 'V6', radius: 0.5, start: 1 },
           { x: -10, y: 1, label: 'V7', radius: 0.5, start: 0 },
           { x: -10, y: 15, label: 'V8', radius: 0.5, start: 0 },
@@ -202,10 +190,6 @@ const symbolsTemplate = {
           { x: -4.5, y: 14, label: 'V15', start: 0 },
           { x: -4.5, y: 8.5, label: 'V16', start: 0 },
           { x: -2, y: 6, label: 'V17', start: 0 },
-        ], 'arcs': []
-      },
-      {
-        'vertex': [
           { x: -2.625, y: 12.5, label: 'V18', start: 1 },
           { x: 2.625, y: 12.5, label: 'V19', start: 0 },
         ], 'arcs': [{ start: 'V19', end: 'V18', radius: 3.25, direction: 0, sweep: 1 }]
@@ -288,10 +272,6 @@ const symbolsTemplate = {
           { x: 11, y: 16, label: 'V3', radius: 1.5, start: 0 },
           { x: -11, y: 16, label: 'V4', radius: 1.5, start: 0 },
           { x: -11, y: 0, label: 'V5', radius: 1.5, start: 0 },
-        ], 'arcs': []
-      },
-      {
-        'vertex': [
           { x: 0, y: 1, label: 'V6', radius: 0.5, start: 1 },
           { x: -10, y: 1, label: 'V7', radius: 0.5, start: 0 },
           { x: -10, y: 15, label: 'V8', radius: 0.5, start: 0 },
@@ -308,10 +288,6 @@ const symbolsTemplate = {
           { x: -4.5, y: 14, label: 'V15', start: 0 },
           { x: -4.5, y: 8.5, label: 'V16', start: 0 },
           { x: -2, y: 6, label: 'V17', start: 0 },
-        ], 'arcs': []
-      },
-      {
-        'vertex': [
           { x: -2.625, y: 12.5, label: 'V18', start: 1 },
           { x: 2.625, y: 12.5, label: 'V19', start: 0 },
         ], 'arcs': [{ start: 'V19', end: 'V18', radius: 3.25, direction: 0, sweep: 1 }]
@@ -394,10 +370,6 @@ const symbolsTemplate = {
           { x: 11, y: 16, label: 'V3', radius: 1.5, start: 0 },
           { x: -11, y: 16, label: 'V4', radius: 1.5, start: 0 },
           { x: -11, y: 0, label: 'V5', radius: 1.5, start: 0 },
-        ], 'arcs': []
-      },
-      {
-        'vertex': [
           { x: 0, y: 1, label: 'V6', radius: 0.5, start: 1 },
           { x: -10, y: 1, label: 'V7', radius: 0.5, start: 0 },
           { x: -10, y: 15, label: 'V8', radius: 0.5, start: 0 },
@@ -414,10 +386,6 @@ const symbolsTemplate = {
           { x: -4.5, y: 14, label: 'V15', start: 0 },
           { x: -4.5, y: 8.5, label: 'V16', start: 0 },
           { x: -2, y: 6, label: 'V17', start: 0 },
-        ], 'arcs': []
-      },
-      {
-        'vertex': [
           { x: -2.625, y: 12.5, label: 'V18', start: 1 },
           { x: 2.625, y: 12.5, label: 'V19', start: 0 },
         ], 'arcs': [{ start: 'V19', end: 'V18', radius: 3.25, direction: 0, sweep: 1 }]
@@ -573,11 +541,16 @@ function vertexToPath(shapeMeta) {
 
   shapeMeta.path.forEach((path, pathindex) => {
     const fillColor = path.fill || 'white';
+    let pathStart
     for (let i = 0; i < path.vertex.length; i++) {
       const current = path.vertex[i];
       const next = path.vertex[(i + 1) % path.vertex.length];
       const previous = path.vertex.at(i - 1);
       const prevArc = path.arcs.find(arc => (arc.end == current.label))
+
+      if (current.start && i != 0){
+        pathString += ' Z'
+      }
 
       if (current.radius) {
         // Calculate the exterior angle θ
@@ -633,7 +606,7 @@ function vertexToPath(shapeMeta) {
       // Line to the start of the arc
       pathString += ` L ${prevTangent.x} ${prevTangent.y}`;
     } else if (finalArc) {
-      let arcEnd = path.vertex.find(v => v.label = finalArc.end)
+      let arcEnd = path.vertex.find(v => v.label == finalArc.end)
       pathString += ` A ${finalArc.radius} ${finalArc.radius} 0 ${finalArc.sweep} ${finalArc.direction} ${arcEnd.x} ${arcEnd.y} `
     } else {
       // Line to the first point
@@ -641,7 +614,7 @@ function vertexToPath(shapeMeta) {
     }
 
     //pathString += ' Z'; // Close the path
-      svgContent += `<path d="${pathString}" fill="${fillColor}" />`;
+      svgContent += `<path d="${pathString} Z" fill="${fillColor}" />`;
       pathString = ''
   })
 
