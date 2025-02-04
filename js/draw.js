@@ -386,6 +386,7 @@ class BaseGroup extends fabric.Group {
       BG.add(borderObject)
       BG.basePolygon = borderObject
       BG.setCoords()
+      FormBorderWrapComponent.assignWidthToDivider(BG, sourceList)
       BG.updateAllCoord(null, sourceList)
       BG.drawVertex()
     }

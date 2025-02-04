@@ -1,15 +1,15 @@
 let borderTest = function () {
-  widthObjects = [canvasObject[0],canvasObject[1],canvasObject[2],canvasObject[3]]
-    heightObjects = [canvasObject[0],canvasObject[1],canvasObject[3]]
+  widthObjects = canvasObject
+    heightObjects = canvasObject
 
     FormBorderWrapComponent.BorderGroupCreate(heightObjects, widthObjects, {xHeight:100, borderType: 'stack', colorType:'Blue Background'})
 }
 
-let dividerTest = function () {
-    above = [canvasObject[5]]
-      below = [canvasObject[4]]
+let dividerTest = async function () {
+    above = [canvasObject[1]]
+      below = [canvasObject[5]]
   
-      FormBorderWrapComponent.DividerCreate(above, below, {xHeight:100})
+      await FormBorderWrapComponent.DividerCreate(above, below, {xHeight:100})
   }
 
 let loopAnchoredObjectsTest = function () {
@@ -37,6 +37,18 @@ let anchorTest = function () {
         spacingY: 0
     })
 
+    anchorShape(canvasObject[5], canvasObject[6], {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 50,
+        spacingY: 0
+    })
+    anchorShape(canvasObject[4], canvasObject[5], {
+        vertexIndex1: 'E3',
+        vertexIndex2: 'E1',
+        spacingX: -50,
+        spacingY: ''
+    })
 }
 
 let equalAnchorTest = function(){
@@ -46,36 +58,21 @@ let equalAnchorTest = function(){
 }
 
 let initShape = async function () {
-    /*routeMap = new fabric.Group()
-    var base = LoadShape("base", { scaleY: (31 / 2 + 21.92 + 2.828 + 12 + 10) / 31, top: -(31 / 2 + 21.92 + 2.828 + 12 + 10) }, routeMap)
-    var arm = LoadShape("base", { left: -21.92, top: -(31 / 2 + 21.92), scaleX: 4 / 6, angle: -45 }, routeMap)
-    canvas.add(routeMap)*/
-    //text1 = new fabric.Textbox("Central", {
-    //    fontFamily: 'TransportMedium',
-    //    fill: '#ffffff',
-    //    fontSize: 200
-    //})
-    //text1.vertex = Object.values(text1.aCoords).map((point, i) => {
-    //  return { x: point.x, y: point.y, label: `E${i + 1}` }
-    //})
-    //text1.insertPoint = text1.vertex[0]
 
-
-    FormTextAddComponent.textPanelInit()
-    FormTextAddComponent.TextinputHandler(null, { text: 'Hong Kong', xHeight: 100 })
     await FormTextAddComponent.TextonMouseClick(null, { left: 300, top: 300, text: 'Hong Kong', xHeight: 100 })
 
-    FormTextAddComponent.textPanelInit()
-    FormTextAddComponent.TextinputHandler(null, { text: '香港', xHeight: 100 })
     await FormTextAddComponent.TextonMouseClick(null, { left: 250, top: 250, text: '香港', xHeight: 100 })
 
-
-    const arrowOptions1 = { x: 100, y: 0, length: 25, angle: 0, color: 'white', };
-    const arrowOptions2 = { x: 200, y: 200, length: 25, angle: -45, color: 'white', };
+    const arrowOptions1 = { x: 100, y: 0, length: 25, angle: 90, color: 'white', };
+    const arrowOptions2 = { x: 200, y: 200, length: 25, angle: -90, color: 'white', };
     const arrowOptions3 = { x: 0, y: 0, length: 25, angle: 0, color: 'white', };
     Polygon1 = await drawLabeledArrow(calcSymbol('StackArrow', 25), arrowOptions2);
-    Polygon2 = await drawLabeledArrow(calcSymbol('Tunnel', 25), arrowOptions1);
-    Polygon2 = await drawLabeledArrow(calcSymbol('GantryArrow', 25), arrowOptions1);
+    Polygon2 = await drawLabeledArrow(calcSymbol('Tunnel', 25), arrowOptions3);
+    Polygon2 = await drawLabeledArrow(calcSymbol('StackArrow', 25), arrowOptions1);
+
+    await FormTextAddComponent.TextonMouseClick(null, { left: 300, top: 300, text: 'Kowloon', xHeight: 100 })
+
+    await FormTextAddComponent.TextonMouseClick(null, { left: 250, top: 250, text: '九龍', xHeight: 100 })
 
     //Polygon3 = drawLabeledBorder('stack', 100, {left:0, top: 0, right:1550, bottom:500}, "Blue Background")
     //console.log(canvasObject)
@@ -91,7 +88,7 @@ let movingObjectTest = function () {
     //console.assert(specimen.getEffectiveCoords()[0].x == left + 100, 'Moving failed');
 }
 
-testToRun = [anchorTest, borderTest , equalAnchorTest, dividerTest]
+testToRun = [anchorTest , dividerTest, borderTest]
 
 async function  runTests(tests) {
     await initShape()
