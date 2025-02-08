@@ -335,17 +335,10 @@ class BaseGroup extends fabric.Group {
     sourceList.includes(this) ? sourceList : sourceList.push(this)
     this.anchoredPolygon.forEach(anchoredGroup => {
       if (!sourceList.includes(anchoredGroup)) {
-
-
-        // check receive change object to avoid self reference in border resize
-        if (anchoredGroup.lockXToPolygon.TargetObject == this && !anchoredGroup.lockXToPolygon.secondTargetObject) {
-          anchoredGroup.receiveDelta(deltaX, 0, sourceList);
-        }
-        if (anchoredGroup.lockYToPolygon.TargetObject == this && !anchoredGroup.lockXToPolygon.secondTargetObject) {
-          anchoredGroup.receiveDelta(0, deltaY, sourceList);
+        // check receive change object to avoid self reference in border resize{
+          anchoredGroup.receiveDelta(this, deltaX, deltaY, sourceList);
         }
 
-      }
     });
     // If all nodes are exhausted, call another function
     if (this.canvasID == sourceList[0].canvasID) {
@@ -355,11 +348,13 @@ class BaseGroup extends fabric.Group {
   }
 
   // Method to receive deltaX and deltaY and update position
-  receiveDelta(deltaX, deltaY, sourceList) {
+  receiveDelta(caller, deltaX, deltaY, sourceList) {
     sourceList.includes(this) ? sourceList : sourceList.push(this)
+    const newDeltaX = this.lockXToPolygon.TargetObject == caller && !this.lockYToPolygon.secondTargetObject? deltaX : 0
+    const newDeltaY = this.lockYToPolygon.TargetObject == caller && !this.lockXToPolygon.secondTargetObject? deltaY : 0
     this.set({
-      left: this.left + deltaX,
-      top: this.top + deltaY
+      left: this.left + newDeltaX,
+      top: this.top + newDeltaY
     });
     this.setCoords();
     this.updateAllCoord(null, sourceList);
@@ -883,6 +878,18 @@ async function drawLabeledArrow(shapeMeta, options) {
 
 }
 
+function renumberVertexLabels(baseGroup) {
+  if (baseGroup.basePolygon.vertex) {
+    baseGroup.basePolygon.vertex.forEach((vertex, index) => {
+      vertex.label = `V${index + 1}`;
+      const vertexControl = baseGroup.subObjects.find(obj => obj.functionalType === 'vertexText' && obj.text === vertex.label);
+      if (vertexControl) {
+        vertexControl.set('text', vertex.label);
+      }
+    });
+    canvas.renderAll();
+  }
+}
 
 document.getElementById('set-anchor').addEventListener('click', function () {
   if (selectedArrow) {
@@ -892,6 +899,7 @@ document.getElementById('set-anchor').addEventListener('click', function () {
     selectedArrow = null
     document.removeEventListener('keydown', ShowHideSideBarEvent);
     selectObjectHandler('Select shape to anchor to', anchorShape, shape1)
+    renumberVertexLabels(shape1); // Renumber vertex labels after selection
   }
 });
 

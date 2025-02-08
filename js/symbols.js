@@ -501,6 +501,87 @@ const symbolsTemplate = {
     ]
   },
 
+  'MTR': {
+    path: [ // 3.5.7.19
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1 },
+          { x: 0, y: 22, label: 'V2', start: 0 },
+        ], 'arcs': [
+          { start: 'V1', end: 'V2', radius: 13, radius2: 11, direction: 1, sweep: 0 },
+          { start: 'V2', end: 'V1', radius: 13, radius2: 11, direction: 1, sweep: 0 },
+        ], 'fill': '#ff0101'
+      },
+      {
+        'vertex': [
+          { x: 0, y: 4, label: 'V3', start: 1 },
+          { x: 1, y: 4, label: 'V4', start: 0 },
+          { x: 1, y: 8, label: 'V5', start: 0 },
+          { x: 4, y: 4, label: 'V6', start: 0 },
+          { x: 6.2, y: 4, label: 'V7', start: 0 },
+          { x: 1, y: 10, label: 'V8', start: 0 },
+          { x: 1, y: 12, label: 'V9', start: 0 },
+          { x: 6.2, y: 18, label: 'V10', start: 0 },
+          { x: 4, y: 18, label: 'V11', start: 0 },
+          { x: 1, y: 14, label: 'V12', start: 0 },
+          { x: 1, y: 18, label: 'V13', start: 0 },
+          { x: -1, y: 18, label: 'V14', start: 0 },
+          { x: -1, y: 14, label: 'V15', start: 0 },
+          { x: -4, y: 18, label: 'V16', start: 0 },
+          { x: -6.2, y: 18, label: 'V17', start: 0 },
+          { x: -1, y: 12, label: 'V18', start: 0 },
+          { x: -1, y: 10, label: 'V19', start: 0 },
+          { x: -6.2, y: 4, label: 'V20', start: 0 },
+          { x: -4, y: 4, label: 'V21', start: 0 },
+          { x: -1, y: 8, label: 'V22', start: 0 },
+          { x: -1, y: 4, label: 'V23', start: 0 },
+        ], 'arcs': [
+          { start: 'V5', end: 'V6', radius: 3, radius2: 4, direction: 0, sweep: 0 },
+          { start: 'V7', end: 'V8', radius: 5.2, radius2: 6, direction: 1, sweep: 0 },
+          { start: 'V9', end: 'V10', radius: 5.2, radius2: 6, direction: 1, sweep: 0 },
+          { start: 'V11', end: 'V12', radius: 3, radius2: 4, direction: 0, sweep: 0 },
+          { start: 'V15', end: 'V16', radius: 3, radius2: 4, direction: 0, sweep: 0 },
+          { start: 'V17', end: 'V18', radius: 5.2, radius2: 6, direction: 1, sweep: 0 },
+          { start: 'V19', end: 'V20', radius: 5.2, radius2: 6, direction: 1, sweep: 0 },
+          { start: 'V21', end: 'V22', radius: 3, radius2: 4, direction: 0, sweep: 0 },
+        ], 'fill': '#ffffff'
+      },
+    ],
+    text: [ ]
+  },
+
+  'Hospital': {
+    path: [ // 3.5.7.31
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1 },
+          { x: 0, y: 16, label: 'V2', start: 0 },
+        ], 'arcs': [
+          { start: 'V1', end: 'V2', radius: 8,  direction: 1, sweep: 0 },
+          { start: 'V2', end: 'V1', radius: 8,  direction: 1, sweep: 0 },
+        ], 'fill': 'white'
+      },
+      {
+        'vertex': [
+          { x: 0, y: 1.5, label: 'V3', start: 1 },
+          { x: 2, y: 1.5, label: 'V4', start: 0 },
+          { x: 2, y: 6, label: 'V5', start: 0 },
+          { x: 6.5, y: 6, label: 'V6', start: 0 },
+          { x: 6.5, y: 10, label: 'V7', start: 0 },
+          { x: 2, y: 10, label: 'V8', start: 0 },
+          { x: 2, y: 14.5, label: 'V9', start: 0 },
+          { x: -2, y: 14.5, label: 'V10', start: 0 },
+          { x: -2, y: 10, label: 'V11', start: 0 },
+          { x: -6.5, y: 10, label: 'V12', start: 0 },
+          { x: -6.5, y: 6, label: 'V13', start: 0 },
+          { x: -2, y: 6, label: 'V14', start: 0 },
+          { x: -2, y: 1.5, label: 'V15', start: 0 },
+        ], 'arcs': [ ], 'fill': '#ff0101'
+      },
+    ],
+    text: [ ]
+  },
+
 };
 
 let FontGlyphs = { 'TransportMedium': null, 'Chinese': null }
@@ -525,6 +606,7 @@ function calcSymbol(type, length) {
     });
     path.arcs.forEach(arc => {
       arc.radius *= length;
+      if (arc.radius2) {arc.radius2 *= length;}
     });
   });
 
@@ -576,11 +658,10 @@ function drawSegement(current, next, previous, prevArc, final=false) {
     pathString += ` ${current.start ? 'M' : 'L'} ${prevTangent.x} ${prevTangent.y}`;
 
     // Arc to the end of the arc
-
     pathString += ` A ${current.radius} ${current.radius} 0 0 ${1 - arcDirection} ${nextTangent.x} ${nextTangent.y}`
 
   } else if (prevArc && (!current.start || final)) {
-    pathString += ` A ${prevArc.radius} ${prevArc.radius} 0 ${prevArc.sweep} ${prevArc.direction} ${current.x} ${current.y} `
+    pathString += ` A ${prevArc.radius} ${prevArc.radius2?prevArc.radius2:prevArc.radius} 0 ${prevArc.sweep} ${prevArc.direction} ${current.x} ${current.y}`
   } else {
     // Line to the next point
     pathString += ` ${current.start ? 'M' : 'L'} ${current.x} ${current.y}`;
@@ -617,11 +698,11 @@ function vertexToPath(shapeMeta) {
 
     }
 
-    //pathString += ' Z'; // Close the path
     svgContent += `<path d="${pathString}" fill="${fillColor}" />`;
     pathString = ''
   })
 
+  // handle text objects in path
   if (shapeMeta.text) {
     shapeMeta.text.forEach(t => {
       const fillColor = t.fill || 'white';

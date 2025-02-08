@@ -439,7 +439,6 @@ let FormDrawAddComponent = {
 
     pathData = pathData.replace(/<svg>/g, '<svg style="width:100;height:100;">')
     pathData = pathData.replace(/<path/g, `<path transform="translate(${translateX}, ${translateY}) scale(${scale})"`);
-    //pathData = pathData.replace(/fill="[^"]*"/g, 'fill="none" stroke="black"');
     const svg = pathData;
 
 
@@ -684,7 +683,7 @@ let FormBorderWrapComponent = {
     const width = aboveObjectBBox.right - aboveObjectBBox.left
     const BaseBorder = await drawDivider(xHeight, aboveBottom, width)
     const borderGroup = drawBasePolygon(BaseBorder, 'HDivider')
-    borderGroup. xHeight = xHeight
+    borderGroup.xHeight = xHeight
     anchorShape(aboveObject, borderGroup, {
       vertexIndex1: 'E2',
       vertexIndex2: 'E6',
@@ -925,16 +924,21 @@ let FormBorderWrapComponent = {
     return borderGroup
   },
 
-  assignWidthToDivider: async function(borderGroup, sourceList = []){
+  assignWidthToDivider: async function (borderGroup, sourceList = []) {
     const borderSize = borderGroup.getBoundingRect()
     const frame = 1.5 * borderGroup.xHeight / 4
     const innerWidth = borderSize.width - frame * 2
     const innerHeight = borderSize.height - frame * 2
+    const innerLeft = borderSize.left + frame
     borderGroup.HDivider.forEach(d => {
+      // Store the group's initial top position
+      const initialTop = d.getEffectiveCoords()[0].y
+      console.log(initialTop)
       d.removeAll()
-      drawDivider(d.xHeight, d.top, innerWidth).then((res) => {
+      drawDivider(d.xHeight, 0, innerWidth).then((res) => {
         d.add(res)
         d.basePolygon = res
+        d.set({ top: initialTop , left: innerLeft });
         d.setCoords()
         d.drawVertex()
         d.updateAllCoord(null, sourceList)
@@ -976,12 +980,18 @@ let FormDebugComponent = {
     const debugInfoPanel = document.getElementById('debug-info-panel');
     if (debugInfoPanel) {
       debugInfoPanel.innerHTML = '';
+      const div = document.createElement('div');
+      div.innerText = 'Select Object for Info';
+      debugInfoPanel.appendChild(div);
     }
   },
   createDebugInfoPanel: function (parent) {
     const debugInfoPanel = document.createElement('div');
     debugInfoPanel.id = 'debug-info-panel';
     parent.appendChild(debugInfoPanel);
+    const div = document.createElement('div');
+    div.innerText = 'Select Object for Info';
+    debugInfoPanel.appendChild(div);
   },
 
   updateDebugInfo: function (objects) {

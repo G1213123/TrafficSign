@@ -1,4 +1,5 @@
 var canvas = this.__canvas = new fabric.Canvas('canvas', { fireMiddleClick: true, fireRightClick: true, preserveObjectStacking: true });
+canvas.backgroundColor = '#2f2f2f';
 const ctx = canvas.getContext("2d")
 let activeObject = null
 let selectedArrow = null
@@ -97,6 +98,10 @@ canvas.on('mouse:wheel', function (opt) {
   opt.e.preventDefault();
   opt.e.stopPropagation();
   DrawGrid()
+  canvas.getObjects().forEach(obj => {
+    obj.setCoords();
+  });
+  canvas.requestRenderAll();
 })
 
 // Method to handle arrow key presses for all active objects
@@ -137,7 +142,6 @@ function handleArrowKeys(event) {
         break;
     }
     if (moved) {
-      obj.updateAllCoord();
       obj.updateAllCoord();
     }
   });
@@ -334,7 +338,7 @@ function showTextBox(text, withAnswerBox = null) {
     });
   } else {
     answerBox.style.display = 'none';
-    document.addEventListener('keydown', handleKeyDownEvent)
+    document.addEventListener('keydown', handleKeyDown)
     return Promise.resolve();
   }
   // document.dispatchEvent(new Event('mousemove'))

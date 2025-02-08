@@ -7,6 +7,14 @@ const BorderColorScheme = {
         'background': '#00B95F',
         'symbol': 'white',
     },
+    "White Background": {
+        'background': 'white',
+        'symbol': 'black',
+    },
+    "Yellow Background": {
+        'background': 'yellow',
+        'symbol': 'black',
+    },
 }
 
 const BorderTypeScheme = {
