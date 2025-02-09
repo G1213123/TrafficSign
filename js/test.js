@@ -1,8 +1,8 @@
 let borderTest = function () {
-  widthObjects = canvasObject
+    widthObjects = canvasObject
     heightObjects = canvasObject
 
-    FormBorderWrapComponent.BorderGroupCreate(heightObjects, widthObjects, {xHeight:100, borderType: 'stack', colorType:'Blue Background'})
+    FormBorderWrapComponent.BorderGroupCreate(heightObjects, widthObjects, { xHeight: 100, borderType: 'stack', colorType: 'Blue Background' })
 }
 
 let dividerTest = async function () {
@@ -51,24 +51,26 @@ let anchorTest = function () {
     })
 }
 
-let equalAnchorTest = function(){
-    const anchor = { sourcePoint: 'E1', targetPoint: 'E1', sourceObject: canvasObject[4], TargetObject: canvasObject[5], 
-        secondSourcePoint: 'E3', secondTargetPoint: 'E3', secondSourceObject:canvasObject[4], secondTargetObject: canvasObject[5] }
+let equalAnchorTest = function () {
+    const anchor = {
+        sourcePoint: 'E1', targetPoint: 'E1', sourceObject: canvasObject[4], TargetObject: canvasObject[5],
+        secondSourcePoint: 'E3', secondTargetPoint: 'E3', secondSourceObject: canvasObject[4], secondTargetObject: canvasObject[5]
+    }
     EQanchorShape('x', anchor)
 }
 
 let initShape = async function () {
 
-    await FormTextAddComponent.TextonMouseClick(null, { left: 300, top: 300, text: 'Hong Kong', xHeight: 100 })
+    await FormTextAddComponent.TextonMouseClick(null, { left: 0, top: 0, text: 'Hong Kong', xHeight: 100 })
 
     await FormTextAddComponent.TextonMouseClick(null, { left: 250, top: 250, text: '香港', xHeight: 100 })
 
-    const arrowOptions1 = { x: 100, y: 0, length: 25, angle: 90, color: 'white', };
-    const arrowOptions2 = { x: 200, y: 200, length: 25, angle: -90, color: 'white', };
-    const arrowOptions3 = { x: 0, y: 0, length: 25, angle: 0, color: 'white', };
-    Polygon1 = await drawLabeledArrow(calcSymbol('StackArrow', 25), arrowOptions2);
-    Polygon2 = await drawLabeledArrow(calcSymbol('Tunnel', 25), arrowOptions3);
-    Polygon2 = await drawLabeledArrow(calcSymbol('StackArrow', 25), arrowOptions1);
+    Polygon1 = await drawLabeledArrow(calcSymbol('StackArrow', 25),
+        { x: -450, y: 250, length: 25, angle: -90, color: 'white', });
+    Polygon2 = await drawLabeledArrow(calcSymbol('Tunnel', 25),
+        { x: 0, y: 0, length: 25, angle: 0, color: 'white', });
+    Polygon2 = await drawLabeledArrow(calcSymbol('StackArrow', 25),
+        { x: 1038, y: 800, length: 25, angle: 90, color: 'white', });
 
     await FormTextAddComponent.TextonMouseClick(null, { left: 300, top: 300, text: 'Kowloon', xHeight: 100 })
 
@@ -88,9 +90,9 @@ let movingObjectTest = function () {
     //console.assert(specimen.getEffectiveCoords()[0].x == left + 100, 'Moving failed');
 }
 
-testToRun = [anchorTest , dividerTest,borderTest]
+testToRun = [anchorTest, dividerTest, borderTest]
 
-async function  runTests(tests) {
+async function runTests(tests) {
     await initShape()
     for (const test of tests) {
         await test();

@@ -1,4 +1,4 @@
-var canvas = this.__canvas = new fabric.Canvas('canvas', { fireMiddleClick: true, fireRightClick: true, preserveObjectStacking: true });
+var canvas = this.__canvas = new fabric.Canvas('canvas', { fireMiddleClick: true, fireRightClick: true, preserveObjectStacking: true, enableRetinaScaling: true  });
 canvas.backgroundColor = '#2f2f2f';
 const ctx = canvas.getContext("2d")
 let activeObject = null

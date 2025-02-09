@@ -161,42 +161,25 @@ function FlagLeftBorderTemplate(xHeight, block, rounding) {
 
 }
 
-function drawLabeledBorder(borderType, xHeight, bbox, color) {
+function calcBorderRounding (borderType, xHeight, bbox) {
+    const block = { width: bbox.right - bbox.left, height: bbox.bottom - bbox.top }
+    const rounding = { x: 0, y: 0 }
+    const shapeMeta = BorderTypeScheme[borderType](xHeight, block, rounding)
 
-    block = { width: bbox.right - bbox.left, height: bbox.bottom - bbox.top }
-    rounding = { x: 0, y: 0 }
-    shapeMeta = BorderTypeScheme[borderType](xHeight, block, rounding)
-    baseGroup = []
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     // Create polygon with labeled vertices
     shapeMeta.path.forEach(p => {
-        const vertexleft = - Math.min(...p.vertex.map(v => v.x));
-        const vertextop = - Math.min(...p.vertex.map(v => v.y));
-
-
-        p.vertex.forEach((p) => {
-            p.x = p.x + bbox.left;
-            p.y = p.y + bbox.top;
+        p.vertex.forEach((vertex) => {
+            vertex.x += bbox.left;
+            vertex.y += bbox.top;
+            minX = Math.min(minX, vertex.x);
+            minY = Math.min(minY, vertex.y);
+            maxX = Math.max(maxX, vertex.x);
+            maxY = Math.max(maxY, vertex.y);
         });
-
-        const pathData = vertexToPath({ path: [p] });
-        baseGroup.push(
-            new fabric.Path(pathData,
-                {
-                    left: bbox.left - vertexleft,
-                    top: bbox.top - vertextop,
-                    fill: BorderColorScheme[color][p['fill']],
-                    // originX: 'center',
-                    objectCaching: false,
-                    strokeWidth: 0,
-                })
-        );
-    })
-    borderWidth = 0
-    borderHeight = 0
-    baseGroup.forEach(b => {
-        borderWidth = Math.max(borderWidth, b.getBoundingRect().width)
-        borderHeight = Math.max(borderHeight, b.getBoundingRect().height)
-    })
+    });
+    let borderWidth = maxX - minX;
+    let borderHeight = maxY - minY;
 
     if (borderWidth > 2000 || borderHeight > 2000) {
         roundingX = (50.0 * Math.round(borderWidth / 50.0) - borderWidth) / 2
@@ -207,39 +190,42 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
         roundingX = roundingX < -2.5 ? roundingX = 25 / 2 + roundingX : roundingX
         roundingY = roundingY < -2.5 ? roundingY = 25 / 2 + roundingY : roundingY
     }
+    return { x: roundingX, y: roundingY }
+}
 
-    rounding = { x: roundingX, y: roundingY }
-    shapeMeta = BorderTypeScheme[borderType](xHeight, block, rounding)
-    baseGroup = []
+function drawLabeledBorder(borderType, xHeight, bbox, color) {
+    const block = { width: bbox.right - bbox.left, height: bbox.bottom - bbox.top };
+    const rounding = calcBorderRounding(borderType, xHeight, bbox);
+    const shapeMeta = BorderTypeScheme[borderType](xHeight, block, rounding);
+    const baseGroup = [];
+    
     // Create polygon with labeled vertices
     shapeMeta.path.forEach(p => {
-        const vertexleft = - Math.min(...p.vertex.map(v => v.x));
-        const vertextop = - Math.min(...p.vertex.map(v => v.y));
+        const vertexleft = -Math.min(...p.vertex.map(v => v.x));
+        const vertextop = -Math.min(...p.vertex.map(v => v.y));
 
-
-        p.vertex.forEach((p) => {
-            p.x = p.x + bbox.left;
-            p.y = p.y + bbox.top;
+        p.vertex.forEach((vertex) => {
+            vertex.x = vertex.x + bbox.left;
+            vertex.y = vertex.y + bbox.top;
         });
 
         const pathData = vertexToPath({ path: [p] });
         baseGroup.push(
-            new fabric.Path(pathData,
-                {
-                    left: bbox.left - vertexleft,
-                    top: bbox.top - vertextop,
-                    fill: BorderColorScheme[color][p['fill']],
-                    // originX: 'center',
-                    objectCaching: false,
-                    strokeWidth: 0,
-                })
+            new fabric.Path(pathData, {
+                left: bbox.left - vertexleft,
+                top: bbox.top - vertextop,
+                fill: BorderColorScheme[color][p['fill']],
+                objectCaching: false,
+                strokeWidth: 0,
+            })
         );
-    })
+    });
 
-    GroupedBorder = new fabric.Group(baseGroup)
-    GroupedBorder.vertex = shapeMeta.path.map(p => p.vertex).flat()
+    const GroupedBorder = new fabric.Group(baseGroup);
+    GroupedBorder.vertex = shapeMeta.path.map(p => p.vertex).flat();
+    GroupedBorder.rounding = rounding;
 
-    return GroupedBorder
+    return GroupedBorder;
 }
 
 drawDivider = async function (xHeight, top, width, frameWidth = 1) {
@@ -278,9 +264,9 @@ drawDivider = async function (xHeight, top, width, frameWidth = 1) {
         // originX: 'center',
         objectCaching: false,
         strokeWidth: 0
-      },
+      }
 
-    dividerShape = new GlyphPath()
+    const dividerShape = new GlyphPath()
     await dividerShape.initialize({ path: dividerTemplate }, arrowOptions1);
     return dividerShape
 }

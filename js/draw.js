@@ -778,6 +778,10 @@ class vertexControl {
     this.circle.set({
       fill: 'rgba(255, 255, 255, 0.2)',
     });
+    if (this.baseGroup != canvas.getActiveObject()) {
+      this.circle.set({ opacity: 0 });
+      this.text.set({  opacity: 0 });
+    }
     this.text.set({ fill: this.vertex.label.includes('E') ? 'red' : 'violet' })
     this.text.set('hoverCursor', 'default')
     canvas.renderAll();
@@ -869,7 +873,8 @@ async function drawLabeledArrow(shapeMeta, options) {
     top: y,
     fill: color || 'black',
     angle: angle || 0,
-    objectCaching: false,
+    objectCaching: true,
+    dirty : true,
     strokeWidth: 0,
   })
     
@@ -926,7 +931,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
       left: shape2.left + targetPoint.x - movingPoint.x + parseInt(spacingX),
       lockMovementX: true,
     });
-    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1 }
+    anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1, spacing: parseInt(spacingX) }
     shape2.lockXToPolygon = anchor
   } else if (spacingX.toUpperCase() == 'EQ') {
     selectObjectHandler('Select first shape to equal distance locking', function (shape3) {
@@ -952,7 +957,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
       top: shape2.top + targetPoint.y - movingPoint.y + parseInt(spacingY),
       lockMovementY: true,
     });
-    const anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1 }
+    const anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1 , spacing: parseInt(spacingY) }
     shape2.lockYToPolygon = anchor
   } else if (spacingY.toUpperCase() == 'EQ') {
     selectObjectHandler('Select first shape to equal distance locking', function (shape3) {

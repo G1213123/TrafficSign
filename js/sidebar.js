@@ -4,7 +4,7 @@ cursor.lockScalingX = true;
 cursor.lockScalingY = true;
 cursor.lockUniScaling = true;
 var cursorOffset = { x: 0, y: 0 }
-tabNum = 2;
+let tabNum = 2;
 
 canvas.add(cursor);
 
@@ -322,12 +322,6 @@ let FormTextAddComponent = {
 
       FormTextAddComponent.TextinputHandler(null, { text: cursor.text, xHeight: cursor.xHeight })
       canvas.renderAll()
-      //Object.values(clonedObj.aCoords).map((point, i) => {
-      //  return { x: point.x, y: point.y, label: `E${i + 1}` }
-      //})
-      //clonedObj.insertPoint = clonedObj.vertex[0]
-      //TextGroup = drawBasePolygon(clonedObj, 'Text', false)
-
     }
   },
 
@@ -403,15 +397,6 @@ let FormDrawAddComponent = {
       var pointer = canvas.getPointer(event.e);
     }
     if (eventButton === 0 && cursor._objects.length) {
-      //cursor.clone().then(function (clonedObj) {
-      //  canvas.remove(clonedObj)
-      //  var symbolitem = clonedObj.removeAll()[0];
-      //  offset = getInsertOffset(calcSymbol(symbolitem.symbol, symbolitem.xHeight / 4))
-      //  coords = symbolitem.getCoords()
-      //  //symbolitem.vertex = symbolitem.vertex.map(v => { return { x: v.x + offset.left + coords[0].x, y: v.y + offset.top + coords[0].y, label: v.label } })
-      //  SymbolGroup = drawBasePolygon(symbolitem, 'Symbol')
-      //})
-
       var posx = pointer.x;
       var posy = pointer.y;
       var xHeight = parseInt(document.getElementById('input-xHeight').value)
@@ -618,30 +603,6 @@ let FormDrawAddComponent = {
 
 /* Border Panel */
 let FormBorderWrapComponent = {
-  BorderType: {
-    "Blue Background": {
-      Fill: '#0000FE',
-      PaddingLeft: 2.5,
-      PaddingRight: 2.5,
-      PaddingTop: 2.5,
-      PaddingNBottom: 1.5,
-      FrameWidth: 1.5,
-      FrameFill: 'white',
-      InnerCornerRadius: 1.5,
-      OuterCornerRadius: 3
-    },
-    "Green Background": {
-      Fill: '#00B95F',
-      PaddingLeft: 2.5,
-      PaddingRight: 2.5,
-      PaddingTop: 2.5,
-      PaddingNBottom: 1.5,
-      FrameWidth: 1.5,
-      FrameFill: 'white',
-      InnerCornerRadius: 1.5,
-      OuterCornerRadius: 3
-    },
-  },
   BorderPanelInit: function () {
     tabNum = 3
     var parent = GeneralHandler.PanelInit()
@@ -809,57 +770,6 @@ let FormBorderWrapComponent = {
     return { in: innerBorderCoords, out: outerBorderCoords }
   },
 
-
-  // draw rounded shape
-  drawBorder: function (BorderCoord, fill, radius) {
-    var Rect = new fabric.Rect({
-      left: BorderCoord.left,
-      top: BorderCoord.top,
-      fill: fill,
-      width: BorderCoord.right - BorderCoord.left,
-      height: BorderCoord.bottom - BorderCoord.top,
-      objectCaching: false,
-      rx: radius * xHeight / 4,
-      ry: radius * xHeight / 4,
-      objectCaching: false
-    });
-    return Rect
-  },
-
-  BorderCreate: function (heightObjects, widthObjects, xHeight, borderType) {
-    if (xHeight > 0) {
-
-      bordersCoords = FormBorderWrapComponent.calcBorder(heightObjects, widthObjects, xHeight, borderType)
-
-      innerBorderObject = FormBorderWrapComponent.drawBorder(bordersCoords.in, borderType.Fill, borderType.InnerCornerRadius)
-      outerBorderObject = FormBorderWrapComponent.drawBorder(bordersCoords.out, borderType.FrameFill, borderType.OuterCornerRadius)
-      GroupedBorder = new fabric.Group([outerBorderObject, innerBorderObject], {
-        objectCaching: false,
-      });
-
-      const cornerPoints = [
-        { x: innerBorderCoords.left, y: innerBorderCoords.top }, // Top-left
-        { x: innerBorderCoords.right, y: innerBorderCoords.top }, // Top-right
-        { x: innerBorderCoords.right, y: innerBorderCoords.bottom }, // Bottom-right
-        { x: innerBorderCoords.left, y: innerBorderCoords.bottom } // Bottom-left
-      ];
-
-      // Generate the corner point list with labels
-      const labeledCornerPoints = cornerPoints.map((point, i) => {
-        return { x: point.x, y: point.y, label: `V${i + 1}` };
-      });
-      GroupedBorder.vertex = labeledCornerPoints
-      GroupedBorder.inner = innerBorderObject
-      GroupedBorder.outer = outerBorderObject
-
-      //GroupedBorder.insertPoint = GroupedBorder.vertex[0]
-      GroupedBorder.setCoords()
-      return GroupedBorder;
-    } else {
-      showTextBox('x-height is incorrect', 1)
-    }
-  },
-
   FilterDivider: function (heightObjects, widthObjects) {
     let HDividerObject = []
     let VDividerObject = []
@@ -881,6 +791,42 @@ let FormBorderWrapComponent = {
     return [fheightObjects, fwidthObjects, VDividerObject, HDividerObject]
   },
 
+  RoundingToDivider: function (HDividers, VDividers, rounding) {
+    rounding.x /= (VDividers.length + 1) * 2
+    rounding.y /= (HDividers.length + 1) * 2
+    HDividers.forEach(h => {
+      anchorShape(h.lockYToPolygon.TargetObject, h,  {
+        vertexIndex1: h.lockYToPolygon.sourcePoint,
+        vertexIndex2: h.lockYToPolygon.targetPoint,
+        spacingX: '',
+        spacingY: h.lockYToPolygon.spacing + rounding.y
+      })
+      const nextAnchor = h.anchoredPolygon[0]
+      anchorShape(h,nextAnchor,  {
+        vertexIndex1: nextAnchor.lockYToPolygon.sourcePoint,
+        vertexIndex2: nextAnchor.lockYToPolygon.targetPoint,
+        spacingX: '',
+        spacingY: nextAnchor.lockYToPolygon.spacing + rounding.y
+      })
+    })
+    VDividers.forEach(v => {
+      anchorShape(v, v.lockXToPolygon.TargetObject, {
+        vertexIndex1: v.lockXToPolygon.vertexIndex1,
+        vertexIndex2: v.lockXToPolygon.vertexIndex2,
+        spacingX: '',
+        spacingY: v.lockXToPolygon.spacing
+      })
+    })
+
+  },
+
+  getBorderObjectCoords: function (fheightObjects, fwidthObjects) {
+    const coordsWidth = FormBorderWrapComponent.getBoundingBox(fwidthObjects)
+    const coordsHeight = FormBorderWrapComponent.getBoundingBox(fheightObjects)
+    return { left: coordsWidth.left, top: coordsHeight.top, right: coordsWidth.right, bottom: coordsHeight.bottom }
+
+  },
+
   BorderGroupCreate: async function (heightObjects, widthObjects, options = null) {
 
     const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
@@ -890,10 +836,13 @@ let FormBorderWrapComponent = {
     const [fheightObjects, fwidthObjects, VDivider, HDivider] = FormBorderWrapComponent.FilterDivider(heightObjects, widthObjects)
 
     // Get the bounding box of the active selection 
-    const coordsWidth = FormBorderWrapComponent.getBoundingBox(fwidthObjects)
-    const coordsHeight = FormBorderWrapComponent.getBoundingBox(fheightObjects)
-    const coords = { left: coordsWidth.left, top: coordsHeight.top, right: coordsWidth.right, bottom: coordsHeight.bottom }
-    //borderObject = FormBorderWrapComponent.BorderCreate(heightObjects, widthObjects, xHeight, borderType)
+    let coords = FormBorderWrapComponent.getBorderObjectCoords(fheightObjects, fwidthObjects)
+
+    // handle roundings on borders and dividers
+    const rounding = calcBorderRounding(borderType, xHeight, coords)
+    FormBorderWrapComponent.RoundingToDivider(HDivider, VDivider, rounding)
+    coords = FormBorderWrapComponent.getBorderObjectCoords(fheightObjects, fwidthObjects)
+
     BaseBorder = drawLabeledBorder(borderType, xHeight, coords, colorType)
     borderGroup = drawBasePolygon(BaseBorder, 'Border')
     borderGroup.widthObjects = [...fwidthObjects]
@@ -904,8 +853,8 @@ let FormBorderWrapComponent = {
     borderGroup.borderType = borderType
     borderGroup.xHeight = xHeight
     borderGroup.color = colorType
+    FormBorderWrapComponent.assignWidthToDivider(borderGroup)
     borderGroup.assignWidthToDivider = FormBorderWrapComponent.assignWidthToDivider
-    borderGroup.assignWidthToDivider(borderGroup)
 
     borderGroup.lockMovementX = true
     borderGroup.lockMovementY = true
@@ -933,12 +882,11 @@ let FormBorderWrapComponent = {
     borderGroup.HDivider.forEach(d => {
       // Store the group's initial top position
       const initialTop = d.getEffectiveCoords()[0].y
-      console.log(initialTop)
       d.removeAll()
       drawDivider(d.xHeight, 0, innerWidth).then((res) => {
         d.add(res)
         d.basePolygon = res
-        d.set({ top: initialTop , left: innerLeft });
+        d.set({ top: initialTop, left: innerLeft });
         d.setCoords()
         d.drawVertex()
         d.updateAllCoord(null, sourceList)
