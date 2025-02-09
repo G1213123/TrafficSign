@@ -401,7 +401,7 @@ let FormDrawAddComponent = {
       var posy = pointer.y;
       var xHeight = parseInt(document.getElementById('input-xHeight').value)
       const arrowOptions1 = { x: posx, y: posy, length: xHeight / 4, angle: FormDrawAddComponent.symbolAngle, color: 'white', };
-      drawLabeledArrow(calcSymbol(cursor.symbol, xHeight / 4), arrowOptions1);
+      drawLabeledArrow(calcSymbol(cursor.symbol, xHeight / 4), cursor.symbol, arrowOptions1);
     }
   },
 
@@ -413,7 +413,7 @@ let FormDrawAddComponent = {
     const svgHeight = 100;
 
     // Calculate the bounding box of the path
-    const tempPath = new fabric.Path(pathData, {strokeWidth:0});
+    const tempPath = new fabric.Path(pathData, { strokeWidth: 0 });
     const scaleX = svgWidth / tempPath.width;
     const scaleY = svgHeight / tempPath.height;
     const scale = Math.min(scaleX, scaleY);
@@ -522,7 +522,7 @@ let FormDrawAddComponent = {
     }
   },
 
-  drawApproachMousedown: (opt) => {
+  drawApproachMousedown: function (opt) {
     var evt = opt.e;
     var point = canvas.getPointer(evt);
     if (evt.button == 0) {
@@ -534,8 +534,8 @@ let FormDrawAddComponent = {
         x1: this.lastPosX,
         y1: this.lastPosY,
         x2: this.lastPosX,
-        y1: this.lastPosY,
-      })
+        y2: this.lastPosY,
+      });
     }
   },
 
@@ -791,38 +791,46 @@ let FormBorderWrapComponent = {
     return [fheightObjects, fwidthObjects, VDividerObject, HDividerObject]
   },
 
-  RoundingToDivider: function (HDividers, VDividers, rounding) {
+  RoundingToDivider: function (HDividers, VDividers, rounding, sourceList = []) {
     rounding.x /= (VDividers.length + 1) * 2
     rounding.y /= (HDividers.length + 1) * 2
     HDividers.forEach(h => {
-      anchorShape(h.lockYToPolygon.TargetObject, h,  {
-        vertexIndex1: h.lockYToPolygon.sourcePoint,
-        vertexIndex2: h.lockYToPolygon.targetPoint,
-        spacingX: '',
-        spacingY: h.lockYToPolygon.spacing + rounding.y
-      })
+      if (!sourceList.includes(h.lockYToPolygon.TargetObject)) {
+        anchorShape(h.lockYToPolygon.TargetObject, h, {
+          vertexIndex1: h.lockYToPolygon.sourcePoint,
+          vertexIndex2: h.lockYToPolygon.targetPoint,
+          spacingX: '',
+          spacingY: h.lockYToPolygon.spacing + rounding.y
+        }, sourceList)
+      }
       const nextAnchor = h.anchoredPolygon[0]
-      anchorShape(h,nextAnchor,  {
-        vertexIndex1: nextAnchor.lockYToPolygon.sourcePoint,
-        vertexIndex2: nextAnchor.lockYToPolygon.targetPoint,
-        spacingX: '',
-        spacingY: nextAnchor.lockYToPolygon.spacing + rounding.y
-      })
+      if (!sourceList.includes(nextAnchor)) {
+        anchorShape(h, nextAnchor, {
+          vertexIndex1: nextAnchor.lockYToPolygon.sourcePoint,
+          vertexIndex2: nextAnchor.lockYToPolygon.targetPoint,
+          spacingX: '',
+          spacingY: nextAnchor.lockYToPolygon.spacing + rounding.y
+        }, sourceList)
+      }
     })
     VDividers.forEach(v => {
-      anchorShape(v.lockXToPolygon.TargetObject, v,  {
-        vertexIndex1: v.lockXToPolygon.sourcePoint,
-        vertexIndex2: v.lockXToPolygon.targetPoint,
-        spacingX: v.lockXToPolygon.spacing + rounding.x,
-        spacingY: ''
-      })
+      if (!sourceList.includes(v.lockXToPolygon.TargetObject)) {
+        anchorShape(v.lockXToPolygon.TargetObject, v, {
+          vertexIndex1: v.lockXToPolygon.sourcePoint,
+          vertexIndex2: v.lockXToPolygon.targetPoint,
+          spacingX: v.lockXToPolygon.spacing + rounding.x,
+          spacingY: ''
+        }, sourceList)
+      }
       const nextAnchor = v.anchoredPolygon[0]
-      anchorShape(v,nextAnchor,  {
-        vertexIndex1: nextAnchor.lockXToPolygon.sourcePoint,
-        vertexIndex2: nextAnchor.lockXToPolygon.targetPoint,
-        spacingX: nextAnchor.lockXToPolygon.spacing + rounding.x,
-        spacingY: ''
-      })  
+      if (!sourceList.includes(nextAnchor)) {
+        anchorShape(v, nextAnchor, {
+          vertexIndex1: nextAnchor.lockXToPolygon.sourcePoint,
+          vertexIndex2: nextAnchor.lockXToPolygon.targetPoint,
+          spacingX: nextAnchor.lockXToPolygon.spacing + rounding.x,
+          spacingY: ''
+        }, sourceList)
+      }
     })
 
   },
@@ -889,8 +897,8 @@ let FormBorderWrapComponent = {
     borderGroup.HDivider.forEach(d => {
       // Store the group's initial top position
       const initialTop = d.getEffectiveCoords()[0].y
-      d.removeAll()
       drawDivider(d.xHeight, 0, innerWidth).then((res) => {
+        d.removeAll()
         d.add(res)
         d.basePolygon = res
         d.set({ top: initialTop, left: innerLeft });

@@ -135,7 +135,7 @@ class GlyphPolygon extends fabric.Polygon {
 }
 
 class GlyphPath extends fabric.Group {
-  constructor( options) {
+  constructor(options) {
     super([], options); // Call the parent class constructor first
 
     //this.initialize(shapeMeta, options);
@@ -196,6 +196,10 @@ class BaseGroup extends fabric.Group {
     this.subObjects = [];
     this.lockXToPolygon = {};
     this.lockYToPolygon = {};
+
+    canvasObject.push(this);
+    this.canvasID = canvasObject.length - 1
+    this._showName = `<Group ${this.canvasID}> ${functionalType}${basePolygon.text ? ' ' + basePolygon.text : ''}${basePolygon.symbol ? ' ' + basePolygon.symbol : ''}`;
 
     this.basePolygon.insertPoint = this.basePolygon.vertex[0];
     canvas.remove(this.basePolygon);
@@ -336,8 +340,8 @@ class BaseGroup extends fabric.Group {
     this.anchoredPolygon.forEach(anchoredGroup => {
       if (!sourceList.includes(anchoredGroup)) {
         // check receive change object to avoid self reference in border resize{
-          anchoredGroup.receiveDelta(this, deltaX, deltaY, sourceList);
-        }
+        anchoredGroup.receiveDelta(this, deltaX, deltaY, sourceList);
+      }
 
     });
     // If all nodes are exhausted, call another function
@@ -350,8 +354,8 @@ class BaseGroup extends fabric.Group {
   // Method to receive deltaX and deltaY and update position
   receiveDelta(caller, deltaX, deltaY, sourceList) {
     sourceList.includes(this) ? sourceList : sourceList.push(this)
-    const newDeltaX = this.lockXToPolygon.TargetObject == caller && !this.lockYToPolygon.secondTargetObject? deltaX : 0
-    const newDeltaY = this.lockYToPolygon.TargetObject == caller && !this.lockXToPolygon.secondTargetObject? deltaY : 0
+    const newDeltaX = this.lockXToPolygon.TargetObject == caller && !this.lockYToPolygon.secondTargetObject ? deltaX : 0
+    const newDeltaY = this.lockYToPolygon.TargetObject == caller && !this.lockXToPolygon.secondTargetObject ? deltaY : 0
     this.set({
       left: this.left + newDeltaX,
       top: this.top + newDeltaY
@@ -373,14 +377,19 @@ class BaseGroup extends fabric.Group {
     sourceList.includes(this) ? sourceList : sourceList.push(this)
     if (this.borderGroup && !sourceList.includes(this.borderGroup)) {
       const BG = this.borderGroup
-      const coordsWidth = FormBorderWrapComponent.getBoundingBox(BG.widthObjects)
-      const coordsHeight = FormBorderWrapComponent.getBoundingBox(BG.heightObjects)
-      const coords = { left: coordsWidth.left, top: coordsHeight.top, right: coordsWidth.right, bottom: coordsHeight.bottom }
-      const borderObject = drawLabeledBorder(BG.borderType, BG.xHeight, coords, BG.color)
       BG.removeAll()
+      // Get the bounding box of the active selection 
+      let coords = FormBorderWrapComponent.getBorderObjectCoords(BG.heightObjects, BG.widthObjects)
+
+      // handle roundings on borders and dividers
+      const rounding = calcBorderRounding(BG.borderType, BG.xHeight, coords)
+      FormBorderWrapComponent.RoundingToDivider(BG.HDivider, BG.VDivider, rounding, sourceList)
+      coords = FormBorderWrapComponent.getBorderObjectCoords(BG.heightObjects, BG.widthObjects)
+
+      const borderObject = drawLabeledBorder(BG.borderType, BG.xHeight, coords, BG.color)
+
       BG.add(borderObject)
       BG.basePolygon = borderObject
-      BG.setCoords()
       FormBorderWrapComponent.assignWidthToDivider(BG, sourceList)
       BG.updateAllCoord(null, sourceList)
       BG.drawVertex()
@@ -780,7 +789,7 @@ class vertexControl {
     });
     if (this.baseGroup != canvas.getActiveObject()) {
       this.circle.set({ opacity: 0 });
-      this.text.set({  opacity: 0 });
+      this.text.set({ opacity: 0 });
     }
     this.text.set({ fill: this.vertex.label.includes('E') ? 'red' : 'violet' })
     this.text.set('hoverCursor', 'default')
@@ -853,14 +862,12 @@ function drawBasePolygon(basePolygon, functionalType, calcVertex = true) {
     lockScalingY: true
   });
   canvas.add(baseGroup);
-  canvasObject.push(baseGroup);
-  baseGroup.canvasID = canvasObject.length - 1
   CanvasObjectInspector.createObjectListPanelInit()
   //canvas.setActiveObject(baseGroup);
   return baseGroup;
 }
 
-async function drawLabeledArrow(shapeMeta, options) {
+async function drawLabeledArrow(shapeMeta, symbol, options) {
   const { x, y, length, angle, color } = options;
   const vertexleft = Math.min(...shapeMeta.path.map(p => p.vertex).flat().map(v => v.x));
   const vertextop = Math.min(...shapeMeta.path.map(p => p.vertex).flat().map(v => v.y));
@@ -874,13 +881,13 @@ async function drawLabeledArrow(shapeMeta, options) {
     fill: color || 'black',
     angle: angle || 0,
     objectCaching: true,
-    dirty : true,
+    dirty: true,
     strokeWidth: 0,
   })
-    
-  drawBasePolygon(arrow, 'Symbol');
-  
 
+  arrow.symbol = symbol;
+
+  drawBasePolygon(arrow, 'Symbol');
 }
 
 function renumberVertexLabels(baseGroup) {
@@ -957,7 +964,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
       top: shape2.top + targetPoint.y - movingPoint.y + parseInt(spacingY),
       lockMovementY: true,
     });
-    const anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1 , spacing: parseInt(spacingY) }
+    const anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1, spacing: parseInt(spacingY) }
     shape2.lockYToPolygon = anchor
   } else if (spacingY.toUpperCase() == 'EQ') {
     selectObjectHandler('Select first shape to equal distance locking', function (shape3) {
@@ -977,8 +984,12 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
     });
   }
   //shape2.setCoords()
-  shape1.updateAllCoord(null, sourceList)
-  shape2.updateAllCoord(null, sourceList)
+  if (!sourceList.includes(shape2)) {
+    shape2.updateAllCoord(null, sourceList)
+  }
+  if (!sourceList.includes(shape1)) {
+    shape1.updateAllCoord(null, sourceList)
+  }
 
 
   if (!shape1.anchoredPolygon.includes(shape2)) {

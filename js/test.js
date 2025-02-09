@@ -65,11 +65,11 @@ let initShape = async function () {
 
     await FormTextAddComponent.TextonMouseClick(null, { left: 250, top: 250, text: '香港', xHeight: 100 })
 
-    Polygon1 = await drawLabeledArrow(calcSymbol('StackArrow', 25),
+    Polygon1 = await drawLabeledArrow(calcSymbol('StackArrow', 25), 'StackArrow',
         { x: -450, y: 250, length: 25, angle: -90, color: 'white', });
-    Polygon2 = await drawLabeledArrow(calcSymbol('Tunnel', 25),
+    Polygon2 = await drawLabeledArrow(calcSymbol('Tunnel', 25), 'Tunnel',
         { x: 0, y: 0, length: 25, angle: 0, color: 'white', });
-    Polygon2 = await drawLabeledArrow(calcSymbol('StackArrow', 25),
+    Polygon2 = await drawLabeledArrow(calcSymbol('StackArrow', 25), 'StackArrow',
         { x: 1038, y: 800, length: 25, angle: 90, color: 'white', });
 
     await FormTextAddComponent.TextonMouseClick(null, { left: 300, top: 300, text: 'Kowloon', xHeight: 100 })
