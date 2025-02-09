@@ -413,14 +413,14 @@ let FormDrawAddComponent = {
     const svgHeight = 100;
 
     // Calculate the bounding box of the path
-    const bbox = new fabric.Path(pathData).getBoundingRect();
-    const scaleX = svgWidth / bbox.width;
-    const scaleY = svgHeight / bbox.height;
+    const tempPath = new fabric.Path(pathData, {strokeWidth:0});
+    const scaleX = svgWidth / tempPath.width;
+    const scaleY = svgHeight / tempPath.height;
     const scale = Math.min(scaleX, scaleY);
 
     // Calculate the translation to center the path
-    const translateX = (svgWidth - bbox.width * scale) / 2 - bbox.left * scale;
-    const translateY = (svgHeight - bbox.height * scale) / 2 - bbox.top * scale;
+    const translateX = (svgWidth - tempPath.width * scale) / 2 - tempPath.left * scale;
+    const translateY = (svgHeight - tempPath.height * scale) / 2 - tempPath.top * scale;
 
     pathData = pathData.replace(/<svg>/g, '<svg style="width:100;height:100;">')
     pathData = pathData.replace(/<path/g, `<path transform="translate(${translateX}, ${translateY}) scale(${scale})"`);
@@ -810,12 +810,19 @@ let FormBorderWrapComponent = {
       })
     })
     VDividers.forEach(v => {
-      anchorShape(v, v.lockXToPolygon.TargetObject, {
-        vertexIndex1: v.lockXToPolygon.vertexIndex1,
-        vertexIndex2: v.lockXToPolygon.vertexIndex2,
-        spacingX: '',
-        spacingY: v.lockXToPolygon.spacing
+      anchorShape(v.lockXToPolygon.TargetObject, v,  {
+        vertexIndex1: v.lockXToPolygon.sourcePoint,
+        vertexIndex2: v.lockXToPolygon.targetPoint,
+        spacingX: v.lockXToPolygon.spacing + rounding.x,
+        spacingY: ''
       })
+      const nextAnchor = v.anchoredPolygon[0]
+      anchorShape(v,nextAnchor,  {
+        vertexIndex1: nextAnchor.lockXToPolygon.sourcePoint,
+        vertexIndex2: nextAnchor.lockXToPolygon.targetPoint,
+        spacingX: nextAnchor.lockXToPolygon.spacing + rounding.x,
+        spacingY: ''
+      })  
     })
 
   },
