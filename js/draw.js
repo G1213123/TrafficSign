@@ -1,5 +1,4 @@
-xHeight = 100
-let canvasObjectNumbering = 0
+
 let cursorClickMode = 'normal'
 const deleteIcon =
   "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
@@ -12,31 +11,10 @@ fabric.Object.prototype.toObject = function (additionalProperties) {
   return originalToObject.call(this, myAdditional.concat(additionalProperties));
 }
 
-// Define a debounce function
-function debounce(func, wait) {
-  let timeout;
-  return function (...args) {
-    const context = this;
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(context, args), wait);
-  };
-}
 
 function PolarPoint(r, a) {
   return new fabric.Point(r * Math.cos(a), r * Math.sin(a))
 }
-
-/*
-var TextBlock = fabric.util.createClass(fabric.Textbox, {
-  initialize: function (x, y, color) {
-    this.callSuper('initialize', x, y);
-    this.color = color || '#000';
-  },
-  toString: function () {
-    return this.callSuper('toString') + ' (color: ' + this.color + ')';
-  }
-});
-*/
 
 function AddPlate() {
   var rect = new fabric.Rect({
@@ -257,6 +235,13 @@ class BaseGroup extends fabric.Group {
       this.set({
         opacity: 0.5
       });
+      if (this.__corner){
+        if (this.controls[this.__corner].onHover){
+          this.controls[this.__corner].onHover()
+        }
+      } else {
+        Object.values(this.controls).forEach(control => {if(control.onMouseOut) {control.onMouseOut()}})
+      }
       canvas.renderAll();
     });
 
@@ -264,6 +249,7 @@ class BaseGroup extends fabric.Group {
       this.set({
         opacity: 1
       });
+      Object.values(this.controls).forEach(control => {if(control.onMouseOut) {control.onMouseOut()}})
       canvas.renderAll();
     });
 
@@ -325,8 +311,8 @@ class BaseGroup extends fabric.Group {
     // Draw the vertices and labels
     if (this.basePolygon.vertex) {
       this.basePolygon.vertex.filter(v => v.label.includes('E')).forEach(v => {
-        const vControl = new vertexControl(v, this)
-        this.subObjects.push(...vControl.objects);
+        const vControl = new VertexControl(v, this);
+        this.controls[v.label] = vControl;
       });
     }
     this.subObjects.forEach(obj => {
@@ -740,98 +726,84 @@ class LockIcon {
   }
 }
 
-class vertexControl {
+class VertexControl extends fabric.Control {
   constructor(vertex, baseGroup) {
-    // Draw a halftone circle
-    this.circle = new fabric.Circle({
-      left: vertex.x,
-      top: vertex.y,
-      radius: 10,
-      strokeWidth: 1,
-      stroke: vertex.label.includes('E') ? 'red' : 'violet', // Changed fill color for better contrast
-      fill: 'rgba(255, 255, 255, 0.2)',
-      selectable: false,
-      originX: 'center',
-      originY: 'center',
-      opacity: 0,
-      functionalType: 'vertexCircle',
+    super({
+      x: (vertex.x - baseGroup.left) / baseGroup.width - 0.5,
+      y: (vertex.y - baseGroup.top) / baseGroup.height -0.5,
+      offsetX: 0,
+      offsetY: 0,
+      cursorStyle: 'pointer',
+      cornerSize: 20,
     });
-
-    // Add a text label
-    this.text = new fabric.Text(vertex.label, {
-      left: vertex.x,
-      top: vertex.label.includes('E') ? vertex.y - 30 : vertex.y + 30,
-      fontSize: 20,
-      fill: vertex.label.includes('E') ? 'red' : 'violet', // Changed fill color for better contrast
-      selectable: false,
-      originX: 'center',
-      originY: 'center',
-      opacity: 0,
-      functionalType: 'vertexText',
-      fontFamily: 'Arial, sans-serif', // Modern font family
-      //stroke: '#000', // Black stroke for better contrast
-      //strokeWidth: 1,
-    });
-
-    this.vertex = vertex
-    this.baseGroup = baseGroup
-    this.objects = [this.circle, this.text]
-
-    // Add hover and click event listeners
-    this.circle.on('mouseover', this.onHover.bind(this));
-    this.circle.on('mouseout', this.onMouseOut.bind(this));
-    this.circle.on('mousedown', this.onClick.bind(this));
+    this.hover = false
+    this.mouseUpHandler = this.onClick.bind(this);
+    this.render = this.renderControl.bind(this);
+    this.vertex = vertex;
+    this.baseGroup = baseGroup;
   }
 
-  onHover() {
-    this.circle.set({ fill: 'brown', opacity: 1 });
-    this.circle.set('hoverCursor', 'pointer')
-    this.text.set({ fill: 'brown', opacity: 1 });
-    canvas.renderAll();
-  };
+  renderControl(ctx, left, top, styleOverride, fabricObject) {
+    const size = this.cornerSize;
 
-  onMouseOut() {
-    this.circle.set({
-      fill: 'rgba(255, 255, 255, 0.2)',
-    });
-    if (this.baseGroup != canvas.getActiveObject()) {
-      this.circle.set({ opacity: 0 });
-      this.text.set({ opacity: 0 });
-    }
-    this.text.set({ fill: this.vertex.label.includes('E') ? 'red' : 'violet' })
-    this.text.set('hoverCursor', 'default')
-    canvas.renderAll();
-  };
+    // Draw the circle
+    ctx.beginPath();
+    ctx.arc(left, top, size / 2, 0, 2 * Math.PI, false);
+    ctx.fillStyle = `rgba(255, 20, 20, ${this.hover ? 0.7 : 0.2})`;
+    ctx.fill();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = this.vertex.label.includes('E') ? 'red' : 'violet';
+    ctx.stroke();
 
-  onClick(event) {
-    const vertexX = this.vertex.x
-    const vertexY = this.vertex.y
+    // Draw the text
+    ctx.font = '20px Arial, sans-serif';
+    ctx.fillStyle = 'red';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(this.vertex.label, left, this.vertex.label.includes('E') ? top - 30 : top + 30);
+  }
+
+  onClick(eventData, transform) {
+    const vertexX = this.vertex.x;
+    const vertexY = this.vertex.y;
     if (!activeVertex) {
-      activeVertex = this
+      activeVertex = this;
       this.isDown = true;
-      var pointer = canvas.getPointer(event.e);
-      var points = [vertexX, vertexY, pointer.x, pointer.y];
+      var points = [vertexX, vertexY, vertexX, vertexY];
       this.line = new fabric.Line(points, {
         stroke: 'yellow',
         strokeWidth: 4,
+        strokeDashArray: [5, 5],
         hasControls: false,
         hasBorders: false,
         lockMovementX: false,
         lockMovementY: false,
         hoverCursor: 'default',
-        selectable: false
+        selectable: false,
       });
       canvas.add(this.line);
 
       document.removeEventListener('keydown', ShowHideSideBarEvent);
-      document.addEventListener('keydown', this.cancelLink.bind(this))
+      document.addEventListener('keydown', this.cancelLink.bind(this));
       canvas.on('mouse:move', this.handleMouseMove);
       canvas.renderAll();
     } else {
-      anchorShape(this.baseGroup, activeVertex.baseGroup, { vertexIndex1: activeVertex.vertex.label, vertexIndex2: this.vertex.label })
-      activeVertex.deleteLink()
-      activeVertex = null
+      anchorShape(this.baseGroup, activeVertex.baseGroup, { vertexIndex1: activeVertex.vertex.label, vertexIndex2: this.vertex.label });
+      activeVertex.deleteLink();
+      activeVertex = null;
     }
+  }
+
+  onHover() {
+    //this.circle.set('fill', 'rgba(255,255,255,0.5)');
+    this.hover = true;
+    canvas.renderAll();
+  }
+
+  onMouseOut() {
+    //this.circle.set('fill', 'rgba(255,255,255,0.2)');
+    this.hover = false;
+    canvas.renderAll();
   }
 
   handleMouseMove = (event) => {
@@ -839,26 +811,26 @@ class vertexControl {
     var pointer = canvas.getPointer(event.e);
     this.line.set({
       x2: pointer.x,
-      y2: pointer.y
+      y2: pointer.y,
     });
     canvas.requestRenderAll();
   };
 
   cancelLink(event) {
     if (event.key === 'Escape') {
-      this.deleteLink()
+      this.deleteLink();
+      activeVertex = null;
     }
   }
 
   deleteLink() {
-    canvas.remove(this.line)
+    canvas.remove(this.line);
     canvas.off('mouse:move', this.handleMouseMove);
-    this.isDown = false
-    //canvas.off('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
-    canvas.requestRenderAll()
+    this.isDown = false;
+    canvas.requestRenderAll();
     setTimeout(() => {
       document.addEventListener('keydown', ShowHideSideBarEvent);
-    }, 1000); // Delay in milliseconds (e.g., 1000ms = 1 second)
+    }, 1000);
   }
 }
 
