@@ -214,7 +214,7 @@ class BaseGroup extends fabric.Group {
     this.controls.deleteControl = new fabric.Control({
       x: 0.5,
       y: -0.5,
-      offsetY: 16,
+      offsetY: 40,
       cursorStyle: 'pointer',
       mouseUpHandler: this.deleteObject,
       render: this.renderIcon,
@@ -295,32 +295,32 @@ class BaseGroup extends fabric.Group {
 
 
     // Debug text of the location of the group
-    if (this.basePolygon.insertPoint) {
-      const loactionText = new fabric.Text(
-        `Node: ${this.basePolygon.insertPoint.label} \nX: ${this.basePolygon.insertPoint.x.toFixed(0)} \nY: ${this.basePolygon.insertPoint.y.toFixed(0)}`,
-        {
-          left: this.left,
-          top: this.top - 125,
-          fontSize: 20,
-          fill: 'white', // Text color
-          selectable: false,
-          opacity: 0,
-          functionalType: 'locationText',
-          stroke: '#000', // Text stroke color
-          strokeWidth: 3,
-          paintFirst: 'stroke', // Stroke behind fill
-          fontFamily: 'Arial, sans-serif', // Modern font family
-          padding: 10, // Padding around the text
-          shadow: new fabric.Shadow({
-            color: 'rgba(0, 0, 0, 0.5)',
-            blur: 10,
-            offsetX: 2,
-            offsetY: 2
-          })
-        });
-      this.subObjects.push(loactionText);
-      this.loactionText = loactionText;
-    }
+    // if (this.basePolygon.insertPoint) {
+    //   const loactionText = new fabric.Text(
+    //     `Node: ${this.basePolygon.insertPoint.label} \nX: ${this.basePolygon.insertPoint.x.toFixed(0)} \nY: ${this.basePolygon.insertPoint.y.toFixed(0)}`,
+    //     {
+    //       left: this.left,
+    //       top: this.top - 125,
+    //       fontSize: 20,
+    //       fill: 'white', // Text color
+    //       selectable: false,
+    //       opacity: 0,
+    //       functionalType: 'locationText',
+    //       stroke: '#000', // Text stroke color
+    //       strokeWidth: 3,
+    //       paintFirst: 'stroke', // Stroke behind fill
+    //       fontFamily: 'Arial, sans-serif', // Modern font family
+    //       padding: 10, // Padding around the text
+    //       shadow: new fabric.Shadow({
+    //         color: 'rgba(0, 0, 0, 0.5)',
+    //         blur: 10,
+    //         offsetX: 2,
+    //         offsetY: 2
+    //       })
+    //     });
+    //   this.subObjects.push(loactionText);
+    //   this.loactionText = loactionText;
+    // }
 
     // Draw the vertices and labels
     if (this.basePolygon.vertex) {
@@ -441,7 +441,7 @@ class BaseGroup extends fabric.Group {
   updateAllCoord(event, sourceList = [], selfOnly = false) {
     const deltaX = this.basePolygon.getCoords()[0].x - this.refTopLeft.left;
     const deltaY = this.basePolygon.getCoords()[0].y - this.refTopLeft.top;
-    this.updateCoord(true);
+    this.updateCoord();
     this.refTopLeft = { top: this.basePolygon.getCoords()[0].y, left: this.basePolygon.getCoords()[0].x };
     if (canvas.getActiveObject() === this) {
       this.drawAnchorLinkage();
@@ -454,7 +454,7 @@ class BaseGroup extends fabric.Group {
   }
 
   // Method to update coordinates
-  updateCoord(updateLocationText = false) {
+  updateCoord() {
     const polygon = this.basePolygon;
     const updateX = this.basePolygon.getCoords()[0].x - this.refTopLeft.left;
     const updateY = this.basePolygon.getCoords()[0].y - this.refTopLeft.top;
@@ -473,11 +473,11 @@ class BaseGroup extends fabric.Group {
 
     polygon.insertPoint = transformedPoints[0];
 
-    if (updateLocationText) {
-      this.loactionText.set(
-        'text', `Node: ${polygon.insertPoint.label} \nX: ${polygon.insertPoint.x.toFixed(0)} \nY: ${polygon.insertPoint.y.toFixed(0)}`
-      );
-    }
+    // if (updateLocationText) {
+    //   this.loactionText.set(
+    //     'text', `Node: ${polygon.insertPoint.label} \nX: ${polygon.insertPoint.x.toFixed(0)} \nY: ${polygon.insertPoint.y.toFixed(0)}`
+    //   );
+    // }
     polygon.setCoords();
     canvas.renderAll();
   }
@@ -527,7 +527,14 @@ class BaseGroup extends fabric.Group {
       if (deleteObj.borderGroup.heightObjects) {
         const index = deleteObj.borderGroup.heightObjects.indexOf(deleteObj);
         deleteObj.borderGroup.heightObjects.splice(index, 1);
-
+      }
+      if (deleteObj.borderGroup.HDivider) {
+        const index = deleteObj.borderGroup.HDivider.indexOf(deleteObj);
+        deleteObj.borderGroup.HDivider.splice(index, 1);
+      }
+      if (deleteObj.borderGroup.VDivider) {
+        const index = deleteObj.borderGroup.VDivider.indexOf(deleteObj);
+        deleteObj.borderGroup.VDivider.splice(index, 1);
       }
       deleteObj.borderResize()
     }
