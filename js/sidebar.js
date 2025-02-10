@@ -146,24 +146,24 @@ let FormTextAddComponent = {
     txtObjects = FormTextAddComponent.createTextObject(txt, xHeight)
 
     // Get cursor position
-    const cursorLeft = cursor.left || 0;
-    const cursorTop = cursor.top || 0;
+    //const cursorLeft = cursor.left || 0;
+    //const cursorTop = cursor.top || 0;
 
     // Offset object positions relative to cursor position
-    txtObjects[0].forEach(obj => {
-      obj.set({
-        left: obj.left + cursorLeft,
-        top: obj.top + cursorTop
-      });
-    });
-
-    txtObjects[1].forEach(obj => {
-      obj.set({
-        left: obj.left + cursorLeft,
-        top: obj.top + cursorTop
-      });
-    });
-
+    //txtObjects[0].forEach(obj => {
+    //  obj.set({
+    //    left: obj.left + cursorLeft,
+    //    top: obj.top + cursorTop
+    //  });
+    //});
+//
+    //txtObjects[1].forEach(obj => {
+    //  obj.set({
+    //    left: obj.left + cursorLeft,
+    //    top: obj.top + cursorTop
+    //  });
+    //});
+//
     cursor.add(...txtObjects[0])
     cursor.add(...txtObjects[1])
     // Update the coordinates

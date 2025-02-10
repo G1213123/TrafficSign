@@ -137,6 +137,7 @@ function handleArrowKeys(event) {
         break;
       case 'Delete':
         if (obj.deleteObject){
+          canvas.discardActiveObject(obj)
           obj.deleteObject(null, obj)
         }
         break;
