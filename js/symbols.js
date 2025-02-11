@@ -582,6 +582,126 @@ const symbolsTemplate = {
     text: [ ]
   },
 
+  'Disney': {
+    path: [ // https://upload.wikimedia.org/wikipedia/commons/f/fe/Mickey_Mouse_head_and_ears.svg
+      {
+        'vertex': [
+          { x: 0, y: 3.7266, label: 'V1', start: 1 },
+          { x: 2.7767, y: 4.4704, label: 'V2', start: 0 },
+          { x: 4.6732, y: 6.2787, label: 'V3', start: 0 },
+          { x: -4.6732, y: 6.2787, label: 'V4', start: 0 },
+          { x: -2.7767, y: 4.4704, label: 'V5', start: 0 },
+
+        ], 'arcs': [
+          { start: 'V1', end: 'V2', radius: 5.555,  direction: 1, sweep: 0 },
+          { start: 'V2', end: 'V3', radius: 3.234,  direction: 1, sweep: 1 },
+          { start: 'V3', end: 'V4', radius: 5.555,  direction: 1, sweep: 1 },
+          { start: 'V4', end: 'V5', radius: 3.234,  direction: 1, sweep: 1 },
+          { start: 'V5', end: 'V1', radius: 5.555,  direction: 1, sweep: 0 },
+        ], 'fill': 'white'
+      },
+    ],
+    text: [ ]
+  },
+
+  'Exit': {
+    path: [ // 3.5.7.20
+      {
+        'vertex': [ //E
+          { x: -2, y: 0.2, label: 'V1', start: 1 },
+          { x: -1.0667, y: 0.2, label: 'V2', start: 0 },
+          { x: -1.0667, y: 0.5333, label: 'V2', start: 0 },
+          { x: -1.6667, y: 0.5333, label: 'V2', start: 0 },
+          { x: -1.6667, y: 1.0333, label: 'V2', start: 0 },
+          { x: -1.2, y: 1.0333, label: 'V2', start: 0 },
+          { x: -1.2, y: 1.3667, label: 'V2', start: 0 },
+          { x: -1.6667, y: 1.3667, label: 'V2', start: 0 },
+          { x: -1.6667, y: 1.8667, label: 'V2', start: 0 },
+          { x: -1.0667, y: 1.8667, label: 'V2', start: 0 },
+          { x: -1.0667, y: 2.2, label: 'V2', start: 0 },
+          { x: -2, y: 2.2, label: 'V2', start: 0 },
+        ], 'arcs': [
+        ], 'fill': 'white'
+      },
+      {
+        'vertex': [ //X
+          { x: -0.8, y: 0.2, label: 'V1', start: 1 },
+          { x: -0.4469, y: 0.2, label: 'V2', start: 0 },
+          { x: -0.3, y: 0.6197, label: 'V2', start: 0 },
+          { x: -0.1532, y: 0.2, label: 'V2', start: 0 },
+          { x: 0.2, y: 0.2, label: 'V2', start: 0 },
+          { x: -0.15, y: 1.2, label: 'V2', start: 0 },
+          { x: 0.2, y: 2.2, label: 'V2', start: 0 },
+          { x: -0.1532, y: 2.2, label: 'V2', start: 0 },
+          { x: -0.3, y: 1.7808, label: 'V2', start: 0 },
+          { x: -0.4469, y: 2.2, label: 'V2', start: 0 },
+          { x: -0.8, y: 2.2, label: 'V1', start: 0 },
+          { x: -0.45, y: 1.2, label: 'V2', start: 0 },
+        ], 'arcs': [
+        ], 'fill': 'white'
+      },
+      {
+        'vertex': [ //I
+          { x: 0.543, y: 0.2, label: 'V1', start: 1 },
+          { x: 0.8, y: 0.2, label: 'V2', start: 0 },
+          { x: 0.8, y: 2.2, label: 'V2', start: 0 },
+          { x: 0.543, y: 2.2, label: 'V1', start: 0},
+        ], 'arcs': [
+        ], 'fill': 'white'
+      },
+      {
+        'vertex': [ //T
+          { x: 1.0667, y: 0.2, label: 'V1', start: 1 },
+          { x: 2, y: 0.2, label: 'V1', start: 0 },
+          { x: 2, y: 0.5333, label: 'V1', start: 0 },
+          { x: 1.7, y: 0.5333, label: 'V1', start: 0 },
+          { x: 1.7, y: 2.2, label: 'V1', start: 0 },
+          { x: 1.3667, y: 2.2, label: 'V1', start: 0 },
+          { x: 1.3667, y: 0.5333, label: 'V1', start: 0 },
+          { x: 1.0667, y: 0.5333, label: 'V1', start: 0 },
+        ], 'arcs': [
+        ], 'fill': 'white'
+      },
+      {
+        'vertex': [
+          { x: 0.4, y: 2.6, label: 'V1', start: 1 },
+          { x: 0.4, y: 3.5333, label: 'V1', start: 0 },
+          { x: 1.3333, y: 3.5333, label: 'V1', start: 0 },
+          { x: 1.3333, y: 3, label: 'V1', start: 0 },
+          { x: 1.8667, y: 3, label: 'V1', start: 0 },
+          { x: 1.8667, y: 4.0667, label: 'V1', start: 0 },
+          { x: 0.4, y: 4.0667, label: 'V1', start: 0 },
+          { x: 0.4, y: 5, label: 'V1', start: 0 },
+          { x: 1.4667, y: 5, label: 'V1', start: 0 },
+          { x: 1.4667, y: 4.4667, label: 'V1', start: 0 },
+          { x: 2, y: 4.4667, label: 'V1', start: 0 },
+          { x: 2, y: 5.8, label: 'V1', start: 0 },
+          { x: 1.4667, y: 5.8, label: 'V1', start: 0 },
+          { x: 1.4667, y: 5.5333, label: 'V1', start: 0 },
+          /////
+          { x: -1.4667, y: 5.5333, label: 'V1', start: 0 },
+          { x: -1.4667, y: 5.8, label: 'V1', start: 0 },
+          { x: -2, y: 5.8, label: 'V1', start: 0 },
+          { x: -2, y: 4.4667, label: 'V1', start: 0 },
+          { x: -1.4667, y: 4.4667, label: 'V1', start: 0 },
+          { x: -1.4667, y: 5, label: 'V1', start: 0 },
+          { x: -0.4, y: 5, label: 'V1', start: 0 },
+          { x: -0.4, y: 4.0667, label: 'V1', start: 0 },
+          { x: -1.8667, y: 4.0667, label: 'V1', start: 0 },
+          { x: -1.8667, y: 3, label: 'V1', start: 0 },
+          { x: -1.3333, y: 3, label: 'V1', start: 0 },
+          { x: -1.3333, y: 3.5333, label: 'V1', start: 0 },
+          { x: -0.4, y: 3.5333, label: 'V1', start: 0 },
+          { x: -0.4, y: 2.6, label: 'V1', start: 0 },
+          
+        ], 'arcs': [
+        ], 'fill': 'white'
+      },
+    ],
+    text: [ ]
+  },
+
+
 };
 
 let FontGlyphs = { 'TransportMedium': null, 'Chinese': null }
