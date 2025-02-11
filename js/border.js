@@ -20,57 +20,87 @@ const BorderColorScheme = {
 const BorderTypeScheme = {
     'stack': StackBorderTemplate,
     'flagLeft': FlagLeftBorderTemplate,
+    'flagRight': FlagRightBorderTemplate,
+    'exit': ExitBorderTemplate,
+}
+
+function applyLengthAndRounding(path, length) {
+    path.vertex.forEach(vertex => {
+        vertex.x *= length;
+        vertex.y *= length;
+        if (vertex.radius) vertex.radius *= length;
+    });
+    path.arcs.forEach(arc => {
+        arc.radius *= length;
+    });
 }
 
 function StackBorderTemplate(xHeight, block, rounding) {
-    const length = xHeight / 4
-    rounding.x /= length
-    rounding.y /= length
+    const length = xHeight / 4;
+    rounding.x /= length;
+    rounding.y /= length;
     const padding = {
         left: 2.5 + rounding.x,
         top: 2.5 + rounding.y,
         right: 2.5 + rounding.x,
         bottom: 1.5 + rounding.y,
-    }
+    };
 
-    const border = 1.5
+    const border = 1.5;
     const returnBorder = [{
-
         'vertex': [
             { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', radius: 3, start: 1 },
             { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', radius: 3, start: 0 },
             { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, label: 'V3', radius: 3, start: 0 },
             { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, label: 'V4', radius: 3, start: 0 },
-        ], 'arcs': [],
-        'fill': 'symbol'
+        ], 'arcs': [], 'fill': 'symbol'
     }, {
         'vertex': [
             { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', radius: 1.5, start: 1 },
             { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', radius: 1.5, start: 0 },
             { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V7', radius: 1.5, start: 0 },
             { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V8', radius: 1.5, start: 0 },
-        ], 'arcs': [],
-        'fill': 'background'
-    },]
+        ], 'arcs': [], 'fill': 'background'
+    }];
 
-    returnBorder.forEach(path => {
-        path.vertex.forEach(vertex => {
-            vertex.x *= length;
-            vertex.y *= length;
-            if (vertex.radius) vertex.radius *= length;
-        });
-        path.arcs.forEach(arc => {
-            arc.radius *= length;
-        });
-    });
-    return { path: returnBorder }
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
 }
 
+function ExitBorderTemplate(xHeight, block, rounding) {
+    const length = xHeight / 4;
+    const padding = {
+        left: 0.5,
+        top: 0.3,
+        right: 0.5,
+        bottom: 0,
+    };
+
+    const border = 0.5;
+    const returnBorder = [{
+        'vertex': [
+            { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', start: 1 },
+            { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', start: 0 },
+            { x: block.width / length + padding.right + border, y: 7.2, label: 'V3', start: 0 },
+            { x: 0 - padding.left - border, y: 7.2, label: 'V4', start: 0 },
+        ], 'arcs': [], 'fill': 'white'
+    }, {
+        'vertex': [
+            { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', start: 1 },
+            { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', start: 0 },
+            { x: block.width / length + padding.right, y: 6.7, label: 'V7', start: 0 },
+            { x: 0 - padding.right, y: 6.7, label: 'V8', start: 0 },
+        ], 'arcs': [], 'fill': 'black'
+    }];
+
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
+}
 
 function FlagLeftBorderTemplate(xHeight, block, rounding) {
-    const length = xHeight / 4
-    rounding.x /= length
-    rounding.y /= length
+    const length = xHeight / 4;
+    rounding.x /= length;
+    rounding.y /= length;
     const variables = {
         '2Lines': {
             'A': 1.5,
@@ -92,73 +122,125 @@ function FlagLeftBorderTemplate(xHeight, block, rounding) {
             'G': 1.5,
             'H': 3,
         }
-    }
-    const v = block.height > 4.85 * xHeight ? variables['4Lines'] : variables['2Lines']
+    };
+    const v = block.height > 4.85 * xHeight ? variables['4Lines'] : variables['2Lines'];
 
     const padding = {
         left: v.D + (block.height / length + v.E + rounding.y / 2 - v.D) / 2 / Math.tan(Math.PI / 3) + (v.A + v.B + v.C) / Math.cos(Math.PI / 6),
         top: v.E + rounding.y,
         right: v.E,
         bottom: v.D + rounding.y,
-    }
+    };
 
-    const border = v.A
-
+    const border = v.A;
     const panel = {
         height: (block.height / length + v.E + rounding.y * 2 + v.D + v.A * 2)
-    }
+    };
 
     const returnBorder = [{
-        'vertex': [ // TPDM 3.5.5.10
-            { x: 0, y: 0, label: 'V0', start: 1 },
-        ], 'arcs': [],
-        'fill': 'symbol'
-    },
-    {
-        'vertex': [ // outer
-            // (H+E-D) / 2 / tan 60o + (A+B+C) / cos 30o - (H+E-D) / 2 * tan 30o
+        'vertex': [{ x: 0, y: 0, label: 'V0', start: 1 }], 'arcs': [], 'fill': 'symbol'
+    }, {
+        'vertex': [
             { x: 0 - padding.left + panel.height / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top - border, radius: v.H, label: 'V1', start: 1 },
             { x: block.width / length + padding.right + border, y: 0 - padding.top - border, radius: v.H, label: 'V2', start: 0 },
             { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, radius: v.H, label: 'V3', start: 0 },
             { x: 0 - padding.left + panel.height / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom + border, radius: v.H, label: 'V4', start: 0 },
             { x: 0 - padding.left, y: 0 - v.E - rounding.y - border + panel.height / 2, radius: v.F, label: 'V5', start: 0 }
-        ], 'arcs': [],
-        'fill': 'symbol'
+        ], 'arcs': [], 'fill': 'symbol'
     }, {
-        'vertex': [ // inner
+        'vertex': [
             { x: 0 - padding.left + v.A + (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top, radius: v.G, label: 'V6', start: 1 },
             { x: block.width / length + padding.right, y: 0 - padding.top, radius: v.G, label: 'V7', start: 0 },
             { x: block.width / length + padding.right, y: block.height / length + padding.bottom, radius: v.G, label: 'V8', start: 0 },
             { x: 0 - padding.left + v.A + (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom, radius: v.G, label: 'V9', start: 0 },
             { x: 0 - padding.left + v.A, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V10', start: 0 }
-        ], 'arcs': [],
-        'fill': 'background'
+        ], 'arcs': [], 'fill': 'background'
     }, {
-        'vertex': [ // chevron
+        'vertex': [
             { x: 0 - v.D - v.C / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y + v.D, label: 'V11', start: 1 },
             { x: 0 - v.D, y: 0 - v.E - rounding.y + v.D, label: 'V12', start: 0 },
             { x: -padding.left + v.A + (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V13', start: 0 },
             { x: 0 - v.D, y: 0 + block.height / length, label: 'V14', start: 0 },
             { x: 0 - v.D - v.C / Math.cos(Math.PI / 6), y: 0 + block.height / length, label: 'V15', start: 0 },
             { x: -padding.left + v.A + v.B / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V16', start: 0 },
-        ], 'arcs': [],
-        'fill': 'symbol'
-    },
-    ]
+        ], 'arcs': [], 'fill': 'symbol'
+    }];
 
-    returnBorder.forEach(path => {
-        path.vertex.forEach(vertex => {
-            vertex.x *= length;
-            vertex.y *= length;
-            if (vertex.radius) vertex.radius *= length;
-        });
-        path.arcs.forEach(arc => {
-            arc.radius *= length;
-        });
-    });
-    return { path: returnBorder }
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
+}
 
+function FlagRightBorderTemplate(xHeight, block, rounding) {
+    const length = xHeight / 4;
+    rounding.x /= length;
+    rounding.y /= length;
+    const variables = {
+        '2Lines': {
+            'A': 1.5,
+            'B': 2.5,
+            'C': 4.5,
+            'D': 1.5,
+            'E': 2.5,
+            'F': 1.5,
+            'G': 1.5,
+            'H': 3,
+        },
+        '4Lines': {
+            'A': 1.5,
+            'B': 3.5,
+            'C': 6,
+            'D': 1.5,
+            'E': 2.5,
+            'F': 1.5,
+            'G': 1.5,
+            'H': 3,
+        }
+    };
+    const v = block.height > 4.85 * xHeight ? variables['4Lines'] : variables['2Lines'];
 
+    const padding = {
+        left: v.E,
+        top: v.E + rounding.y,
+        right: v.D + (block.height / length + v.E + rounding.y / 2 - v.D) / 2 / Math.tan(Math.PI / 3) + (v.A + v.B + v.C) / Math.cos(Math.PI / 6),
+        bottom: v.D + rounding.y,
+    };
+
+    const border = v.A;
+    const panel = {
+        height: (block.height / length + v.E + rounding.y * 2 + v.D + v.A * 2)
+    };
+
+    const returnBorder = [{
+        'vertex': [{ x: 0, y: 0, label: 'V0', start: 1 }], 'arcs': [], 'fill': 'symbol'
+    }, {
+        'vertex': [
+            { x: 0 - padding.left - border, y: 0 - padding.top - border, radius: v.H, label: 'V1', start: 1 },
+            { x: block.width / length + padding.right - panel.height / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top - border, radius: v.H, label: 'V2', start: 0 },
+            { x: block.width / length + padding.right, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, radius: v.F, label: 'V3', start: 0 },
+            { x: block.width / length + padding.right - panel.height / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom + border, radius: v.H, label: 'V4', start: 0 },
+            { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, radius: v.H, label: 'V5', start: 0 },
+        ], 'arcs': [], 'fill': 'symbol'
+    }, {
+        'vertex': [
+            { x: 0 - padding.left, y: 0 - padding.top, radius: v.G, label: 'V8', start: 1 },
+            { x: block.width / length + padding.right - v.A - (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top, radius: v.G, label: 'V7', start: 0 },
+            { x: block.width / length + padding.right - v.A, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V8', start: 0 },
+            { x: block.width / length + padding.right - v.A - (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom, radius: v.G, label: 'V9', start: 0 },
+            { x: 0 - padding.left, y: block.height / length + padding.bottom, radius: v.G, label: 'V10', start: 0 },
+        ], 'arcs': [], 'fill': 'background'
+    }, {
+        'vertex': [
+            { x: block.width / length + v.D + v.C / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y + v.D, label: 'V11', start: 1 },
+            { x: block.width / length + v.D, y: 0 - v.E - rounding.y + v.D, label: 'V12', start: 0 },
+            { x: block.width / length + padding.right - v.A - (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V13', start: 0 },
+            { x: block.width / length + v.D, y: 0 + block.height / length, label: 'V14', start: 0 },
+            { x: block.width / length + v.D + v.C / Math.cos(Math.PI / 6), y: 0 + block.height / length, label: 'V15', start: 0 },
+            { x: block.width / length + padding.right - v.A - v.B / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V16', start: 0 },
+        ], 'arcs': [], 'fill': 'symbol'
+    }];
+
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
 }
 
 function calcBorderRounding (borderType, xHeight, bbox) {
@@ -214,7 +296,7 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
             new fabric.Path(pathData, {
                 left: bbox.left - vertexleft,
                 top: bbox.top - vertextop,
-                fill: BorderColorScheme[color][p['fill']],
+                fill: borderType=='exit'?p['fill']:BorderColorScheme[color][p['fill']],
                 objectCaching: false,
                 strokeWidth: 0,
             })

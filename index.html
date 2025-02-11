@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/fabric@6.4.3/dist/index.js"></script>
     <script src="https://kit.fontawesome.com/d9b171ca69.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
-    <script src="https://unpkg.com/round-polygon@latest/dist/round-polygon.iife.js"></script> 
+    <script src="https://unpkg.com/round-polygon@latest/dist/round-polygon.iife.js"></script>
     <script src="https://opentype.js.org/dist/opentype.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -19,17 +19,19 @@
         <div id="sidepanel-heading" class="heading">
             <span id="content-heading">Traffic Sign</span>
         </div>
-        <div id="content-frame"
-            style="height: 90%; border:none; display: block; width: 400px; position: absolute;">
-        <form id="input-form" class="input-form"></form>
-         <div id="objectListPanel" class="object-list-panel"></div>
+        <div id="content-frame">
+            <form id="input-form" class="input-form"></form>
+            <div class="object-list-heading">Selected Object</div>
+            <div id="objectListPanel" class="object-list-panel">
+                <div id="objectList" class="object-list"></div>
+            </div>
         </div>
         <div data-position="left" class="side-bar">
             <div class="item" id="btn_draw"><i class="fa-solid fa-pen"></i></div>
             <div class="item" id="btn_text"><i class="fa-solid fa-font"></i></div>
             <div class="item" id="btn_border"><i class="fa fa-photo"></i></div>
             <div class="item"><i class="fa fa-folder-o"></i></div>
-            <div class="item"id="btn_debug"><i class="fa fa-file-code-o"></i></div>
+            <div class="item" id="btn_debug"><i class="fa fa-file-code-o"></i></div>
 
             <div class="item bottom" id="show_hide"><i class="fa fa-angle-double-right"></i></div>
         </div>
@@ -37,7 +39,11 @@
     <div id="canvas-container">
         <canvas id="canvas"></canvas>
     </div>
-    <div id="context-menu"> <ul> <li id="set-anchor">Set Anchor</li> </ul> </div>
+    <div id="context-menu">
+        <ul>
+            <li id="set-anchor">Set Anchor</li>
+        </ul>
+    </div>
     <div id="cursorBoxContainer" class="cursor-box-contained">
         <div id="cursorTextBox" class="cursor-box">Follow the cursor</div>
         <input type="text" id="cursorAnswerBox" class="cursor-box" value=0 />

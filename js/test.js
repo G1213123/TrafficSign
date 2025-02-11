@@ -40,7 +40,7 @@ let anchorTest = function () {
     anchorShape(canvasObject[5], canvasObject[6], {
         vertexIndex1: 'E1',
         vertexIndex2: 'E7',
-        spacingX: 50,
+        spacingX: 0,
         spacingY: 0
     })
     anchorShape(canvasObject[4], canvasObject[5], {

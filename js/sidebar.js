@@ -414,13 +414,21 @@ let FormDrawAddComponent = {
 
     // Calculate the bounding box of the path
     const tempPath = new fabric.Path(pathData, { strokeWidth: 0 });
-    const scaleX = svgWidth / tempPath.width;
-    const scaleY = svgHeight / tempPath.height;
+    let symbolSize = { width: tempPath.width, height: tempPath.height, left: tempPath.left, top: tempPath.top };
+    // override the err width and height of symbol with circular border
+    if (symbolType === 'MTR') {
+      symbolSize.width = 130;
+    }
+    if (symbolType === 'Hospital') {
+      symbolSize.width = 80;
+    }
+    const scaleX = svgWidth / symbolSize.width;
+    const scaleY = svgHeight / symbolSize.height;
     const scale = Math.min(scaleX, scaleY);
 
     // Calculate the translation to center the path
-    const translateX = (svgWidth - tempPath.width * scale) / 2 - tempPath.left * scale;
-    const translateY = (svgHeight - tempPath.height * scale) / 2 - tempPath.top * scale;
+    const translateX = (svgWidth - symbolSize.width * scale) / 2 - symbolSize.left * scale;
+    const translateY = (svgHeight - symbolSize.height * scale) / 2 - symbolSize.top * scale;
 
     pathData = pathData.replace(/<svg>/g, '<svg style="width:100;height:100;">')
     pathData = pathData.replace(/<path/g, `<path transform="translate(${translateX}, ${translateY}) scale(${scale})"`);
@@ -1001,7 +1009,7 @@ let CanvasObjectInspector = {
       const div = document.createElement('div');
       div.className = 'object-list-item';
       div.innerText = `Group (${index}) : ${obj.functionalType}`;
-      div.id = `Group (${index})`
+      div.id = `Group (${index})`;
       div.addEventListener('click', () => {
         // Remove 'selected' class from all items
         document.querySelectorAll('.object-list-item').forEach(item => item.classList.remove('selected'));
@@ -1009,19 +1017,23 @@ let CanvasObjectInspector = {
         div.classList.add('selected');
         canvas.setActiveObject(obj);
         canvas.renderAll();
+        // Scroll the parent container to the clicked item
+        div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       });
       objectListPanel.appendChild(div);
     });
   },
 
   SetActiveObjectList: function (setActive) {
-    const index = canvasObject.indexOf(setActive)
+    const index = canvasObject.indexOf(setActive);
     // Remove 'selected' class from all items
     document.querySelectorAll('.object-list-item').forEach(item => {
       if (item.id == `Group (${index})`) {
         item.classList.add('selected');
+        // Scroll the parent container to the active item
+        item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       } else {
-        item.classList.remove('selected')
+        item.classList.remove('selected');
       }
     });
   }

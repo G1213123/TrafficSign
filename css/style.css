@@ -14,20 +14,20 @@ body {
 
 }
 
-::-webkit-scrollbar{
+::-webkit-scrollbar {
   width: 6px;
 }
 
-::-webkit-scrollbar-button{
+::-webkit-scrollbar-button {
   display: none;
 }
 
-::-webkit-scrollbar-thumb{
+::-webkit-scrollbar-thumb {
   border-radius: 3px;
   background: #ccc;
 }
 
-::-webkit-scrollbar-track{
+::-webkit-scrollbar-track {
   border-radius: 3px;
   background: #111;
 }
@@ -82,6 +82,7 @@ div.heading {
   font-weight: 700;
   padding: 10px;
   background-color: #333;
+  flex: 0 0 44px;
 }
 
 div.item:hover {
@@ -96,7 +97,9 @@ div.side-panel {
   min-width: 400px;
   min-height: 100%;
   background-color: #222;
-  display: inline-block;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
 div.side-panel.open {
@@ -162,6 +165,14 @@ div.side-panel.close {
   font-display: swap;
 }
 
+#content-frame {
+  height: 88%;
+  border: none;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+}
 
 /*https://codepen.io/ainalem/pen/GRqPwoz side panel form component*/
 
@@ -176,6 +187,8 @@ div.side-panel.close {
   justify-content: center;
   overflow-y: auto;
   gap: 0px 10px;
+  flex: 0 0 calc(80%); /* Alternatively, adjust as needed */
+
 }
 
 .input-container {
@@ -205,7 +218,7 @@ div.side-panel.close {
   align-items: center;
 }
 
-.angle-picker-container{
+.angle-picker-container {
   width: 100%;
   /* Span 100% of the input form */
   padding: 0px 10px;
@@ -438,25 +451,40 @@ div.side-panel.close {
   /* White text for readability */
   font-family: Arial, sans-serif;
   font-size: 16px;
-  margin: 4px 0px;
-  padding-top: 8px;
+  padding: 4px;
   justify-content: left;
+  flex: 1; /* Fills remaining space in bottom section */
 }
 
-.object-list-item{
+.object-list-item {
   background-color: #404042;
   border-radius: 12px;
   border: 0;
   box-sizing: border-box;
   margin: 4px 0px;
-  padding: 5px ;
+  padding: 5px;
   cursor: pointer;
 }
 
 .object-list-item.selected {
   background-color: #d0d0d0;
-  /* Paler grey background when selected */
+  color: #353535
+    /* Paler grey background when selected */
 }
+
+.object-list-heading {
+  background-color: #ccc;
+  border-radius: 12px 12px 0 0;
+  border: 0;
+  box-sizing: border-box;
+  padding: 10px 5px 0px 5px;
+  flex: 0 0 30px;
+  font-family: TransportMedium;
+  font-size: 20px;
+  font-display: swap;
+}
+
+
 
 @media (max-width: 768px) {
   .side-bar[data-position="right"],
