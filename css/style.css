@@ -313,14 +313,14 @@ div.side-panel.close {
   background-color: #555555;
   color: white;
   transition-duration: 0.4s;
-  padding: 16px 32px;
+  padding: 8px 16px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  margin: 4px 2px;
   cursor: pointer;
   border-radius: 10px;
+  width: 95%;
 }
 
 .symbol-button:hover {
@@ -468,8 +468,8 @@ div.side-panel.close {
 
 .object-list-item.selected {
   background-color: #d0d0d0;
-  color: #353535
-    /* Paler grey background when selected */
+  color: #353535;
+  border: 2px solid #353535; /* added border color */
 }
 
 .object-list-heading {

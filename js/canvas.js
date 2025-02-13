@@ -24,13 +24,13 @@ function resizeCanvas() {
 fabric.Object.prototype.toObject = (function (toObject) {
   return function (propertiesToInclude) {
     propertiesToInclude = (propertiesToInclude || []).concat(
-      ["basePolygon", "anchoredPolygon", "functinoalType", "subObjects", "txtChar", "text", "insertionPoint", "vertex", "anchorageLink", "refTopLeft", "symbol", "xHeight"] // custom attributes
+      ["basePolygon", "anchoredPolygon", "functionalType", "subObjects", "txtChar", "text", "insertionPoint", "vertex", "anchorageLink", "refTopLeft", "symbol", "xHeight"] // custom attributes
     );
     return toObject.apply(this, [propertiesToInclude]);
   };
 })(fabric.Object.prototype.toObject);
 
-// function to loop through anchored objects and add them to the borderinginObjects array
+// function to loop through anchored objects and add them to the bordering Objects array
 function loopAnchoredObjects(obj, callback = null, options = {}, objList = []) {
   if (obj.basePolygon) {
     if (obj.anchoredPolygon.length) {
@@ -307,7 +307,7 @@ document.addEventListener('mouseup', answerBoxFocus);
 
 let resolveAnswer;
 
-function showTextBox(text, withAnswerBox = null) {
+function showTextBox(text, withAnswerBox = null, event='keydown', callback = null) {
   const promptBox = document.getElementById('cursorTextBox');
   const answerBox = document.getElementById('cursorAnswerBox');
 
@@ -339,8 +339,8 @@ function showTextBox(text, withAnswerBox = null) {
     });
   } else {
     answerBox.style.display = 'none';
-    document.addEventListener('keydown', handleKeyDown)
-    return Promise.resolve();
+    document.addEventListener(event, callback)
+    //return Promise.resolve();
   }
   // document.dispatchEvent(new Event('mousemove'))
 }

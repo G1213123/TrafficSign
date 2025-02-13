@@ -213,6 +213,9 @@ class BaseGroup extends fabric.Group {
       this.drawAnchorLinkage()
       CanvasObjectInspector.SetActiveObjectList(this)
       //canvas.bringObjectToFront(this)
+      
+      // New: show lock highlights if applicable
+      this.showLockHighlights();
     });
 
     this.on('deselected', () => {
@@ -225,6 +228,8 @@ class BaseGroup extends fabric.Group {
             o.set('opacity', 0);
           })
         });
+        // New: remove lock highlights
+        this.hideLockHighlights();
         // canvas.sendObjectToBack(this)
       }, 0)
       CanvasObjectInspector.SetActiveObjectList(null)
@@ -289,6 +294,7 @@ class BaseGroup extends fabric.Group {
         };
         this.basePolygon.vertex.push(midpoint);
       });
+      if (this.addMidPointToDivider){this.addMidPointToDivider(this)}
     }
 
 
@@ -561,6 +567,72 @@ class BaseGroup extends fabric.Group {
     ctx.restore();
   }
 
+  // New method: get final lock target along given axis
+  getFinalLockTarget(axis) {
+    const lockProp = axis === 'x' ? 'lockXToPolygon' : 'lockYToPolygon';
+    let current = this;
+    const visited = new Set();
+    while (current[lockProp] && current[lockProp].TargetObject) {
+      let next = current[lockProp].TargetObject;
+      if (visited.has(next)) break;
+      visited.add(next);
+      current = next;
+    }
+    return current !== this ? current : null;
+  }
+
+  // New method: display temporary highlight border for lock targets
+  showLockHighlights() {
+    if (this.lockXToPolygon && Object.keys(this.lockXToPolygon).length) {
+      const finalX = this.getFinalLockTarget('x');
+      if (finalX) {
+        const rect = finalX.getBoundingRect ? finalX.getBoundingRect() : finalX.getCoords();
+        this.lockHighlightX = new fabric.Rect({
+          left: rect.left - 2,
+          top: rect.top - 2,
+          width: rect.width - 2,
+          height: rect.height - 2,
+          fill: 'transparent',
+          stroke: 'green',
+          strokeWidth: 4,
+          selectable: false,
+          evented: false,
+        });
+        canvas.add(this.lockHighlightX);
+      }
+    }
+    if (this.lockYToPolygon && Object.keys(this.lockYToPolygon).length) {
+      const finalY = this.getFinalLockTarget('y');
+      if (finalY) {
+        const rect = finalY.getBoundingRect ? finalY.getBoundingRect() : finalY.getCoords();
+        this.lockHighlightY = new fabric.Rect({
+          left: rect.left - 2,
+          top: rect.top - 2,
+          width: rect.width - 2,
+          height: rect.height - 2,
+          fill: 'transparent',
+          stroke: 'red',
+          strokeWidth: 4,
+          selectable: false,
+          evented: false,
+        });
+        canvas.add(this.lockHighlightY);
+      }
+    }
+  }
+
+  // New method: remove the temporary highlight borders
+  hideLockHighlights() {
+    if (this.lockHighlightX) {
+      canvas.remove(this.lockHighlightX);
+      this.lockHighlightX = null;
+    }
+    if (this.lockHighlightY) {
+      canvas.remove(this.lockHighlightY);
+      this.lockHighlightY = null;
+    }
+  }
+
 }
 
 // Register the custom class with Fabric.js
@@ -604,13 +676,13 @@ class LockIcon {
     if (this.direction == 'x') {
       this.lines.push(new fabric.Line([sourcePoint.x, sourcePoint.y, targetPoint.x, sourcePoint.y], {
         stroke: 'green',
-        strokeWidth: 5,
+        strokeWidth: 4,
         selectable: false,
         functionalType: 'anchorLine',
       }));
       this.lines.push(new fabric.Line([targetPoint.x, sourcePoint.y, targetPoint.x, targetPoint.y], {
         stroke: 'green',
-        strokeWidth: 5,
+        strokeWidth: 4,
         selectable: false,
         strokeDashArray: [10, 5],
         functionalType: 'anchorLine',
@@ -643,13 +715,13 @@ class LockIcon {
     } else {
       this.lines.push(new fabric.Line([sourcePoint.x, sourcePoint.y, sourcePoint.x, targetPoint.y], {
         stroke: 'red',
-        strokeWidth: 5,
+        strokeWidth: 4,
         selectable: false,
         functionalType: 'anchorLine',
       }));
       this.lines.push(new fabric.Line([sourcePoint.x, targetPoint.y, targetPoint.x, targetPoint.y], {
         stroke: 'red',
-        strokeWidth: 5,
+        strokeWidth: 4,
         selectable: false,
         strokeDashArray: [10, 5],
         functionalType: 'anchorLine',
@@ -859,10 +931,8 @@ function drawBasePolygon(basePolygon, functionalType, calcVertex = true) {
   return baseGroup;
 }
 
-async function drawLabeledArrow(shapeMeta, symbol, options) {
+async function drawLabeledSymbol(shapeMeta, symbol, options) {
   const { x, y, length, angle, color } = options;
-  const vertexleft = Math.min(...shapeMeta.path.map(p => p.vertex).flat().map(v => v.x));
-  const vertextop = Math.min(...shapeMeta.path.map(p => p.vertex).flat().map(v => v.y));
   // Create polygon with labeled vertices
   const arrow = new GlyphPath();
 
@@ -903,7 +973,7 @@ document.getElementById('set-anchor').addEventListener('click', function () {
     selectedArrow = null
     document.removeEventListener('keydown', ShowHideSideBarEvent);
     selectObjectHandler('Select shape to anchor to', anchorShape, shape1)
-    renumberVertexLabels(shape1); // Renumber vertex labels after selection
+    //renumberVertexLabels(shape1); // Renumber vertex labels after selection
   }
 });
 

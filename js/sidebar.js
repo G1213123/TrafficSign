@@ -84,7 +84,7 @@ let GeneralHandler = {
     defaultv ? input.value = defaultv : input.value = ''
   },
 
-  createselect: function (name, labelTxt, options, parent, defaultv = null, callback = null, event = null) {
+  createselect: function (name, labelTxt, options, parent,  callback = null, event = null) {
     var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent)
     var input = GeneralHandler.createNode("select", { 'class': 'input', 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
     var label = GeneralHandler.createNode("label", { 'class': 'placeholder', 'for': name }, inputContainer)
@@ -327,7 +327,116 @@ let FormTextAddComponent = {
 
 }
 
-/* Draw Panel */
+let FormDrawMapComponent = {
+  EndShape: ['arrow', 'butt'],
+  drawMapPanelInit: function () {
+    tabNum = 4
+    var parent = GeneralHandler.PanelInit()
+    if (parent) {
+      GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100, null, 'input')
+      GeneralHandler.createselect('select-start', 'Select Starting Shape', FormDrawMapComponent.EndShape, parent, null, 'change')
+      GeneralHandler.createselect('select-end', 'Select Ending Shape', FormDrawMapComponent.EndShape, parent, null, 'change')
+      GeneralHandler.createbutton('button-DrawMap', 'Draw Map Arrow', parent, 'symbol', FormDrawMapComponent.drawApproachClick, 'click')
+    }
+  },
+  drawApproachClick: (event) => {
+    //$(event.target).toggleClass('active')
+      showTextBox('Click on canvas for shape start point', null, 'mousedown', function handleKeyDown(event) {
+        if (event.button === 0) {
+          hideTextBox();
+          this.removeEventListener('mousedown', handleKeyDown);
+          const constructLine = new fabric.Line([event.x, event.y, event.x, event.y], {
+            stroke: 'orange',
+            strokeWidth: 4,
+            strokeDashArray: [5, 5],
+            hasControls: false,
+            hasBorders: false,
+            lockMovementX: false,
+            lockMovementY: false,
+            hoverCursor: 'default',
+            selectable: false,
+          });
+          FormDrawMapComponent.drawApproachMousedown(event)
+          canvas.add(constructLine);
+          canvas.constructLine = constructLine;
+          canvas.on('mouse:move', FormDrawMapComponent.drawApproachMousemove)
+          setTimeout(() => {
+            canvas.on('mouse:up', FormDrawMapComponent.drawApproachMouseup)
+          }, 500)
+        }
+      })
+      canvas.approach_grp = new fabric.Group()
+    }
+  ,
+
+  drawApproachMousedown: function (opt) {
+
+      canvas.isDrawing = true;
+      canvas.selection = false;
+      canvas.lastPosX = opt.x;
+      canvas.lastPosY = opt.y;
+    
+  },
+
+  drawApproachMousemove: function (opt) {
+    this.selection = false;
+    if (this.isDrawing) {
+      var e = opt.e;
+      var pointer = canvas.getPointer(e);
+      // Initiate a line instance
+      this.constructLine.set({
+        x2: pointer.x,
+        y2: pointer.y
+      })
+
+      //FormDrawAddComponent.calcApproachPts(this.approach_grp)
+      //this.add(this.constructLine)
+      //this.add(this.approach_grp)
+      //this.renderAll()
+    }
+  },
+
+  drawApproachMouseup: function () {
+    this.isDrawing = false
+    this.selection = true;
+    this.snap_pts.push(this.constructLine.st, this.constructLine.ed)
+    FormDrawAddComponent.drawApproachClick()
+  },
+
+  calcApproachPts: function (group) {
+    var line = canvas.constructLine
+    var w = line.width
+    var h = line.height
+    var d = Math.sqrt(w ** 2 + h ** 2)
+    var r = Math.atan2((line.y2 - line.y1), (line.x2 - line.x1))
+    var st = new fabric.Point(line.x1, line.y1)
+    st.snap_type = 'end'
+    if (d < 600) {
+      new_end = st.add(PolarPoint(600, r))
+      line.x2 = new_end.x
+      line.y2 = new_end.y
+    }
+    var ed = new fabric.Point(line.x2, line.y2)
+    ed.snap_type = 'end'
+    line.st = st
+    line.ed = ed
+    var approach_pts = [
+      ed.add(PolarPoint(Math.sqrt(2 * 150 ** 2), r - 0.75 * Math.PI)),
+      ed,
+      ed.add(PolarPoint(Math.sqrt(2 * 150 ** 2), r + 0.75 * Math.PI)),
+      st.add(PolarPoint(300 / 2, r + 0.5 * Math.PI)),
+      st.add(PolarPoint(300 / 2, r - 0.5 * Math.PI)),
+    ]
+    console.log(approach_pts)
+    var arm = new fabric.Polygon(approach_pts, {
+      fill: 'white'
+    });
+    group.addWithUpdate(arm)
+
+  }
+}
+
+/* Draw Symbol Panel */
 let FormDrawAddComponent = {
   symbolAngle: 0,
   drawPanelInit: function () {
@@ -401,7 +510,7 @@ let FormDrawAddComponent = {
       var posy = pointer.y;
       var xHeight = parseInt(document.getElementById('input-xHeight').value)
       const arrowOptions1 = { x: posx, y: posy, length: xHeight / 4, angle: FormDrawAddComponent.symbolAngle, color: 'white', };
-      drawLabeledArrow(calcSymbol(cursor.symbol, xHeight / 4), cursor.symbol, arrowOptions1);
+      drawLabeledSymbol(calcSymbol(cursor.symbol, xHeight / 4), cursor.symbol, arrowOptions1);
     }
   },
 
@@ -504,108 +613,6 @@ let FormDrawAddComponent = {
       }, 1000); // Delay in milliseconds (e.g., 1000ms = 1 second)
     }
   },
-
-  drawApproachClick: (event) => {
-    //$(event.target).toggleClass('active')
-    draw_btn = document.getElementById('button-approach-arm')
-    if (draw_btn.classList.contains('active')) {
-      draw_btn.classList.remove('active')
-      canvas.off('mouse:down', FormDrawAddComponent.drawApproachMousedown)
-      canvas.off('mouse:move', FormDrawAddComponent.drawApproachMousemove)
-      canvas.off('mouse:up', FormDrawAddComponent.drawApproachMouseup)
-    }
-    else {
-      draw_btn.classList.add('active')
-      canvas.on('mouse:down', FormDrawAddComponent.drawApproachMousedown)
-      canvas.on('mouse:move', FormDrawAddComponent.drawApproachMousemove)
-      canvas.on('mouse:up', FormDrawAddComponent.drawApproachMouseup)
-      canvas.approachConstrLline = new fabric.Line([0, 0, 100, 100], {
-        stroke: "red",
-        strokeWidth: 3,
-        lockScalingX: true,
-        lockScalingY: true,
-
-      });
-      canvas.approach_grp = new fabric.Group()
-    }
-  },
-
-  drawApproachMousedown: function (opt) {
-    var evt = opt.e;
-    var point = canvas.getPointer(evt);
-    if (evt.button == 0) {
-      this.isDrawing = true;
-      this.selection = false;
-      this.lastPosX = point.x;
-      this.lastPosY = point.y;
-      this.approachConstrLline.set({
-        x1: this.lastPosX,
-        y1: this.lastPosY,
-        x2: this.lastPosX,
-        y2: this.lastPosY,
-      });
-    }
-  },
-
-  drawApproachMousemove: function (opt) {
-    this.selection = false;
-    if (this.isDrawing) {
-      var e = opt.e;
-      var pointer = canvas.getPointer(e);
-      // Initiate a line instance
-      this.approachConstrLline.set({
-        x2: pointer.x,
-        y2: pointer.y
-      })
-
-      this.approach_grp.forEachObject(function (o) { if (o) { canvas.approach_grp.remove(o) } })
-      FormDrawAddComponent.calcApproachPts(this.approach_grp)
-      this.add(this.approachConstrLline)
-      this.add(this.approach_grp)
-      //this.setActiveObject(this.approach_grp)
-      this.renderAll()
-    }
-  },
-
-  drawApproachMouseup: function () {
-    this.isDrawing = false
-    this.selection = true;
-    this.snap_pts.push(this.approachConstrLline.st, this.approachConstrLline.ed)
-    FormDrawAddComponent.drawApproachClick()
-  },
-
-  calcApproachPts: function (group) {
-    var line = canvas.approachConstrLline
-    var w = line.width
-    var h = line.height
-    var d = Math.sqrt(w ** 2 + h ** 2)
-    var r = Math.atan2((line.y2 - line.y1), (line.x2 - line.x1))
-    var st = new fabric.Point(line.x1, line.y1)
-    st.snap_type = 'end'
-    if (d < 600) {
-      new_end = st.add(PolarPoint(600, r))
-      line.x2 = new_end.x
-      line.y2 = new_end.y
-    }
-    var ed = new fabric.Point(line.x2, line.y2)
-    ed.snap_type = 'end'
-    line.st = st
-    line.ed = ed
-    var approach_pts = [
-      ed.add(PolarPoint(Math.sqrt(2 * 150 ** 2), r - 0.75 * Math.PI)),
-      ed,
-      ed.add(PolarPoint(Math.sqrt(2 * 150 ** 2), r + 0.75 * Math.PI)),
-      st.add(PolarPoint(300 / 2, r + 0.5 * Math.PI)),
-      st.add(PolarPoint(300 / 2, r - 0.5 * Math.PI)),
-    ]
-    console.log(approach_pts)
-    var arm = new fabric.Polygon(approach_pts, {
-      fill: 'white'
-    });
-    group.addWithUpdate(arm)
-
-  }
-
 
 }
 
@@ -843,6 +850,37 @@ let FormBorderWrapComponent = {
 
   },
 
+  addMidPointToDivider: function (borderGroup) {
+    let top = borderGroup.getEffectiveCoords()[0].y
+    let left = borderGroup.getEffectiveCoords()[0].x
+    const width = borderGroup.getBoundingRect().width
+    const height = borderGroup.getBoundingRect().height
+    const frame = 1.5 * borderGroup.xHeight / 4
+    let i = 0
+    borderGroup.HDivider.forEach(d => {
+      const midPt = (top + d.getEffectiveCoords()[0].y) / 2
+      borderGroup.basePolygon.vertex.push({ x: left, y: midPt + frame, label: `EM${i+=1}` })
+      borderGroup.basePolygon.vertex.push({ x: left + width, y: midPt + frame, label: `EM${i+=1}` })
+      top = d.getEffectiveCoords()[0].y
+    })
+    if (borderGroup.HDivider.length > 0) {
+      const midPt = (borderGroup.HDivider.at(-1).getEffectiveCoords()[2].y + borderGroup.getEffectiveCoords()[2].y) / 2
+      borderGroup.basePolygon.vertex.push({ x: left, y: midPt - frame, label: `EM${i+=1}` })
+      borderGroup.basePolygon.vertex.push({ x: left + width, y: midPt - frame, label: `EM${i+=1}` })
+    }
+    borderGroup.VDivider.forEach(d => {
+      const midPt = (left + d.getEffectiveCoords()[0].x) / 2
+      borderGroup.basePolygon.vertex.push({ x: midPt + frame, y: top, label: `EM${i+=1}` })
+      borderGroup.basePolygon.vertex.push({ x: midPt + frame, y: top + height, label: `EM${i+=1}` })
+      left = d.getEffectiveCoords()[0].x
+    })
+    if (borderGroup.VDivider.length > 0) {
+      const midPt = (borderGroup.VDivider.at(-1).getEffectiveCoords()[2].x + borderGroup.getEffectiveCoords()[2].x) / 2
+      borderGroup.basePolygon.vertex.push({ x: midPt - frame, y: top, label: `EM${i+=1}` })
+      borderGroup.basePolygon.vertex.push({ x: midPt - frame, y: top + height, label: `EM${i+=1}` })
+    }
+  },
+
   getBorderObjectCoords: function (fheightObjects, fwidthObjects) {
     const coordsWidth = FormBorderWrapComponent.getBoundingBox(fwidthObjects)
     const coordsHeight = FormBorderWrapComponent.getBoundingBox(fheightObjects)
@@ -872,11 +910,13 @@ let FormBorderWrapComponent = {
     borderGroup.heightObjects = [...fheightObjects]
     borderGroup.VDivider = VDivider
     borderGroup.HDivider = HDivider
-
+    
     borderGroup.borderType = borderType
     borderGroup.xHeight = xHeight
     borderGroup.color = colorType
+    FormBorderWrapComponent.addMidPointToDivider(borderGroup)
     FormBorderWrapComponent.assignWidthToDivider(borderGroup)
+    borderGroup.addMidPointToDivider = FormBorderWrapComponent.addMidPointToDivider
     borderGroup.assignWidthToDivider = FormBorderWrapComponent.assignWidthToDivider
 
     borderGroup.lockMovementX = true
@@ -1053,6 +1093,7 @@ window.onload = () => {
   document.getElementById('btn_draw').onclick = FormDrawAddComponent.drawPanelInit
   document.getElementById('btn_text').onclick = FormTextAddComponent.textPanelInit
   document.getElementById('btn_border').onclick = FormBorderWrapComponent.BorderPanelInit
+  document.getElementById('btn_map').onclick = FormDrawMapComponent.drawMapPanelInit
   document.getElementById('btn_debug').onclick = FormDebugComponent.DebugPanelInit
   //canvas.on('object:added', CanvasObjectInspector.createObjectListPanel);
   //canvas.on('object:removed', CanvasObjectInspector.createObjectListPanel);
