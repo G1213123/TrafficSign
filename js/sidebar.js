@@ -13,7 +13,6 @@ canvas.snap_pts = [];
 /* General Sidebar Panel */
 let GeneralHandler = {
   panelOpened: true,
-  currentTab: 2,
   ShowHideSideBar: function (event, force = null) {
     if (force === null) {
       if (document.getElementById("side-panel").className.indexOf("open") !== -1) {
@@ -70,8 +69,10 @@ let GeneralHandler = {
     return node
   },
   createbutton: function (name, labelTxt, parent, container = 'input', callback = null, event = null) {
-    var inputContainer = GeneralHandler.createNode("div", { 'class': `${container}-container` }, parent)
-    var input = GeneralHandler.createNode("button", { 'type': 'button', 'class': `${container}-button`, 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
+    if (container) {
+      var inputContainer = GeneralHandler.createNode("div", { 'class': `${container}-container` }, parent)
+    }
+    var input = GeneralHandler.createNode("button", { 'type': 'button', 'class': `${container ? container : name}-button`, 'id': name, 'placeholder': ' ' }, inputContainer ? inputContainer : parent, callback, event)
     input.innerHTML = labelTxt
   },
 
@@ -84,10 +85,11 @@ let GeneralHandler = {
     defaultv ? input.value = defaultv : input.value = ''
   },
 
-  createselect: function (name, labelTxt, options, parent,  callback = null, event = null) {
+  createselect: function (name, labelTxt, options, parent, callback = null, event = null) {
     var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent)
-    var input = GeneralHandler.createNode("select", { 'class': 'input', 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
     var label = GeneralHandler.createNode("label", { 'class': 'placeholder', 'for': name }, inputContainer)
+    var input = GeneralHandler.createNode("select", { 'class': 'input', 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
+    label.innerHTML = labelTxt
     for (var i = 0; i < options.length; i++) {
       var option = document.createElement("option");
       option.value = options[i];
@@ -134,7 +136,7 @@ let FormTextAddComponent = {
     cursor.forEachObject(function (o) { cursor.remove(o) })
     cursor.txtChar = []
     cursor.text = ''
-    cursor.symbol = ''
+    cursor.shapeMeta = null
     if (options) {
       var txt = options.text
       var xHeight = options.xHeight
@@ -156,14 +158,14 @@ let FormTextAddComponent = {
     //    top: obj.top + cursorTop
     //  });
     //});
-//
+    //
     //txtObjects[1].forEach(obj => {
     //  obj.set({
     //    left: obj.left + cursorLeft,
     //    top: obj.top + cursorTop
     //  });
     //});
-//
+    //
     cursor.add(...txtObjects[0])
     cursor.add(...txtObjects[1])
     // Update the coordinates
@@ -328,54 +330,147 @@ let FormTextAddComponent = {
 }
 
 let FormDrawMapComponent = {
-  EndShape: ['arrow', 'butt'],
+  EndShape: ['Arrow', 'Butt'],
   drawMapPanelInit: function () {
     tabNum = 4
     var parent = GeneralHandler.PanelInit()
     if (parent) {
+      parent.routeCount = 0
       GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100, null, 'input')
-      GeneralHandler.createselect('select-start', 'Select Starting Shape', FormDrawMapComponent.EndShape, parent, null, 'change')
-      GeneralHandler.createselect('select-end', 'Select Ending Shape', FormDrawMapComponent.EndShape, parent, null, 'change')
-      GeneralHandler.createbutton('button-DrawMap', 'Draw Map Arrow', parent, 'symbol', FormDrawMapComponent.drawApproachClick, 'click')
+      GeneralHandler.createbutton('button-DrawMap', 'Draw Map Arrow', parent, 'input', FormDrawMapComponent.drawRouteMapOnCursor, 'click')
+      GeneralHandler.createinput('root-length', 'root length', parent, 12, null, 'input')
+      FormDrawMapComponent.addRoute()
+      GeneralHandler.createbutton('button-addRoute', '+ Another Route Destination', parent, 'input', FormDrawMapComponent.addRoute, 'click')
     }
   },
+
+  addRoute: function (event) {
+    var parent = document.getElementById("input-form");
+    if (!parent.routeCount) {
+      parent.routeCount = 0
+    }
+    parent.routeCount += 1
+    GeneralHandler.createselect(`route${parent.routeCount}-shape`, `Route ${parent.routeCount} Shape`, FormDrawMapComponent.EndShape, parent, null, 'change')
+    GeneralHandler.createinput(`route${parent.routeCount}-width`, `Route ${parent.routeCount} Width`, parent, 4, null, 'input')
+
+    if (event && event.target) {
+      // Move the event target button to the bottom of the parent container
+      parent.appendChild(event.target.parentNode);
+    }
+  },
+
+  drawRouteMapOnCursor: async function (event) {
+    canvas.on('mouse:move', FormDrawAddComponent.DrawonMouseMove)
+    canvas.on('mouse:down', FormDrawMapComponent.SymbolonMouseClick)
+
+    const activeRoute = canvas.getActiveObject()
+    var parent = document.getElementById("input-form");
+    let routeEndList
+    if (!activeRoute || activeRoute.functionalType !== 'routeMap') {
+      routeEndList = [[0, 0]]
+    } else {
+      routeEndList = activeRoute.routeEndList
+    }
+    var xHeight = document.getElementById('input-xHeight').value
+    var rootLength = document.getElementById('root-length').value
+    let vertexList = routeMapTemplate['Root']
+    for (let i = 0; i < parent.routeCount; i++) {
+      var shape = document.getElementById(`route${i + 1}-shape`).value
+      var width = document.getElementById(`route${i + 1}-width`).value
+      FormDrawMapComponent.addRouteVertex(vertexList, shape, width)
+      //console.log(vertexList.path[0].vertex)
+    }
+    vertexList = calcSymbol(vertexList, xHeight / 4)
+
+    cursor.forEachObject(function (o) { cursor.remove(o) })
+    cursor.xHeight = xHeight
+    cursor.routeEndList = routeEndList
+
+    const options = { left: 0, top: 0, angle: 0, color: 'white', }
+    Polygon1 = new GlyphPath()
+    await Polygon1.initialize(vertexList, options)
+
+    symbolOffset = getInsertOffset(vertexList)
+    cursorOffset.x = symbolOffset.left
+    cursorOffset.y = symbolOffset.top
+
+    cursor.add(Polygon1)
+    cursor.shapeMeta = vertexList
+  },
+
+  addRouteVertex: function (vertexList, shape, width) {
+    vertexList.path[0].vertex.unshift(...routeMapTemplate[shape].path[0].vertex)
+    const firstVertex = vertexList.path[0].vertex.shift();
+    vertexList.path[0].vertex.push(firstVertex);
+    vertexList.path[0].vertex.map((vertex, index) => {
+      vertex.start = index == 0 ? 1 : 0
+      vertex.label = `V${index + 1}`
+    })
+  },
+
+  SymbolonMouseClick: async function (event, options = null) {
+    //permanent cursor object 
+    if (options) {
+      cursor.set(
+        { left: options.left, top: options.top }
+      )
+      var pointer = { x: options.left, y: options.top }
+      textValue = 'Go'
+      eventButton = 0
+    } else {
+      eventButton = event.e.button
+      var pointer = canvas.getPointer(event.e);
+    }
+    if (eventButton === 0 && cursor._objects.length) {
+      var posx = pointer.x;
+      var posy = pointer.y;
+      const arrowOptions1 = { left: posx, top: posy, angle: 0, color: 'white', };
+      const arrow = new GlyphPath();
+
+      // Wait for the initialization to complete
+      await arrow.initialize(cursor.shapeMeta, arrowOptions1)
+
+      drawBasePolygon(arrow, 'RouteMap');
+    }
+  },
+
   drawApproachClick: (event) => {
     //$(event.target).toggleClass('active')
-      showTextBox('Click on canvas for shape start point', null, 'mousedown', function handleKeyDown(event) {
-        if (event.button === 0) {
-          hideTextBox();
-          this.removeEventListener('mousedown', handleKeyDown);
-          const constructLine = new fabric.Line([event.x, event.y, event.x, event.y], {
-            stroke: 'orange',
-            strokeWidth: 4,
-            strokeDashArray: [5, 5],
-            hasControls: false,
-            hasBorders: false,
-            lockMovementX: false,
-            lockMovementY: false,
-            hoverCursor: 'default',
-            selectable: false,
-          });
-          FormDrawMapComponent.drawApproachMousedown(event)
-          canvas.add(constructLine);
-          canvas.constructLine = constructLine;
-          canvas.on('mouse:move', FormDrawMapComponent.drawApproachMousemove)
-          setTimeout(() => {
-            canvas.on('mouse:up', FormDrawMapComponent.drawApproachMouseup)
-          }, 500)
-        }
-      })
-      canvas.approach_grp = new fabric.Group()
-    }
+    showTextBox('Click on canvas for shape start point', null, 'mousedown', function handleKeyDown(event) {
+      if (event.button === 0) {
+        hideTextBox();
+        this.removeEventListener('mousedown', handleKeyDown);
+        const constructLine = new fabric.Line([event.x, event.y, event.x, event.y], {
+          stroke: 'orange',
+          strokeWidth: 4,
+          strokeDashArray: [5, 5],
+          hasControls: false,
+          hasBorders: false,
+          lockMovementX: false,
+          lockMovementY: false,
+          hoverCursor: 'default',
+          selectable: false,
+        });
+        FormDrawMapComponent.drawApproachMousedown(event)
+        canvas.add(constructLine);
+        canvas.constructLine = constructLine;
+        canvas.on('mouse:move', FormDrawMapComponent.drawApproachMousemove)
+        setTimeout(() => {
+          canvas.on('mouse:up', FormDrawMapComponent.drawApproachMouseup)
+        }, 500)
+      }
+    })
+    canvas.approach_grp = new fabric.Group()
+  }
   ,
 
   drawApproachMousedown: function (opt) {
 
-      canvas.isDrawing = true;
-      canvas.selection = false;
-      canvas.lastPosX = opt.x;
-      canvas.lastPosY = opt.y;
-    
+    canvas.isDrawing = true;
+    canvas.selection = false;
+    canvas.lastPosX = opt.x;
+    canvas.lastPosY = opt.y;
+
   },
 
   drawApproachMousemove: function (opt) {
@@ -444,16 +539,21 @@ let FormDrawAddComponent = {
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100, null, 'input')
-      var angleContainer = GeneralHandler.createNode("div", { 'class': `angle-picker-container` }, parent)
-      GeneralHandler.createbutton(`button-RotateLeft`, 'Rotate Left', angleContainer, 'angle', FormDrawAddComponent.setAngle, 'click')
-      var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'id': 'symbol-angle-display' }, angleContainer)
-      label.innerText = FormDrawAddComponent.symbolAngle
-      GeneralHandler.createbutton(`button-RotateRight`, 'Rotate Right', angleContainer, 'angle', FormDrawAddComponent.setAngle, 'click')
+
+      // Replace slider with two rotate buttons:
+      var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, parent);
+
+      var btnRotateLeft = GeneralHandler.createbutton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawAddComponent.setAngle, 'click')
+
+      var btnRotateRight = GeneralHandler.createbutton(`rotate-right`, '<i class="fa-solid fa-rotate-right"></i>', angleContainer, null, FormDrawAddComponent.setAngle, 'click')
+
+      var angleDisplay = GeneralHandler.createNode("div", { 'id': 'angle-display', 'class': 'angle-display' }, angleContainer);
+      angleDisplay.innerText = FormDrawAddComponent.symbolAngle + '°';
 
       //GeneralHandler.createbutton('button-approach-arm', 'Add Approach arm', parent, 0, FormDrawAddComponent.drawApproachClick, 'click')
       Object.keys(symbolsTemplate).forEach(symbol => {
         const button = FormDrawAddComponent.createButtonSVG(symbol, 5)
-        GeneralHandler.createbutton(`button-${symbol}`, button, parent, 'symbol', FormDrawAddComponent.drawSymbol, 'click')
+        GeneralHandler.createbutton(`button-${symbol}`, button, parent, 'symbol', FormDrawAddComponent.drawSymbolOnCursor, 'click')
       })
     }
   },
@@ -467,9 +567,9 @@ let FormDrawAddComponent = {
     FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle > 90 ? -90 : FormDrawAddComponent.symbolAngle
     FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle < -90 ? +90 : FormDrawAddComponent.symbolAngle
     // Handle the angle selection
-    document.getElementById('symbol-angle-display').innerText = FormDrawAddComponent.symbolAngle
+    document.getElementById('angle-display').innerText = FormDrawAddComponent.symbolAngle + '°';
     if (cursor._objects.length) {
-      FormDrawAddComponent.drawSymbol(null, { symbol: cursor.symbol, xHeight: cursor.xHeight })
+      FormDrawAddComponent.drawSymbolOnCursor(null, { symbol: cursor.symbol, xHeight: cursor.xHeight })
     }
     // You can add your logic here to apply the angle to the shape
   },
@@ -546,7 +646,7 @@ let FormDrawAddComponent = {
 
     return svg;
   },
-  drawSymbol: async (event, options = null) => {
+  drawSymbolOnCursor: async (event, options = null) => {
     canvas.off('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
     canvas.on('mouse:move', FormDrawAddComponent.DrawonMouseMove)
     canvas.on('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
@@ -564,7 +664,6 @@ let FormDrawAddComponent = {
       var xHeight = parseInt(document.getElementById('input-xHeight').value)
     }
 
-    cursor.symbol = symbol
 
     let symbolObject = calcSymbol(symbol, xHeight / 4)
 
@@ -577,7 +676,7 @@ let FormDrawAddComponent = {
       objectCaching: false,
       strokeWidth: 0
     }
-
+    cursor.shapeMeta = symbolObject
 
     Polygon1 = new GlyphPath()
     await Polygon1.initialize(symbolObject, arrowOptions1)
@@ -859,25 +958,25 @@ let FormBorderWrapComponent = {
     let i = 0
     borderGroup.HDivider.forEach(d => {
       const midPt = (top + d.getEffectiveCoords()[0].y) / 2
-      borderGroup.basePolygon.vertex.push({ x: left, y: midPt + frame, label: `EM${i+=1}` })
-      borderGroup.basePolygon.vertex.push({ x: left + width, y: midPt + frame, label: `EM${i+=1}` })
+      borderGroup.basePolygon.vertex.push({ x: left, y: midPt + frame, label: `EM${i += 1}` })
+      borderGroup.basePolygon.vertex.push({ x: left + width, y: midPt + frame, label: `EM${i += 1}` })
       top = d.getEffectiveCoords()[0].y
     })
     if (borderGroup.HDivider.length > 0) {
       const midPt = (borderGroup.HDivider.at(-1).getEffectiveCoords()[2].y + borderGroup.getEffectiveCoords()[2].y) / 2
-      borderGroup.basePolygon.vertex.push({ x: left, y: midPt - frame, label: `EM${i+=1}` })
-      borderGroup.basePolygon.vertex.push({ x: left + width, y: midPt - frame, label: `EM${i+=1}` })
+      borderGroup.basePolygon.vertex.push({ x: left, y: midPt - frame, label: `EM${i += 1}` })
+      borderGroup.basePolygon.vertex.push({ x: left + width, y: midPt - frame, label: `EM${i += 1}` })
     }
     borderGroup.VDivider.forEach(d => {
       const midPt = (left + d.getEffectiveCoords()[0].x) / 2
-      borderGroup.basePolygon.vertex.push({ x: midPt + frame, y: top, label: `EM${i+=1}` })
-      borderGroup.basePolygon.vertex.push({ x: midPt + frame, y: top + height, label: `EM${i+=1}` })
+      borderGroup.basePolygon.vertex.push({ x: midPt + frame, y: top, label: `EM${i += 1}` })
+      borderGroup.basePolygon.vertex.push({ x: midPt + frame, y: top + height, label: `EM${i += 1}` })
       left = d.getEffectiveCoords()[0].x
     })
     if (borderGroup.VDivider.length > 0) {
       const midPt = (borderGroup.VDivider.at(-1).getEffectiveCoords()[2].x + borderGroup.getEffectiveCoords()[2].x) / 2
-      borderGroup.basePolygon.vertex.push({ x: midPt - frame, y: top, label: `EM${i+=1}` })
-      borderGroup.basePolygon.vertex.push({ x: midPt - frame, y: top + height, label: `EM${i+=1}` })
+      borderGroup.basePolygon.vertex.push({ x: midPt - frame, y: top, label: `EM${i += 1}` })
+      borderGroup.basePolygon.vertex.push({ x: midPt - frame, y: top + height, label: `EM${i += 1}` })
     }
   },
 
@@ -910,7 +1009,7 @@ let FormBorderWrapComponent = {
     borderGroup.heightObjects = [...fheightObjects]
     borderGroup.VDivider = VDivider
     borderGroup.HDivider = HDivider
-    
+
     borderGroup.borderType = borderType
     borderGroup.xHeight = xHeight
     borderGroup.color = colorType
@@ -1098,6 +1197,6 @@ window.onload = () => {
   //canvas.on('object:added', CanvasObjectInspector.createObjectListPanel);
   //canvas.on('object:removed', CanvasObjectInspector.createObjectListPanel);
   //canvas.on('object:modified', CanvasObjectInspector.createObjectListPanel);
-  FormTextAddComponent.textPanelInit()
+  FormDrawMapComponent.drawMapPanelInit()
   document.addEventListener('keydown', ShowHideSideBarEvent);
 }

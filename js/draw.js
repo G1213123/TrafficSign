@@ -329,7 +329,7 @@ class BaseGroup extends fabric.Group {
 
     // Draw the vertices and labels
     if (this.basePolygon.vertex) {
-      this.basePolygon.vertex.filter(v => v.label.includes('E')).forEach(v => {
+      this.basePolygon.vertex.filter(v => (v.label.includes('E')||v.label.includes('V'))).forEach(v => {
         const vControl = new VertexControl(v, this);
         this.controls[v.label] = vControl;
       });

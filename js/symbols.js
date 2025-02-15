@@ -1,3 +1,32 @@
+const routeMapTemplate = {
+  'Arrow': {
+    path: [{
+    'vertex': [
+      { x: -2, y: 2, label: 'V1', start: 1 },
+      { x:0, y: 0, label: 'V2', start: 0 },
+      { x: 2, y: 2, label: 'V3', start: 0 },
+    ], 'arcs': []
+  }],
+},
+  'Butt': {
+    path: [{
+      'vertex': [
+      { x: -2, y: 0, label: 'V1', start: 0 },
+      { x: 0, y: 0, label: 'V2', start: 1 },
+      { x: 2, y: 0, label: 'V3', start: 0 },
+    ], 'arcs': []
+  }],
+},
+  'Root': {
+    path: [{
+    'vertex': [
+      { x: 2, y: 24, label: 'V1', start: 1 },
+      { x: -2, y: 24, label: 'V2', start: 0 },
+    ], 'arcs': []
+  }],
+},
+}
+
 const symbolsTemplate = {
   //'TestTriangle': [{
   //  'vertex': [
@@ -716,9 +745,15 @@ ChineseBuffer.then(data => {
 })
 
 function calcSymbol(type, length) {
-  const symbols = JSON.parse(JSON.stringify(symbolsTemplate)); // Deep copy to avoid mutation
+  let symbol
+  if (typeof type === 'string'){
+    const symbolsT = JSON.parse(JSON.stringify(symbolsTemplate)); // Deep copy to avoid mutation
+    symbol = symbolsT[type];
+  } else {
+    symbol = type;
+  }
 
-  symbols[type].path.forEach(path => {
+  symbol.path.forEach(path => {
     path.vertex.forEach(vertex => {
       vertex.x *= length;
       vertex.y *= length;
@@ -730,8 +765,8 @@ function calcSymbol(type, length) {
     });
   });
 
-  if (symbols[type].text) {
-    symbols[type].text.forEach(t => {
+  if (symbol.text) {
+    symbol.text.forEach(t => {
       t.x *= length;
       t.y *= length;
       t.fontSize *= length;
@@ -739,7 +774,7 @@ function calcSymbol(type, length) {
     )
   }
 
-  return symbols[type];
+  return symbol;
 }
 
 function getInsertOffset(shapeMeta, angle = 0) {

@@ -323,6 +323,41 @@ div.side-panel.close {
   width: 95%;
 }
 
+.rotate-left-button {
+  background-color: #555555;
+  color: white;
+  margin: 0.5px 8px ;
+  text-align: center;
+  display: inline-block;
+  font-size: 24px;
+  border-radius: 4px;
+  width: 25%;
+}
+
+.rotate-right-button {
+  background-color: #555555;
+  color: white;
+  margin: 0.5px 8px ;
+  text-align: center;
+  display: inline-block;
+  font-size: 24px;
+  border-radius: 4px;
+  width: 25%;
+}
+
+.angle-display{
+  background-color: #555555;
+  color: #dadada;
+  font-family: Helvetica, sans-serif;
+  margin: 0.5px 8px ;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 24px;
+  border-radius: 4px;
+  width: 95%;
+}
+
 .symbol-button:hover {
   background-color: #0000FE;
   color: black;
