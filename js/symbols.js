@@ -750,7 +750,7 @@ function calcSymbol(type, length) {
     const symbolsT = JSON.parse(JSON.stringify(symbolsTemplate)); // Deep copy to avoid mutation
     symbol = symbolsT[type];
   } else {
-    symbol = type;
+    symbol = JSON.parse(JSON.stringify(type));
   }
 
   symbol.path.forEach(path => {

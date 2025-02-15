@@ -331,6 +331,8 @@ let FormTextAddComponent = {
 
 let FormDrawMapComponent = {
   EndShape: ['Arrow', 'Butt'],
+  routeAngle : 45,
+  permitAngle : [45, 60],
   drawMapPanelInit: function () {
     tabNum = 4
     var parent = GeneralHandler.PanelInit()
@@ -339,24 +341,63 @@ let FormDrawMapComponent = {
       GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100, null, 'input')
       GeneralHandler.createbutton('button-DrawMap', 'Draw Map Arrow', parent, 'input', FormDrawMapComponent.drawRouteMapOnCursor, 'click')
       GeneralHandler.createinput('root-length', 'root length', parent, 12, null, 'input')
-      FormDrawMapComponent.addRoute()
-      GeneralHandler.createbutton('button-addRoute', '+ Another Route Destination', parent, 'input', FormDrawMapComponent.addRoute, 'click')
+      FormDrawMapComponent.addRouteInput()
+      if (canvas.getActiveObject() && canvas.getActiveObject().functionalType === 'RouteMap') {
+        existingRoute = canvas.getActiveObject()
+        parent.routeCount = existingRoute.routeEndList.length
+        GeneralHandler.createbutton('button-addRoute', '+ Another Route Destination', parent, 'input', FormDrawMapComponent.addRouteInput, 'click')
+      }
     }
   },
 
-  addRoute: function (event) {
+  addRouteInput: function (event) {
     var parent = document.getElementById("input-form");
     if (!parent.routeCount) {
       parent.routeCount = 0
     }
     parent.routeCount += 1
     GeneralHandler.createselect(`route${parent.routeCount}-shape`, `Route ${parent.routeCount} Shape`, FormDrawMapComponent.EndShape, parent, null, 'change')
-    GeneralHandler.createinput(`route${parent.routeCount}-width`, `Route ${parent.routeCount} Width`, parent, 4, null, 'input')
-
+    GeneralHandler.createinput(`route${parent.routeCount}-width`, `Route ${parent.routeCount} Width`, parent, parent.routeCount==1?6:4, null, 'input')
+    if (parent.routeCount > 1) {
+      var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, parent);
+      GeneralHandler.createbutton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawMapComponent.setAngle, 'click')
+      var angleDisplay = GeneralHandler.createNode("div", { 'id': `angle-display-${parent.routeCount}`, 'class': 'angle-display' }, angleContainer);
+      angleDisplay.innerText = FormDrawMapComponent.routeAngle + '°';
+    }
+    const existingRoute = canvas.getActiveObject()
+    if (existingRoute && existingRoute.functionalType === 'RouteMap') {
+      canvas.on('mouse:move', FormDrawMapComponent.drawSideRouteMap)
+    }
     if (event && event.target) {
       // Move the event target button to the bottom of the parent container
       parent.appendChild(event.target.parentNode);
     }
+    //canvas.getActiveObject().addEventListener('mouse:move', FormDrawMapComponent.drawSideRouteMap)
+  },
+
+  drawSideRouteMap: function (event) {
+    let pointer = canvas.getPointer(event.e)
+    let activeRoute = canvas.getActiveObject()
+    var parent = document.getElementById("input-form");
+    lastCount = parent.routeCount
+    let angle = parseInt(document.getElementById(`angle-display-${parent.routeCount}`).innerText)
+    if (pointer.x < activeRoute.left) {
+      angle = - angle
+    }
+    var shape = document.getElementById(`route${lastCount}-shape`).value
+    var width = document.getElementById(`route${lastCount}-width`).value
+    let vertexList = JSON.parse(JSON.stringify(routeMapTemplate[shape]));
+    vertexList = calcSymbol(vertexList, activeRoute.xHeight / 4)
+    vertexList.path[0].vertex = calculateTransformedPoints(vertexList.path[0].vertex, {x:pointer.x, y:pointer.y, angle:angle})
+    FormDrawMapComponent.addRouteVertex(vertexList, shape, width)
+  },
+
+  setAngle: function (event) {
+    const angleIndex = FormDrawMapComponent.permitAngle.indexOf(FormDrawMapComponent.symbolAngle) 
+    FormDrawMapComponent.routeAngle = FormDrawMapComponent.permitAngle[(angleIndex + 1) % FormDrawMapComponent.permitAngle.length]
+    
+    document.getElementById('angle-display').innerText = FormDrawMapComponent.symbolAngle + '°';
+
   },
 
   drawRouteMapOnCursor: async function (event) {
@@ -373,7 +414,7 @@ let FormDrawMapComponent = {
     }
     var xHeight = document.getElementById('input-xHeight').value
     var rootLength = document.getElementById('root-length').value
-    let vertexList = routeMapTemplate['Root']
+    let vertexList = JSON.parse(JSON.stringify(routeMapTemplate['Root']));
     for (let i = 0; i < parent.routeCount; i++) {
       var shape = document.getElementById(`route${i + 1}-shape`).value
       var width = document.getElementById(`route${i + 1}-width`).value
@@ -430,8 +471,38 @@ let FormDrawMapComponent = {
       // Wait for the initialization to complete
       await arrow.initialize(cursor.shapeMeta, arrowOptions1)
 
-      drawBasePolygon(arrow, 'RouteMap');
+      const routeMap = drawBasePolygon(arrow, 'RouteMap');
+      routeMap.routeEndList = [{x:posx, y:posy, angle:180}]
+      routeMap.xHeight = cursor.xHeight
+
+      routeMap.on('selected', FormDrawMapComponent.routeMapOnSelect)
+      routeMap.on('deselected', FormDrawMapComponent.routeMapOnDeselect)
+      canvas.discardActiveObject();
+      setTimeout(() => {
+        canvas.setActiveObject(routeMap);
+      }, 100);
     }
+  },
+
+  routeMapOnSelect: function (event) {
+    const panel = document.getElementById("button-DrawMap");
+    const parent = document.getElementById("input-form");
+    const existingRoute = canvas.getActiveObject()
+    if (panel && parent && existingRoute && existingRoute.functionalType === 'RouteMap') {
+
+      parent.routeCount = existingRoute.routeEndList.length
+      GeneralHandler.createbutton('button-addRoute', '+ Another Route Destination', parent, 'input', FormDrawMapComponent.addRouteInput, 'click')
+      
+    }
+  },
+
+  routeMapOnDeselect: function (event) {
+    const existingRoute = canvas.getActiveObject()
+    const panel = document.getElementById("button-addRoute");
+    if (panel) {
+      panel.parentNode.parentNode.removeChild(panel.parentNode)
+    }
+    canvas.off('mouse:move', FormDrawMapComponent.drawSideRouteMap)
   },
 
   drawApproachClick: (event) => {
@@ -559,7 +630,7 @@ let FormDrawAddComponent = {
   },
 
   setAngle: function (event) {
-    if (event.target.id.search('Left') > -1) {
+    if (event.currentTarget.id.search('left') > -1) {
       FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle - 45
     } else {
       FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle + 45
