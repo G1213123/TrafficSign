@@ -610,7 +610,7 @@ let FormDrawAddComponent = {
       var posy = pointer.y;
       var xHeight = parseInt(document.getElementById('input-xHeight').value)
       const arrowOptions1 = { x: posx, y: posy, length: xHeight / 4, angle: FormDrawAddComponent.symbolAngle, color: 'white', };
-      drawLabeledSymbol(calcSymbol(cursor.symbol, xHeight / 4), cursor.symbol, arrowOptions1);
+      drawLabeledSymbol(cursor.shapeMeta, cursor.symbol, arrowOptions1);
     }
   },
 
@@ -677,6 +677,7 @@ let FormDrawAddComponent = {
       strokeWidth: 0
     }
     cursor.shapeMeta = symbolObject
+    cursor.symbol = symbol
 
     Polygon1 = new GlyphPath()
     await Polygon1.initialize(symbolObject, arrowOptions1)
