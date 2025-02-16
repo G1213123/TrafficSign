@@ -344,7 +344,7 @@ let FormDrawMapComponent = {
       FormDrawMapComponent.addRouteInput()
       if (canvas.getActiveObject() && canvas.getActiveObject().functionalType === 'RouteMap') {
         existingRoute = canvas.getActiveObject()
-        parent.routeCount = existingRoute.routeEndList.length
+        parent.routeCount = existingRoute.rootList.length
         GeneralHandler.createbutton('button-addRoute', '+ Another Route Destination', parent, 'input', FormDrawMapComponent.addRouteInput, 'click')
       }
     }
@@ -375,7 +375,13 @@ let FormDrawMapComponent = {
     //canvas.getActiveObject().addEventListener('mouse:move', FormDrawMapComponent.drawSideRouteMap)
   },
 
-  drawSideRouteMap: function (event) {
+  finsihDrawSideRouteMap: function (event) {
+    if (event.e.button === 0) {
+      canvas.off('mouse:move', FormDrawMapComponent.drawSideRouteMap)
+    }
+  },
+
+  drawSideRouteMap: async function (event) {
     let pointer = canvas.getPointer(event.e)
     let activeRoute = canvas.getActiveObject()
     var parent = document.getElementById("input-form");
@@ -386,10 +392,14 @@ let FormDrawMapComponent = {
     }
     var shape = document.getElementById(`route${lastCount}-shape`).value
     var width = document.getElementById(`route${lastCount}-width`).value
-    let vertexList = JSON.parse(JSON.stringify(routeMapTemplate[shape]));
-    vertexList = calcSymbol(vertexList, activeRoute.xHeight / 4)
-    vertexList.path[0].vertex = calculateTransformedPoints(vertexList.path[0].vertex, {x:pointer.x, y:pointer.y, angle:angle})
-    FormDrawMapComponent.addRouteVertex(vertexList, shape, width)
+    activeRoute.rootList.push({ x: pointer.x, y: pointer.y, angle: angle, shape: shape, width: width })
+    activeRoute.removeAll()
+    polygon1 = new GlyphPath()
+    await polygon1.initialize(FormDrawMapComponent.addArrowheadVertices(activeRoute.xHeight, activeRoute.routeCenter, activeRoute.rootList), { left: 0, top: 0, angle: 0, color: 'white', })
+    //FormDrawMapComponent.addArrowheadVertices(activeRoute.xHeight, activeRoute.routeCenter, activeRoute.rootList) 
+    activeRoute.add(polygon1)
+    canvas.renderAll()
+    canvas.on('mouse:up', FormDrawMapComponent.finsihDrawSideRouteMap)
   },
 
   sortRootList: function (routeCenter, rootList) {
@@ -421,7 +431,7 @@ let FormDrawMapComponent = {
       
       // Calculate the arrowhead vertices
       //rootList = [{x:0, y:rootLength, angle:180, width:rootLength, type:'Butt'}]
-      let arrowTipVertex = routeMapTemplate[root.type]
+      let arrowTipVertex = routeMapTemplate[root.shape]
       arrowTipVertex.path.map((p) => {
         let transformed = calculateTransformedPoints(p.vertex, {
           x: root.x,
@@ -456,7 +466,7 @@ let FormDrawMapComponent = {
     const intersection = FormDrawMapComponent.intersection(lastVertex.x, lastVertex.y, lastDirection, firstVertex.x, firstVertex.y, firstDirection);
     vertexList.push(intersection);
   }
-   
+   FormDrawMapComponent.addRouteVertex(vertexList)
     return {path:[{'vertex':vertexList, 'arcs':[]}]};
   },
 
@@ -482,8 +492,8 @@ let FormDrawMapComponent = {
     } else {
       routeCenter = activeRoute.routeCenter
     }
-    rootList = [{x:0, y:rootLength, angle:180, width:6, type:'Butt'},
-      {x:0, y:-rootLength, angle:0, width:6, type:'Arrow'}
+    rootList = [{x:0, y:rootLength, angle:180, width:6, shape:'Butt'},
+      {x:0, y:-rootLength, angle:0, width:6, shape:'Arrow'}
     ]
     //for (let i = 0; i < parent.routeCount; i++) {
     //  var shape = document.getElementById(`route${i + 1}-shape`).value
@@ -493,13 +503,17 @@ let FormDrawMapComponent = {
     //}
     let vertexList = FormDrawMapComponent.addArrowheadVertices(xHeight, routeCenter, rootList)
     vertexList = calcSymbol(vertexList, xHeight / 4)
+    rootList = rootList.map(root => ({
+      ...root,
+      x: root.x * xHeight / 4,
+      y: root.y * xHeight / 4,
+      width: root.width * xHeight / 4
+    }));
 
     cursor.forEachObject(function (o) { cursor.remove(o) })
     cursor.xHeight = xHeight
     cursor.routeCenter = routeCenter
     cursor.rootList = rootList
-
-    vertexList = FormDrawMapComponent.addArrowheadVertices(xHeight, routeCenter, rootList)
 
     const options = { left: 0, top: 0, angle: 0, color: 'white', }
     Polygon1 = new GlyphPath()
@@ -513,11 +527,11 @@ let FormDrawMapComponent = {
     cursor.shapeMeta = vertexList
   },
 
-  addRouteVertex: function (vertexList, shape, width) {
-    vertexList.path[0].vertex.unshift(...routeMapTemplate[shape].path[0].vertex)
-    const firstVertex = vertexList.path[0].vertex.shift();
-    vertexList.path[0].vertex.push(firstVertex);
-    vertexList.path[0].vertex.map((vertex, index) => {
+  addRouteVertex: function (vertexList) {
+    //vertexList.path[0].vertex.unshift(...routeMapTemplate[shape].path[0].vertex)
+    const firstVertex = vertexList.shift();
+    vertexList.push(firstVertex);
+    vertexList.map((vertex, index) => {
       vertex.start = index == 0 ? 1 : 0
       vertex.label = `V${index + 1}`
     })
@@ -546,7 +560,8 @@ let FormDrawMapComponent = {
       await arrow.initialize(cursor.shapeMeta, arrowOptions1)
 
       const routeMap = drawBasePolygon(arrow, 'RouteMap');
-      routeMap.routeEndList = [{x:posx, y:posy, angle:180}]
+      routeMap.rootList = calculateTransformedPoints(cursor.rootList, { x: posx, y: posy, angle: 0 })
+      routeMap.routeCenter = { x: posx, y: posy }
       routeMap.xHeight = cursor.xHeight
 
       routeMap.on('selected', FormDrawMapComponent.routeMapOnSelect)
@@ -555,6 +570,8 @@ let FormDrawMapComponent = {
       setTimeout(() => {
         canvas.setActiveObject(routeMap);
       }, 100);
+      cursor.forEachObject(function (o) { cursor.remove(o) })
+      canvas.off('mouse:move', FormDrawAddComponent.DrawonMouseMove)
     }
   },
 
@@ -564,7 +581,7 @@ let FormDrawMapComponent = {
     const existingRoute = canvas.getActiveObject()
     if (panel && parent && existingRoute && existingRoute.functionalType === 'RouteMap') {
 
-      parent.routeCount = existingRoute.routeEndList.length
+      parent.routeCount = existingRoute.rootList.length
       GeneralHandler.createbutton('button-addRoute', '+ Another Route Destination', parent, 'input', FormDrawMapComponent.addRouteInput, 'click')
       
     }
