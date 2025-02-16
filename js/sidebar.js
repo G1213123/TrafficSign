@@ -392,6 +392,74 @@ let FormDrawMapComponent = {
     FormDrawMapComponent.addRouteVertex(vertexList, shape, width)
   },
 
+  sortRootList: function (routeCenter, rootList) {
+    // Sort the root list by the angle from the route center
+    rootList.sort((x, y, a, _) => {
+      const angleA = (Math.PI / 2 - Math.atan2(y - routeCenter.y, x - routeCenter.x));
+      if (angleA < 0) {
+        angleA += 2 * Math.PI;
+      }
+      return angleA;
+    });
+  },
+
+  intersection: function (x1, y1, angle1, x2, y2, angle2) {
+      const tan1 = Math.tan(angle1 * Math.PI / 180);
+      const tan2 = Math.tan(angle2 * Math.PI / 180);
+      const x = (y2 - y1 + tan1 * x1 - tan2 * x2) / (tan1 - tan2);
+      const y = y1 + tan1 * (x - x1);
+      return { x, y };
+    },
+
+  addArrowheadVertices: function(xheight, routeCenter, rootList) {
+    // Calculate the direction vector of the arrow
+    FormDrawMapComponent.sortRootList(routeCenter, rootList);
+    let vertexList = [];
+    let previousVertex 
+    let previousDirection
+    rootList.forEach((root, index) => {
+      
+      // Calculate the arrowhead vertices
+      //rootList = [{x:0, y:rootLength, angle:180, width:rootLength, type:'Butt'}]
+      let arrowTipVertex = routeMapTemplate[root.type]
+      arrowTipVertex.path.map((p) => {
+        let transformed = calculateTransformedPoints(p.vertex, {
+          x: root.x,
+          y: root.y,
+          angle: root.angle
+        });
+        p.vertex = transformed
+      });
+      arrowTipVertex = arrowTipVertex.path[0].vertex
+      
+      if (previousVertex) {
+        // check collinear
+        const currentVertex = arrowTipVertex[arrowTipVertex.length - 1];
+        const currentDirection = root.angle;
+        if ((currentDirection - previousDirection)% 180 != 0) {
+          const intersection = FormDrawMapComponent.intersection(previousVertex.x, previousVertex.y, previousDirection, currentVertex.x, currentVertex.y, currentDirection);
+          vertexList.push(intersection);
+        }
+      }
+      vertexList.push(...arrowTipVertex)
+      previousVertex = vertexList[vertexList.length - 1]
+      previousDirection = root.angle
+    }
+  )
+  
+  // last vertex
+  const lastVertex = vertexList[vertexList.length - 1];
+  const lastDirection = rootList[rootList.length - 1].angle;
+  const firstDirection = rootList[0].angle;
+  const firstVertex = vertexList[0];
+  if ((lastDirection - firstDirection)% 180 != 0) {
+    const intersection = FormDrawMapComponent.intersection(lastVertex.x, lastVertex.y, lastDirection, firstVertex.x, firstVertex.y, firstDirection);
+    vertexList.push(intersection);
+  }
+   
+    return {path:[{'vertex':vertexList, 'arcs':[]}]};
+  },
+
   setAngle: function (event) {
     const angleIndex = FormDrawMapComponent.permitAngle.indexOf(FormDrawMapComponent.symbolAngle) 
     FormDrawMapComponent.routeAngle = FormDrawMapComponent.permitAngle[(angleIndex + 1) % FormDrawMapComponent.permitAngle.length]
@@ -406,26 +474,32 @@ let FormDrawMapComponent = {
 
     const activeRoute = canvas.getActiveObject()
     var parent = document.getElementById("input-form");
-    let routeEndList
-    if (!activeRoute || activeRoute.functionalType !== 'routeMap') {
-      routeEndList = [[0, 0]]
-    } else {
-      routeEndList = activeRoute.routeEndList
-    }
     var xHeight = document.getElementById('input-xHeight').value
-    var rootLength = document.getElementById('root-length').value
-    let vertexList = JSON.parse(JSON.stringify(routeMapTemplate['Root']));
-    for (let i = 0; i < parent.routeCount; i++) {
-      var shape = document.getElementById(`route${i + 1}-shape`).value
-      var width = document.getElementById(`route${i + 1}-width`).value
-      FormDrawMapComponent.addRouteVertex(vertexList, shape, width)
-      //console.log(vertexList.path[0].vertex)
+    var rootLength = parseInt(document.getElementById('root-length').value)
+    let routeCenter
+    if (!activeRoute || activeRoute.functionalType !== 'routeMap') {
+      routeCenter = {x:0, y:0}
+    } else {
+      routeCenter = activeRoute.routeCenter
     }
+    rootList = [{x:0, y:rootLength, angle:180, width:6, type:'Butt'},
+      {x:0, y:-rootLength, angle:0, width:6, type:'Arrow'}
+    ]
+    //for (let i = 0; i < parent.routeCount; i++) {
+    //  var shape = document.getElementById(`route${i + 1}-shape`).value
+    //  var width = document.getElementById(`route${i + 1}-width`).value
+    //  FormDrawMapComponent.addRouteVertex(vertexList, shape, width)
+    //  //console.log(vertexList.path[0].vertex)
+    //}
+    let vertexList = FormDrawMapComponent.addArrowheadVertices(xHeight, routeCenter, rootList)
     vertexList = calcSymbol(vertexList, xHeight / 4)
 
     cursor.forEachObject(function (o) { cursor.remove(o) })
     cursor.xHeight = xHeight
-    cursor.routeEndList = routeEndList
+    cursor.routeCenter = routeCenter
+    cursor.rootList = rootList
+
+    vertexList = FormDrawMapComponent.addArrowheadVertices(xHeight, routeCenter, rootList)
 
     const options = { left: 0, top: 0, angle: 0, color: 'white', }
     Polygon1 = new GlyphPath()
