@@ -99,7 +99,7 @@ async function runTests(tests) {
     }
 }
 
-runTests(testToRun)
+//runTests(testToRun)
 // MIT http://rem.mit-license.org
 // https://stackoverflow.com/questions/33777577/javascript-get-actual-rendered-font-height
 function textXHeight() {
