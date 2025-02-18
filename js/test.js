@@ -61,7 +61,7 @@ let equalAnchorTest = function () {
 
 let initShape = async function () {
 
-    await FormTextAddComponent.TextonMouseClick(null, { left: 0, top: 0, text: 'Hong Kong', xHeight: 100 })
+    await FormTextAddComponent.TextonMouseClick(null, { left: -550, top: -500, text: 'Hong Kong', xHeight: 100 })
 
     await FormTextAddComponent.TextonMouseClick(null, { left: 250, top: 250, text: '香港', xHeight: 100 })
 
@@ -99,7 +99,7 @@ async function runTests(tests) {
     }
 }
 
-//runTests(testToRun)
+runTests(testToRun)
 // MIT http://rem.mit-license.org
 // https://stackoverflow.com/questions/33777577/javascript-get-actual-rendered-font-height
 function textXHeight() {

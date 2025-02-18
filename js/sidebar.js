@@ -357,7 +357,7 @@ let FormDrawMapComponent = {
     GeneralHandler.createinput(`route${parent.routeCount}-width`, `Route ${parent.routeCount} Width`, parent, parent.routeCount == 1 ? 6 : 4, null, 'input')
     if (parent.routeCount > 1) {
       var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, parent);
-      GeneralHandler.createbutton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawMapComponent.setAngle, 'click')
+      GeneralHandler.createbutton(`rotate-left-${parent.routeCount}`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawMapComponent.setAngle, 'click')
       var angleDisplay = GeneralHandler.createNode("div", { 'id': `angle-display-${parent.routeCount}`, 'class': 'angle-display' }, angleContainer);
       angleDisplay.innerText = FormDrawMapComponent.routeAngle + '°';
     }
@@ -402,35 +402,43 @@ let FormDrawMapComponent = {
     var parent = document.getElementById("input-form");
     lastCount = parent.routeCount
     let angle = parseInt(document.getElementById(`angle-display-${parent.routeCount}`).innerText)
-    //if (pointer.x < activeRoute.left) {
-    //  angle = - angle
-    //}
+    if (pointer.x < activeRoute.rootList.filter(item => item.angle === 0)[0].x) {
+      angle = - angle
+    }
     var shape = document.getElementById(`route${lastCount}-shape`).value
     var width = document.getElementById(`route${lastCount}-width`).value
     const tempRootList = JSON.parse(JSON.stringify(activeRoute.rootList))
     tempRootList.push({ x: pointer.x, y: pointer.y, angle: angle, shape: shape, width: width })
+    const tempVertexList = FormDrawMapComponent.addArrowheadVertices(activeRoute.xHeight, activeRoute.routeCenter, tempRootList)
 
     activeRoute.removeAll()
     polygon1 = new GlyphPath()
-    await polygon1.initialize(FormDrawMapComponent.addArrowheadVertices(activeRoute.xHeight, activeRoute.routeCenter, tempRootList), { left: 0, top: 0, angle: 0, color: 'white', })
+    await polygon1.initialize(tempVertexList, { left: 0, top: 0, angle: 0, color: 'white', })
     //FormDrawMapComponent.addArrowheadVertices(activeRoute.xHeight, activeRoute.routeCenter, activeRoute.rootList) 
     activeRoute.tempRootList = tempRootList
     activeRoute.add(polygon1)
-    canvas.renderAll()
+    activeRoute.basePolygon = polygon1
+    const initialTop = activeRoute.getEffectiveCoords()[0]
+    activeRoute.set({ top: initialTop.y, left: initialTop.x });
+    activeRoute.setCoords()
+    activeRoute.drawVertex()
+    //canvas.renderAll()
     canvas.on('mouse:up', FormDrawMapComponent.finishDrawSideRouteMap)
     document.addEventListener('keydown', FormDrawMapComponent.cancelDraw)
 
   },
 
-  sortRootList: function (routeCenter, rootList) {
-    // Sort the root list by the angle from the route center
-    rootList.sort((x, y, a, _) => {
-      const angleA = (Math.PI / 2 - Math.atan2(y - routeCenter.y, x - routeCenter.x));
-      if (angleA < 0) {
-        angleA += 2 * Math.PI;
-      }
-      return angleA;
-    });
+  sortRootList: function (center, points) {
+    // Sort the root list by angle from south axis (180 degrees), clockwise
+        // Add an angle property to each point using tan(angle) = y/x
+    const angles = points.map(point => ({
+      ...point,
+      centerAngle: Math.atan2( point.y -center.y , point.x - center.x)  >= Math.PI / 2 ? Math.atan2( point.y -center.y , point.x - center.x) - 2 * Math.PI : Math.atan2( point.y -center.y , point.x - center.x)
+    }));
+
+    // Sort your points by angle
+    const pointsSorted = angles.sort((a, b) => a.centerAngle - b.centerAngle);
+    return pointsSorted;
   },
 
   intersection: function (x1, y1, angle1, x2, y2, angle2) {
@@ -460,19 +468,19 @@ let FormDrawMapComponent = {
       if (root.angle != 0 && root.angle != 180) {
         if (root.x < left) {
           arrowTipVertex[0]
-          const i1 = { x: left, y: (left - arrowTipVertex[0].x) / Math.tan(root.angle) }
-          const i2 = { x: left, y: (left - arrowTipVertex[2].x) / Math.tan(root.angle) }
+          const i1 = { x: left, y: arrowTipVertex[0].y - (left - arrowTipVertex[0].x) / Math.tan(root.angle/180*Math.PI) }
+          const i2 = { x: left, y: arrowTipVertex[2].y - (left - arrowTipVertex[2].x) / Math.tan(root.angle/180*Math.PI) }
           arrowTipVertex = [i1, ...arrowTipVertex, i2]
         } else if (root.x > right) {
-          const i1 = { x: right, y: (arrowTipVertex[0].x - right) / Math.tan(root.angle) }
-          const i2 = { x: right, y: (arrowTipVertex[2].x - right) / Math.tan(root.angle) }
+          const i1 = { x: right, y: arrowTipVertex[0].y - (arrowTipVertex[0].x - right) / Math.tan(root.angle) }
+          const i2 = { x: right, y: arrowTipVertex[2].y - (arrowTipVertex[2].x - right) / Math.tan(root.angle) }
           arrowTipVertex = [i1, ...arrowTipVertex, i2]
         }
       }
       return arrowTipVertex
     }
     // Calculate the direction vector of the arrow
-    FormDrawMapComponent.sortRootList(routeCenter, rootList);
+    rootList = FormDrawMapComponent.sortRootList(routeCenter, rootList);
     let vertexList = [];
     let leftSide = 0
 
@@ -511,18 +519,20 @@ let FormDrawMapComponent = {
     }
     )
 
-    vertexList.splice(leftSide + 1, 0, ...RootTopVertex);
-    vertexList.splice(0, 0, ...RootBottomVertex);
+    vertexList.unshift(...RootTopVertex);
+    vertexList.push(...RootBottomVertex);
 
     FormDrawMapComponent.addRouteVertex(vertexList)
     return { path: [{ 'vertex': vertexList, 'arcs': [] }] };
   },
 
   setAngle: function (event) {
-    const angleIndex = FormDrawMapComponent.permitAngle.indexOf(FormDrawMapComponent.symbolAngle)
+    const count = event.currentTarget.id.split('-')[2]
+    const currentText = document.getElementById(`angle-display-${count}`).innerText.slice(0, -1);
+    const angleIndex = FormDrawMapComponent.permitAngle.indexOf(currentText)
     FormDrawMapComponent.routeAngle = FormDrawMapComponent.permitAngle[(angleIndex + 1) % FormDrawMapComponent.permitAngle.length]
 
-    document.getElementById('angle-display').innerText = FormDrawMapComponent.symbolAngle + '°';
+    document.getElementById(`angle-display-${count}`).innerText = FormDrawMapComponent.permitAngle[(angleIndex + 1) % FormDrawMapComponent.permitAngle.length] + '°';
 
   },
 
@@ -551,12 +561,12 @@ let FormDrawMapComponent = {
     //}
     let vertexList = FormDrawMapComponent.addArrowheadVertices(xHeight, routeCenter, rootList)
 
-    rootList = rootList.map(root => ({
-      ...root,
-      x: root.x * xHeight / 4,
-      y: root.y * xHeight / 4,
-      width: root.width * xHeight / 4
-    }));
+    //rootList = rootList.map(root => ({
+    //  ...root,
+    //  x: root.x * xHeight / 4,
+    //  y: root.y * xHeight / 4,
+    //  width: root.width * xHeight / 4
+    //}));
 
     cursor.forEachObject(function (o) { cursor.remove(o) })
     cursor.xHeight = xHeight
@@ -609,6 +619,7 @@ let FormDrawMapComponent = {
 
       const routeMap = drawBasePolygon(arrow, 'RouteMap');
       routeMap.rootList = calculateTransformedPoints(cursor.rootList, { x: posx, y: posy, angle: 0 })
+      routeMap.basePolygon.vertex = cursor.shapeMeta.path[0].vertex
       routeMap.routeCenter = { x: posx, y: posy }
       routeMap.xHeight = cursor.xHeight
 

@@ -275,7 +275,7 @@ class BaseGroup extends fabric.Group {
     this.on('moving', this.updateAllCoord.bind(this));
   }
 
-  drawVertex(calc) {
+  drawVertex(calc = true) {
     // Calculate vertex points for anchoring
 
     if (!this.basePolygon.vertex) {
@@ -334,6 +334,8 @@ class BaseGroup extends fabric.Group {
         this.controls[v.label] = vControl;
       });
     }
+
+    this.setCoords();
     this.subObjects.forEach(obj => {
       this.add(obj);
     });
