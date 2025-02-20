@@ -422,7 +422,7 @@ let FormDrawMapComponent = {
     activeRoute.set({ top: initialTop.y, left: initialTop.x });
     activeRoute.setCoords()
     activeRoute.drawVertex()
-    //canvas.renderAll()
+    canvas.renderAll()
     canvas.on('mouse:up', FormDrawMapComponent.finishDrawSideRouteMap)
     document.addEventListener('keydown', FormDrawMapComponent.cancelDraw)
 
@@ -472,8 +472,8 @@ let FormDrawMapComponent = {
           const i2 = { x: left, y: arrowTipVertex[2].y - (left - arrowTipVertex[2].x) / Math.tan(root.angle/180*Math.PI) }
           arrowTipVertex = [i1, ...arrowTipVertex, i2]
         } else if (root.x > right) {
-          const i1 = { x: right, y: arrowTipVertex[0].y - (arrowTipVertex[0].x - right) / Math.tan(root.angle) }
-          const i2 = { x: right, y: arrowTipVertex[2].y - (arrowTipVertex[2].x - right) / Math.tan(root.angle) }
+          const i1 = { x: right, y: arrowTipVertex[0].y + (arrowTipVertex[0].x - right) / Math.tan(root.angle) }
+          const i2 = { x: right, y: arrowTipVertex[2].y + (arrowTipVertex[2].x - right) / Math.tan(root.angle) }
           arrowTipVertex = [i1, ...arrowTipVertex, i2]
         }
       }
@@ -481,7 +481,8 @@ let FormDrawMapComponent = {
     }
     // Calculate the direction vector of the arrow
     rootList = FormDrawMapComponent.sortRootList(routeCenter, rootList);
-    let vertexList = [];
+    let leftvertexList = [];
+    let rightvertexList = [];
     let leftSide = 0
 
     let RootBottom = rootList.filter(item => item.angle === 180)[0]
@@ -502,25 +503,38 @@ let FormDrawMapComponent = {
         //rootList = [{x:0, y:rootLength, angle:180, width:rootLength, type:'Butt'}]
         const arrowTipVertex = calculateRootVertex(root, length, RootLeft, RootRight)
 
-        if (arrowTipVertex[0].y > RootBottomVertex[0].y || arrowTipVertex[2].y > RootBottomVertex[2].y) {
-          for (let i = 0; i < 3; i++) {
-            RootBottomVertex[i].y += (RootBottom.y - routeCenter.y);
-          }
-        }
+        //if (routeCenter.y - arrowTipVertex[0].y < routeCenter.y - RootBottomVertex[0].y || routeCenter.y - arrowTipVertex[2].y < routeCenter.y > RootBottomVertex[2].y) {
+        //  for (let i = 0; i < 3; i++) {
+        //    RootBottomVertex[i].y += (RootBottom.y - routeCenter.y);
+        //  }
+        //}
+//
+        //if (arrowTipVertex[0].y < RootTopVertex[0].y || arrowTipVertex[2].y < RootTopVertex[2].y) {
+        //  for (let i = 0; i < 3; i++) {
+        //    RootTopVertex[i].y -= (routeCenter.y - RootTop.y);
+        //  }
+        //}
 
-        if (arrowTipVertex[0].y < RootTopVertex[0].y || arrowTipVertex[2].y < RootTopVertex[2].y) {
+        if (root.x < RootLeft) {
           for (let i = 0; i < 3; i++) {
-            RootTopVertex[i].y -= (routeCenter.y - RootTop.y);
+            RootBottomVertex[i].y += (arrowTipVertex[0].y - routeCenter.y) > 0 ? (arrowTipVertex[0].y - routeCenter.y) : 0;
+            RootTopVertex[i].y -=     (routeCenter.y - arrowTipVertex[2].y) > 0 ? (routeCenter.y - arrowTipVertex[2].y) : 0;
           }
+          leftvertexList.push(...arrowTipVertex)
+        } else if (root.x > RootRight) {
+          for (let i = 0; i < 3; i++) {
+            RootBottomVertex[i].y += (arrowTipVertex[2].y - routeCenter.y) > 0 ? (arrowTipVertex[2].y - routeCenter.y) : 0;
+            RootTopVertex[i].y -=     (routeCenter.y - arrowTipVertex[0].y) > 0 ? (routeCenter.y - arrowTipVertex[0].y) : 0;
+          }
+          rightvertexList.push(...arrowTipVertex)
         }
-        vertexList.push(...arrowTipVertex)
+        //vertexList.push(...arrowTipVertex)
       }
 
     }
     )
 
-    vertexList.unshift(...RootTopVertex);
-    vertexList.push(...RootBottomVertex);
+    vertexList = [ ...RootTopVertex, ...rightvertexList, ...RootBottomVertex, ...leftvertexList,]
 
     FormDrawMapComponent.addRouteVertex(vertexList)
     return { path: [{ 'vertex': vertexList, 'arcs': [] }] };
@@ -590,8 +604,8 @@ let FormDrawMapComponent = {
     const firstVertex = vertexList.shift();
     vertexList.push(firstVertex);
     vertexList.map((vertex, index) => {
-      vertex.start = index == 0 ? 1 : 0
       vertex.label = `V${index + 1}`
+      vertex.start = index == 0 ? 1 : 0
     })
   },
 
