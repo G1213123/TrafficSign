@@ -1,32 +1,3 @@
-const routeMapTemplate = {
-  'Arrow': {
-    path: [{
-    'vertex': [
-      { x: -2, y: 2, label: 'V1', start: 1 },
-      { x:0, y: 0, label: 'V2', start: 0 },
-      { x: 2, y: 2, label: 'V3', start: 0 },
-    ], 'arcs': []
-  }],
-},
-  'Butt': {
-    path: [{
-      'vertex': [
-      { x: -2, y: 0, label: 'V1', start: 0 },
-      { x: 0, y: 0, label: 'V2', start: 1 },
-      { x: 2, y: 0, label: 'V3', start: 0 },
-    ], 'arcs': []
-  }],
-},
-  'Root': {
-    path: [{
-    'vertex': [
-      { x: 2, y: 24, label: 'V1', start: 1 },
-      { x: -2, y: 24, label: 'V2', start: 0 },
-    ], 'arcs': []
-  }],
-},
-}
-
 const symbolsTemplate = {
   //'TestTriangle': [{
   //  'vertex': [
@@ -898,6 +869,29 @@ function calculateTangentPoint(point, center, offsetDistance) {
     x: center.x + offsetX,
     y: center.y + offsetY
   };
+}
+
+function calculateTransformedPoints(points, options) {
+  const { x, y, angle } = options;
+  const radians = angle * (Math.PI / 180); // Convert angle to radians
+
+  return points.map(point => {
+    // Translate point to origin
+    const translatedX = point.x;
+    const translatedY = point.y;
+
+    // Apply rotation
+    const rotatedX = translatedX * Math.cos(radians) - translatedY * Math.sin(radians);
+    const rotatedY = translatedX * Math.sin(radians) + translatedY * Math.cos(radians);
+
+    // Translate point back to the specified position
+    return {
+      ...point,
+      x: rotatedX + x,
+      y: rotatedY + y,
+      label: point.label
+    };
+  });
 }
 
 // Determine the arc direction (clockwise or counterclockwise)

@@ -46,29 +46,6 @@ function LoadShape(name, setoptions, group) {
   })
 }
 
-function calculateTransformedPoints(points, options) {
-  const { x, y, angle } = options;
-  const radians = angle * (Math.PI / 180); // Convert angle to radians
-
-  return points.map(point => {
-    // Translate point to origin
-    const translatedX = point.x;
-    const translatedY = point.y;
-
-    // Apply rotation
-    const rotatedX = translatedX * Math.cos(radians) - translatedY * Math.sin(radians);
-    const rotatedY = translatedX * Math.sin(radians) + translatedY * Math.cos(radians);
-
-    // Translate point back to the specified position
-    return {
-      ...point,
-      x: rotatedX + x,
-      y: rotatedY + y,
-      label: point.label
-    };
-  });
-}
-
 class GlyphPolygon extends fabric.Polygon {
   constructor(shapeMeta, options) {
     shapeMeta.vertex.forEach((p) => {
