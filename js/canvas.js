@@ -138,12 +138,14 @@ function handleArrowKeys(event) {
       case 'Delete':
         if (obj.deleteObject){
           canvas.discardActiveObject(obj)
+          canvas.fire('object:deselected', { target: obj });
           obj.deleteObject(null, obj)
         }
         break;
     }
     if (moved) {
       obj.updateAllCoord();
+      obj.setCoords();
     }
   });
 

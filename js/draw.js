@@ -282,7 +282,6 @@ class BaseGroup extends fabric.Group {
       this.basePolygon.vertex = [];
     }
     if (calc !== false) {
-      this.subObjects = []
       let basePolygonCoords = Object.values(this.basePolygon.getCoords());
       //basePolygonCoords = [basePolygonCoords[0], basePolygonCoords[1], basePolygonCoords[3], basePolygonCoords[2]]; // tl, tr, bl, br ==> tl, tr, br, bl
       basePolygonCoords.forEach((p, i) => {
@@ -407,10 +406,6 @@ class BaseGroup extends fabric.Group {
     return this.basePolygon.vertex.find(v => v.label === label.toUpperCase());
   }
 
-  setanchor() {
-
-  }
-
   drawAnchorLinkage() {
     for (let i = this.anchorageLink.length - 1; i >= 0; i--) {
       const obj = this.anchorageLink[i];
@@ -458,6 +453,7 @@ class BaseGroup extends fabric.Group {
       this.emitDelta(deltaX, deltaY, sourceList);
       this.borderResize(sourceList);
     }
+
   }
 
   // Method to update coordinates
@@ -478,13 +474,23 @@ class BaseGroup extends fabric.Group {
       polygon.vertex[index].y = point.y;
     });
 
+    if (this.rootList){
+      this.rootList.forEach((item, index) => {
+        const newRoot = calculateTransformedPoints([item], {
+          x: updateX,
+          y: updateY,
+          angle: 0
+        });
+        item.x = newRoot[0].x
+        item.y = newRoot[0].y
+
+      })
+      this.routeCenter.x += updateX
+      this.routeCenter.y += updateY 
+    }
+
     polygon.insertPoint = transformedPoints[0];
 
-    // if (updateLocationText) {
-    //   this.loactionText.set(
-    //     'text', `Node: ${polygon.insertPoint.label} \nX: ${polygon.insertPoint.x.toFixed(0)} \nY: ${polygon.insertPoint.y.toFixed(0)}`
-    //   );
-    // }
     polygon.setCoords();
     canvas.renderAll();
   }

@@ -372,50 +372,32 @@ let FormDrawMapComponent = {
     //canvas.getActiveObject().addEventListener('mouse:move', FormDrawMapComponent.drawSideRouteMap)
   },
 
-  finishDrawSideRouteMap: function (event) {
-    if (event.e.button === 0) {
-      canvas.off('mouse:move', FormDrawMapComponent.drawSideRouteMap)
-      //canvas.getActiveObject().rootList = canvas.getActiveObject().tempRootList
-    }
-  },
-
-  drawSideRouteMapHandlerOff: function (event) {
-    cursor.forEachObject(function (o) { cursor.remove(o) })
-    canvas.off('mouse:move', FormDrawMapComponent.drawSideRouteMap)
-    canvas.off('mouse:up', FormDrawMapComponent.finishDrawSideRouteMap)
-    document.addEventListener('keydown', ShowHideSideBarEvent);
-  },
-
-  cancelDraw: function (event) {
-    if (event.key === 'Escape') {
-      FormDrawMapComponent.drawSideRouteMapHandlerOff()
-      setTimeout(() => {
-        document.addEventListener('keydown', ShowHideSideBarEvent);
-      }, 1000)
-    }
-  },
-
-  drawSideRouteMap: async function (event) {
+  drawSideRouteMap: async function (event, option=null) {
     document.removeEventListener('keydown', ShowHideSideBarEvent);
     let pointer = canvas.getPointer(event.e)
     let activeRoute = canvas.getActiveObject()
     var parent = document.getElementById("input-form");
-    lastCount = parent.routeCount
-    let angle = parseInt(document.getElementById(`angle-display-${parent.routeCount}`).innerText)
-    if (pointer.x < activeRoute.rootList.filter(item => item.angle === 0)[0].x) {
-      angle = - angle
+    let rootList
+    if (option) {
+      rootList = option.rootList
+    } else {
+      rootList = JSON.parse(JSON.stringify(activeRoute.rootList))
+      lastCount = parent.routeCount
+      let angle = parseInt(document.getElementById(`angle-display-${parent.routeCount}`).innerText)
+      if (pointer.x < activeRoute.routeCenter.x) {
+        angle = - angle
+      }
+      var shape = document.getElementById(`route${lastCount}-shape`).value
+      var width = document.getElementById(`route${lastCount}-width`).value
+      rootList.push({ x: pointer.x, y: pointer.y, angle: angle, shape: shape, width: width })
+      activeRoute.tempRootList = JSON.parse(JSON.stringify(rootList))
     }
-    var shape = document.getElementById(`route${lastCount}-shape`).value
-    var width = document.getElementById(`route${lastCount}-width`).value
-    const tempRootList = JSON.parse(JSON.stringify(activeRoute.rootList))
-    tempRootList.push({ x: pointer.x, y: pointer.y, angle: angle, shape: shape, width: width })
-    const tempVertexList = FormDrawMapComponent.addArrowheadVertices(activeRoute.xHeight, activeRoute.routeCenter, tempRootList)
+    tempVertexList = FormDrawMapComponent.addArrowheadVertices(activeRoute.xHeight, activeRoute.routeCenter,rootList)
 
     activeRoute.removeAll()
     polygon1 = new GlyphPath()
     await polygon1.initialize(tempVertexList, { left: 0, top: 0, angle: 0, color: 'white', })
-    //FormDrawMapComponent.addArrowheadVertices(activeRoute.xHeight, activeRoute.routeCenter, activeRoute.rootList) 
-    activeRoute.tempRootList = tempRootList
+
     activeRoute.add(polygon1)
     activeRoute.basePolygon = polygon1
     const initialTop = activeRoute.getEffectiveCoords()[0]
@@ -423,30 +405,27 @@ let FormDrawMapComponent = {
     activeRoute.setCoords()
     activeRoute.drawVertex()
     canvas.renderAll()
-    canvas.on('mouse:up', FormDrawMapComponent.finishDrawSideRouteMap)
+    // Remove existing listeners first to avoid duplicates
+    canvas.off('mouse:up', FormDrawMapComponent.finishDrawSideRouteMap)
+    document.removeEventListener('keydown', FormDrawMapComponent.cancelDraw)
+
+    // Add new listeners
+    canvas.on('mouse:up', FormDrawMapComponent.finishDrawSideRouteMap)  
     document.addEventListener('keydown', FormDrawMapComponent.cancelDraw)
 
   },
 
   sortRootList: function (center, points) {
     // Sort the root list by angle from south axis (180 degrees), clockwise
-        // Add an angle property to each point using tan(angle) = y/x
+    // Add an angle property to each point using tan(angle) = y/x
     const angles = points.map(point => ({
       ...point,
-      centerAngle: Math.atan2( point.y -center.y , point.x - center.x)  >= Math.PI / 2 ? Math.atan2( point.y -center.y , point.x - center.x) - 2 * Math.PI : Math.atan2( point.y -center.y , point.x - center.x)
+      centerAngle: Math.atan2(point.y - center.y, point.x - center.x) >= Math.PI / 2 ? Math.atan2(point.y - center.y, point.x - center.x) - 2 * Math.PI : Math.atan2(point.y - center.y, point.x - center.x)
     }));
 
     // Sort your points by angle
     const pointsSorted = angles.sort((a, b) => a.centerAngle - b.centerAngle);
     return pointsSorted;
-  },
-
-  intersection: function (x1, y1, angle1, x2, y2, angle2) {
-    const tan1 = Math.tan(angle1 * Math.PI / 180);
-    const tan2 = Math.tan(angle2 * Math.PI / 180);
-    const x = (y2 - y1 + tan1 * x1 - tan2 * x2) / (tan1 - tan2);
-    const y = y1 + tan1 * (x - x1);
-    return { x, y };
   },
 
   addArrowheadVertices: function (xheight, routeCenter, rootList) {
@@ -468,12 +447,12 @@ let FormDrawMapComponent = {
       if (root.angle != 0 && root.angle != 180) {
         if (root.x < left) {
           arrowTipVertex[0]
-          const i1 = { x: left, y: arrowTipVertex[0].y - (left - arrowTipVertex[0].x) / Math.tan(root.angle/180*Math.PI) }
-          const i2 = { x: left, y: arrowTipVertex[2].y - (left - arrowTipVertex[2].x) / Math.tan(root.angle/180*Math.PI) }
+          const i1 = { x: left, y: arrowTipVertex[0].y - (left - arrowTipVertex[0].x) / Math.tan(root.angle / 180 * Math.PI) }
+          const i2 = { x: left, y: arrowTipVertex[2].y - (left - arrowTipVertex[2].x) / Math.tan(root.angle / 180 * Math.PI) }
           arrowTipVertex = [i1, ...arrowTipVertex, i2]
         } else if (root.x > right) {
-          const i1 = { x: right, y: arrowTipVertex[0].y + (arrowTipVertex[0].x - right) / Math.tan(root.angle) }
-          const i2 = { x: right, y: arrowTipVertex[2].y + (arrowTipVertex[2].x - right) / Math.tan(root.angle) }
+          const i1 = { x: right, y: arrowTipVertex[0].y + (arrowTipVertex[0].x - right) / Math.tan(root.angle / 180 * Math.PI) }
+          const i2 = { x: right, y: arrowTipVertex[2].y + (arrowTipVertex[2].x - right) / Math.tan(root.angle / 180 * Math.PI) }
           arrowTipVertex = [i1, ...arrowTipVertex, i2]
         }
       }
@@ -495,36 +474,23 @@ let FormDrawMapComponent = {
     rootList.forEach((root, index) => {
       if (root.angle != 0 && root.angle != 180) {
 
-        if (rootList[index - 1].x < routeCenter.x && root.x > routeCenter.x) {
+        if (rootList.at(index - 1).x < routeCenter.x && root.x > routeCenter.x) {
           leftSide = vertexList.length
         }
 
         // Calculate the arrowhead vertices
-        //rootList = [{x:0, y:rootLength, angle:180, width:rootLength, type:'Butt'}]
         const arrowTipVertex = calculateRootVertex(root, length, RootLeft, RootRight)
-
-        //if (routeCenter.y - arrowTipVertex[0].y < routeCenter.y - RootBottomVertex[0].y || routeCenter.y - arrowTipVertex[2].y < routeCenter.y > RootBottomVertex[2].y) {
-        //  for (let i = 0; i < 3; i++) {
-        //    RootBottomVertex[i].y += (RootBottom.y - routeCenter.y);
-        //  }
-        //}
-//
-        //if (arrowTipVertex[0].y < RootTopVertex[0].y || arrowTipVertex[2].y < RootTopVertex[2].y) {
-        //  for (let i = 0; i < 3; i++) {
-        //    RootTopVertex[i].y -= (routeCenter.y - RootTop.y);
-        //  }
-        //}
 
         if (root.x < RootLeft) {
           for (let i = 0; i < 3; i++) {
             RootBottomVertex[i].y += (arrowTipVertex[0].y - routeCenter.y) > 0 ? (arrowTipVertex[0].y - routeCenter.y) : 0;
-            RootTopVertex[i].y -=     (routeCenter.y - arrowTipVertex[2].y) > 0 ? (routeCenter.y - arrowTipVertex[2].y) : 0;
+            RootTopVertex[i].y -= (routeCenter.y - arrowTipVertex[4].y) > 0 ? (routeCenter.y - arrowTipVertex[4].y) : 0;
           }
           leftvertexList.push(...arrowTipVertex)
         } else if (root.x > RootRight) {
           for (let i = 0; i < 3; i++) {
-            RootBottomVertex[i].y += (arrowTipVertex[2].y - routeCenter.y) > 0 ? (arrowTipVertex[2].y - routeCenter.y) : 0;
-            RootTopVertex[i].y -=     (routeCenter.y - arrowTipVertex[0].y) > 0 ? (routeCenter.y - arrowTipVertex[0].y) : 0;
+            RootBottomVertex[i].y += (arrowTipVertex[4].y - routeCenter.y) > 0 ? (arrowTipVertex[4].y - routeCenter.y) : 0;
+            RootTopVertex[i].y -= (routeCenter.y - arrowTipVertex[0].y) > 0 ? (routeCenter.y - arrowTipVertex[0].y) : 0;
           }
           rightvertexList.push(...arrowTipVertex)
         }
@@ -534,9 +500,9 @@ let FormDrawMapComponent = {
     }
     )
 
-    vertexList = [ ...RootTopVertex, ...rightvertexList, ...RootBottomVertex, ...leftvertexList,]
+    vertexList = [...RootTopVertex, ...rightvertexList, ...RootBottomVertex, ...leftvertexList,]
 
-    FormDrawMapComponent.addRouteVertex(vertexList)
+    FormDrawMapComponent.assignRouteVertex(vertexList)
     return { path: [{ 'vertex': vertexList, 'arcs': [] }] };
   },
 
@@ -551,6 +517,7 @@ let FormDrawMapComponent = {
   },
 
   drawRouteMapOnCursor: async function (event) {
+    document.removeEventListener('keydown', ShowHideSideBarEvent);
     canvas.on('mouse:move', FormDrawAddComponent.DrawonMouseMove)
     canvas.on('mouse:down', FormDrawMapComponent.SymbolonMouseClick)
 
@@ -564,8 +531,8 @@ let FormDrawMapComponent = {
     } else {
       routeCenter = activeRoute.routeCenter
     }
-    rootList = [{ x: 0, y: rootLength*xHeight/4, angle: 180, width: 6, shape: 'Butt' },
-    { x: 0, y: -rootLength*xHeight/4, angle: 0, width: 6, shape: 'Arrow' }
+    rootList = [{ x: 0, y: rootLength * xHeight / 4, angle: 180, width: 6, shape: 'Butt' },
+    { x: 0, y: -rootLength * xHeight / 4, angle: 0, width: 6, shape: 'Arrow' }
     ]
     //for (let i = 0; i < parent.routeCount; i++) {
     //  var shape = document.getElementById(`route${i + 1}-shape`).value
@@ -597,16 +564,6 @@ let FormDrawMapComponent = {
 
     cursor.add(Polygon1)
     cursor.shapeMeta = vertexList
-  },
-
-  addRouteVertex: function (vertexList) {
-    //vertexList.path[0].vertex.unshift(...routeMapTemplate[shape].path[0].vertex)
-    const firstVertex = vertexList.shift();
-    vertexList.push(firstVertex);
-    vertexList.map((vertex, index) => {
-      vertex.label = `V${index + 1}`
-      vertex.start = index == 0 ? 1 : 0
-    })
   },
 
   SymbolonMouseClick: async function (event, options = null) {
@@ -645,6 +602,45 @@ let FormDrawMapComponent = {
       }, 100);
       cursor.forEachObject(function (o) { cursor.remove(o) })
       canvas.off('mouse:move', FormDrawAddComponent.DrawonMouseMove)
+      document.addEventListener('keydown', ShowHideSideBarEvent);
+    }
+  },
+
+  assignRouteVertex: function (vertexList) {
+    //vertexList.path[0].vertex.unshift(...routeMapTemplate[shape].path[0].vertex)
+    const firstVertex = vertexList.shift();
+    vertexList.push(firstVertex);
+    vertexList.map((vertex, index) => {
+      vertex.label = `V${index + 1}`
+      vertex.start = index == 0 ? 1 : 0
+    })
+  },
+
+  finishDrawSideRouteMap: function (event) {
+    if (event.e.button === 0) {
+      FormDrawMapComponent.drawSideRouteMapHandlerOff()
+      const activeRoute = canvas.getActiveObject()
+      if (activeRoute.tempRootList) {
+        activeRoute.rootList = JSON.parse(JSON.stringify(activeRoute.tempRootList))
+        activeRoute.tempRootList = null
+      }
+    }
+  },
+
+  drawSideRouteMapHandlerOff: function (event) {
+    cursor.forEachObject(function (o) { cursor.remove(o) })
+    canvas.off('mouse:move', FormDrawMapComponent.drawSideRouteMap)
+    canvas.off('mouse:up', FormDrawMapComponent.finishDrawSideRouteMap)
+    document.removeEventListener('keydown', FormDrawMapComponent.cancelDraw)
+    document.addEventListener('keydown', ShowHideSideBarEvent);
+  },
+
+  cancelDraw: function (event) {
+    if (event.key === 'Escape') {
+      FormDrawMapComponent.drawSideRouteMapHandlerOff()
+      setTimeout(() => {
+        document.addEventListener('keydown', ShowHideSideBarEvent);
+      }, 1000)
     }
   },
 
@@ -664,112 +660,17 @@ let FormDrawMapComponent = {
     const existingRoute = event.target
 
 
-      const panel = document.getElementById("button-addRoute");
-      if (panel) {
-        panel.parentNode.parentNode.removeChild(panel.parentNode)
-      }
-      canvas.off('mouse:move', FormDrawMapComponent.drawSideRouteMap)
-      existingRoute.rootList = existingRoute.tempRootList || existingRoute.rootList
-
-      parent.routeCount = 1
-    
-  },
-
-  drawApproachClick: (event) => {
-    //$(event.target).toggleClass('active')
-    showTextBox('Click on canvas for shape start point', null, 'mousedown', function handleKeyDown(event) {
-      if (event.button === 0) {
-        hideTextBox();
-        this.removeEventListener('mousedown', handleKeyDown);
-        const constructLine = new fabric.Line([event.x, event.y, event.x, event.y], {
-          stroke: 'orange',
-          strokeWidth: 4,
-          strokeDashArray: [5, 5],
-          hasControls: false,
-          hasBorders: false,
-          lockMovementX: false,
-          lockMovementY: false,
-          hoverCursor: 'default',
-          selectable: false,
-        });
-        FormDrawMapComponent.drawApproachMousedown(event)
-        canvas.add(constructLine);
-        canvas.constructLine = constructLine;
-        canvas.on('mouse:move', FormDrawMapComponent.drawApproachMousemove)
-        setTimeout(() => {
-          canvas.on('mouse:up', FormDrawMapComponent.drawApproachMouseup)
-        }, 500)
-      }
-    })
-    canvas.approach_grp = new fabric.Group()
-  }
-  ,
-
-  drawApproachMousedown: function (opt) {
-
-    canvas.isDrawing = true;
-    canvas.selection = false;
-    canvas.lastPosX = opt.x;
-    canvas.lastPosY = opt.y;
-
-  },
-
-  drawApproachMousemove: function (opt) {
-    this.selection = false;
-    if (this.isDrawing) {
-      var e = opt.e;
-      var pointer = canvas.getPointer(e);
-      // Initiate a line instance
-      this.constructLine.set({
-        x2: pointer.x,
-        y2: pointer.y
-      })
-
-      //FormDrawAddComponent.calcApproachPts(this.approach_grp)
-      //this.add(this.constructLine)
-      //this.add(this.approach_grp)
-      //this.renderAll()
+    const panel = document.getElementById("button-addRoute");
+    if (panel) {
+      panel.parentNode.parentNode.removeChild(panel.parentNode)
     }
+    canvas.off('mouse:move', FormDrawMapComponent.drawSideRouteMap)
+    existingRoute.rootList = existingRoute.tempRootList || existingRoute.rootList
+
+    parent.routeCount = 1
+
   },
 
-  drawApproachMouseup: function () {
-    this.isDrawing = false
-    this.selection = true;
-    this.snap_pts.push(this.constructLine.st, this.constructLine.ed)
-    FormDrawAddComponent.drawApproachClick()
-  },
-
-  calcApproachPts: function (group) {
-    var line = canvas.constructLine
-    var w = line.width
-    var h = line.height
-    var d = Math.sqrt(w ** 2 + h ** 2)
-    var r = Math.atan2((line.y2 - line.y1), (line.x2 - line.x1))
-    var st = new fabric.Point(line.x1, line.y1)
-    st.snap_type = 'end'
-    if (d < 600) {
-      new_end = st.add(PolarPoint(600, r))
-      line.x2 = new_end.x
-      line.y2 = new_end.y
-    }
-    var ed = new fabric.Point(line.x2, line.y2)
-    ed.snap_type = 'end'
-    line.st = st
-    line.ed = ed
-    var approach_pts = [
-      ed.add(PolarPoint(Math.sqrt(2 * 150 ** 2), r - 0.75 * Math.PI)),
-      ed,
-      ed.add(PolarPoint(Math.sqrt(2 * 150 ** 2), r + 0.75 * Math.PI)),
-      st.add(PolarPoint(300 / 2, r + 0.5 * Math.PI)),
-      st.add(PolarPoint(300 / 2, r - 0.5 * Math.PI)),
-    ]
-    console.log(approach_pts)
-    var arm = new fabric.Polygon(approach_pts, {
-      fill: 'white'
-    });
-    group.addWithUpdate(arm)
-
-  }
 }
 
 /* Draw Symbol Panel */
