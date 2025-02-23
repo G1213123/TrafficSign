@@ -339,7 +339,7 @@ let FormDrawMapComponent = {
     if (parent) {
       parent.routeCount = 0
       GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100, null, 'input')
-      GeneralHandler.createbutton('button-DrawMap', 'Draw Map Arrow', parent, 'input', FormDrawMapComponent.drawRouteMapOnCursor, 'click')
+      GeneralHandler.createbutton('button-DrawMap', 'Draw Map Arrow', parent, 'input', FormDrawMapComponent.drawRootRouteOnCursor, 'click')
       GeneralHandler.createinput('root-length', 'root length', parent, 12, null, 'input')
       FormDrawMapComponent.addRouteInput()
       if (canvas.getActiveObject() && canvas.getActiveObject().functionalType === 'RouteMap') {
@@ -363,7 +363,7 @@ let FormDrawMapComponent = {
     }
     const existingRoute = canvas.getActiveObject()
     if (existingRoute && existingRoute.functionalType === 'RouteMap') {
-      canvas.on('mouse:move', FormDrawMapComponent.drawSideRouteMap)
+      canvas.on('mouse:move', FormDrawMapComponent.drawBranchRouteOnCursor)
     }
     if (event && event.target) {
       // Move the event target button to the bottom of the parent container
@@ -372,11 +372,11 @@ let FormDrawMapComponent = {
     //canvas.getActiveObject().addEventListener('mouse:move', FormDrawMapComponent.drawSideRouteMap)
   },
 
-  drawRouteMapOnCursor: async function (event) {
+  drawRootRouteOnCursor: async function (event) {
     document.removeEventListener('keydown', ShowHideSideBarEvent);
     document.addEventListener('keydown', FormDrawMapComponent.cancelDraw)
     canvas.on('mouse:move', FormDrawAddComponent.DrawonMouseMove)
-    canvas.on('mouse:down', FormDrawMapComponent.SymbolonMouseClick)
+    canvas.on('mouse:down', FormDrawMapComponent.cursorRouteOnMouseClick)
 
     const activeRoute = canvas.getActiveObject()
     var parent = document.getElementById("input-form");
@@ -391,20 +391,8 @@ let FormDrawMapComponent = {
     rootList = [{ x: 0, y: rootLength * xHeight / 4, angle: 180, width: 6, shape: 'Butt' },
     { x: 0, y: -rootLength * xHeight / 4, angle: 0, width: 6, shape: 'Arrow' }
     ]
-    //for (let i = 0; i < parent.routeCount; i++) {
-    //  var shape = document.getElementById(`route${i + 1}-shape`).value
-    //  var width = document.getElementById(`route${i + 1}-width`).value
-    //  FormDrawMapComponent.addRouteVertex(vertexList, shape, width)
-    //  //console.log(vertexList.path[0].vertex)
-    //}
-    let vertexList = FormDrawMapComponent.addArrowheadVertices(xHeight, routeCenter, rootList)
 
-    //rootList = rootList.map(root => ({
-    //  ...root,
-    //  x: root.x * xHeight / 4,
-    //  y: root.y * xHeight / 4,
-    //  width: root.width * xHeight / 4
-    //}));
+    let vertexList = FormDrawMapComponent.addArrowheadVertices(xHeight, routeCenter, rootList)
 
     cursor.forEachObject(function (o) { cursor.remove(o) })
     cursor.xHeight = xHeight
@@ -423,7 +411,7 @@ let FormDrawMapComponent = {
     cursor.shapeMeta = vertexList
   },
 
-  SymbolonMouseClick: async function (event, options = null) {
+  cursorRouteOnMouseClick: async function (event, options = null) {
     //permanent cursor object 
     if (options) {
       cursor.set(
@@ -447,9 +435,11 @@ let FormDrawMapComponent = {
 
       const routeMap = drawBasePolygon(arrow, 'RouteMap');
       routeMap.rootList = calculateTransformedPoints(cursor.rootList, { x: posx, y: posy, angle: 0 })
-      routeMap.basePolygon.vertex = cursor.shapeMeta.path[0].vertex
+      //routeMap.basePolygon.vertex = cursor.shapeMeta.path[0].vertex
       routeMap.routeCenter = { x: posx, y: posy }
       routeMap.xHeight = cursor.xHeight
+      routeMap.branchRoute=[]
+      routeMap.tempBranchRoute=[]
 
       routeMap.on('selected', FormDrawMapComponent.routeMapOnSelect)
       routeMap.on('deselected', FormDrawMapComponent.routeMapOnDeselect)
@@ -458,50 +448,63 @@ let FormDrawMapComponent = {
         canvas.setActiveObject(routeMap);
       }, 100);
       cursor.forEachObject(function (o) { cursor.remove(o) })
-      FormDrawMapComponent.drawSideRouteMapHandlerOff()
+      FormDrawMapComponent.drawBranchRouteHandlerOff()
       document.addEventListener('keydown', ShowHideSideBarEvent);
     }
   },
 
-  drawSideRouteMap: async function (event, option=null) {
+  drawBranchRouteOnCursor: async function (event, option=null) {
     document.removeEventListener('keydown', ShowHideSideBarEvent);
     let pointer = canvas.getPointer(event.e)
-    let activeRoute = canvas.getActiveObject()
+    let rootRoute = canvas.getActiveObject()
     var parent = document.getElementById("input-form");
-    let rootList
+    if (rootRoute.tempBranchRoute) {
+      rootRoute.tempBranchRoute.forEach(branch => {
+        branch.deleteObject()
+      })
+    }
+    let routeList
     if (option) {
-      rootList = option.rootList
+      routeList = option.routeList
     } else {
-      rootList = JSON.parse(JSON.stringify(activeRoute.rootList))
+      routeList = JSON.parse(JSON.stringify(rootRoute.rootList))
       lastCount = parent.routeCount
       let angle = parseInt(document.getElementById(`angle-display-${parent.routeCount}`).innerText)
-      if (pointer.x < activeRoute.routeCenter.x) {
+      if (pointer.x < rootRoute.routeCenter.x) {
         angle = - angle
       }
       var shape = document.getElementById(`route${lastCount}-shape`).value
       var width = document.getElementById(`route${lastCount}-width`).value
-      rootList.push({ x: pointer.x, y: pointer.y, angle: angle, shape: shape, width: width })
-      activeRoute.tempRootList = JSON.parse(JSON.stringify(rootList))
+      routeList.push({ x: pointer.x, y: pointer.y, angle: angle, shape: shape, width: width })
+      rootRoute.tempRootList = JSON.parse(JSON.stringify(routeList))
     }
-    tempVertexList = FormDrawMapComponent.addArrowheadVertices(activeRoute.xHeight, activeRoute.routeCenter,rootList)
+    tempVertexList = FormDrawMapComponent.addArrowheadVertices(rootRoute.xHeight, rootRoute.routeCenter,routeList)
 
-    activeRoute.removeAll()
+    //rootRoute.removeAll()
     polygon1 = new GlyphPath()
     await polygon1.initialize(tempVertexList, { left: 0, top: 0, angle: 0, color: 'white', })
-
-    activeRoute.add(polygon1)
-    activeRoute.basePolygon = polygon1
-    const initialTop = activeRoute.getEffectiveCoords()[0]
-    activeRoute.set({ top: initialTop.y, left: initialTop.x });
-    activeRoute.setCoords()
-    activeRoute.drawVertex()
+    const tempBranch = drawBasePolygon(polygon1, 'RouteMap')
+    canvas.add(tempBranch)
+    //rootRoute.basePolygon = polygon1
+    //const initialTop = rootRoute.getEffectiveCoords()[0]
+    //rootRoute.set({ top: initialTop.y, left: initialTop.x });
+    //rootRoute.setCoords()
+    //rootRoute.drawVertex()
+    anchorShape(rootRoute, tempBranch, {
+      vertexIndex1: 'E3',
+      vertexIndex2: 'E1',
+      spacingX: 0,
+      spacingY: ''
+  })
+    rootRoute.tempBranchRoute.push(tempBranch)
+    tempBranch.rootRoute = rootRoute
     canvas.renderAll()
     // Remove existing listeners first to avoid duplicates
-    canvas.off('mouse:up', FormDrawMapComponent.finishDrawSideRouteMap)
+    canvas.off('mouse:up', FormDrawMapComponent.finishDrawBranchRoute)
     document.removeEventListener('keydown', FormDrawMapComponent.cancelDraw)
 
     // Add new listeners
-    canvas.on('mouse:up', FormDrawMapComponent.finishDrawSideRouteMap)  
+    canvas.on('mouse:up', FormDrawMapComponent.finishDrawBranchRoute)  
     document.addEventListener('keydown', FormDrawMapComponent.cancelDraw)
 
   },
@@ -618,9 +621,9 @@ let FormDrawMapComponent = {
     })
   },
 
-  finishDrawSideRouteMap: function (event) {
+  finishDrawBranchRoute: function (event) {
     if (event.e.button === 0) {
-      FormDrawMapComponent.drawSideRouteMapHandlerOff()
+      FormDrawMapComponent.drawBranchRouteHandlerOff()
       const activeRoute = canvas.getActiveObject()
       if (activeRoute.tempRootList) {
         activeRoute.rootList = JSON.parse(JSON.stringify(activeRoute.tempRootList))
@@ -629,18 +632,18 @@ let FormDrawMapComponent = {
     }
   },
 
-  drawSideRouteMapHandlerOff: function (event) {
+  drawBranchRouteHandlerOff: function (event) {
     cursor.forEachObject(function (o) { cursor.remove(o) })
-    canvas.off('mouse:move', FormDrawMapComponent.drawSideRouteMap)
-    canvas.off('mouse:up', FormDrawMapComponent.finishDrawSideRouteMap)
-    canvas.off('mouse:down', FormDrawMapComponent.SymbolonMouseClick)
+    canvas.off('mouse:move', FormDrawMapComponent.drawBranchRouteOnCursor)
+    canvas.off('mouse:up', FormDrawMapComponent.finishDrawBranchRoute)
+    canvas.off('mouse:down', FormDrawMapComponent.cursorRouteOnMouseClick)
     document.removeEventListener('keydown', FormDrawMapComponent.cancelDraw)
     document.addEventListener('keydown', ShowHideSideBarEvent);
   },
 
-  cancelDraw: function (event) {
-    if (event.key === 'Escape') {
-      FormDrawMapComponent.drawSideRouteMapHandlerOff()
+  cancelDraw: function (event, force = false) {
+    if (event.key === 'Escape' || force) {
+      FormDrawMapComponent.drawBranchRouteHandlerOff()
       setTimeout(() => {
         document.addEventListener('keydown', ShowHideSideBarEvent);
       }, 1000)
@@ -667,7 +670,7 @@ let FormDrawMapComponent = {
     if (panel) {
       panel.parentNode.parentNode.removeChild(panel.parentNode)
     }
-    canvas.off('mouse:move', FormDrawMapComponent.drawSideRouteMap)
+    canvas.off('mouse:move', FormDrawMapComponent.drawBranchRouteOnCursor)
     existingRoute.rootList = existingRoute.tempRootList || existingRoute.rootList
 
     parent.routeCount = 1

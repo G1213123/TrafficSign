@@ -483,7 +483,7 @@ class BaseGroup extends fabric.Group {
 
   // Method to delete the object
   deleteObject(_eventData, transform) {
-    const deleteObj = transform.target ? transform.target : transform
+    const deleteObj = transform?.target || transform || this
     canvas.remove(deleteObj);
 
     const index = canvasObject.indexOf(deleteObj)
@@ -492,6 +492,21 @@ class BaseGroup extends fabric.Group {
       for (let i = index; i < canvasObject.length; i++) {
         canvasObject[i].canvasID -= 1;
       }
+    }
+
+    //delete route branch
+    if (deleteObj.rootRoute) {
+      const rootRoute = deleteObj.rootRoute
+      const index = rootRoute.tempBranchRoute.indexOf(deleteObj)
+      rootRoute.tempBranchRoute.splice(index, 1)
+      const index2 = rootRoute.anchoredPolygon.indexOf(deleteObj)
+      rootRoute.anchoredPolygon.splice(index2, 1)
+    } else if (deleteObj.tempBranch) {
+      const tempBranch = deleteObj.tempBranch
+      tempBranch.forEach(branch => {
+        branch.rootRoute = null
+        branch.deleteObject()
+      })
     }
 
     // Free anchored Polygon
