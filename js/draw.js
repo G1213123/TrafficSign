@@ -484,7 +484,6 @@ class BaseGroup extends fabric.Group {
   // Method to delete the object
   deleteObject(_eventData, transform) {
     const deleteObj = transform?.target || transform || this
-    canvas.remove(deleteObj);
 
     const index = canvasObject.indexOf(deleteObj)
     if (index > -1) {
@@ -501,6 +500,7 @@ class BaseGroup extends fabric.Group {
       rootRoute.tempBranchRoute.splice(index, 1)
       const index2 = rootRoute.anchoredPolygon.indexOf(deleteObj)
       rootRoute.anchoredPolygon.splice(index2, 1)
+      deleteObj.rootRoute = null
     } else if (deleteObj.tempBranch) {
       const tempBranch = deleteObj.tempBranch
       tempBranch.forEach(branch => {
@@ -551,6 +551,7 @@ class BaseGroup extends fabric.Group {
     if (deleteObj.heightObjects) {
       deleteObj.heightObjects.forEach(obj => obj.borderGroup = null)
     }
+    canvas.remove(deleteObj);
     CanvasObjectInspector.createObjectListPanelInit()
     canvas.requestRenderAll();
   }
