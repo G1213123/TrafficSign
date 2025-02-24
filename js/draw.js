@@ -943,7 +943,7 @@ async function drawLabeledSymbol(shapeMeta, symbol, options) {
     top: y,
     fill: color || 'black',
     angle: angle || 0,
-    objectCaching: true,
+    objectCaching: false,
     dirty: true,
     strokeWidth: 0,
   })
