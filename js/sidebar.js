@@ -455,7 +455,7 @@ let FormDrawMapComponent = {
   },
 
   receiveNewRoute: async function (route) {
-    const vertexList = route.path[0].vertex
+    const vertexList = route.path?route.path[0].vertex:route.basePolygon.vertex
     const newLeft = vertexList[3].x
     const newTop = newLeft < this.left ? vertexList[6].y : vertexList[0].y
     const newBottom = newLeft < this.left ? vertexList[0].y : vertexList[6].y
@@ -678,7 +678,15 @@ let FormDrawMapComponent = {
       rootRoute.routeCenter.push({ x: rootRoute.routeCenter[0].x, y: cursor.shapeMeta.path[0].vertex[0].y })
       rootRoute.routeCenter.push({ x: rootRoute.routeCenter[0].x, y: cursor.shapeMeta.path[0].vertex[6].y })
       rootRoute.tempExtend = {top:0, bottom:0}
+      tempBranchShape.on('moving', FormDrawMapComponent.branchRouteOnMove.bind(tempBranchShape))
+      tempBranchShape.on('modified', FormDrawMapComponent.branchRouteOnMove.bind(tempBranchShape))
     }
+  },
+
+  branchRouteOnMove: function (event) {
+    this.updateAllCoord()
+    const rootRoute = this.rootRoute
+    rootRoute.receiveNewRoute(this)
   },
 
   drawBranchRouteHandlerOff: function (event) {

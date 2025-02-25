@@ -424,6 +424,7 @@ class BaseGroup extends fabric.Group {
     this.refTopLeft = { top: this.basePolygon.getCoords()[0].y, left: this.basePolygon.getCoords()[0].x };
     if (canvas.getActiveObject() === this) {
       this.drawAnchorLinkage();
+      this.showLockHighlights();
     }
     sourceList.includes(this) ? sourceList : sourceList.push(this)
     if (!selfOnly) {
@@ -582,6 +583,7 @@ class BaseGroup extends fabric.Group {
 
   // New method: display temporary highlight border for lock targets
   showLockHighlights() {
+    this.hideLockHighlights()
     if (this.lockXToPolygon && Object.keys(this.lockXToPolygon).length) {
       const finalX = this.getFinalLockTarget('x');
       if (finalX) {
