@@ -451,19 +451,17 @@ class BaseGroup extends fabric.Group {
       polygon.vertex[index].y = point.y;
     });
 
-    if (this.rootList){
-      this.rootList.forEach((item, index) => {
-        const newRoot = calculateTransformedPoints([item], {
-          x: updateX,
-          y: updateY,
-          angle: 0
-        });
-        item.x = newRoot[0].x
-        item.y = newRoot[0].y
+    if (this.routeList){
+      this.routeList.forEach((item, index) => {
+        item.x += updateX
+        item.y += updateY 
 
       })
-      this.routeCenter.x += updateX
-      this.routeCenter.y += updateY 
+      this.routeCenter.forEach((item, index) => {
+        item.x += updateX
+        item.y += updateY 
+      })
+ 
     }
 
     polygon.insertPoint = transformedPoints[0];
@@ -501,9 +499,9 @@ class BaseGroup extends fabric.Group {
       const index2 = rootRoute.anchoredPolygon.indexOf(deleteObj)
       rootRoute.anchoredPolygon.splice(index2, 1)
       deleteObj.rootRoute = null
-    } else if (deleteObj.tempBranch) {
-      const tempBranch = deleteObj.tempBranch
-      tempBranch.forEach(branch => {
+    } else if (deleteObj.branchRoute) {
+      const branchRoute = deleteObj.branchRoute
+      branchRoute.forEach(branch => {
         branch.rootRoute = null
         branch.deleteObject()
       })

@@ -384,7 +384,7 @@ let FormDrawMapComponent = {
     var rootLength = parseInt(document.getElementById('root-length').value)
     let routeCenter
     if (!activeRoute || activeRoute.functionalType !== 'MainRoute') {
-      routeCenter = [{ x: 0, y: 0 }]
+      routeCenter = [{ x: 0, y: 0 }, { x: 0, y: 0 }]
     } else {
       routeCenter = activeRoute.routeCenter
     }
@@ -436,10 +436,10 @@ let FormDrawMapComponent = {
       const routeMap = drawBasePolygon(arrow, 'MainRoute');
       routeMap.routeList = calculateTransformedPoints(cursor.routeList, { x: posx, y: posy, angle: 0 })
       //routeMap.basePolygon.vertex = cursor.shapeMeta.path[0].vertex
-      routeMap.routeCenter = [{ x: posx, y: posy }]
+      routeMap.routeCenter = [{ x: posx, y: posy }, { x: posx, y: posy }]
       routeMap.xHeight = cursor.xHeight
       routeMap.branchRoute = []
-      routeMap.tempBranchRoute = []
+      routeMap.tempExtend = {top:0, bottom:0}
 
       routeMap.on('selected', FormDrawMapComponent.routeMapOnSelect)
       routeMap.on('deselected', FormDrawMapComponent.routeMapOnDeselect)
@@ -461,15 +461,21 @@ let FormDrawMapComponent = {
     const newBottom = newLeft < this.left ? vertexList[0].y : vertexList[6].y
     this.routeList.forEach(route => {
       if (route.angle === 0) {
+        route.y += this.tempExtend.top
+        this.tempExtend.top = 0
         if (Math.min(...this.routeCenter.map(v => v.y)) - newTop > 0) {
-          route.y -= Math.min(...this.routeCenter.map(v => v.y)) - newTop
-          this.routeCenter.push({ x: this.routeCenter[0].x, y: newTop })
+          this.tempExtend.top = Math.min(...this.routeCenter.map(v => v.y))  - newTop
+          route.y -= this.tempExtend.top
+          //this.routeCenter[0].y = newTop 
         }
         //    RootTopVertex[i].y -= (routeCenter.y - arrowTipVertex[4].y) > 0 ? (routeCenter.y - arrowTipVertex[4].y) : 0;
       } else if (route.angle === 180) {
+        route.y -= this.tempExtend.bottom
+        route.y -= this.tempExtend.bottom = 0
         if (newBottom - Math.max(...this.routeCenter.map(v => v.y)) > 0) {
-          route.y += newBottom - Math.max(...this.routeCenter.map(v => v.y))
-          this.routeCenter.push({ x: this.routeCenter[0].x, y: newBottom })
+          this.tempExtend.bottom = newBottom - Math.max(...this.routeCenter.map(v => v.y))
+          route.y += this.tempExtend.bottom
+          //this.routeCenter[1].y = newBottom 
         }
       }
     })
@@ -484,19 +490,16 @@ let FormDrawMapComponent = {
 
   drawBranchRouteOnCursor: async function (event, option = null) {
     document.removeEventListener('keydown', ShowHideSideBarEvent);
-    let pointer = canvas.getPointer(event.e)
     let rootRoute = canvas.getActiveObject()
-    var parent = document.getElementById("input-form");
-    if (rootRoute.tempBranchRoute) {
-      rootRoute.tempBranchRoute.forEach(branch => {
-        branch.deleteObject()
-        canvas.remove(branch)
-      })
-    }
     let routeList
     if (option) {
       routeList = option.routeList
     } else {
+      let pointer = canvas.getPointer(event.e)
+      if (pointer.x > rootRoute.getEffectiveCoords()[0].x && pointer.x < rootRoute.getEffectiveCoords()[1].x) {
+        return
+      }
+      var parent = document.getElementById("input-form");
       routeList = JSON.parse(JSON.stringify(rootRoute.routeList))
       lastCount = parent.routeCount
       let angle = parseInt(document.getElementById(`angle-display-${parent.routeCount}`).innerText)
@@ -670,9 +673,11 @@ let FormDrawMapComponent = {
         spacingX: 0,
         spacingY: ''
       })
-      rootRoute.tempBranchRoute.push(tempBranchShape)
+      rootRoute.branchRoute.push(tempBranchShape)
       tempBranchShape.rootRoute = rootRoute
-
+      rootRoute.routeCenter.push({ x: rootRoute.routeCenter[0].x, y: cursor.shapeMeta.path[0].vertex[0].y })
+      rootRoute.routeCenter.push({ x: rootRoute.routeCenter[0].x, y: cursor.shapeMeta.path[0].vertex[6].y })
+      rootRoute.tempExtend = {top:0, bottom:0}
     }
   },
 
