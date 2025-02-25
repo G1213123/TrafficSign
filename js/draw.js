@@ -495,8 +495,8 @@ class BaseGroup extends fabric.Group {
     //delete route branch
     if (deleteObj.rootRoute) {
       const rootRoute = deleteObj.rootRoute
-      const index = rootRoute.tempBranchRoute.indexOf(deleteObj)
-      rootRoute.tempBranchRoute.splice(index, 1)
+      const index = rootRoute.branchRoute.indexOf(deleteObj)
+      rootRoute.branchRoute.splice(index, 1)
       const index2 = rootRoute.anchoredPolygon.indexOf(deleteObj)
       rootRoute.anchoredPolygon.splice(index2, 1)
       deleteObj.rootRoute = null

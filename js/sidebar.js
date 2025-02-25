@@ -45,7 +45,6 @@ let GeneralHandler = {
     if (tabNum != 5) {
       FormDebugComponent.DebugHandlerOff()
     }
-
   },
   PanelInit: () => {
     GeneralHandler.ShowHideSideBar(null, "on")
@@ -85,7 +84,7 @@ let GeneralHandler = {
     defaultv ? input.value = defaultv : input.value = ''
   },
 
-  createselect: function (name, labelTxt, options, parent, callback = null, event = null) {
+  createselect: function (name, labelTxt, options, parent, defaultv = null, callback = null, event = null) {
     var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent)
     var label = GeneralHandler.createNode("label", { 'class': 'placeholder', 'for': name }, inputContainer)
     var input = GeneralHandler.createNode("select", { 'class': 'input', 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
@@ -95,6 +94,9 @@ let GeneralHandler = {
       option.value = options[i];
       option.text = options[i];
       input.appendChild(option);
+    }
+    if (defaultv !== null) {
+      input.value = defaultv;
     }
   }
 }
@@ -331,37 +333,42 @@ let FormTextAddComponent = {
 
 let FormDrawMapComponent = {
   EndShape: ['Arrow', 'Butt'],
-  routeAngle: 45,
   permitAngle: [45, 60],
+  defaultRoute: [{ x: 0, y: 7, angle: 60, width: 4, shape: 'Arrow' },],
   drawMapPanelInit: function () {
     tabNum = 4
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       parent.routeCount = 0
       GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100, null, 'input')
-      GeneralHandler.createbutton('button-DrawMap', 'Draw Map Arrow', parent, 'input', FormDrawMapComponent.drawRootRouteOnCursor, 'click')
-      GeneralHandler.createinput('root-length', 'root length', parent, 12, null, 'input')
-      FormDrawMapComponent.addRouteInput()
-      if (canvas.getActiveObject() && canvas.getActiveObject().functionalType === 'MainRoute') {
-        existingRoute = canvas.getActiveObject()
-        parent.routeCount = existingRoute.routeList.length
-        GeneralHandler.createbutton('button-addRoute', '+ Another Route Destination', parent, 'input', FormDrawMapComponent.addRouteInput, 'click')
-      }
+      GeneralHandler.createbutton('button-DrawMap', 'Draw New Route Symbol', parent, 'input', FormDrawMapComponent.drawRootRouteOnCursor, 'click')
+      GeneralHandler.createinput('root-length', 'root length', parent, 7, null, 'input')
+      GeneralHandler.createinput('tip-length', 'tip length', parent, 12, null, 'input')
+      //FormDrawMapComponent.addRouteInput()
+
+      const existingRoute = canvas.getActiveObject()
+      const routeList = existingRoute ? existingRoute.routeList : FormDrawMapComponent.defaultRoute
+
+      routeList.forEach((route, index) => {
+        var routeContainer = GeneralHandler.createNode("div", { 'class': 'inputr-container' }, parent);
+        GeneralHandler.createselect(`route${index+1}-shape`, `Route ${index+1} Shape`, FormDrawMapComponent.EndShape, routeContainer, route.shape, null, 'change')
+        GeneralHandler.createinput(`route${index+1}-width`, `Route ${index+1} Width`, routeContainer, index+1 == 1 ? 6 : 4, null, 'input')
+  
+        var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, parent);
+        GeneralHandler.createbutton(`rotate-left-${index+1}`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawMapComponent.setAngle, 'click')
+        var angleDisplay = GeneralHandler.createNode("div", { 'id': `angle-display-${index+1}`, 'class': 'angle-display' }, angleContainer);
+        angleDisplay.innerText = route.angle + '°';
+        parent.routeCount += 1
+      })
+
     }
   },
 
   addRouteInput: function (event) {
     var parent = document.getElementById("input-form");
-    parent.routeCount += 1
-    GeneralHandler.createselect(`route${parent.routeCount}-shape`, `Route ${parent.routeCount} Shape`, FormDrawMapComponent.EndShape, parent, null, 'change')
-    GeneralHandler.createinput(`route${parent.routeCount}-width`, `Route ${parent.routeCount} Width`, parent, parent.routeCount == 1 ? 6 : 4, null, 'input')
-    if (parent.routeCount > 1) {
-      var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, parent);
-      GeneralHandler.createbutton(`rotate-left-${parent.routeCount}`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawMapComponent.setAngle, 'click')
-      var angleDisplay = GeneralHandler.createNode("div", { 'id': `angle-display-${parent.routeCount}`, 'class': 'angle-display' }, angleContainer);
-      angleDisplay.innerText = FormDrawMapComponent.routeAngle + '°';
-    }
     const existingRoute = canvas.getActiveObject()
+
+    
     if (existingRoute && existingRoute.functionalType === 'MainRoute') {
       canvas.on('mouse:move', FormDrawMapComponent.drawBranchRouteOnCursor)
     }
@@ -379,9 +386,9 @@ let FormDrawMapComponent = {
     canvas.on('mouse:down', FormDrawMapComponent.cursorRouteOnMouseClick)
 
     const activeRoute = canvas.getActiveObject()
-    var parent = document.getElementById("input-form");
     var xHeight = document.getElementById('input-xHeight').value
     var rootLength = parseInt(document.getElementById('root-length').value)
+    var tipLength = parseInt(document.getElementById('tip-length').value)
     let routeCenter
     if (!activeRoute || activeRoute.functionalType !== 'MainRoute') {
       routeCenter = [{ x: 0, y: 0 }, { x: 0, y: 0 }]
@@ -389,7 +396,7 @@ let FormDrawMapComponent = {
       routeCenter = activeRoute.routeCenter
     }
     routeList = [{ x: 0, y: rootLength * xHeight / 4, angle: 180, width: 6, shape: 'Butt' },
-    { x: 0, y: -rootLength * xHeight / 4, angle: 0, width: 6, shape: 'Arrow' }
+    { x: 0, y: -tipLength * xHeight / 4, angle: 0, width: 6, shape: 'Arrow' }
     ]
 
     let vertexList = FormDrawMapComponent.calcRootVertices(xHeight, routeList)
@@ -439,7 +446,7 @@ let FormDrawMapComponent = {
       routeMap.routeCenter = [{ x: posx, y: posy }, { x: posx, y: posy }]
       routeMap.xHeight = cursor.xHeight
       routeMap.branchRoute = []
-      routeMap.tempExtend = {top:0, bottom:0}
+      routeMap.tempExtend = { top: 0, bottom: 0 }
 
       routeMap.on('selected', FormDrawMapComponent.routeMapOnSelect)
       routeMap.on('deselected', FormDrawMapComponent.routeMapOnDeselect)
@@ -455,7 +462,7 @@ let FormDrawMapComponent = {
   },
 
   receiveNewRoute: async function (route) {
-    const vertexList = route.path?route.path[0].vertex:route.basePolygon.vertex
+    const vertexList = route.path ? route.path[0].vertex : route.basePolygon.vertex
     const newLeft = vertexList[3].x
     const newTop = newLeft < this.left ? vertexList[6].y : vertexList[0].y
     const newBottom = newLeft < this.left ? vertexList[0].y : vertexList[6].y
@@ -464,7 +471,7 @@ let FormDrawMapComponent = {
         route.y += this.tempExtend.top
         this.tempExtend.top = 0
         if (Math.min(...this.routeCenter.map(v => v.y)) - newTop > 0) {
-          this.tempExtend.top = Math.min(...this.routeCenter.map(v => v.y))  - newTop
+          this.tempExtend.top = Math.min(...this.routeCenter.map(v => v.y)) - newTop
           route.y -= this.tempExtend.top
           //this.routeCenter[0].y = newTop 
         }
@@ -677,7 +684,7 @@ let FormDrawMapComponent = {
       tempBranchShape.rootRoute = rootRoute
       rootRoute.routeCenter.push({ x: rootRoute.routeCenter[0].x, y: cursor.shapeMeta.path[0].vertex[0].y })
       rootRoute.routeCenter.push({ x: rootRoute.routeCenter[0].x, y: cursor.shapeMeta.path[0].vertex[6].y })
-      rootRoute.tempExtend = {top:0, bottom:0}
+      rootRoute.tempExtend = { top: 0, bottom: 0 }
       tempBranchShape.on('moving', FormDrawMapComponent.branchRouteOnMove.bind(tempBranchShape))
       tempBranchShape.on('modified', FormDrawMapComponent.branchRouteOnMove.bind(tempBranchShape))
     }
@@ -713,7 +720,7 @@ let FormDrawMapComponent = {
     const existingRoute = canvas.getActiveObject()
     if (panel && parent && existingRoute && existingRoute.functionalType === 'MainRoute') {
 
-      parent.routeCount = existingRoute.routeList.length
+      //parent.routeCount = existingRoute.routeList.length
       GeneralHandler.createbutton('button-addRoute', '+ Another Route Destination', parent, 'input', FormDrawMapComponent.addRouteInput, 'click')
 
     }
@@ -928,8 +935,8 @@ let FormBorderWrapComponent = {
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100)
-      GeneralHandler.createselect('input-type', 'Select Border Type', Object.keys(BorderTypeScheme), parent, '', '', 'select')
-      GeneralHandler.createselect('input-color', 'Select Color Scheme', Object.keys(BorderColorScheme), parent, '', '', 'select')
+      GeneralHandler.createselect('input-type', 'Select Border Type', Object.keys(BorderTypeScheme), parent, null, '', '', 'select')
+      GeneralHandler.createselect('input-color', 'Select Color Scheme', Object.keys(BorderColorScheme), parent, null, '', '', 'select')
       GeneralHandler.createbutton('input-text', 'Select Objects for border', parent, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
       GeneralHandler.createbutton('input-text', 'Add stack border divider', parent, 'input', FormBorderWrapComponent.StackDividerHandler, 'click')
     }
