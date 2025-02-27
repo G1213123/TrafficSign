@@ -333,7 +333,7 @@ let FormTextAddComponent = {
 
 let FormDrawMapComponent = {
   EndShape: ['Arrow', 'Butt'],
-  permitAngle: [45, 60],
+  permitAngle: [45, 60, 90],
   defaultRoute: [{ x: 0, y: 7, angle: 60, width: 4, shape: 'Arrow' },],
   drawMapPanelInit: function () {
     tabNum = 4
@@ -405,6 +405,8 @@ let FormDrawMapComponent = {
     cursor.xHeight = xHeight
     cursor.routeCenter = routeCenter
     cursor.routeList = routeList
+    cursor.tipLength = tipLength
+    cursor.rootLength = rootLength
 
     const options = { left: 0, top: 0, angle: 0, color: 'white', objectCaching: false, dirty: true, strokeWidth: 0, }
     Polygon1 = new GlyphPath()
@@ -445,6 +447,8 @@ let FormDrawMapComponent = {
       //routeMap.basePolygon.vertex = cursor.shapeMeta.path[0].vertex
       routeMap.routeCenter = [{ x: posx, y: posy }, { x: posx, y: posy }]
       routeMap.xHeight = cursor.xHeight
+      routeMap.rootLength = cursor.rootLength
+      routeMap.tipLength = cursor.tipLength
       routeMap.branchRoute = []
       routeMap.tempExtend = { top: 0, bottom: 0 }
 
@@ -461,37 +465,38 @@ let FormDrawMapComponent = {
     }
   },
 
-  receiveNewRoute: async function (route) {
-    const vertexList = route.path ? route.path[0].vertex : route.basePolygon.vertex
-    const newLeft = vertexList[3].x
-    const newTop = newLeft < this.left ? vertexList[6].y : vertexList[0].y
-    const newBottom = newLeft < this.left ? vertexList[0].y : vertexList[6].y
-    this.routeList.forEach(route => {
-      if (route.angle === 0) {
-        route.y += this.tempExtend.top
-        this.tempExtend.top = 0
-        if (Math.min(...this.routeCenter.map(v => v.y)) - newTop > 0) {
-          this.tempExtend.top = Math.min(...this.routeCenter.map(v => v.y)) - newTop
-          route.y -= this.tempExtend.top
-          //this.routeCenter[0].y = newTop 
+  receiveNewRoute: async function (route=null) {
+    if (route){
+
+      const vertexList = route.path ? route.path[0].vertex : route.basePolygon.vertex
+      const newLeft = vertexList[3].x
+      const newTop = newLeft < this.left ? vertexList[6].y : vertexList[0].y
+      const newBottom = newLeft < this.left ? vertexList[0].y : vertexList[6].y
+      this.routeList.forEach(route => {
+        if (route.angle === 0) {
+  
+            route.y = Math.min(...[newTop,...this.routeCenter.map(v => v.y)]) - this.tipLength * this.xHeight / 4
+            //this.routeCenter[0].y = newTop 
+          //}
+          //    RootTopVertex[i].y -= (routeCenter.y - arrowTipVertex[4].y) > 0 ? (routeCenter.y - arrowTipVertex[4].y) : 0;
+        } else if (route.angle === 180) {
+  
+          //if (newBottom - Math.max(...this.routeCenter.map(v => v.y)) > 0) {
+            //this.tempExtend.bottom = Math.max(...[newBottom,...this.routeCenter.map(v => v.y)]) + this.rootLength * this.xHeight / 4
+            route.y = Math.max(...[newBottom,...this.routeCenter.map(v => v.y)]) + this.rootLength * this.xHeight / 4
+            //this.routeCenter[1].y = newBottom 
+          //}
         }
-        //    RootTopVertex[i].y -= (routeCenter.y - arrowTipVertex[4].y) > 0 ? (routeCenter.y - arrowTipVertex[4].y) : 0;
-      } else if (route.angle === 180) {
-        route.y -= this.tempExtend.bottom
-        route.y -= this.tempExtend.bottom = 0
-        if (newBottom - Math.max(...this.routeCenter.map(v => v.y)) > 0) {
-          this.tempExtend.bottom = newBottom - Math.max(...this.routeCenter.map(v => v.y))
-          route.y += this.tempExtend.bottom
-          //this.routeCenter[1].y = newBottom 
-        }
-      }
-    })
-    let newVertexList = FormDrawMapComponent.calcRootVertices(xHeight, this.routeList)
+      })
+    }
+    let newVertexList = FormDrawMapComponent.calcRootVertices(this.xHeight, this.routeList)
     const newPolygon = new GlyphPath()
     await newPolygon.initialize(newVertexList, { left: 0, top: 0, angle: 0, color: 'white', objectCaching: false, dirty: true, strokeWidth: 0, })
+    const centerPoints = this.basePolygon.vertex.filter(v => v.label.includes('C'))
     this.basePolygon = newPolygon
     this.removeAll()
     this.add(newPolygon)
+    if(centerPoints != []) {this.basePolygon.vertex.push(...centerPoints)}
     this.drawVertex()
   },
 
@@ -521,7 +526,7 @@ let FormDrawMapComponent = {
     tempVertexList = FormDrawMapComponent.calcBranchVertices(rootRoute.xHeight, rootRoute.routeCenter, routeList)
 
     cursor.forEachObject(function (o) { cursor.remove(o) })
-    cursor.xHeight = xHeight
+    cursor.xHeight = rootRoute.xHeight
     cursor.routeList = routeList
     cursor.rootRoute = rootRoute
 
@@ -622,24 +627,7 @@ let FormDrawMapComponent = {
     // Calculate the arrowhead vertices
     const arrowTipVertex = FormDrawMapComponent.getBranchCoords(lastRoot, length, RootLeft, RootRight)
 
-    //if (root.x < RootLeft) {
-    //  for (let i = 0; i < 3; i++) {
-    //    RootBottomVertex[i].y += (arrowTipVertex[0].y - routeCenter.y) > 0 ? (arrowTipVertex[0].y - routeCenter.y) : 0;
-    //    RootTopVertex[i].y -= (routeCenter.y - arrowTipVertex[4].y) > 0 ? (routeCenter.y - arrowTipVertex[4].y) : 0;
-    //  }
-    //  vertexList.push(...arrowTipVertex)
-    //} else if (root.x > RootRight) {
-    //  for (let i = 0; i < 3; i++) {
-    //    RootBottomVertex[i].y += (arrowTipVertex[4].y - routeCenter.y) > 0 ? (arrowTipVertex[4].y - routeCenter.y) : 0;
-    //    RootTopVertex[i].y -= (routeCenter.y - arrowTipVertex[0].y) > 0 ? (routeCenter.y - arrowTipVertex[0].y) : 0;
-    //  }
-    //  vertexList.push(...arrowTipVertex)
-    //}
     vertexList.push(...arrowTipVertex)
-
-
-
-    //vertexList = [...RootTopVertex, ...rightvertexList, ...RootBottomVertex, ...leftvertexList,]
 
     FormDrawMapComponent.assignRouteVertex(vertexList)
     return { path: [{ 'vertex': vertexList, 'arcs': [] }] };
@@ -648,7 +636,7 @@ let FormDrawMapComponent = {
   setAngle: function (event) {
     const count = event.currentTarget.id.split('-')[2]
     const currentText = document.getElementById(`angle-display-${count}`).innerText.slice(0, -1);
-    const angleIndex = FormDrawMapComponent.permitAngle.indexOf(currentText)
+    const angleIndex = FormDrawMapComponent.permitAngle.indexOf(parseInt(currentText))
     FormDrawMapComponent.routeAngle = FormDrawMapComponent.permitAngle[(angleIndex + 1) % FormDrawMapComponent.permitAngle.length]
 
     document.getElementById(`angle-display-${count}`).innerText = FormDrawMapComponent.permitAngle[(angleIndex + 1) % FormDrawMapComponent.permitAngle.length] + '°';
@@ -674,16 +662,28 @@ let FormDrawMapComponent = {
       const tempBranch = new GlyphPath()
       await tempBranch.initialize(cursor.shapeMeta, { left: 0, top: 0, angle: 0, color: 'white', objectCaching: false, dirty: true, strokeWidth: 0, })
       const tempBranchShape = drawBasePolygon(tempBranch, 'BranchRoute')
+
+      tempBranchShape.side = cursor.left < rootRoute.left
       anchorShape(rootRoute, tempBranchShape, {
-        vertexIndex1: cursor.left < rootRoute.left ? 'E3' : 'E1',
-        vertexIndex2: cursor.left < rootRoute.left ? 'E1' : 'E3',
+        vertexIndex1: tempBranchShape.side ? 'E3' : 'E1',
+        vertexIndex2: tempBranchShape.side ? 'E1' : 'E3',
         spacingX: 0,
         spacingY: ''
       })
+      if (rootRoute.branchRoute.length == 0){
+        rootRoute.routeCenter = []
+      }
       rootRoute.branchRoute.push(tempBranchShape)
       tempBranchShape.rootRoute = rootRoute
-      rootRoute.routeCenter.push({ x: rootRoute.routeCenter[0].x, y: cursor.shapeMeta.path[0].vertex[0].y })
-      rootRoute.routeCenter.push({ x: rootRoute.routeCenter[0].x, y: cursor.shapeMeta.path[0].vertex[6].y })
+
+      rootRoute.routeCenter.push({ x: rootRoute.routeList[0].x, y: cursor.shapeMeta.path[0].vertex[0].y })
+      rootRoute.routeCenter.push({ x: rootRoute.routeList[0].x, y: cursor.shapeMeta.path[0].vertex[6].y })
+
+      const addIndex = rootRoute.basePolygon.vertex.filter(v => v.label.includes('C')).length
+      rootRoute.basePolygon.vertex.push({ x: rootRoute.routeList[0].x, y: cursor.shapeMeta.path[0].vertex[0].y, label:`C${addIndex+1}` })
+      rootRoute.basePolygon.vertex.push({ x: rootRoute.routeList[0].x, y: cursor.shapeMeta.path[0].vertex[6].y, label:`C${addIndex+2}` })
+      //rootRoute.drawVertex()
+      rootRoute.setCoords()
       rootRoute.tempExtend = { top: 0, bottom: 0 }
       tempBranchShape.on('moving', FormDrawMapComponent.branchRouteOnMove.bind(tempBranchShape))
       tempBranchShape.on('modified', FormDrawMapComponent.branchRouteOnMove.bind(tempBranchShape))
@@ -693,7 +693,14 @@ let FormDrawMapComponent = {
   branchRouteOnMove: function (event) {
     this.updateAllCoord()
     const rootRoute = this.rootRoute
+    const branchIndex = rootRoute.branchRoute.indexOf(this)
+    rootRoute.routeCenter[branchIndex].y = this.basePolygon.vertex[0].y
+    rootRoute.routeCenter[branchIndex+1].y = this.basePolygon.vertex[6].y
+    rootRoute.basePolygon.vertex.find(o => o.label==`C${branchIndex*2+1}`).y = this.basePolygon.vertex[0].y
+    rootRoute.basePolygon.vertex.find(o => o.label==`C${branchIndex*2+2}`).y = this.basePolygon.vertex[6].y
+    rootRoute.basePolygon.vertex[branchIndex+1].y = this.basePolygon.vertex[6].y
     rootRoute.receiveNewRoute(this)
+    rootRoute.setCoords()
   },
 
   drawBranchRouteHandlerOff: function (event) {
@@ -1171,25 +1178,25 @@ let FormBorderWrapComponent = {
     let i = 0
     borderGroup.HDivider.forEach(d => {
       const midPt = (top + d.getEffectiveCoords()[0].y) / 2
-      borderGroup.basePolygon.vertex.push({ x: left, y: midPt + frame, label: `EM${i += 1}` })
-      borderGroup.basePolygon.vertex.push({ x: left + width, y: midPt + frame, label: `EM${i += 1}` })
+      borderGroup.basePolygon.vertex.push({ x: left, y: midPt + frame, label: `C${i += 1}` })
+      borderGroup.basePolygon.vertex.push({ x: left + width, y: midPt + frame, label: `C${i += 1}` })
       top = d.getEffectiveCoords()[0].y
     })
     if (borderGroup.HDivider.length > 0) {
       const midPt = (borderGroup.HDivider.at(-1).getEffectiveCoords()[2].y + borderGroup.getEffectiveCoords()[2].y) / 2
-      borderGroup.basePolygon.vertex.push({ x: left, y: midPt - frame, label: `EM${i += 1}` })
-      borderGroup.basePolygon.vertex.push({ x: left + width, y: midPt - frame, label: `EM${i += 1}` })
+      borderGroup.basePolygon.vertex.push({ x: left, y: midPt - frame, label: `C${i += 1}` })
+      borderGroup.basePolygon.vertex.push({ x: left + width, y: midPt - frame, label: `C${i += 1}` })
     }
     borderGroup.VDivider.forEach(d => {
       const midPt = (left + d.getEffectiveCoords()[0].x) / 2
-      borderGroup.basePolygon.vertex.push({ x: midPt + frame, y: top, label: `EM${i += 1}` })
-      borderGroup.basePolygon.vertex.push({ x: midPt + frame, y: top + height, label: `EM${i += 1}` })
+      borderGroup.basePolygon.vertex.push({ x: midPt + frame, y: top, label: `C${i += 1}` })
+      borderGroup.basePolygon.vertex.push({ x: midPt + frame, y: top + height, label: `C${i += 1}` })
       left = d.getEffectiveCoords()[0].x
     })
     if (borderGroup.VDivider.length > 0) {
       const midPt = (borderGroup.VDivider.at(-1).getEffectiveCoords()[2].x + borderGroup.getEffectiveCoords()[2].x) / 2
-      borderGroup.basePolygon.vertex.push({ x: midPt - frame, y: top, label: `EM${i += 1}` })
-      borderGroup.basePolygon.vertex.push({ x: midPt - frame, y: top + height, label: `EM${i += 1}` })
+      borderGroup.basePolygon.vertex.push({ x: midPt - frame, y: top, label: `C${i += 1}` })
+      borderGroup.basePolygon.vertex.push({ x: midPt - frame, y: top + height, label: `C${i += 1}` })
     }
   },
 

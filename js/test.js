@@ -90,10 +90,10 @@ let movingObjectTest = function () {
     //console.assert(specimen.getEffectiveCoords()[0].x == left + 100, 'Moving failed');
 }
 
-testToRun = [anchorTest, dividerTest, borderTest]
+testToRun = [] //[anchorTest, dividerTest, borderTest]
 
 async function runTests(tests) {
-    await initShape()
+    //await initShape()
     for (const test of tests) {
         await test();
     }

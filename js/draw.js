@@ -273,48 +273,16 @@ class BaseGroup extends fabric.Group {
       if (this.addMidPointToDivider){this.addMidPointToDivider(this)}
     }
 
-
-
-    // Debug text of the location of the group
-    // if (this.basePolygon.insertPoint) {
-    //   const loactionText = new fabric.Text(
-    //     `Node: ${this.basePolygon.insertPoint.label} \nX: ${this.basePolygon.insertPoint.x.toFixed(0)} \nY: ${this.basePolygon.insertPoint.y.toFixed(0)}`,
-    //     {
-    //       left: this.left,
-    //       top: this.top - 125,
-    //       fontSize: 20,
-    //       fill: 'white', // Text color
-    //       selectable: false,
-    //       opacity: 0,
-    //       functionalType: 'locationText',
-    //       stroke: '#000', // Text stroke color
-    //       strokeWidth: 3,
-    //       paintFirst: 'stroke', // Stroke behind fill
-    //       fontFamily: 'Arial, sans-serif', // Modern font family
-    //       padding: 10, // Padding around the text
-    //       shadow: new fabric.Shadow({
-    //         color: 'rgba(0, 0, 0, 0.5)',
-    //         blur: 10,
-    //         offsetX: 2,
-    //         offsetY: 2
-    //       })
-    //     });
-    //   this.subObjects.push(loactionText);
-    //   this.loactionText = loactionText;
-    // }
-
     // Draw the vertices and labels
     if (this.basePolygon.vertex) {
-      this.basePolygon.vertex.filter(v => (v.label.includes('E')||v.label.includes('V'))).forEach(v => {
+      this.basePolygon.vertex.filter(v => (v.label.includes('E')||v.label.includes('V')||v.label.includes('C'))).forEach(v => {
         const vControl = new VertexControl(v, this);
         this.controls[v.label] = vControl;
       });
     }
 
     this.setCoords();
-    this.subObjects.forEach(obj => {
-      this.add(obj);
-    });
+
   }
 
   // Method to emit deltaX and deltaY to anchored groups
@@ -838,15 +806,26 @@ class VertexControl extends fabric.Control {
     ctx.fillStyle = `rgba(255, 20, 20, ${this.hover ? 0.7 : 0.2})`;
     ctx.fill();
     ctx.lineWidth = 1;
-    ctx.strokeStyle = this.vertex.label.includes('E') ? 'red' : 'violet';
+    ctx.strokeStyle = this.VertexColorPicker(this.vertex);
     ctx.stroke();
 
     // Draw the text
     ctx.font = '20px Arial, sans-serif';
-    ctx.fillStyle = 'red';
+    ctx.fillStyle = this.VertexColorPicker(this.vertex);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(this.vertex.label, left, this.vertex.label.includes('E') ? top - 30 : top + 30);
+  }
+
+  VertexColorPicker(vertex){
+    switch (vertex.label.substring(0,1)){
+      case 'E':
+        return 'red'
+      case 'V':
+        return 'violet'
+      case 'C':
+        return 'blue'
+    }
   }
 
   onClick(eventData, transform) {
