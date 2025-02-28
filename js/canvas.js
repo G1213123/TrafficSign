@@ -146,6 +146,7 @@ function handleArrowKeys(event) {
     if (moved) {
       obj.updateAllCoord();
       obj.setCoords();
+      obj.fire('moving')
     }
   });
 

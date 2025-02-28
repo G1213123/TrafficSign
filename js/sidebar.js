@@ -105,12 +105,14 @@ let GeneralHandler = {
 let FormTextAddComponent = {
   textWidthMedium: [{ char: ' ', width: 53, shortWidth: 0 }, { char: 'A', width: 136, shortWidth: 0 }, { char: 'B', width: 147, shortWidth: 0 }, { char: 'C', width: 148, shortWidth: 0 }, { char: 'D', width: 154, shortWidth: 0 }, { char: 'E', width: 132, shortWidth: 0 }, { char: 'F', width: 119, shortWidth: 0 }, { char: 'G', width: 155, shortWidth: 0 }, { char: 'H', width: 160, shortWidth: 0 }, { char: 'I', width: 73, shortWidth: 0 }, { char: 'J', width: 93, shortWidth: 0 }, { char: 'K', width: 138, shortWidth: 0 }, { char: 'L', width: 107, shortWidth: 0 }, { char: 'M', width: 184, shortWidth: 0 }, { char: 'N', width: 168, shortWidth: 0 }, { char: 'O', width: 156, shortWidth: 0 }, { char: 'P', width: 130, shortWidth: 0 }, { char: 'Q', width: 158, shortWidth: 0 }, { char: 'R', width: 141, shortWidth: 0 }, { char: 'S', width: 137, shortWidth: 0 }, { char: 'T', width: 109, shortWidth: 105 }, { char: 'U', width: 154, shortWidth: 0 }, { char: 'V', width: 130, shortWidth: 120 }, { char: 'W', width: 183, shortWidth: 189 }, { char: 'X', width: 128, shortWidth: 0 }, { char: 'Y', width: 123, shortWidth: 118 }, { char: 'Z', width: 119, shortWidth: 0 }, { char: 'a', width: 111, shortWidth: 104 }, { char: 'b', width: 117, shortWidth: 0 }, { char: 'c', width: 103, shortWidth: 0 }, { char: 'd', width: 119, shortWidth: 0 }, { char: 'e', width: 109, shortWidth: 102 }, { char: 'f', width: 75, shortWidth: 0 }, { char: 'g', width: 114, shortWidth: 107 }, { char: 'h', width: 112, shortWidth: 0 }, { char: 'i', width: 54, shortWidth: 0 }, { char: 'j', width: 58, shortWidth: 0 }, { char: 'k', width: 108, shortWidth: 0 }, { char: 'l', width: 62, shortWidth: 0 }, { char: 'm', width: 164, shortWidth: 0 }, { char: 'n', width: 112, shortWidth: 0 }, { char: 'o', width: 118, shortWidth: 111 }, { char: 'p', width: 118, shortWidth: 0 }, { char: 'q', width: 118, shortWidth: 0 }, { char: 'r', width: 73, shortWidth: 59 }, { char: 's', width: 97, shortWidth: 95 }, { char: 't', width: 81, shortWidth: 0 }, { char: 'u', width: 115, shortWidth: 101 }, { char: 'v', width: 98, shortWidth: 0 }, { char: 'w', width: 147, shortWidth: 145 }, { char: 'x', width: 104, shortWidth: 0 }, { char: 'y', width: 98, shortWidth: 96 }, { char: 'z', width: 97, shortWidth: 0 }, { char: '1', width: 78, shortWidth: 0 }, { char: '2', width: 120, shortWidth: 0 }, { char: '3', width: 127, shortWidth: 0 }, { char: '4', width: 132, shortWidth: 0 }, { char: '5', width: 122, shortWidth: 0 }, { char: '6', width: 126, shortWidth: 0 }, { char: '7', width: 104, shortWidth: 0 }, { char: '8', width: 130, shortWidth: 0 }, { char: '9', width: 128, shortWidth: 0 }, { char: '0', width: 133, shortWidth: 0 }, { char: ',', width: 53, shortWidth: 0 }, { char: '.', width: 53, shortWidth: 0 }, { char: '’', width: 39, shortWidth: 0 }, { char: ':', width: 53, shortWidth: 0 }, { char: '•', width: 53, shortWidth: 0 }, { char: '、', width: 53, shortWidth: 0 }, { char: '-', width: 66, shortWidth: 0 }, { char: '&', width: 126, shortWidth: 0 }, { char: '(', width: 105, shortWidth: 0 }, { char: ')', width: 105, shortWidth: 0 }, { char: '/', width: 85, shortWidth: 0 }, { char: '$', width: 100, shortWidth: 0 }, { char: '%', width: 160, shortWidth: 0 }, { char: '“', width: 92, shortWidth: 0 }, { char: '”', width: 92, shortWidth: 0 }],
   textWidthHeavy: [{ char: ' ', width: 53, shortWidth: 0 }, { char: 'A', width: 142, shortWidth: 0 }, { char: 'B', width: 146, shortWidth: 0 }, { char: 'C', width: 151, shortWidth: 0 }, { char: 'D', width: 150, shortWidth: 0 }, { char: 'E', width: 136, shortWidth: 0 }, { char: 'F', width: 121, shortWidth: 0 }, { char: 'G', width: 156, shortWidth: 0 }, { char: 'H', width: 159, shortWidth: 0 }, { char: 'I', width: 73, shortWidth: 0 }, { char: 'J', width: 95, shortWidth: 0 }, { char: 'K', width: 138, shortWidth: 0 }, { char: 'L', width: 118, shortWidth: 0 }, { char: 'M', width: 186, shortWidth: 0 }, { char: 'N', width: 168, shortWidth: 0 }, { char: 'O', width: 158, shortWidth: 0 }, { char: 'P', width: 134, shortWidth: 0 }, { char: 'Q', width: 161, shortWidth: 0 }, { char: 'R', width: 148, shortWidth: 0 }, { char: 'S', width: 146, shortWidth: 0 }, { char: 'T', width: 118, shortWidth: 113 }, { char: 'U', width: 157, shortWidth: 0 }, { char: 'V', width: 133, shortWidth: 127 }, { char: 'W', width: 193, shortWidth: 196 }, { char: 'X', width: 130, shortWidth: 0 }, { char: 'Y', width: 128, shortWidth: 125 }, { char: 'Z', width: 119, shortWidth: 0 }, { char: 'a', width: 111, shortWidth: 104 }, { char: 'b', width: 107, shortWidth: 0 }, { char: 'c', width: 107, shortWidth: 0 }, { char: 'd', width: 119, shortWidth: 0 }, { char: 'e', width: 110, shortWidth: 103 }, { char: 'f', width: 79, shortWidth: 0 }, { char: 'g', width: 117, shortWidth: 110 }, { char: 'h', width: 119, shortWidth: 0 }, { char: 'i', width: 55, shortWidth: 0 }, { char: 'j', width: 71, shortWidth: 0 }, { char: 'k', width: 114, shortWidth: 0 }, { char: 'l', width: 63, shortWidth: 0 }, { char: 'm', width: 173, shortWidth: 0 }, { char: 'n', width: 119, shortWidth: 0 }, { char: 'o', width: 115, shortWidth: 107 }, { char: 'p', width: 120, shortWidth: 0 }, { char: 'q', width: 120, shortWidth: 0 }, { char: 'r', width: 80, shortWidth: 67 }, { char: 's', width: 100, shortWidth: 98 }, { char: 't', width: 84, shortWidth: 0 }, { char: 'u', width: 120, shortWidth: 107 }, { char: 'v', width: 107, shortWidth: 0 }, { char: 'w', width: 160, shortWidth: 154 }, { char: 'x', width: 110, shortWidth: 0 }, { char: 'y', width: 106, shortWidth: 104 }, { char: 'z', width: 93, shortWidth: 0 }, { char: '1', width: 84, shortWidth: 0 }, { char: '2', width: 125, shortWidth: 0 }, { char: '3', width: 136, shortWidth: 0 }, { char: '4', width: 138, shortWidth: 0 }, { char: '5', width: 130, shortWidth: 0 }, { char: '6', width: 129, shortWidth: 0 }, { char: '7', width: 107, shortWidth: 0 }, { char: '8', width: 138, shortWidth: 0 }, { char: '9', width: 129, shortWidth: 0 }, { char: '0', width: 145, shortWidth: 0 }, { char: ',', width: 56, shortWidth: 0 }, { char: '.', width: 56, shortWidth: 0 }, { char: '’', width: 41, shortWidth: 0 }, { char: ':', width: 56, shortWidth: 0 }, { char: '•', width: 56, shortWidth: 0 }, { char: '、', width: 53, shortWidth: 0 }, { char: '-', width: 71, shortWidth: 0 }, { char: '&', width: 126, shortWidth: 0 }, { char: '(', width: 115, shortWidth: 0 }, { char: ')', width: 115, shortWidth: 0 }, { char: '/', width: 88, shortWidth: 0 }, { char: '$', width: 100, shortWidth: 0 }, { char: '%', width: 160, shortWidth: 0 }, { char: '“', width: 92, shortWidth: 0 }, { char: '”', width: 92, shortWidth: 0 }],
+  textFont: ['TransportMedium', 'TransportHeavy'],
   textPanelInit: function () {
     tabNum = 2
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       GeneralHandler.createinput('input-text', 'Add Text', parent, '', FormTextAddComponent.TextinputHandler, 'input')
       GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100, FormTextAddComponent.TextinputHandler, 'input')
+      GeneralHandler.createselect('input-textFont', 'Text Font',FormTextAddComponent.textFont,parent,'TransportMedium', FormTextAddComponent.TextinputHandler, 'input')
       canvas.on('mouse:move', FormTextAddComponent.TextonMouseMove)
       canvas.on('mouse:down', FormTextAddComponent.TextonMouseClick)
     }
@@ -139,52 +141,26 @@ let FormTextAddComponent = {
     cursor.txtChar = []
     cursor.text = ''
     cursor.shapeMeta = null
-    if (options) {
-      var txt = options.text
-      var xHeight = options.xHeight
-    }
-    else {
-      var txt = document.getElementById('input-text').value
-      var xHeight = parseInt(document.getElementById('input-xHeight').value)
-    }
-    txtObjects = FormTextAddComponent.createTextObject(txt, xHeight)
+    const txt = options?options.text:document.getElementById('input-text').value
+    const xHeight = options?options.xHeight:document.getElementById('input-xHeight').value
+    const font = options?options.font:document.getElementById('input-textFont').value
 
-    // Get cursor position
-    //const cursorLeft = cursor.left || 0;
-    //const cursorTop = cursor.top || 0;
+    txtObjects = FormTextAddComponent.createTextObject(txt, xHeight, font)
 
-    // Offset object positions relative to cursor position
-    //txtObjects[0].forEach(obj => {
-    //  obj.set({
-    //    left: obj.left + cursorLeft,
-    //    top: obj.top + cursorTop
-    //  });
-    //});
-    //
-    //txtObjects[1].forEach(obj => {
-    //  obj.set({
-    //    left: obj.left + cursorLeft,
-    //    top: obj.top + cursorTop
-    //  });
-    //});
-    //
     cursor.add(...txtObjects[0])
     cursor.add(...txtObjects[1])
-    // Update the coordinates
-    //txt_char.setCoords();
-    //txt_frame.setCoords()
-    //
-    //cursor.txtChar.push(txt_char)
+
     cursor.text = txt
     cursor.xHeight = xHeight
+    cursor.font = font
     canvas.renderAll();
 
   },
 
-  createTextObject: function (txt, xHeight) {
-    txtCharList = []
-    txtFrameList = []
-    left_pos = 0
+  createTextObject: function (txt, xHeight, Efont) {
+    let txtCharList = []
+    let txtFrameList = []
+    let left_pos = 0
     for (var i = 0; i < txt.length; i++) {
       // Check if the character is a Chinese character
       if (!FormTextAddComponent.textWidthMedium.map(item => item.char).includes(txt.charAt(i))) {
@@ -212,10 +188,11 @@ let FormTextAddComponent = {
 
         left_pos += 2.75 * xHeight
       } else {
-        charWidth = FormTextAddComponent.textWidthMedium.find(e => e.char == txt.charAt(i)).width
+        const fontWidth = Efont.replace('Transport','') == 'Heavy'?FormTextAddComponent.textWidthHeavy:FormTextAddComponent.textWidthMedium 
+        charWidth = fontWidth.find(e => e.char == txt.charAt(i)).width
 
         txt_char = new fabric.Text(txt.charAt(i), {
-          fontFamily: 'TransportMedium',
+          fontFamily: Efont,
           left: left_pos,
           top: 6,
           fill: '#fff',
@@ -274,7 +251,7 @@ let FormTextAddComponent = {
     if (textValue !== '' && eventButton === 0) {
 
       const group = new fabric.Group()
-      txtObjects = FormTextAddComponent.createTextObject(cursor.text, cursor.xHeight)
+      txtObjects = FormTextAddComponent.createTextObject(cursor.text, cursor.xHeight, cursor.font)
 
       group.add(...txtObjects[0])
       group.add(...txtObjects[1])
@@ -324,7 +301,7 @@ let FormTextAddComponent = {
 
       drawBasePolygon(group, 'Text', false)
 
-      FormTextAddComponent.TextinputHandler(null, { text: cursor.text, xHeight: cursor.xHeight })
+      FormTextAddComponent.TextinputHandler(null, { text: cursor.text, xHeight: cursor.xHeight, font:cursor.font })
       canvas.renderAll()
     }
   },
@@ -366,10 +343,10 @@ let FormDrawMapComponent = {
 
   addRouteInput: function (event) {
     var parent = document.getElementById("input-form");
-    const existingRoute = canvas.getActiveObject()
+    const existingRoute = canvas.getActiveObjects()
 
     
-    if (existingRoute && existingRoute.functionalType === 'MainRoute') {
+    if (existingRoute.length==1 && existingRoute[0].functionalType === 'MainRoute') {
       canvas.on('mouse:move', FormDrawMapComponent.drawBranchRouteOnCursor)
     }
     if (event && event.target) {
@@ -395,8 +372,8 @@ let FormDrawMapComponent = {
     } else {
       routeCenter = activeRoute.routeCenter
     }
-    routeList = [{ x: 0, y: rootLength * xHeight / 4, angle: 180, width: 6, shape: 'Butt' },
-    { x: 0, y: -tipLength * xHeight / 4, angle: 0, width: 6, shape: 'Arrow' }
+    routeList = [{ x: 0, y: (rootLength+tipLength) * xHeight / 4, angle: 180, width: 6, shape: 'Butt' },
+    { x: 0, y: 0, angle: 0, width: 6, shape: 'Arrow' }
     ]
 
     let vertexList = FormDrawMapComponent.calcRootVertices(xHeight, routeList)
@@ -414,7 +391,7 @@ let FormDrawMapComponent = {
 
     symbolOffset = getInsertOffset(vertexList)
     cursorOffset.x = symbolOffset.left
-    cursorOffset.y = symbolOffset.top
+    cursorOffset.y = 0
 
     cursor.add(Polygon1)
     cursor.shapeMeta = vertexList
@@ -436,7 +413,7 @@ let FormDrawMapComponent = {
     if (eventButton === 0 && cursor._objects.length) {
       var posx = pointer.x;
       var posy = pointer.y;
-      const arrowOptions1 = { left: posx, top: posy, angle: 0, color: 'white', };
+      const arrowOptions1 = { left: posx, top: posy , angle: 0, color: 'white', };
       const arrow = new GlyphPath();
 
       // Wait for the initialization to complete
@@ -445,7 +422,7 @@ let FormDrawMapComponent = {
       const routeMap = drawBasePolygon(arrow, 'MainRoute');
       routeMap.routeList = calculateTransformedPoints(cursor.routeList, { x: posx, y: posy, angle: 0 })
       //routeMap.basePolygon.vertex = cursor.shapeMeta.path[0].vertex
-      routeMap.routeCenter = [{ x: posx, y: posy }, { x: posx, y: posy }]
+      routeMap.routeCenter = [{ x: posx, y: posy +cursor.tipLength * cursor.xHeight /4 }, { x: posx, y: posy +cursor.tipLength * cursor.xHeight /4 }]
       routeMap.xHeight = cursor.xHeight
       routeMap.rootLength = cursor.rootLength
       routeMap.tipLength = cursor.tipLength
@@ -473,13 +450,14 @@ let FormDrawMapComponent = {
       const newTop = newLeft < this.left ? vertexList[6].y : vertexList[0].y
       const newBottom = newLeft < this.left ? vertexList[0].y : vertexList[6].y
       this.routeList.forEach(route => {
-        if (route.angle === 0) {
-  
-            route.y = Math.min(...[newTop,...this.routeCenter.map(v => v.y)]) - this.tipLength * this.xHeight / 4
-            //this.routeCenter[0].y = newTop 
-          //}
-          //    RootTopVertex[i].y -= (routeCenter.y - arrowTipVertex[4].y) > 0 ? (routeCenter.y - arrowTipVertex[4].y) : 0;
-        } else if (route.angle === 180) {
+        //if (route.angle === 0) {
+  //
+        //    route.y = Math.min(...[newTop,...this.routeCenter.map(v => v.y)]) - this.tipLength * this.xHeight / 4
+        //    //this.routeCenter[0].y = newTop 
+        //  //}
+        //  //    RootTopVertex[i].y -= (routeCenter.y - arrowTipVertex[4].y) > 0 ? (routeCenter.y - arrowTipVertex[4].y) : 0;
+        //} else if (route.angle === 180) {
+        if (route.angle === 180) {
   
           //if (newBottom - Math.max(...this.routeCenter.map(v => v.y)) > 0) {
             //this.tempExtend.bottom = Math.max(...[newBottom,...this.routeCenter.map(v => v.y)]) + this.rootLength * this.xHeight / 4
@@ -497,12 +475,13 @@ let FormDrawMapComponent = {
     this.removeAll()
     this.add(newPolygon)
     if(centerPoints != []) {this.basePolygon.vertex.push(...centerPoints)}
+    this.setCoords()
     this.drawVertex()
   },
 
   drawBranchRouteOnCursor: async function (event, option = null) {
     document.removeEventListener('keydown', ShowHideSideBarEvent);
-    let rootRoute = canvas.getActiveObject()
+    const rootRoute = canvas.getActiveObject()
     let routeList
     if (option) {
       routeList = option.routeList
@@ -542,6 +521,7 @@ let FormDrawMapComponent = {
     cursor.shapeMeta = tempVertexList
 
     rootRoute.receiveNewRoute(tempVertexList)
+    rootRoute.setCoords()
     canvas.renderAll()
 
     // Remove existing listeners first to avoid duplicates
@@ -583,16 +563,16 @@ let FormDrawMapComponent = {
     arrowTipVertex = arrowTipVertex.path[0].vertex
     if (root.angle != 0 && root.angle != 180) {
       if (root.x < left) {
-        const i0 = { x: left, y: arrowTipVertex[0].y - (left - arrowTipVertex[0].x) / Math.tan(root.angle / 180 * Math.PI) + length * Math.tan((90 - Math.abs(root.angle)) / 360 * Math.PI), }
+        const i0 = { x: left, y: arrowTipVertex[0].y - (left - arrowTipVertex[0].x) / Math.tan(root.angle / 180 * Math.PI) + length / Math.tan((90 - Math.abs(root.angle)) / 360 * Math.PI), }
         const i1 = { x: left, y: arrowTipVertex[0].y - (left - arrowTipVertex[0].x) / Math.tan(root.angle / 180 * Math.PI), radius: length }
         const i2 = { x: left, y: arrowTipVertex[2].y - (left - arrowTipVertex[2].x) / Math.tan(root.angle / 180 * Math.PI), radius: length }
-        const i3 = { x: left, y: arrowTipVertex[2].y - (left - arrowTipVertex[2].x) / Math.tan(root.angle / 180 * Math.PI) - length * Math.tan((90 - Math.abs(root.angle)) / 360 * Math.PI) }
+        const i3 = { x: left, y: arrowTipVertex[2].y - (left - arrowTipVertex[2].x) / Math.tan(root.angle / 180 * Math.PI) - length / Math.tan((90 - Math.abs(root.angle)) / 360 * Math.PI) }
         arrowTipVertex = [i0, i1, ...arrowTipVertex, i2, i3]
       } else if (root.x > right) {
-        const i0 = { x: right, y: arrowTipVertex[0].y + (arrowTipVertex[0].x - right) / Math.tan(root.angle / 180 * Math.PI) - length * Math.tan((90 - Math.abs(root.angle)) / 360 * Math.PI) }
+        const i0 = { x: right, y: arrowTipVertex[0].y + (arrowTipVertex[0].x - right) / Math.tan(root.angle / 180 * Math.PI) - length / Math.tan((90 - Math.abs(root.angle)) / 360 * Math.PI) }
         const i1 = { x: right, y: arrowTipVertex[0].y + (arrowTipVertex[0].x - right) / Math.tan(root.angle / 180 * Math.PI), radius: length }
         const i2 = { x: right, y: arrowTipVertex[2].y + (arrowTipVertex[2].x - right) / Math.tan(root.angle / 180 * Math.PI), radius: length }
-        const i3 = { x: right, y: arrowTipVertex[2].y + (arrowTipVertex[2].x - right) / Math.tan(root.angle / 180 * Math.PI) + length * Math.tan((90 - Math.abs(root.angle)) / 360 * Math.PI) }
+        const i3 = { x: right, y: arrowTipVertex[2].y + (arrowTipVertex[2].x - right) / Math.tan(root.angle / 180 * Math.PI) + length / Math.tan((90 - Math.abs(root.angle)) / 360 * Math.PI) }
         arrowTipVertex = [i0, i1, ...arrowTipVertex, i2, i3]
       }
     }
@@ -694,8 +674,8 @@ let FormDrawMapComponent = {
     this.updateAllCoord()
     const rootRoute = this.rootRoute
     const branchIndex = rootRoute.branchRoute.indexOf(this)
-    rootRoute.routeCenter[branchIndex].y = this.basePolygon.vertex[0].y
-    rootRoute.routeCenter[branchIndex+1].y = this.basePolygon.vertex[6].y
+    rootRoute.routeCenter[branchIndex*2].y = this.basePolygon.vertex[0].y
+    rootRoute.routeCenter[branchIndex*2+1].y = this.basePolygon.vertex[6].y
     rootRoute.basePolygon.vertex.find(o => o.label==`C${branchIndex*2+1}`).y = this.basePolygon.vertex[0].y
     rootRoute.basePolygon.vertex.find(o => o.label==`C${branchIndex*2+2}`).y = this.basePolygon.vertex[6].y
     rootRoute.basePolygon.vertex[branchIndex+1].y = this.basePolygon.vertex[6].y
@@ -724,8 +704,8 @@ let FormDrawMapComponent = {
   routeMapOnSelect: function (event) {
     const panel = document.getElementById("button-DrawMap");
     const parent = document.getElementById("input-form");
-    const existingRoute = canvas.getActiveObject()
-    if (panel && parent && existingRoute && existingRoute.functionalType === 'MainRoute') {
+    const existingRoute = canvas.getActiveObjects()
+    if (panel && parent && existingRoute.length == 1 && existingRoute[0].functionalType === 'MainRoute') {
 
       //parent.routeCount = existingRoute.routeList.length
       GeneralHandler.createbutton('button-addRoute', '+ Another Route Destination', parent, 'input', FormDrawMapComponent.addRouteInput, 'click')
