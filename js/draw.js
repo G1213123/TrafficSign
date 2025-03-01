@@ -911,11 +911,11 @@ function drawBasePolygon(basePolygon, functionalType, calcVertex = true) {
   return baseGroup;
 }
 
-async function drawLabeledSymbol(shapeMeta, symbol, options) {
+async function drawLabeledSymbol(symbol, options) {
   const { x, y, length, angle, color } = options;
   // Create polygon with labeled vertices
   const arrow = new GlyphPath();
-
+  const shapeMeta = calcSymbol(symbol, length);
   // Wait for the initialization to complete
   const shape = await arrow.initialize(shapeMeta, {
     left: x,

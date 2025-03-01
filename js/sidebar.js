@@ -237,7 +237,7 @@ let FormTextAddComponent = {
     //permanent cursor object 
     if (options) {
       cursor.set(
-        { left: options.left, top: options.top, text: options.text, xHeight: options.xHeight }
+        { left: options.left, top: options.top, text: options.text, xHeight: options.xHeight, font: options.font }
       )
 
       textValue = options.text
@@ -323,7 +323,7 @@ let FormDrawMapComponent = {
       GeneralHandler.createinput('tip-length', 'tip length', parent, 12, null, 'input')
       //FormDrawMapComponent.addRouteInput()
 
-      const existingRoute = canvas.getActiveObject()
+      const existingRoute = canvas.getActiveObjects().length == 1 && canvas.getActiveObject.functionalType == 'MainRoute' ? canvas.getActiveObjects()[0] : null
       const routeList = existingRoute ? existingRoute.routeList : FormDrawMapComponent.defaultRoute
 
       routeList.forEach((route, index) => {
@@ -809,7 +809,7 @@ let FormDrawAddComponent = {
       var posy = pointer.y;
       var xHeight = parseInt(document.getElementById('input-xHeight').value)
       const arrowOptions1 = { x: posx, y: posy, length: xHeight / 4, angle: FormDrawAddComponent.symbolAngle, color: 'white', };
-      drawLabeledSymbol(cursor.shapeMeta, cursor.symbol, arrowOptions1);
+      drawLabeledSymbol(cursor.symbol, arrowOptions1);
     }
   },
 
@@ -875,7 +875,7 @@ let FormDrawAddComponent = {
       objectCaching: false,
       strokeWidth: 0
     }
-    cursor.shapeMeta = symbolObject
+    //cursor.shapeMeta = symbolObject
     cursor.symbol = symbol
 
     Polygon1 = new GlyphPath()
@@ -924,8 +924,9 @@ let FormBorderWrapComponent = {
       GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100)
       GeneralHandler.createselect('input-type', 'Select Border Type', Object.keys(BorderTypeScheme), parent, null, '', '', 'select')
       GeneralHandler.createselect('input-color', 'Select Color Scheme', Object.keys(BorderColorScheme), parent, null, '', '', 'select')
-      GeneralHandler.createbutton('input-text', 'Select Objects for border', parent, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
-      GeneralHandler.createbutton('input-text', 'Add stack border divider', parent, 'input', FormBorderWrapComponent.StackDividerHandler, 'click')
+      GeneralHandler.createbutton('input-border', 'Select Objects for border', parent, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
+      GeneralHandler.createbutton('input-HDivider', 'Add stack border divider', parent, 'input', FormBorderWrapComponent.StackDividerHandler, 'click')
+      GeneralHandler.createbutton('input-VDivider', 'Add gantry border divider', parent, 'input', FormBorderWrapComponent.GantryDividerHandler, 'click')
     }
   },
   BorderCreateHandler: async function () {
@@ -939,12 +940,50 @@ let FormBorderWrapComponent = {
   StackDividerHandler: function () {
     selectObjectHandler('Select object above divider', function (aboveObject) {
       selectObjectHandler('Select object below divider', function (belowObject) {
-        FormBorderWrapComponent.DividerCreate(aboveObject, belowObject)
+        FormBorderWrapComponent.HDividerCreate(aboveObject, belowObject)
       })
     })
   },
 
-  DividerCreate: async function (aboveObjects, belowObjects, options = null) {
+  GantryDividerHandler: function () {
+    selectObjectHandler('Select object left to divider', function (leftObject) {
+      selectObjectHandler('Select object right to divider', function (rightObject) {
+        FormBorderWrapComponent.VDividerCreate(leftObject, rightObject)
+      })
+    })
+  },
+
+  VDividerCreate: async function (leftObjects, rightObjects, options = null) {
+    const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
+    const leftObject = this.getExtremeObject(leftObjects, 'left')
+    const rightObject = this.getTopMostObject(rightObjects, 'right')
+
+    if (Object.keys(leftObject.lockXToPolygon).length != 0) {
+      showTextBox('Unlock the object below divider in X axis')
+      return
+    }
+    const leftObjectBBox = FormBorderWrapComponent.getBoundingBox(leftObjects)
+    const leftRight = leftObjectBBox.right
+    const height = leftObjectBBox.bottom - leftObjectBBox.top
+    const BaseBorder = await drawDivider(xHeight, leftRight, height, true) // Added true param to indicate vertical divider
+    const borderGroup = drawBasePolygon(BaseBorder, 'VDivider')
+    borderGroup.xHeight = xHeight
+    anchorShape(leftObject, borderGroup, {
+      vertexIndex1: 'E1',
+      vertexIndex2: 'E3',
+      spacingX: 2.5 * xHeight / 4,
+      spacingY: ''
+    })
+    anchorShape(borderGroup, rightObject, {
+      vertexIndex1: 'E1',
+      vertexIndex2: 'E3',
+      spacingX: 2.5 * xHeight / 4,
+      spacingY: ''
+    })
+
+  },
+
+  HDividerCreate: async function (aboveObjects, belowObjects, options = null) {
     const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
     const aboveObject = this.getBottomMostObject(aboveObjects)
     const belowObject = this.getTopMostObject(belowObjects)
@@ -972,39 +1011,58 @@ let FormBorderWrapComponent = {
       spacingY: 1. * xHeight / 4
     })
 
-  },
+    },
 
-  getBottomMostObject: function (objects) {
-    let bottomMostObject = null;
-    let maxBottom = -Infinity;
+    getExtremeObject: function (objects, direction) {
+    let extremeObject = null;
+    let extremeValue = direction === 'bottom' || direction === 'right' ? -Infinity : Infinity;
 
     objects.forEach(obj => {
-      const objBottom = obj.top + obj.height * obj.scaleY; // Calculate the bottom coordinate
-
-      if (objBottom > maxBottom) {
-        maxBottom = objBottom;
-        bottomMostObject = obj;
+      let value;
+      
+      switch(direction) {
+      case 'bottom':
+        value = obj.top + obj.height * obj.scaleY;
+        if (value > extremeValue) {
+        extremeValue = value;
+        extremeObject = obj;
+        }
+        break;
+      case 'top':
+        value = obj.top;
+        if (value < extremeValue) {
+        extremeValue = value;
+        extremeObject = obj;
+        }
+        break;
+      case 'right':
+        value = obj.left + obj.width * obj.scaleX;
+        if (value > extremeValue) {
+        extremeValue = value;
+        extremeObject = obj;
+        }
+        break;
+      case 'left':
+        value = obj.left;
+        if (value < extremeValue) {
+        extremeValue = value;
+        extremeObject = obj;
+        }
+        break;
       }
     });
 
-    return bottomMostObject;
-  },
+    return extremeObject;
+    },
 
-  getTopMostObject: function (objects) {
-    let topMostObject = null;
-    let minTop = Infinity;
+    // For backward compatibility
+    getBottomMostObject: function (objects) {
+    return this.getExtremeObject(objects, 'bottom');
+    },
 
-    objects.forEach(obj => {
-      const objTop = obj.top; // Calculate the top coordinate
-
-      if (objTop < minTop) {
-        minTop = objTop;
-        topMostObject = obj;
-      }
-    });
-
-    return topMostObject;
-  },
+    getTopMostObject: function (objects) {
+    return this.getExtremeObject(objects, 'top');
+    },
 
   // Function to get the bounding box of specific objects
   getBoundingBox: function (objects) {
@@ -1132,7 +1190,7 @@ let FormBorderWrapComponent = {
         anchorShape(v.lockXToPolygon.TargetObject, v, {
           vertexIndex1: v.lockXToPolygon.sourcePoint,
           vertexIndex2: v.lockXToPolygon.targetPoint,
-          spacingX: v.lockXToPolygon.spacing + rounding.x,
+          spacingX: v.lockXToPolygon.spacing,
           spacingY: ''
         }, sourceList)
       }
@@ -1141,7 +1199,7 @@ let FormBorderWrapComponent = {
         anchorShape(v, nextAnchor, {
           vertexIndex1: nextAnchor.lockXToPolygon.sourcePoint,
           vertexIndex2: nextAnchor.lockXToPolygon.targetPoint,
-          spacingX: nextAnchor.lockXToPolygon.spacing + rounding.x,
+          spacingX: nextAnchor.lockXToPolygon.spacing,
           spacingY: ''
         }, sourceList)
       }
@@ -1241,6 +1299,7 @@ let FormBorderWrapComponent = {
     const innerWidth = borderSize.width - frame * 2
     const innerHeight = borderSize.height - frame * 2
     const innerLeft = borderSize.left + frame
+    const innerTop = borderSize.top + frame
     borderGroup.HDivider.forEach(d => {
       // Store the group's initial top position
       const initialTop = d.getEffectiveCoords()[0].y
@@ -1249,6 +1308,19 @@ let FormBorderWrapComponent = {
         d.add(res)
         d.basePolygon = res
         d.set({ top: initialTop, left: innerLeft });
+        d.setCoords()
+        d.drawVertex()
+        d.updateAllCoord(null, sourceList)
+      })
+    })
+    borderGroup.VDivider.forEach(d => {
+      // Store the group's initial top position
+      const initialLeft = d.getEffectiveCoords()[0].x
+      drawDivider(d.xHeight, 0, innerHeight, true).then((res) => {
+        d.removeAll()
+        d.add(res)
+        d.basePolygon = res
+        d.set({ top: innerTop, left: initialLeft });
         d.setCoords()
         d.drawVertex()
         d.updateAllCoord(null, sourceList)

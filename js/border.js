@@ -310,10 +310,12 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
     return GroupedBorder;
 }
 
-drawDivider = async function (xHeight, top, width, frameWidth = 1) {
+drawDivider = async function (xHeight, top, width, vertical=false){
     const length = xHeight / 4
     const Xwidth = width / length
-    let dividerTemplate = [{
+    
+    // Vertical divider template
+    let horizontalTemplate = [{
         'vertex': [
             { x: 0, y: 0, label: 'V1', start: 1 },
             { x: Xwidth / 2, y: 0, label: 'V2', radius: 1.5, start: 0 },
@@ -326,29 +328,45 @@ drawDivider = async function (xHeight, top, width, frameWidth = 1) {
             { x: -Xwidth / 2, y: 0, label: 'V9', radius: 1.5, start: 0 },
         ], 'arcs': [],
         'fill': 'white'
-    }]
+    }];
+    
+    // Horizontal divider template
+    let verticalTemplate = [{
+        'vertex': [
+            { x: 0, y: 0, label: 'V1', start: 1 },
+            { x: 0, y: Xwidth / 2, label: 'V2', radius: 1.5, start: 0 },
+            { x: -1.5, y: Xwidth / 2, label: 'V3', start: 0 },
+            { x: 2.5, y: Xwidth / 2, label: 'V4', start: 0 },
+            { x: 1, y: Xwidth / 2, label: 'V5', radius: 1.5, start: 0 },
+            { x: 1, y: -Xwidth / 2, label: 'V6', radius: 1.5, start: 0 },
+            { x: 2.5, y: -Xwidth / 2, label: 'V7', start: 0 },
+            { x: -1.5, y: -Xwidth / 2, label: 'V8', start: 0 },
+            { x: 0, y: -Xwidth / 2, label: 'V9', radius: 1.5, start: 0 },
+        ], 'arcs': [],
+        'fill': 'white'
+    }];
+    
+    // Choose the template based on the horizontal parameter
+    let dividerTemplate = vertical ? verticalTemplate: horizontalTemplate;
 
     dividerTemplate.forEach(p => {
-
         p.vertex.forEach(vertex => {
             vertex.x *= length;
             vertex.y *= length;
             if (vertex.radius) vertex.radius *= length;
         });
-    }
-    )
+    });
 
     const arrowOptions1 = {
         left: 0,
-        top: top,
+        top: 0,
         fill: '#FFF',
         angle: 0,
-        // originX: 'center',
         objectCaching: false,
         strokeWidth: 0
-      }
+    };
 
-    const dividerShape = new GlyphPath()
+    const dividerShape = new GlyphPath();
     await dividerShape.initialize({ path: dividerTemplate }, arrowOptions1);
-    return dividerShape
+    return dividerShape;
 }

@@ -226,7 +226,7 @@ function DrawGrid() {
     const vertical = new fabric.Line([x, ymin, x, ymax], options.param);
     if (Math.abs(x % (5 * options.distance)) < 1e-6) {
       vertical.set({ strokeWidth: gridDistance / 100 });
-      const vText = new fabric.Text(String(x), { left: x, top: 0, fill: options.param.stroke, fontSize: gridDistance / 5 });
+      const vText = new fabric.Text(String(x), { left: x, top: 0, fill: options.param.stroke, selectable:false, hoverCursor: 'default', fontSize: gridDistance / 5 });
       grid_set.push(vText);
     }
     grid_set.push(vertical);
@@ -236,7 +236,7 @@ function DrawGrid() {
     const horizontal = new fabric.Line([xmin, y, xmax, y], options.param);
     if (Math.abs(y % (5 * options.distance)) < 1e-6) {
       horizontal.set({ strokeWidth: gridDistance / 100 });
-      const hText = new fabric.Text(String(y), { left: 0, top: y, fill: options.param.stroke, fontSize: gridDistance / 5 });
+      const hText = new fabric.Text(String(y), { left: 0, top: y, fill: options.param.stroke, selectable:false, hoverCursor: 'default', fontSize: gridDistance / 5 });
       grid_set.push(hText);
     }
     grid_set.push(horizontal);

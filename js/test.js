@@ -5,11 +5,18 @@ let borderTest = function () {
     FormBorderWrapComponent.BorderGroupCreate(heightObjects, widthObjects, { xHeight: 100, borderType: 'stack', colorType: 'Blue Background' })
 }
 
-let dividerTest = async function () {
+let HdividerTest = async function () {
     above = [canvasObject[1]]
       below = [canvasObject[5]]
   
-      await FormBorderWrapComponent.DividerCreate(above, below, {xHeight:100})
+      await FormBorderWrapComponent.HDividerCreate(above, below, {xHeight:100})
+  }
+
+let VdividerTest = async function () {
+    above = [canvasObject[1]]
+      below = [canvasObject[5]]
+  
+      await FormBorderWrapComponent.VDividerCreate(above, below, {xHeight:100})
   }
 
 let loopAnchoredObjectsTest = function () {
@@ -65,11 +72,11 @@ let initShape = async function () {
 
     await FormTextAddComponent.TextonMouseClick(null, { left: 250, top: 250, text: '香港', xHeight: 100 })
 
-    Polygon1 = await drawLabeledSymbol(calcSymbol('StackArrow', 25), 'StackArrow',
+    Polygon1 = await drawLabeledSymbol('StackArrow',
         { x: -450, y: 250, length: 25, angle: -90, color: 'white', });
-    Polygon2 = await drawLabeledSymbol(calcSymbol('Tunnel', 25), 'Tunnel',
+    Polygon2 = await drawLabeledSymbol( 'Tunnel',
         { x: 0, y: 0, length: 25, angle: 0, color: 'white', });
-    Polygon2 = await drawLabeledSymbol(calcSymbol('StackArrow', 25), 'StackArrow',
+    Polygon2 = await drawLabeledSymbol( 'StackArrow',
         { x: 1038, y: 800, length: 25, angle: 90, color: 'white', });
 
     await FormTextAddComponent.TextonMouseClick(null, { left: 300, top: 300, text: 'Kowloon', xHeight: 100, font:'TransportMedium' })
@@ -90,10 +97,10 @@ let movingObjectTest = function () {
     //console.assert(specimen.getEffectiveCoords()[0].x == left + 100, 'Moving failed');
 }
 
-testToRun = [] //[anchorTest, dividerTest, borderTest]
+testToRun = [ VdividerTest, borderTest]
 
 async function runTests(tests) {
-    //await initShape()
+    await initShape()
     for (const test of tests) {
         await test();
     }

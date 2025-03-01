@@ -749,15 +749,6 @@ function calcSymbol(type, length) {
 }
 
 function getInsertOffset(shapeMeta, angle = 0) {
-  shapeMeta.path.map((p) => {
-    let transformed = calculateTransformedPoints(p.vertex, {
-      x: 0,
-      y: 0,
-      angle: angle
-    });
-    p.vertex = transformed
-  });
-
   const vertexleft = Math.min(...shapeMeta.path.map(p => p.vertex).flat().map(v => v.x));
   const vertextop = Math.min(...shapeMeta.path.map(p => p.vertex).flat().map(v => v.y));
   return { left: vertexleft, top: vertextop }
