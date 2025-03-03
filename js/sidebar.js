@@ -356,6 +356,7 @@ let FormDrawMapComponent = {
     const existingRoute = canvas.getActiveObjects()
     
     if (existingRoute.length==1 && existingRoute[0].functionalType === 'MainRoute') {
+      canvas.off('mouse:move', drawBranchRouteOnCursor)
       canvas.on('mouse:move', drawBranchRouteOnCursor)
     }
     if (event && event.target) {

@@ -130,6 +130,9 @@ class GlyphPath extends fabric.Group {
     this.insertPoint = shapeMeta.path[0].vertex[0];
 
     const result = await fabric.loadSVGFromString(pathData)
+    result.objects.map((obj) => {
+      obj.set({strokeWidth:0});
+    });
     this.add(...(result.objects.filter((obj) => !!obj)));
     this.setCoords();
 
@@ -258,7 +261,7 @@ class BaseGroup extends fabric.Group {
     if (!this.basePolygon.vertex) {
       this.basePolygon.vertex = [];
     }
-    if (calc !== false) {
+    if (calc) {
       let basePolygonCoords = Object.values(this.basePolygon.getCoords());
       //basePolygonCoords = [basePolygonCoords[0], basePolygonCoords[1], basePolygonCoords[3], basePolygonCoords[2]]; // tl, tr, bl, br ==> tl, tr, br, bl
       basePolygonCoords.forEach((p, i) => {
