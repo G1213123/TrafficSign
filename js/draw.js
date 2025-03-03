@@ -388,7 +388,7 @@ class BaseGroup extends fabric.Group {
   updateAllCoord(event, sourceList = [], selfOnly = false) {
     const deltaX = this.basePolygon.getCoords()[0].x - this.refTopLeft.left;
     const deltaY = this.basePolygon.getCoords()[0].y - this.refTopLeft.top;
-    this.updateCoord();
+    this.updateCoord(deltaX, deltaY);
     this.refTopLeft = { top: this.basePolygon.getCoords()[0].y, left: this.basePolygon.getCoords()[0].x };
     if (canvas.getActiveObject() === this) {
       this.drawAnchorLinkage();
@@ -403,10 +403,8 @@ class BaseGroup extends fabric.Group {
   }
 
   // Method to update coordinates
-  updateCoord() {
+  updateCoord(updateX, updateY) {
     const polygon = this.basePolygon;
-    const updateX = this.basePolygon.getCoords()[0].x - this.refTopLeft.left;
-    const updateY = this.basePolygon.getCoords()[0].y - this.refTopLeft.top;
 
     const transformedPoints = calculateTransformedPoints(polygon.vertex, {
       x: updateX,
@@ -416,6 +414,7 @@ class BaseGroup extends fabric.Group {
 
     // Update customList with new coordinates
     transformedPoints.forEach((point, index) => {
+      if (!polygon.vertex[index].label.includes("E"))
       polygon.vertex[index].x = point.x;
       polygon.vertex[index].y = point.y;
     });
@@ -424,14 +423,15 @@ class BaseGroup extends fabric.Group {
       this.routeList.forEach((item, index) => {
         item.x += updateX
         item.y += updateY 
-
+      
       })
-      this.routeCenter.forEach((item, index) => {
-        item.x += updateX
-        item.y += updateY 
-      })
- 
     }
+    //  this.routeCenter.forEach((item, index) => {
+    //    item.x += updateX
+    //    item.y += updateY 
+    //  })
+ //
+    //}
 
     polygon.insertPoint = transformedPoints[0];
 

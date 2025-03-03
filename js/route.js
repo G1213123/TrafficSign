@@ -185,16 +185,31 @@ async function receiveNewRoute(route=null) {
  * @return {void}
  */
 function branchRouteOnMove(event) {
-    this.updateAllCoord()
+    //this.updateAllCoord()
     const rootRoute = this.rootRoute
     const branchIndex = rootRoute.branchRoute.indexOf(this)
     rootRoute.routeCenter[branchIndex*2].y = this.basePolygon.vertex[0].y
     rootRoute.routeCenter[branchIndex*2+1].y = this.basePolygon.vertex[6].y
     rootRoute.basePolygon.vertex.find(o => o.label==`C${branchIndex*2+1}`).y = this.basePolygon.vertex[0].y
     rootRoute.basePolygon.vertex.find(o => o.label==`C${branchIndex*2+2}`).y = this.basePolygon.vertex[6].y
-    rootRoute.basePolygon.vertex[branchIndex+1].y = this.basePolygon.vertex[6].y
+    //rootRoute.basePolygon.vertex[branchIndex+1].y = this.basePolygon.vertex[6].y
     rootRoute.receiveNewRoute(this)
     rootRoute.setCoords()
+}
+
+/**
+ * Updates route positions when root is moved
+ * @param {Event} event - Move event
+ * @return {void}
+ */
+function rootRouteOnMove(event) {
+    this.receiveNewRoute(this)
+    this.routeCenter.forEach ((item,index) => {
+        this.basePolygon.vertex.find(o => o.label==`C${index+1}`).y = item.y
+        //this.basePolygon.vertex[branchIndex+1].y = this.basePolygon.vertex[6].y
+    })
+    //this.updateAllCoord()
+    this.setCoords()
 }
 
 /**
@@ -281,6 +296,8 @@ async function cursorRouteOnMouseClick(event, options = null) {
 
         routeMap.on('selected', routeMapOnSelect)
         routeMap.on('deselected', routeMapOnDeselect)
+        routeMap.on('moving', rootRouteOnMove)
+        routeMap.on('modified', rootRouteOnMove)
         routeMap.receiveNewRoute = receiveNewRoute
         canvas.discardActiveObject();
         setTimeout(() => {
@@ -387,8 +404,8 @@ async function finishDrawBranchRoute(event) {
         
         rootRoute.setCoords()
         rootRoute.tempExtend = { top: 0, bottom: 0 }
-        tempBranchShape.on('moving', branchRouteOnMove.bind(tempBranchShape))
-        tempBranchShape.on('modified', branchRouteOnMove.bind(tempBranchShape))
+        tempBranchShape.on('moving', branchRouteOnMove)
+        tempBranchShape.on('modified', branchRouteOnMove)
     }
 }
 
