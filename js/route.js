@@ -2,26 +2,26 @@ const routeMapTemplate = {
     'Arrow': {
         path: [{
             'vertex': [
-                { x: -2, y: 2, label: 'V1', start: 1 },
+                { x: -1, y: 1, label: 'V1', start: 1 },
                 { x: 0, y: 0, label: 'V2', start: 0 },
-                { x: 2, y: 2, label: 'V3', start: 0 },
+                { x: 1, y: 1, label: 'V3', start: 0 },
             ], 'arcs': []
         }],
     },
     'Butt': {
         path: [{
             'vertex': [
-                { x: -2, y: 0, label: 'V1', start: 0 },
+                { x: -1, y: 0, label: 'V1', start: 0 },
                 { x: 0, y: 0, label: 'V2', start: 1 },
-                { x: 2, y: 0, label: 'V3', start: 0 },
+                { x: 1, y: 0, label: 'V3', start: 0 },
             ], 'arcs': []
         }],
     },
     'Root': {
         path: [{
             'vertex': [
-                { x: 2, y: 24, label: 'V1', start: 1 },
-                { x: -2, y: 24, label: 'V2', start: 0 },
+                { x: 1, y: 24, label: 'V1', start: 1 },
+                { x: -1, y: 24, label: 'V2', start: 0 },
             ], 'arcs': []
         }],
     },
@@ -49,28 +49,23 @@ function calcRootVertices(xheight, routeList) {
 
 /**
  * Calculates vertices for branch routes
- * @param {number} xheight - X-height value
+ * @param {number} xHeight - X-height value
  * @param {Object} routeCenter - Center coordinates
  * @param {Array} routeList - List of routes
  * @return {Object} Vertex list object
  */
-function calcBranchVertices(xheight, rootRouteList, routeList) {
-    const length = xheight / 4
+function calcBranchVertices(xHeight, rootRouteList, routeList) {
+    const length = xHeight / 4
 
     // Calculate the direction vector of the arrow
-    let vertexList = [];
-    let RootTop = rootRouteList.filter(item => item.angle === 0)[0]
-    let RootTopVertex = getBranchCoords(RootTop, length)
-    let RootLeft = RootTopVertex[0].x
-    let RootRight = RootTopVertex[2].x
+    let RootLeft = rootRouteList[0].x - rootRouteList[0].width * xHeight / 8
+    let RootRight = rootRouteList[0].x + rootRouteList[0].width * xHeight / 8
 
     // Calculate the arrowhead vertices
     const arrowTipVertex = getBranchCoords(routeList[0], length, RootLeft, RootRight)
 
-    vertexList.push(...arrowTipVertex)
-
-    assignRouteVertex(vertexList)
-    return { path: [{ 'vertex': vertexList, 'arcs': [] }] };
+    assignRouteVertex(arrowTipVertex)
+    return { path: [{ 'vertex': arrowTipVertex, 'arcs': [] }] };
 }
 
 /**
@@ -82,7 +77,8 @@ function calcBranchVertices(xheight, rootRouteList, routeList) {
  * @return {Array} Array of vertex coordinates
  */
 function getBranchCoords(root, length, left, right) {
-    let arrowTipVertex = routeMapTemplate[root.shape]
+    let arrowTipVertex = JSON.parse(JSON.stringify(routeMapTemplate[root.shape]))
+    arrowTipVertex.path[0].vertex.map((v) => { v.x *= root.width / 2; v.y *= root.width / 2 })
     arrowTipVertex = calcSymbol(arrowTipVertex, length)
     arrowTipVertex.path.map((p) => {
         let transformed = calculateTransformedPoints(p.vertex, {
@@ -97,20 +93,20 @@ function getBranchCoords(root, length, left, right) {
         if (root.x < left) {
             const i1 = { x: left, y: arrowTipVertex[0].y - (left - arrowTipVertex[0].x) / Math.tan(root.angle / 180 * Math.PI), radius: length }
             const i2 = { x: left, y: arrowTipVertex[2].y - (left - arrowTipVertex[2].x) / Math.tan(root.angle / 180 * Math.PI), radius: length }
-            const offsetDistance =  Math.tan(Math.abs(root.angle) / 2);
-            const next1 = {x: left, y: i1.y + length}
-            const next2 = {x: left, y: i2.y - length}
+            const offsetDistance = Math.tan(Math.abs(root.angle) / 2);
+            const next1 = { x: left, y: i1.y + length }
+            const next2 = { x: left, y: i2.y - length }
             const i0 = { x: left, y: calculateTangentPoint(i1, next1, offsetDistance).y }
-            const i3 = { x: left, y:calculateTangentPoint(i2, next2, offsetDistance).y}
+            const i3 = { x: left, y: calculateTangentPoint(i2, next2, offsetDistance).y }
             arrowTipVertex = [i0, i1, ...arrowTipVertex, i2, i3]
         } else if (root.x > right) {
             const i1 = { x: right, y: arrowTipVertex[0].y + (arrowTipVertex[0].x - right) / Math.tan(root.angle / 180 * Math.PI), radius: length }
             const i2 = { x: right, y: arrowTipVertex[2].y + (arrowTipVertex[2].x - right) / Math.tan(root.angle / 180 * Math.PI), radius: length }
-            const offsetDistance =  Math.tan(Math.abs(root.angle) / 2);
-            const next1 = {x: right, y: i1.y - length}
-            const next2 = {x: right, y: i2.y + length}
+            const offsetDistance = Math.tan(Math.abs(root.angle) / 2);
+            const next1 = { x: right, y: i1.y - length }
+            const next2 = { x: right, y: i2.y + length }
             const i0 = { x: right, y: calculateTangentPoint(i1, next1, offsetDistance).y }
-            const i3 = { x: right, y:calculateTangentPoint(i2, next2, offsetDistance).y}
+            const i3 = { x: right, y: calculateTangentPoint(i2, next2, offsetDistance).y }
             arrowTipVertex = [i0, i1, ...arrowTipVertex, i2, i3]
         }
     }
@@ -153,14 +149,14 @@ function sortRootList(center, points) {
  * @param {Object} branchRouteList - Optional route object to add
  * @return {Promise<void>}
  */
-async function receiveNewRoute(branchRouteList=null) {
-    if (branchRouteList){
+async function receiveNewRoute(branchRouteList = null) {
+    if (branchRouteList) {
         const vertexList = branchRouteList.path ? branchRouteList.path[0].vertex : branchRouteList.basePolygon.vertex
         const newLeft = vertexList[3].x
         const newBottom = newLeft < this.left ? vertexList[0].y : vertexList[6].y
         this.routeList.forEach(route => {
             if (route.angle === 180) {
-                route.y = Math.max(...[newBottom,...this.routeCenter.map(v => v.y)]) + this.rootLength * this.xHeight / 4
+                route.y = Math.max(...[newBottom, ...this.routeCenter.map(v => v.y)]) + this.rootLength * this.xHeight / 4
             }
         })
     }
@@ -169,7 +165,7 @@ async function receiveNewRoute(branchRouteList=null) {
     await newPolygon.initialize(newVertexList, { left: 0, top: 0, angle: 0, color: 'white', objectCaching: false, dirty: true, strokeWidth: 0, })
     const centerPoints = this.basePolygon.vertex.filter(v => v.label.includes('C'))
     this.replaceBasePolygon(newPolygon)
-    if(centerPoints != []) {this.basePolygon.vertex.push(...centerPoints)}
+    if (centerPoints != []) { this.basePolygon.vertex.push(...centerPoints) }
     this.drawVertex()
 }
 
@@ -178,31 +174,37 @@ async function receiveNewRoute(branchRouteList=null) {
  * @param {Event} event - Move event
  * @return {void}
  */
-async function branchRouteOnMove(event) {
+async function branchRouteOnMove(event, updateRoot = false) {
     //this.updateAllCoord()
     const rootRoute = this.rootRoute
     const branchIndex = rootRoute.branchRoute.indexOf(this)
-    const rootLeft = rootRoute.routeList[0].x - rootRoute.routeList[0].width * rootRoute.xHeight / 4
-    const rootRight = rootRoute.routeList[0].x + rootRoute.routeList[0].width * rootRoute.xHeight / 4
+    const rootLeft = rootRoute.routeList[0].x - rootRoute.routeList[0].width * rootRoute.xHeight / 8
+    const rootRight = rootRoute.routeList[0].x + rootRoute.routeList[0].width * rootRoute.xHeight / 8
     const minBranchXDelta = 13 * this.xHeight / 4
     if (this.routeList[0].x + minBranchXDelta > rootLeft && this.side) {
         this.routeList[0].x = rootLeft - minBranchXDelta
+        this.left = this.routeList[0].x
+        this.refTopLeft.left = this.routeList[0].x
     } else if (this.routeList[0].x - minBranchXDelta < rootRight && !this.side) {
         this.routeList[0].x = rootRight + minBranchXDelta
+        this.left = rootRight
+        this.refTopLeft.left = rootRight
     }
-    
+
     tempVertexList = calcBranchVertices(rootRoute.xHeight, rootRoute.routeList, this.routeList)
     const polygon1 = new GlyphPath()
     await polygon1.initialize(tempVertexList, { left: 0, top: 0, angle: 0, color: 'white', objectCaching: false, dirty: true, strokeWidth: 0, })
     this.replaceBasePolygon(polygon1)
 
-    rootRoute.routeCenter[branchIndex*2].y = this.basePolygon.vertex[0].y
-    rootRoute.routeCenter[branchIndex*2+1].y = this.basePolygon.vertex[6].y
-    rootRoute.basePolygon.vertex.find(o => o.label==`C${branchIndex*2+1}`).y = this.basePolygon.vertex[0].y
-    rootRoute.basePolygon.vertex.find(o => o.label==`C${branchIndex*2+2}`).y = this.basePolygon.vertex[6].y
-    //rootRoute.basePolygon.vertex[branchIndex+1].y = this.basePolygon.vertex[6].y
-    rootRoute.receiveNewRoute(this)
-    rootRoute.setCoords()
+    if (updateRoot) {
+        rootRoute.routeCenter[branchIndex * 2].y = this.basePolygon.vertex[0].y
+        rootRoute.routeCenter[branchIndex * 2 + 1].y = this.basePolygon.vertex[6].y
+        rootRoute.basePolygon.vertex.find(o => o.label == `C${branchIndex * 2 + 1}`).y = this.basePolygon.vertex[0].y
+        rootRoute.basePolygon.vertex.find(o => o.label == `C${branchIndex * 2 + 2}`).y = this.basePolygon.vertex[6].y
+        //rootRoute.basePolygon.vertex[branchIndex+1].y = this.basePolygon.vertex[6].y
+        rootRoute.receiveNewRoute(this)
+        rootRoute.setCoords()
+    }
 }
 
 /**
@@ -211,11 +213,14 @@ async function branchRouteOnMove(event) {
  * @return {void}
  */
 function rootRouteOnMove(event) {
+    this.branchRoute.forEach((branch, index) => {
+        branch.branchRouteOnMove(null, true)
+    })
     this.receiveNewRoute()
-    this.routeCenter.forEach ((item,index) => {
-        if (this.basePolygon.vertex.find(o => o.label==`C${index+1}`)){
+    this.routeCenter.forEach((item, index) => {
+        if (this.basePolygon.vertex.find(o => o.label == `C${index + 1}`)) {
 
-            this.basePolygon.vertex.find(o => o.label==`C${index+1}`).y = item.y
+            this.basePolygon.vertex.find(o => o.label == `C${index + 1}`).y = item.y
         }
         //this.basePolygon.vertex[branchIndex+1].y = this.basePolygon.vertex[6].y
     })
@@ -226,52 +231,62 @@ function rootRouteOnMove(event) {
 /**
  * Draws new route cursor on canvas for initial placement
  * @param {Event} event - The triggering event object
+ * @param {Object} params - Optional parameters for testing
  * @return {Promise<void>}
  */
-async function drawRootRouteOnCursor(event) {
+async function drawRootRouteOnCursor(event, params = null) {
     document.removeEventListener('keydown', ShowHideSideBarEvent);
     document.addEventListener('keydown', cancelDraw);
-    
+
     // Remove existing event listeners first to avoid duplicates
     drawBranchRouteHandlerOff()
-    
+
     // Now attach the event listeners
     canvas.on('mouse:move', FormDrawAddComponent.DrawonMouseMove);
     canvas.on('mouse:down', cursorRouteOnMouseClick);
 
-    const activeRoute = canvas.getActiveObject()
-    var xHeight = document.getElementById('input-xHeight').value
-    var rootLength = parseInt(document.getElementById('root-length').value)
-    var tipLength = parseInt(document.getElementById('tip-length').value)
-    let routeCenter
-    if (!activeRoute || activeRoute.functionalType !== 'MainRoute') {
-        routeCenter = [{ x: 0, y: 0 }, { x: 0, y: 0 }]
-    } else {
-        routeCenter = activeRoute.routeCenter
-    }
-    routeList = [{ x: 0, y: (rootLength+tipLength) * xHeight / 4, angle: 180, width: 6, shape: 'Butt' },
-    { x: 0, y: 0, angle: 0, width: 6, shape: 'Arrow' }
-    ]
+    const activeRoute = canvas.getActiveObject();
 
-    let vertexList = calcRootVertices(xHeight, routeList)
+    // Get parameters either from DOM elements or provided params
+    let xHeight, rootLength, tipLength, routeCenter;
+
+    if (params) {
+        xHeight = params.xHeight || 100;
+        rootLength = params.rootLength || 7;
+        tipLength = params.tipLength || 12;
+        routeCenter = params.routeCenter || [{ x: 0, y: 0 }, { x: 0, y: 0 }];
+    } else {
+        xHeight = document.getElementById('input-xHeight').value;
+        rootLength = parseInt(document.getElementById('root-length').value);
+        tipLength = parseInt(document.getElementById('tip-length').value);
+        routeCenter = (!activeRoute || activeRoute.functionalType !== 'MainRoute') ?
+            [{ x: 0, y: 0 }, { x: 0, y: 0 }] : activeRoute.routeCenter;
+    }
+
+    let routeList = [
+        { x: 0, y: (rootLength + tipLength) * xHeight / 4, angle: 180, width: 6, shape: 'Butt' },
+        { x: 0, y: 0, angle: 0, width: 6, shape: 'Arrow' }
+    ];
+
+    let vertexList = calcRootVertices(xHeight, routeList);
 
     cursor.forEachObject(function (o) { cursor.remove(o) })
-    cursor.xHeight = xHeight
-    cursor.routeCenter = routeCenter
-    cursor.routeList = routeList
-    cursor.tipLength = tipLength
-    cursor.rootLength = rootLength
+    cursor.xHeight = xHeight;
+    cursor.routeCenter = routeCenter;
+    cursor.routeList = routeList;
+    cursor.tipLength = tipLength;
+    cursor.rootLength = rootLength;
 
-    const options = { left: 0, top: 0, angle: 0, color: 'white', objectCaching: false, dirty: true, strokeWidth: 0, }
-    Polygon1 = new GlyphPath()
-    await Polygon1.initialize(vertexList, options)
+    const options = { left: 0, top: 0, angle: 0, color: 'white', objectCaching: false, dirty: true, strokeWidth: 0 };
+    Polygon1 = new GlyphPath();
+    await Polygon1.initialize(vertexList, options);
 
-    symbolOffset = getInsertOffset(vertexList)
-    cursorOffset.x = symbolOffset.left
-    cursorOffset.y = 0
+    symbolOffset = getInsertOffset(vertexList);
+    cursorOffset.x = symbolOffset.left;
+    cursorOffset.y = 0;
 
-    cursor.add(Polygon1)
-    cursor.shapeMeta = vertexList
+    cursor.add(Polygon1);
+    cursor.shapeMeta = vertexList;
 }
 
 /**
@@ -295,7 +310,7 @@ async function cursorRouteOnMouseClick(event, options = null) {
     if (eventButton === 0 && cursor._objects.length) {
         var posx = pointer.x;
         var posy = pointer.y;
-        const arrowOptions1 = { left: posx, top: posy , angle: 0, color: 'white', };
+        const arrowOptions1 = { left: posx, top: posy, angle: 0, color: 'white', };
         const arrow = new GlyphPath();
 
         // Wait for the initialization to complete
@@ -303,7 +318,7 @@ async function cursorRouteOnMouseClick(event, options = null) {
 
         const routeMap = new BaseGroup(arrow, 'MainRoute');
         routeMap.routeList = calculateTransformedPoints(cursor.routeList, { x: posx, y: posy, angle: 0 })
-        routeMap.routeCenter = [{ x: posx, y: posy +cursor.tipLength * cursor.xHeight /4 }, { x: posx, y: posy +cursor.tipLength * cursor.xHeight /4 }]
+        routeMap.routeCenter = [{ x: posx, y: posy + cursor.tipLength * cursor.xHeight / 4 }, { x: posx, y: posy + cursor.tipLength * cursor.xHeight / 4 }]
         routeMap.xHeight = cursor.xHeight
         routeMap.rootLength = cursor.rootLength
         routeMap.tipLength = cursor.tipLength
@@ -327,64 +342,94 @@ async function cursorRouteOnMouseClick(event, options = null) {
 /**
  * Draws branch route cursor for adding routes to existing root
  * @param {Event} event - Mouse event
- * @param {Object} option - Optional parameters
+ * @param {Object} option - Optional parameters for testing
  * @return {Promise<void>}
  */
 async function drawBranchRouteOnCursor(event, option = null) {
     document.removeEventListener('keydown', ShowHideSideBarEvent);
-    const rootRoute = canvas.getActiveObject()
+    const rootRoute = canvas.getActiveObject();
     // Declare variables outside the if-else blocks 
     let routeList = [];
-    let angle;
-    
+    let angle, shape, width, pointer;
+
     if (option) {
-        routeList = option.routeList;
-        angle = option.angle;
+        // Handle direct parameter input for testing
+        if (option.routeList) {
+            // Direct route list provided
+            routeList = option.routeList;
+            angle = option.angle;
+        } else {
+            // Parameters for creating a route list
+            pointer = { x: option.x, y: option.y };
+            angle = option.routeParams?.angle || 60;
+            shape = option.routeParams?.shape || 'Arrow';
+            width = option.routeParams?.width || 4;
+
+            // Create route list with parameters
+            if (pointer.x < rootRoute.routeCenter[0].x) {
+                angle = -Math.abs(angle); // Make angle negative for left side
+            } else {
+                angle = Math.abs(angle);  // Make angle positive for right side
+            }
+
+            routeList.push({
+                x: pointer.x,
+                y: pointer.y,
+                angle: angle,
+                shape: shape,
+                width: width
+            });
+            rootRoute.tempRootList = JSON.parse(JSON.stringify(routeList));
+        }
     } else {
-        let pointer = canvas.getPointer(event.e);
+        // Normal DOM operation
+        pointer = canvas.getPointer(event.e);
         if (pointer.x > rootRoute.getEffectiveCoords()[0].x && pointer.x < rootRoute.getEffectiveCoords()[1].x) {
             return;
         }
+
         var parent = document.getElementById("input-form");
-        //routeList = JSON.parse(JSON.stringify(rootRoute.routeList));
         lastCount = parent.routeCount;
-        angle = parseInt(document.getElementById(`angle-display-${parent.routeCount}`).innerText);
+        angle = parseInt(document.getElementById(`angle-display-${lastCount}`).innerText);
+
         if (pointer.x < rootRoute.routeCenter[0].x) {
             angle = -angle;
         }
-        var shape = document.getElementById(`route${lastCount}-shape`).value;
-        var width = document.getElementById(`route${lastCount}-width`).value;
+
+        shape = document.getElementById(`route${lastCount}-shape`).value;
+        width = document.getElementById(`route${lastCount}-width`).value;
         routeList.push({ x: pointer.x, y: pointer.y, angle: angle, shape: shape, width: width });
         rootRoute.tempRootList = JSON.parse(JSON.stringify(routeList));
     }
-    tempVertexList = calcBranchVertices(rootRoute.xHeight, rootRoute.routeList, routeList)
 
-    cursor.forEachObject(function (o) { cursor.remove(o) })
-    cursor.xHeight = rootRoute.xHeight
-    cursor.routeList = routeList
-    cursor.rootRoute = rootRoute
+    tempVertexList = calcBranchVertices(rootRoute.xHeight, rootRoute.routeList, routeList);
 
-    polygon1 = new GlyphPath()
-    await polygon1.initialize(tempVertexList, { left: 0, top: 0, angle: 0, color: 'white', objectCaching: false, dirty: true, strokeWidth: 0, })
+    cursor.forEachObject(function (o) { cursor.remove(o) });
+    cursor.xHeight = rootRoute.xHeight;
+    cursor.routeList = routeList;
+    cursor.rootRoute = rootRoute;
 
-    symbolOffset = getInsertOffset(tempVertexList)
-    cursorOffset.x = symbolOffset.left
-    cursorOffset.y = symbolOffset.top
+    polygon1 = new GlyphPath();
+    await polygon1.initialize(tempVertexList, { left: 0, top: 0, angle: 0, color: 'white', objectCaching: false, dirty: true, strokeWidth: 0 });
 
-    cursor.add(polygon1)
-    cursor.shapeMeta = tempVertexList
+    symbolOffset = getInsertOffset(tempVertexList);
+    cursorOffset.x = symbolOffset.left;
+    cursorOffset.y = symbolOffset.top;
 
-    rootRoute.receiveNewRoute(tempVertexList)
-    rootRoute.setCoords()
-    canvas.renderAll()
+    cursor.add(polygon1);
+    cursor.shapeMeta = tempVertexList;
+
+    rootRoute.receiveNewRoute(tempVertexList);
+    rootRoute.setCoords();
+    canvas.renderAll();
 
     // Remove existing listeners first to avoid duplicates
-    canvas.off('mouse:down', finishDrawBranchRoute)
-    document.removeEventListener('keydown', cancelDraw)
+    canvas.off('mouse:down', finishDrawBranchRoute);
+    document.removeEventListener('keydown', cancelDraw);
 
     // Add new listeners
-    canvas.on('mouse:down', finishDrawBranchRoute)
-    document.addEventListener('keydown', cancelDraw)
+    canvas.on('mouse:down', finishDrawBranchRoute);
+    document.addEventListener('keydown', cancelDraw);
 }
 
 /**
@@ -404,13 +449,14 @@ async function finishDrawBranchRoute(event) {
         tempBranchShape.side = cursor.left < rootRoute.left
         tempBranchShape.xHeight = cursor.xHeight
         tempBranchShape.routeList = cursor.routeList
+        tempBranchShape.branchRouteOnMove = branchRouteOnMove
         //anchorShape(rootRoute, tempBranchShape, {
         //    vertexIndex1: tempBranchShape.side ? 'E3' : 'E1',
         //    vertexIndex2: tempBranchShape.side ? 'E1' : 'E3',
         //    spacingX: 0,
         //    spacingY: ''
         //})
-        if (rootRoute.branchRoute.length == 0){
+        if (rootRoute.branchRoute.length == 0) {
             rootRoute.routeCenter = []
         }
         rootRoute.branchRoute.push(tempBranchShape)
@@ -420,9 +466,9 @@ async function finishDrawBranchRoute(event) {
         rootRoute.routeCenter.push({ x: rootRoute.routeList[0].x, y: cursor.shapeMeta.path[0].vertex[6].y })
 
         const addIndex = rootRoute.basePolygon.vertex.filter(v => v.label.includes('C')).length
-        rootRoute.basePolygon.vertex.push({ x: rootRoute.routeList[0].x, y: cursor.shapeMeta.path[0].vertex[0].y, label:`C${addIndex+1}` })
-        rootRoute.basePolygon.vertex.push({ x: rootRoute.routeList[0].x, y: cursor.shapeMeta.path[0].vertex[6].y, label:`C${addIndex+2}` })
-        
+        rootRoute.basePolygon.vertex.push({ x: rootRoute.routeList[0].x, y: cursor.shapeMeta.path[0].vertex[0].y, label: `C${addIndex + 1}` })
+        rootRoute.basePolygon.vertex.push({ x: rootRoute.routeList[0].x, y: cursor.shapeMeta.path[0].vertex[6].y, label: `C${addIndex + 2}` })
+
         rootRoute.setCoords()
         tempBranchShape.on('moving', branchRouteOnMove)
         tempBranchShape.on('modified', branchRouteOnMove)
@@ -497,12 +543,12 @@ function routeButtTemplate(xHeight, width, angle, start_pt, endX = null, endY = 
     let Butt = {
         path: [{
             'vertex': [
-                { x: -width/2, y: 0, label: 'V1', start: 0 },
+                { x: -width / 2, y: 0, label: 'V1', start: 0 },
                 { x: 0, y: 0, label: 'V2', start: 1 },
-                { x: width/2, y: 0, label: 'V3', start: 0 },
+                { x: width / 2, y: 0, label: 'V3', start: 0 },
             ], 'arcs': []
         }]
     }
-    calculateTransformedPoints(Butt, { x:start_pt.x, y:start_pt.y, angle })
+    calculateTransformedPoints(Butt, { x: start_pt.x, y: start_pt.y, angle })
     calcSymbol(Butt, xHeight)
 }

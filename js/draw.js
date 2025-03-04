@@ -234,9 +234,15 @@ class BaseGroup extends fabric.Group {
   }
 
   replaceBasePolygon(newBasePolygon) {
-    this.remove(this.basePolygon);
+    this.removeAll();
     this.basePolygon = newBasePolygon;
     this.basePolygon.insertPoint = this.basePolygon.vertex[0];
+    this.left = this.basePolygon.getCoords()[0].x;
+    this.top = this.basePolygon.getCoords()[0].y;
+    this.refTopLeft = {
+      top: this.basePolygon.getCoords()[0].y, 
+      left: this.basePolygon.getCoords()[0].x
+    };
     this.add(this.basePolygon);
     this.drawVertex();
     this.setCoords();
@@ -389,6 +395,9 @@ class BaseGroup extends fabric.Group {
       this.emitDelta(deltaX, deltaY, sourceList);
       this.borderResize(sourceList);
     }
+    if (this.branchRouteOnMove){
+      this.branchRouteOnMove()
+    }
 
   }
 
@@ -404,7 +413,6 @@ class BaseGroup extends fabric.Group {
 
     // Update customList with new coordinates
     transformedPoints.forEach((point, index) => {
-      if (!polygon.vertex[index].label.includes("E"))
       polygon.vertex[index].x = point.x;
       polygon.vertex[index].y = point.y;
     });

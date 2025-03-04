@@ -334,7 +334,7 @@ let FormDrawMapComponent = {
         routeList.forEach((route, index) => { 
           var routeContainer = GeneralHandler.createNode("div", { 'class': 'inputr-container' }, parent);
           GeneralHandler.createselect(`route${index+1}-shape`, `Route ${index+1} Shape`, FormDrawMapComponent.EndShape, routeContainer, route.shape, null, 'change')
-          GeneralHandler.createinput(`route${index+1}-width`, `Route ${index+1} Width`, routeContainer, index+1 == 1 ? 6 : 4, null, 'input')
+          GeneralHandler.createinput(`route${index+1}-width`, `Route ${index+1} Width`, routeContainer, 4, null, 'input')
     
           var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, parent);
           GeneralHandler.createbutton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawMapComponent.setAngle, 'click')

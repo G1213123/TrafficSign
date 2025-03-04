@@ -92,9 +92,9 @@ document.getElementById('set-anchor').addEventListener('click', function () {
     if (!sourceList.includes(shape2)) {
       shape2.updateAllCoord(null, sourceList)
     }
-    if (!sourceList.includes(shape1)) {
-      shape1.updateAllCoord(null, sourceList)
-    }
+    //if (!sourceList.includes(shape1)) {
+    //  shape1.updateAllCoord(null, sourceList)
+    //}
   
   
     if (!shape1.anchoredPolygon.includes(shape2)) {

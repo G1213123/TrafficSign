@@ -97,16 +97,6 @@ let movingObjectTest = function () {
     //console.assert(specimen.getEffectiveCoords()[0].x == left + 100, 'Moving failed');
 }
 
-testToRun = [ VdividerTest, borderTest]
-
-async function runTests(tests) {
-    await initShape()
-    for (const test of tests) {
-        await test();
-    }
-}
-
-runTests(testToRun)
 // MIT http://rem.mit-license.org
 // https://stackoverflow.com/questions/33777577/javascript-get-actual-rendered-font-height
 function textXHeight() {
@@ -209,3 +199,275 @@ function textXHeight() {
         return copy.canvas;
     }
 }
+
+/**
+ * Test suite for route.js functionality
+ */
+const RouteTest = {
+  /**
+   * Helper: Assert that values are close enough
+   */
+  assertAlmostEqual(actual, expected, message = "", tolerance = 1) {
+    if (Math.abs(actual - expected) > tolerance) {
+      console.error(`${message || "Assertion failed"}: Expected ~${expected}, got ${actual}`);
+      return false;
+    }
+    return true;
+  },
+
+  /**
+   * Helper: Assert two vertices are touching
+   */
+  assertVertexTouching(vertex1, vertex2, message = "", tolerance = 1) {
+    const distance = Math.sqrt(
+      Math.pow(vertex1.x - vertex2.x, 2) + 
+      Math.pow(vertex1.y - vertex2.y, 2)
+    );
+    if (distance > tolerance) {
+      console.error(`${message || "Vertices not touching"}: Distance=${distance.toFixed(2)}`);
+      return false;
+    }
+    return true;
+  },
+
+
+  /**
+   * Test creation of a root route using route.js drawing functions
+   */
+  async testRootRoute() {
+    console.log("Testing root route drawing...");
+    // Clear canvas for test
+    canvasObject.forEach(obj =>obj.deleteObject());
+    canvasObject = [];
+    
+    // Set up test parameters
+    const params = {
+      xHeight: 100,
+      rootLength: 7,
+      tipLength: 12,
+      posx: 500,
+      posy: 300
+    };
+    
+    // Use the actual drawing functions with parameters
+    await drawRootRouteOnCursor(null, params);
+    await cursorRouteOnMouseClick(null, { 
+      left: params.posx, 
+      top: params.posy 
+    });
+    
+    // Get the created route from canvasObject
+    const routeMap = canvasObject[0];
+    
+    // Test assertions
+    let passed = true;
+    passed = passed && this.assertAlmostEqual(routeMap.left, params.posx - 3 * params.xHeight / 4, "Route left position incorrect");
+    passed = passed && this.assertAlmostEqual(routeMap.top, params.posy, "Route top position incorrect");
+    passed = passed && routeMap.functionalType === 'MainRoute';
+    
+    // Store for branch tests
+    window.testRootRoute = routeMap;
+    
+    console.log(passed ? "✓ Root route test passed!" : "✗ Root route test failed!");
+    return routeMap;
+  },
+
+  /**
+   * Test creation of a branch route on the left side using route.js drawing functions
+   */
+  async testLeftBranch() {
+    console.log("Testing branch route (left side)...");
+    
+    const rootRoute = canvasObject[0];
+    if (!rootRoute) {
+      console.error("Root route not found! Run testRootRoute first.");
+      return null;
+    }
+    
+    // Set up test parameters
+    const posx = rootRoute.left - 300; // Left of root
+    const posy = rootRoute.top + 300;
+    const params = {
+      xHeight: rootRoute.xHeight,
+      angle: 60,
+      shape: 'Arrow',
+      width: 4
+    };
+    
+    // Set the root route as active object
+    canvas.setActiveObject(rootRoute);
+    
+    // Use actual drawing functions with parameters
+    await drawBranchRouteOnCursor(null, { 
+      x: posx,
+      y: posy,
+      routeParams: params
+    });
+    
+    // Simulate cursor position
+    cursor.left = posx;
+    cursor.top = posy;
+    
+    // Create the branch with a simulated mouse click
+    await finishDrawBranchRoute({ e: { button: 0 } });
+    
+    // Get the created branch route (should be the most recently selected object)
+    const branchRoute = canvasObject[1];
+    
+    // Test assertions
+    let passed = true;
+    passed = passed && branchRoute.functionalType === 'BranchRoute';
+    passed = passed && branchRoute.side === true; // Left side
+    
+    // Check vertices touching root
+    const rootLeft = rootRoute.routeList[0].x - rootRoute.routeList[0].width * rootRoute.xHeight / 8;
+    
+    // Find connecting vertices
+    const touchingVertices = branchRoute.basePolygon.vertex.filter(v => 
+      v.label === 'V3' || v.label === 'V4' || v.label === 'V5' || v.label === 'V6'
+    );
+    
+    // At least one vertex should be close to root route
+    const touchingRoot = touchingVertices.some(v => 
+      Math.abs(v.x - rootLeft) < 1
+    );
+    
+    passed = passed && touchingRoot;
+    if (!touchingRoot) {
+      console.error("Left branch vertices don't touch root route");
+    }
+    
+    window.testLeftBranch = branchRoute;
+    console.log(passed ? "✓ Left branch test passed!" : "✗ Left branch test failed!");
+    return branchRoute;
+  },
+
+  /**
+   * Test creation of a branch route on the right side using route.js drawing functions
+   */
+  async testRightBranch() {
+    console.log("Testing branch route (right side)...");
+    
+    const rootRoute = canvasObject[0];
+    if (!rootRoute) {
+      console.error("Root route not found! Run testRootRoute first.");
+      return null;
+    }
+    
+    // Set up test parameters
+    const posx = rootRoute.left + rootRoute.width + 300; // Right of root
+    const posy = rootRoute.top + 300;
+    const params = {
+      xHeight: rootRoute.xHeight,
+      angle: -60, // Negative angle for right side
+      shape: 'Arrow',
+      width: 4
+    };
+    
+    // Set the root route as active object
+    canvas.setActiveObject(rootRoute);
+    
+    // Use actual drawing functions with parameters
+    await drawBranchRouteOnCursor(null, { 
+      x: posx,
+      y: posy,
+      routeParams: params
+    });
+    
+    // Simulate cursor position
+    cursor.left = posx;
+    cursor.top = posy;
+    
+    // Create the branch with a simulated mouse click
+    await finishDrawBranchRoute({ e: { button: 0 } });
+    
+    // Get the created branch route
+    const branchRoute = canvasObject[2];
+    
+    // Test assertions
+    let passed = true;
+    passed = passed && branchRoute.functionalType === 'BranchRoute';
+    passed = passed && branchRoute.side === false; // Right side
+    
+    // Check vertices touching root
+    const rootRight = rootRoute.routeList[0].x + rootRoute.routeList[0].width * rootRoute.xHeight / 8;
+    
+    // Find connecting vertices
+    const touchingVertices = branchRoute.basePolygon.vertex.filter(v => 
+      v.label === 'V0' || v.label === 'V1' || v.label === 'V5' || v.label === 'V6'
+    );
+    
+    // At least one vertex should be close to root route
+    const touchingRoot = touchingVertices.some(v => 
+      Math.abs(v.x - rootRight) < 1
+    );
+    
+    passed = passed && touchingRoot;
+    if (!touchingRoot) {
+      console.error("Right branch vertices don't touch root route");
+    }
+    
+    window.testRightBranch = branchRoute;
+    console.log(passed ? "✓ Right branch test passed!" : "✗ Right branch test failed!");
+    return branchRoute;
+  },
+  
+  /**
+   * Test branch route movement constraints
+   */
+  async testBranchRouteMovement() {
+    console.log("Testing branch route movement constraints...");
+    
+    const leftBranch = window.testLeftBranch;
+    if (!leftBranch) {
+      console.error("Left branch not found! Run testLeftBranch first.");
+      return false;
+    }
+    
+    const rootRoute = leftBranch.rootRoute;
+    const originalX = leftBranch.left;
+    
+    // Try to move branch too close to root
+    leftBranch.left = rootRoute.left - 10; // Too close
+    await leftBranch.branchRouteOnMove();
+    
+    // Should have been constrained
+    const minDistance = 13 * leftBranch.xHeight / 4;
+    const rootLeft = rootRoute.routeList[0].x - rootRoute.routeList[0].width * rootRoute.xHeight / 8;
+    const expected = rootLeft - minDistance;
+    
+    const passed = this.assertAlmostEqual(
+      leftBranch.left,
+      expected,
+      "Branch route not properly constrained from root",
+      5
+    );
+    
+    console.log(passed ? "✓ Branch movement test passed!" : "✗ Branch movement test failed!");
+    return passed;
+  },
+
+  /**
+   * Run all route tests
+   */
+  runAll: async function() {
+    console.log("Running all route tests...");
+    await this.testRootRoute();
+    await this.testLeftBranch();
+    await this.testRightBranch();
+    await this.testBranchRouteMovement();
+    console.log("Route tests complete!");
+  }
+};
+
+// Update testToRun to include RouteTest
+testToRun = [initShape, RouteTest.runAll.bind(RouteTest)]; // Replace with your actual test list
+
+async function runTests(tests) {
+    await initShape()
+    for (const test of tests) {
+        await test();
+    }
+}
+
+runTests(testToRun)
