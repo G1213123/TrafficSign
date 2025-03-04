@@ -398,6 +398,9 @@ class BaseGroup extends fabric.Group {
     if (this.branchRouteOnMove){
       this.branchRouteOnMove()
     }
+    if (this.rootRouteOnMove){
+      this.rootRouteOnMove()
+    }
 
   }
 

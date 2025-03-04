@@ -174,7 +174,7 @@ async function receiveNewRoute(branchRouteList = null) {
  * @param {Event} event - Move event
  * @return {void}
  */
-async function branchRouteOnMove(event, updateRoot = false) {
+async function branchRouteOnMove(event, updateRoot = true) {
     //this.updateAllCoord()
     const rootRoute = this.rootRoute
     const branchIndex = rootRoute.branchRoute.indexOf(this)
@@ -219,7 +219,6 @@ function rootRouteOnMove(event) {
     this.receiveNewRoute()
     this.routeCenter.forEach((item, index) => {
         if (this.basePolygon.vertex.find(o => o.label == `C${index + 1}`)) {
-
             this.basePolygon.vertex.find(o => o.label == `C${index + 1}`).y = item.y
         }
         //this.basePolygon.vertex[branchIndex+1].y = this.basePolygon.vertex[6].y
@@ -329,6 +328,7 @@ async function cursorRouteOnMouseClick(event, options = null) {
         routeMap.on('moving', rootRouteOnMove)
         routeMap.on('modified', rootRouteOnMove)
         routeMap.receiveNewRoute = receiveNewRoute
+        routeMap.rootRouteOnMove = rootRouteOnMove
         canvas.discardActiveObject();
         setTimeout(() => {
             canvas.setActiveObject(routeMap);
