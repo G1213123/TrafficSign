@@ -299,7 +299,7 @@ let FormTextAddComponent = {
       group.text = textValue
       group.xHeight = xHeight
 
-      drawBasePolygon(group, 'Text', false)
+      new BaseGroup(group, 'Text', {calcVertex:false})
 
       FormTextAddComponent.TextinputHandler(null, { text: cursor.text, xHeight: cursor.xHeight, font:cursor.font })
       canvas.renderAll()
@@ -621,7 +621,7 @@ let FormBorderWrapComponent = {
     const leftRight = leftObjectBBox.right
     const height = leftObjectBBox.bottom - leftObjectBBox.top
     const BaseBorder = await drawDivider(xHeight, leftRight, height, true) // Added true param to indicate vertical divider
-    const borderGroup = drawBasePolygon(BaseBorder, 'VDivider')
+    const borderGroup = new BaseGroup(BaseBorder, 'VDivider')
     borderGroup.xHeight = xHeight
     anchorShape(leftObject, borderGroup, {
       vertexIndex1: 'E1',
@@ -651,7 +651,7 @@ let FormBorderWrapComponent = {
     const aboveBottom = aboveObjectBBox.bottom
     const width = aboveObjectBBox.right - aboveObjectBBox.left
     const BaseBorder = await drawDivider(xHeight, aboveBottom, width)
-    const borderGroup = drawBasePolygon(BaseBorder, 'HDivider')
+    const borderGroup = new BaseGroup(BaseBorder, 'HDivider')
     borderGroup.xHeight = xHeight
     anchorShape(aboveObject, borderGroup, {
       vertexIndex1: 'E2',
@@ -917,7 +917,7 @@ let FormBorderWrapComponent = {
     coords = FormBorderWrapComponent.getBorderObjectCoords(fheightObjects, fwidthObjects)
 
     BaseBorder = drawLabeledBorder(borderType, xHeight, coords, colorType)
-    borderGroup = drawBasePolygon(BaseBorder, 'Border')
+    borderGroup = new BaseGroup(BaseBorder, 'Border')
     borderGroup.widthObjects = [...fwidthObjects]
     borderGroup.heightObjects = [...fheightObjects]
     borderGroup.VDivider = VDivider

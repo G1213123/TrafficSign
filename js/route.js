@@ -58,7 +58,6 @@ function calcBranchVertices(xheight, rootRouteList, routeList) {
     const length = xheight / 4
 
     // Calculate the direction vector of the arrow
-    //routeList = sortRootList(routeCenter, routeList);
     let vertexList = [];
     let RootTop = rootRouteList.filter(item => item.angle === 0)[0]
     let RootTopVertex = getBranchCoords(RootTop, length)
@@ -169,11 +168,8 @@ async function receiveNewRoute(branchRouteList=null) {
     const newPolygon = new GlyphPath()
     await newPolygon.initialize(newVertexList, { left: 0, top: 0, angle: 0, color: 'white', objectCaching: false, dirty: true, strokeWidth: 0, })
     const centerPoints = this.basePolygon.vertex.filter(v => v.label.includes('C'))
-    this.basePolygon = newPolygon
-    this.removeAll()
-    this.add(newPolygon)
+    this.replaceBasePolygon(newPolygon)
     if(centerPoints != []) {this.basePolygon.vertex.push(...centerPoints)}
-    this.setCoords()
     this.drawVertex()
 }
 
@@ -182,10 +178,24 @@ async function receiveNewRoute(branchRouteList=null) {
  * @param {Event} event - Move event
  * @return {void}
  */
-function branchRouteOnMove(event) {
+async function branchRouteOnMove(event) {
     //this.updateAllCoord()
     const rootRoute = this.rootRoute
     const branchIndex = rootRoute.branchRoute.indexOf(this)
+    const rootLeft = rootRoute.routeList[0].x - rootRoute.routeList[0].width * rootRoute.xHeight / 4
+    const rootRight = rootRoute.routeList[0].x + rootRoute.routeList[0].width * rootRoute.xHeight / 4
+    const minBranchXDelta = 13 * this.xHeight / 4
+    if (this.routeList[0].x + minBranchXDelta > rootLeft && this.side) {
+        this.routeList[0].x = rootLeft - minBranchXDelta
+    } else if (this.routeList[0].x - minBranchXDelta < rootRight && !this.side) {
+        this.routeList[0].x = rootRight + minBranchXDelta
+    }
+    
+    tempVertexList = calcBranchVertices(rootRoute.xHeight, rootRoute.routeList, this.routeList)
+    const polygon1 = new GlyphPath()
+    await polygon1.initialize(tempVertexList, { left: 0, top: 0, angle: 0, color: 'white', objectCaching: false, dirty: true, strokeWidth: 0, })
+    this.replaceBasePolygon(polygon1)
+
     rootRoute.routeCenter[branchIndex*2].y = this.basePolygon.vertex[0].y
     rootRoute.routeCenter[branchIndex*2+1].y = this.basePolygon.vertex[6].y
     rootRoute.basePolygon.vertex.find(o => o.label==`C${branchIndex*2+1}`).y = this.basePolygon.vertex[0].y
@@ -291,7 +301,7 @@ async function cursorRouteOnMouseClick(event, options = null) {
         // Wait for the initialization to complete
         await arrow.initialize(cursor.shapeMeta, arrowOptions1)
 
-        const routeMap = drawBasePolygon(arrow, 'MainRoute');
+        const routeMap = new BaseGroup(arrow, 'MainRoute');
         routeMap.routeList = calculateTransformedPoints(cursor.routeList, { x: posx, y: posy, angle: 0 })
         routeMap.routeCenter = [{ x: posx, y: posy +cursor.tipLength * cursor.xHeight /4 }, { x: posx, y: posy +cursor.tipLength * cursor.xHeight /4 }]
         routeMap.xHeight = cursor.xHeight
@@ -389,9 +399,10 @@ async function finishDrawBranchRoute(event) {
 
         const tempBranch = new GlyphPath()
         await tempBranch.initialize(cursor.shapeMeta, { left: 0, top: 0, angle: 0, color: 'white', objectCaching: false, dirty: true, strokeWidth: 0, })
-        const tempBranchShape = drawBasePolygon(tempBranch, 'BranchRoute')
+        const tempBranchShape = new BaseGroup(tempBranch, 'BranchRoute')
 
         tempBranchShape.side = cursor.left < rootRoute.left
+        tempBranchShape.xHeight = cursor.xHeight
         tempBranchShape.routeList = cursor.routeList
         //anchorShape(rootRoute, tempBranchShape, {
         //    vertexIndex1: tempBranchShape.side ? 'E3' : 'E1',
