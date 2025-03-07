@@ -249,15 +249,19 @@ const RouteTest = {
       posy: 300
     };
     
-    // Use the actual drawing functions with parameters
-    await drawRootRouteOnCursor(null, params);
-    await finishDrawRootRoute(null, { 
-      left: params.posx, 
-      top: params.posy 
-    });
+    // Create a MainRoute directly
+    const routeOptions = {
+        routeList: [
+            { x: params.posx, y: params.posy + (params.rootLength+params.tipLength) * params.xHeight / 4, angle: 180, width: 6, shape: 'Butt' },
+            { x: params.posx, y: params.posy, angle: 0, width: 6, shape: 'Arrow' }
+        ],
+        xHeight: params.xHeight,
+        rootLength: params.rootLength,
+        tipLength: params.tipLength
+    };
     
-    // Get the created route from canvasObject
-    const routeMap = canvasObject[0];
+    const routeMap = new MainRoute(routeOptions);
+    await routeMap.initialize(calcRootVertices(params.xHeight, routeOptions.routeList));
     
     // Test assertions
     let passed = true;

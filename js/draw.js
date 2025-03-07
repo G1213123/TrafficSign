@@ -118,23 +118,26 @@ class BaseGroup extends fabric.Group {
       lockScalingX: true,// lock scaling
       lockScalingY: true
     }));
-    //this.type = 'baseGroup';
-    this.basePolygon = basePolygon;
-    //this.basePolygon.set({ 'dirty': true });
+    
     this.functionalType = functionalType;
     this.anchoredPolygon = [];
     this.anchorageLink = [];
     this.subObjects = [];
     this.lockXToPolygon = {};
     this.lockYToPolygon = {};
+    this.refTopLeft = { top: 0, left: 0 }; // Initialize even without basePolygon
 
     canvasObject.push(this);
-    this.canvasID = canvasObject.length - 1
-    this._showName = `<Group ${this.canvasID}> ${functionalType}${basePolygon.text ? ' ' + basePolygon.text : ''}${basePolygon.symbol ? ' ' + basePolygon.symbol : ''}`;
+    this.canvasID = canvasObject.length - 1;
+    this._showName = `<Group ${this.canvasID}> ${functionalType}`;
 
-    this.basePolygon.insertPoint = this.basePolygon.vertex[0];
-    canvas.remove(this.basePolygon);
-    this.add(this.basePolygon);
+    // Add to canvas regardless of basePolygon
+    canvas.add(this);
+    
+    // If basePolygon is provided, initialize with it
+    if (basePolygon) {
+      this.setBasePolygon(basePolygon, options.calcVertex);
+    }
 
     // remove default fabric control
     Object.values(this.controls).forEach((control) => {
@@ -152,27 +155,15 @@ class BaseGroup extends fabric.Group {
       cornerSize: 24,
     });
 
-    this.drawVertex(options.calcVertex)
-
-    this.refTopLeft = {
-      top: this.basePolygon.getCoords()[0].y,
-      left: this.basePolygon.getCoords()[0].x
-    };
-
-    canvas.add(this);
-    CanvasObjectInspector.createObjectListPanelInit()
-
+    CanvasObjectInspector.createObjectListPanelInit();
 
     this.on('selected', () => {
       this.subObjects.forEach(obj => {
         obj.set('opacity', 1);
       });
 
-      this.drawAnchorLinkage()
-      CanvasObjectInspector.SetActiveObjectList(this)
-      //canvas.bringObjectToFront(this)
-      
-      // New: show lock highlights if applicable
+      this.drawAnchorLinkage();
+      CanvasObjectInspector.SetActiveObjectList(this);
       this.showLockHighlights();
     });
 
@@ -186,9 +177,7 @@ class BaseGroup extends fabric.Group {
             o.set('opacity', 0);
           })
         });
-        // New: remove lock highlights
         this.hideLockHighlights();
-        // canvas.sendObjectToBack(this)
       }, 0)
       CanvasObjectInspector.SetActiveObjectList(null)
     });
@@ -233,30 +222,50 @@ class BaseGroup extends fabric.Group {
     this.on('moving', this.updateAllCoord.bind(this));
   }
 
+  /**
+   * Sets the basePolygon after construction
+   * @param {Object} basePolygon - The polygon to set as base
+   * @param {boolean} calcVertex - Whether to calculate vertices
+   */
+  setBasePolygon(basePolygon, calcVertex = true) {
+    this.basePolygon = basePolygon;
+    
+    if (this.basePolygon) {
+      // Update name with additional info if available
+      this._showName = `<Group ${this.canvasID}> ${this.functionalType}${basePolygon.text ? ' ' + basePolygon.text : ''}${basePolygon.symbol ? ' ' + basePolygon.symbol : ''}`;
+      
+      this.basePolygon.insertPoint = this.basePolygon.vertex ? this.basePolygon.vertex[0] : null;
+      canvas.remove(this.basePolygon);
+      this.add(this.basePolygon);
+
+      this.drawVertex(calcVertex);
+
+      // Set reference top-left corner
+      if (this.basePolygon.getCoords) {
+        this.refTopLeft = {
+          top: this.basePolygon.getCoords()[0].y,
+          left: this.basePolygon.getCoords()[0].x
+        };
+      }
+    }
+  }
+
   replaceBasePolygon(newBasePolygon) {
     this.removeAll();
-    this.basePolygon = newBasePolygon;
-    this.basePolygon.insertPoint = this.basePolygon.vertex[0];
-    this.left = this.basePolygon.getCoords()[0].x;
-    this.top = this.basePolygon.getCoords()[0].y;
-    this.refTopLeft = {
-      top: this.basePolygon.getCoords()[0].y, 
-      left: this.basePolygon.getCoords()[0].x
-    };
-    this.add(this.basePolygon);
-    this.drawVertex();
+    this.setBasePolygon(newBasePolygon, false);
     this.setCoords();
   }
 
   drawVertex(calc = true) {
-    // Calculate vertex points for anchoring
+    // If basePolygon doesn't exist, exit early
+    if (!this.basePolygon) return;
 
     if (!this.basePolygon.vertex) {
       this.basePolygon.vertex = [];
     }
+    
     if (calc) {
       let basePolygonCoords = Object.values(this.basePolygon.getCoords());
-      //basePolygonCoords = [basePolygonCoords[0], basePolygonCoords[1], basePolygonCoords[3], basePolygonCoords[2]]; // tl, tr, bl, br ==> tl, tr, br, bl
       basePolygonCoords.forEach((p, i) => {
         this.basePolygon.vertex.push({ x: p.x, y: p.y, label: `E${i * 2 + 1}` });
         const midpoint = {
@@ -266,7 +275,9 @@ class BaseGroup extends fabric.Group {
         };
         this.basePolygon.vertex.push(midpoint);
       });
-      if (this.addMidPointToDivider){this.addMidPointToDivider(this)}
+      if (this.addMidPointToDivider) {
+        this.addMidPointToDivider(this);
+      }
     }
 
     // Draw the vertices and labels
@@ -278,7 +289,6 @@ class BaseGroup extends fabric.Group {
     }
 
     this.setCoords();
-
   }
 
   // Method to emit deltaX and deltaY to anchored groups
@@ -344,6 +354,8 @@ class BaseGroup extends fabric.Group {
   }
 
   getBasePolygonVertex(label) {
+    // Add null check
+    if (!this.basePolygon || !this.basePolygon.vertex) return null;
     return this.basePolygon.vertex.find(v => v.label === label.toUpperCase());
   }
 
@@ -382,30 +394,44 @@ class BaseGroup extends fabric.Group {
   }
   // Method to update coordinates and emit delta
   updateAllCoord(event, sourceList = [], selfOnly = false) {
+    // Check for basePolygon before calculating deltas
+    if (!this.basePolygon || !this.basePolygon.getCoords) {
+      // If basePolygon doesn't exist yet, just return
+      return;
+    }
+    
     const deltaX = this.basePolygon.getCoords()[0].x - this.refTopLeft.left;
     const deltaY = this.basePolygon.getCoords()[0].y - this.refTopLeft.top;
     this.updateCoord(deltaX, deltaY);
     this.refTopLeft = { top: this.basePolygon.getCoords()[0].y, left: this.basePolygon.getCoords()[0].x };
+    
     if (canvas.getActiveObject() === this) {
       this.drawAnchorLinkage();
       this.showLockHighlights();
     }
-    sourceList.includes(this) ? sourceList : sourceList.push(this)
+    
+    sourceList.includes(this) ? sourceList : sourceList.push(this);
     if (!selfOnly) {
       this.emitDelta(deltaX, deltaY, sourceList);
       this.borderResize(sourceList);
     }
-    if (this.branchRouteOnMove){
-      this.branchRouteOnMove()
+    
+    // Check for route-specific methods
+    if (this.branchRouteOnMove) {
+      this.branchRouteOnMove();
     }
-    if (this.rootRouteOnMove){
-      this.rootRouteOnMove()
+    if (this.rootRouteOnMove) {
+      this.rootRouteOnMove();
     }
-
   }
 
   // Method to update coordinates
   updateCoord(updateX, updateY) {
+    // Check for basePolygon
+    if (!this.basePolygon || !this.basePolygon.vertex) {
+      return;
+    }
+    
     const polygon = this.basePolygon;
 
     const transformedPoints = calculateTransformedPoints(polygon.vertex, {
@@ -420,33 +446,34 @@ class BaseGroup extends fabric.Group {
       polygon.vertex[index].y = point.y;
     });
 
-    if (this.routeList){
-      this.routeList.forEach((item, index) => {
-        item.x += updateX
-        item.y += updateY 
-      
-      })
+    if (this.routeList) {
+      this.routeList.forEach((item) => {
+        item.x += updateX;
+        item.y += updateY;
+      });
     }
-    //  this.routeCenter.forEach((item, index) => {
-    //    item.x += updateX
-    //    item.y += updateY 
-    //  })
- //
-    //}
 
     polygon.insertPoint = transformedPoints[0];
-
     polygon.setCoords();
     canvas.renderAll();
   }
 
   getEffectiveCoords() {
+    // Add null check
+    if (!this.basePolygon) {
+      return [
+        { x: this.left, y: this.top },
+        { x: this.left + this.width, y: this.top },
+        { x: this.left + this.width, y: this.top + this.height },
+        { x: this.left, y: this.top + this.height }
+      ];
+    }
+    
     if (this.basePolygon.getCombinedBoundingBoxOfRects) {
       var allCoords = this.basePolygon.getCombinedBoundingBoxOfRects();
       return [allCoords[0], allCoords[2], allCoords[4], allCoords[6]];
     }
     return this.basePolygon.getCoords();
-
   }
 
   // Method to delete the object

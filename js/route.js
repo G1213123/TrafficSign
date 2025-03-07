@@ -120,81 +120,198 @@ function assignRouteVertex(vertexList) {
     })
 }
 
-
 /**
- * Updates base route object when receiving new route additions
- * @param {Object} branchRouteList - Optional route object to add
- * @return {Promise<void>}
+ * MainRoute class extends baseGroup to create route objects
  */
-async function receiveNewRoute(tempBranchRouteList = null) {
-    let newBottom = this.top + (this.tipLength)* this.xHeight / 4
-    if (tempBranchRouteList) {
-        const vertexList = tempBranchRouteList.path ? tempBranchRouteList.path[0].vertex : tempBranchRouteList.basePolygon.vertex
-        const newLeft = vertexList[3].x
-        newBottom = newLeft < this.left ? vertexList[0].y : vertexList[6].y
-
+class MainRoute extends BaseGroup {
+    constructor(options = {}) {
+        // We need to pass null as basePolygon initially, as we'll set it after initialize()
+        super(null, 'MainRoute', options);
+        
+        // Initialize route-specific properties
+        this.routeList = options.routeList || [];
+        this.routeCenter = options.routeCenter || [];
+        this.xHeight = options.xHeight || 100;
+        this.rootLength = options.rootLength || 7;
+        this.tipLength = options.tipLength || 12;
+        this.branchRoute = [];
+        
+        // Bind events
+        this.on('selected', routeMapOnSelect);
+        this.on('deselected', routeMapOnDeselect);
+        this.on('moving', this.onMove.bind(this));
+        this.on('modified', this.onMove.bind(this));
     }
-    this.routeList.forEach(route => {
-        if (route.angle === 180) {
-            route.y = Math.max(...[newBottom, ...this.branchRoute.map(b => b.top + b.height)]) + this.rootLength * this.xHeight / 4
+    
+    /**
+     * Initialize the route with a GlyphPath
+     * @param {Object} vertexList - Vertex data for the route
+     * @return {Promise<MainRoute>} - The initialized route
+     */
+    async initialize(vertexList) {
+        const arrow = new GlyphPath();
+        await arrow.initialize(vertexList, { 
+            left: 0, 
+            top: 0, 
+            angle: 0, 
+            color: 'white',
+            objectCaching: false,
+            dirty: true, 
+            strokeWidth: 0
+        });
+        
+        // Set the basePolygon that was initially null in the constructor
+        this.basePolygon = arrow;
+        this.add(arrow);
+        
+        // Since we're setting basePolygon after the constructor,
+        // we need to manually call some of the initialization that
+        // BaseGroup would have done with the basePolygon
+        this.drawVertex();
+        return this;
+    }
+    
+    /**
+     * Updates base route object when receiving new route additions
+     * @param {Object} branchRouteList - Optional route object to add
+     * @return {Promise<void>}
+     */
+    async receiveNewRoute(tempBranchRouteList = null) {
+        let newBottom = this.top + (this.tipLength) * this.xHeight / 4;
+        if (tempBranchRouteList) {
+            const vertexList = tempBranchRouteList.path ? tempBranchRouteList.path[0].vertex : tempBranchRouteList.basePolygon.vertex;
+            const newLeft = vertexList[3].x;
+            newBottom = newLeft < this.left ? vertexList[0].y : vertexList[6].y;
         }
-    })
-    let newVertexList = calcRootVertices(this.xHeight, this.routeList)
-    const newPolygon = new GlyphPath()
-    await newPolygon.initialize(newVertexList, { left: 0, top: 0, angle: 0, color: 'white', objectCaching: false, dirty: true, strokeWidth: 0, })
-    //const centerPoints = this.basePolygon.vertex.filter(v => v.label.includes('C'))
-    this.replaceBasePolygon(newPolygon)
-    //if (centerPoints != []) { this.basePolygon.vertex.push(...centerPoints) }
-    this.drawVertex(false)
-}
-
-/**
- * Updates route positions when branch is moved
- * @param {Event} event - Move event
- * @return {void}
- */
-async function branchRouteOnMove(event, updateRoot = true) {
-    //this.updateAllCoord()
-    const rootRoute = this.rootRoute
-    const rootLeft = rootRoute.routeList[0].x - rootRoute.routeList[0].width * rootRoute.xHeight / 8
-    const rootRight = rootRoute.routeList[0].x + rootRoute.routeList[0].width * rootRoute.xHeight / 8
-    const minBranchXDelta = 13 * this.xHeight / 4
-    if (this.routeList[0].x + minBranchXDelta > rootLeft && this.side) {
-        this.routeList[0].x = rootLeft - minBranchXDelta
-        this.left = this.routeList[0].x
-        this.refTopLeft.left = this.routeList[0].x
-    } else if (this.routeList[0].x - minBranchXDelta < rootRight && !this.side) {
-        this.routeList[0].x = rootRight + minBranchXDelta
-        this.left = rootRight
-        this.refTopLeft.left = rootRight
+        
+        this.routeList.forEach(route => {
+            if (route.angle === 180) {
+                route.y = Math.max(...[newBottom, ...this.branchRoute.map(b => b.top + b.height)]) + this.rootLength * this.xHeight / 4;
+            }
+        });
+        
+        let newVertexList = calcRootVertices(this.xHeight, this.routeList);
+        const newPolygon = new GlyphPath();
+        await newPolygon.initialize(newVertexList, { 
+            left: 0, 
+            top: 0, 
+            angle: 0, 
+            color: 'white', 
+            objectCaching: false, 
+            dirty: true, 
+            strokeWidth: 0 
+        });
+        
+        this.replaceBasePolygon(newPolygon);
+        this.drawVertex(false);
     }
-
-    tempVertexList = calcBranchVertices(rootRoute.xHeight, rootRoute.routeList, this.routeList)
-    const polygon1 = new GlyphPath()
-    await polygon1.initialize(tempVertexList, { left: 0, top: 0, angle: 0, color: 'white', objectCaching: false, dirty: true, strokeWidth: 0, })
-    this.replaceBasePolygon(polygon1)
-
-    if (updateRoot) {
-
-        //rootRoute.basePolygon.vertex.find(o => o.label == `C${this.branchIndex}`).y = this.basePolygon.vertex[this.side?0:6].y
-        //rootRoute.basePolygon.vertex[branchIndex+1].y = this.basePolygon.vertex[6].y
-        rootRoute.receiveNewRoute(this)
-        rootRoute.setCoords()
+    
+    /**
+     * Updates route positions when root is moved
+     * @param {Event} event - Move event
+     * @return {void}
+     */
+    onMove(event) {
+        this.branchRoute.forEach((branch, index) => {
+            branch.branchRouteOnMove(null, true);
+        });
+        this.receiveNewRoute();
+        this.setCoords();
     }
 }
 
 /**
- * Updates route positions when root is moved
- * @param {Event} event - Move event
- * @return {void}
+ * BranchRoute class extends baseGroup for route branches
  */
-function rootRouteOnMove(event) {
-    this.branchRoute.forEach((branch, index) => {
-        branch.branchRouteOnMove(null, true)
-    })
-    this.receiveNewRoute()
-    //this.updateAllCoord()
-    this.setCoords()
+class BranchRoute extends BaseGroup {
+    constructor(options = {}) {
+        // Initialize with null basePolygon, will set it later
+        super(null, 'BranchRoute', options);
+        
+        // Branch-specific properties
+        this.routeList = options.routeList || [];
+        this.xHeight = options.xHeight || 100;
+        this.rootRoute = options.rootRoute || null;
+        this.side = options.side || false; // false = right, true = left
+        this.branchIndex = options.branchIndex || 0;
+        
+        // Bind events
+        this.on('moving', this.branchRouteOnMove.bind(this));
+        this.on('modified', this.branchRouteOnMove.bind(this));
+    }
+    
+    /**
+     * Initialize the branch with a GlyphPath
+     * @param {Object} vertexList - Vertex data for the branch
+     * @return {Promise<BranchRoute>} - The initialized branch
+     */
+    async initialize(vertexList) {
+        const branch = new GlyphPath();
+        await branch.initialize(vertexList, { 
+            left: 0, 
+            top: 0, 
+            angle: 0, 
+            color: 'white',
+            objectCaching: false,
+            dirty: true, 
+            strokeWidth: 0
+        });
+        
+        // Set the basePolygon that was initially null in the constructor
+        this.basePolygon = branch;
+        this.add(branch);
+        
+        // Manual initialization
+        this.drawVertex();
+        return this;
+    }
+    
+    /**
+     * Updates route positions when branch is moved
+     * @param {Event} event - Move event
+     * @param {boolean} updateRoot - Whether to update the root route
+     * @return {Promise<void>}
+     */
+    async branchRouteOnMove(event, updateRoot = true) {
+        if (!this.rootRoute) return;
+        
+        const rootRoute = this.rootRoute;
+        const rootLeft = rootRoute.routeList[0].x - rootRoute.routeList[0].width * rootRoute.xHeight / 8;
+        const rootRight = rootRoute.routeList[0].x + rootRoute.routeList[0].width * rootRoute.xHeight / 8;
+        const minBranchXDelta = 13 * this.xHeight / 4;
+        
+        // Constrain movement based on side
+        if (this.routeList[0].x + minBranchXDelta > rootLeft && this.side) {
+            this.routeList[0].x = rootLeft - minBranchXDelta;
+            this.left = this.routeList[0].x;
+            this.refTopLeft.left = this.routeList[0].x;
+        } else if (this.routeList[0].x - minBranchXDelta < rootRight && !this.side) {
+            this.routeList[0].x = rootRight + minBranchXDelta;
+            this.left = rootRight;
+            this.refTopLeft.left = rootRight;
+        }
+        
+        // Recalculate vertices
+        const tempVertexList = calcBranchVertices(rootRoute.xHeight, rootRoute.routeList, this.routeList);
+        const polygon1 = new GlyphPath();
+        await polygon1.initialize(tempVertexList, { 
+            left: 0, 
+            top: 0, 
+            angle: 0, 
+            color: 'white', 
+            objectCaching: false, 
+            dirty: true, 
+            strokeWidth: 0 
+        });
+        
+        this.replaceBasePolygon(polygon1);
+        
+        // Update root if needed
+        if (updateRoot) {
+            rootRoute.receiveNewRoute(this);
+            rootRoute.setCoords();
+        }
+    }
 }
 
 /**
@@ -276,30 +393,28 @@ async function finishDrawRootRoute(event, options = null) {
         var posx = pointer.x;
         var posy = pointer.y;
         const arrowOptions1 = { left: posx, top: posy, angle: 0, color: 'white', };
-        const arrow = new GlyphPath();
 
-        // Wait for the initialization to complete
-        await arrow.initialize(cursor.shapeMeta, arrowOptions1)
-
-        const routeMap = new BaseGroup(arrow, 'MainRoute');
-        routeMap.routeList = calculateTransformedPoints(cursor.routeList, { x: posx, y: posy, angle: 0 })
-        routeMap.xHeight = cursor.xHeight
-        routeMap.rootLength = cursor.rootLength
-        routeMap.tipLength = cursor.tipLength
-        routeMap.branchRoute = []
-
-        routeMap.on('selected', routeMapOnSelect)
-        routeMap.on('deselected', routeMapOnDeselect)
-        routeMap.on('moving', rootRouteOnMove)
-        routeMap.on('modified', rootRouteOnMove)
-        routeMap.receiveNewRoute = receiveNewRoute
-        routeMap.rootRouteOnMove = rootRouteOnMove
+        // Create a MainRoute with options
+        const routeOptions = {
+            routeList: calculateTransformedPoints(cursor.routeList, { x: posx, y: posy, angle: 0 }),
+            xHeight: cursor.xHeight,
+            rootLength: cursor.rootLength,
+            tipLength: cursor.tipLength
+        };
+        
+        // Create and initialize the MainRoute
+        const routeMap = new MainRoute(routeOptions);
+        await routeMap.initialize(cursor.shapeMeta);
+        
+        // Set active object
         canvas.discardActiveObject();
         setTimeout(() => {
             canvas.setActiveObject(routeMap);
         }, 300);
-        cursor.forEachObject(function (o) { cursor.remove(o) })
-        drawBranchRouteHandlerOff()
+        
+        // Clean up
+        cursor.forEachObject(function (o) { cursor.remove(o) });
+        drawBranchRouteHandlerOff();
         document.addEventListener('keydown', ShowHideSideBarEvent);
     }
 }
@@ -404,37 +519,50 @@ async function drawBranchRouteOnCursor(event, option = null) {
  */
 async function finishDrawBranchRoute(event) {
     if (event.e.button === 0) {
-        const rootRoute = cursor.rootRoute
-        // not sure why tempBracnch initialisation will remove rootRoute vertex
-        let missingVertex = JSON.parse(JSON.stringify(rootRoute.basePolygon.vertex.filter(v => v.label.includes('C'))))
-
-        const shapeMeta = JSON.parse(JSON.stringify(cursor.shapeMeta))
-        const tempBranch = new GlyphPath()
-        await tempBranch.initialize(shapeMeta, { left: 0, top: 0, angle: 0, color: 'white', objectCaching: false, dirty: false, strokeWidth: 0, })
-        const tempBranchShape = new BaseGroup(tempBranch, 'BranchRoute')
+        const rootRoute = cursor.rootRoute;
+        // Save any existing center vertices on the root route
+        let missingVertex = JSON.parse(JSON.stringify(rootRoute.basePolygon.vertex.filter(v => v.label.includes('C'))));
         
-
-        tempBranchShape.side = cursor.left < rootRoute.left
-        tempBranchShape.xHeight = cursor.xHeight
-        tempBranchShape.routeList = cursor.routeList
-        tempBranchShape.branchRouteOnMove = branchRouteOnMove
-        tempBranchShape.branchIndex = rootRoute.branchRoute.length + 1
+        // Prepare the shape metadata
+        const shapeMeta = JSON.parse(JSON.stringify(cursor.shapeMeta));
+        const isSideLeft = cursor.left < rootRoute.left;
+        const branchIndex = rootRoute.branchRoute.length + 1;
         
-        rootRoute.branchRoute.push(tempBranchShape)
-        tempBranchShape.rootRoute = rootRoute
+        // Create branch route options
+        const branchOptions = {
+            routeList: cursor.routeList,
+            xHeight: cursor.xHeight,
+            rootRoute: rootRoute,
+            side: isSideLeft,
+            branchIndex: branchIndex
+        };
         
-        const connectPoint = cursor.shapeMeta.path[0].vertex[tempBranchShape.side ? 0 : 6]
-        missingVertex.filter(v => !rootRoute.basePolygon.vertex.includes(v))
-        rootRoute.basePolygon.vertex.push(...missingVertex)
-        rootRoute.basePolygon.vertex.push({ x: connectPoint.x, y: connectPoint.y, label: `C${tempBranchShape.branchIndex}` })
+        // Create and initialize the branch
+        const branchRoute = new BranchRoute(branchOptions);
+        await branchRoute.initialize(shapeMeta);
         
-        rootRoute.setCoords()
-        tempBranchShape.on('moving', branchRouteOnMove)
-        tempBranchShape.on('modified', branchRouteOnMove)
+        // Add to root route's branch collection
+        rootRoute.branchRoute.push(branchRoute);
+        
+        // Add connection point for this branch to root route
+        const connectPoint = cursor.shapeMeta.path[0].vertex[isSideLeft ? 0 : 6];
+        missingVertex.filter(v => !rootRoute.basePolygon.vertex.includes(v));
+        rootRoute.basePolygon.vertex.push(...missingVertex);
+        rootRoute.basePolygon.vertex.push({ 
+            x: connectPoint.x, 
+            y: connectPoint.y, 
+            label: `C${branchIndex}` 
+        });
+        
+        // Update coordinates
+        rootRoute.setCoords();
+        
+        // Make the new branch active after a slight delay
         setTimeout(() => {
-            canvas.setActiveObject(tempBranchShape);
+            canvas.setActiveObject(branchRoute);
         }, 300);
-        drawBranchRouteHandlerOff()
+        
+        drawBranchRouteHandlerOff();
     }
 }
 

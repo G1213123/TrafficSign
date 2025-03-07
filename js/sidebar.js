@@ -1074,7 +1074,7 @@ let CanvasObjectInspector = {
     canvasObject.forEach((obj, index) => {
       const div = document.createElement('div');
       div.className = 'object-list-item';
-      div.innerText = `Group (${index}) : ${obj.functionalType}`;
+      div.innerText = obj._showName ;
       div.id = `Group (${index})`;
       div.addEventListener('click', () => {
         // Remove 'selected' class from all items
