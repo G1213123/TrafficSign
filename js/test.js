@@ -251,7 +251,7 @@ const RouteTest = {
     
     // Use the actual drawing functions with parameters
     await drawRootRouteOnCursor(null, params);
-    await cursorRouteOnMouseClick(null, { 
+    await finishDrawRootRoute(null, { 
       left: params.posx, 
       top: params.posy 
     });

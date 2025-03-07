@@ -464,11 +464,20 @@ class BaseGroup extends fabric.Group {
     //delete route branch
     if (deleteObj.rootRoute) {
       const rootRoute = deleteObj.rootRoute
-      const index = rootRoute.branchRoute.indexOf(deleteObj)
-      rootRoute.branchRoute.splice(index, 1)
-      const index2 = rootRoute.anchoredPolygon.indexOf(deleteObj)
-      rootRoute.anchoredPolygon.splice(index2, 1)
-      deleteObj.rootRoute = null
+      const branchIndex = rootRoute.branchRoute.indexOf(deleteObj)
+      rootRoute.branchRoute.splice(branchIndex, 1)
+      
+      //deleteObj.rootRoute = null
+
+      // Find and remove the vertices with matching labels for the branch being deleted
+      const vertexLabels = [`C${branchIndex }`];
+      rootRoute.basePolygon.vertex = rootRoute.basePolygon.vertex.filter(vertex => 
+        !vertexLabels.includes(vertex.label)
+      );
+
+      rootRoute.receiveNewRoute()
+      rootRoute.setCoords()
+
     } else if (deleteObj.branchRoute) {
       const branchRoute = deleteObj.branchRoute
       branchRoute.forEach(branch => {
