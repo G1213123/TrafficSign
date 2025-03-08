@@ -67,7 +67,7 @@ let GeneralHandler = {
     }
     return node
   },
-  createbutton: function (name, labelTxt, parent, container = 'input', callback = null, event = null) {
+  createButton: function (name, labelTxt, parent, container = 'input', callback = null, event = null) {
     if (container) {
       var inputContainer = GeneralHandler.createNode("div", { 'class': `${container}-container` }, parent)
     }
@@ -75,16 +75,16 @@ let GeneralHandler = {
     input.innerHTML = labelTxt
   },
 
-  createinput: function (name, labelTxt, parent, defaultv = null, callback = null, event = null) {
+  createInput: function (name, labelTxt, parent, defaultV = null, callback = null, event = null) {
     var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent)
     //var labelEdge = GeneralHandler.createNode("div", { 'class': 'cut' }, inputContainer)
     var label = GeneralHandler.createNode("label", { 'class': 'placeholder', 'for': name }, inputContainer)
     var input = GeneralHandler.createNode("input", { 'type': 'text', 'class': 'input', 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
     label.innerHTML = labelTxt
-    defaultv ? input.value = defaultv : input.value = ''
+    defaultV ? input.value = defaultV : input.value = ''
   },
 
-  createselect: function (name, labelTxt, options, parent, defaultv = null, callback = null, event = null) {
+  createSelect: function (name, labelTxt, options, parent, defaultV = null, callback = null, event = null) {
     var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent)
     var label = GeneralHandler.createNode("label", { 'class': 'placeholder', 'for': name }, inputContainer)
     var input = GeneralHandler.createNode("select", { 'class': 'input', 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
@@ -95,8 +95,8 @@ let GeneralHandler = {
       option.text = options[i];
       input.appendChild(option);
     }
-    if (defaultv !== null) {
-      input.value = defaultv;
+    if (defaultV !== null) {
+      input.value = defaultV;
     }
   }
 }
@@ -110,18 +110,18 @@ let FormTextAddComponent = {
     tabNum = 2
     var parent = GeneralHandler.PanelInit()
     if (parent) {
-      GeneralHandler.createinput('input-text', 'Add Text', parent, '', FormTextAddComponent.TextinputHandler, 'input')
-      GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100, FormTextAddComponent.TextinputHandler, 'input')
-      GeneralHandler.createselect('input-textFont', 'Text Font',FormTextAddComponent.textFont,parent,'TransportMedium', FormTextAddComponent.TextinputHandler, 'input')
-      canvas.on('mouse:move', FormTextAddComponent.TextonMouseMove)
-      canvas.on('mouse:down', FormTextAddComponent.TextonMouseClick)
+      GeneralHandler.createInput('input-text', 'Add Text', parent, '', FormTextAddComponent.TextInputHandler, 'input')
+      GeneralHandler.createInput('input-xHeight', 'x Height', parent, 100, FormTextAddComponent.TextInputHandler, 'input')
+      GeneralHandler.createSelect('input-textFont', 'Text Font',FormTextAddComponent.textFont,parent,'TransportMedium', FormTextAddComponent.TextInputHandler, 'input')
+      canvas.on('mouse:move', FormTextAddComponent.TextOnMouseMove)
+      canvas.on('mouse:down', FormTextAddComponent.TextOnMouseClick)
     }
   },
 
   TextHandlerOff: function (event) {
     cursor.forEachObject(function (o) { cursor.remove(o) })
-    canvas.off('mouse:move', FormTextAddComponent.TextonMouseMove)
-    canvas.off('mouse:down', FormTextAddComponent.TextonMouseClick)
+    canvas.off('mouse:move', FormTextAddComponent.TextOnMouseMove)
+    canvas.off('mouse:down', FormTextAddComponent.TextOnMouseClick)
     document.addEventListener('keydown', ShowHideSideBarEvent);
     document.removeEventListener('keydown', FormTextAddComponent.cancelInput)
     canvas.renderAll()
@@ -134,7 +134,7 @@ let FormTextAddComponent = {
     }
   },
 
-  TextinputHandler: function (event, options = null) {
+  TextInputHandler: function (event, options = null) {
     document.removeEventListener('keydown', ShowHideSideBarEvent);
     document.addEventListener('keydown', FormTextAddComponent.cancelInput)
     cursor.forEachObject(function (o) { cursor.remove(o) })
@@ -157,7 +157,7 @@ let FormTextAddComponent = {
 
   },
 
-  createTextObject: function (txt, xHeight, Efont) {
+  createTextObject: function (txt, xHeight, EFont) {
     let txtCharList = []
     let txtFrameList = []
     let left_pos = 0
@@ -188,11 +188,11 @@ let FormTextAddComponent = {
 
         left_pos += 2.75 * xHeight
       } else {
-        const fontWidth = Efont.replace('Transport','') == 'Heavy'?FormTextAddComponent.textWidthHeavy:FormTextAddComponent.textWidthMedium 
+        const fontWidth = EFont.replace('Transport','') == 'Heavy'?FormTextAddComponent.textWidthHeavy:FormTextAddComponent.textWidthMedium 
         charWidth = fontWidth.find(e => e.char == txt.charAt(i)).width
 
         txt_char = new fabric.Text(txt.charAt(i), {
-          fontFamily: Efont,
+          fontFamily: EFont,
           left: left_pos,
           top: 6,
           fill: '#fff',
@@ -222,18 +222,18 @@ let FormTextAddComponent = {
     return [txtCharList, txtFrameList]
   },
 
-  TextonMouseMove: function (event) {
+  TextOnMouseMove: function (event) {
     var pointer = canvas.getPointer(event.e);
-    var posx = pointer.x;
-    var posy = pointer.y;
+    var posX = pointer.x;
+    var posY = pointer.y;
     cursor.set({
-      left: posx,
-      top: posy
+      left: posX,
+      top: posY
     });
     canvas.renderAll();
   },
 
-  TextonMouseClick: async function (event, options = null) {
+  TextOnMouseClick: async function (event, options = null) {
     //permanent cursor object 
     if (options) {
       cursor.set(
@@ -301,7 +301,7 @@ let FormTextAddComponent = {
 
       new BaseGroup(group, 'Text', {calcVertex:false})
 
-      FormTextAddComponent.TextinputHandler(null, { text: cursor.text, xHeight: cursor.xHeight, font:cursor.font })
+      FormTextAddComponent.TextInputHandler(null, { text: cursor.text, xHeight: cursor.xHeight, font:cursor.font })
       canvas.renderAll()
     }
   },
@@ -322,22 +322,22 @@ let FormDrawMapComponent = {
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       parent.routeCount = 0
-      GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100, null, 'input')
-      GeneralHandler.createbutton('button-DrawMap', 'Draw New Route Symbol', parent, 'input', drawRootRouteOnCursor, 'click')
-      GeneralHandler.createinput('root-length', 'root length', parent, 7, null, 'input')
-      GeneralHandler.createinput('tip-length', 'tip length', parent, 12, null, 'input')
+      GeneralHandler.createInput('input-xHeight', 'x Height', parent, 100, null, 'input')
+      GeneralHandler.createButton('button-DrawMap', 'Draw New Route Symbol', parent, 'input', drawRootRouteOnCursor, 'click')
+      GeneralHandler.createInput('root-length', 'root length', parent, 7, null, 'input')
+      GeneralHandler.createInput('tip-length', 'tip length', parent, 12, null, 'input')
 
       const existingRoute = canvas.getActiveObjects().length == 1 && canvas.getActiveObject.functionalType == 'MainRoute' ? canvas.getActiveObjects()[0] : null
       const routeList = existingRoute ? existingRoute.routeList : FormDrawMapComponent.defaultRoute
 
       if (routeList){
         routeList.forEach((route, index) => { 
-          var routeContainer = GeneralHandler.createNode("div", { 'class': 'inputr-container' }, parent);
-          GeneralHandler.createselect(`route${index+1}-shape`, `Route ${index+1} Shape`, FormDrawMapComponent.EndShape, routeContainer, route.shape, null, 'change')
-          GeneralHandler.createinput(`route${index+1}-width`, `Route ${index+1} Width`, routeContainer, 4, null, 'input')
+          var routeContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent);
+          GeneralHandler.createSelect(`route${index+1}-shape`, `Route ${index+1} Shape`, FormDrawMapComponent.EndShape, routeContainer, route.shape, null, 'change')
+          GeneralHandler.createInput(`route${index+1}-width`, `Route ${index+1} Width`, routeContainer, 4, null, 'input')
     
           var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, parent);
-          GeneralHandler.createbutton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawMapComponent.setAngle, 'click')
+          GeneralHandler.createButton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawMapComponent.setAngle, 'click')
           var angleDisplay = GeneralHandler.createNode("div", { 'id': `angle-display-${index+1}`, 'class': 'angle-display' }, angleContainer);
           angleDisplay.innerText = route.angle + '°';
           parent.routeCount += 1
@@ -392,14 +392,14 @@ let FormDrawAddComponent = {
     tabNum = 1
     var parent = GeneralHandler.PanelInit()
     if (parent) {
-      GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100, null, 'input')
+      GeneralHandler.createInput('input-xHeight', 'x Height', parent, 100, null, 'input')
 
       // Replace slider with two rotate buttons:
       var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, parent);
 
-      var btnRotateLeft = GeneralHandler.createbutton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawAddComponent.setAngle, 'click')
+      var btnRotateLeft = GeneralHandler.createButton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawAddComponent.setAngle, 'click')
 
-      var btnRotateRight = GeneralHandler.createbutton(`rotate-right`, '<i class="fa-solid fa-rotate-right"></i>', angleContainer, null, FormDrawAddComponent.setAngle, 'click')
+      var btnRotateRight = GeneralHandler.createButton(`rotate-right`, '<i class="fa-solid fa-rotate-right"></i>', angleContainer, null, FormDrawAddComponent.setAngle, 'click')
 
       var angleDisplay = GeneralHandler.createNode("div", { 'id': 'angle-display', 'class': 'angle-display' }, angleContainer);
       angleDisplay.innerText = FormDrawAddComponent.symbolAngle + '°';
@@ -407,7 +407,7 @@ let FormDrawAddComponent = {
       //GeneralHandler.createbutton('button-approach-arm', 'Add Approach arm', parent, 0, FormDrawAddComponent.drawApproachClick, 'click')
       Object.keys(symbolsTemplate).forEach(symbol => {
         const button = FormDrawAddComponent.createButtonSVG(symbol, 5)
-        GeneralHandler.createbutton(`button-${symbol}`, button, parent, 'symbol', FormDrawAddComponent.drawSymbolOnCursor, 'click')
+        GeneralHandler.createButton(`button-${symbol}`, button, parent, 'symbol', FormDrawAddComponent.drawSymbolOnCursor, 'click')
       })
     }
   },
@@ -430,12 +430,12 @@ let FormDrawAddComponent = {
 
   DrawHandlerOff: function (event) {
     cursor.forEachObject(function (o) { cursor.remove(o) })
-    canvas.off('mouse:move', FormDrawAddComponent.DrawonMouseMove)
+    canvas.off('mouse:move', FormDrawAddComponent.DrawOnMouseMove)
     canvas.off('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
     canvas.renderAll()
   },
 
-  DrawonMouseMove: function (event) {
+  DrawOnMouseMove: function (event) {
     var pointer = canvas.getPointer(event.e);
     var posx = pointer.x;
     var posy = pointer.y;
@@ -502,7 +502,7 @@ let FormDrawAddComponent = {
   },
   drawSymbolOnCursor: async (event, options = null) => {
     canvas.off('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
-    canvas.on('mouse:move', FormDrawAddComponent.DrawonMouseMove)
+    canvas.on('mouse:move', FormDrawAddComponent.DrawOnMouseMove)
     canvas.on('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
 
     cursor.forEachObject(function (o) { cursor.remove(o) })
@@ -559,7 +559,7 @@ let FormDrawAddComponent = {
   cancelDraw: (event) => {
     if (event.key === 'Escape') {
       cursor.forEachObject(function (o) { cursor.remove(o) })
-      canvas.off('mouse:move', FormTextAddComponent.TextonMouseMove)
+      canvas.off('mouse:move', FormTextAddComponent.TextOnMouseMove)
       canvas.off('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
       canvas.requestRenderAll()
       setTimeout(() => {
@@ -576,12 +576,12 @@ let FormBorderWrapComponent = {
     tabNum = 3
     var parent = GeneralHandler.PanelInit()
     if (parent) {
-      GeneralHandler.createinput('input-xHeight', 'x Height', parent, 100)
-      GeneralHandler.createselect('input-type', 'Select Border Type', Object.keys(BorderTypeScheme), parent, null, '', '', 'select')
-      GeneralHandler.createselect('input-color', 'Select Color Scheme', Object.keys(BorderColorScheme), parent, null, '', '', 'select')
-      GeneralHandler.createbutton('input-border', 'Select Objects for border', parent, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
-      GeneralHandler.createbutton('input-HDivider', 'Add stack border divider', parent, 'input', FormBorderWrapComponent.StackDividerHandler, 'click')
-      GeneralHandler.createbutton('input-VDivider', 'Add gantry border divider', parent, 'input', FormBorderWrapComponent.GantryDividerHandler, 'click')
+      GeneralHandler.createInput('input-xHeight', 'x Height', parent, 100)
+      GeneralHandler.createSelect('input-type', 'Select Border Type', Object.keys(BorderTypeScheme), parent, null, '', '', 'select')
+      GeneralHandler.createSelect('input-color', 'Select Color Scheme', Object.keys(BorderColorScheme), parent, null, '', '', 'select')
+      GeneralHandler.createButton('input-border', 'Select Objects for border', parent, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
+      GeneralHandler.createButton('input-HDivider', 'Add stack border divider', parent, 'input', FormBorderWrapComponent.StackDividerHandler, 'click')
+      GeneralHandler.createButton('input-VDivider', 'Add gantry border divider', parent, 'input', FormBorderWrapComponent.GantryDividerHandler, 'click')
     }
   },
   BorderCreateHandler: async function () {

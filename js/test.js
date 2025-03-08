@@ -68,9 +68,9 @@ let equalAnchorTest = function () {
 
 let initShape = async function () {
 
-    await FormTextAddComponent.TextonMouseClick(null, { left: -550, top: -500, text: 'Hong Kong', xHeight: 100, font:'TransportMedium' })
+    await FormTextAddComponent.TextOnMouseClick(null, { left: -550, top: -500, text: 'Hong Kong', xHeight: 100, font:'TransportMedium' })
 
-    await FormTextAddComponent.TextonMouseClick(null, { left: 250, top: 250, text: '香港', xHeight: 100 })
+    await FormTextAddComponent.TextOnMouseClick(null, { left: 250, top: 250, text: '香港', xHeight: 100 })
 
     Polygon1 = await drawLabeledSymbol('StackArrow',
         { x: -450, y: 250, length: 25, angle: -90, color: 'white', });
@@ -79,9 +79,9 @@ let initShape = async function () {
     Polygon2 = await drawLabeledSymbol( 'StackArrow',
         { x: 1038, y: 800, length: 25, angle: 90, color: 'white', });
 
-    await FormTextAddComponent.TextonMouseClick(null, { left: 300, top: 300, text: 'Kowloon', xHeight: 100, font:'TransportMedium' })
+    await FormTextAddComponent.TextOnMouseClick(null, { left: 300, top: 300, text: 'Kowloon', xHeight: 100, font:'TransportMedium' })
 
-    await FormTextAddComponent.TextonMouseClick(null, { left: 250, top: 250, text: '九龍', xHeight: 100 })
+    await FormTextAddComponent.TextOnMouseClick(null, { left: 250, top: 250, text: '九龍', xHeight: 100 })
 
     //Polygon3 = drawLabeledBorder('stack', 100, {left:0, top: 0, right:1550, bottom:500}, "Blue Background")
     //console.log(canvasObject)

@@ -325,7 +325,7 @@ class BaseGroup extends fabric.Group {
   allNodesProcessed(sourceList = []) {
     canvasObject.map(o => o.lockXToPolygon).filter(o => o.secondSourceObject).forEach(o => { EQanchorShape('x', o, sourceList) })
     canvasObject.map(o => o.lockYToPolygon).filter(o => o.secondSourceObject).forEach(o => { EQanchorShape('y', o, sourceList) })
-    console.log('All nodes processed');
+    //console.log('All nodes processed');
     // Call another function here
   }
 
