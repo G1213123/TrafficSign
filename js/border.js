@@ -310,7 +310,7 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
     return GroupedBorder;
 }
 
-drawDivider = async function (xHeight, top, width, vertical=false){
+drawDivider = async function (xHeight, top, left, width, vertical=false){
     const length = xHeight / 4
     const Xwidth = width / length
     
@@ -352,7 +352,9 @@ drawDivider = async function (xHeight, top, width, vertical=false){
     dividerTemplate.forEach(p => {
         p.vertex.forEach(vertex => {
             vertex.x *= length;
+            vertex.x += left + (vertical ? 2.5 : Xwidth / 2) * length;
             vertex.y *= length;
+            vertex.y += top + (vertical ? Xwidth / 2 : 1.5) * length;
             if (vertex.radius) vertex.radius *= length;
         });
     });

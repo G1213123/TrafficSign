@@ -222,55 +222,6 @@ class MainRoute extends BaseGroup {
 }
 
 /**
- * Applies position constraints to branch route coordinates
- * @param {Object} rootRoute - The parent route object
- * @param {Array} branchRouteList - The branch route list to constrain
- * @param {boolean} isSideLeft - Whether branch is on left side
- * @param {number} xHeight - X-height value for measurements
- * @return {Object} - Updated branch route data and vertex list
- */
-function applyBranchConstraints(rootRoute, branchRouteList, isSideLeft, xHeight) {
-    // Make a copy to avoid modifying the original
-    const routeList = JSON.parse(JSON.stringify(branchRouteList));
-    
-    // Horizontal constraint based on side
-    const rootLeft = rootRoute.routeList[0].x - rootRoute.routeList[0].width * rootRoute.xHeight / 8;
-    const rootRight = rootRoute.routeList[0].x + rootRoute.routeList[0].width * rootRoute.xHeight / 8;
-    const minBranchXDelta = 13 * xHeight / 4;
-    
-    // Constrain movement based on side (left or right)
-    if (routeList[0].x + minBranchXDelta > rootLeft && isSideLeft) {
-        // Left side branch constraint
-        routeList[0].x = rootLeft - minBranchXDelta;
-    } else if (routeList[0].x - minBranchXDelta < rootRight && !isSideLeft) {
-        // Right side branch constraint
-        routeList[0].x = rootRight + minBranchXDelta;
-    }
-
-    // Vertical constraint based on root route top
-    const rootTop = rootRoute.routeList[1].y;
-    const tipLength = rootRoute.tipLength * rootRoute.xHeight / 4;
-    
-    // Calculate vertices with current position
-    let tempVertexList = calcBranchVertices(rootRoute.xHeight, rootRoute.routeList, routeList);
-    
-    // Get the vertex that should touch the root (depends on side)
-    const rootTopTouchY = tempVertexList.path[0].vertex[isSideLeft ? 6 : 0];
-    
-    // Ensure branch doesn't go above root + tip length
-    if (rootTopTouchY.y < rootTop + tipLength) {
-        // Push branch down if needed
-        const adjustment = rootTop + tipLength - rootTopTouchY.y;
-        routeList[0].y += adjustment;
-        
-        // Recalculate vertices with new position
-        tempVertexList = calcBranchVertices(rootRoute.xHeight, rootRoute.routeList, routeList);
-    }
-    
-    return { routeList, tempVertexList };
-}
-
-/**
  * BranchRoute class extends baseGroup for route branches
  */
 class BranchRoute extends BaseGroup {
@@ -324,6 +275,7 @@ class BranchRoute extends BaseGroup {
     constrainBranchPosition(rootRoute) {
         // Use the common constraint function
         const result = applyBranchConstraints(
+            this,
             rootRoute, 
             this.routeList, 
             this.side, 
@@ -332,9 +284,9 @@ class BranchRoute extends BaseGroup {
         
         // Update instance properties with constrained values
         this.routeList = result.routeList;
-        this.left = this.side ? this.routeList[0].x : this.left;
+        //this.left = this.side ? this.routeList[0].x : this.left;
         this.refTopLeft.left = this.side ? this.routeList[0].x : this.refTopLeft.left;
-        this.top = this.routeList[0].y;
+        //this.top = this.routeList[0].y;
         this.refTopLeft.top = this.routeList[0].y;
         
         return result.tempVertexList;
@@ -374,6 +326,58 @@ class BranchRoute extends BaseGroup {
             rootRoute.setCoords();
         }
     }
+}
+
+/**
+ * Applies position constraints to branch route coordinates
+ * @param {Object} rootRoute - The parent route object
+ * @param {Array} branchRouteList - The branch route list to constrain
+ * @param {boolean} isSideLeft - Whether branch is on left side
+ * @param {number} xHeight - X-height value for measurements
+ * @return {Object} - Updated branch route data and vertex list
+ */
+function applyBranchConstraints(branchRoute, rootRoute, branchRouteList, isSideLeft, xHeight) {
+    // Make a copy to avoid modifying the original
+    const routeList = JSON.parse(JSON.stringify(branchRouteList));
+    
+    // Horizontal constraint based on side
+    const rootLeft = rootRoute.routeList[0].x - rootRoute.routeList[0].width * rootRoute.xHeight / 8;
+    const rootRight = rootRoute.routeList[0].x + rootRoute.routeList[0].width * rootRoute.xHeight / 8;
+    const minBranchXDelta = 13 * xHeight / 4;
+    
+    // Constrain movement based on side (left or right)
+    if (routeList[0].x + minBranchXDelta > rootLeft && isSideLeft) {
+        // Left side branch constraint
+        routeList[0].x = rootLeft - minBranchXDelta;
+        branchRoute.left = routeList[0].x;
+    } else if (routeList[0].x - minBranchXDelta < rootRight && !isSideLeft) {
+        // Right side branch constraint
+        routeList[0].x = rootRight + minBranchXDelta;
+        branchRoute.left = rootRight
+    }
+
+    // Vertical constraint based on root route top
+    const rootTop = rootRoute.routeList[1].y;
+    const tipLength = rootRoute.tipLength * rootRoute.xHeight / 4;
+    
+    // Calculate vertices with current position
+    let tempVertexList = calcBranchVertices(rootRoute.xHeight, rootRoute.routeList, routeList);
+    
+    // Get the vertex that should touch the root (depends on side)
+    const rootTopTouchY = tempVertexList.path[0].vertex[isSideLeft ? 5 : 1];
+    
+    // Ensure branch doesn't go above root + tip length
+    if (rootTopTouchY.y < rootTop + tipLength) {
+        // Push branch down if needed
+        const adjustment = rootTop + tipLength - rootTopTouchY.y;
+        routeList[0].y += adjustment;
+        branchRoute.top += adjustment;
+        
+        // Recalculate vertices with new position
+        tempVertexList = calcBranchVertices(rootRoute.xHeight, rootRoute.routeList, routeList);
+    }
+    
+    return { routeList, tempVertexList };
 }
 
 /**
@@ -546,6 +550,7 @@ async function drawBranchRouteOnCursor(event, option = null) {
     
     // Apply the same constraints as when moving a branch route
     const constrainedResult = applyBranchConstraints(
+        cursor,
         rootRoute, 
         routeList, 
         isSideLeft, 
@@ -642,6 +647,7 @@ async function finishDrawBranchRoute(event) {
 function drawBranchRouteHandlerOff(event) {
     cursor.forEachObject(function (o) { cursor.remove(o) })
     canvas.off('mouse:move', drawBranchRouteOnCursor)
+    canvas.off('mouse:move', drawRootRouteOnCursor)
     canvas.off('mouse:down', finishDrawBranchRoute)
     canvas.off('mouse:down', finishDrawRootRoute)
     canvas.off('mouse:down', finishDrawRootRoute);

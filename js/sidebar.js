@@ -112,7 +112,7 @@ let FormTextAddComponent = {
     if (parent) {
       GeneralHandler.createInput('input-text', 'Add Text', parent, '', FormTextAddComponent.TextInputHandler, 'input')
       GeneralHandler.createInput('input-xHeight', 'x Height', parent, 100, FormTextAddComponent.TextInputHandler, 'input')
-      GeneralHandler.createSelect('input-textFont', 'Text Font',FormTextAddComponent.textFont,parent,'TransportMedium', FormTextAddComponent.TextInputHandler, 'input')
+      GeneralHandler.createSelect('input-textFont', 'Text Font', FormTextAddComponent.textFont, parent, 'TransportMedium', FormTextAddComponent.TextInputHandler, 'input')
       canvas.on('mouse:move', FormTextAddComponent.TextOnMouseMove)
       canvas.on('mouse:down', FormTextAddComponent.TextOnMouseClick)
     }
@@ -141,9 +141,9 @@ let FormTextAddComponent = {
     cursor.txtChar = []
     cursor.text = ''
     cursor.shapeMeta = null
-    const txt = options?options.text:document.getElementById('input-text').value
-    const xHeight = options?options.xHeight:document.getElementById('input-xHeight').value
-    const font = options?options.font:document.getElementById('input-textFont').value
+    const txt = options ? options.text : document.getElementById('input-text').value
+    const xHeight = options ? options.xHeight : document.getElementById('input-xHeight').value
+    const font = options ? options.font : document.getElementById('input-textFont').value
 
     txtObjects = FormTextAddComponent.createTextObject(txt, xHeight, font)
 
@@ -188,7 +188,7 @@ let FormTextAddComponent = {
 
         left_pos += 2.75 * xHeight
       } else {
-        const fontWidth = EFont.replace('Transport','') == 'Heavy'?FormTextAddComponent.textWidthHeavy:FormTextAddComponent.textWidthMedium 
+        const fontWidth = EFont.replace('Transport', '') == 'Heavy' ? FormTextAddComponent.textWidthHeavy : FormTextAddComponent.textWidthMedium
         charWidth = fontWidth.find(e => e.char == txt.charAt(i)).width
 
         txt_char = new fabric.Text(txt.charAt(i), {
@@ -299,9 +299,9 @@ let FormTextAddComponent = {
       group.text = textValue
       group.xHeight = xHeight
 
-      new BaseGroup(group, 'Text', {calcVertex:false})
+      new BaseGroup(group, 'Text', { calcVertex: false })
 
-      FormTextAddComponent.TextInputHandler(null, { text: cursor.text, xHeight: cursor.xHeight, font:cursor.font })
+      FormTextAddComponent.TextInputHandler(null, { text: cursor.text, xHeight: cursor.xHeight, font: cursor.font })
       canvas.renderAll()
     }
   },
@@ -317,7 +317,7 @@ let FormDrawMapComponent = {
    * Initializes the map drawing panel with input fields and buttons
    * @return {void}
    */
-  drawMapPanelInit: function() {
+  drawMapPanelInit: function () {
     tabNum = 4
     var parent = GeneralHandler.PanelInit()
     if (parent) {
@@ -330,15 +330,15 @@ let FormDrawMapComponent = {
       const existingRoute = canvas.getActiveObjects().length == 1 && canvas.getActiveObject.functionalType == 'MainRoute' ? canvas.getActiveObjects()[0] : null
       const routeList = existingRoute ? existingRoute.routeList : FormDrawMapComponent.defaultRoute
 
-      if (routeList){
-        routeList.forEach((route, index) => { 
+      if (routeList) {
+        routeList.forEach((route, index) => {
           var routeContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent);
-          GeneralHandler.createSelect(`route${index+1}-shape`, `Route ${index+1} Shape`, FormDrawMapComponent.EndShape, routeContainer, route.shape, null, 'change')
-          GeneralHandler.createInput(`route${index+1}-width`, `Route ${index+1} Width`, routeContainer, 4, null, 'input')
-    
+          GeneralHandler.createSelect(`route${index + 1}-shape`, `Route ${index + 1} Shape`, FormDrawMapComponent.EndShape, routeContainer, route.shape, null, 'change')
+          GeneralHandler.createInput(`route${index + 1}-width`, `Route ${index + 1} Width`, routeContainer, 4, null, 'input')
+
           var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, parent);
           GeneralHandler.createButton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawMapComponent.setAngle, 'click')
-          var angleDisplay = GeneralHandler.createNode("div", { 'id': `angle-display-${index+1}`, 'class': 'angle-display' }, angleContainer);
+          var angleDisplay = GeneralHandler.createNode("div", { 'id': `angle-display-${index + 1}`, 'class': 'angle-display' }, angleContainer);
           angleDisplay.innerText = route.angle + '°';
           parent.routeCount += 1
         })
@@ -351,11 +351,11 @@ let FormDrawMapComponent = {
    * @param {Event} event - The triggering event object
    * @return {void} 
    */
-  addRouteInput: function(event) {
+  addRouteInput: function (event) {
     var parent = document.getElementById("input-form");
     const existingRoute = canvas.getActiveObjects()
-    
-    if (existingRoute.length==1 && existingRoute[0].functionalType === 'MainRoute') {
+
+    if (existingRoute.length == 1 && existingRoute[0].functionalType === 'MainRoute') {
       canvas.off('mouse:move', drawBranchRouteOnCursor)
       canvas.on('mouse:move', drawBranchRouteOnCursor)
     }
@@ -377,7 +377,7 @@ let FormDrawMapComponent = {
     const angleDisplay = parentContainer.querySelector('[id^="angle-display-"]');
     // Extract the current angle value
     const currentText = angleDisplay.innerText.slice(0, -1); // Remove the degree symbol
-    
+
     const angleIndex = FormDrawMapComponent.permitAngle.indexOf(parseInt(currentText))
     //FormDrawMapComponent.routeAngle = FormDrawMapComponent.permitAngle[(angleIndex + 1) % FormDrawMapComponent.permitAngle.length]
 
@@ -620,7 +620,7 @@ let FormBorderWrapComponent = {
     const leftObjectBBox = FormBorderWrapComponent.getBoundingBox(leftObjects)
     const leftRight = leftObjectBBox.right
     const height = leftObjectBBox.bottom - leftObjectBBox.top
-    const BaseBorder = await drawDivider(xHeight, leftRight, height, true) // Added true param to indicate vertical divider
+    const BaseBorder = await drawDivider(xHeight, leftObjectBBox.top, leftRight, height, true) // Added true param to indicate vertical divider
     const borderGroup = new BaseGroup(BaseBorder, 'VDivider')
     borderGroup.xHeight = xHeight
     anchorShape(leftObject, borderGroup, {
@@ -635,7 +635,8 @@ let FormBorderWrapComponent = {
       spacingX: 2.5 * xHeight / 4,
       spacingY: ''
     })
-
+    borderGroup.setCoords()
+    borderGroup.updateAllCoord()
   },
 
   HDividerCreate: async function (aboveObjects, belowObjects, options = null) {
@@ -650,7 +651,7 @@ let FormBorderWrapComponent = {
     const aboveObjectBBox = FormBorderWrapComponent.getBoundingBox(aboveObjects)
     const aboveBottom = aboveObjectBBox.bottom
     const width = aboveObjectBBox.right - aboveObjectBBox.left
-    const BaseBorder = await drawDivider(xHeight, aboveBottom, width)
+    const BaseBorder = await drawDivider(xHeight, aboveBottom, aboveObjectBBox.left, width)
     const borderGroup = new BaseGroup(BaseBorder, 'HDivider')
     borderGroup.xHeight = xHeight
     anchorShape(aboveObject, borderGroup, {
@@ -665,59 +666,60 @@ let FormBorderWrapComponent = {
       spacingX: '',
       spacingY: 1. * xHeight / 4
     })
+    borderGroup.setCoords()
+    borderGroup.updateAllCoord()
+  },
 
-    },
-
-    getExtremeObject: function (objects, direction) {
+  getExtremeObject: function (objects, direction) {
     let extremeObject = null;
     let extremeValue = direction === 'bottom' || direction === 'right' ? -Infinity : Infinity;
 
     objects.forEach(obj => {
       let value;
-      
-      switch(direction) {
-      case 'bottom':
-        value = obj.top + obj.height * obj.scaleY;
-        if (value > extremeValue) {
-        extremeValue = value;
-        extremeObject = obj;
-        }
-        break;
-      case 'top':
-        value = obj.top;
-        if (value < extremeValue) {
-        extremeValue = value;
-        extremeObject = obj;
-        }
-        break;
-      case 'right':
-        value = obj.left + obj.width * obj.scaleX;
-        if (value > extremeValue) {
-        extremeValue = value;
-        extremeObject = obj;
-        }
-        break;
-      case 'left':
-        value = obj.left;
-        if (value < extremeValue) {
-        extremeValue = value;
-        extremeObject = obj;
-        }
-        break;
+
+      switch (direction) {
+        case 'bottom':
+          value = obj.top + obj.height * obj.scaleY;
+          if (value > extremeValue) {
+            extremeValue = value;
+            extremeObject = obj;
+          }
+          break;
+        case 'top':
+          value = obj.top;
+          if (value < extremeValue) {
+            extremeValue = value;
+            extremeObject = obj;
+          }
+          break;
+        case 'right':
+          value = obj.left + obj.width * obj.scaleX;
+          if (value > extremeValue) {
+            extremeValue = value;
+            extremeObject = obj;
+          }
+          break;
+        case 'left':
+          value = obj.left;
+          if (value < extremeValue) {
+            extremeValue = value;
+            extremeObject = obj;
+          }
+          break;
       }
     });
 
     return extremeObject;
-    },
+  },
 
-    // For backward compatibility
-    getBottomMostObject: function (objects) {
+  // For backward compatibility
+  getBottomMostObject: function (objects) {
     return this.getExtremeObject(objects, 'bottom');
-    },
+  },
 
-    getTopMostObject: function (objects) {
+  getTopMostObject: function (objects) {
     return this.getExtremeObject(objects, 'top');
-    },
+  },
 
   // Function to get the bounding box of specific objects
   getBoundingBox: function (objects) {
@@ -955,36 +957,28 @@ let FormBorderWrapComponent = {
     const innerHeight = borderSize.height - frame * 2
     const innerLeft = borderSize.left + frame
     const innerTop = borderSize.top + frame
-    borderGroup.HDivider.forEach(d => {
+    for (const d of borderGroup.HDivider) {
       // Store the group's initial top position
       const initialTop = d.getEffectiveCoords()[0].y
-      drawDivider(d.xHeight, 0, innerWidth).then((res) => {
-        d.removeAll()
-        d.add(res)
-        d.basePolygon = res
-        d.set({ top: initialTop, left: innerLeft });
-        d.setCoords()
-        d.drawVertex()
-        d.updateAllCoord(null, sourceList)
-      })
-    })
-    borderGroup.VDivider.forEach(d => {
+      const res = await drawDivider(d.xHeight, d.top, d.left, innerWidth)
+      d.replaceBasePolygon(res) 
+      d.set({ top: initialTop, left: innerLeft });
+      d.updateAllCoord(null, sourceList)
+    }
+
+    for (const d of borderGroup.VDivider) {
       // Store the group's initial top position
       const initialLeft = d.getEffectiveCoords()[0].x
-      drawDivider(d.xHeight, 0, innerHeight, true).then((res) => {
-        d.removeAll()
-        d.add(res)
-        d.basePolygon = res
-        d.set({ top: innerTop, left: initialLeft });
-        d.setCoords()
-        d.drawVertex()
-        d.updateAllCoord(null, sourceList)
-      })
-    })
-
+      const res = await drawDivider(d.xHeight, d.top, d.left, innerHeight, true)
+      d.replaceBasePolygon(res) 
+      d.set({ top: innerTop, left: initialLeft });
+      d.updateAllCoord(null, sourceList)
+    }
   }
 
 }
+
+
 
 /* Debug Panel */
 let FormDebugComponent = {
@@ -1074,7 +1068,7 @@ let CanvasObjectInspector = {
     canvasObject.forEach((obj, index) => {
       const div = document.createElement('div');
       div.className = 'object-list-item';
-      div.innerText = obj._showName ;
+      div.innerText = obj._showName;
       div.id = `Group (${index})`;
       div.addEventListener('click', () => {
         // Remove 'selected' class from all items

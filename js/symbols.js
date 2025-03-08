@@ -832,7 +832,7 @@ function vertexToPath(shapeMeta) {
         }
       })
       // Check Char Width without blocking
-      console.log(new fabric.Path( `<path d="${charPath.toPathData()}" />`).width)
+      //console.log(new fabric.Path( `<path d="${charPath.toPathData()}" />`).width)
 
       svgContent += `<path d="${charPath.toPathData()}" fill="${fillColor}" />`;
     })

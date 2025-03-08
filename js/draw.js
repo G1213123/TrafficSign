@@ -100,10 +100,9 @@ class GlyphPath extends fabric.Group {
     this.insertPoint = shapeMeta.path[0].vertex[0];
 
     const result = await fabric.loadSVGFromString(pathData)
-    result.objects.map((obj) => {
-      obj.set({strokeWidth:0});
-    });
-    this.add(...(result.objects.filter((obj) => !!obj)));
+    const obj = fabric.util.groupSVGElements(result.objects, {strokeWidth:0});
+
+    this.add(obj);
     this.setCoords();
 
   }
@@ -134,15 +133,15 @@ class BaseGroup extends fabric.Group {
     // Add to canvas regardless of basePolygon
     canvas.add(this);
     
-    // If basePolygon is provided, initialize with it
-    if (basePolygon) {
-      this.setBasePolygon(basePolygon, options.calcVertex);
-    }
-
     // remove default fabric control
     Object.values(this.controls).forEach((control) => {
       control.visible = false;
     })
+    
+    // If basePolygon is provided, initialize with it
+    if (basePolygon) {
+      this.setBasePolygon(basePolygon, true);
+    }
 
     // add delete control
     this.controls.deleteControl = new fabric.Control({
@@ -158,10 +157,6 @@ class BaseGroup extends fabric.Group {
     CanvasObjectInspector.createObjectListPanelInit();
 
     this.on('selected', () => {
-      this.subObjects.forEach(obj => {
-        obj.set('opacity', 1);
-      });
-
       this.drawAnchorLinkage();
       CanvasObjectInspector.SetActiveObjectList(this);
       this.showLockHighlights();
@@ -169,9 +164,6 @@ class BaseGroup extends fabric.Group {
 
     this.on('deselected', () => {
       setTimeout(() => {
-        this.subObjects.forEach(obj => {
-          obj.set('opacity', 0);
-        });
         this.anchorageLink.forEach(obj => {
           obj.forEach(o => {
             o.set('opacity', 0);
@@ -232,7 +224,7 @@ class BaseGroup extends fabric.Group {
     
     if (this.basePolygon) {
       // Update name with additional info if available
-      this._showName = `<Group ${this.canvasID}> ${this.functionalType}${basePolygon.text ? ' ' + basePolygon.text : ''}${basePolygon.symbol ? ' ' + basePolygon.symbol : ''}`;
+      this._showName = `<Group ${this.canvasID}> ${this.functionalType}${basePolygon.text ? ' - ' + basePolygon.text : ''}${basePolygon.symbol ? ' - ' + basePolygon.symbol : ''}`;
       
       this.basePolygon.insertPoint = this.basePolygon.vertex ? this.basePolygon.vertex[0] : null;
       canvas.remove(this.basePolygon);
@@ -252,7 +244,7 @@ class BaseGroup extends fabric.Group {
 
   replaceBasePolygon(newBasePolygon) {
     this.removeAll();
-    this.setBasePolygon(newBasePolygon, false);
+    this.setBasePolygon(newBasePolygon);
     this.setCoords();
   }
 
