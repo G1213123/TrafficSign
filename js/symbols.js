@@ -480,6 +480,48 @@ const symbolsTemplate = {
     ]
   },
 
+  'Route2': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '2', x: -2.4, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route3': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '3', x: -2.54, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
   'Route4': {
     path: [ // 3.5.7.7
       {
@@ -498,6 +540,174 @@ const symbolsTemplate = {
     ],
     text: [
       { character: '4', x: -2.64, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route5': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '5', x: -2.44, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route6': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '6', x: -2.52, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route7': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '7', x: -2.08, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route8': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '8', x: -2.6, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route9': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '9', x: -2.56, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route10': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 6, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 6, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -6, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -6, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 9, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 9, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '10', x: -4.22, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route11': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 6, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 6, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -6, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -6, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 9, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 9, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '11', x: -3.12, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route12': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 6, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 6, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -6, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -6, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 9, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 9, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '12', x: -3.96, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
     ]
   },
 
