@@ -328,20 +328,21 @@ class BaseGroup extends fabric.Group {
       const BG = this.borderGroup
       BG.removeAll()
       // Get the bounding box of the active selection 
-      let coords = FormBorderWrapComponent.getBorderObjectCoords(BG.heightObjects, BG.widthObjects)
+      let coords = BorderUtilities.getBorderObjectCoords(BG.heightObjects, BG.widthObjects)
 
       // handle roundings on borders and dividers
-      const rounding = calcBorderRounding(BG.borderType, BG.xHeight, coords)
-      FormBorderWrapComponent.RoundingToDivider(BG.HDivider, BG.VDivider, rounding, sourceList)
-      coords = FormBorderWrapComponent.getBorderObjectCoords(BG.heightObjects, BG.widthObjects)
+      const rounding = BorderUtilities.calcBorderRounding(BG.borderType, BG.xHeight, coords)
+      BorderUtilities.RoundingToDivider(BG.HDivider, BG.VDivider, rounding, sourceList)
+      coords = BorderUtilities.getBorderObjectCoords(BG.heightObjects, BG.widthObjects)
 
       const borderObject = drawLabeledBorder(BG.borderType, BG.xHeight, coords, BG.color)
 
-      BG.add(borderObject)
-      BG.basePolygon = borderObject
-      FormBorderWrapComponent.assignWidthToDivider(BG, sourceList)
-      BG.updateAllCoord(null, sourceList)
-      BG.drawVertex()
+          BG.add(borderObject)
+          BG.basePolygon = borderObject
+          BorderUtilities.assignWidthToDivider(BG, sourceList)
+          BG.updateAllCoord(null, sourceList)
+          BG.drawVertex()
+        
     }
   }
 

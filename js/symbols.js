@@ -272,7 +272,7 @@ const symbolsTemplate = {
           { x: 11, y: 16, label: 'V3', radius: 1.5, start: 0 },
           { x: -11, y: 16, label: 'V4', radius: 1.5, start: 0 },
           { x: -11, y: 0, label: 'V5', radius: 1.5, start: 0 },
-          { x: 0, y: 1, label: 'V6',  start: 1 },
+          { x: 0, y: 1, label: 'V6', start: 1 },
           { x: -10, y: 1, label: 'V7', radius: 0.5, start: 0 },
           { x: -10, y: 15, label: 'V8', radius: 0.5, start: 0 },
           { x: 10, y: 15, label: 'V9', radius: 0.5, start: 0 },
@@ -476,7 +476,7 @@ const symbolsTemplate = {
       },
     ],
     text: [
-      { character: '1', x:-1.56, y: -0.9, fontSize: 8*0.94, fontFamily: 'TransportMedium', fill: 'black' },
+      { character: '1', x: -1.56, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
     ]
   },
 
@@ -497,7 +497,7 @@ const symbolsTemplate = {
       },
     ],
     text: [
-      { character: '4', x:-2.64, y: -0.9, fontSize: 8*0.94, fontFamily: 'TransportMedium', fill: 'black' },
+      { character: '4', x: -2.64, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
     ]
   },
 
@@ -547,7 +547,7 @@ const symbolsTemplate = {
         ], 'fill': '#ffffff'
       },
     ],
-    text: [ ]
+    text: []
   },
 
   'Hospital': {
@@ -557,8 +557,8 @@ const symbolsTemplate = {
           { x: 0, y: 0, label: 'V1', start: 1 },
           { x: 0, y: 16, label: 'V2', start: 0 },
         ], 'arcs': [
-          { start: 'V1', end: 'V2', radius: 8,  direction: 1, sweep: 0 },
-          { start: 'V2', end: 'V1', radius: 8,  direction: 1, sweep: 0 },
+          { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+          { start: 'V2', end: 'V1', radius: 8, direction: 1, sweep: 0 },
         ], 'fill': 'white'
       },
       {
@@ -576,10 +576,10 @@ const symbolsTemplate = {
           { x: -6.5, y: 6, label: 'V13', start: 0 },
           { x: -2, y: 6, label: 'V14', start: 0 },
           { x: -2, y: 1.5, label: 'V15', start: 0 },
-        ], 'arcs': [ ], 'fill': '#ff0101'
+        ], 'arcs': [], 'fill': '#ff0101'
       },
     ],
-    text: [ ]
+    text: []
   },
 
   'Disney': {
@@ -593,15 +593,15 @@ const symbolsTemplate = {
           { x: -2.7767, y: 4.4704, label: 'V5', start: 0 },
 
         ], 'arcs': [
-          { start: 'V1', end: 'V2', radius: 5.555,  direction: 1, sweep: 0 },
-          { start: 'V2', end: 'V3', radius: 3.234,  direction: 1, sweep: 1 },
-          { start: 'V3', end: 'V4', radius: 5.555,  direction: 1, sweep: 1 },
-          { start: 'V4', end: 'V5', radius: 3.234,  direction: 1, sweep: 1 },
-          { start: 'V5', end: 'V1', radius: 5.555,  direction: 1, sweep: 0 },
+          { start: 'V1', end: 'V2', radius: 5.555, direction: 1, sweep: 0 },
+          { start: 'V2', end: 'V3', radius: 3.234, direction: 1, sweep: 1 },
+          { start: 'V3', end: 'V4', radius: 5.555, direction: 1, sweep: 1 },
+          { start: 'V4', end: 'V5', radius: 3.234, direction: 1, sweep: 1 },
+          { start: 'V5', end: 'V1', radius: 5.555, direction: 1, sweep: 0 },
         ], 'fill': 'white'
       },
     ],
-    text: [ ]
+    text: []
   },
 
   'Exit': {
@@ -645,7 +645,7 @@ const symbolsTemplate = {
           { x: 0.543, y: 0.2, label: 'V1', start: 1 },
           { x: 0.8, y: 0.2, label: 'V2', start: 0 },
           { x: 0.8, y: 2.2, label: 'V2', start: 0 },
-          { x: 0.543, y: 2.2, label: 'V1', start: 0},
+          { x: 0.543, y: 2.2, label: 'V1', start: 0 },
         ], 'arcs': [
         ], 'fill': 'white'
       },
@@ -693,31 +693,33 @@ const symbolsTemplate = {
           { x: -1.3333, y: 3.5333, label: 'V1', start: 0 },
           { x: -0.4, y: 3.5333, label: 'V1', start: 0 },
           { x: -0.4, y: 2.6, label: 'V1', start: 0 },
-          
+
         ], 'arcs': [
         ], 'fill': 'white'
       },
     ],
-    text: [ ]
+    text: []
   },
 
 
 };
 
-let FontGlyphs = { 'TransportMedium': null, 'Chinese': null }
-const TransportMediumBuffer = fetch('./css/font/TransportMedium.woff').then(res => res.arrayBuffer());
-TransportMediumBuffer.then(data => {
-  FontGlyphs.TransportMedium = opentype.parse(data);
-})
+async function getFontPath(t) {
+  let buffer;
+  if (t.fontFamily == 'TransportMedium') {
+    buffer = await fetch('./css/font/TransportMedium.woff').then(res => res.arrayBuffer());
+  } else {
+    buffer = await fetch('./css/font/NotoSansHK-Bold.ttf').then(res => res.arrayBuffer());
+  }
+  const FontGlyphs = opentype.parse(buffer);
+  return FontGlyphs.getPath(t.character, t.x, t.y, t.fontSize, { flipY: true });
+}
 
-const ChineseBuffer = fetch('./css/font/NotoSansHK-Bold.ttf').then(res => res.arrayBuffer());
-ChineseBuffer.then(data => {
-  FontGlyphs.Chinese = opentype.parse(data);
-})
+
 
 function calcSymbol(type, length) {
   let symbol
-  if (typeof type === 'string'){
+  if (typeof type === 'string') {
     const symbolsT = JSON.parse(JSON.stringify(symbolsTemplate)); // Deep copy to avoid mutation
     symbol = symbolsT[type];
   } else {
@@ -732,7 +734,7 @@ function calcSymbol(type, length) {
     });
     path.arcs.forEach(arc => {
       arc.radius *= length;
-      if (arc.radius2) {arc.radius2 *= length;}
+      if (arc.radius2) { arc.radius2 *= length; }
     });
   });
 
@@ -755,7 +757,7 @@ function getInsertOffset(shapeMeta, angle = 0) {
 }
 
 // draw segment in svg between vertex
-function drawSegement(current, next, previous, prevArc, final=false) {
+function drawSegement(current, next, previous, prevArc, final = false) {
   let pathString = ''
   if (current.radius) {
     // Calculate the exterior angle θ
@@ -778,7 +780,7 @@ function drawSegement(current, next, previous, prevArc, final=false) {
     pathString += ` A ${current.radius} ${current.radius} 0 0 ${1 - arcDirection} ${nextTangent.x} ${nextTangent.y}`
 
   } else if (prevArc && (!current.start || final)) {
-    pathString += ` A ${prevArc.radius} ${prevArc.radius2?prevArc.radius2:prevArc.radius} 0 ${prevArc.sweep} ${prevArc.direction} ${current.x} ${current.y}`
+    pathString += ` A ${prevArc.radius} ${prevArc.radius2 ? prevArc.radius2 : prevArc.radius} 0 ${prevArc.sweep} ${prevArc.direction} ${current.x} ${current.y}`
   } else {
     // Line to the next point
     pathString += ` ${current.start ? 'M' : 'L'} ${current.x} ${current.y}`;
@@ -820,21 +822,18 @@ function vertexToPath(shapeMeta) {
   })
 
   // handle text objects in path
-  if (shapeMeta.text) {
+  if (shapeMeta.text && shapeMeta.text.length > 0) {
     shapeMeta.text.forEach(t => {
-      const fillColor = t.fill || 'white';
-      charPath = FontGlyphs[t.fontFamily].getPath(t.character, t.x, t.y, t.fontSize, { flipY: true })
+      const fillColor = t.fill||'white';
+      getFontPath(t).then(charPath => {
+        charPath.commands.map(c => {
+          c.y = - c.y
+          if (c.y1) { c.y1 = - c.y1 }
+        })
+        svgContent += `<path d="${charPath.toPathData()}" fill="${fillColor}" />`;
+      }
+      )
 
-      charPath.commands.map(c => {
-        c.y = - c.y
-        if (c.y1) {
-          c.y1 = - c.y1
-        }
-      })
-      // Check Char Width without blocking
-      //console.log(new fabric.Path( `<path d="${charPath.toPathData()}" />`).width)
-
-      svgContent += `<path d="${charPath.toPathData()}" fill="${fillColor}" />`;
     })
   }
   svgContent += '</svg>';

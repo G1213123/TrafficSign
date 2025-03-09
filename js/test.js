@@ -1,18 +1,3 @@
-let HdividerTest = async function () {
-  above = [canvasObject[1]]
-  below = [canvasObject[5]]
-
-  await FormBorderWrapComponent.HDividerCreate(above, below, { xHeight: 100 })
-}
-
-let VdividerTest = async function () {
-  above = [canvasObject[1]]
-  below = [canvasObject[5]]
-
-  await FormBorderWrapComponent.VDividerCreate(above, below, { xHeight: 100 })
-}
-
-
 let equalAnchorTest = function () {
   const anchor = {
     sourcePoint: 'E1', targetPoint: 'E1', sourceObject: canvasObject[4], TargetObject: canvasObject[5],
@@ -21,15 +6,6 @@ let equalAnchorTest = function () {
   EQanchorShape('x', anchor)
 }
 
-let movingObjectTest = function () {
-  canvas.setActiveObject(canvasObject[0])
-  const specimen = canvas.getActiveObject()
-  const left = specimen.getEffectiveCoords()[0].x
-  const top = specimen.getEffectiveCoords()[0].y
-  specimen.set({ left: left + 100, top: top + 100 })
-  specimen.setCoords()
-  //console.assert(specimen.getEffectiveCoords()[0].x == left + 100, 'Moving failed');
-}
 
 // MIT http://rem.mit-license.org
 // https://stackoverflow.com/questions/33777577/javascript-get-actual-rendered-font-height
@@ -652,16 +628,16 @@ const AnchorTest = {
 
     // Create four symbols to anchor together
     // First pair
-    await drawLabeledSymbol('Tunnel', {
-      x: 300,
+    await drawLabeledSymbol('EHC', {
+      x: 1500,
       y: -1000,
       length: 25,
       color: 'white'
     });
     TestTracker.register("baseTunnel1");
 
-    await drawLabeledSymbol('Airport', {
-      x: 400,
+    await drawLabeledSymbol('WHC', {
+      x: 1500,
       y: -1000,
       length: 25,
       angle: 0,
@@ -671,15 +647,15 @@ const AnchorTest = {
 
     // Second pair
     await drawLabeledSymbol('Hospital', {
-      x: 300,
+      x: 1800,
       y: -800,
       length: 25,
       color: 'white'
     });
     TestTracker.register("baseHospital");
 
-    await drawLabeledSymbol('StackArrow', {
-      x: 400,
+    await drawLabeledSymbol('CHT', {
+      x: 1800,
       y: -800,
       length: 25,
       angle: 0,
@@ -795,7 +771,7 @@ const BorderTest = {
     const expectedHeight = maxY - minY;
 
     // Create border around the objects
-    const borderGroup = await FormBorderWrapComponent.BorderGroupCreate(
+    const borderGroup = await BorderUtilities.BorderGroupCreate(
       [object1, object2],
       [object1, object2],
       { xHeight: 100, borderType: 'stack', colorType: 'Blue Background' }
@@ -893,7 +869,7 @@ const BorderTest = {
     const belowObject = TestTracker.get("belowText");
 
     // Create horizontal divider between objects
-    await FormBorderWrapComponent.HDividerCreate(
+    await BorderUtilities.HDividerCreate(
       [aboveObject],
       [belowObject],
       { xHeight: 100 }
@@ -903,7 +879,7 @@ const BorderTest = {
     const divider = TestTracker.get("divider");
 
     // Create border around all three objects
-    const borderGroup = await FormBorderWrapComponent.BorderGroupCreate(
+    const borderGroup = await BorderUtilities.BorderGroupCreate(
       [aboveObject, belowObject, divider],
       [aboveObject, belowObject, divider],
       { xHeight: 100, borderType: 'stack', colorType: 'Blue Background' }
