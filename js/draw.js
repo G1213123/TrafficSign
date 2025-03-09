@@ -165,7 +165,7 @@ class BaseGroup extends fabric.Group {
     this.on('deselected', () => {
       setTimeout(() => {
         this.anchorageLink.forEach(obj => {
-          obj.forEach(o => {
+          obj.objects.forEach(o => {
             o.set('opacity', 0);
           })
         });
@@ -356,7 +356,7 @@ class BaseGroup extends fabric.Group {
       const obj = this.anchorageLink[i];
 
       this.anchorageLink.splice(i, 1); // Remove the element from the array
-      obj.forEach(e => {
+      obj.objects.forEach(e => {
         this.remove(e); // Remove the object from the group
         canvas.remove(e); // Remove the object from the canvas
       })
@@ -364,20 +364,20 @@ class BaseGroup extends fabric.Group {
     }
     if (Object.keys(this.lockXToPolygon).length) {
       let lockAnno1 = new LockIcon(this, this.lockXToPolygon, 'x')
-      this.anchorageLink.push(lockAnno1.objects);
+      this.anchorageLink.push(lockAnno1);
       canvas.add(...lockAnno1.objects);
 
     }
     if (Object.keys(this.lockYToPolygon).length) {
       let lockAnno2 = new LockIcon(this, this.lockYToPolygon, 'y')
-      this.anchorageLink.push(lockAnno2.objects);
+      this.anchorageLink.push(lockAnno2);
       canvas.add(...lockAnno2.objects);
 
     }
     const isActive = canvas.getActiveObject() === this;
     const opacity = isActive ? 1 : 0;
     this.anchorageLink.forEach(obj => {
-      obj.forEach(o => {
+      obj.objects.forEach(o => {
         o.set('opacity', opacity);
       })
     });
@@ -508,12 +508,14 @@ class BaseGroup extends fabric.Group {
     // Free anchored Polygon
     if (deleteObj.anchoredPolygon) {
       deleteObj.anchoredPolygon.forEach(anchoredGroup => {
-        anchoredGroup.set({ lockMovementX: false, lockMovementY: false });
+        
         if (anchoredGroup.lockXToPolygon.TargetObject == deleteObj) {
           anchoredGroup.lockXToPolygon = {}
+          anchoredGroup.set({ lockMovementX: false });
         }
         if (anchoredGroup.lockYToPolygon.TargetObject == deleteObj) {
           anchoredGroup.lockYToPolygon = {}
+          anchoredGroup.set({  lockMovementY: false });
         }
         anchoredGroup.drawAnchorLinkage()
       })

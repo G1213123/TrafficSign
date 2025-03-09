@@ -645,10 +645,111 @@ const AnchorTest = {
   },
 
   /**
+   * Create and test delinking of anchored objects
+   */
+  async testDelinkingAnchoredObjects() {
+    TestTracker.startTest("DelinkingAnchoredObjects");
+
+    // Create four symbols to anchor together
+    // First pair
+    await drawLabeledSymbol('Tunnel', {
+      x: 300,
+      y: -1000,
+      length: 25,
+      color: 'white'
+    });
+    TestTracker.register("baseTunnel1");
+
+    await drawLabeledSymbol('Airport', {
+      x: 400,
+      y: -1000,
+      length: 25,
+      angle: 0,
+      color: 'white'
+    });
+    TestTracker.register("airport1");
+
+    // Second pair
+    await drawLabeledSymbol('Hospital', {
+      x: 300,
+      y: -800,
+      length: 25,
+      color: 'white'
+    });
+    TestTracker.register("baseHospital");
+
+    await drawLabeledSymbol('StackArrow', {
+      x: 400,
+      y: -800,
+      length: 25,
+      angle: 0,
+      color: 'white'
+    });
+    TestTracker.register("stackArrow");
+
+    // Anchor first pair
+    anchorShape(TestTracker.get("baseTunnel1"), TestTracker.get("airport1"), {
+      vertexIndex1: 'E1',
+      vertexIndex2: 'E3',
+      spacingX: 50,
+      spacingY: 0
+    });
+
+    // Anchor second pair
+    anchorShape(TestTracker.get("baseHospital"), TestTracker.get("stackArrow"), {
+      vertexIndex1: 'E1',
+      vertexIndex2: 'E3',
+      spacingX: 50,
+      spacingY: 0
+    });
+
+    // Test assertions
+    let passed = true;
+
+    // Check that objects are anchored correctly
+    passed = passed && TestTracker.assertSpacing(
+      TestTracker.get("baseTunnel1"), TestTracker.get("airport1"),
+      'x', 50,
+      "Horizontal anchor spacing incorrect for first pair"
+    );
+
+    passed = passed && TestTracker.assertSpacing(
+      TestTracker.get("baseHospital"), TestTracker.get("stackArrow"),
+      'x', 50,
+      "Horizontal anchor spacing incorrect for second pair"
+    );
+
+    // Delink first pair by calling onClick of LockIcon
+    canvas.setActiveObject(TestTracker.get("airport1"));
+    const lockIcon1 = TestTracker.get("airport1").anchorageLink[0]
+    lockIcon1.onClick();
+
+    // Check that first pair is delinked
+    passed = passed && TestTracker.assertTrue(
+      !TestTracker.get("airport1").lockXToPolygon.TargetObject,
+      "First pair should be delinked"
+    );
+
+    // Delink second pair by deleting the base object
+    TestTracker.get("baseHospital").deleteObject();
+    TestTracker.testSections[TestTracker.currentTest].objects["stackArrow"]-=1;
+
+    // Check that second pair is delinked
+    passed = passed && TestTracker.assertTrue(
+      !TestTracker.get("stackArrow").lockXToPolygon.TargetObject,
+      "Second pair should be delinked"
+    );
+
+    TestTracker.endTest(passed);
+    return passed;
+  },
+
+  /**
    * Run all anchor tests
    */
   runAll: async function () {
     await this.testAnchoringObjects();
+    await this.testDelinkingAnchoredObjects();
   }
 };
 
