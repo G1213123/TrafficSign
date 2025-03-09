@@ -301,7 +301,9 @@ let FormTextAddComponent = {
 
       new BaseGroup(group, 'Text', { calcVertex: false })
 
-      FormTextAddComponent.TextInputHandler(null, { text: cursor.text, xHeight: cursor.xHeight, font: cursor.font })
+      if (document.getElementById('input-text')){
+        FormTextAddComponent.TextInputHandler(null, { text: cursor.text, xHeight: cursor.xHeight, font: cursor.font })
+      }
       canvas.renderAll()
     }
   },
@@ -388,7 +390,7 @@ let FormDrawMapComponent = {
 /* Draw Symbol Panel */
 let FormDrawAddComponent = {
   symbolAngle: 0,
-  drawPanelInit: function () {
+  drawPanelInit: async function () {
     tabNum = 1
     var parent = GeneralHandler.PanelInit()
     if (parent) {
@@ -405,8 +407,8 @@ let FormDrawAddComponent = {
       angleDisplay.innerText = FormDrawAddComponent.symbolAngle + '°';
 
       //GeneralHandler.createbutton('button-approach-arm', 'Add Approach arm', parent, 0, FormDrawAddComponent.drawApproachClick, 'click')
-      Object.keys(symbolsTemplate).forEach(symbol => {
-        const button = FormDrawAddComponent.createButtonSVG(symbol, 5)
+      Object.keys(symbolsTemplate).forEach(async (symbol) => {
+        const button = await FormDrawAddComponent.createButtonSVG(symbol, 5)
         GeneralHandler.createButton(`button-${symbol}`, button, parent, 'symbol', FormDrawAddComponent.drawSymbolOnCursor, 'click')
       })
     }
@@ -468,37 +470,39 @@ let FormDrawAddComponent = {
     }
   },
 
-  createButtonSVG: (symbolType, length) => {
+  createButtonSVG: async (symbolType, length) => {
     const symbolData = calcSymbol(symbolType, length);
-    let pathData = vertexToPath(symbolData);
 
-    const svgWidth = 100;
-    const svgHeight = 100;
+      let pathData = await vertexToPath(symbolData);
+  
+      const svgWidth = 100;
+      const svgHeight = 100;
+  
+      // Calculate the bounding box of the path
+      const tempPath = new fabric.Path(pathData, { strokeWidth: 0 });
+      let symbolSize = { width: tempPath.width, height: tempPath.height, left: tempPath.left, top: tempPath.top };
+      // override the err width and height of symbol with circular border
+      if (symbolType === 'MTR') {
+        symbolSize.width = 130;
+      }
+      if (symbolType === 'Hospital') {
+        symbolSize.width = 80;
+      }
+      const scaleX = svgWidth / symbolSize.width;
+      const scaleY = svgHeight / symbolSize.height;
+      const scale = Math.min(scaleX, scaleY);
+  
+      // Calculate the translation to center the path
+      const translateX = (svgWidth - symbolSize.width * scale) / 2 - symbolSize.left * scale;
+      const translateY = (svgHeight - symbolSize.height * scale) / 2 - symbolSize.top * scale;
+  
+      pathData = pathData.replace(/<svg>/g, '<svg style="width:100;height:100;">')
+      pathData = pathData.replace(/<path/g, `<path transform="translate(${translateX}, ${translateY}) scale(${scale})"`);
+      const svg = pathData;
+  
+  
+      return svg;
 
-    // Calculate the bounding box of the path
-    const tempPath = new fabric.Path(pathData, { strokeWidth: 0 });
-    let symbolSize = { width: tempPath.width, height: tempPath.height, left: tempPath.left, top: tempPath.top };
-    // override the err width and height of symbol with circular border
-    if (symbolType === 'MTR') {
-      symbolSize.width = 130;
-    }
-    if (symbolType === 'Hospital') {
-      symbolSize.width = 80;
-    }
-    const scaleX = svgWidth / symbolSize.width;
-    const scaleY = svgHeight / symbolSize.height;
-    const scale = Math.min(scaleX, scaleY);
-
-    // Calculate the translation to center the path
-    const translateX = (svgWidth - symbolSize.width * scale) / 2 - symbolSize.left * scale;
-    const translateY = (svgHeight - symbolSize.height * scale) / 2 - symbolSize.top * scale;
-
-    pathData = pathData.replace(/<svg>/g, '<svg style="width:100;height:100;">')
-    pathData = pathData.replace(/<path/g, `<path transform="translate(${translateX}, ${translateY}) scale(${scale})"`);
-    const svg = pathData;
-
-
-    return svg;
   },
   drawSymbolOnCursor: async (event, options = null) => {
     canvas.off('mouse:down', FormDrawAddComponent.SymbolonMouseClick)

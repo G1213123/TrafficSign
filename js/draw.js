@@ -94,7 +94,7 @@ class GlyphPath extends fabric.Group {
     options.top = vertextop;
     options.angle = 0;
 
-    const pathData = vertexToPath(shapeMeta);
+    const pathData = await vertexToPath(shapeMeta);
 
     this.vertex = shapeMeta.path.map(p => p.vertex).flat(); // Store the shapeMeta.vertex points
     this.insertPoint = shapeMeta.path[0].vertex[0];
@@ -274,7 +274,7 @@ class BaseGroup extends fabric.Group {
 
     // Draw the vertices and labels
     if (this.basePolygon.vertex) {
-      this.basePolygon.vertex.filter(v => (v.label.includes('E')||v.label.includes('V')||v.label.includes('C'))).forEach(v => {
+      this.basePolygon.vertex.filter(v => (v.display!==0)).forEach(v => {
         const vControl = new VertexControl(v, this);
         this.controls[v.label] = vControl;
       });

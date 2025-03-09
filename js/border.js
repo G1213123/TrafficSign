@@ -250,7 +250,7 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
     const baseGroup = [];
     
     // Create polygon with labeled vertices
-    shapeMeta.path.forEach(p => {
+    shapeMeta.path.forEach(async (p) => {
         const vertexleft = -Math.min(...p.vertex.map(v => v.x));
         const vertextop = -Math.min(...p.vertex.map(v => v.y));
 
@@ -677,7 +677,7 @@ const BorderUtilities = {
     BorderUtilities.RoundingToDivider(HDivider, VDivider, rounding)
     coords = BorderUtilities.getBorderObjectCoords(fheightObjects, fwidthObjects)
 
-    BaseBorder = drawLabeledBorder(borderType, xHeight, coords, colorType)
+    BaseBorder = await drawLabeledBorder(borderType, xHeight, coords, colorType)
     borderGroup = new BaseGroup(BaseBorder, 'Border')
     borderGroup.widthObjects = [...fwidthObjects]
     borderGroup.heightObjects = [...fheightObjects]

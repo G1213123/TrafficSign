@@ -647,16 +647,16 @@ const AnchorTest = {
 
     // Second pair
     await drawLabeledSymbol('Hospital', {
-      x: 1800,
-      y: -800,
+      x: 1575,
+      y: -550,
       length: 25,
       color: 'white'
     });
     TestTracker.register("baseHospital");
 
     await drawLabeledSymbol('CHT', {
-      x: 1800,
-      y: -800,
+      x: 1575,
+      y: -550,
       length: 25,
       angle: 0,
       color: 'white'
@@ -849,7 +849,7 @@ const BorderTest = {
     // Create two text objects for the border with divider between them
     await FormTextAddComponent.TextOnMouseClick(null, {
       left: -500,
-      top: 300,
+      top: 250,
       text: 'Above',
       xHeight: 100,
       font: 'TransportMedium'

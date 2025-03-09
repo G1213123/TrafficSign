@@ -30,30 +30,32 @@ fabric.Object.prototype.toObject = (function (toObject) {
   };
 })(fabric.Object.prototype.toObject);
 
-// function to loop through anchored objects and add them to the bordering Objects array
-function loopAnchoredObjects(obj, callback = null, options = {}, objList = []) {
-  if (obj.basePolygon) {
-    if (obj.anchoredPolygon.length) {
-      obj.anchoredPolygon.forEach((anchoredObj) => {
-        loopAnchoredObjects(anchoredObj, callback, options, objList = objList)
-      })
+// fire moving for group selection
+canvas.on('object:moving', function(event) {
+  if (event.target.type === 'activeselection') {
+    // Filter out objects with locked movement in x or y from the active selection
+    const lockedObjs = event.target._objects.filter(obj => obj.lockMovementX || obj.lockMovementY);
+    if (lockedObjs.length > 0) {
+      // Remove locked objects from the selection group
+      lockedObjs.forEach(obj => {
+        event.target.remove(obj);
+        canvas.add(obj); // Add back to canvas as individual object
+        obj.setCoords(); // Update object coordinates
+      });
+      // If selection is now empty, discard active object
+      if (event.target._objects.length === 0) {
+        canvas.discardActiveObject();
+      }
+      canvas.requestRenderAll();
     }
-    objList.push(obj.basePolygon)
-    if (callback) {
-      callback(obj, options)
-    }
-    return objList
-
-  } else {
-    if (obj.length) {
-      obj.forEach((o) => {
-        objList = loopAnchoredObjects(o, callback, options, objList = objList)
-      })
-    }
-
-    return objList
+    event.target._objects.forEach(obj => {
+      if (obj.updateAllCoord){
+        obj.updateAllCoord();
+      }
+    })
   }
-}
+});
+
 // Handle mousedown event
 canvas.on('mouse:down', function (opt) {
   var e = opt.e;
