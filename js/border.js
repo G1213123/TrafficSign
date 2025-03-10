@@ -278,7 +278,7 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
     return GroupedBorder;
 }
 
-drawDivider = async function (xHeight, top, left, width, vertical=false){
+drawDivider = async function (xHeight, color, top, left, width, vertical=false){
     const length = xHeight / 4
     const Xwidth = width / length
     
@@ -295,7 +295,6 @@ drawDivider = async function (xHeight, top, left, width, vertical=false){
             { x: -Xwidth / 2, y: -1.5, label: 'V8', start: 0 },
             { x: -Xwidth / 2, y: 0, label: 'V9', radius: 1.5, start: 0 },
         ], 'arcs': [],
-        'fill': 'white'
     }];
     
     // Horizontal divider template
@@ -311,7 +310,6 @@ drawDivider = async function (xHeight, top, left, width, vertical=false){
             { x: -1.5, y: -Xwidth / 2, label: 'V8', start: 0 },
             { x: 0, y: -Xwidth / 2, label: 'V9', radius: 1.5, start: 0 },
         ], 'arcs': [],
-        'fill': 'white'
     }];
     
     // Choose the template based on the horizontal parameter
@@ -330,7 +328,7 @@ drawDivider = async function (xHeight, top, left, width, vertical=false){
     const arrowOptions1 = {
         left: 0,
         top: 0,
-        fill: '#FFF',
+        fill: color,
         angle: 0,
         objectCaching: false,
         strokeWidth: 0
@@ -345,6 +343,8 @@ drawDivider = async function (xHeight, top, left, width, vertical=false){
 const BorderUtilities = {
   VDividerCreate: async function (leftObjects, rightObjects, options = null) {
     const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
+    const colorType = options ? options.colorType : document.getElementById("input-color").value
+    const color = BorderColorScheme[colorType]['symbol']
     const leftObject = this.getExtremeObject(leftObjects, 'left')
     const rightObject = this.getTopMostObject(rightObjects, 'right')
 
@@ -355,9 +355,10 @@ const BorderUtilities = {
     const leftObjectBBox = BorderUtilities.getBoundingBox(leftObjects)
     const leftRight = leftObjectBBox.right
     const height = leftObjectBBox.bottom - leftObjectBBox.top
-    const BaseBorder = await drawDivider(xHeight, leftObjectBBox.top, leftRight, height, true) // Added true param to indicate vertical divider
+    const BaseBorder = await drawDivider(xHeight, color, leftObjectBBox.top, leftRight, height, true) // Added true param to indicate vertical divider
     const borderGroup = new BaseGroup(BaseBorder, 'VDivider')
     borderGroup.xHeight = xHeight
+    borderGroup.color = color
     anchorShape(leftObject, borderGroup, {
       vertexIndex1: 'E1',
       vertexIndex2: 'E3',
@@ -376,6 +377,8 @@ const BorderUtilities = {
 
   HDividerCreate: async function (aboveObjects, belowObjects, options = null) {
     const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
+    const colorType = options ? options.colorType : document.getElementById("input-color").value
+    const color = BorderColorScheme[colorType]['symbol']
     const aboveObject = this.getBottomMostObject(aboveObjects)
     const belowObject = this.getTopMostObject(belowObjects)
 
@@ -386,9 +389,10 @@ const BorderUtilities = {
     const aboveObjectBBox = BorderUtilities.getBoundingBox(aboveObjects)
     const aboveBottom = aboveObjectBBox.bottom
     const width = aboveObjectBBox.right - aboveObjectBBox.left
-    const BaseBorder = await drawDivider(xHeight, aboveBottom, aboveObjectBBox.left, width)
+    const BaseBorder = await drawDivider(xHeight, color, aboveBottom, aboveObjectBBox.left, width)
     const borderGroup = new BaseGroup(BaseBorder, 'HDivider')
     borderGroup.xHeight = xHeight
+    borderGroup.color = color
     anchorShape(aboveObject, borderGroup, {
       vertexIndex1: 'E2',
       vertexIndex2: 'E6',
@@ -719,7 +723,7 @@ const BorderUtilities = {
     for (const d of borderGroup.HDivider) {
       // Store the group's initial top position
       const initialTop = d.getEffectiveCoords()[0].y
-      const res = await drawDivider(d.xHeight, d.top, d.left, innerWidth)
+      const res = await drawDivider(d.xHeight, d.color, d.top, d.left, innerWidth)
       d.replaceBasePolygon(res) 
       d.set({ top: initialTop, left: innerLeft });
       d.updateAllCoord(null, sourceList)
@@ -728,7 +732,7 @@ const BorderUtilities = {
     for (const d of borderGroup.VDivider) {
       // Store the group's initial top position
       const initialLeft = d.getEffectiveCoords()[0].x
-      const res = await drawDivider(d.xHeight, d.top, d.left, innerHeight, true)
+      const res = await drawDivider(d.xHeight, d.color, d.top, d.left, innerHeight, true)
       d.replaceBasePolygon(res) 
       d.set({ top: innerTop, left: initialLeft });
       d.updateAllCoord(null, sourceList)

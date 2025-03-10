@@ -456,7 +456,8 @@ const ShapeTest = {
       top: -1000,
       text: 'Hong Kong',
       xHeight: 100,
-      font: 'TransportMedium'
+      font: 'TransportMedium',
+      color: 'white'
     });
     TestTracker.register("englishText");
 
@@ -465,7 +466,8 @@ const ShapeTest = {
       left: -1050,
       top: -800,
       text: '香港',
-      xHeight: 100
+      xHeight: 100,
+      color: 'white'
     });
     TestTracker.register("chineseText");
 
@@ -745,7 +747,8 @@ const BorderTest = {
       top: 300,
       text: 'Border',
       xHeight: 100,
-      font: 'TransportMedium'
+      font: 'TransportMedium',
+      color: 'white'
     });
     TestTracker.register("borderText1");
 
@@ -754,7 +757,8 @@ const BorderTest = {
       top: 500,
       text: 'Test',
       xHeight: 100,
-      font: 'TransportMedium'
+      font: 'TransportMedium',
+      color: 'white'
     });
     TestTracker.register("borderText2");
 
@@ -852,7 +856,8 @@ const BorderTest = {
       top: 250,
       text: 'Above',
       xHeight: 100,
-      font: 'TransportMedium'
+      font: 'TransportHeavy',
+      color: 'Black'
     });
     TestTracker.register("aboveText");
 
@@ -861,7 +866,8 @@ const BorderTest = {
       top: 450,
       text: 'Below',
       xHeight: 100,
-      font: 'TransportMedium'
+      font: 'TransportHeavy',
+      color: 'Black'
     });
     TestTracker.register("belowText");
 
@@ -872,7 +878,7 @@ const BorderTest = {
     await BorderUtilities.HDividerCreate(
       [aboveObject],
       [belowObject],
-      { xHeight: 100 }
+      { xHeight: 100, colorType: 'Yellow Background' }
     );
     TestTracker.register("divider");
 
@@ -882,7 +888,7 @@ const BorderTest = {
     const borderGroup = await BorderUtilities.BorderGroupCreate(
       [aboveObject, belowObject, divider],
       [aboveObject, belowObject, divider],
-      { xHeight: 100, borderType: 'stack', colorType: 'Blue Background' }
+      { xHeight: 100, borderType: 'stack', colorType: 'Yellow Background' }
     );
     TestTracker.register("combinedBorder", borderGroup);
 
@@ -955,7 +961,7 @@ const BorderTest = {
     // Check border color scheme
     passed = passed && TestTracker.assert(
       borderGroup.color,
-      'Blue Background',
+      'Yellow Background',
       "Border has incorrect color scheme"
     );
 
@@ -977,10 +983,10 @@ const BorderTest = {
  */
 const RouteTest = {
   /**
-   * Test creation of a root route using route.js drawing functions
+   * Test creation of a Main Road using route.js drawing functions
    */
-  async testRootRoute() {
-    TestTracker.startTest("RootRoute");
+  async testMainRoad() {
+    TestTracker.startTest("MainRoad");
 
     // Set up test parameters
     const params = {
@@ -1002,66 +1008,66 @@ const RouteTest = {
       tipLength: params.tipLength
     };
 
-    const routeMap = new MainRoute(routeOptions);
-    await routeMap.initialize(calcRootVertices(params.xHeight, routeOptions.routeList));
-    TestTracker.register("rootRoute", routeMap);
+    const mainRoad = new MainRoadSymbol(routeOptions);
+    await mainRoad.initialize(calcMainRoadVertices(params.xHeight, routeOptions.routeList));
+    TestTracker.register("mainRoad", mainRoad);
 
     // Test assertions using TestTracker
     let passed = true;
 
     passed = passed && TestTracker.assert(
-      routeMap.left,
+      mainRoad.left,
       params.posx - 3 * params.xHeight / 4,
-      "Route left position incorrect",
+      "Main Road left position incorrect",
       5
     );
 
     passed = passed && TestTracker.assert(
-      routeMap.top,
+      mainRoad.top,
       params.posy,
-      "Route top position incorrect",
+      "Main Road top position incorrect",
       5
     );
 
     passed = passed && TestTracker.assert(
-      routeMap.functionalType,
-      'MainRoute',
-      "Route has incorrect functional type"
+      mainRoad.functionalType,
+      'MainRoad',
+      "Main Road has incorrect functional type"
     );
 
     TestTracker.endTest(passed);
-    return routeMap;
+    return mainRoad;
   },
 
   /**
-   * Test creation of a branch route on the left side using route.js drawing functions
+   * Test creation of a Side Road route on the left side using route.js drawing functions
    */
-  async testLeftBranch() {
-    TestTracker.startTest("LeftBranch");
+  async testLeftSideRoad() {
+    TestTracker.startTest("LeftSideRoad");
 
-    // Get root route from TestTracker instead of window global
-    const rootRoute = TestTracker.get("rootRoute", "RootRoute");
-    if (!rootRoute) {
-      TestTracker.recordFailure("Root route not found", "MainRoute object", "null");
+    // Get Main Road from TestTracker instead of window global
+    const mainRoad = TestTracker.get("mainRoad", "MainRoad");
+    if (!mainRoad) {
+      TestTracker.recordFailure("Main Road not found", "MainRoute object", "null");
       TestTracker.endTest(false);
       return null;
     }
 
     // Set up test parameters
-    const posx = rootRoute.left - 300; // Left of root
-    const posy = rootRoute.top + 600;
+    const posx = mainRoad.left - 300; // Left of root
+    const posy = mainRoad.top + 600;
     const params = {
-      xHeight: rootRoute.xHeight,
+      xHeight: mainRoad.xHeight,
       angle: 90,
       shape: 'Butt',
       width: 4
     };
 
-    // Set the root route as active object
-    canvas.setActiveObject(rootRoute);
+    // Set the Main Road as active object
+    canvas.setActiveObject(mainRoad);
 
     // Use actual drawing functions with parameters
-    await drawBranchRouteOnCursor(null, {
+    await drawSideRoadOnCursor(null, {
       x: posx,
       y: posy,
       routeParams: params
@@ -1071,58 +1077,58 @@ const RouteTest = {
     cursor.left = posx;
     cursor.top = posy;
 
-    // Create the branch with a simulated mouse click
-    await finishDrawBranchRoute({ e: { button: 0 } });
+    // Create the Side Road with a simulated mouse click
+    await finishDrawSideRoad({ e: { button: 0 } });
 
-    // Find the created branch route and register it
-    const branchRoute = rootRoute.branchRoute[rootRoute.branchRoute.length - 1];
-    TestTracker.register("leftBranch", branchRoute);
+    // Find the created Side Road route and register it
+    const sideRoad = mainRoad.sideRoad[mainRoad.sideRoad.length - 1];
+    TestTracker.register("leftSideRoad", sideRoad);
 
     // Test assertions
     let passed = true;
     passed = passed && TestTracker.assert(
-      branchRoute.functionalType,
-      'BranchRoute',
-      "Branch has incorrect type"
+      sideRoad.functionalType,
+      'SideRoad',
+      "Side Road has incorrect type"
     );
     passed = passed && TestTracker.assert(
-      branchRoute.side,
+      sideRoad.side,
       true,
-      "Branch should be on left side"
+      "Side Road should be on left side"
     );
 
     // Check vertices touching root
-    const rootLeft = rootRoute.routeList[0].x - rootRoute.routeList[0].width * rootRoute.xHeight / 8;
+    const rootLeft = mainRoad.routeList[0].x - mainRoad.routeList[0].width * mainRoad.xHeight / 8;
 
     // Find connecting vertices
-    const touchingVertices = branchRoute.basePolygon.vertex.filter(v =>
+    const touchingVertices = sideRoad.basePolygon.vertex.filter(v =>
       v.label === 'V3' || v.label === 'V4' || v.label === 'V5' || v.label === 'V6'
     );
 
-    // At least one vertex should be close to root route
+    // At least one vertex should be close to Main Road
     const touchingRoot = touchingVertices.some(v =>
       Math.abs(v.x - rootLeft) < 1
     );
 
     passed = passed && TestTracker.assertTrue(
       touchingRoot,
-      "Left branch vertices don't touch root route"
+      "Left Side Road vertices don't touch Main Road"
     );
 
     TestTracker.endTest(passed);
-    return branchRoute;
+    return sideRoad;
   },
 
   /**
-   * Test creation of a branch route on the right side using route.js drawing functions
+   * Test creation of a Side Road route on the right side using route.js drawing functions
    */
-  async testRightBranch() {
-    TestTracker.startTest("RightBranch");
+  async testRightSideRoad() {
+    TestTracker.startTest("RightSideRoad");
 
-    // Get root route from TestTracker
-    const rootRoute = TestTracker.get("rootRoute", "RootRoute");
-    if (!rootRoute) {
-      TestTracker.recordFailure("Root route not found", "MainRoute object", "null");
+    // Get Main Road from TestTracker
+    const mainRoad = TestTracker.get("mainRoad", "MainRoad");
+    if (!mainRoad) {
+      TestTracker.recordFailure("Main Road not found", "MainRoute object", "null");
       TestTracker.endTest(false);
       return null;
     }
@@ -1130,20 +1136,20 @@ const RouteTest = {
     // Set up test parameters - intentionally position outside constraints
     // 1. Too close to root horizontally (should be pushed right)
     // 2. Too high vertically (should be pushed down)
-    const posx = rootRoute.left + rootRoute.width + 10; // Too close horizontally
-    const posy = rootRoute.top - 100; // Too high vertically
+    const posx = mainRoad.left + mainRoad.width + 10; // Too close horizontally
+    const posy = mainRoad.top - 100; // Too high vertically
     const params = {
-      xHeight: rootRoute.xHeight,
+      xHeight: mainRoad.xHeight,
       angle: -60, // Negative angle for right side
       shape: 'Arrow',
       width: 4
     };
 
-    // Set the root route as active object
-    canvas.setActiveObject(rootRoute);
+    // Set the Main Road as active object
+    canvas.setActiveObject(mainRoad);
 
     // Use actual drawing functions with parameters
-    await drawBranchRouteOnCursor(null, {
+    await drawSideRoadOnCursor(null, {
       x: posx,
       y: posy,
       routeParams: params
@@ -1153,109 +1159,109 @@ const RouteTest = {
     cursor.left = posx;
     cursor.top = posy;
 
-    // Create the branch with a simulated mouse click
-    await finishDrawBranchRoute({ e: { button: 0 } });
+    // Create the Side Road with a simulated mouse click
+    await finishDrawSideRoad({ e: { button: 0 } });
 
-    // Find the right branch using position - more reliable than using TestTracker.get("leftBranch")
-    // A right branch will have its x position to the right of the root route center
-    const rootCenterX = rootRoute.left + rootRoute.width / 2;
-    const branchRoute = rootRoute.branchRoute.find(branch => branch.left > rootCenterX);
+    // Find the right Side Road using position - more reliable than using TestTracker.get("leftBranch")
+    // A right Side Road will have its x position to the right of the Main Road center
+    const rootCenterX = mainRoad.left + mainRoad.width / 2;
+    const sideRoad = mainRoad.sideRoad.find(side => side.left > rootCenterX);
 
-    // Register the right branch route with TestTracker
-    TestTracker.register("rightBranch", branchRoute);
+    // Register the right Side Road route with TestTracker
+    TestTracker.register("rightSideRoad", sideRoad);
 
     // Test assertions
     let passed = true;
     passed = passed && TestTracker.assert(
-      branchRoute.functionalType,
-      'BranchRoute',
-      "Branch has incorrect type"
+      sideRoad.functionalType,
+      'SideRoad',
+      "Side Road has incorrect type"
     );
     passed = passed && TestTracker.assert(
-      branchRoute.side,
+      sideRoad.side,
       false,
-      "Branch should be on right side"
+      "Side Road should be on right side"
     );
 
     // Check vertices touching root
-    const rootRight = rootRoute.routeList[0].x + rootRoute.routeList[0].width * rootRoute.xHeight / 8;
+    const rootRight = mainRoad.routeList[0].x + mainRoad.routeList[0].width * mainRoad.xHeight / 8;
 
     // Find connecting vertices
-    const touchingVertices = branchRoute.basePolygon.vertex.filter(v =>
+    const touchingVertices = sideRoad.basePolygon.vertex.filter(v =>
       v.label === 'V0' || v.label === 'V1' || v.label === 'V5' || v.label === 'V6'
     );
 
-    // At least one vertex should be close to root route
+    // At least one vertex should be close to main road
     const touchingRoot = touchingVertices.some(v =>
       Math.abs(v.x - rootRight) < 1
     );
 
     passed = passed && TestTracker.assertTrue(
       touchingRoot,
-      "Right branch vertices don't touch root route"
+      "Right Side Road vertices don't touch Main Road"
     );
 
     // CONSTRAINT TESTS:
-    // 1. Test horizontal constraint - branch should be pushed to minimum distance from root
-    const minHorizontalDistance = 13 * rootRoute.xHeight / 4;
+    // 1. Test horizontal constraint - branch should be pushed to minimum distance from main road
+    const minHorizontalDistance = 13 * mainRoad.xHeight / 4;
     const expectedLeftPosition = rootRight + minHorizontalDistance;
 
     passed = passed && TestTracker.assert(
-      branchRoute.left + branchRoute.width,
+      sideRoad.left + sideRoad.width,
       expectedLeftPosition,
-      "Branch not correctly positioned horizontally - constraint failed",
+      "Side Road not correctly positioned horizontally - constraint failed",
       5
     );
 
-    // 2. Test vertical constraint - branch should not be above root route's tip
-    const rootTop = rootRoute.routeList[1].y;
-    const tipLength = rootRoute.tipLength * rootRoute.xHeight / 4;
+    // 2. Test vertical constraint - branch should not be above main road's tip
+    const rootTop = mainRoad.routeList[1].y;
+    const tipLength = mainRoad.tipLength * mainRoad.xHeight / 4;
     const minTopPosition = rootTop + tipLength;
 
-    // Get the top-most part of the branch
-    const branchTopVertices = branchRoute.basePolygon.vertex.filter(v =>
+    // Get the top-most part of the side road
+    const sideRoadTopVertices = sideRoad.basePolygon.vertex.filter(v =>
       v.label === 'V2');
-    const branchTopY = Math.min(...branchTopVertices.map(v => v.y));
+    const branchTopY = Math.min(...sideRoadTopVertices.map(v => v.y));
 
     passed = passed && TestTracker.assertTrue(
       branchTopY >= minTopPosition,
-      `Branch top (${branchTopY}) should not be above root tip position (${minTopPosition})`
+      `Side Road top (${branchTopY}) should not be above Main Road tip position (${minTopPosition})`
     );
 
     TestTracker.endTest(passed);
-    return branchRoute;
+    return sideRoad;
   },
 
   /**
-   * Test branch route movement constraints
+   * Test Side Road route movement constraints
    */
-  async testBranchRouteMovement() {
-    TestTracker.startTest("BranchRouteMovement");
+  async testSideRoadMovement() {
+    TestTracker.startTest("SideRoadMovement");
 
-    // Get left branch from TestTracker
-    const leftBranch = TestTracker.get("leftBranch", "LeftBranch");
-    if (!leftBranch) {
-      TestTracker.recordFailure("Left branch not found", "BranchRoute object", "null");
+    // Get left Side Road from TestTracker
+    const leftSideRoad = TestTracker.get("leftSideRoad", "LeftSideRoad");
+    if (!leftSideRoad) {
+      TestTracker.recordFailure("Left Side Road not found", "sideRoad object", "null");
       TestTracker.endTest(false);
       return false;
     }
 
-    const rootRoute = leftBranch.rootRoute;
-    const originalX = leftBranch.left;
+    const mainRoad = leftSideRoad.mainRoad;
+    const originalX = leftSideRoad.left;
 
-    // Try to move branch too close to root
-    leftBranch.left = rootRoute.left - 10; // Too close
-    await leftBranch.branchRouteOnMove();
+    // Try to move Side Road too close to root
+    leftSideRoad.left = mainRoad.left - 10; // Too close
+    await leftSideRoad.SideRoadOnMove();
 
     // Should have been constrained
-    const minDistance = 13 * leftBranch.xHeight / 4;
-    const rootLeft = rootRoute.routeList[0].x - rootRoute.routeList[0].width * rootRoute.xHeight / 8;
+    const minDistance = 13 * leftSideRoad.xHeight / 4;
+    const rootLeft = mainRoad.routeList[0].x - mainRoad.routeList[0].width * mainRoad.xHeight / 8;
     const expected = rootLeft - minDistance;
 
     const passed = TestTracker.assert(
-      leftBranch.left,
+      leftSideRoad.left,
       expected,
-      "Branch route not properly constrained from root",
+      "Side Road route not properly constrained from root",
       5
     );
 
@@ -1267,10 +1273,10 @@ const RouteTest = {
    * Run all route tests
    */
   runAll: async function () {
-    await this.testRootRoute();
-    await this.testLeftBranch();
-    await this.testRightBranch();
-    await this.testBranchRouteMovement();
+    await this.testMainRoad();
+    await this.testLeftSideRoad();
+    await this.testRightSideRoad();
+    await this.testSideRoadMovement();
   }
 };
 

@@ -98,7 +98,84 @@ let GeneralHandler = {
     if (defaultV !== null) {
       input.value = defaultV;
     }
-  }
+  },
+
+  createToggle: function (name, options, parent, defaultSelected = null, callback = null,) {
+    // Create a container for the toggle including its label
+    var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent);
+
+    // Create the label
+    var label = GeneralHandler.createNode("label", { 'class': 'placeholder', 'for': name }, inputContainer);
+    label.innerHTML = name;
+
+    // Create a container for the toggle buttons
+    var toggleContainer = GeneralHandler.createNode("div", { 'class': 'toggle-container', 'id': name + '-container' }, inputContainer);
+
+    // Keep track of the buttons to manage their state
+    let toggleButtons = [];
+
+    // Create a button for each option
+    options.forEach((option, index) => {
+      let buttonId = `${name}-${index}`;
+      let button = GeneralHandler.createNode("button", {
+        'type': 'button',
+        'class': 'toggle-button',
+        'id': buttonId,
+        'data-value': option
+      }, toggleContainer);
+
+      button.innerHTML = option;
+      toggleButtons.push(button);
+
+      // Add click event to handle toggle behavior
+      button.addEventListener('click', function () {
+        // Remove active class from all buttons
+        toggleButtons.forEach(btn => {
+          btn.classList.remove('active');
+        });
+
+        // Add active class to clicked button
+        this.classList.add('active');
+        toggleContainer.selected = this;
+
+        // Call callback if provided
+        if (callback) {
+          callback();
+        }
+      });
+
+      // Set default selected button
+      if (defaultSelected !== null && option === defaultSelected) {
+        button.classList.add('active');
+        toggleContainer.selected = button;
+      } else if (defaultSelected === null && index === 0) {
+        // If no default is specified, select the first option
+        button.classList.add('active');
+        toggleContainer.selected = button;
+      }
+    });
+
+    return toggleContainer;
+  },
+
+  /**
+   * Gets the value of the active button in a toggle container
+   * @param {string} containerId - The ID of the toggle container
+   * @return {string|null} The value of the active button or null if not found
+   */
+  getToggleValue: function (containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return null;
+
+    // Method 1: Use the selected property we store on the container
+    if (container.selected) {
+      return container.selected.getAttribute('data-value');
+    }
+
+    // Method 2: Find the active button using DOM query (fallback)
+    const activeButton = container.querySelector('.toggle-button.active');
+    return activeButton ? activeButton.getAttribute('data-value') : null;
+  },
 }
 
 /* Text panel */
@@ -110,9 +187,10 @@ let FormTextAddComponent = {
     tabNum = 2
     var parent = GeneralHandler.PanelInit()
     if (parent) {
-      GeneralHandler.createInput('input-text', 'Add Text', parent, '', FormTextAddComponent.TextInputHandler, 'input')
       GeneralHandler.createInput('input-xHeight', 'x Height', parent, 100, FormTextAddComponent.TextInputHandler, 'input')
-      GeneralHandler.createSelect('input-textFont', 'Text Font', FormTextAddComponent.textFont, parent, 'TransportMedium', FormTextAddComponent.TextInputHandler, 'input')
+      GeneralHandler.createToggle('Message Colour', ['Black', 'White'], parent, 'White', FormTextAddComponent.TextInputHandler)
+      GeneralHandler.createInput('input-text', 'Add Text', parent, '', FormTextAddComponent.TextInputHandler, 'input')
+      GeneralHandler.createToggle('Text Font', FormTextAddComponent.textFont, parent, 'TransportMedium', FormTextAddComponent.TextInputHandler)
       canvas.on('mouse:move', FormTextAddComponent.TextOnMouseMove)
       canvas.on('mouse:down', FormTextAddComponent.TextOnMouseClick)
     }
@@ -143,21 +221,32 @@ let FormTextAddComponent = {
     cursor.shapeMeta = null
     const txt = options ? options.text : document.getElementById('input-text').value
     const xHeight = options ? options.xHeight : document.getElementById('input-xHeight').value
-    const font = options ? options.font : document.getElementById('input-textFont').value
+    const font = options ? options.font : document.getElementById('Text Font-container').selected.getAttribute('data-value')
+    const color = options ? options.color : document.getElementById('Message Colour-container').selected.getAttribute('data-value')
 
-    txtObjects = FormTextAddComponent.createTextObject(txt, xHeight, font)
+    txtObjects = FormTextAddComponent.createTextObject(txt, xHeight, color, font)
 
-    cursor.add(...txtObjects[0])
-    cursor.add(...txtObjects[1])
+    for (var i = 0; i < txtObjects[0].length; i++) {
+      txtObjects[0][i].left  += cursor.left
+      txtObjects[0][i].top  += cursor.top
+      txtObjects[1][i].left += cursor.left
+      txtObjects[1][i].top  += cursor.top
+      //cursor.left += txtObjects[0][i].width
+      cursor.add(txtObjects[0][i])
+      cursor.add(txtObjects[1][i])
+      cursor.left = txtObjects[0][0].left
+    }
 
+    
     cursor.text = txt
     cursor.xHeight = xHeight
     cursor.font = font
+    cursor.color = color
     canvas.renderAll();
 
   },
 
-  createTextObject: function (txt, xHeight, EFont) {
+  createTextObject: function (txt, xHeight, color, EFont) {
     let txtCharList = []
     let txtFrameList = []
     let left_pos = 0
@@ -170,7 +259,7 @@ let FormTextAddComponent = {
           fontWeight: 400,
           left: left_pos + 0.25 * xHeight,
           top: 0.1 * xHeight,
-          fill: '#fff',
+          fill: color,
           fontSize: xHeight * 2.25,
           //origin: 'centerX',
         })
@@ -181,7 +270,7 @@ let FormTextAddComponent = {
           width: 2.75 * xHeight - 2, // Adjust the width border stroke
           height: 2.75 * xHeight - 2,
           fill: 'rgba(0,0,0,0)', // Transparent fill
-          stroke: '#FFFFFF', // White stroke color to match the canvas style
+          stroke: color, // White stroke color to match the canvas style
           strokeWidth: 2, // Adjust stroke width for consistency
           strokeDashArray: [xHeight / 10, xHeight / 10],
         })
@@ -195,7 +284,7 @@ let FormTextAddComponent = {
           fontFamily: EFont,
           left: left_pos,
           top: 6,
-          fill: '#fff',
+          fill: color,
           fontSize: xHeight * 1.88,
           //origin: 'centerX',
         })
@@ -207,7 +296,7 @@ let FormTextAddComponent = {
           width: charWidth * xHeight / 100 - 2, // Adjust the width border stroke
           height: xHeight * 2 - 2,
           fill: 'rgba(0,0,0,0)', // Transparent fill
-          stroke: '#FFFFFF', // White stroke color to match the canvas style
+          stroke: color, // White stroke color to match the canvas style
           strokeWidth: 2, // Adjust stroke width for consistency
           strokeDashArray: [xHeight / 10, xHeight / 10],
         })
@@ -237,7 +326,7 @@ let FormTextAddComponent = {
     //permanent cursor object 
     if (options) {
       cursor.set(
-        { left: options.left, top: options.top, text: options.text, xHeight: options.xHeight, font: options.font }
+        { left: options.left, top: options.top, text: options.text, xHeight: options.xHeight, font: options.font, color: options.color }
       )
 
       textValue = options.text
@@ -246,12 +335,13 @@ let FormTextAddComponent = {
     } else {
       textValue = document.getElementById("input-text").value
       xHeight = parseInt(document.getElementById('input-xHeight').value)
+      color = document.getElementById('Message Colour-container').selected.getAttribute('data-value')
       eventButton = event.e.button
     }
     if (textValue !== '' && eventButton === 0) {
 
       const group = new fabric.Group()
-      txtObjects = FormTextAddComponent.createTextObject(cursor.text, cursor.xHeight, cursor.font)
+      txtObjects = FormTextAddComponent.createTextObject(cursor.text, cursor.xHeight, cursor.color, cursor.font)
 
       group.add(...txtObjects[0])
       group.add(...txtObjects[1])
@@ -301,8 +391,8 @@ let FormTextAddComponent = {
 
       new BaseGroup(group, 'Text', { calcVertex: false })
 
-      if (document.getElementById('input-text')){
-        FormTextAddComponent.TextInputHandler(null, { text: cursor.text, xHeight: cursor.xHeight, font: cursor.font })
+      if (document.getElementById('input-text')) {
+        FormTextAddComponent.TextInputHandler(null, { text: cursor.text, xHeight: cursor.xHeight, font: cursor.font, color: cursor.color })
       }
       canvas.renderAll()
     }
@@ -325,7 +415,8 @@ let FormDrawMapComponent = {
     if (parent) {
       parent.routeCount = 0
       GeneralHandler.createInput('input-xHeight', 'x Height', parent, 100, null, 'input')
-      GeneralHandler.createButton('button-DrawMap', 'Draw New Route Symbol', parent, 'input', drawRootRouteOnCursor, 'click')
+      GeneralHandler.createToggle('Message Colour', ['Black', 'White'], parent, 'White', drawMainRoadOnCursor)
+      GeneralHandler.createButton('button-DrawMap', 'Draw New Route Symbol', parent, 'input', drawMainRoadOnCursor, 'click')
       GeneralHandler.createInput('root-length', 'root length', parent, 7, null, 'input')
       GeneralHandler.createInput('tip-length', 'tip length', parent, 12, null, 'input')
 
@@ -357,9 +448,9 @@ let FormDrawMapComponent = {
     var parent = document.getElementById("input-form");
     const existingRoute = canvas.getActiveObjects()
 
-    if (existingRoute.length == 1 && existingRoute[0].functionalType === 'MainRoute') {
-      canvas.off('mouse:move', drawBranchRouteOnCursor)
-      canvas.on('mouse:move', drawBranchRouteOnCursor)
+    if (existingRoute.length == 1 && existingRoute[0].functionalType === 'MainRoad') {
+      canvas.off('mouse:move', drawSideRoadOnCursor)
+      canvas.on('mouse:move', drawSideRoadOnCursor)
     }
     if (event && event.target) {
       // Move the event target button to the bottom of the parent container
@@ -395,6 +486,7 @@ let FormDrawAddComponent = {
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       GeneralHandler.createInput('input-xHeight', 'x Height', parent, 100, null, 'input')
+      GeneralHandler.createToggle('Message Colour', ['Black', 'White'], parent, 'White',)
 
       // Replace slider with two rotate buttons:
       var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, parent);
@@ -406,7 +498,6 @@ let FormDrawAddComponent = {
       var angleDisplay = GeneralHandler.createNode("div", { 'id': 'angle-display', 'class': 'angle-display' }, angleContainer);
       angleDisplay.innerText = FormDrawAddComponent.symbolAngle + '°';
 
-      //GeneralHandler.createbutton('button-approach-arm', 'Add Approach arm', parent, 0, FormDrawAddComponent.drawApproachClick, 'click')
       Object.keys(symbolsTemplate).forEach(async (symbol) => {
         const button = await FormDrawAddComponent.createButtonSVG(symbol, 5)
         GeneralHandler.createButton(`button-${symbol}`, button, parent, 'symbol', FormDrawAddComponent.drawSymbolOnCursor, 'click')
@@ -465,7 +556,8 @@ let FormDrawAddComponent = {
       var posx = pointer.x;
       var posy = pointer.y;
       var xHeight = parseInt(document.getElementById('input-xHeight').value)
-      const arrowOptions1 = { x: posx, y: posy, length: xHeight / 4, angle: FormDrawAddComponent.symbolAngle, color: 'white', };
+      var color = document.getElementById('Message Colour-container').selected.getAttribute('data-value')
+      const arrowOptions1 = { x: posx, y: posy, length: xHeight / 4, angle: FormDrawAddComponent.symbolAngle, color: color, };
       drawLabeledSymbol(cursor.symbol, arrowOptions1);
     }
   },
@@ -473,35 +565,35 @@ let FormDrawAddComponent = {
   createButtonSVG: async (symbolType, length) => {
     const symbolData = calcSymbol(symbolType, length);
 
-      let pathData = await vertexToPath(symbolData);
-  
-      const svgWidth = 100;
-      const svgHeight = 100;
-  
-      // Calculate the bounding box of the path
-      const tempPath = new fabric.Path(pathData, { strokeWidth: 0 });
-      let symbolSize = { width: tempPath.width, height: tempPath.height, left: tempPath.left, top: tempPath.top };
-      // override the err width and height of symbol with circular border
-      if (symbolType === 'MTR') {
-        symbolSize.width = 130;
-      }
-      if (symbolType === 'Hospital') {
-        symbolSize.width = 80;
-      }
-      const scaleX = svgWidth / symbolSize.width;
-      const scaleY = svgHeight / symbolSize.height;
-      const scale = Math.min(scaleX, scaleY);
-  
-      // Calculate the translation to center the path
-      const translateX = (svgWidth - symbolSize.width * scale) / 2 - symbolSize.left * scale;
-      const translateY = (svgHeight - symbolSize.height * scale) / 2 - symbolSize.top * scale;
-  
-      pathData = pathData.replace(/<svg>/g, '<svg style="width:100;height:100;">')
-      pathData = pathData.replace(/<path/g, `<path transform="translate(${translateX}, ${translateY}) scale(${scale})"`);
-      const svg = pathData;
-  
-  
-      return svg;
+    let pathData = await vertexToPath(symbolData);
+
+    const svgWidth = 100;
+    const svgHeight = 100;
+
+    // Calculate the bounding box of the path
+    const tempPath = new fabric.Path(pathData, { strokeWidth: 0 });
+    let symbolSize = { width: tempPath.width, height: tempPath.height, left: tempPath.left, top: tempPath.top };
+    // override the err width and height of symbol with circular border
+    if (symbolType === 'MTR') {
+      symbolSize.width = 130;
+    }
+    if (symbolType === 'Hospital') {
+      symbolSize.width = 80;
+    }
+    const scaleX = svgWidth / symbolSize.width;
+    const scaleY = svgHeight / symbolSize.height;
+    const scale = Math.min(scaleX, scaleY);
+
+    // Calculate the translation to center the path
+    const translateX = (svgWidth - symbolSize.width * scale) / 2 - symbolSize.left * scale;
+    const translateY = (svgHeight - symbolSize.height * scale) / 2 - symbolSize.top * scale;
+
+    pathData = pathData.replace(/<svg>/g, '<svg style="width:100;height:100;">')
+    pathData = pathData.replace(/<path/g, `<path transform="translate(${translateX}, ${translateY}) scale(${scale})"`);
+    const svg = pathData;
+
+
+    return svg;
 
   },
   drawSymbolOnCursor: async (event, options = null) => {
@@ -516,10 +608,12 @@ let FormDrawAddComponent = {
     if (options) {
       symbol = options.symbol
       var xHeight = options.xHeight
+      var color = options.color
     }
     else {
       symbol = event.currentTarget.id.replace('button-', '')
       var xHeight = parseInt(document.getElementById('input-xHeight').value)
+      var color = document.getElementById('Message Colour-container').selected.getAttribute('data-value')
     }
 
 
@@ -528,7 +622,7 @@ let FormDrawAddComponent = {
     const arrowOptions1 = {
       left: 0,
       top: 0,
-      fill: '#FFF',
+      fill: color,
       angle: FormDrawAddComponent.symbolAngle,
       // originX: 'center',
       objectCaching: false,
@@ -544,6 +638,7 @@ let FormDrawAddComponent = {
 
     Polygon1.symbol = symbol
     Polygon1.xHeight = xHeight
+    Polygon1.color = color
 
     symbolOffset = getInsertOffset(symbolObject)
     cursorOffset.x = symbolOffset.left

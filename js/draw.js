@@ -100,8 +100,8 @@ class GlyphPath extends fabric.Group {
     this.insertPoint = shapeMeta.path[0].vertex[0];
 
     const result = await fabric.loadSVGFromString(pathData)
-    const obj = fabric.util.groupSVGElements(result.objects, {strokeWidth:0});
-
+    const obj = fabric.util.groupSVGElements(result.objects);
+    obj.set(options);
     this.add(obj);
     this.setCoords();
 
