@@ -354,7 +354,6 @@ let FormTextAddComponent = {
             obj.setCoords();
             const aCoords = obj.aCoords;
 
-
             // Transform the coordinates to the canvas coordinate system
             Object.values(aCoords).forEach(point => {
               const absPoint = fabric.util.transformPoint(point, this.calcTransformMatrix());

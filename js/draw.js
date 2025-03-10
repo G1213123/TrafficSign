@@ -140,7 +140,7 @@ class BaseGroup extends fabric.Group {
     
     // If basePolygon is provided, initialize with it
     if (basePolygon) {
-      this.setBasePolygon(basePolygon, true);
+      this.setBasePolygon(basePolygon, options.calcVertex);
     }
 
     // add delete control
