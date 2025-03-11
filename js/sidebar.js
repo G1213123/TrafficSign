@@ -73,6 +73,7 @@ let GeneralHandler = {
     }
     var input = GeneralHandler.createNode("button", { 'type': 'button', 'class': `${container ? container : name}-button`, 'id': name, 'placeholder': ' ' }, inputContainer ? inputContainer : parent, callback, event)
     input.innerHTML = labelTxt
+    return input
   },
 
   createInput: function (name, labelTxt, parent, defaultV = null, callback = null, event = null) {
@@ -82,6 +83,7 @@ let GeneralHandler = {
     var input = GeneralHandler.createNode("input", { 'type': 'text', 'class': 'input', 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
     label.innerHTML = labelTxt
     defaultV ? input.value = defaultV : input.value = ''
+    return input
   },
 
   createSelect: function (name, labelTxt, options, parent, defaultV = null, callback = null, event = null) {
@@ -98,6 +100,7 @@ let GeneralHandler = {
     if (defaultV !== null) {
       input.value = defaultV;
     }
+    return input
   },
 
   createToggle: function (name, options, parent, defaultSelected = null, callback = null,) {
@@ -140,7 +143,7 @@ let GeneralHandler = {
 
         // Call callback if provided
         if (callback) {
-          callback();
+          callback(this);
         }
       });
 
@@ -181,16 +184,22 @@ let GeneralHandler = {
 /* Text panel */
 let FormTextAddComponent = {
   textWidthMedium: [{ char: ' ', width: 53, shortWidth: 0 }, { char: 'A', width: 136, shortWidth: 0 }, { char: 'B', width: 147, shortWidth: 0 }, { char: 'C', width: 148, shortWidth: 0 }, { char: 'D', width: 154, shortWidth: 0 }, { char: 'E', width: 132, shortWidth: 0 }, { char: 'F', width: 119, shortWidth: 0 }, { char: 'G', width: 155, shortWidth: 0 }, { char: 'H', width: 160, shortWidth: 0 }, { char: 'I', width: 73, shortWidth: 0 }, { char: 'J', width: 93, shortWidth: 0 }, { char: 'K', width: 138, shortWidth: 0 }, { char: 'L', width: 107, shortWidth: 0 }, { char: 'M', width: 184, shortWidth: 0 }, { char: 'N', width: 168, shortWidth: 0 }, { char: 'O', width: 156, shortWidth: 0 }, { char: 'P', width: 130, shortWidth: 0 }, { char: 'Q', width: 158, shortWidth: 0 }, { char: 'R', width: 141, shortWidth: 0 }, { char: 'S', width: 137, shortWidth: 0 }, { char: 'T', width: 109, shortWidth: 105 }, { char: 'U', width: 154, shortWidth: 0 }, { char: 'V', width: 130, shortWidth: 120 }, { char: 'W', width: 183, shortWidth: 189 }, { char: 'X', width: 128, shortWidth: 0 }, { char: 'Y', width: 123, shortWidth: 118 }, { char: 'Z', width: 119, shortWidth: 0 }, { char: 'a', width: 111, shortWidth: 104 }, { char: 'b', width: 117, shortWidth: 0 }, { char: 'c', width: 103, shortWidth: 0 }, { char: 'd', width: 119, shortWidth: 0 }, { char: 'e', width: 109, shortWidth: 102 }, { char: 'f', width: 75, shortWidth: 0 }, { char: 'g', width: 114, shortWidth: 107 }, { char: 'h', width: 112, shortWidth: 0 }, { char: 'i', width: 54, shortWidth: 0 }, { char: 'j', width: 58, shortWidth: 0 }, { char: 'k', width: 108, shortWidth: 0 }, { char: 'l', width: 62, shortWidth: 0 }, { char: 'm', width: 164, shortWidth: 0 }, { char: 'n', width: 112, shortWidth: 0 }, { char: 'o', width: 118, shortWidth: 111 }, { char: 'p', width: 118, shortWidth: 0 }, { char: 'q', width: 118, shortWidth: 0 }, { char: 'r', width: 73, shortWidth: 59 }, { char: 's', width: 97, shortWidth: 95 }, { char: 't', width: 81, shortWidth: 0 }, { char: 'u', width: 115, shortWidth: 101 }, { char: 'v', width: 98, shortWidth: 0 }, { char: 'w', width: 147, shortWidth: 145 }, { char: 'x', width: 104, shortWidth: 0 }, { char: 'y', width: 98, shortWidth: 96 }, { char: 'z', width: 97, shortWidth: 0 }, { char: '1', width: 78, shortWidth: 0 }, { char: '2', width: 120, shortWidth: 0 }, { char: '3', width: 127, shortWidth: 0 }, { char: '4', width: 132, shortWidth: 0 }, { char: '5', width: 122, shortWidth: 0 }, { char: '6', width: 126, shortWidth: 0 }, { char: '7', width: 104, shortWidth: 0 }, { char: '8', width: 130, shortWidth: 0 }, { char: '9', width: 128, shortWidth: 0 }, { char: '0', width: 133, shortWidth: 0 }, { char: ',', width: 53, shortWidth: 0 }, { char: '.', width: 53, shortWidth: 0 }, { char: '’', width: 39, shortWidth: 0 }, { char: ':', width: 53, shortWidth: 0 }, { char: '•', width: 53, shortWidth: 0 }, { char: '、', width: 53, shortWidth: 0 }, { char: '-', width: 66, shortWidth: 0 }, { char: '&', width: 126, shortWidth: 0 }, { char: '(', width: 105, shortWidth: 0 }, { char: ')', width: 105, shortWidth: 0 }, { char: '/', width: 85, shortWidth: 0 }, { char: '$', width: 100, shortWidth: 0 }, { char: '%', width: 160, shortWidth: 0 }, { char: '“', width: 92, shortWidth: 0 }, { char: '”', width: 92, shortWidth: 0 }],
-  textWidthHeavy: [{ char: ' ', width: 53, shortWidth: 0 }, { char: 'A', width: 142, shortWidth: 0 }, { char: 'B', width: 146, shortWidth: 0 }, { char: 'C', width: 151, shortWidth: 0 }, { char: 'D', width: 150, shortWidth: 0 }, { char: 'E', width: 136, shortWidth: 0 }, { char: 'F', width: 121, shortWidth: 0 }, { char: 'G', width: 156, shortWidth: 0 }, { char: 'H', width: 159, shortWidth: 0 }, { char: 'I', width: 73, shortWidth: 0 }, { char: 'J', width: 95, shortWidth: 0 }, { char: 'K', width: 138, shortWidth: 0 }, { char: 'L', width: 118, shortWidth: 0 }, { char: 'M', width: 186, shortWidth: 0 }, { char: 'N', width: 168, shortWidth: 0 }, { char: 'O', width: 158, shortWidth: 0 }, { char: 'P', width: 134, shortWidth: 0 }, { char: 'Q', width: 161, shortWidth: 0 }, { char: 'R', width: 148, shortWidth: 0 }, { char: 'S', width: 146, shortWidth: 0 }, { char: 'T', width: 118, shortWidth: 113 }, { char: 'U', width: 157, shortWidth: 0 }, { char: 'V', width: 133, shortWidth: 127 }, { char: 'W', width: 193, shortWidth: 196 }, { char: 'X', width: 130, shortWidth: 0 }, { char: 'Y', width: 128, shortWidth: 125 }, { char: 'Z', width: 119, shortWidth: 0 }, { char: 'a', width: 111, shortWidth: 104 }, { char: 'b', width: 107, shortWidth: 0 }, { char: 'c', width: 107, shortWidth: 0 }, { char: 'd', width: 119, shortWidth: 0 }, { char: 'e', width: 110, shortWidth: 103 }, { char: 'f', width: 79, shortWidth: 0 }, { char: 'g', width: 117, shortWidth: 110 }, { char: 'h', width: 119, shortWidth: 0 }, { char: 'i', width: 55, shortWidth: 0 }, { char: 'j', width: 71, shortWidth: 0 }, { char: 'k', width: 114, shortWidth: 0 }, { char: 'l', width: 63, shortWidth: 0 }, { char: 'm', width: 173, shortWidth: 0 }, { char: 'n', width: 119, shortWidth: 0 }, { char: 'o', width: 115, shortWidth: 107 }, { char: 'p', width: 120, shortWidth: 0 }, { char: 'q', width: 120, shortWidth: 0 }, { char: 'r', width: 80, shortWidth: 67 }, { char: 's', width: 100, shortWidth: 98 }, { char: 't', width: 84, shortWidth: 0 }, { char: 'u', width: 120, shortWidth: 107 }, { char: 'v', width: 107, shortWidth: 0 }, { char: 'w', width: 160, shortWidth: 154 }, { char: 'x', width: 110, shortWidth: 0 }, { char: 'y', width: 106, shortWidth: 104 }, { char: 'z', width: 93, shortWidth: 0 }, { char: '1', width: 84, shortWidth: 0 }, { char: '2', width: 125, shortWidth: 0 }, { char: '3', width: 136, shortWidth: 0 }, { char: '4', width: 138, shortWidth: 0 }, { char: '5', width: 130, shortWidth: 0 }, { char: '6', width: 129, shortWidth: 0 }, { char: '7', width: 107, shortWidth: 0 }, { char: '8', width: 138, shortWidth: 0 }, { char: '9', width: 129, shortWidth: 0 }, { char: '0', width: 145, shortWidth: 0 }, { char: ',', width: 56, shortWidth: 0 }, { char: '.', width: 56, shortWidth: 0 }, { char: '’', width: 41, shortWidth: 0 }, { char: ':', width: 56, shortWidth: 0 }, { char: '•', width: 56, shortWidth: 0 }, { char: '、', width: 53, shortWidth: 0 }, { char: '-', width: 71, shortWidth: 0 }, { char: '&', width: 126, shortWidth: 0 }, { char: '(', width: 115, shortWidth: 0 }, { char: ')', width: 115, shortWidth: 0 }, { char: '/', width: 88, shortWidth: 0 }, { char: '$', width: 100, shortWidth: 0 }, { char: '%', width: 160, shortWidth: 0 }, { char: '“', width: 92, shortWidth: 0 }, { char: '”', width: 92, shortWidth: 0 }],
+  textWidthHeavy: [{ char: ' ', width: 53, shortWidth: 0 }, { char: 'A', width: 142, shortWidth: 0 }, { char: 'B', width: 146, shortWidth: 0 }, { char: 'C', width: 151, shortWidth: 0 }, { char: 'D', width: 150, shortWidth: 0 }, { char: 'E', width: 136, shortWidth: 0 }, { char: 'F', width: 121, shortWidth: 0 }, { char: 'G', width: 156, shortWidth: 0 }, { char: 'H', width: 159, shortWidth: 0 }, { char: 'I', width: 73, shortWidth: 0 }, { char: 'J', width: 95, shortWidth: 0 }, { char: 'K', width: 138, shortWidth: 0 }, { char: 'L', width: 118, shortWidth: 0 }, { char: 'M', width: 186, shortWidth: 0 }, { char: 'N', width: 168, shortWidth: 0 }, { char: 'O', width: 158, shortWidth: 0 }, { char: 'P', width: 134, shortWidth: 0 }, { char: 'Q', width: 161, shortWidth: 0 }, { char: 'R', width: 148, shortWidth: 0 }, { char: 'S', width: 146, shortWidth: 0 }, { char: 'T', width: 118, shortWidth: 113 }, { char: 'U', width: 157, shortWidth: 0 }, { char: 'V', width: 133, shortWidth: 127 }, { char: 'W', width: 193, shortWidth: 196 }, { char: 'X', width: 130, shortWidth: 0 }, { char: 'Y', width: 128, shortWidth: 125 }, { char: 'Z', width: 119, shortWidth: 0 }, { char: 'a', width: 111, shortWidth: 104 }, { char: 'b', width: 117, shortWidth: 0 }, { char: 'c', width: 107, shortWidth: 0 }, { char: 'd', width: 119, shortWidth: 0 }, { char: 'e', width: 110, shortWidth: 103 }, { char: 'f', width: 79, shortWidth: 0 }, { char: 'g', width: 117, shortWidth: 110 }, { char: 'h', width: 119, shortWidth: 0 }, { char: 'i', width: 55, shortWidth: 0 }, { char: 'j', width: 71, shortWidth: 0 }, { char: 'k', width: 114, shortWidth: 0 }, { char: 'l', width: 63, shortWidth: 0 }, { char: 'm', width: 173, shortWidth: 0 }, { char: 'n', width: 119, shortWidth: 0 }, { char: 'o', width: 115, shortWidth: 107 }, { char: 'p', width: 120, shortWidth: 0 }, { char: 'q', width: 120, shortWidth: 0 }, { char: 'r', width: 80, shortWidth: 67 }, { char: 's', width: 100, shortWidth: 98 }, { char: 't', width: 84, shortWidth: 0 }, { char: 'u', width: 120, shortWidth: 107 }, { char: 'v', width: 107, shortWidth: 0 }, { char: 'w', width: 160, shortWidth: 154 }, { char: 'x', width: 110, shortWidth: 0 }, { char: 'y', width: 106, shortWidth: 104 }, { char: 'z', width: 93, shortWidth: 0 }, { char: '1', width: 84, shortWidth: 0 }, { char: '2', width: 125, shortWidth: 0 }, { char: '3', width: 136, shortWidth: 0 }, { char: '4', width: 138, shortWidth: 0 }, { char: '5', width: 130, shortWidth: 0 }, { char: '6', width: 129, shortWidth: 0 }, { char: '7', width: 107, shortWidth: 0 }, { char: '8', width: 138, shortWidth: 0 }, { char: '9', width: 129, shortWidth: 0 }, { char: '0', width: 145, shortWidth: 0 }, { char: ',', width: 56, shortWidth: 0 }, { char: '.', width: 56, shortWidth: 0 }, { char: '’', width: 41, shortWidth: 0 }, { char: ':', width: 56, shortWidth: 0 }, { char: '•', width: 56, shortWidth: 0 }, { char: '、', width: 53, shortWidth: 0 }, { char: '-', width: 71, shortWidth: 0 }, { char: '&', width: 126, shortWidth: 0 }, { char: '(', width: 115, shortWidth: 0 }, { char: ')', width: 115, shortWidth: 0 }, { char: '/', width: 88, shortWidth: 0 }, { char: '$', width: 100, shortWidth: 0 }, { char: '%', width: 160, shortWidth: 0 }, { char: '“', width: 92, shortWidth: 0 }, { char: '”', width: 92, shortWidth: 0 }],
   textFont: ['TransportMedium', 'TransportHeavy'],
   textPanelInit: function () {
     tabNum = 2
     var parent = GeneralHandler.PanelInit()
     if (parent) {
-      GeneralHandler.createInput('input-xHeight', 'x Height', parent, 100, FormTextAddComponent.TextInputHandler, 'input')
-      GeneralHandler.createToggle('Message Colour', ['Black', 'White'], parent, 'White', FormTextAddComponent.TextInputHandler)
-      GeneralHandler.createInput('input-text', 'Add Text', parent, '', FormTextAddComponent.TextInputHandler, 'input')
-      GeneralHandler.createToggle('Text Font', FormTextAddComponent.textFont, parent, 'TransportMedium', FormTextAddComponent.TextInputHandler)
+      // Create a container for basic text parameters
+      var basicParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 100, FormTextAddComponent.TextInputHandler, 'input')
+      GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, 'White', FormTextAddComponent.TextInputHandler)
+
+      // Create a container for text content and font
+      var textContentContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      GeneralHandler.createInput('input-text', 'Add Text', textContentContainer, '', FormTextAddComponent.TextInputHandler, 'input')
+      GeneralHandler.createToggle('Text Font', FormTextAddComponent.textFont, textContentContainer, 'TransportMedium', FormTextAddComponent.TextInputHandler)
+
       canvas.on('mouse:move', FormTextAddComponent.TextOnMouseMove)
       canvas.on('mouse:down', FormTextAddComponent.TextOnMouseClick)
     }
@@ -227,17 +236,17 @@ let FormTextAddComponent = {
     txtObjects = FormTextAddComponent.createTextObject(txt, xHeight, color, font)
 
     for (var i = 0; i < txtObjects[0].length; i++) {
-      txtObjects[0][i].left  += cursor.left
-      txtObjects[0][i].top  += cursor.top
+      txtObjects[0][i].left += cursor.left
+      txtObjects[0][i].top += cursor.top
       txtObjects[1][i].left += cursor.left
-      txtObjects[1][i].top  += cursor.top
+      txtObjects[1][i].top += cursor.top
       //cursor.left += txtObjects[0][i].width
       cursor.add(txtObjects[0][i])
       cursor.add(txtObjects[1][i])
       cursor.left = txtObjects[0][0].left
     }
 
-    
+
     cursor.text = txt
     cursor.xHeight = xHeight
     cursor.font = font
@@ -399,7 +408,9 @@ let FormTextAddComponent = {
 
 }
 
+/* Draw Map Panel */
 let FormDrawMapComponent = {
+  MapType: ['Main Line', 'Conventional Roundabout', 'Spiral Roundabout',],
   EndShape: ['Arrow', 'Butt'],
   permitAngle: [45, 60, 90],
   defaultRoute: [{ x: 0, y: 7, angle: 60, width: 4, shape: 'Arrow' }],
@@ -413,24 +424,38 @@ let FormDrawMapComponent = {
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       parent.routeCount = 0
-      GeneralHandler.createInput('input-xHeight', 'x Height', parent, 100, null, 'input')
-      GeneralHandler.createToggle('Message Colour', ['Black', 'White'], parent, 'White', drawMainRoadOnCursor)
-      GeneralHandler.createButton('button-DrawMap', 'Draw New Route Symbol', parent, 'input', drawMainRoadOnCursor, 'click')
-      GeneralHandler.createInput('root-length', 'root length', parent, 7, null, 'input')
-      GeneralHandler.createInput('tip-length', 'tip length', parent, 12, null, 'input')
+      // Create a container for basic parameters
+      var basicParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 100, null, 'input')
+      GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, 'White', drawMainRoadOnCursor)
+
+      // Create a container for route parameters
+      var MainRoadParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      GeneralHandler.createToggle('Main Road Type', FormDrawMapComponent.MapType, MainRoadParamsContainer, 'Main Line', drawMainRoadOnCursor)
+      const drawMapButton = GeneralHandler.createButton('button-DrawMap', 'Draw Main Road Symbol', MainRoadParamsContainer, 'input', drawMainRoadOnCursor, 'click');
+
+      GeneralHandler.createInput('root-length', 'Main Road Root Length', MainRoadParamsContainer, 7, drawMainRoadOnCursor, 'input')
+      GeneralHandler.createInput('tip-length', 'Main Road Tip Length', MainRoadParamsContainer, 12, drawMainRoadOnCursor, 'input')
+      GeneralHandler.createInput('main-width', 'Main Road Width', MainRoadParamsContainer, 6, drawMainRoadOnCursor, 'input')
+      GeneralHandler.createToggle(`Main Road Shape`, FormDrawMapComponent.EndShape, MainRoadParamsContainer, 'Arrow', drawMainRoadOnCursor)
 
       const existingRoute = canvas.getActiveObjects().length == 1 && canvas.getActiveObject.functionalType == 'MainRoute' ? canvas.getActiveObjects()[0] : null
       const routeList = existingRoute ? existingRoute.routeList : FormDrawMapComponent.defaultRoute
 
       if (routeList) {
         routeList.forEach((route, index) => {
-          var routeContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent);
-          GeneralHandler.createSelect(`route${index + 1}-shape`, `Route ${index + 1} Shape`, FormDrawMapComponent.EndShape, routeContainer, route.shape, null, 'change')
-          GeneralHandler.createInput(`route${index + 1}-width`, `Route ${index + 1} Width`, routeContainer, 4, null, 'input')
+          var SideRoadParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+          const addRouteButton = GeneralHandler.createButton('button-addRoute', '+ Another Route Destination', SideRoadParamsContainer, 'input', FormDrawMapComponent.addRouteInput, 'click');
+          if (canvas.getActiveObjects().length == 1 && canvas.getActiveObject.functionalType === 'MainRoad') {
+            addRouteButton.classList.add('deactive'); // Set initial state to deactive
+            addRouteButton.disabled = true;
+          }
+          GeneralHandler.createInput(`Side Road width`, `Side Road Width`, SideRoadParamsContainer, 4, null, 'input')
+          GeneralHandler.createToggle(`Side Road Shape`, FormDrawMapComponent.EndShape, SideRoadParamsContainer, route.shape, null)
 
-          var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, parent);
+          var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, SideRoadParamsContainer);
           GeneralHandler.createButton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawMapComponent.setAngle, 'click')
-          var angleDisplay = GeneralHandler.createNode("div", { 'id': `angle-display-${index + 1}`, 'class': 'angle-display' }, angleContainer);
+          var angleDisplay = GeneralHandler.createNode("div", { 'id': `angle-display`, 'class': 'angle-display' }, angleContainer);
           angleDisplay.innerText = route.angle + '°';
           parent.routeCount += 1
         })
@@ -451,10 +476,7 @@ let FormDrawMapComponent = {
       canvas.off('mouse:move', drawSideRoadOnCursor)
       canvas.on('mouse:move', drawSideRoadOnCursor)
     }
-    if (event && event.target) {
-      // Move the event target button to the bottom of the parent container
-      parent.appendChild(event.target.parentNode);
-    }
+
   },
 
   /**
@@ -466,7 +488,7 @@ let FormDrawMapComponent = {
     // Find the parent container element
     const parentContainer = event.currentTarget.parentNode;
     // Find the angle display element within the same container
-    const angleDisplay = parentContainer.querySelector('[id^="angle-display-"]');
+    const angleDisplay = parentContainer.querySelector('[id^="angle-display"]');
     // Extract the current angle value
     const currentText = angleDisplay.innerText.slice(0, -1); // Remove the degree symbol
 
@@ -484,11 +506,15 @@ let FormDrawAddComponent = {
     tabNum = 1
     var parent = GeneralHandler.PanelInit()
     if (parent) {
-      GeneralHandler.createInput('input-xHeight', 'x Height', parent, 100, null, 'input')
-      GeneralHandler.createToggle('Message Colour', ['Black', 'White'], parent, 'White',)
+      // Create a container for basic symbol parameters
+      var basicParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 100, null, 'input')
+      GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, 'White',)
 
+      // Create a container for angle controls
+      var angleControlContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
       // Replace slider with two rotate buttons:
-      var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, parent);
+      var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, angleControlContainer);
 
       var btnRotateLeft = GeneralHandler.createButton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawAddComponent.setAngle, 'click')
 
@@ -674,12 +700,17 @@ let FormBorderWrapComponent = {
     tabNum = 3
     var parent = GeneralHandler.PanelInit()
     if (parent) {
-      GeneralHandler.createInput('input-xHeight', 'x Height', parent, 100)
-      GeneralHandler.createSelect('input-type', 'Select Border Type', Object.keys(BorderTypeScheme), parent, null, '', '', 'select')
-      GeneralHandler.createSelect('input-color', 'Select Color Scheme', Object.keys(BorderColorScheme), parent, null, '', '', 'select')
-      GeneralHandler.createButton('input-border', 'Select Objects for border', parent, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
-      GeneralHandler.createButton('input-HDivider', 'Add stack border divider', parent, 'input', FormBorderWrapComponent.StackDividerHandler, 'click')
-      GeneralHandler.createButton('input-VDivider', 'Add gantry border divider', parent, 'input', FormBorderWrapComponent.GantryDividerHandler, 'click')
+      // Create a container for border parameters
+      var borderParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      GeneralHandler.createInput('input-xHeight', 'x Height', borderParamsContainer, 100)
+      GeneralHandler.createSelect('input-type', 'Select Border Type', Object.keys(BorderTypeScheme), borderParamsContainer, null, '', '', 'select')
+      GeneralHandler.createSelect('input-color', 'Select Color Scheme', Object.keys(BorderColorScheme), borderParamsContainer, null, '', '', 'select')
+
+      // Create a container for border actions
+      var borderActionsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      GeneralHandler.createButton('input-border', 'Select Objects for border', borderActionsContainer, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
+      GeneralHandler.createButton('input-HDivider', 'Add stack border divider', borderActionsContainer, 'input', FormBorderWrapComponent.StackDividerHandler, 'click')
+      GeneralHandler.createButton('input-VDivider', 'Add gantry border divider', borderActionsContainer, 'input', FormBorderWrapComponent.GantryDividerHandler, 'click')
     }
   },
   BorderCreateHandler: async function () {
@@ -713,7 +744,10 @@ let FormDebugComponent = {
     tabNum = 5
     var parent = GeneralHandler.PanelInit()
     if (parent) {
-      FormDebugComponent.createDebugInfoPanel(parent);
+      // Create a container for debug info
+      var debugInfoContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      FormDebugComponent.createDebugInfoPanel(debugInfoContainer);
+
       // Update the sidebar when an object is selected
       canvas.on('selection:created', FormDebugComponent.selectionListener);
       canvas.on('selection:updated', FormDebugComponent.selectionListener);
@@ -757,6 +791,13 @@ let FormDebugComponent = {
     if (debugInfoPanel) {
       objects.length ? object = objects[0] : object = objects
       debugInfoPanel.innerHTML = ''; // Clear previous info
+
+      const div = document.createElement('div');
+      div.style.fontWeight = 'bold'; // Make text bold
+      div.style.textDecoration = 'underline'; // Add underline
+      div.innerText = `${object._showName}`;
+      debugInfoPanel.appendChild(div);
+
       point = object.getEffectiveCoords()
       const properties = [
         { label: 'Top', value: Math.round(object.top) },

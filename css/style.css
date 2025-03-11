@@ -179,7 +179,7 @@ div.side-panel.close {
 .input-form {
   width: 100%;
   height: 80%;
-  margin-top: 10px;
+  margin-top: 5px;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
@@ -309,6 +309,15 @@ div.side-panel.close {
   border: 2px solid #555555;
 }
 
+.input-button.deactive {
+  background-color: #444444;
+  color: #888888;
+  border: 2px solid #444444;
+  cursor: not-allowed;
+  opacity: 0.7;
+  pointer-events: none; /* Prevents clicking */
+}
+
 .input-button {
   background-color: #555555;
   color: white;
@@ -320,7 +329,7 @@ div.side-panel.close {
   font-size: 16px;
   cursor: pointer;
   border-radius: 10px;
-  width: 95%;
+  width: 100%;
 }
 
 .rotate-left-button {
@@ -345,6 +354,42 @@ div.side-panel.close {
   width: 25%;
 }
 
+/* Route parameters container styling */
+.input-group-container {
+  width: 95%;
+  margin: 5px 10px 5px 10px;
+  padding: 10px;
+  border-radius: 12px;
+  background-color: rgba(60, 60, 65, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Container for symbol buttons with improved layout */
+.symbol-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 5px;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+/* Adjust the symbol button size in the container */
+.symbol-buttons-container .symbol-container {
+  width: 40%;
+  margin: 5px 0;
+}
+
+/* Adjust margins for inputs within the container to be more compact */
+.input-group-container .input-container {
+  margin-top: 8px;
+}
+
+/* Give the first element inside the container a smaller top margin */
+.input-group-container > *:first-child {
+  margin-top: 2px;
+}
+
 .angle-display{
   background-color: #555555;
   color: #dadada;
@@ -367,7 +412,7 @@ div.side-panel.close {
   width: 100%;
   border-radius: 4px;
   overflow: hidden;
-  background-color: rgba(40, 40, 40, 0.3);
+  background-color: rgba(20, 20, 20, 0.6);
 }
 
 .toggle-button {
@@ -509,15 +554,6 @@ div.side-panel.close {
   align-items: left;
 }
 
-/* Debug panel container */
-#debug-info-panel {
-  background-color: #333;
-  /* Deep grey background */
-  margin: 10px;
-  border-radius: 5px;
-  width: 100%;
-}
-
 /* Debug panel text */
 #debug-info-panel div {
   color: #fff;
@@ -526,7 +562,6 @@ div.side-panel.close {
   font-size: 16px;
   margin: 4px 10px;
   justify-content: left;
-  background-color: #333;
   border-radius: 5px;
 }
 

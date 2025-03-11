@@ -994,7 +994,9 @@ const RouteTest = {
       rootLength: 7,
       tipLength: 12,
       posx: 800,
-      posy: 300
+      posy: 100,
+      width: 6,
+      shape: 'Arrow'
     };
 
     // Create a MainRoute directly
@@ -1005,7 +1007,8 @@ const RouteTest = {
       ],
       xHeight: params.xHeight,
       rootLength: params.rootLength,
-      tipLength: params.tipLength
+      tipLength: params.tipLength,
+      roadType: 'Main Line'
     };
 
     const mainRoad = new MainRoadSymbol(routeOptions);
@@ -1055,7 +1058,7 @@ const RouteTest = {
 
     // Set up test parameters
     const posx = mainRoad.left - 300; // Left of root
-    const posy = mainRoad.top + 600;
+    const posy = mainRoad.top;
     const params = {
       xHeight: mainRoad.xHeight,
       angle: 90,
@@ -1250,11 +1253,12 @@ const RouteTest = {
     const originalX = leftSideRoad.left;
 
     // Try to move Side Road too close to root
-    leftSideRoad.left = mainRoad.left - 10; // Too close
+    leftSideRoad.left = mainRoad.left; // Too close
+    leftSideRoad.updateAllCoord();
     await leftSideRoad.SideRoadOnMove();
 
     // Should have been constrained
-    const minDistance = 13 * leftSideRoad.xHeight / 4;
+    const minDistance = 4 * leftSideRoad.xHeight / 4;
     const rootLeft = mainRoad.routeList[0].x - mainRoad.routeList[0].width * mainRoad.xHeight / 8;
     const expected = rootLeft - minDistance;
 

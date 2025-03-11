@@ -4,7 +4,7 @@ const BorderColorScheme = {
         'symbol': 'white',
     },
     "Green Background": {
-        'background': '#00B95F',
+        'background': '#006C49',
         'symbol': 'white',
     },
     "White Background": {
