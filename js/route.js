@@ -41,10 +41,12 @@ const roadMapTemplate = {
                     { x: 6.0622, y: 3.5, label: 'V3', start: 0 },
                     { x: 3.5, y: 6.0622, label: 'V4', start: 0 },
                     { x: 6, y: 10.3923, label: 'V5', start: 0 },
+                    { x: -12, y: 0, label: 'V6', start: 0 },
                 ], 'arcs': [
                     { start: 'V1', end: 'V2', radius: 12, direction: 1, sweep: 0 },
                     { start: 'V3', end: 'V4', radius: 7, direction: 0, sweep: 1 },
-                    { start: 'V5', end: 'V1', radius: 12, direction: 1, sweep: 1 },
+                    { start: 'V5', end: 'V6', radius: 12, direction: 1, sweep: 0 },
+                    { start: 'V6', end: 'V1', radius: 12, direction: 1, sweep: 0 },
                 ]
             },
         ],
@@ -101,7 +103,7 @@ function calcSideRoadVertices(xHeight, mainRouteList, routeList) {
  */
 function calcConvRoundaboutVertices(xHeight, routeList) {
     const length = xHeight / 4
-    const center = routeList[0]
+    const center = routeList[1] // use tip location
     let roundel = JSON.parse(JSON.stringify(roadMapTemplate['ConvRoundabout']))
     roundel = calcSymbol(roundel, length)
     roundel.path.map((p) => {
@@ -543,6 +545,7 @@ async function drawMainRoadOnCursor(event, params = null) {
     await Polygon1.initialize(vertexList, options);
 
     symbolOffset = getInsertOffset(vertexList);
+
     cursorOffset.x = symbolOffset.left;
     cursorOffset.y = symbolOffset.top;
 
