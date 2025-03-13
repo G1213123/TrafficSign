@@ -3,6 +3,24 @@ const deleteIcon =
   "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
 let activeVertex = null
 
+// Constants for snapping functionality
+const SNAP_THRESHOLD = 100; // Distance in pixels to trigger snapping
+const GUIDELINE_STYLE = {
+  horizontal: {
+    stroke: '#00BFFF', // Deep sky blue
+    strokeWidth: 2,
+    strokeDashArray: [5, 5]
+  },
+  vertical: {
+    stroke: '#FF69B4', // Hot pink
+    strokeWidth: 2,
+    strokeDashArray: [5, 5]
+  }
+};
+
+// Valid vertex labels for snapping - only include vertices with labels starting with these prefixes
+const VALID_VERTEX_PREFIXES = ['E'];
+
 // additional property for fabric object
 const originalToObject = fabric.Object.prototype.toObject;
 const myAdditional = ['functionalType'];
@@ -125,6 +143,15 @@ class BaseGroup extends fabric.Group {
     this.lockXToPolygon = {};
     this.lockYToPolygon = {};
     this.refTopLeft = { top: 0, left: 0 }; // Initialize even without basePolygon
+    
+    // Initialize snapping properties
+    this.snapLines = {
+      horizontal: [],
+      vertical: []
+    };
+    this.isSnapping = false;
+    this.vertexHighlights = []; // Initialize vertex highlights array
+    this.activeSnapVertex = null; // Track the active vertex for snapping
 
     canvasObject.push(this);
     this.canvasID = canvasObject.length - 1;
@@ -170,6 +197,8 @@ class BaseGroup extends fabric.Group {
           })
         });
         this.hideLockHighlights();
+        this.clearSnapLines();
+        this.hideAllVertexHighlights(); // Ensure vertex highlights are cleared on deselection
       }, 0)
       CanvasObjectInspector.SetActiveObjectList(null)
     });
@@ -210,8 +239,402 @@ class BaseGroup extends fabric.Group {
       canvas.renderAll();
     });
 
+    //this.on('mousedown', this.onDragStart.bind(this));
+    this.on('moving', this.onMoving.bind(this));
+    //this.on('moved', this.onMoved.bind(this));
     this.on('modified', this.updateAllCoord.bind(this));
-    this.on('moving', this.updateAllCoord.bind(this));
+  }
+
+  // This event is triggered when the object starts to be dragged
+  onDragStart(event) {
+    // Find the cursor position relative to the canvas
+    const pointer = canvas.getPointer(event);
+    
+    // Find the nearest vertex to the cursor
+    this.activeSnapVertex = this.findNearestVertex(pointer);
+    
+    // Store the initial offset between cursor and vertex
+    if (this.activeSnapVertex) {
+      // Save the initial vertex position for reference
+      this.snapVertexInitialPos = {
+        x: this.activeSnapVertex.x,
+        y: this.activeSnapVertex.y
+      };
+      
+      // Calculate offset between cursor and vertex
+      this.snapVertexOffset = {
+        x: this.activeSnapVertex.x - pointer.x,
+        y: this.activeSnapVertex.y - pointer.y
+      };
+      
+      // Highlight the active vertex for visual feedback
+      this.showVertexHighlight(this.activeSnapVertex, 'both');
+    }
+  }
+
+  // Find the nearest vertex to a point with improved precision
+  findNearestVertex(pointer) {
+    if (!this.basePolygon || !this.basePolygon.vertex) return null;
+    
+    let nearestVertex = null;
+    let minDistance = Infinity;
+    
+    // Check all vertices and find the closest one
+    this.basePolygon.vertex.forEach(vertex => {
+      // Only use vertices with valid labels for snapping
+      if (!isValidVertexForSnapping(vertex)) return;
+      
+      const distance = Math.sqrt(
+        Math.pow(vertex.x - pointer.x, 2) + 
+        Math.pow(vertex.y - pointer.y, 2)
+      );
+      
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestVertex = vertex;
+      }
+    });
+    
+    return nearestVertex;
+  }
+
+  // Handle object movement to check for snapping with improved precision
+  onMoving(event) {
+    // Skip snapping if object is locked due to anchor constraints
+    if ((Object.keys(this.lockXToPolygon).length > 0) && (Object.keys(this.lockYToPolygon).length > 0)) {
+      return;
+    }
+    
+    // Clear existing snap lines and highlights
+    this.clearSnapLines();
+    this.hideAllVertexHighlights();
+    
+    // If no active vertex, find one now
+    if (!this.activeSnapVertex) {
+      const pointer = canvas.getPointer(event.e);
+      this.activeSnapVertex = this.findNearestVertex(pointer);
+      
+      if (this.activeSnapVertex) {
+        // Initialize the reference positions if we just found an active vertex
+        this.snapVertexInitialPos = {
+          x: this.activeSnapVertex.x,
+          y: this.activeSnapVertex.y
+        };
+        this.snapVertexOffset = { x: 0, y: 0 };
+      }
+    }
+    
+    // If we still don't have an active vertex, we can't snap
+    if (!this.activeSnapVertex) return;
+    
+    // Calculate current position of the active vertex based on object movement
+    const currentVertexPos = {
+      x: this.activeSnapVertex.x,
+      y: this.activeSnapVertex.y
+    };
+    
+    // Highlight the active vertex
+    this.showVertexHighlight(this.activeSnapVertex, 'both');
+    
+    // Get nearby objects for potential snapping
+    const nearbyObjects = this.findNearbyObjects();
+    
+    // Initialize variables to track best snapping distance
+    let bestSnapX = null;
+    let bestSnapY = null;
+    let bestDistanceX = SNAP_THRESHOLD;
+    let bestDistanceY = SNAP_THRESHOLD;
+    
+    // Check each nearby object for potential snap points
+    nearbyObjects.forEach(obj => {
+      // Skip snapping to objects with relationships to this object
+      if (this.hasRelationship(obj)) return;
+      
+      // Skip objects without vertices
+      if (!obj.basePolygon || !obj.basePolygon.vertex) return;
+      
+      // Get the active snap vertex from this object
+      const activeVertex = this.activeSnapVertex;
+      
+      // Check each vertex of the other object
+      obj.basePolygon.vertex.forEach(targetVertex => {
+        // Only use vertices with valid labels for snapping
+        if (!isValidVertexForSnapping(targetVertex)) return;
+        
+        // Check horizontal alignment
+        const distanceY = Math.abs(activeVertex.y - targetVertex.y);
+        if (distanceY < bestDistanceY) {
+          bestDistanceY = distanceY;
+          bestSnapY = {
+            y: targetVertex.y,
+            x1: Math.min(activeVertex.x, targetVertex.x) - 200,
+            x2: Math.max(activeVertex.x, targetVertex.x) + 200,
+            vertex: activeVertex,
+            targetVertex: targetVertex
+          };
+        }
+        
+        // Check vertical alignment
+        const distanceX = Math.abs(activeVertex.x - targetVertex.x);
+        if (distanceX < bestDistanceX) {
+          bestDistanceX = distanceX;
+          bestSnapX = {
+            x: targetVertex.x,
+            y1: Math.min(activeVertex.y, targetVertex.y) - 200,
+            y2: Math.max(activeVertex.y, targetVertex.y) + 200,
+            vertex: activeVertex,
+            targetVertex: targetVertex
+          };
+        }
+      });
+    });
+    
+    // Apply snapping if found
+    this.isSnapping = false;
+    
+    // Record current position before any snapping adjustments
+    const originalLeft = this.left;
+    const originalTop = this.top;
+    
+    // Apply horizontal snap
+    if (bestSnapY && bestDistanceY < SNAP_THRESHOLD/2 && !Object.keys(this.lockYToPolygon).length) {
+      // Calculate how much to move the object so that the active vertex aligns with the target
+      const adjustY = bestSnapY.y - this.activeSnapVertex.y;
+      
+      // Apply the adjustment
+      this.set('top', this.top + adjustY);
+      
+      // Update the position of the active vertex precisely
+      this.activeSnapVertex.y = bestSnapY.y;
+      
+      // Create canvas-level horizontal guideline
+      const horizontalLine = new fabric.Line(
+        [bestSnapY.x1, bestSnapY.y, bestSnapY.x2, bestSnapY.y],
+        {
+          stroke: GUIDELINE_STYLE.horizontal.stroke,
+          strokeWidth: GUIDELINE_STYLE.horizontal.strokeWidth,
+          strokeDashArray: GUIDELINE_STYLE.horizontal.strokeDashArray,
+          selectable: false,
+          evented: false,
+          name: 'snapline_h'
+        }
+      );
+      
+      canvas.add(horizontalLine);
+      this.snapLines.horizontal.push(horizontalLine);
+      this.isSnapping = true;
+      
+      // Highlight the target vertex
+      this.showVertexHighlight(bestSnapY.targetVertex, 'horizontal');
+    }
+    
+    // Apply vertical snap
+    if (bestSnapX && bestDistanceX < SNAP_THRESHOLD/2 && !Object.keys(this.lockXToPolygon).length) {
+      // Calculate how much to move the object so that the active vertex aligns with the target
+      const adjustX = bestSnapX.x - this.activeSnapVertex.x;
+      
+      // Apply the adjustment
+      this.set('left', this.left + adjustX);
+      
+      // Update the position of the active vertex precisely
+      this.activeSnapVertex.x = bestSnapX.x;
+      
+      // Create canvas-level vertical guideline
+      const verticalLine = new fabric.Line(
+        [bestSnapX.x, bestSnapX.y1, bestSnapX.x, bestSnapX.y2],
+        {
+          stroke: GUIDELINE_STYLE.vertical.stroke,
+          strokeWidth: GUIDELINE_STYLE.vertical.strokeWidth,
+          strokeDashArray: GUIDELINE_STYLE.vertical.strokeDashArray,
+          selectable: false,
+          evented: false,
+          name: 'snapline_v'
+        }
+      );
+      
+      canvas.add(verticalLine);
+      this.snapLines.vertical.push(verticalLine);
+      this.isSnapping = true;
+      
+      // Highlight the target vertex
+      this.showVertexHighlight(bestSnapX.targetVertex, 'vertical');
+    }
+    
+    // Ensure other vertices are updated when we apply the snap
+    if (this.isSnapping && this.basePolygon && this.basePolygon.vertex) {
+      // Calculate total adjustment applied
+      const totalAdjustX = this.left - originalLeft;
+      const totalAdjustY = this.top - originalTop;
+      
+      // Update all vertices by the same amount
+      if (totalAdjustX !== 0 || totalAdjustY !== 0) {
+        this.basePolygon.vertex.forEach(vertex => {
+          // Skip the active vertex as it's already been set precisely
+          if (vertex !== this.activeSnapVertex) {
+            vertex.x += totalAdjustX;
+            vertex.y += totalAdjustY;
+          }
+        });
+        
+        // Update the polygon itself
+        if (this.basePolygon._setPositionDimensions) {
+          this.basePolygon._setPositionDimensions({});
+        }
+        if (this.basePolygon.setCoords) {
+          this.basePolygon.setCoords();
+        }
+      }
+    }
+    
+    // Update coordinates for all related objects
+    this.updateAllCoord(event);
+  }
+
+  // Check if this object has a relationship with another object
+  hasRelationship(obj) {
+    // Check if the object is anchored to this object
+    if (this.anchoredPolygon.includes(obj)) return true;
+    
+    // Check if this object is anchored to the other object
+    if (obj.anchoredPolygon && obj.anchoredPolygon.includes(this)) return true;
+    
+    // Check if this object is locked to the other object
+    if ((this.lockXToPolygon && this.lockXToPolygon.TargetObject === obj) || 
+        (this.lockYToPolygon && this.lockYToPolygon.TargetObject === obj)) {
+      return true;
+    }
+    
+    // Check if the other object is locked to this object
+    if ((obj.lockXToPolygon && obj.lockXToPolygon.TargetObject === this) ||
+        (obj.lockYToPolygon && obj.lockYToPolygon.TargetObject === this)) {
+      return true;
+    }
+    
+    // Check border relationship
+    if (this.borderGroup === obj || obj.borderGroup === this) return true;
+    
+    // Check if both objects belong to the same border group
+    if (this.borderGroup && this.borderGroup === obj.borderGroup) return true;
+    
+    // Check if one is a divider and the other is in its parent border's width/height objects
+    if (this.functionalType === 'HDivider' || this.functionalType === 'VDivider') {
+      if (this.borderGroup && 
+          (this.borderGroup.widthObjects.includes(obj) || 
+           this.borderGroup.heightObjects.includes(obj))) {
+        return true;
+      }
+    }
+    
+    if (obj.functionalType === 'HDivider' || obj.functionalType === 'VDivider') {
+      if (obj.borderGroup && 
+          (obj.borderGroup.widthObjects.includes(this) || 
+           obj.borderGroup.heightObjects.includes(this))) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
+  // When movement ends, clean up snap lines and reset active vertex
+  onMoved() {
+    this.clearSnapLines();
+    this.hideAllVertexHighlights();
+    this.activeSnapVertex = null;
+    this.snapVertexInitialPos = null;
+    this.snapVertexOffset = null;
+    
+    // Ensure all vertices are properly updated
+    if (this.basePolygon && this.basePolygon.vertex) {
+      if (this.basePolygon._setPositionDimensions) {
+        this.basePolygon._setPositionDimensions({});
+      }
+      if (this.basePolygon.setCoords) {
+        this.basePolygon.setCoords();
+      }
+    }
+    
+    // Ensure reference points are updated
+    if (this.basePolygon && this.basePolygon.getCoords) {
+      this.refTopLeft = {
+        top: this.basePolygon.getCoords()[0].y,
+        left: this.basePolygon.getCoords()[0].x
+      };
+    }
+    
+    // Force a final update to ensure everything is in sync
+    this.updateAllCoord(null, [], true);
+  }
+
+  // Show highlight for a specific vertex when it's snapped
+  showVertexHighlight(vertex, direction) {
+    if (!vertex) return;
+    
+    let fillColor;
+    let strokeColor;
+    
+    switch (direction) {
+      case 'horizontal':
+        fillColor = 'rgba(0, 191, 255, 0.5)';
+        strokeColor = '#00BFFF';
+        break;
+      case 'vertical':
+        fillColor = 'rgba(255, 105, 180, 0.5)';
+        strokeColor = '#FF69B4';
+        break;
+      case 'both':
+        fillColor = 'rgba(255, 215, 0, 0.5)'; // Gold for active vertex
+        strokeColor = '#FFD700';
+        break;
+      default:
+        fillColor = 'rgba(0, 191, 255, 0.5)';
+        strokeColor = '#00BFFF';
+    }
+    
+    // Create a highlight circle at the vertex position
+    const highlightSize = 20;
+    const highlight = new fabric.Circle({
+      left: vertex.x - highlightSize/2,
+      top: vertex.y - highlightSize/2,
+      radius: highlightSize/2,
+      fill: fillColor,
+      stroke: strokeColor,
+      strokeWidth: 2,
+      selectable: false,
+      evented: false,
+      name: 'vertex_highlight'
+    });
+    
+    canvas.add(highlight);
+    
+    // Store the highlight for later removal
+    if (!this.vertexHighlights) this.vertexHighlights = [];
+    this.vertexHighlights.push(highlight);
+  }
+
+  // Hide all vertex highlights
+  hideAllVertexHighlights() {
+    if (this.vertexHighlights && this.vertexHighlights.length > 0) {
+      this.vertexHighlights.forEach(highlight => {
+        canvas.remove(highlight);
+      });
+      this.vertexHighlights = [];
+    }
+  }
+
+  // Clear all snap guidelines
+  clearSnapLines() {
+    // Remove all snap lines from canvas
+    this.snapLines.horizontal.concat(this.snapLines.vertical).forEach(line => {
+      canvas.remove(line);
+    });
+    
+    // Clear the arrays
+    this.snapLines.horizontal = [];
+    this.snapLines.vertical = [];
+    
+    // Reset snapping flag
+    this.isSnapping = false;
   }
 
   /**
@@ -385,7 +808,7 @@ class BaseGroup extends fabric.Group {
     canvas.renderAll();
 
   }
-  // Method to update coordinates and emit delta
+  // Method to update coordinates and emit delta - with improved consistency
   updateAllCoord(event, sourceList = [], selfOnly = false) {
     // Check for basePolygon before calculating deltas
     if (!this.basePolygon || !this.basePolygon.getCoords) {
@@ -393,23 +816,44 @@ class BaseGroup extends fabric.Group {
       return;
     }
     
-    const deltaX = this.basePolygon.getCoords()[0].x - this.refTopLeft.left;
-    const deltaY = this.basePolygon.getCoords()[0].y - this.refTopLeft.top;
-    this.updateCoord(deltaX, deltaY);
-    this.refTopLeft = { top: this.basePolygon.getCoords()[0].y, left: this.basePolygon.getCoords()[0].x };
+    // Get the latest coordinates
+    const currentCoords = this.basePolygon.getCoords()[0];
     
+    // Calculate deltas from reference point
+    const deltaX = currentCoords.x - this.refTopLeft.left;
+    const deltaY = currentCoords.y - this.refTopLeft.top;
+    
+    // Only update coords if we're not in the middle of a moving event with snapping
+    // or if we're forcing a complete update (indicated by selfOnly=true)
+    if (selfOnly || !event || event.type !== 'moving' || !this.isSnapping) {
+      this.updateCoord(deltaX, deltaY);
+    }
+    
+    // Update reference point
+    this.refTopLeft = { 
+      top: currentCoords.y, 
+      left: currentCoords.x 
+    };
+    
+    // Update UI elements if this object is active
     if (canvas.getActiveObject() === this) {
       this.drawAnchorLinkage();
       this.showLockHighlights();
     }
     
-    sourceList.includes(this) ? sourceList : sourceList.push(this);
+    // Add to source list if not already included
+    sourceList = sourceList || [];
+    if (!sourceList.includes(this)) {
+      sourceList.push(this);
+    }
+    
+    // Propagate changes to related objects
     if (!selfOnly) {
       this.emitDelta(deltaX, deltaY, sourceList);
       this.borderResize(sourceList);
     }
     
-    // Check for route-specific methods
+    // Call specialized route methods if they exist
     if (this.branchRouteOnMove) {
       this.branchRouteOnMove();
     }
@@ -417,37 +861,56 @@ class BaseGroup extends fabric.Group {
       this.rootRouteOnMove();
     }
   }
-
-  // Method to update coordinates
+  
+  // Method to update coordinates with improved precision
   updateCoord(updateX, updateY) {
     // Check for basePolygon
     if (!this.basePolygon || !this.basePolygon.vertex) {
       return;
     }
     
+    // Skip if no actual change
+    if (updateX === 0 && updateY === 0) {
+      return;
+    }
+    
     const polygon = this.basePolygon;
-
-    const transformedPoints = calculateTransformedPoints(polygon.vertex, {
-      x: updateX,
-      y: updateY,
-      angle: 0
+    
+    // Directly update vertex coordinates
+    polygon.vertex.forEach((vertex) => {
+      vertex.x += updateX;
+      vertex.y += updateY;
     });
-
-    // Update customList with new coordinates
-    transformedPoints.forEach((point, index) => {
-      polygon.vertex[index].x = point.x;
-      polygon.vertex[index].y = point.y;
-    });
-
+    
+    // Update route list if it exists
     if (this.routeList) {
       this.routeList.forEach((item) => {
         item.x += updateX;
         item.y += updateY;
       });
     }
-
-    polygon.insertPoint = transformedPoints[0];
+    
+    // Update insertion point and coords
+    if (polygon.vertex && polygon.vertex.length > 0) {
+      polygon.insertPoint = polygon.vertex[0];
+    }
+    
+    // Update internal coordinates in the polygon
+    if (polygon.points && polygon.vertex) {
+      for (let i = 0; i < polygon.points.length; i++) {
+        const vertexIndex = i % polygon.vertex.length;
+        polygon.points[i].x = polygon.vertex[vertexIndex].x;
+        polygon.points[i].y = polygon.vertex[vertexIndex].y;
+      }
+    }
+    
+    // Update position dimensions and coords
+    if (polygon._setPositionDimensions) {
+      polygon._setPositionDimensions({});
+    }
     polygon.setCoords();
+    
+    // Force canvas to render
     canvas.renderAll();
   }
 
@@ -634,6 +1097,47 @@ class BaseGroup extends fabric.Group {
     }
   }
 
+  // Find nearby objects that are candidates for snapping
+  findNearbyObjects() {
+    if (!this.basePolygon) return [];
+    
+    const thisCoords = this.getEffectiveCoords();
+    const thisBounds = {
+      left: Math.min(...thisCoords.map(p => p.x)),
+      top: Math.min(...thisCoords.map(p => p.y)),
+      right: Math.max(...thisCoords.map(p => p.x)),
+      bottom: Math.max(...thisCoords.map(p => p.y))
+    };
+    
+    // Consider all canvas objects within an extended range
+    const snapRange = SNAP_THRESHOLD * 3;
+    return canvasObject.filter(obj => {
+      if (obj === this) return false;
+      
+      try {
+        const objCoords = obj.getEffectiveCoords();
+        if (!objCoords || objCoords.length === 0) return false;
+        
+        const objBounds = {
+          left: Math.min(...objCoords.map(p => p.x)),
+          top: Math.min(...objCoords.map(p => p.y)),
+          right: Math.max(...objCoords.map(p => p.x)),
+          bottom: Math.max(...objCoords.map(p => p.y))
+        };
+        
+        // Check if objects are within snapping range
+        return !(
+          objBounds.left - snapRange > thisBounds.right ||
+          objBounds.right + snapRange < thisBounds.left ||
+          objBounds.top - snapRange > thisBounds.bottom ||
+          objBounds.bottom + snapRange < thisBounds.top
+        );
+      } catch (e) {
+        console.warn("Error checking object for snapping:", e);
+        return false;
+      }
+    });
+  }
 }
 
 // Register the custom class with Fabric.js
@@ -951,6 +1455,20 @@ async function drawLabeledSymbol(symbol, options) {
   arrow.symbol = symbol;
 
   new BaseGroup(arrow, 'Symbol');
+}
+
+/**
+ * Helper function to determine if a vertex should be used for snapping
+ * @param {Object} vertex - The vertex to check
+ * @returns {boolean} - True if the vertex is valid for snapping, false otherwise
+ */
+function isValidVertexForSnapping(vertex) {
+  if (!vertex || !vertex.label) return false;
+  
+  // Check if vertex label starts with any of the valid prefixes
+  return VALID_VERTEX_PREFIXES.some(prefix => 
+    vertex.label.toUpperCase().startsWith(prefix)
+  );
 }
 
 
