@@ -20,6 +20,13 @@ const roadMapTemplate = {
     'Root': {
         path: [{
             'vertex': [
+                { x: 0, y: 0, label: 'V1', start: 1 }, // to be calculated by function
+            ], 'arcs': []
+        }],
+    },
+    'Round': {
+        path: [{
+            'vertex': [
                 { x: 1, y: 24, label: 'V1', start: 1 },
                 { x: -1, y: 24, label: 'V2', start: 0 },
             ], 'arcs': []
@@ -61,7 +68,7 @@ function calcMainRoadVertices(xHeight, routeList) {
     let RootBottomVertex = getSideRoadCoords(RootBottom, length)
     let RootTopVertex = getSideRoadCoords(RootTop, length)
 
-    const vertexList = [...RootTopVertex, ...RootBottomVertex]
+    const vertexList = [...RootTopVertex.path[0].vertex, ...RootBottomVertex.path[0].vertex]
     assignVertexLabel(vertexList)
     return { path: [{ 'vertex': vertexList, 'arcs': [] }] };
 }
@@ -83,8 +90,7 @@ function calcSideRoadVertices(xHeight, mainRouteList, routeList) {
     // Calculate the arrowhead vertices
     const arrowTipVertex = getSideRoadCoords(routeList[0], length, RootLeft, RootRight)
 
-    assignVertexLabel(arrowTipVertex)
-    return { path: [{ 'vertex': arrowTipVertex, 'arcs': [] }] };
+    return arrowTipVertex;
 }
 
 /**
@@ -119,10 +125,10 @@ function calcConvRoundaboutVertices(xHeight, routeList) {
  * @return {Array} Array of vertex coordinates
  */
 function getSideRoadCoords(route, length, left, right) {
-    let arrowTipVertex = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]))
-    arrowTipVertex.path[0].vertex.map((v) => { v.x *= route.width / 2; v.y *= route.width / 2 })
-    arrowTipVertex = calcSymbol(arrowTipVertex, length)
-    arrowTipVertex.path.map((p) => {
+    let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]))
+    arrowTipPath.path[0].vertex.map((v) => { v.x *= route.width / 2; v.y *= route.width / 2 })
+    arrowTipPath = calcSymbol(arrowTipPath, length)
+    arrowTipPath.path.map((p) => {
         let transformed = calculateTransformedPoints(p.vertex, {
             x: route.x,
             y: route.y,
@@ -130,7 +136,7 @@ function getSideRoadCoords(route, length, left, right) {
         });
         p.vertex = transformed
     });
-    arrowTipVertex = arrowTipVertex.path[0].vertex
+    arrowTipVertex = arrowTipPath.path[0].vertex
     if (route.angle != 0 && route.angle != 180) {
         if (route.x < left) {
             const i1 = { x: left, y: arrowTipVertex[0].y - (left - arrowTipVertex[0].x) / Math.tan(route.angle / 180 * Math.PI), radius: length }
@@ -148,7 +154,51 @@ function getSideRoadCoords(route, length, left, right) {
             arrowTipVertex = [i0, i1, ...arrowTipVertex, i2, i3]
         }
     }
-    return arrowTipVertex
+    assignVertexLabel(arrowTipVertex)
+    arrowTipPath.path[0].vertex = arrowTipVertex
+    return arrowTipPath
+}
+
+/**
+ * Gets coordinates for side road endpoints
+ * @param {Object} route - main road object
+ * @param {number} length - Route length
+ * @param {number} left - Left boundary
+ * @param {number} right - Right boundary
+ * @return {Array} Array of vertex coordinates
+ */
+function getConvRdAboutSideRoadCoords(route, length, center, radius) {
+    let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]))
+    const width = route.width
+    arrowTipPath.path[0].vertex.map((v) => { v.x *= width / 2; v.y *= width / 2 })
+    arrowTipPath = calcSymbol(arrowTipPath, length)
+    arrowTipVertex = arrowTipPath.path[0].vertex
+
+    // for butt
+    const ic = { x: width / 2, y: Math.sqrt(radius ** 2 - (width / 2) ** 2) }
+    const trimCenter = { x: width / 2 + 1, y: Math.sqrt((radius + 1) ** 2 - (width / 2 + 1) ** 2) }
+    const tCenterAngle = Math.atan2(trimCenter.y, trimCenter.x)
+    const i3 = { x: width / 2, y: trimCenter.y }
+    const i2 = { x: trimCenter.x - Math.cos(tCenterAngle), y: trimCenter.y + Math.sin(tCenterAngle) }
+    const i0 = { x:-i3.x, y:i3.y}
+    const i1 = { x:-i1.x, y:i1.y}
+    arrowTipVertex = [i0, i1, ...arrowTipVertex, i2, i3]
+
+
+    let transformed = calculateTransformedPoints(arrowTipVertex, {
+        x: route.x,
+        y: route.y,
+        angle: route.angle
+
+    })
+    arrowTipPath.path[0].vertex = arrowTipVertex
+
+    arrowTipPath.path[0].arcs.push(...[
+        { start: 'V1', end: 'V2', radius: 1, direction: 0, sweep: 0 },
+          { start: 'V2', end: 'V3', radius: 12, direction: 1, sweep: 0 },
+          { start: 'V3', end: 'V4', radius: 1, direction: 0, sweep: 0 },
+    ])
+    return arrowTipPath
 }
 
 
@@ -595,8 +645,14 @@ async function drawSideRoadOnCursor(event, option = null) {
     } else {
         // Normal DOM operation
         pointer = canvas.getPointer(event.e);
-        if (pointer.x > mainRoad.getEffectiveCoords()[0].x && pointer.x < mainRoad.getEffectiveCoords()[1].x) {
-            return;
+        if (mainRoad.roadType == 'Main Line'){
+            if (pointer.x > mainRoad.getEffectiveCoords()[0].x && pointer.x < mainRoad.getEffectiveCoords()[1].x) {
+                return;
+            }
+        } else if (mainRoad.roadType == 'Conventional Roundabout') {
+            if (pointer.x > mainRoad.getEffectiveCoords()[0].x && pointer.x < mainRoad.getEffectiveCoords()[1].x) {
+                return;
+            }
         }
 
         var parent = document.getElementById("input-form");
