@@ -1097,9 +1097,10 @@ function calculateTangentPoint(point, center, offsetDistance) {
   };
 }
 
-function calculateTransformedPoints(points, options) {
+function calculateTransformedPoints(pointsList, options) {
   const { x, y, angle } = options;
   const radians = angle * (Math.PI / 180); // Convert angle to radians
+  const points = pointsList.path?pointsList.path[0].vertex:pointsList
 
   return points.map(point => {
     // Translate point to origin

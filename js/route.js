@@ -17,14 +17,14 @@ const roadMapTemplate = {
             ], 'arcs': []
         }],
     },
-    'Root': {
+    'Round': {
         path: [{
             'vertex': [
                 { x: 0, y: 0, label: 'V1', start: 1 }, // to be calculated by function
             ], 'arcs': []
         }],
     },
-    'Round': {
+    'Root': {
         path: [{
             'vertex': [
                 { x: 1, y: 24, label: 'V1', start: 1 },
@@ -169,37 +169,40 @@ function getSideRoadCoords(route, length, left, right) {
  * @param {number} right - Right boundary
  * @return {Array} Array of vertex coordinates
  */
-function getConvRdAboutSideRoadCoords(route, length, center, radius) {
+function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle) {
+
     let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]))
     const width = route.width
     arrowTipPath.path[0].vertex.map((v) => { v.x *= width / 2; v.y *= width / 2 })
-    arrowTipPath = calcSymbol(arrowTipPath, length)
     arrowTipVertex = arrowTipPath.path[0].vertex
-
+    
     // for butt
-    const ic = { x: width / 2, y: Math.sqrt(radius ** 2 - (width / 2) ** 2) }
+    //const ic = { x: width / 2, y: Math.sqrt(radius ** 2 - (width / 2) ** 2) }
     const trimCenter = { x: width / 2 + 1, y: Math.sqrt((radius + 1) ** 2 - (width / 2 + 1) ** 2) }
     const tCenterAngle = Math.atan2(trimCenter.y, trimCenter.x)
-    const i3 = { x: width / 2, y: trimCenter.y }
-    const i2 = { x: trimCenter.x - Math.cos(tCenterAngle), y: trimCenter.y + Math.sin(tCenterAngle) }
+    const i2 = { x: width / 2, y: arm / length - trimCenter.y }
+    const i3 = { x: trimCenter.x - Math.cos(tCenterAngle), y: arm / length - trimCenter.y + Math.sin(tCenterAngle)  }
     const i0 = { x:-i3.x, y:i3.y}
-    const i1 = { x:-i1.x, y:i1.y}
+    const i1 = { x:-i2.x, y:i2.y}
     arrowTipVertex = [i0, i1, ...arrowTipVertex, i2, i3]
-
-
-    let transformed = calculateTransformedPoints(arrowTipVertex, {
-        x: route.x,
-        y: route.y,
-        angle: route.angle
-
-    })
+    
+    assignVertexLabel(arrowTipVertex)
+    
+    
+    arrowTipPath.path[0].arcs.push(...[
+        { start: 'V1', end: 'V2', radius: 1 , direction: 0, sweep: 0 },
+        { start: 'V6', end: 'V7', radius: 1 , direction: 0, sweep: 0 },
+        { start: 'V7', end: 'V1', radius: 12 , direction: 0, sweep: 0 },
+    ])
     arrowTipPath.path[0].vertex = arrowTipVertex
 
-    arrowTipPath.path[0].arcs.push(...[
-        { start: 'V1', end: 'V2', radius: 1, direction: 0, sweep: 0 },
-          { start: 'V2', end: 'V3', radius: 12, direction: 1, sweep: 0 },
-          { start: 'V3', end: 'V4', radius: 1, direction: 0, sweep: 0 },
-    ])
+    arrowTipPath = calcSymbol(arrowTipPath, length)
+    arrowTipPath.path[0].vertex = arrowTipVertex = calculateTransformedPoints(arrowTipPath, {
+        x: route.x,
+        y: route.y,
+        angle: angle
+        
+    })
     return arrowTipPath
 }
 
@@ -259,13 +262,9 @@ class MainRoadSymbol extends BaseGroup {
         });
 
         // Set the basePolygon that was initially null in the constructor
-        this.basePolygon = arrow;
-        this.add(arrow);
+        this.setBasePolygon(arrow)
 
-        // Since we're setting basePolygon after the constructor,
-        // we need to manually call some of the initialization that
-        // BaseGroup would have done with the basePolygon
-        this.drawVertex();
+
         return this;
     }
 
@@ -275,6 +274,9 @@ class MainRoadSymbol extends BaseGroup {
      * @return {Promise<void>}
      */
     async receiveNewRoute(tempBranchRouteList = null) {
+        if (this.roadType !== 'Main Line'){
+            return
+        }
         let newBottom = this.top + (this.tipLength) * this.xHeight / 4;
         if (tempBranchRouteList) {
             const vertexList = tempBranchRouteList.path ? tempBranchRouteList.path[0].vertex : tempBranchRouteList.basePolygon.vertex;
@@ -439,43 +441,72 @@ function applySideRoadConstraints(sideRoad, mainRoad, sideRouteList, isSideLeft,
     // Make a copy to avoid modifying the original
     const routeList = JSON.parse(JSON.stringify(sideRouteList));
 
+    switch (mainRoad.roadType){
+        case 'Main Line':
+            return applyConstraintsMainLine(sideRoad, mainRoad, routeList, isSideLeft, xHeight)
+        case 'Conventional Roundabout':
+            return applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeight)
+    }
+
+}
+
+function applyConstraintsMainLine(sideRoad, mainRoad, routeList, isSideLeft, xHeight) {
+        // Horizontal constraint based on side
+        const rootLeft = mainRoad.routeList[0].x - mainRoad.routeList[0].width * mainRoad.xHeight / 8;
+        const rootRight = mainRoad.routeList[0].x + mainRoad.routeList[0].width * mainRoad.xHeight / 8;
+        const minBranchShapeXDelta = routeList[0].shape == 'Butt' ? 4 : Math.abs(routeList[0].angle) == 90 ? 12 : 13;
+        const minBranchXDelta = minBranchShapeXDelta * xHeight / 4;
+    
+        // Constrain movement based on side (left or right)
+        if (routeList[0].x + minBranchXDelta > rootLeft && isSideLeft) {
+            // Left side branch constraint
+            routeList[0].x = rootLeft - minBranchXDelta;
+            sideRoad.left = routeList[0].x;
+        } else if (routeList[0].x - minBranchXDelta < rootRight && !isSideLeft) {
+            // Right side branch constraint
+            routeList[0].x = rootRight + minBranchXDelta;
+            sideRoad.left = rootRight
+        }
+    
+        // Vertical constraint based on main road top
+        const rootTop = mainRoad.routeList[1].y;
+        const tipLength = mainRoad.tipLength * mainRoad.xHeight / 4;
+    
+        // Calculate vertices with current position
+        let tempVertexList = calcSideRoadVertices(mainRoad.xHeight, mainRoad.routeList, routeList);
+    
+        // Get the vertex that should touch the root (depends on side)
+        const rootTopTouchY = tempVertexList.path[0].vertex[isSideLeft ? 5 : 1];
+    
+        // Ensure branch doesn't go above root + tip length
+        if (rootTopTouchY.y < rootTop + tipLength) {
+            // Push branch down if needed
+            const adjustment = rootTop + tipLength - rootTopTouchY.y;
+            routeList[0].y += adjustment;
+            sideRoad.top += adjustment;
+    
+            // Recalculate vertices with new position
+            tempVertexList = calcSideRoadVertices(mainRoad.xHeight, mainRoad.routeList, routeList);
+        }
+    
+        return { routeList, tempVertexList };
+}
+
+function applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeight){
     // Horizontal constraint based on side
-    const rootLeft = mainRoad.routeList[0].x - mainRoad.routeList[0].width * mainRoad.xHeight / 8;
-    const rootRight = mainRoad.routeList[0].x + mainRoad.routeList[0].width * mainRoad.xHeight / 8;
-    const minBranchShapeXDelta = routeList[0].shape == 'Butt' ? 4 : Math.abs(routeList[0].angle) == 90 ? 12 : 13;
+    const rootLeft = mainRoad.left;
+    const rootRight = mainRoad.left + mainRoad.width;
+    const radius = 12
+    const minBranchShapeXDelta = radius + routeList[0].shape == 'Butt' ? 4 : 12;
     const minBranchXDelta = minBranchShapeXDelta * xHeight / 4;
+    const center = mainRoad.routeList[1]
+    const length = sideRoad.xHeight / 4
 
-    // Constrain movement based on side (left or right)
-    if (routeList[0].x + minBranchXDelta > rootLeft && isSideLeft) {
-        // Left side branch constraint
-        routeList[0].x = rootLeft - minBranchXDelta;
-        sideRoad.left = routeList[0].x;
-    } else if (routeList[0].x - minBranchXDelta < rootRight && !isSideLeft) {
-        // Right side branch constraint
-        routeList[0].x = rootRight + minBranchXDelta;
-        sideRoad.left = rootRight
-    }
+    const angleToCenter = Math.atan2(routeList[0].y - center.y, routeList[0].x - center.x)
+    const distToCenter = Math.sqrt((routeList[0].y - center.y)**2 +  (routeList[0].x - center.x)**2)
+    const slack = distToCenter / length - radius
 
-    // Vertical constraint based on main road top
-    const rootTop = mainRoad.routeList[1].y;
-    const tipLength = mainRoad.tipLength * mainRoad.xHeight / 4;
-
-    // Calculate vertices with current position
-    let tempVertexList = calcSideRoadVertices(mainRoad.xHeight, mainRoad.routeList, routeList);
-
-    // Get the vertex that should touch the root (depends on side)
-    const rootTopTouchY = tempVertexList.path[0].vertex[isSideLeft ? 5 : 1];
-
-    // Ensure branch doesn't go above root + tip length
-    if (rootTopTouchY.y < rootTop + tipLength) {
-        // Push branch down if needed
-        const adjustment = rootTop + tipLength - rootTopTouchY.y;
-        routeList[0].y += adjustment;
-        sideRoad.top += adjustment;
-
-        // Recalculate vertices with new position
-        tempVertexList = calcSideRoadVertices(mainRoad.xHeight, mainRoad.routeList, routeList);
-    }
+    tempVertexList = getConvRdAboutSideRoadCoords(routeList[0], length, distToCenter, radius, angleToCenter);
 
     return { routeList, tempVertexList };
 }
@@ -653,12 +684,12 @@ async function drawSideRoadOnCursor(event, option = null) {
                 return;
             }
         } else if (mainRoad.roadType == 'Conventional Roundabout') {
-            if (pointer.x > mainRoad.getEffectiveCoords()[0].x && pointer.x < mainRoad.getEffectiveCoords()[1].x) {
-                return;
+            const center = mainRoad.routeList[1]
+            if ((pointer.x - center.x) ** 2 +( pointer.y - center.y)** 2 < (mainRoad.xHeight * 3) ** 2) {
+                //return;
             }
         }
 
-        var parent = document.getElementById("input-form");
         angle = parseInt(document.getElementById(`angle-display`).innerText);
 
         if (pointer.x < mainRoad.left + mainRoad.width / 2) {
