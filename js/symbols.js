@@ -1156,3 +1156,85 @@ function offsetPoint(point, center, radius) {
     y: center.y - offsetY
   };
 }
+
+/**
+ * Combines multiple paths into one, reindexing vertex labels and updating arc references.
+ * @param {Array<Object>} pathsArray - Array of path objects or objects containing path arrays
+ * @returns {Object} - Object with combined paths array, properly reindexed vertices and updated arc references
+ */
+function combinePaths(pathsArray) {
+  // Handle edge cases
+  if (!pathsArray || pathsArray.length === 0) return null;
+  if (pathsArray.length === 1) return JSON.parse(JSON.stringify(pathsArray[0]));
+  
+  // Initialize the result object that will hold all combined paths
+  let result = {
+    path: [],
+    text: []
+  };
+  
+  // Track the highest vertex number across all paths to properly reindex
+  let highestVertexNumber = 0;
+  
+  // Process each path object and add it to the result
+  pathsArray.forEach((pathObj) => {
+    // Deep copy to avoid mutations
+    const pathObjCopy = JSON.parse(JSON.stringify(pathObj));
+    
+    // Check if this is a symbol object with a path array or a direct path object
+    const pathsToCombine = pathObjCopy.path || [pathObjCopy];
+    
+    // Process each individual path in the array
+    pathsToCombine.forEach(path => {
+      // Create a mapping from old labels to new labels
+      const labelMap = {};
+      
+      // Reindex all vertex labels in this path
+      if (path.vertex) {
+        path.vertex.forEach(vertex => {
+          if (vertex.label && vertex.label.startsWith('V')) {
+            const oldLabel = vertex.label;
+            const numericPart = parseInt(oldLabel.substring(1), 10) || 0;
+            const newLabel = `V${numericPart + highestVertexNumber}`;
+            labelMap[oldLabel] = newLabel;
+            vertex.label = newLabel;
+          }
+        });
+        
+        // Update arc references in this path
+        if (path.arcs) {
+          path.arcs.forEach(arc => {
+            if (arc.start && labelMap[arc.start]) {
+              arc.start = labelMap[arc.start];
+            }
+            if (arc.end && labelMap[arc.end]) {
+              arc.end = labelMap[arc.end];
+            }
+          });
+        }
+        
+        // Set start flag for the first vertex in each path
+        if (path.vertex.length > 0) {
+          path.vertex[0].start = 1;
+        }
+        
+        // Update the highest vertex number for the next path
+        const pathMaxNumber = Math.max(...path.vertex
+          .filter(v => v.label && v.label.startsWith('V'))
+          .map(v => parseInt(v.label.substring(1), 10) || 0));
+        
+        highestVertexNumber = Math.max(highestVertexNumber, pathMaxNumber);
+      }
+      
+      // Add the processed path to the result
+      result.path.push(path);
+    });
+    
+    // If there are text elements, add them to the result
+    if (pathObjCopy.text) {
+      result.text = result.text.concat(pathObjCopy.text);
+    }
+  });
+  
+  return result;
+}

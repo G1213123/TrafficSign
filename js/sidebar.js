@@ -411,7 +411,7 @@ let FormTextAddComponent = {
 /* Draw Map Panel */
 let FormDrawMapComponent = {
   MapType: ['Main Line', 'Conventional Roundabout', 'Spiral Roundabout',],
-  EndShape: ['Arrow', 'Butt'],
+  EndShape: ['Arrow', 'Stub'],
   permitAngle: [45, 60, 90],
   defaultRoute: [{ x: 0, y: 7, angle: 60, width: 4, shape: 'Arrow' }],
 

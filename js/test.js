@@ -743,7 +743,7 @@ const BorderTest = {
 
     // Create some text objects for the border
     await FormTextAddComponent.TextOnMouseClick(null, {
-      left: -1500,
+      left: -1800,
       top: 300,
       text: 'Border',
       xHeight: 100,
@@ -753,7 +753,7 @@ const BorderTest = {
     TestTracker.register("borderText1");
 
     await FormTextAddComponent.TextOnMouseClick(null, {
-      left: -1500,
+      left: -1800,
       top: 500,
       text: 'Test',
       xHeight: 100,
@@ -852,7 +852,7 @@ const BorderTest = {
 
     // Create two text objects for the border with divider between them
     await FormTextAddComponent.TextOnMouseClick(null, {
-      left: -500,
+      left: -800,
       top: 250,
       text: 'Above',
       xHeight: 100,
@@ -862,7 +862,7 @@ const BorderTest = {
     TestTracker.register("aboveText");
 
     await FormTextAddComponent.TextOnMouseClick(null, {
-      left: -500,
+      left: -800,
       top: 450,
       text: 'Below',
       xHeight: 100,
@@ -1002,7 +1002,7 @@ const RouteTest = {
     // Create a MainRoute directly
     const routeOptions = {
       routeList: [
-        { x: params.posx, y: params.posy + (params.rootLength + params.tipLength) * params.xHeight / 4, angle: 180, width: 6, shape: 'Butt' },
+        { x: params.posx, y: params.posy + (params.rootLength + params.tipLength) * params.xHeight / 4, angle: 180, width: 6, shape: 'Stub' },
         { x: params.posx, y: params.posy, angle: 0, width: 6, shape: 'Arrow' }
       ],
       xHeight: params.xHeight,
@@ -1062,7 +1062,7 @@ const RouteTest = {
     const params = {
       xHeight: mainRoad.xHeight,
       angle: 90,
-      shape: 'Butt',
+      shape: 'Stub',
       width: 4
     };
 
@@ -1274,6 +1274,116 @@ const RouteTest = {
   },
 
   /**
+   * Test creation of a Roundabout and adding a side road to it
+   */
+  async testRoundabout() {
+    TestTracker.startTest("Roundabout");
+
+    // Set up test parameters for roundabout
+    const params = {
+      xHeight: 100,
+      rootLength: 7,
+      tipLength: 12,
+      posx: 2000,
+      posy: 600,
+      width: 6,
+      shape: 'Stub',
+      roadType: 'Conventional Roundabout'
+    };
+
+    // Create a Roundabout directly
+    const routeOptions = {
+      routeList: [
+        { x: params.posx, y: params.posy + (params.rootLength + params.tipLength) * params.xHeight / 4, angle: 180, width: 6, shape: 'Stub' },
+        { x: params.posx, y: params.posy, angle: 0, width: 6, shape: 'Stub' }
+      ],
+      xHeight: params.xHeight,
+      rootLength: params.rootLength,
+      tipLength: params.tipLength,
+      roadType: params.roadType
+    };
+
+    const roundabout = new MainRoadSymbol(routeOptions);
+    await roundabout.initialize(calcConvRoundaboutVertices(params.xHeight, routeOptions.routeList));
+    TestTracker.register("roundabout", roundabout);
+
+    // Test assertions
+    let passed = true;
+
+    passed = passed && TestTracker.assert(
+      roundabout.functionalType,
+      'MainRoad',
+      "Roundabout has incorrect functional type"
+    );
+
+    passed = passed && TestTracker.assert(
+      roundabout.roadType,
+      'Conventional Roundabout',
+      "Roundabout has incorrect road type"
+    );
+
+    passed = passed && TestTracker.assert(
+      roundabout.left,
+      params.posx - 12 * params.xHeight / 4,  // Radius of roundabout is 12
+      "Roundabout left position incorrect",
+      5
+    );
+
+    // Set the roundabout as active object to add a side road
+    canvas.setActiveObject(roundabout);
+
+    // Create a side road on the roundabout
+    const sideRoadParams = {
+      x: params.posx + 120,  // Position to the right of roundabout
+      y: params.posy - 50,   // Position slightly above centerline
+      routeParams: {
+        angle: -45,
+        shape: 'Arrow',
+        width: 4
+      }
+    };
+
+    // Draw and finalize the side road
+    await drawSideRoadOnCursor(null, sideRoadParams);
+    await finishDrawSideRoad({ e: { button: 0 } });
+
+    // Find the created Side Road route and register it
+    const sideRoad = roundabout.sideRoad[roundabout.sideRoad.length - 1];
+    TestTracker.register("roundaboutSideRoad", sideRoad);
+
+    // Test side road assertions
+    passed = passed && TestTracker.assertTrue(
+      sideRoad != null,
+      "Side road should be created"
+    );
+
+    if (sideRoad) {
+      passed = passed && TestTracker.assert(
+        sideRoad.functionalType,
+        'SideRoad',
+        "Side Road has incorrect type"
+      );
+
+      // Check side road is correctly positioned relative to roundabout center
+      const roundaboutCenter = routeOptions.routeList[1];
+      const distanceFromCenter = Math.sqrt(
+        Math.pow(sideRoad.routeList[0].x - roundaboutCenter.x, 2) + 
+        Math.pow(sideRoad.routeList[0].y - roundaboutCenter.y, 2)
+      );
+
+      // Side road should be at least the roundabout radius away from center
+      const minDistanceFromCenter = 12 * params.xHeight / 4;
+      passed = passed && TestTracker.assertTrue(
+        distanceFromCenter >= minDistanceFromCenter,
+        `Side Road should be at least ${minDistanceFromCenter} units from roundabout center, but is ${distanceFromCenter}`
+      );
+    }
+
+    TestTracker.endTest(passed);
+    return sideRoad;
+  },
+
+  /**
    * Run all route tests
    */
   runAll: async function () {
@@ -1281,6 +1391,7 @@ const RouteTest = {
     await this.testLeftSideRoad();
     await this.testRightSideRoad();
     await this.testSideRoadMovement();
+    await this.testRoundabout(); // Added this new test
   }
 };
 

@@ -8,7 +8,7 @@ const roadMapTemplate = {
             ], 'arcs': []
         }],
     },
-    'Butt': {
+    'Stub': {
         path: [{
             'vertex': [
                 { x: -1, y: 0, label: 'V1', start: 0 },
@@ -115,7 +115,9 @@ function calcConvRoundaboutVertices(xHeight, routeList) {
         p.vertex = transformed
     });
 
-    return roundel;
+    let root = {x: center.x, y: center.y + 24*length, angle: 180, width: 6, shape: 'Stub'}
+    let rootPath = getConvRdAboutSideRoadCoords(root, length, 24 * length, 12, Math.PI * 1 / 2)
+    return combinePaths([roundel, rootPath]);
 }
 
 /**
@@ -176,7 +178,7 @@ function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle) {
     arrowTipPath.path[0].vertex.map((v) => { v.x *= width / 2; v.y *= width / 2 })
     arrowTipVertex = arrowTipPath.path[0].vertex
     
-    // for butt
+    // for Stub
     //const ic = { x: width / 2, y: Math.sqrt(radius ** 2 - (width / 2) ** 2) }
     const trimCenter = { x: width / 2 + 1, y: Math.sqrt((radius + 1) ** 2 - (width / 2 + 1) ** 2) }
     const tCenterAngle = Math.atan2(trimCenter.y, trimCenter.x)
@@ -200,7 +202,7 @@ function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle) {
     arrowTipPath.path[0].vertex = arrowTipVertex = calculateTransformedPoints(arrowTipPath, {
         x: route.x,
         y: route.y,
-        angle: angle
+        angle: angle / Math.PI * 180 + 90
         
     })
     return arrowTipPath
@@ -454,7 +456,7 @@ function applyConstraintsMainLine(sideRoad, mainRoad, routeList, isSideLeft, xHe
         // Horizontal constraint based on side
         const rootLeft = mainRoad.routeList[0].x - mainRoad.routeList[0].width * mainRoad.xHeight / 8;
         const rootRight = mainRoad.routeList[0].x + mainRoad.routeList[0].width * mainRoad.xHeight / 8;
-        const minBranchShapeXDelta = routeList[0].shape == 'Butt' ? 4 : Math.abs(routeList[0].angle) == 90 ? 12 : 13;
+        const minBranchShapeXDelta = routeList[0].shape == 'Stub' ? 4 : Math.abs(routeList[0].angle) == 90 ? 12 : 13;
         const minBranchXDelta = minBranchShapeXDelta * xHeight / 4;
     
         // Constrain movement based on side (left or right)
@@ -497,17 +499,24 @@ function applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeig
     const rootLeft = mainRoad.left;
     const rootRight = mainRoad.left + mainRoad.width;
     const radius = 12
-    const minBranchShapeXDelta = radius + routeList[0].shape == 'Butt' ? 4 : 12;
-    const minBranchXDelta = minBranchShapeXDelta * xHeight / 4;
+    const minBranchShapeXDelta = radius + routeList[0].shape == 'Stub' ? 4 : 12;
+    const minBranchXDelta = (minBranchShapeXDelta + radius) * xHeight / 4;
     const center = mainRoad.routeList[1]
     const length = sideRoad.xHeight / 4
 
-    const angleToCenter = Math.atan2(routeList[0].y - center.y, routeList[0].x - center.x)
-    const distToCenter = Math.sqrt((routeList[0].y - center.y)**2 +  (routeList[0].x - center.x)**2)
-    const slack = distToCenter / length - radius
+    const rawAngleToCenter = Math.atan2(routeList[0].y - center.y, routeList[0].x - center.x)
+    // Convert to degrees, round to nearest 15 degrees, then back to radians
+    const angleInDegrees = rawAngleToCenter * 180 / Math.PI
+    const roundedDegrees = Math.round(angleInDegrees / 15) * 15
+    const angleToCenter = roundedDegrees * Math.PI / 180
+    const distToCenter = Math.max(minBranchXDelta, Math.sqrt((routeList[0].y - center.y)**2 +  (routeList[0].x - center.x)**2))
 
+    routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
+    routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
     tempVertexList = getConvRdAboutSideRoadCoords(routeList[0], length, distToCenter, radius, angleToCenter);
 
+    sideRoad.left = getInsertOffset(tempVertexList).left
+    sideRoad.top = getInsertOffset(tempVertexList).top
     return { routeList, tempVertexList };
 }
 
@@ -557,7 +566,7 @@ async function drawMainRoadOnCursor(event, params = null) {
     }
 
     let routeList = [
-        { x: 0, y: (rootLength + tipLength) * xHeight / 4, angle: 180, width: width, shape: 'Butt' },
+        { x: 0, y: (rootLength + tipLength) * xHeight / 4, angle: 180, width: width, shape: 'Stub' },
         { x: 0, y: 0, angle: 0, width: width, shape: shape }
     ];
 
