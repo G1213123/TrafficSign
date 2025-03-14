@@ -143,18 +143,18 @@ function getSideRoadCoords(route, length, left, right) {
     arrowTipVertex = arrowTipPath.path[0].vertex
     if (route.angle != 0 && route.angle != 180) {
         if (route.x < left) {
-            const i1 = { x: left, y: arrowTipVertex[0].y - (left - arrowTipVertex[0].x) / Math.tan(route.angle / 180 * Math.PI), radius: length }
-            const i2 = { x: left, y: arrowTipVertex[2].y - (left - arrowTipVertex[2].x) / Math.tan(route.angle / 180 * Math.PI), radius: length }
+            const i1 = { x: left, y: arrowTipVertex[0].y - (left - arrowTipVertex[0].x) / Math.tan(route.angle / 180 * Math.PI), radius: length , display:0}
+            const i2 = { x: left, y: arrowTipVertex[2].y - (left - arrowTipVertex[2].x) / Math.tan(route.angle / 180 * Math.PI), radius: length , display:0}
             const offsetDistance = Math.tan(Math.abs(route.angle * Math.PI / 180) / 2);
-            const i0 = { x: left, y: i1.y + offsetDistance * length }
-            const i3 = { x: left, y: i2.y - offsetDistance * length }
+            const i0 = { x: left, y: i1.y + offsetDistance * length , display:0}
+            const i3 = { x: left, y: i2.y - offsetDistance * length , display:0}
             arrowTipVertex = [i0, i1, ...arrowTipVertex, i2, i3]
         } else if (route.x > right) {
-            const i1 = { x: right, y: arrowTipVertex[0].y + (arrowTipVertex[0].x - right) / Math.tan(route.angle / 180 * Math.PI), radius: length }
-            const i2 = { x: right, y: arrowTipVertex[2].y + (arrowTipVertex[2].x - right) / Math.tan(route.angle / 180 * Math.PI), radius: length }
+            const i1 = { x: right, y: arrowTipVertex[0].y + (arrowTipVertex[0].x - right) / Math.tan(route.angle / 180 * Math.PI), radius: length , display:0}
+            const i2 = { x: right, y: arrowTipVertex[2].y + (arrowTipVertex[2].x - right) / Math.tan(route.angle / 180 * Math.PI), radius: length , display:0}
             const offsetDistance = Math.tan(Math.abs(route.angle * Math.PI / 180) / 2);
-            const i0 = { x: right, y: i1.y - offsetDistance * length }
-            const i3 = { x: right, y: i2.y + offsetDistance * length }
+            const i0 = { x: right, y: i1.y - offsetDistance * length , display:0}
+            const i3 = { x: right, y: i2.y + offsetDistance * length , display:0}
             arrowTipVertex = [i0, i1, ...arrowTipVertex, i2, i3]
         }
     }
@@ -315,7 +315,7 @@ class MainRoadSymbol extends BaseGroup {
      */
     onMove(event) {
         this.sideRoad.forEach((side, index) => {
-            side.SideRoadOnMove(null, true);
+            side.onMove(null, true);
         });
         this.receiveNewRoute();
         this.setCoords();
@@ -339,8 +339,8 @@ class SideRoadSymbol extends BaseGroup {
         this.branchIndex = options.branchIndex || 0;
 
         // Bind events
-        this.on('moving', this.SideRoadOnMove.bind(this));
-        this.on('modified', this.SideRoadOnMove.bind(this));
+        this.on('moving', this.onMove.bind(this));
+        this.on('modified', this.onMove.bind(this));
     }
 
     /**
@@ -400,7 +400,7 @@ class SideRoadSymbol extends BaseGroup {
      * @param {boolean} updateRoot - Whether to update the main road
      * @return {Promise<void>}
      */
-    async SideRoadOnMove(event, updateRoot = true) {
+    async onMove(event, updateRoot = true) {
         if (!this.mainRoad) return;
 
         const mainRoad = this.mainRoad;
@@ -427,6 +427,7 @@ class SideRoadSymbol extends BaseGroup {
             mainRoad.receiveNewRoute(this);
             mainRoad.setCoords();
         }
+        this.setCoords();
     }
 }
 

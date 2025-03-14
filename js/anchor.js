@@ -111,6 +111,9 @@ document.getElementById('set-anchor').addEventListener('click', function () {
     document.addEventListener('keydown', ShowHideSideBarEvent);
   
     canvas.renderAll();
+    
+    // Return a resolved promise to allow for chaining
+    return Promise.resolve();
   }
   
   function EQanchorShape(direction, options, sourceList = []) {
@@ -161,4 +164,3 @@ document.getElementById('set-anchor').addEventListener('click', function () {
   
     }
   }
-  

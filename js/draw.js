@@ -2,6 +2,7 @@ let cursorClickMode = 'normal'
 const deleteIcon =
   "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
 let activeVertex = null
+let vertexSnapInProgress = false; // New flag to prevent multiple clicks during snapping
 
 // additional property for fabric object
 const originalToObject = fabric.Object.prototype.toObject;
@@ -827,6 +828,13 @@ class VertexControl extends fabric.Control {
     this.render = this.renderControl.bind(this);
     this.vertex = vertex;
     this.baseGroup = baseGroup;
+    this.snapThreshold = 50; // Distance in pixels for snapping
+    this.snapTarget = null; // Current snap target
+    this.snapHighlight = null; // Visual highlight of snap target
+    this.handleMouseMoveRef = this.handleMouseMove.bind(this);
+    this.handleMouseDownRef = this.handleMouseDown.bind(this);
+    this.handleMouseUpRef = this.handleMouseUp.bind(this);
+    this.cancelDragRef = this.cancelDrag.bind(this);
   }
 
   renderControl(ctx, left, top, styleOverride, fabricObject) {
@@ -861,73 +869,414 @@ class VertexControl extends fabric.Control {
   }
 
   onClick(eventData, transform) {
+    // Check if it's a left-click (button 1)
+    if (eventData.button !== 0) return;
+    
+    // Prevent clicks during ongoing snap operations
+    if (vertexSnapInProgress) return;
+    
     const vertexX = this.vertex.x;
     const vertexY = this.vertex.y;
+    
     if (!activeVertex) {
       activeVertex = this;
       this.isDown = true;
-      var points = [vertexX, vertexY, vertexX, vertexY];
-      this.line = new fabric.Line(points, {
-        stroke: 'yellow',
-        strokeWidth: 4,
-        strokeDashArray: [5, 5],
-        hasControls: false,
-        hasBorders: false,
-        lockMovementX: false,
-        lockMovementY: false,
-        hoverCursor: 'default',
-        selectable: false,
-      });
-      canvas.add(this.line);
-
+      
+      // Store original position and offset from vertex to group center
+      this.originalPosition = {
+        left: this.baseGroup.left,
+        top: this.baseGroup.top
+      };
+      
+      this.vertexOffset = {
+        x: this.vertex.x - this.baseGroup.left,
+        y: this.vertex.y - this.baseGroup.top
+      };
+      
+      // Set cursor style for canvas
+      canvas.defaultCursor = 'move';
+      
+      // Add mouse move and click handlers for drag behavior
       document.removeEventListener('keydown', ShowHideSideBarEvent);
-      document.addEventListener('keydown', this.cancelLink.bind(this));
-      canvas.on('mouse:move', this.handleMouseMove);
+      document.addEventListener('keydown', this.cancelDragRef);
+      canvas.on('mouse:move', this.handleMouseMoveRef);
+      canvas.on('mouse:down', this.handleMouseDownRef);
+      canvas.on('mouse:up', this.handleMouseUpRef);
+      
+      // Create a visual indicator showing this vertex is active
+      this.indicator = new fabric.Circle({
+        left: this.vertex.x - 10,
+        top: this.vertex.y - 10,
+        radius: 10,
+        fill: 'rgba(255, 255, 0, 0.5)',
+        stroke: 'yellow',
+        strokeWidth: 2,
+        selectable: false,
+        evented: false
+      });
+      canvas.add(this.indicator);
+      
       canvas.renderAll();
+    }
+  }
+
+  handleMouseMove(event) {
+    if (!this.isDown) return;
+    
+    const pointer = canvas.getPointer(event.e);
+    
+    // Find nearest vertex for snapping
+    this.checkForSnapTargets(pointer);
+    
+    // Calculate new position of group based on vertex position
+    let newLeft, newTop;
+    
+    if (this.snapTarget) {
+      // Snap to the target vertex
+      const snapPoint = this.snapTarget.vertex;
+      
+      // Calculate the position adjustment needed to align the vertex with snap target
+      newLeft = snapPoint.x - this.vertexOffset.x;
+      newTop = snapPoint.y - this.vertexOffset.y;
+      
+      // Update indicator to match the snap point
+      this.indicator.set({
+        left: snapPoint.x - 10,
+        top: snapPoint.y - 10,
+        fill: 'rgba(0, 255, 0, 0.5)', // Green indicator when snapping
+        stroke: 'lime'
+      });
     } else {
-      anchorShape(this.baseGroup, activeVertex.baseGroup, { vertexIndex1: activeVertex.vertex.label, vertexIndex2: this.vertex.label });
-      activeVertex.deleteLink();
+      // Regular movement
+      newLeft = pointer.x - this.vertexOffset.x;
+      newTop = pointer.y - this.vertexOffset.y;
+      
+      // Reset indicator appearance and position
+      this.indicator.set({
+        left: pointer.x - 10,
+        top: pointer.y - 10,
+        fill: 'rgba(255, 255, 0, 0.5)', // Yellow indicator when not snapping
+        stroke: 'yellow'
+      });
+    }
+    
+    // Move the group
+    this.baseGroup.set({
+      left: newLeft,
+      top: newTop
+    });
+    
+    this.baseGroup.setCoords();
+    this.baseGroup.updateAllCoord();
+    if (this.baseGroup.onMove){
+      this.baseGroup.onMove()
+    }
+    canvas.renderAll();
+  }
+
+  checkForSnapTargets(pointer) {
+    // Clear previous snap highlights
+    this.clearSnapHighlight();
+    this.snapTarget = null;
+    
+    // Check all canvas objects for potential snap targets
+    let closestDistance = this.snapThreshold;
+    let closestVertex = null;
+    let closestObject = null;
+    
+    canvasObject.forEach(obj => {
+      // Skip the current object and objects without basePolygon
+      if (obj === this.baseGroup || !obj.basePolygon || !obj.basePolygon.vertex) return;
+      
+      // Check each vertex
+      obj.basePolygon.vertex.forEach(vertex => {
+        const dx = vertex.x - (pointer.x);
+        const dy = vertex.y - (pointer.y);
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestVertex = vertex;
+          closestObject = obj;
+        }
+      });
+    });
+    
+    // If we found a vertex within threshold, highlight it
+    if (closestVertex) {
+      this.snapTarget = { 
+        object: closestObject, 
+        vertex: closestVertex 
+      };
+      
+      // Create a snap highlight
+      this.snapHighlight = new fabric.Circle({
+        left: closestVertex.x - 15,
+        top: closestVertex.y - 15,
+        radius: 15,
+        fill: 'rgba(0, 255, 0, 0.3)',
+        stroke: 'lime',
+        strokeWidth: 2,
+        selectable: false,
+        evented: false
+      });
+      canvas.add(this.snapHighlight);
+    }
+  }
+
+  clearSnapHighlight() {
+    if (this.snapHighlight) {
+      canvas.remove(this.snapHighlight);
+      this.snapHighlight = null;
+    }
+  }
+
+  handleMouseDown(event) {
+    if (!this.isDown) return;
+    
+    // Check for right-click (button 2)
+    if (event.e.button === 2) {
+      // Cancel drag on right-click
+      this.restoreOriginalPosition();
+      return;
+    }
+    
+    // Only process left clicks (button 1) for object selection
+    if (event.e.button !== 0) return;
+    
+    // If we have a snap target, use that for anchoring
+    if (this.snapTarget) {
+      // Set the flag to prevent additional onClick events
+      vertexSnapInProgress = true;
+      
+      // Store the snap target before finishing the drag
+      const savedSnapTarget = {
+        object: this.snapTarget.object,
+        vertex: this.snapTarget.vertex
+      };
+      const savedVertex = this.vertex;
+      const savedBaseGroup = this.baseGroup;
+      
+      this.finishDrag();
+      
+      // Start the anchor process with the saved snap target
+      setTimeout(() => {
+        anchorShape(
+          savedSnapTarget.object,
+          savedBaseGroup,
+          { 
+            vertexIndex1: savedVertex.label, 
+            vertexIndex2: savedSnapTarget.vertex.label 
+          }
+        ).then(() => {
+          // Reset the flag after anchoring completes
+          setTimeout(() => {
+            vertexSnapInProgress = false;
+          }, 300);
+        }).catch(() => {
+          vertexSnapInProgress = false;
+        });
+      }, 100);
+      return;
+    }
+    
+    const pointer = canvas.getPointer(event.e);
+    const targetObject = canvas.findTarget(event.e);
+    
+    // Check if we clicked on another object with vertices
+    if (targetObject && targetObject !== this.baseGroup && targetObject.basePolygon && targetObject.basePolygon.vertex) {
+      // Find the closest vertex to the click point
+      const vertices = targetObject.basePolygon.vertex;
+      if (!vertices) {
+        // Set flag before starting the finishing process
+        vertexSnapInProgress = true;
+        
+        // Finish drag with a delay to ensure proper cleanup
+        this.finishDrag();
+        
+        // Reset the flag after a delay
+        setTimeout(() => {
+          vertexSnapInProgress = false;
+        }, 300);
+        return;
+      }
+      
+      let closestVertex = null;
+      let minDistance = 30; // Minimum distance to consider a hit
+      
+      for (const vertex of vertices) {
+        const dx = vertex.x - pointer.x;
+        const dy = vertex.y - pointer.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestVertex = vertex;
+        }
+      }
+      
+      if (closestVertex) {
+        // Found a vertex to anchor to
+        vertexSnapInProgress = true;
+        this.finishDrag();
+        
+        // Start the anchor process
+        setTimeout(() => {
+          anchorShape(
+            targetObject, 
+            this.baseGroup, 
+            { 
+              vertexIndex1: this.vertex.label, 
+              vertexIndex2: closestVertex.label 
+            }
+          ).then(() => {
+            // Reset the flag after anchoring completes
+            setTimeout(() => {
+              vertexSnapInProgress = false;
+            }, 300);
+          }).catch(() => {
+            vertexSnapInProgress = false;
+          });
+        }, 100);
+        return;
+      }
+    }
+    
+    // If we click on empty space, set flag and finish the drag with delay
+    vertexSnapInProgress = true;
+    
+    // Remove all mouse events immediately to prevent further processing
+    this.removeAllMouseEvents();
+    
+    // Store reference to the current drag state
+    const baseGroup = this.baseGroup;
+    const indicator = this.indicator;
+    
+    // Clear indicator and snap highlight immediately
+    if (this.snapHighlight) {
+      canvas.remove(this.snapHighlight);
+      this.snapHighlight = null;
+    }
+    if (indicator) {
+      canvas.remove(indicator);
+      this.indicator = null;
+    }
+    
+    // Clean up the drag state with proper callbacks
+    setTimeout(() => {
+      // Update coordinates and call appropriate move method
+      baseGroup.updateAllCoord(null, []);
+      
+      // Call the appropriate onMove method for special object types
+      if (baseGroup.functionalType === 'MainRoad' && typeof baseGroup.onMove === 'function') {
+        baseGroup.onMove();
+      } else if (baseGroup.functionalType === 'SideRoad' && typeof baseGroup.onMove === 'function') {
+        baseGroup.onMove();
+      }
+      
+      // Reset active vertex
+      activeVertex = null;
+      
+      // Reset the flag after a delay to prevent new clicks
+      setTimeout(() => {
+        vertexSnapInProgress = false;
+        canvas.renderAll();
+      }, 300);
+    }, 50);
+  }
+  
+  // New helper method to remove all mouse events immediately
+  removeAllMouseEvents() {
+    canvas.off('mouse:move', this.handleMouseMoveRef);
+    canvas.off('mouse:down', this.handleMouseDownRef);
+    canvas.off('mouse:up', this.handleMouseUpRef);
+    document.removeEventListener('keydown', this.cancelDragRef);
+    
+    // Restore default behavior
+    document.addEventListener('keydown', ShowHideSideBarEvent);
+    canvas.defaultCursor = 'default';
+    
+    // Reset internal state
+    this.isDown = false;
+  }
+  
+  finishDrag() {
+    this.clearSnapHighlight();
+    this.cleanupDrag();
+    this.baseGroup.updateAllCoord(null, []);
+    
+    // Call the appropriate onMove method for special object types
+    if (this.baseGroup.functionalType === 'MainRoad' && typeof this.baseGroup.onMove === 'function') {
+      this.baseGroup.onMove();
+    } else if (this.baseGroup.functionalType === 'SideRoad' && typeof this.baseGroup.onMove === 'function') {
+      this.baseGroup.onMove();
+    }
+    
+    activeVertex = null;
+    canvas.renderAll();
+  }
+
+  handleMouseUp(event) {
+    // Check for right-click (button 2)
+    if (event.e.button === 2 && this.isDown) {
+      // Cancel drag on right-click
+      this.restoreOriginalPosition();
+      return;
+    }
+  }
+
+  restoreOriginalPosition() {
+    // Restore original position
+    this.baseGroup.set(this.originalPosition);
+    this.baseGroup.setCoords();
+    this.baseGroup.updateAllCoord();
+    
+    this.clearSnapHighlight();
+    this.cleanupDrag();
+    activeVertex = null;
+    canvas.renderAll();
+  }
+
+  cancelDrag(event) {
+    if (event && event.key === 'Escape') {
+      this.restoreOriginalPosition();
+    }
+  }
+
+  cleanupDrag() {
+    // First reset object properties
+    this.isDown = false;
+    
+    // Remove event listeners using stored references
+    canvas.off('mouse:move', this.handleMouseMoveRef);
+    canvas.off('mouse:down', this.handleMouseDownRef);
+    canvas.off('mouse:up', this.handleMouseUpRef);
+    document.removeEventListener('keydown', this.cancelDragRef);
+    
+    // Restore default behavior
+    document.addEventListener('keydown', ShowHideSideBarEvent);
+    canvas.defaultCursor = 'default';
+    
+    // Remove visual indicators
+    if (this.indicator) {
+      canvas.remove(this.indicator);
+      this.indicator = null;
+    }
+    
+    // Make sure we're no longer active
+    if (activeVertex === this) {
       activeVertex = null;
     }
   }
 
   onHover() {
-    //this.circle.set('fill', 'rgba(255,255,255,0.5)');
     this.hover = true;
     canvas.renderAll();
   }
 
   onMouseOut() {
-    //this.circle.set('fill', 'rgba(255,255,255,0.2)');
     this.hover = false;
     canvas.renderAll();
-  }
-
-  handleMouseMove = (event) => {
-    if (!this.isDown) return;
-    var pointer = canvas.getPointer(event.e);
-    this.line.set({
-      x2: pointer.x,
-      y2: pointer.y,
-    });
-    canvas.requestRenderAll();
-  };
-
-  cancelLink(event) {
-    if (event.key === 'Escape') {
-      this.deleteLink();
-      activeVertex = null;
-    }
-  }
-
-  deleteLink() {
-    canvas.remove(this.line);
-    canvas.off('mouse:move', this.handleMouseMove);
-    this.isDown = false;
-    canvas.requestRenderAll();
-    setTimeout(() => {
-      document.addEventListener('keydown', ShowHideSideBarEvent);
-    }, 1000);
   }
 }
 

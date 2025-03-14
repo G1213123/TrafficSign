@@ -1255,7 +1255,7 @@ const RouteTest = {
     // Try to move Side Road too close to root
     leftSideRoad.left = mainRoad.left; // Too close
     leftSideRoad.updateAllCoord();
-    await leftSideRoad.SideRoadOnMove();
+    await leftSideRoad.onMove();
 
     // Should have been constrained
     const minDistance = 4 * leftSideRoad.xHeight / 4;
