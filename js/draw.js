@@ -399,6 +399,11 @@ class BaseGroup extends fabric.Group {
     this.updateCoord(deltaX, deltaY);
     this.refTopLeft = { top: this.basePolygon.getCoords()[0].y, left: this.basePolygon.getCoords()[0].x };
     
+    // Check for route-specific methods
+    if (this.onMove) {
+      this.onMove();
+    }
+    
     if (canvas.getActiveObject() === this) {
       this.drawAnchorLinkage();
       this.showLockHighlights();
@@ -410,12 +415,8 @@ class BaseGroup extends fabric.Group {
       this.borderResize(sourceList);
     }
     
-    // Check for route-specific methods
-    if (this.branchRouteOnMove) {
-      this.branchRouteOnMove();
-    }
-    if (this.rootRouteOnMove) {
-      this.rootRouteOnMove();
+    if (document.getElementById('debug-info-panel')){
+      FormDebugComponent.updateDebugInfo(canvas.getActiveObjects())
     }
   }
 
@@ -850,11 +851,11 @@ class VertexControl extends fabric.Control {
     ctx.stroke();
 
     // Draw the text
-    ctx.font = '20px Arial, sans-serif';
+    ctx.font = '10px Arial, sans-serif';
     ctx.fillStyle = this.VertexColorPicker(this.vertex);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(this.vertex.label, left, this.vertex.label.includes('E') ? top - 30 : top + 30);
+    ctx.fillText(this.vertex.label, left, this.vertex.label.includes('E') ? top - 15 : top + 15);
   }
 
   VertexColorPicker(vertex){

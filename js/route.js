@@ -243,6 +243,7 @@ class MainRoadSymbol extends BaseGroup {
         this.on('selected', roadMapOnSelect);
         this.on('deselected', roadMapOnDeselect);
         this.on('moving', this.onMove.bind(this));
+        this.on('moved', this.onMove.bind(this));
         this.on('modified', this.onMove.bind(this));
     }
 
@@ -340,6 +341,7 @@ class SideRoadSymbol extends BaseGroup {
 
         // Bind events
         this.on('moving', this.onMove.bind(this));
+        this.on('moved', this.onMove.bind(this));
         this.on('modified', this.onMove.bind(this));
     }
 
@@ -386,10 +388,12 @@ class SideRoadSymbol extends BaseGroup {
 
         // Update instance properties with constrained values
         this.routeList = result.routeList;
-        //this.left = this.side ? this.routeList[0].x : this.left;
-        this.refTopLeft.left = this.side ? this.routeList[0].x : this.refTopLeft.left;
+        if (mainRoad.roadType == 'Main Line'){
+            this.left = this.side ? this.routeList[0].x : mainRoad.left+mainRoad.width;
+        }
+        this.refTopLeft.left = this.left;
         //this.top = this.routeList[0].y;
-        this.refTopLeft.top = this.routeList[0].y;
+        this.refTopLeft.top = this.top;
 
         return result.tempVertexList;
     }
@@ -427,7 +431,7 @@ class SideRoadSymbol extends BaseGroup {
             mainRoad.receiveNewRoute(this);
             mainRoad.setCoords();
         }
-        this.setCoords();
+        this.basePolygon.setCoords();
     }
 }
 
@@ -464,11 +468,11 @@ function applyConstraintsMainLine(sideRoad, mainRoad, routeList, isSideLeft, xHe
         if (routeList[0].x + minBranchXDelta > rootLeft && isSideLeft) {
             // Left side branch constraint
             routeList[0].x = rootLeft - minBranchXDelta;
-            sideRoad.left = routeList[0].x;
+            //sideRoad.left = routeList[0].x;
         } else if (routeList[0].x - minBranchXDelta < rootRight && !isSideLeft) {
             // Right side branch constraint
             routeList[0].x = rootRight + minBranchXDelta;
-            sideRoad.left = rootRight
+            //sideRoad.left = rootRight
         }
     
         // Vertical constraint based on main road top
