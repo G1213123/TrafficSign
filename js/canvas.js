@@ -8,6 +8,7 @@ canvas.isDragging = false;
 canvas.lastPosX = 0;
 canvas.lastPosY = 0;
 
+canvas.setZoom(0.5);
 
 window.addEventListener('resize', resizeCanvas, false);
 

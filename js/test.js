@@ -710,7 +710,7 @@ const AnchorTest = {
 
     // Delink second pair by deleting the base object
     TestTracker.get("baseHospital").deleteObject();
-    TestTracker.testSections[TestTracker.currentTest].objects["stackArrow"]-=1;
+    TestTracker.testSections[TestTracker.currentTest].objects["stackArrow"] -= 1;
 
     // Check that second pair is delinked
     passed = passed && TestTracker.assertTrue(
@@ -993,8 +993,8 @@ const RouteTest = {
       xHeight: 100,
       rootLength: 7,
       tipLength: 12,
-      posx: 800,
-      posy: 100,
+      posx: 250,
+      posy: 300,
       width: 6,
       shape: 'Arrow'
     };
@@ -1284,7 +1284,7 @@ const RouteTest = {
       xHeight: 100,
       rootLength: 7,
       tipLength: 12,
-      posx: 2000,
+      posx: 1250,
       posy: 600,
       width: 6,
       shape: 'Stub',
@@ -1347,6 +1347,21 @@ const RouteTest = {
     await drawSideRoadOnCursor(null, sideRoadParams);
     await finishDrawSideRoad({ e: { button: 0 } });
 
+    // Create a side road on the roundabout
+    const sideRoadParams2 = {
+      x: params.posx,
+      y: params.posy - 100,
+      routeParams: {
+        angle: -90,
+        shape: 'Arrow',
+        width: 6
+      }
+    };
+
+    // Draw and finalize the side road
+    await drawSideRoadOnCursor(null, sideRoadParams2);
+    await finishDrawSideRoad({ e: { button: 0 } });
+
     // Find the created Side Road route and register it
     const sideRoad = roundabout.sideRoad[roundabout.sideRoad.length - 1];
     TestTracker.register("roundaboutSideRoad", sideRoad);
@@ -1367,7 +1382,7 @@ const RouteTest = {
       // Check side road is correctly positioned relative to roundabout center
       const roundaboutCenter = routeOptions.routeList[1];
       const distanceFromCenter = Math.sqrt(
-        Math.pow(sideRoad.routeList[0].x - roundaboutCenter.x, 2) + 
+        Math.pow(sideRoad.routeList[0].x - roundaboutCenter.x, 2) +
         Math.pow(sideRoad.routeList[0].y - roundaboutCenter.y, 2)
       );
 
@@ -1395,12 +1410,179 @@ const RouteTest = {
   }
 };
 
+/**
+ * Test suite for spiral roundabout functionality
+ */
+const SpiralRoundaboutTest = {
+  /**
+   * Create and test a spiral roundabout with multiple arms
+   */
+  async testSpiralRoundabout() {
+    TestTracker.startTest("SpiralRoundabout");
+
+    // Create a spiral roundabout
+    const params = {
+      xHeight: 100,
+      rootLength: 7,
+      tipLength: 12,
+      color: 'white',
+      width: 6,
+      shape: 'Arrow',
+      roadType: 'Spiral Roundabout',
+      posx: 2500,
+      posy: 600
+    };
+
+    // Create a Spiral Roundabout directly
+    const routeOptions = {
+      routeList: [
+        { x: params.posx, y: params.posy + (params.rootLength + params.tipLength) * params.xHeight / 4, angle: 180, width: 6, shape: 'Stub' },
+        { x: params.posx, y: params.posy, angle: 0, width: 6, shape: 'Stub' }
+      ],
+      xHeight: params.xHeight,
+      rootLength: params.rootLength,
+      tipLength: params.tipLength,
+      roadType: params.roadType,
+      color: params.color
+    };
+
+    const spiralRoundabout = new MainRoadSymbol(routeOptions);
+    await spiralRoundabout.initialize(calcSpirRoundaboutVertices(params.xHeight, routeOptions.routeList));
+    TestTracker.register("spiralRoundabout", spiralRoundabout);
+
+    // Test assertions for the roundabout
+    let passed = true;
+
+    passed = passed && TestTracker.assertTrue(
+      spiralRoundabout != null,
+      "Spiral roundabout should be created"
+    );
+
+    passed = passed && TestTracker.assert(
+      spiralRoundabout.roadType,
+      'Spiral Roundabout',
+      "Roundabout has incorrect road type"
+    );
+
+    // Add three arms to the roundabout in different quadrants
+    const center = spiralRoundabout.routeList[1];
+    canvas.setActiveObject(spiralRoundabout);
+
+    // Add arm in first quadrant (top-right)
+    await this.addArmAtAngle(center, 300, 180, "arm1");
+
+    // Add arm in second quadrant (top-left)
+    await this.addArmAtAngle(center, 300, 270, "arm2");
+
+    // Add arm in third quadrant (bottom-left)
+    await this.addArmAtAngle(center, 300, 360, "arm3");
+
+    // Verify arms were added
+    passed = passed && TestTracker.assert(
+      spiralRoundabout.sideRoad.length,
+      3,
+      `Wrong number of arms added to spiral roundabout`
+    );
+
+    // Test dragging the first arm
+    const firstArm = spiralRoundabout.sideRoad[0];
+    canvas.setActiveObject(firstArm);
+
+    // Record initial position
+    const initialPos = {
+      left: firstArm.left,
+      top: firstArm.top,
+      tipX: firstArm.routeList[0].x,
+      tipY: firstArm.routeList[0].y
+    };
+
+    // Move the arm
+    firstArm.set({
+      left: firstArm.left + 50,
+      top: firstArm.top + 50
+    });
+
+    // Trigger update
+    await firstArm.onMove();
+
+    // Validate arm position after movement
+    const armTip = firstArm.routeList[0];
+    const dx = armTip.x - center.x;
+    const dy = armTip.y - center.y;
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    const roundedAngle = Math.round(angle / 15) * 15;
+
+    // Check angle snaps to 15 degree increments
+    passed = passed && TestTracker.assertTrue(
+      Math.abs(angle - roundedAngle) < 0.5,
+      `Arm didn't snap to 15 degree increment. Actual: ${angle}, Expected: ${roundedAngle}`
+    );
+
+    // Check distance from center is maintained
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    passed = passed && TestTracker.assertTrue(
+      distance - params.xHeight * 6 < 1,
+      `Arm distance from center should be at least ${params.xHeight * 6} units`
+    );
+
+    TestTracker.endTest(passed);
+    return passed;
+  },
+
+  /**
+   * Helper function to add an arm at a specific angle from center
+   * @param {Object} center - Center point {x, y}
+   * @param {number} radius - Distance from center to place arm
+   * @param {number} angleDegrees - Angle in degrees
+   * @param {string} name - Name to register the arm with in TestTracker
+   */
+  async addArmAtAngle(center, radius, angleDegrees, name) {
+    const angleRadians = angleDegrees * Math.PI / 180;
+    const x = center.x + radius * Math.cos(angleRadians);
+    const y = center.y + radius * Math.sin(angleRadians);
+
+    // Create options for the arm
+    const options = {
+      x: x,
+      y: y,
+      routeParams: {
+        angle: angleDegrees,
+        shape: 'Arrow',
+        width: 4
+      }
+    };
+
+    // Add the arm
+    await drawSideRoadOnCursor(null, options);
+
+    // Finish adding the arm
+    await finishDrawSideRoad({
+      e: { button: 0 }
+    });
+
+    // Register the new arm with TestTracker
+    const roundabout = canvas.getActiveObject();
+    const newArm = roundabout.sideRoad[roundabout.sideRoad.length - 1];
+    TestTracker.register(name, newArm);
+
+    return newArm;
+  },
+
+  /**
+   * Run all spiral roundabout tests
+   */
+  runAll: async function () {
+    await this.testSpiralRoundabout();
+  }
+};
+
 // Update testToRun to include all test suites in order
 testToRun = [
   ShapeTest.runAll.bind(ShapeTest),
   AnchorTest.runAll.bind(AnchorTest),
   RouteTest.runAll.bind(RouteTest),
   BorderTest.runAll.bind(BorderTest),
+  SpiralRoundaboutTest.runAll.bind(SpiralRoundaboutTest), // Add the new test suite
 ];
 
 async function runTests(tests) {
