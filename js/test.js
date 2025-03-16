@@ -505,6 +505,24 @@ const ShapeTest = {
     passed = passed && TestTracker.assert(symbolV1.x, -1500, "Symbol left position incorrect", 5);
     passed = passed && TestTracker.assert(symbolV1.y, -800, "Symbol top position incorrect", 5);
 
+    // Check that text objects are instances of TextObject class
+    passed = passed && TestTracker.assertTrue(
+      englishText instanceof TextObject,
+      "English text should be an instance of TextObject"
+    );
+    passed = passed && TestTracker.assertTrue(
+      chineseText instanceof TextObject,
+      "Chinese text should be an instance of TextObject"
+    );
+
+    // Test text update functionality
+    const originalText = englishText.text;
+    englishText.updateText("Updated Text", englishText.xHeight, englishText.font, englishText.color);
+    passed = passed && TestTracker.assert(englishText.text, "Updated Text", "Text update failed");
+
+    // Restore original text for other tests
+    englishText.updateText(originalText, englishText.xHeight, englishText.font, englishText.color);
+
     TestTracker.endTest(passed);
     return passed;
   },

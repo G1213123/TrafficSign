@@ -11,6 +11,22 @@ fabric.Object.prototype.toObject = function (additionalProperties) {
   return originalToObject.call(this, myAdditional.concat(additionalProperties));
 }
 
+// Enable double-click detection on canvas
+canvas.on('mouse:down', function(options) {
+  if (options.e.type === 'dblclick') {
+    const target = options.target;
+    if (target && target.dblclick) {
+      target.dblclick(options.e);
+    } else if (target) {
+      const eventData = {
+        e: options.e,
+        target: target
+      };
+      canvas.fire('object:dblclick', eventData);
+      target.fire('mousedblclick', options.e);
+    }
+  }
+});
 
 function PolarPoint(r, a) {
   return new fabric.Point(r * Math.cos(a), r * Math.sin(a))

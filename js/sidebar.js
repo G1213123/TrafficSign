@@ -75,6 +75,29 @@ let GeneralHandler = {
     input.innerHTML = labelTxt
     return input
   },
+  
+  createSVGButton: function (name, svg, parent, container = 'input', callback = null, event = null) {
+    if (container) {
+      var inputContainer = GeneralHandler.createNode("div", { 'class': `${container}-container` }, parent)
+    }
+    var input = GeneralHandler.createNode("button", { 'type': 'button', 'class': `${container ? container : name}-button`, 'id': name, 'placeholder': ' ' }, inputContainer ? inputContainer : parent, callback, event)
+  
+    // Add the SVG
+    input.innerHTML = svg;
+    
+    // Add a separator line
+    const separator = document.createElement('hr');
+    separator.className = 'symbol-separator';
+    input.appendChild(separator);
+    
+    // Add text label
+    const textLabel = document.createElement('div');
+    textLabel.className = 'symbol-label';
+    textLabel.innerText = name.replace('button-', '');
+    input.appendChild(textLabel);
+
+    return input
+  },
 
   createInput: function (name, labelTxt, parent, defaultV = null, callback = null, event = null) {
     var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent)
@@ -183,229 +206,206 @@ let GeneralHandler = {
 
 /* Text panel */
 let FormTextAddComponent = {
-  textWidthMedium: [{ char: ' ', width: 53, shortWidth: 0 }, { char: 'A', width: 136, shortWidth: 0 }, { char: 'B', width: 147, shortWidth: 0 }, { char: 'C', width: 148, shortWidth: 0 }, { char: 'D', width: 154, shortWidth: 0 }, { char: 'E', width: 132, shortWidth: 0 }, { char: 'F', width: 119, shortWidth: 0 }, { char: 'G', width: 155, shortWidth: 0 }, { char: 'H', width: 160, shortWidth: 0 }, { char: 'I', width: 73, shortWidth: 0 }, { char: 'J', width: 93, shortWidth: 0 }, { char: 'K', width: 138, shortWidth: 0 }, { char: 'L', width: 107, shortWidth: 0 }, { char: 'M', width: 184, shortWidth: 0 }, { char: 'N', width: 168, shortWidth: 0 }, { char: 'O', width: 156, shortWidth: 0 }, { char: 'P', width: 130, shortWidth: 0 }, { char: 'Q', width: 158, shortWidth: 0 }, { char: 'R', width: 141, shortWidth: 0 }, { char: 'S', width: 137, shortWidth: 0 }, { char: 'T', width: 109, shortWidth: 105 }, { char: 'U', width: 154, shortWidth: 0 }, { char: 'V', width: 130, shortWidth: 120 }, { char: 'W', width: 183, shortWidth: 189 }, { char: 'X', width: 128, shortWidth: 0 }, { char: 'Y', width: 123, shortWidth: 118 }, { char: 'Z', width: 119, shortWidth: 0 }, { char: 'a', width: 111, shortWidth: 104 }, { char: 'b', width: 117, shortWidth: 0 }, { char: 'c', width: 103, shortWidth: 0 }, { char: 'd', width: 119, shortWidth: 0 }, { char: 'e', width: 109, shortWidth: 102 }, { char: 'f', width: 75, shortWidth: 0 }, { char: 'g', width: 114, shortWidth: 107 }, { char: 'h', width: 112, shortWidth: 0 }, { char: 'i', width: 54, shortWidth: 0 }, { char: 'j', width: 58, shortWidth: 0 }, { char: 'k', width: 108, shortWidth: 0 }, { char: 'l', width: 62, shortWidth: 0 }, { char: 'm', width: 164, shortWidth: 0 }, { char: 'n', width: 112, shortWidth: 0 }, { char: 'o', width: 118, shortWidth: 111 }, { char: 'p', width: 118, shortWidth: 0 }, { char: 'q', width: 118, shortWidth: 0 }, { char: 'r', width: 73, shortWidth: 59 }, { char: 's', width: 97, shortWidth: 95 }, { char: 't', width: 81, shortWidth: 0 }, { char: 'u', width: 115, shortWidth: 101 }, { char: 'v', width: 98, shortWidth: 0 }, { char: 'w', width: 147, shortWidth: 145 }, { char: 'x', width: 104, shortWidth: 0 }, { char: 'y', width: 98, shortWidth: 96 }, { char: 'z', width: 97, shortWidth: 0 }, { char: '1', width: 78, shortWidth: 0 }, { char: '2', width: 120, shortWidth: 0 }, { char: '3', width: 127, shortWidth: 0 }, { char: '4', width: 132, shortWidth: 0 }, { char: '5', width: 122, shortWidth: 0 }, { char: '6', width: 126, shortWidth: 0 }, { char: '7', width: 104, shortWidth: 0 }, { char: '8', width: 130, shortWidth: 0 }, { char: '9', width: 128, shortWidth: 0 }, { char: '0', width: 133, shortWidth: 0 }, { char: ',', width: 53, shortWidth: 0 }, { char: '.', width: 53, shortWidth: 0 }, { char: '’', width: 39, shortWidth: 0 }, { char: ':', width: 53, shortWidth: 0 }, { char: '•', width: 53, shortWidth: 0 }, { char: '、', width: 53, shortWidth: 0 }, { char: '-', width: 66, shortWidth: 0 }, { char: '&', width: 126, shortWidth: 0 }, { char: '(', width: 105, shortWidth: 0 }, { char: ')', width: 105, shortWidth: 0 }, { char: '/', width: 85, shortWidth: 0 }, { char: '$', width: 100, shortWidth: 0 }, { char: '%', width: 160, shortWidth: 0 }, { char: '“', width: 92, shortWidth: 0 }, { char: '”', width: 92, shortWidth: 0 }],
-  textWidthHeavy: [{ char: ' ', width: 53, shortWidth: 0 }, { char: 'A', width: 142, shortWidth: 0 }, { char: 'B', width: 146, shortWidth: 0 }, { char: 'C', width: 151, shortWidth: 0 }, { char: 'D', width: 150, shortWidth: 0 }, { char: 'E', width: 136, shortWidth: 0 }, { char: 'F', width: 121, shortWidth: 0 }, { char: 'G', width: 156, shortWidth: 0 }, { char: 'H', width: 159, shortWidth: 0 }, { char: 'I', width: 73, shortWidth: 0 }, { char: 'J', width: 95, shortWidth: 0 }, { char: 'K', width: 138, shortWidth: 0 }, { char: 'L', width: 118, shortWidth: 0 }, { char: 'M', width: 186, shortWidth: 0 }, { char: 'N', width: 168, shortWidth: 0 }, { char: 'O', width: 158, shortWidth: 0 }, { char: 'P', width: 134, shortWidth: 0 }, { char: 'Q', width: 161, shortWidth: 0 }, { char: 'R', width: 148, shortWidth: 0 }, { char: 'S', width: 146, shortWidth: 0 }, { char: 'T', width: 118, shortWidth: 113 }, { char: 'U', width: 157, shortWidth: 0 }, { char: 'V', width: 133, shortWidth: 127 }, { char: 'W', width: 193, shortWidth: 196 }, { char: 'X', width: 130, shortWidth: 0 }, { char: 'Y', width: 128, shortWidth: 125 }, { char: 'Z', width: 119, shortWidth: 0 }, { char: 'a', width: 111, shortWidth: 104 }, { char: 'b', width: 117, shortWidth: 0 }, { char: 'c', width: 107, shortWidth: 0 }, { char: 'd', width: 119, shortWidth: 0 }, { char: 'e', width: 110, shortWidth: 103 }, { char: 'f', width: 79, shortWidth: 0 }, { char: 'g', width: 117, shortWidth: 110 }, { char: 'h', width: 119, shortWidth: 0 }, { char: 'i', width: 55, shortWidth: 0 }, { char: 'j', width: 71, shortWidth: 0 }, { char: 'k', width: 114, shortWidth: 0 }, { char: 'l', width: 63, shortWidth: 0 }, { char: 'm', width: 173, shortWidth: 0 }, { char: 'n', width: 119, shortWidth: 0 }, { char: 'o', width: 115, shortWidth: 107 }, { char: 'p', width: 120, shortWidth: 0 }, { char: 'q', width: 120, shortWidth: 0 }, { char: 'r', width: 80, shortWidth: 67 }, { char: 's', width: 100, shortWidth: 98 }, { char: 't', width: 84, shortWidth: 0 }, { char: 'u', width: 120, shortWidth: 107 }, { char: 'v', width: 107, shortWidth: 0 }, { char: 'w', width: 160, shortWidth: 154 }, { char: 'x', width: 110, shortWidth: 0 }, { char: 'y', width: 106, shortWidth: 104 }, { char: 'z', width: 93, shortWidth: 0 }, { char: '1', width: 84, shortWidth: 0 }, { char: '2', width: 125, shortWidth: 0 }, { char: '3', width: 136, shortWidth: 0 }, { char: '4', width: 138, shortWidth: 0 }, { char: '5', width: 130, shortWidth: 0 }, { char: '6', width: 129, shortWidth: 0 }, { char: '7', width: 107, shortWidth: 0 }, { char: '8', width: 138, shortWidth: 0 }, { char: '9', width: 129, shortWidth: 0 }, { char: '0', width: 145, shortWidth: 0 }, { char: ',', width: 56, shortWidth: 0 }, { char: '.', width: 56, shortWidth: 0 }, { char: '’', width: 41, shortWidth: 0 }, { char: ':', width: 56, shortWidth: 0 }, { char: '•', width: 56, shortWidth: 0 }, { char: '、', width: 53, shortWidth: 0 }, { char: '-', width: 71, shortWidth: 0 }, { char: '&', width: 126, shortWidth: 0 }, { char: '(', width: 115, shortWidth: 0 }, { char: ')', width: 115, shortWidth: 0 }, { char: '/', width: 88, shortWidth: 0 }, { char: '$', width: 100, shortWidth: 0 }, { char: '%', width: 160, shortWidth: 0 }, { char: '“', width: 92, shortWidth: 0 }, { char: '”', width: 92, shortWidth: 0 }],
+  textWidthMedium: [{ char: ' ', width: 53, shortWidth: 0 }, { char: 'A', width: 136, shortWidth: 0 }, { char: 'B', width: 147, shortWidth: 0 }, { char: 'C', width: 148, shortWidth: 0 }, { char: 'D', width: 154, shortWidth: 0 }, { char: 'E', width: 132, shortWidth: 0 }, { char: 'F', width: 119, shortWidth: 0 }, { char: 'G', width: 155, shortWidth: 0 }, { char: 'H', width: 160, shortWidth: 0 }, { char: 'I', width: 73, shortWidth: 0 }, { char: 'J', width: 93, shortWidth: 0 }, { char: 'K', width: 138, shortWidth: 0 }, { char: 'L', width: 107, shortWidth: 0 }, { char: 'M', width: 184, shortWidth: 0 }, { char: 'N', width: 168, shortWidth: 0 }, { char: 'O', width: 156, shortWidth: 0 }, { char: 'P', width: 130, shortWidth: 0 }, { char: 'Q', width: 158, shortWidth: 0 }, { char: 'R', width: 141, shortWidth: 0 }, { char: 'S', width: 137, shortWidth: 0 }, { char: 'T', width: 109, shortWidth: 105 }, { char: 'U', width: 154, shortWidth: 0 }, { char: 'V', width: 130, shortWidth: 120 }, { char: 'W', width: 183, shortWidth: 189 }, { char: 'X', width: 128, shortWidth: 0 }, { char: 'Y', width: 123, shortWidth: 118 }, { char: 'Z', width: 119, shortWidth: 0 }, { char: 'a', width: 111, shortWidth: 104 }, { char: 'b', width: 117, shortWidth: 0 }, { char: 'c', width: 103, shortWidth: 0 }, { char: 'd', width: 119, shortWidth: 0 }, { char: 'e', width: 109, shortWidth: 102 }, { char: 'f', width: 75, shortWidth: 0 }, { char: 'g', width: 114, shortWidth: 107 }, { char: 'h', width: 112, shortWidth: 0 }, { char: 'i', width: 54, shortWidth: 0 }, { char: 'j', width: 58, shortWidth: 0 }, { char: 'k', width: 108, shortWidth: 0 }, { char: 'l', width: 62, shortWidth: 0 }, { char: 'm', width: 164, shortWidth: 0 }, { char: 'n', width: 112, shortWidth: 0 }, { char: 'o', width: 118, shortWidth: 111 }, { char: 'p', width: 118, shortWidth: 0 }, { char: 'q', width: 118, shortWidth: 0 }, { char: 'r', width: 73, shortWidth: 59 }, { char: 's', width: 97, shortWidth: 95 }, { char: 't', width: 81, shortWidth: 0 }, { char: 'u', width: 115, shortWidth: 101 }, { char: 'v', width: 98, shortWidth: 0 }, { char: 'w', width: 147, shortWidth: 145 }, { char: 'x', width: 104, shortWidth: 0 }, { char: 'y', width: 98, shortWidth: 96 }, { char: 'z', width: 97, shortWidth: 0 }, { char: '1', width: 78, shortWidth: 0 }, { char: '2', width: 120, shortWidth: 0 }, { char: '3', width: 127, shortWidth: 0 }, { char: '4', width: 132, shortWidth: 0 }, { char: '5', width: 122, shortWidth: 0 }, { char: '6', width: 126, shortWidth: 0 }, { char: '7', width: 104, shortWidth: 0 }, { char: '8', width: 130, shortWidth: 0 }, { char: '9', width: 128, shortWidth: 0 }, { char: '0', width: 133, shortWidth: 0 }, { char: ',', width: 53, shortWidth: 0 }, { char: '.', width: 53, shortWidth: 0 }, { char: "'", width: 39, shortWidth: 0 }, { char: ':', width: 53, shortWidth: 0 }, { char: '•', width: 53, shortWidth: 0 }, { char: '、', width: 53, shortWidth: 0 }, { char: '-', width: 66, shortWidth: 0 }, { char: '&', width: 126, shortWidth: 0 }, { char: '(', width: 105, shortWidth: 0 }, { char: ')', width: 105, shortWidth: 0 }, { char: '/', width: 85, shortWidth: 0 }, { char: '$', width: 100, shortWidth: 0 }, { char: '%', width: 160, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }],
+
+  textWidthHeavy: [{ char: ' ', width: 53, shortWidth: 0 }, { char: 'A', width: 142, shortWidth: 0 }, { char: 'B', width: 146, shortWidth: 0 }, { char: 'C', width: 151, shortWidth: 0 }, { char: 'D', width: 150, shortWidth: 0 }, { char: 'E', width: 136, shortWidth: 0 }, { char: 'F', width: 121, shortWidth: 0 }, { char: 'G', width: 156, shortWidth: 0 }, { char: 'H', width: 159, shortWidth: 0 }, { char: 'I', width: 73, shortWidth: 0 }, { char: 'J', width: 95, shortWidth: 0 }, { char: 'K', width: 138, shortWidth: 0 }, { char: 'L', width: 118, shortWidth: 0 }, { char: 'M', width: 186, shortWidth: 0 }, { char: 'N', width: 168, shortWidth: 0 }, { char: 'O', width: 158, shortWidth: 0 }, { char: 'P', width: 134, shortWidth: 0 }, { char: 'Q', width: 161, shortWidth: 0 }, { char: 'R', width: 148, shortWidth: 0 }, { char: 'S', width: 146, shortWidth: 0 }, { char: 'T', width: 118, shortWidth: 113 }, { char: 'U', width: 157, shortWidth: 0 }, { char: 'V', width: 133, shortWidth: 127 }, { char: 'W', width: 193, shortWidth: 196 }, { char: 'X', width: 130, shortWidth: 0 }, { char: 'Y', width: 128, shortWidth: 125 }, { char: 'Z', width: 119, shortWidth: 0 }, { char: 'a', width: 111, shortWidth: 104 }, { char: 'b', width: 117, shortWidth: 0 }, { char: 'c', width: 107, shortWidth: 0 }, { char: 'd', width: 119, shortWidth: 0 }, { char: 'e', width: 110, shortWidth: 103 }, { char: 'f', width: 79, shortWidth: 0 }, { char: 'g', width: 117, shortWidth: 110 }, { char: 'h', width: 119, shortWidth: 0 }, { char: 'i', width: 55, shortWidth: 0 }, { char: 'j', width: 71, shortWidth: 0 }, { char: 'k', width: 114, shortWidth: 0 }, { char: 'l', width: 63, shortWidth: 0 }, { char: 'm', width: 173, shortWidth: 0 }, { char: 'n', width: 119, shortWidth: 0 }, { char: 'o', width: 115, shortWidth: 107 }, { char: 'p', width: 120, shortWidth: 0 }, { char: 'q', width: 120, shortWidth: 0 }, { char: 'r', width: 80, shortWidth: 67 }, { char: 's', width: 100, shortWidth: 98 }, { char: 't', width: 84, shortWidth: 0 }, { char: 'u', width: 120, shortWidth: 107 }, { char: 'v', width: 107, shortWidth: 0 }, { char: 'w', width: 160, shortWidth: 154 }, { char: 'x', width: 110, shortWidth: 0 }, { char: 'y', width: 106, shortWidth: 104 }, { char: 'z', width: 93, shortWidth: 0 }, { char: '1', width: 84, shortWidth: 0 }, { char: '2', width: 125, shortWidth: 0 }, { char: '3', width: 136, shortWidth: 0 }, { char: '4', width: 138, shortWidth: 0 }, { char: '5', width: 130, shortWidth: 0 }, { char: '6', width: 129, shortWidth: 0 }, { char: '7', width: 107, shortWidth: 0 }, { char: '8', width: 138, shortWidth: 0 }, { char: '9', width: 129, shortWidth: 0 }, { char: '0', width: 145, shortWidth: 0 }, { char: ',', width: 56, shortWidth: 0 }, { char: '.', width: 56, shortWidth: 0 }, { char: "'", width: 41, shortWidth: 0 }, { char: ':', width: 56, shortWidth: 0 }, { char: '•', width: 56, shortWidth: 0 }, { char: '、', width: 53, shortWidth: 0 }, { char: '-', width: 71, shortWidth: 0 }, { char: '&', width: 126, shortWidth: 0 }, { char: '(', width: 115, shortWidth: 0 }, { char: ')', width: 115, shortWidth: 0 }, { char: '/', width: 88, shortWidth: 0 }, { char: '$', width: 100, shortWidth: 0 }, { char: '%', width: 160, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }],
+  
   textFont: ['TransportMedium', 'TransportHeavy'],
-  textPanelInit: function () {
-    tabNum = 2
-    var parent = GeneralHandler.PanelInit()
+  
+
+
+  textPanelInit: function (editingTextObject = null) {
+    tabNum = 2;
+    var parent = GeneralHandler.PanelInit();
     if (parent) {
       // Create a container for basic text parameters
-      var basicParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 100, FormTextAddComponent.TextInputHandler, 'input')
-      GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, 'White', FormTextAddComponent.TextInputHandler)
+      const basicParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 100, editingTextObject?FormTextAddComponent.liveUpdateText:FormTextAddComponent.TextInputHandler, 'input');
+      GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, 'White', editingTextObject?FormTextAddComponent.liveUpdateText:FormTextAddComponent.TextInputHandler);
 
       // Create a container for text content and font
-      var textContentContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      GeneralHandler.createInput('input-text', 'Add Text', textContentContainer, '', FormTextAddComponent.TextInputHandler, 'input')
-      GeneralHandler.createToggle('Text Font', FormTextAddComponent.textFont, textContentContainer, 'TransportMedium', FormTextAddComponent.TextInputHandler)
+      const textContentContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      const textInput = GeneralHandler.createInput('input-text', 'Add Text', textContentContainer, '', editingTextObject?FormTextAddComponent.liveUpdateText:FormTextAddComponent.TextInputHandler, 'input');
+      const fontToggle = GeneralHandler.createToggle('Text Font', FormTextAddComponent.textFont, textContentContainer, 'TransportMedium', editingTextObject?FormTextAddComponent.liveUpdateText:FormTextAddComponent.TextInputHandler);
 
-      canvas.on('mouse:move', FormTextAddComponent.TextOnMouseMove)
-      canvas.on('mouse:down', FormTextAddComponent.TextOnMouseClick)
+
     }
   },
+  
+  /**
+   * Live update text as the user types or changes parameters
+   */
+  liveUpdateText: function() {
+    canvas.off('mouse:move', FormTextAddComponent.TextOnMouseMove);
+    canvas.off('mouse:down', FormTextAddComponent.TextOnMouseClick);
+    canvas.on('mouse:down', FormTextAddComponent.EditOnMouseClick);
+    
+    const textObj = canvas.getActiveObject();
+    if (!textObj || textObj.functionalType !== 'Text') return;
+    const newText = document.getElementById('input-text').value;
+    const newXHeight = parseInt(document.getElementById('input-xHeight').value);
+    const newFont = document.getElementById('Text Font-container').selected.getAttribute('data-value');
+    const newColor = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
+    
+    // Only call updateText if there are actual changes
+    if (
+      newText !== textObj.text || 
+      newXHeight !== textObj.xHeight || 
+      newFont !== textObj.font || 
+      newColor !== textObj.color
+    ) {
+      textObj.updateText(newText, newXHeight, newFont, newColor);
+    }
+  },
+  
 
-  TextHandlerOff: function (event) {
-    cursor.forEachObject(function (o) { cursor.remove(o) })
-    canvas.off('mouse:move', FormTextAddComponent.TextOnMouseMove)
-    canvas.off('mouse:down', FormTextAddComponent.TextOnMouseClick)
+
+  TextHandlerOff: function () {
+    cursor.forEachObject(function (o) { cursor.remove(o) });
+    canvas.off('mouse:move', FormTextAddComponent.TextOnMouseMove);
+    canvas.off('mouse:down', FormTextAddComponent.TextOnMouseClick);
+    canvas.off('mouse:down', FormTextAddComponent.EditOnMouseClick);
     document.addEventListener('keydown', ShowHideSideBarEvent);
-    document.removeEventListener('keydown', FormTextAddComponent.cancelInput)
-    canvas.renderAll()
+    document.removeEventListener('keydown', FormTextAddComponent.cancelInput);
+    
+    // Remove input event listeners
+    const textInput = document.getElementById('input-text');
+    if (textInput) {
+      textInput.removeEventListener('input', FormTextAddComponent.liveUpdateText);
+    }
+    
+    const xHeightInput = document.getElementById('input-xHeight');
+    if (xHeightInput) {
+      xHeightInput.removeEventListener('input', FormTextAddComponent.liveUpdateText);
+    }
+
+    const colorButtons = document.querySelectorAll('#Message\\ Colour-container .toggle-button');
+    colorButtons.forEach(button => {
+      button.removeEventListener('click', FormTextAddComponent.liveUpdateText);
+    });
+    
+    const fontButtons = document.querySelectorAll('#Text\\ Font-container .toggle-button');
+    fontButtons.forEach(button => {
+      button.removeEventListener('click', FormTextAddComponent.liveUpdateText);
+    });
+    
+    
+    // Restore mouse events for creating new text 
+    if (tabNum === 2) { // Only if we're still on text panel
+      canvas.on('mouse:move', FormTextAddComponent.TextOnMouseMove);
+      canvas.on('mouse:down', FormTextAddComponent.TextOnMouseClick);
+    }
+    
+    canvas.renderAll();
   },
 
   cancelInput: function (event) {
     if (event.key === 'Escape') {
-      document.getElementById('input-text').value = ''
-      cursor.forEachObject(function (o) { cursor.remove(o) })
+      document.getElementById('input-text').value = '';
+      cursor.forEachObject(function (o) { cursor.remove(o) });
     }
   },
 
   TextInputHandler: function (event, options = null) {
     document.removeEventListener('keydown', ShowHideSideBarEvent);
-    document.addEventListener('keydown', FormTextAddComponent.cancelInput)
-    cursor.forEachObject(function (o) { cursor.remove(o) })
-    cursor.txtChar = []
-    cursor.text = ''
-    cursor.shapeMeta = null
-    const txt = options ? options.text : document.getElementById('input-text').value
-    const xHeight = options ? options.xHeight : document.getElementById('input-xHeight').value
-    const font = options ? options.font : document.getElementById('Text Font-container').selected.getAttribute('data-value')
-    const color = options ? options.color : document.getElementById('Message Colour-container').selected.getAttribute('data-value')
+    document.addEventListener('keydown', FormTextAddComponent.cancelInput);
+    
+    cursor.forEachObject(function (o) { cursor.remove(o) });
+    cursor.txtChar = [];
+    cursor.text = '';
+    cursor.shapeMeta = null;
+    
+    const txt = options ? options.text : document.getElementById('input-text').value;
+    const xHeight = options ? options.xHeight : parseInt(document.getElementById('input-xHeight').value);
+    const font = options ? options.font : document.getElementById('Text Font-container').selected.getAttribute('data-value');
+    const color = options ? options.color : document.getElementById('Message Colour-container').selected.getAttribute('data-value');
+    
+   
+    // Create a cursor TextObject for new text creation
+    const textObject = new TextObject({
+      text: txt,
+      xHeight: xHeight, 
+      font: font,
+      color: color,
+      left: cursor.left,
+      top: cursor.top,
+      isCursor: true
+    });
 
-    txtObjects = FormTextAddComponent.createTextObject(txt, xHeight, color, font)
-
-    for (var i = 0; i < txtObjects[0].length; i++) {
-      txtObjects[0][i].left += cursor.left
-      txtObjects[0][i].top += cursor.top
-      txtObjects[1][i].left += cursor.left
-      txtObjects[1][i].top += cursor.top
-      //cursor.left += txtObjects[0][i].width
-      cursor.add(txtObjects[0][i])
-      cursor.add(txtObjects[1][i])
-      cursor.left = txtObjects[0][0].left
-    }
-
-
-    cursor.text = txt
-    cursor.xHeight = xHeight
-    cursor.font = font
-    cursor.color = color
+    // Add the textObject to cursor
+    cursor.add(textObject);
+    
+    // Update cursor properties
+    cursor.text = txt;
+    cursor.xHeight = xHeight;
+    cursor.font = font;
+    cursor.color = color;
+    
     canvas.renderAll();
-
-  },
-
-  createTextObject: function (txt, xHeight, color, EFont) {
-    let txtCharList = []
-    let txtFrameList = []
-    let left_pos = 0
-    for (var i = 0; i < txt.length; i++) {
-      // Check if the character is a Chinese character
-      if (!FormTextAddComponent.textWidthMedium.map(item => item.char).includes(txt.charAt(i))) {
-        charWidth = 2.25 * xHeight / 100
-        txt_char = new fabric.Text(txt.charAt(i), {
-          fontFamily: 'Noto Sans Hong Kong',
-          fontWeight: 400,
-          left: left_pos + 0.25 * xHeight,
-          top: 0.1 * xHeight,
-          fill: color,
-          fontSize: xHeight * 2.25,
-          //origin: 'centerX',
-        })
-        txt_char.lockScalingX = txt_char.lockScalingY = true;
-        txt_frame = new fabric.Rect({
-          left: left_pos,
-          top: 0,
-          width: 2.75 * xHeight - 2, // Adjust the width border stroke
-          height: 2.75 * xHeight - 2,
-          fill: 'rgba(0,0,0,0)', // Transparent fill
-          stroke: color, // White stroke color to match the canvas style
-          strokeWidth: 2, // Adjust stroke width for consistency
-          strokeDashArray: [xHeight / 10, xHeight / 10],
-        })
-
-        left_pos += 2.75 * xHeight
-      } else {
-        const fontWidth = EFont.replace('Transport', '') == 'Heavy' ? FormTextAddComponent.textWidthHeavy : FormTextAddComponent.textWidthMedium
-        charWidth = fontWidth.find(e => e.char == txt.charAt(i)).width
-
-        txt_char = new fabric.Text(txt.charAt(i), {
-          fontFamily: EFont,
-          left: left_pos,
-          top: 6,
-          fill: color,
-          fontSize: xHeight * 1.88,
-          //origin: 'centerX',
-        })
-        txt_char.lockScalingX = txt_char.lockScalingY = true;
-
-        txt_frame = new fabric.Rect({
-          left: left_pos,
-          top: 0,
-          width: charWidth * xHeight / 100 - 2, // Adjust the width border stroke
-          height: xHeight * 2 - 2,
-          fill: 'rgba(0,0,0,0)', // Transparent fill
-          stroke: color, // White stroke color to match the canvas style
-          strokeWidth: 2, // Adjust stroke width for consistency
-          strokeDashArray: [xHeight / 10, xHeight / 10],
-        })
-
-        //txt_char.clipPath = txt_frame;
-
-        left_pos += charWidth * xHeight / 100
-      }
-      txtCharList.push(txt_char)
-      txtFrameList.push(txt_frame)
-    }
-    return [txtCharList, txtFrameList]
   },
 
   TextOnMouseMove: function (event) {
     var pointer = canvas.getPointer(event.e);
-    var posX = pointer.x;
-    var posY = pointer.y;
     cursor.set({
-      left: posX,
-      top: posY
+      left: pointer.x,
+      top: pointer.y
     });
     canvas.renderAll();
   },
 
-  TextOnMouseClick: async function (event, options = null) {
-    //permanent cursor object 
+  TextOnMouseClick: function (event, options = null) {
     if (options) {
-      cursor.set(
-        { left: options.left, top: options.top, text: options.text, xHeight: options.xHeight, font: options.font, color: options.color }
-      )
-
-      textValue = options.text
-      xHeight = options.xHeight
-      eventButton = 0
+      cursor.set({ 
+        left: options.left, 
+        top: options.top, 
+        text: options.text, 
+        xHeight: options.xHeight, 
+        font: options.font, 
+        color: options.color 
+      });
+      textValue = options.text;
+      xHeight = options.xHeight;
+      eventButton = 0;
     } else {
-      textValue = document.getElementById("input-text").value
-      xHeight = parseInt(document.getElementById('input-xHeight').value)
-      color = document.getElementById('Message Colour-container').selected.getAttribute('data-value')
-      eventButton = event.e.button
+      textValue = document.getElementById("input-text").value;
+      xHeight = parseInt(document.getElementById('input-xHeight').value);
+      color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
+      font = document.getElementById('Text Font-container').selected.getAttribute('data-value');
+      eventButton = event.e.button;
     }
+    
+    
+    // For new text creation
     if (textValue !== '' && eventButton === 0) {
-      // TODO: double click to edit text
-      const group = new fabric.Group()
-      txtObjects = FormTextAddComponent.createTextObject(cursor.text, cursor.xHeight, cursor.color, cursor.font)
-
-      group.add(...txtObjects[0])
-      group.add(...txtObjects[1])
-      group.set({ left: cursor.left, top: cursor.top })
-      group.getCombinedBoundingBoxOfRects = function () {
-        let combinedBBox = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
-        let points = [];
-        this.forEachObject(obj => {
-          if (obj.type === 'rect') {
-            obj.setCoords();
-            const aCoords = obj.aCoords;
-
-            // Transform the coordinates to the canvas coordinate system
-            Object.values(aCoords).forEach(point => {
-              const absPoint = fabric.util.transformPoint(point, this.calcTransformMatrix());
-              combinedBBox.left = Math.min(combinedBBox.left, absPoint.x);
-              combinedBBox.top = Math.min(combinedBBox.top, absPoint.y);
-              combinedBBox.right = Math.max(combinedBBox.right, absPoint.x);
-              combinedBBox.bottom = Math.max(combinedBBox.bottom, absPoint.y);
-            });
-          }
-        });
-
-        // Calculate the 8 points (excluding the center point) from the combined bounding box
-        const centerX = (combinedBBox.left + combinedBBox.right) / 2;
-        const centerY = (combinedBBox.top + combinedBBox.bottom) / 2;
-
-        points = [
-          { x: combinedBBox.left, y: combinedBBox.top, label: 'E1' }, // Top-left corner
-          { x: centerX, y: combinedBBox.top, label: 'E2' }, // Top-middle
-          { x: combinedBBox.right, y: combinedBBox.top, label: 'E3' }, // Top-right corner
-          { x: combinedBBox.right, y: centerY, label: 'E4' }, // Middle-right
-          { x: combinedBBox.right, y: combinedBBox.bottom, label: 'E5' }, // Bottom-right corner
-          { x: centerX, y: combinedBBox.bottom, label: 'E6' }, // Bottom-middle
-          { x: combinedBBox.left, y: combinedBBox.bottom, label: 'E7' }, // Bottom-left corner
-          { x: combinedBBox.left, y: centerY, label: 'E8' } // Middle-left
-        ];
-
-        return points;
-
-      }
-      group.setCoords()
-      group.vertex = group.getCombinedBoundingBoxOfRects()
-      group.text = textValue
-      group.xHeight = xHeight
-
-      new BaseGroup(group, 'Text', { calcVertex: false })
-
+      // Create a real TextObject for the canvas
+      const textObject = new TextObject({
+        text: cursor.text,
+        xHeight: cursor.xHeight,
+        font: cursor.font,
+        color: cursor.color,
+        left: cursor.left,
+        top: cursor.top
+      });
+      
+      // If we have an active input element, refresh the cursor display
       if (document.getElementById('input-text')) {
-        FormTextAddComponent.TextInputHandler(null, { text: cursor.text, xHeight: cursor.xHeight, font: cursor.font, color: cursor.color })
+        FormTextAddComponent.TextInputHandler(null, { 
+          text: cursor.text, 
+          xHeight: cursor.xHeight, 
+          font: cursor.font, 
+          color: cursor.color 
+        });
       }
-      canvas.renderAll()
+      
+      canvas.renderAll();
     }
   },
 
+  EditOnMouseClick: function (event) {
+      document.getElementById('input-text').value = '';
+      FormTextAddComponent.textPanelInit();
+    
+  }
 }
 
 /* Draw Map Panel */
@@ -524,8 +524,8 @@ let FormDrawAddComponent = {
       angleDisplay.innerText = FormDrawAddComponent.symbolAngle + '°';
 
       Object.keys(symbolsTemplate).forEach(async (symbol) => {
-        const button = await FormDrawAddComponent.createButtonSVG(symbol, 5)
-        GeneralHandler.createButton(`button-${symbol}`, button, parent, 'symbol', FormDrawAddComponent.drawSymbolOnCursor, 'click')
+        const svg = await FormDrawAddComponent.createButtonSVG(symbol, 5)
+        GeneralHandler.createSVGButton(`button-${symbol}`, svg, parent, 'symbol', FormDrawAddComponent.drawSymbolOnCursor, 'click')
       })
     }
   },
@@ -615,10 +615,7 @@ let FormDrawAddComponent = {
 
     pathData = pathData.replace(/<svg>/g, '<svg style="width:100;height:100;">')
     pathData = pathData.replace(/<path/g, `<path transform="translate(${translateX}, ${translateY}) scale(${scale})"`);
-    const svg = pathData;
-
-
-    return svg;
+    return pathData;    
 
   },
   drawSymbolOnCursor: async (event, options = null) => {
@@ -703,7 +700,9 @@ let FormBorderWrapComponent = {
       // Create a container for border parameters
       var borderParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
       GeneralHandler.createInput('input-xHeight', 'x Height', borderParamsContainer, 100)
+      // TODO : use bigger button with symbol shown in button
       GeneralHandler.createSelect('input-type', 'Select Border Type', Object.keys(BorderTypeScheme), borderParamsContainer, null, '', '', 'select')
+      // TODO : add a colored box to show the color
       GeneralHandler.createSelect('input-color', 'Select Color Scheme', Object.keys(BorderColorScheme), borderParamsContainer, null, '', '', 'select')
 
       // Create a container for border actions
