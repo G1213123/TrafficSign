@@ -740,10 +740,120 @@ let FormBorderWrapComponent = {
 
 /* Debug Panel */
 let FormDebugComponent = {
+  // TODO: Add General settings : e.g. turn off text borders, change background color, show grid, etc.
+  // Export settings for canvas objects
+  exportSettings: {
+    filename: 'traffic-sign-export',
+    quality: 1.0,
+    multiplier: 1.0
+  },
+  
+  createExportPanel: function(parent) {
+    // Create container for export options
+    const exportContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+    const exportHeader = GeneralHandler.createNode("div", { 'class': 'section-header' }, exportContainer);
+    exportHeader.innerHTML = "Export Options";
+    
+    // Create filename input
+    const filenameInput = GeneralHandler.createInput('export-filename', 'Filename', exportContainer, 
+      FormDebugComponent.exportSettings.filename, (e) => {
+        FormDebugComponent.exportSettings.filename = e.target.value;
+      }, 'input');
+    
+    // Create quality selector for raster formats
+    const qualitySelect = GeneralHandler.createSelect('export-quality', 'Quality', 
+      ['1.0', '0.9', '0.8', '0.7', '0.5'], exportContainer, '1.0', 
+      (e) => {
+        FormDebugComponent.exportSettings.quality = parseFloat(e.target.value);
+      });
+    
+    // Create scale multiplier
+    const scaleInput = GeneralHandler.createInput('export-scale', 'Scale Multiplier', exportContainer, 
+      FormDebugComponent.exportSettings.multiplier, (e) => {
+        FormDebugComponent.exportSettings.multiplier = parseFloat(e.target.value);
+      }, 'input');
+    
+    // Create export buttons
+    const buttonContainer = GeneralHandler.createNode("div", { 'class': 'export-buttons-container' }, exportContainer);
+    
+    // PNG Export
+    GeneralHandler.createButton('export-png', 'Export as PNG', buttonContainer, 'export', 
+      FormDebugComponent.exportToPNG, 'click');
+    
+    // SVG Export
+    GeneralHandler.createButton('export-svg', 'Export as SVG', buttonContainer, 'export', 
+      FormDebugComponent.exportToSVG, 'click');
+    
+    // PDF Export
+    GeneralHandler.createButton('export-pdf', 'Export as PDF', buttonContainer, 'export', 
+      FormDebugComponent.exportToPDF, 'click');
+  },
+  
+  exportToPNG: function() {
+    const options = {
+      format: 'png',
+      quality: FormDebugComponent.exportSettings.quality,
+      multiplier: FormDebugComponent.exportSettings.multiplier
+    };
+    
+    const dataURL = canvas.toDataURL(options);
+    const link = document.createElement('a');
+    link.download = `${FormDebugComponent.exportSettings.filename}.png`;
+    link.href = dataURL;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  },
+  
+  exportToSVG: function() {
+    const svgData = canvas.toSVG();
+    const blob = new Blob([svgData], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = `${FormDebugComponent.exportSettings.filename}.svg`;
+    link.href = url;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  },
+  
+  exportToPDF: function() {
+    // Check if jsPDF is available
+    if (typeof jsPDF === 'undefined') {
+      // Load jsPDF dynamically if not available
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      script.onload = createPDF;
+      document.head.appendChild(script);
+    } else {
+      createPDF();
+    }
+
+    function createPDF() {
+      const imgData = canvas.toDataURL('image/png', FormDebugComponent.exportSettings.quality);
+      const pdf = new jspdf.jsPDF({
+        orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+      });
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      pdf.save(`${FormDebugComponent.exportSettings.filename}.pdf`);
+    }
+  },
   DebugPanelInit: function () {
     tabNum = 5
     var parent = GeneralHandler.PanelInit()
     if (parent) {
+      // Create export panel first
+      FormDebugComponent.createExportPanel(parent);
+      
+      // Add a separator between export panel and debug info
+      var separatorDiv = GeneralHandler.createNode("div", { 'class': 'panel-separator' }, parent);
+      separatorDiv.style.margin = "20px 0";
+      separatorDiv.style.borderBottom = "1px solid #555";
+      
       // Create a container for debug info
       var debugInfoContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
       FormDebugComponent.createDebugInfoPanel(debugInfoContainer);
