@@ -778,6 +778,8 @@ const BorderTest = {
     const borderGroup = await BorderUtilities.BorderGroupCreate(
       [object1, object2],
       [object1, object2],
+      null,
+      null,
       { xHeight: 100, borderType: 'stack', colorType: 'Blue Background' }
     );
     TestTracker.register("borderGroup", borderGroup);
@@ -888,6 +890,7 @@ const BorderTest = {
     const borderGroup = await BorderUtilities.BorderGroupCreate(
       [aboveObject, belowObject, divider],
       [aboveObject, belowObject, divider],
+      null,null,
       { xHeight: 100, borderType: 'stack', colorType: 'Yellow Background' }
     );
     TestTracker.register("combinedBorder", borderGroup);

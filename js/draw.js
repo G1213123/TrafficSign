@@ -243,9 +243,9 @@ class BaseGroup extends fabric.Group {
     }
   }
 
-  replaceBasePolygon(newBasePolygon) {
+  replaceBasePolygon(newBasePolygon, calcVertex = true) {
     this.removeAll();
-    this.setBasePolygon(newBasePolygon);
+    this.setBasePolygon(newBasePolygon, calcVertex);
     this.setCoords();
   }
 
@@ -331,10 +331,20 @@ class BaseGroup extends fabric.Group {
       // Get the bounding box of the active selection 
       let coords = BorderUtilities.getBorderObjectCoords(BG.heightObjects, BG.widthObjects)
 
+      if (!isNaN(parseInt(BG.fixedWidth))){
+        const padding = parseInt(BG.fixedWidth)  - coords.right + coords.left
+        coords.left -= padding / 2
+        coords.right += padding / 2
+      }
+      if (!isNaN(parseInt(BG.fixedHeight))){
+        const padding = parseInt(BG.fixedHeight) - coords.bottom + coords.top
+        coords.top -= padding / 2
+        coords.bottom += padding / 2
+      }
+
       // handle roundings on borders and dividers
       const rounding = BorderUtilities.calcBorderRounding(BG.borderType, BG.xHeight, coords)
       BorderUtilities.RoundingToDivider(BG.HDivider, BG.VDivider, rounding, sourceList)
-      coords = BorderUtilities.getBorderObjectCoords(BG.heightObjects, BG.widthObjects)
 
       const borderObject = drawLabeledBorder(BG.borderType, BG.xHeight, coords, BG.color)
 
@@ -888,6 +898,11 @@ class VertexControl extends fabric.Control {
         left: this.baseGroup.left,
         top: this.baseGroup.top
       };
+
+      this.vertexOriginalPosition = {
+        x: this.vertex.x,
+        y: this.vertex.y
+      };
       
       this.vertexOffset = {
         x: this.vertex.x - this.baseGroup.left,
@@ -962,16 +977,24 @@ class VertexControl extends fabric.Control {
     }
     
     // Move the group
+    if (this.baseGroup.functionalType !== 'MainRoad' && this.baseGroup.functionalType !== 'SideRoad') {
     this.baseGroup.set({
       left: newLeft,
       top: newTop
     });
+  } else {
+    this.baseGroup.routeList[0].x = pointer.x
+    this.baseGroup.routeList[0].y = pointer.y
+    this.baseGroup.onMove()
+  }
     
     this.baseGroup.setCoords();
     this.baseGroup.updateAllCoord();
-    if (this.baseGroup.onMove){
-      this.baseGroup.onMove()
-    }
+    
+    // Update the original 
+    //if (this.baseGroup.onMove){
+    //  this.baseGroup.onMove()
+    //}
     canvas.renderAll();
   }
 

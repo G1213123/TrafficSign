@@ -2,18 +2,18 @@ const roadMapTemplate = {
     'Arrow': {
         path: [{
             'vertex': [
-                { x: -1, y: 1, label: 'V1', start: 1 },
-                { x: 0, y: 0, label: 'V2', start: 0 },
-                { x: 1, y: 1, label: 'V3', start: 0 },
+                { x: -1, y: 1, label: 'V1', start: 1 , display:0},
+                { x: 0, y: 0, label: 'V2', start: 0 , display:1},
+                { x: 1, y: 1, label: 'V3', start: 0, display:0 },
             ], 'arcs': []
         }],
     },
     'Stub': {
         path: [{
             'vertex': [
-                { x: -1, y: 0, label: 'V1', start: 0 },
-                { x: 0, y: 0, label: 'V2', start: 1 },
-                { x: 1, y: 0, label: 'V3', start: 0 },
+                { x: -1, y: 0, label: 'V1', start: 0, display:0 },
+                { x: 0, y: 0, label: 'V2', start: 1, display:1 },
+                { x: 1, y: 0, label: 'V3', start: 0 , display:0},
             ], 'arcs': []
         }],
     },
@@ -27,20 +27,20 @@ const roadMapTemplate = {
     'Root': {
         path: [{
             'vertex': [
-                { x: 1, y: 24, label: 'V1', start: 1 },
-                { x: -1, y: 24, label: 'V2', start: 0 },
+                { x: 1, y: 24, label: 'V1', start: 1 , display:0},
+                { x: -1, y: 24, label: 'V2', start: 0 , display:0},
             ], 'arcs': []
         }],
     },
     'SpiralRoot': {
         path: [{
             'vertex': [
-                { x: -2, y: 24, label: 'V1', start: 1 },
-                { x: -2, y: 20.785, label: 'V2', start: 0 },
-                { x: -7, y: 12.124, label: 'V3', start: 0 },
-                { x: 2.392, y: 13.794, label: 'V4', start: 0 },
-                { x: 4, y: 20.785, label: 'V5', start: 0 },
-                { x: 4, y: 24, label: 'V6', start: 0 },
+                { x: -2, y: 24, label: 'V1', start: 1 , display:0},
+                { x: -2, y: 20.785, label: 'V2', start: 0 , display:0},
+                { x: -7, y: 12.124, label: 'V3', start: 0 , display:0},
+                { x: 2.392, y: 13.794, label: 'V4', start: 0 , display:0},
+                { x: 4, y: 20.785, label: 'V5', start: 0 , display:0},
+                { x: 4, y: 24, label: 'V6', start: 0 , display:0},
             ], 'arcs': [
                 { start: 'V2', end: 'V3', radius: 10, direction: 0, sweep: 0 },
                 { start: 'V3', end: 'V4', radius: 14, direction: 0, sweep: 0 },
@@ -51,11 +51,11 @@ const roadMapTemplate = {
     'SpiralArrow': {
         path: [{
             'vertex': [
-                { x: 2.092, y: 0.091, label: 'V1', start: 1 },
-                { x: 3.917, y: 2.266, label: 'V2', start: 0 },
-                { x: 0.841, y: 10.025, label: 'V3', start: 0 },
-                { x: -6.949, y: 11.846, label: 'V4', start: 0 },
-                { x: -0.075, y: 1.909, label: 'V5', start: 0 },
+                { x: 2.092, y: 0.091, label: 'V1', start: 1 , display:1},
+                { x: 3.917, y: 2.266, label: 'V2', start: 0 , display:0},
+                { x: 0.841, y: 10.025, label: 'V3', start: 0 , display:0},
+                { x: -6.949, y: 11.846, label: 'V4', start: 0 , display:0},
+                { x: -0.075, y: 1.909, label: 'V5', start: 0 , display:0},
             ], 'arcs': [
                 { start: 'V2', end: 'V3', radius: 18, direction: 1, sweep: 0 },
                 { start: 'V3', end: 'V4', radius: 14, direction: 0, sweep: 0 },
@@ -67,12 +67,12 @@ const roadMapTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: -12, label: 'V1', start: 1 }, // Center point
-                    { x: 10.3923, y: 6, label: 'V2', start: 0 },
-                    { x: 6.0622, y: 3.5, label: 'V3', start: 0 },
-                    { x: 3.5, y: 6.0622, label: 'V4', start: 0 },
-                    { x: 6, y: 10.3923, label: 'V5', start: 0 },
-                    { x: -12, y: 0, label: 'V6', start: 0 },
+                    { x: 0, y: -12, label: 'V1', start: 1 , display:1}, // Center point
+                    { x: 10.3923, y: 6, label: 'V2', start: 0 , display:0},
+                    { x: 6.0622, y: 3.5, label: 'V3', start: 0 , display:0},
+                    { x: 3.5, y: 6.0622, label: 'V4', start: 0 , display:0},
+                    { x: 6, y: 10.3923, label: 'V5', start: 0 , display:0},
+                    { x: -12, y: 0, label: 'V6', start: 0 , display:0},
                 ], 'arcs': [
                     { start: 'V1', end: 'V2', radius: 12, direction: 1, sweep: 0 },
                     { start: 'V3', end: 'V4', radius: 7, direction: 0, sweep: 1 },
@@ -86,12 +86,12 @@ const roadMapTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: -14, label: 'V1', start: 1 }, // Center point
-                    { x: 12.1244, y: 7, label: 'V2', start: 0 },
-                    { x: 8.6603, y: 5, label: 'V3', start: 0 },
-                    { x: 5, y: 8.6603, label: 'V4', start: 0 },
-                    { x: 7, y: 12.1244, label: 'V5', start: 0 },
-                    { x: -14, y: 0, label: 'V6', start: 0 },
+                    { x: 0, y: -14, label: 'V1', start: 1 , display:1}, // Center point
+                    { x: 12.1244, y: 7, label: 'V2', start: 0 , display:0},
+                    { x: 8.6603, y: 5, label: 'V3', start: 0 , display:0},
+                    { x: 5, y: 8.6603, label: 'V4', start: 0 , display:0},
+                    { x: 7, y: 12.1244, label: 'V5', start: 0 , display:0},
+                    { x: -14, y: 0, label: 'V6', start: 0 , display:0},
                 ], 'arcs': [
                     { start: 'V1', end: 'V2', radius: 14, direction: 1, sweep: 0 },
                     { start: 'V3', end: 'V4', radius: 10, direction: 0, sweep: 1 },
@@ -373,7 +373,7 @@ class MainRoadSymbol extends BaseGroup {
         });
 
         // Set the basePolygon that was initially null in the constructor
-        this.setBasePolygon(arrow)
+        this.setBasePolygon(arrow,false)
 
 
         return this;
@@ -413,7 +413,7 @@ class MainRoadSymbol extends BaseGroup {
             strokeWidth: 0
         });
 
-        this.replaceBasePolygon(newPolygon);
+        this.replaceBasePolygon(newPolygon,false);
         this.drawVertex(false);
     }
 
@@ -471,9 +471,7 @@ class SideRoadSymbol extends BaseGroup {
         });
 
         // Set the basePolygon that was initially null in the constructor
-        this.setBasePolygon(branch);
-
-
+        this.setBasePolygon(branch,false);
 
         return this;
     }
@@ -531,7 +529,7 @@ class SideRoadSymbol extends BaseGroup {
             strokeWidth: 0
         });
 
-        this.replaceBasePolygon(polygon1);
+        this.replaceBasePolygon(polygon1,false);
 
         // Update root if needed
         if (updateRoot) {
@@ -599,10 +597,10 @@ function applyConstraintsMainLine(sideRoad, mainRoad, routeList, isSideLeft, xHe
             // Push branch down if needed
             const adjustment = rootTop + tipLength - rootTopTouchY.y;
             routeList[0].y += adjustment;
-            sideRoad.top += adjustment;
-    
+            
             // Recalculate vertices with new position
             tempVertexList = calcSideRoadVertices(mainRoad.xHeight, mainRoad.routeList, routeList);
+            sideRoad.top = Math.min(...tempVertexList.path[0].vertex.map(v => v.y));
         }
     
         return { routeList, tempVertexList };

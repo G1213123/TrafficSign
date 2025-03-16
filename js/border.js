@@ -666,11 +666,11 @@ const BorderUtilities = {
     return { left: coordsWidth.left, top: coordsHeight.top, right: coordsWidth.right, bottom: coordsHeight.bottom }
   },
 
-  BorderGroupCreate: async function (heightObjects, widthObjects, options = null) {
+  BorderGroupCreate: async function (heightObjects, widthObjects, widthText, heightText, options = null) {
     const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
     const borderType = options ? options.borderType : document.getElementById("input-type").value
     const colorType = options ? options.colorType : document.getElementById("input-color").value
-
+    
     const [fheightObjects, fwidthObjects, VDivider, HDivider] = BorderUtilities.FilterDivider(heightObjects, widthObjects)
 
     // Get the bounding box of the active selection 
@@ -680,11 +680,23 @@ const BorderUtilities = {
     const rounding = BorderUtilities.calcBorderRounding(borderType, xHeight, coords)
     BorderUtilities.RoundingToDivider(HDivider, VDivider, rounding)
     coords = BorderUtilities.getBorderObjectCoords(fheightObjects, fwidthObjects)
+    if (!isNaN(parseInt(widthText)) ){
+      const padding = parseInt(widthText)  - coords.right + coords.left
+      coords.left -= padding / 2
+      coords.right += padding / 2
+    }
+    if (!isNaN(parseInt(heightText))){
+      const padding = parseInt(heightText) - coords.bottom + coords.top
+      coords.top -= padding / 2
+      coords.bottom += padding / 2
+    }
 
     BaseBorder = await drawLabeledBorder(borderType, xHeight, coords, colorType)
     borderGroup = new BaseGroup(BaseBorder, 'Border')
     borderGroup.widthObjects = [...fwidthObjects]
     borderGroup.heightObjects = [...fheightObjects]
+    borderGroup.fixedWidth = widthText
+    borderGroup.fixedHeight = heightText
     borderGroup.VDivider = VDivider
     borderGroup.HDivider = HDivider
 

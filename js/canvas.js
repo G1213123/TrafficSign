@@ -396,7 +396,7 @@ async function selectObjectHandler(text, callback, options = null) {
   // Periodically check if shape is selected 
   const checkShapeInterval = setInterval(() => {
     const activeObjects = canvas.getActiveObjects();
-    if (activeObjects.length > 0) {
+    if (activeObjects.length > 0 && response !== '') {
       cursorClickMode = 'normal'
       clearInterval(checkShapeInterval)
       hideTextBox()
@@ -404,7 +404,7 @@ async function selectObjectHandler(text, callback, options = null) {
       // Clear the selected object from active
       canvas.discardActiveObject();
       canvas.renderAll();
-      callback(successSelected, options);
+      callback(successSelected, options, response);
     }
   }, 100); // Check every 100ms
 }

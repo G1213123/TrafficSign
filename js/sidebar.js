@@ -348,7 +348,7 @@ let FormTextAddComponent = {
       eventButton = event.e.button
     }
     if (textValue !== '' && eventButton === 0) {
-
+      // TODO: double click to edit text
       const group = new fabric.Group()
       txtObjects = FormTextAddComponent.createTextObject(cursor.text, cursor.xHeight, cursor.color, cursor.font)
 
@@ -714,9 +714,9 @@ let FormBorderWrapComponent = {
     }
   },
   BorderCreateHandler: async function () {
-    selectObjectHandler('Select shape to calculate border width', function (widthObjects) {
-      selectObjectHandler('Select shape to calculate border height', function (heightObjects) {
-        BorderUtilities.BorderGroupCreate(heightObjects, widthObjects)
+    selectObjectHandler('Select shape to calculate border width', function (widthObjects, options, widthText) {
+      selectObjectHandler('Select shape to calculate border height', function (heightObjects, options, heightText) {
+        BorderUtilities.BorderGroupCreate(heightObjects, widthObjects, widthText, heightText)
       })
     })
   },
