@@ -1,4 +1,7 @@
 const symbolsTemplate = {
+  // TODO: permitted angle
+
+
   //'TestTriangle': [{
   //  'vertex': [
   //    { x: 0, y: 0, label: 'V1', radius: 50, start: 1 },
@@ -81,6 +84,20 @@ const symbolsTemplate = {
       },
       {
         'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', radius: 0.75, start: 0, display: 0 },
+          { x: 4.5, y: 9, label: 'V3', radius: 0.75, start: 0, display: 0 },
+          { x: -4.5, y: 9, label: 'V4', radius: 0.75, start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V5', radius: 0.75, start: 0, display: 0 },
+          { x: 0, y: 0.25, label: 'V6', start: 1, display: 0 },
+          { x: -4.25, y: 0.25, label: 'V7', radius: 0.5, start: 0, display: 0 },
+          { x: -4.25, y: 8.75, label: 'V8', radius: 0.5, start: 0, display: 0 },
+          { x: 4.25, y: 8.75, label: 'V9', radius: 0.5, start: 0, display: 0 },
+          { x: 4.25, y: 0.25, label: 'V10', radius: 0.5, start: 0, display: 0 },
+        ], 'arcs': []
+      },
+      {
+        'vertex': [
           { x: 0.25, y: 1.25, label: 'V11', start: 1, display: 1 },
           { x: 0.75, y: 1.25, label: 'V12', start: 0, display: 0 },
           { x: 0.972, y: 2.75, label: 'V13', start: 0, display: 0 },
@@ -130,6 +147,78 @@ const symbolsTemplate = {
       },
     ],
   },
+ 
+  'ExpresswayRed': {
+    path: [ // Diagram 3.5.7.11
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', radius: 0.75, start: 0, display: 0 },
+          { x: 4.5, y: 9, label: 'V3', radius: 0.75, start: 0, display: 0 },
+          { x: -4.5, y: 9, label: 'V4', radius: 0.75, start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V5', radius: 0.75, start: 0, display: 0 },
+        ], 'arcs': [], 'fill': '#ff0000'
+      },
+      {
+        'vertex': [
+          { x: 0, y: 0.25, label: 'V6', start: 1, display: 0 },
+          { x: -4.25, y: 0.25, label: 'V7', radius: 0.5, start: 0, display: 0 },
+          { x: -4.25, y: 8.75, label: 'V8', radius: 0.5, start: 0, display: 0 },
+          { x: 4.25, y: 8.75, label: 'V9', radius: 0.5, start: 0, display: 0 },
+          { x: 4.25, y: 0.25, label: 'V10', radius: 0.5, start: 0, display: 0 },
+        ], 'arcs': [], 'fill': 'white'
+      },
+        {
+        'vertex': [
+          { x: 0.25, y: 1.25, label: 'V11', start: 1, display: 1 },
+          { x: 0.75, y: 1.25, label: 'V12', start: 0, display: 0 },
+          { x: 0.972, y: 2.75, label: 'V13', start: 0, display: 0 },
+          { x: 0.25, y: 2.75, label: 'V14', start: 0, display: 0 },
+        ], 'arcs': [], 'fill': '#ff0000'
+      },
+      {
+        'vertex': [
+          { x: -0.25, y: 1.25, label: 'V15', start: 1, display: 1 },
+          { x: -0.25, y: 2.75, label: 'V16', start: 0, display: 0 },
+          { x: -0.972, y: 2.75, label: 'V17', start: 0, display: 0 },
+          { x: -0.75, y: 1.25, label: 'V18', start: 0, display: 0 },
+        ], 'arcs': [], 'fill': '#ff0000'
+      },
+      {
+        'vertex': [
+          { x: 0, y: 3.25, label: 'V19', start: 1, display: 1 },
+          { x: 3.5, y: 3.25, label: 'V20', start: 0, display: 0 },
+          { x: 3.5, y: 3.75, label: 'V21', start: 0, display: 0 },
+          { x: 2.75, y: 3.75, label: 'V22', radius: 0.25, start: 0, display: 0 },
+          { x: 2.75, y: 4.75, label: 'V23', start: 0, display: 0 },
+          { x: 2.25, y: 4.75, label: 'V24', start: 0, display: 0 },
+          { x: 2, y: 3.75, label: 'V25', radius: 0.25, start: 0, display: 0 },
+          { x: -2, y: 3.75, label: 'V26', radius: 0.25, start: 0, display: 0 },
+          { x: -2.25, y: 4.75, label: 'V27', start: 0, display: 0 },
+          { x: -2.75, y: 4.75, label: 'V28', start: 0, display: 0 },
+          { x: -2.75, y: 3.75, label: 'V29', radius: 0.25, start: 0, display: 0 },
+          { x: -3.5, y: 3.75, label: 'V30', start: 0, display: 0 },
+          { x: -3.5, y: 3.25, label: 'V31', start: 0, display: 0 },
+        ], 'arcs': [], 'fill': '#ff0000'
+      },
+      {
+        'vertex': [
+          { x: 0.25, y: 4.25, label: 'V32', start: 1, display: 1 },
+          { x: 1.194, y: 4.25, label: 'V33', start: 0, display: 0 },
+          { x: 1.5, y: 8, label: 'V34', start: 0, display: 0 },
+          { x: 0.25, y: 8, label: 'V35', start: 0, display: 0 },
+        ], 'arcs': [], 'fill': '#ff0000'
+      },
+      {
+        'vertex': [
+          { x: -0.25, y: 4.25, label: 'V36', start: 1, display: 1 },
+          { x: -0.25, y: 8, label: 'V371', start: 0, display: 0 },
+          { x: -1.5, y: 8, label: 'V38', start: 0, display: 0 },
+          { x: -1.194, y: 4.25, label: 'V39', start: 0, display: 0 },
+        ], 'arcs': [], 'fill': '#ff0000'
+      },
+    ],
+  },
 
   'Airport': {
     path: [ // 3.5.7.14
@@ -165,6 +254,271 @@ const symbolsTemplate = {
     ],
   },
 
+  'Route1': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '1', x: -1.56, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route2': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '2', x: -2.4, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route3': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '3', x: -2.54, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route4': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '4', x: -2.64, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route5': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '5', x: -2.44, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route6': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '6', x: -2.52, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route7': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '7', x: -2.08, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route8': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '8', x: -2.6, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route9': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '9', x: -2.56, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route10': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 6, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 6, y: 3.8295, label: 'V3', start: 0, display: 0 },
+          { x: 4.8, y: 6.6861, label: 'V4', start: 0, display: 0 }, //https://www.wolframalpha.com/input?i2d=true&i=81+%3D+Power%5B%5C%2840%29x-7.5%5C%2841%29%2C2%5D+%2B+Power%5B%5C%2840%29y%2B0.2588%5C%2841%29%2C2%5D%5C%2844%29+16+%3D+Power%5B%5C%2840%29x-4%5C%2841%29%2C2%5D+%2B+Power%5By%2B3.82952%2C2%5D
+          { x: 0, y: 9, label: 'V5', start: 0, display: 0 },
+          { x: -4.8, y: 6.6861, label: 'V6', start: 0, display: 0 },
+          { x: -6, y: 3.8295, label: 'V7', start: 0, display: 0 },
+          { x: -6, y: 0, label: 'V8', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 4, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 9, direction: 1, sweep: 0 },
+          { start: 'V5', end: 'V6', radius: 9, direction: 1, sweep: 0 },
+          { start: 'V6', end: 'V7', radius: 4, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '10', x: -4.22, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route11': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 6, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 6, y: 3.8295, label: 'V3', start: 0, display: 0 },
+          { x: 4.8, y: 6.6861, label: 'V4', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V5', start: 0, display: 0 },
+          { x: -4.8, y: 6.6861, label: 'V6', start: 0, display: 0 },
+          { x: -6, y: 3.8295, label: 'V7', start: 0, display: 0 },
+          { x: -6, y: 0, label: 'V8', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 4, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 9, direction: 1, sweep: 0 },
+          { start: 'V5', end: 'V6', radius: 9, direction: 1, sweep: 0 },
+          { start: 'V6', end: 'V7', radius: 4, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '11', x: -3.12, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route12': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 6, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 6, y: 3.8295, label: 'V3', start: 0, display: 0 },
+          { x: 4.8, y: 6.6861, label: 'V4', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V5', start: 0, display: 0 },
+          { x: -4.8, y: 6.6861, label: 'V6', start: 0, display: 0 },
+          { x: -6, y: 3.8295, label: 'V7', start: 0, display: 0 },
+          { x: -6, y: 0, label: 'V8', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 4, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 9, direction: 1, sweep: 0 },
+          { start: 'V5', end: 'V6', radius: 9, direction: 1, sweep: 0 },
+          { start: 'V6', end: 'V7', radius: 4, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '12', x: -3.96, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  
   'CHT': {
     path: [ // 3.5.7.7
       {
@@ -459,270 +813,6 @@ const symbolsTemplate = {
     ]
   },
 
-  'Route1': {
-    path: [ // 3.5.7.7
-      {
-        'vertex': [
-          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
-          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
-          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
-          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
-          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
-          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
-        ], 'arcs': [
-          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
-          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
-        ], 'fill': '#ffff01'
-      },
-    ],
-    text: [
-      { character: '1', x: -1.56, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
-    ]
-  },
-
-  'Route2': {
-    path: [ // 3.5.7.7
-      {
-        'vertex': [
-          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
-          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
-          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
-          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
-          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
-          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
-        ], 'arcs': [
-          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
-          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
-        ], 'fill': '#ffff01'
-      },
-    ],
-    text: [
-      { character: '2', x: -2.4, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
-    ]
-  },
-
-  'Route3': {
-    path: [ // 3.5.7.7
-      {
-        'vertex': [
-          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
-          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
-          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
-          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
-          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
-          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
-        ], 'arcs': [
-          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
-          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
-        ], 'fill': '#ffff01'
-      },
-    ],
-    text: [
-      { character: '3', x: -2.54, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
-    ]
-  },
-
-  'Route4': {
-    path: [ // 3.5.7.7
-      {
-        'vertex': [
-          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
-          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
-          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
-          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
-          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
-          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
-        ], 'arcs': [
-          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
-          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
-        ], 'fill': '#ffff01'
-      },
-    ],
-    text: [
-      { character: '4', x: -2.64, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
-    ]
-  },
-
-  'Route5': {
-    path: [ // 3.5.7.7
-      {
-        'vertex': [
-          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
-          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
-          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
-          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
-          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
-          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
-        ], 'arcs': [
-          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
-          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
-        ], 'fill': '#ffff01'
-      },
-    ],
-    text: [
-      { character: '5', x: -2.44, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
-    ]
-  },
-
-  'Route6': {
-    path: [ // 3.5.7.7
-      {
-        'vertex': [
-          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
-          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
-          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
-          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
-          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
-          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
-        ], 'arcs': [
-          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
-          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
-        ], 'fill': '#ffff01'
-      },
-    ],
-    text: [
-      { character: '6', x: -2.52, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
-    ]
-  },
-
-  'Route7': {
-    path: [ // 3.5.7.7
-      {
-        'vertex': [
-          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
-          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
-          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
-          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
-          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
-          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
-        ], 'arcs': [
-          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
-          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
-        ], 'fill': '#ffff01'
-      },
-    ],
-    text: [
-      { character: '7', x: -2.08, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
-    ]
-  },
-
-  'Route8': {
-    path: [ // 3.5.7.7
-      {
-        'vertex': [
-          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
-          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
-          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
-          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
-          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
-          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
-        ], 'arcs': [
-          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
-          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
-        ], 'fill': '#ffff01'
-      },
-    ],
-    text: [
-      { character: '8', x: -2.6, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
-    ]
-  },
-
-  'Route9': {
-    path: [ // 3.5.7.7
-      {
-        'vertex': [
-          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
-          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
-          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
-          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
-          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
-          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
-        ], 'arcs': [
-          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
-          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
-        ], 'fill': '#ffff01'
-      },
-    ],
-    text: [
-      { character: '9', x: -2.56, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
-    ]
-  },
-
-  'Route10': {
-    path: [ // 3.5.7.7
-      {
-        'vertex': [
-          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
-          { x: 6, y: 0, label: 'V2', start: 0, display: 0 },
-          { x: 6, y: 3.8295, label: 'V3', start: 0, display: 0 },
-          { x: 4.8, y: 6.6861, label: 'V4', start: 0, display: 0 },
-          { x: 0, y: 9, label: 'V5', start: 0, display: 0 },
-          { x: -4.8, y: 6.6861, label: 'V6', start: 0, display: 0 },
-          { x: -6, y: 3.8295, label: 'V7', start: 0, display: 0 },
-          { x: -6, y: 0, label: 'V8', start: 0, display: 0 },
-        ], 'arcs': [
-          { start: 'V3', end: 'V4', radius: 4, direction: 1, sweep: 0 },
-          { start: 'V4', end: 'V5', radius: 9, direction: 1, sweep: 0 },
-          { start: 'V5', end: 'V6', radius: 9, direction: 1, sweep: 0 },
-          { start: 'V6', end: 'V7', radius: 4, direction: 1, sweep: 0 },
-        ], 'fill': '#ffff01'
-      },
-    ],
-    text: [
-      { character: '10', x: -4.22, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
-    ]
-  },
-
-  'Route11': {
-    path: [ // 3.5.7.7
-      {
-        'vertex': [
-          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
-          { x: 6, y: 0, label: 'V2', start: 0, display: 0 },
-          { x: 6, y: 3.8295, label: 'V3', start: 0, display: 0 },
-          { x: 4.8, y: 6.6861, label: 'V4', start: 0, display: 0 },
-          { x: 0, y: 9, label: 'V5', start: 0, display: 0 },
-          { x: -4.8, y: 6.6861, label: 'V6', start: 0, display: 0 },
-          { x: -6, y: 3.8295, label: 'V7', start: 0, display: 0 },
-          { x: -6, y: 0, label: 'V8', start: 0, display: 0 },
-        ], 'arcs': [
-          { start: 'V3', end: 'V4', radius: 4, direction: 1, sweep: 0 },
-          { start: 'V4', end: 'V5', radius: 9, direction: 1, sweep: 0 },
-          { start: 'V5', end: 'V6', radius: 9, direction: 1, sweep: 0 },
-          { start: 'V6', end: 'V7', radius: 4, direction: 1, sweep: 0 },
-        ], 'fill': '#ffff01'
-      },
-    ],
-    text: [
-      { character: '11', x: -3.12, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
-    ]
-  },
-
-  'Route12': {
-    path: [ // 3.5.7.7
-      {
-        'vertex': [
-          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
-          { x: 6, y: 0, label: 'V2', start: 0, display: 0 },
-          { x: 6, y: 3.8295, label: 'V3', start: 0, display: 0 },
-          { x: 4.8, y: 6.6861, label: 'V4', start: 0, display: 0 },
-          { x: 0, y: 9, label: 'V5', start: 0, display: 0 },
-          { x: -4.8, y: 6.6861, label: 'V6', start: 0, display: 0 },
-          { x: -6, y: 3.8295, label: 'V7', start: 0, display: 0 },
-          { x: -6, y: 0, label: 'V8', start: 0, display: 0 },
-        ], 'arcs': [
-          { start: 'V3', end: 'V4', radius: 4, direction: 1, sweep: 0 },
-          { start: 'V4', end: 'V5', radius: 9, direction: 1, sweep: 0 },
-          { start: 'V5', end: 'V6', radius: 9, direction: 1, sweep: 0 },
-          { start: 'V6', end: 'V7', radius: 4, direction: 1, sweep: 0 },
-        ], 'fill': '#ffff01'
-      },
-    ],
-    text: [
-      { character: '12', x: -3.96, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
-    ]
-  },
-
   'MTR': {
     path: [ // 3.5.7.19
       {
@@ -820,11 +910,54 @@ const symbolsTemplate = {
           { start: 'V3', end: 'V4', radius: 5.555, direction: 1, sweep: 1 },
           { start: 'V4', end: 'V5', radius: 3.234, direction: 1, sweep: 1 },
           { start: 'V5', end: 'V1', radius: 5.555, direction: 1, sweep: 0 },
-        ], 'fill': 'white'
+        ], 
       },
     ],
     text: []
   },
+
+  'Parking': {
+    path: [ // 3.5.7.26
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 9, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 9, y: 18, label: 'V3', start: 0, display: 0 },
+          { x: -9, y: 18, label: 'V4', start: 0, display: 0 },
+          { x: -9, y: 0, label: 'V5', start: 0, display: 0 },
+        ], 'arcs': [], 'fill': '#0000FE'
+      },
+      {
+        'vertex': [
+          { x: -5, y: 2, label: 'V6', start: 1, display: 0 },
+          { x: 2.125, y: 2, label: 'V7', start: 0, display: 0 },
+          { x: 2.125, y: 10.55, label: 'V8', start: 0, display: 0 },
+          { x: -1.58, y: 10.55, label: 'V9', start: 0, display: 0 },
+          { x: -1.58, y: 16.25, label: 'V10', start: 0, display: 0 },
+          { x: -5, y: 16.25, label: 'V11', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V7', end: 'V8', radius: 4.275, direction: 1, sweep: 0 },
+        ], 'fill': 'white'
+      },
+      {
+        'vertex': [
+          { x: -1.58, y: 4.28, label: 'V12', start: 1, display: 0 },
+          { x: 1.27, y: 4.28, label: 'V13', start: 0, display: 0 },
+          { x: 2.98, y: 5.99, label: 'V14', start: 0, display: 0 },
+          { x: 2.98, y: 6.56, label: 'V15', start: 0, display: 0 },
+          { x: 1.27, y: 8.27, label: 'V16', start: 0, display: 0 },
+          { x: -1.58, y: 8.27, label: 'V17', start: 0, display: 0 },
+
+        ], 'arcs': [
+          { start: 'V13', end: 'V14', radius: 1.71, direction: 1, sweep: 0 },
+          { start: 'V15', end: 'V16', radius: 1.71, direction: 1, sweep: 0 },
+        ], 'fill': '#0000FE'
+      },
+    ],
+    text: []
+  },
+
+  
 
   'Exit': {
     path: [ // 3.5.7.20
@@ -926,6 +1059,479 @@ const symbolsTemplate = {
 
 };
 
+const symbolsTemplateAlt = {
+  'Hospital': {
+    path: [ // 3.5.7.31
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 0, y: 17, label: 'V2', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V1', end: 'V2', radius: 8.5, direction: 1, sweep: 0 },
+          { start: 'V2', end: 'V1', radius: 8.5, direction: 1, sweep: 0 },
+        ], 'fill': 'black'
+      },
+      {
+        'vertex': [
+          { x: 0, y: 0.5, label: 'V3', start: 1, display: 1 },
+          { x: 0, y: 16.5, label: 'V4', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+        ], 'fill': 'white'
+      },
+      {
+        'vertex': [
+          { x: 0, y: 2, label: 'V5', start: 1, display: 0 },
+          { x: 2, y: 2, label: 'V6', start: 0, display: 0 },
+          { x: 2, y: 6.5, label: 'V7', start: 0, display: 0 },
+          { x: 6.5, y: 6.5, label: 'V8', start: 0, display: 0 },
+          { x: 6.5, y: 10.5, label: 'V9', start: 0, display: 0 },
+          { x: 2, y: 10.5, label: 'V10', start: 0, display: 0 },
+          { x: 2, y: 15, label: 'V11', start: 0, display: 0 },
+          { x: -2, y:15, label: 'V12', start: 0, display: 0 },
+          { x: -2, y: 10.5, label: 'V13', start: 0, display: 0 },
+          { x: -6.5, y: 10.5, label: 'V14', start: 0, display: 0 },
+          { x: -6.5, y: 6.5, label: 'V15', start: 0, display: 0 },
+          { x: -2, y: 6.5, label: 'V16', start: 0, display: 0 },
+          { x: -2, y: 2, label: 'V17', start: 0, display: 0 },
+        ], 'arcs': [], 'fill': '#ff0101'
+      },
+    ],
+    text: []
+  },
+  'Route1': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': 'black'
+      },
+      {
+        'vertex': [
+          { x: 0, y: 0.5, label: 'V1', start: 1, display: 1 },
+          { x: 4, y: 0.5, label: 'V2', start: 0, display: 0 },
+          { x: 4, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 8.5, label: 'V4', start: 0, display: 0 },
+          { x: -4, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4, y: 0.5, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 5.5, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 5.5, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '1', x: -1.56, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+  'Route2': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': 'black'
+      },
+      {
+        'vertex': [
+          { x: 0, y: 0.5, label: 'V1', start: 1, display: 1 },
+          { x: 4, y: 0.5, label: 'V2', start: 0, display: 0 },
+          { x: 4, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 8.5, label: 'V4', start: 0, display: 0 },
+          { x: -4, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4, y: 0.5, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 5.5, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 5.5, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '2', x: -2.4, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route3': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': 'black'
+      },
+      {
+        'vertex': [
+          { x: 0, y: 0.5, label: 'V1', start: 1, display: 1 },
+          { x: 4, y: 0.5, label: 'V2', start: 0, display: 0 },
+          { x: 4, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 8.5, label: 'V4', start: 0, display: 0 },
+          { x: -4, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4, y: 0.5, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 5.5, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 5.5, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '3', x: -2.54, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route4': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': 'black'
+      },
+      {
+        'vertex': [
+          { x: 0, y: 0.5, label: 'V1', start: 1, display: 1 },
+          { x: 4, y: 0.5, label: 'V2', start: 0, display: 0 },
+          { x: 4, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 8.5, label: 'V4', start: 0, display: 0 },
+          { x: -4, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4, y: 0.5, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 5.5, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 5.5, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '4', x: -2.64, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route5': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': 'black'
+      },
+      {
+        'vertex': [
+          { x: 0, y: 0.5, label: 'V1', start: 1, display: 1 },
+          { x: 4, y: 0.5, label: 'V2', start: 0, display: 0 },
+          { x: 4, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 8.5, label: 'V4', start: 0, display: 0 },
+          { x: -4, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4, y: 0.5, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 5.5, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 5.5, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '5', x: -2.44, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route6': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': 'black'
+      },
+      {
+        'vertex': [
+          { x: 0, y: 0.5, label: 'V1', start: 1, display: 1 },
+          { x: 4, y: 0.5, label: 'V2', start: 0, display: 0 },
+          { x: 4, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 8.5, label: 'V4', start: 0, display: 0 },
+          { x: -4, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4, y: 0.5, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 5.5, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 5.5, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '6', x: -2.52, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route7': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': 'black'
+      },
+      {
+        'vertex': [
+          { x: 0, y: 0.5, label: 'V1', start: 1, display: 1 },
+          { x: 4, y: 0.5, label: 'V2', start: 0, display: 0 },
+          { x: 4, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 8.5, label: 'V4', start: 0, display: 0 },
+          { x: -4, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4, y: 0.5, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 5.5, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 5.5, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '7', x: -2.08, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route8': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': 'black'
+      },
+      {
+        'vertex': [
+          { x: 0, y: 0.5, label: 'V1', start: 1, display: 1 },
+          { x: 4, y: 0.5, label: 'V2', start: 0, display: 0 },
+          { x: 4, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 8.5, label: 'V4', start: 0, display: 0 },
+          { x: -4, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4, y: 0.5, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 5.5, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 5.5, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '8', x: -2.6, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route9': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 4.5, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 4.5, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V4', start: 0, display: 0 },
+          { x: -4.5, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4.5, y: 0, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
+        ], 'fill': 'black'
+      },
+      {
+        'vertex': [
+          { x: 0, y: 0.5, label: 'V1', start: 1, display: 1 },
+          { x: 4, y: 0.5, label: 'V2', start: 0, display: 0 },
+          { x: 4, y: 3, label: 'V3', start: 0, display: 0 },
+          { x: 0, y: 8.5, label: 'V4', start: 0, display: 0 },
+          { x: -4, y: 3, label: 'V5', start: 0, display: 0 },
+          { x: -4, y: 0.5, label: 'V6', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 5.5, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 5.5, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '9', x: -2.56, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route10': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 6, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 6, y: 3.8295, label: 'V3', start: 0, display: 0 },
+          { x: 4.8, y: 6.6861, label: 'V4', start: 0, display: 0 }, //https://www.wolframalpha.com/input?i2d=true&i=72.25+%3D+Power%5B%5C%2840%29x-7%5C%2841%29%2C2%5D+%2B+Power%5B%5C%2840%29y-0.2412%5C%2841%29%2C2%5D%5C%2844%29+12.25%3D+Power%5B%5C%2840%29x-3.5%5C%2841%29%2C2%5D+%2B+Power%5By%2B3.32952%2C2%5D
+          { x: 0, y: 9, label: 'V5', start: 0, display: 0 },
+          { x: -4.8, y: 6.6861, label: 'V6', start: 0, display: 0 },
+          { x: -6, y: 3.8295, label: 'V7', start: 0, display: 0 },
+          { x: -6, y: 0, label: 'V8', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 4, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 9, direction: 1, sweep: 0 },
+          { start: 'V5', end: 'V6', radius: 9, direction: 1, sweep: 0 },
+          { start: 'V6', end: 'V7', radius: 4, direction: 1, sweep: 0 },
+        ], 'fill': 'black'
+      },
+      {
+        'vertex': [
+          { x: 0, y: 0.5, label: 'V1', start: 1, display: 1 },
+          { x: 5.5, y: 0.5, label: 'V2', start: 0, display: 0 },
+          { x: 5.5, y: 3.8295, label: 'V3', start: 0, display: 0 },
+          { x: 4.45, y: 6.329, label: 'V4', start: 0, display: 0 },
+          { x: 0, y: 8.5, label: 'V5', start: 0, display: 0 },
+          { x: -4.45, y: 6.329, label: 'V6', start: 0, display: 0 },
+          { x: -5.5, y: 3.8295, label: 'V7', start: 0, display: 0 },
+          { x: -5.5, y: 0.5, label: 'V8', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 3.5, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 8.5, direction: 1, sweep: 0 },
+          { start: 'V5', end: 'V6', radius: 8.5, direction: 1, sweep: 0 },
+          { start: 'V6', end: 'V7', radius: 3.5, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '10', x: -4.22, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route11': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 6, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 6, y: 3.8295, label: 'V3', start: 0, display: 0 },
+          { x: 4.8, y: 6.6861, label: 'V4', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V5', start: 0, display: 0 },
+          { x: -4.8, y: 6.6861, label: 'V6', start: 0, display: 0 },
+          { x: -6, y: 3.8295, label: 'V7', start: 0, display: 0 },
+          { x: -6, y: 0, label: 'V8', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 4, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 9, direction: 1, sweep: 0 },
+          { start: 'V5', end: 'V6', radius: 9, direction: 1, sweep: 0 },
+          { start: 'V6', end: 'V7', radius: 4, direction: 1, sweep: 0 },
+        ], 'fill': 'black'
+      },
+      {
+        'vertex': [
+          { x: 0, y: 0.5, label: 'V1', start: 1, display: 1 },
+          { x: 5.5, y: 0.5, label: 'V2', start: 0, display: 0 },
+          { x: 5.5, y: 3.8295, label: 'V3', start: 0, display: 0 },
+          { x: 4.45, y: 6.329, label: 'V4', start: 0, display: 0 },
+          { x: 0, y: 8.5, label: 'V5', start: 0, display: 0 },
+          { x: -4.45, y: 6.329, label: 'V6', start: 0, display: 0 },
+          { x: -5.5, y: 3.8295, label: 'V7', start: 0, display: 0 },
+          { x: -5.5, y: 0.5, label: 'V8', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 3.5, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 8.5, direction: 1, sweep: 0 },
+          { start: 'V5', end: 'V6', radius: 8.5, direction: 1, sweep: 0 },
+          { start: 'V6', end: 'V7', radius: 3.5, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '11', x: -3.12, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+
+  'Route12': {
+    path: [ // 3.5.7.7
+      {
+        'vertex': [
+          { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+          { x: 6, y: 0, label: 'V2', start: 0, display: 0 },
+          { x: 6, y: 3.8295, label: 'V3', start: 0, display: 0 },
+          { x: 4.8, y: 6.6861, label: 'V4', start: 0, display: 0 },
+          { x: 0, y: 9, label: 'V5', start: 0, display: 0 },
+          { x: -4.8, y: 6.6861, label: 'V6', start: 0, display: 0 },
+          { x: -6, y: 3.8295, label: 'V7', start: 0, display: 0 },
+          { x: -6, y: 0, label: 'V8', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 4, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 9, direction: 1, sweep: 0 },
+          { start: 'V5', end: 'V6', radius: 9, direction: 1, sweep: 0 },
+          { start: 'V6', end: 'V7', radius: 4, direction: 1, sweep: 0 },
+        ], 'fill': 'black'
+      },
+      {
+        'vertex': [
+          { x: 0, y: 0.5, label: 'V1', start: 1, display: 1 },
+          { x: 5.5, y: 0.5, label: 'V2', start: 0, display: 0 },
+          { x: 5.5, y: 3.8295, label: 'V3', start: 0, display: 0 },
+          { x: 4.45, y: 6.329, label: 'V4', start: 0, display: 0 },
+          { x: 0, y: 8.5, label: 'V5', start: 0, display: 0 },
+          { x: -4.45, y: 6.329, label: 'V6', start: 0, display: 0 },
+          { x: -5.5, y: 3.8295, label: 'V7', start: 0, display: 0 },
+          { x: -5.5, y: 0.5, label: 'V8', start: 0, display: 0 },
+        ], 'arcs': [
+          { start: 'V3', end: 'V4', radius: 3.5, direction: 1, sweep: 0 },
+          { start: 'V4', end: 'V5', radius: 8.5, direction: 1, sweep: 0 },
+          { start: 'V5', end: 'V6', radius: 8.5, direction: 1, sweep: 0 },
+          { start: 'V6', end: 'V7', radius: 3.5, direction: 1, sweep: 0 },
+        ], 'fill': '#ffff01'
+      },
+    ],
+    text: [
+      { character: '12', x: -3.96, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: 'black' },
+    ]
+  },
+}
+
 async function getFontPath(t) {
   let buffer;
   if (t.fontFamily == 'TransportMedium') {
@@ -939,11 +1545,12 @@ async function getFontPath(t) {
 
 
 
-function calcSymbol(type, length) {
+function calcSymbol(type, length, color='white') {
   let symbol
   if (typeof type === 'string') {
-    const symbolsT = JSON.parse(JSON.stringify(symbolsTemplate)); // Deep copy to avoid mutation
-    symbol = symbolsT[type];
+    const symbolsT = JSON.parse(JSON.stringify((color=='Black' && (type.includes('Hospital') || type.includes('Route')))?symbolsTemplateAlt:symbolsTemplate)); // Deep copy to avoid mutation
+    const backup = JSON.parse(JSON.stringify(symbolsTemplate));
+    symbol = symbolsT[type]||backup[type];
   } else {
     symbol = JSON.parse(JSON.stringify(type));
   }
@@ -1011,13 +1618,13 @@ function drawSegment(current, next, previous, prevArc, final = false) {
 }
 
 // Convert shapeMeta.vertex points to SVG path string with circular trims
-function vertexToPath(shapeMeta) {
+function vertexToPath(shapeMeta, color) {
   let svgContent = '<svg>';
   let pathString = '';
   let textPromises = [];
 
   shapeMeta.path.forEach((path) => {
-    const fillColor = path.fill || 'white';
+    let fillColor = path.fill || color || 'white';
     let pathStart = path.vertex[0]
     let pathNext = path.vertex[1]
     for (let i = 0; i < path.vertex.length; i++) {
@@ -1047,7 +1654,7 @@ function vertexToPath(shapeMeta) {
   // handle text objects in path
   if (shapeMeta.text && shapeMeta.text.length > 0) {
     shapeMeta.text.forEach(t => {
-      const fillColor = t.fill||'white';
+      let fillColor = t.fill|| color || 'white';
       
       // Create a promise for each text element
       textPromises.push(
@@ -1237,4 +1844,25 @@ function combinePaths(pathsArray) {
   });
   
   return result;
+}
+
+async function drawLabeledSymbol(symbol, options) {
+  const { x, y, length, angle, color } = options;
+  // Create polygon with labeled vertices
+  const arrow = new GlyphPath();
+  const shapeMeta = calcSymbol(symbol, length, color);
+  // Wait for the initialization to complete
+  const shape = await arrow.initialize(shapeMeta, {
+    left: x,
+    top: y,
+    fill: color || 'black',
+    angle: angle || 0,
+    objectCaching: false,
+    dirty: true,
+    strokeWidth: 0,
+  })
+
+  arrow.symbol = symbol;
+
+  new BaseGroup(arrow, 'Symbol');
 }

@@ -111,7 +111,7 @@ class GlyphPath extends fabric.Group {
     options.top = vertextop;
     options.angle = 0;
 
-    const pathData = await vertexToPath(shapeMeta);
+    const pathData = await vertexToPath(shapeMeta, options.fill);
 
     this.vertex = shapeMeta.path.map(p => p.vertex).flat(); // Store the shapeMeta.vertex points
     this.insertPoint = shapeMeta.path[0].vertex[0];
@@ -1321,25 +1321,5 @@ class VertexControl extends fabric.Control {
 }
 
 
-async function drawLabeledSymbol(symbol, options) {
-  const { x, y, length, angle, color } = options;
-  // Create polygon with labeled vertices
-  const arrow = new GlyphPath();
-  const shapeMeta = calcSymbol(symbol, length);
-  // Wait for the initialization to complete
-  const shape = await arrow.initialize(shapeMeta, {
-    left: x,
-    top: y,
-    fill: color || 'black',
-    angle: angle || 0,
-    objectCaching: false,
-    dirty: true,
-    strokeWidth: 0,
-  })
-
-  arrow.symbol = symbol;
-
-  new BaseGroup(arrow, 'Symbol');
-}
 
 

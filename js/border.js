@@ -35,7 +35,7 @@ function applyLengthAndRounding(path, length) {
     });
 }
 
-function StackBorderTemplate(xHeight, block, rounding) {
+function StackBorderTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
     const length = xHeight / 4;
     rounding.x /= length;
     rounding.y /= length;
@@ -67,7 +67,7 @@ function StackBorderTemplate(xHeight, block, rounding) {
     return { path: returnBorder };
 }
 
-function ExitBorderTemplate(xHeight, block, rounding) {
+function ExitBorderTemplate(xHeight, block,rounding = {x: 0, y: 0}) {
     const length = xHeight / 4;
     const padding = {
         left: 0.5,
@@ -97,7 +97,7 @@ function ExitBorderTemplate(xHeight, block, rounding) {
     return { path: returnBorder };
 }
 
-function FlagLeftBorderTemplate(xHeight, block, rounding) {
+function FlagLeftBorderTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
     const length = xHeight / 4;
     rounding.x /= length;
     rounding.y /= length;
@@ -170,7 +170,7 @@ function FlagLeftBorderTemplate(xHeight, block, rounding) {
     return { path: returnBorder };
 }
 
-function FlagRightBorderTemplate(xHeight, block, rounding) {
+function FlagRightBorderTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
     const length = xHeight / 4;
     rounding.x /= length;
     rounding.y /= length;
@@ -749,5 +749,59 @@ const BorderUtilities = {
       d.set({ top: innerTop, left: initialLeft });
       d.updateAllCoord(null, sourceList)
     }
+  },
+
+  /**
+   * Creates an SVG preview for border types
+   * @param {string} borderType - The type of border ('stack', 'flagLeft', etc)
+   * @param {string} color - The color scheme name
+   * @return {string} - SVG string representation
+   */
+  createBorderPreviewSVG: function(borderType, color = 'Blue Background') {
+    // Create a mock bbox for the border preview
+    const xHeight = 20; // Small size for the preview
+    const bbox = {
+      left: 0,
+      top: 0,
+      right: 100,
+      bottom: 70
+    };
+    
+    const block = { width: bbox.right - bbox.left, height: bbox.bottom - bbox.top };
+    const rounding = this.calcBorderRounding(borderType, xHeight, bbox);
+    const shapeMeta = BorderTypeScheme[borderType](xHeight, block, rounding);
+    
+    // Create SVG string
+    let svgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 90" width="100" height="70">';
+    
+    // Add paths for the border
+    shapeMeta.path.forEach(p => {
+      const fillColor = BorderColorScheme[color][p.fill] || (borderType === 'exit' ? p.fill : BorderColorScheme[color][p.fill]);
+      
+      // Convert vertices to SVG path
+      let pathD = 'M ';
+      p.vertex.forEach((v, i) => {
+        if (i === 0) {
+          pathD += `${v.x} ${v.y} `;
+        } else if (v.radius && v.radius > 0) {
+          // Handle rounded corners
+          const prev = p.vertex[(i-1) % p.vertex.length];
+          const radius = v.radius;
+          pathD += `L ${prev.x} ${prev.y} Q ${v.x} ${v.y} `;
+          
+          // Find the next point
+          const next = p.vertex[(i+1) % p.vertex.length];
+          pathD += `${next.x} ${next.y} `;
+        } else {
+          pathD += `L ${v.x} ${v.y} `;
+        }
+      });
+      pathD += 'Z';
+      
+      svgString += `<path d="${pathD}" fill="${fillColor}" />`;
+    });
+    
+    svgString += '</svg>';
+    return svgString;
   }
 }

@@ -202,6 +202,17 @@ div.side-panel.close {
   /* Align children to the top */
 }
 
+.border-container {
+  width: 95%;
+  /* Span 50% of the input form */
+  padding: 10px 0px;
+  box-sizing: border-box;
+  /* Include padding in the element's total width and height */
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
 .symbol-container {
   width: 45%;
   /* Span 50% of the input form */
@@ -211,6 +222,26 @@ div.side-panel.close {
   display: flex;
   justify-content: space-around;
   align-items: center;
+}
+
+.symbol-separator {
+  width: 100%;
+  border: 0;
+  height: 4px;
+  background-color: rgb(255, 255, 255);
+  margin: 1px 0;
+}
+
+.symbol-label {
+  color: #ffffff;
+  font-family: Arial, sans-serif;;
+  font-size: 16px;
+  margin-top: 4px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .angle-picker-container {
@@ -249,6 +280,7 @@ div.side-panel.close {
   outline: 0;
   padding: 4px 20px;
   width: 100%;
+  margin-top: 8px;
 }
 
 .cut {
@@ -278,12 +310,12 @@ div.side-panel.close {
 .placeholder {
   color: #dadada;
   font-family: TransportMedium;
-  left: 20px;
+  left: 4px;
   line-height: 14px;
   pointer-events: none;
   position: relative;
   font-size: 20px;
-  top: -5px;
+  top: 0px;
   text-align: center;
   font-weight: lighter;
   transition: font-weight 500ms ease-out, top 500ms ease-out, color 500ms ease-out;
@@ -466,7 +498,7 @@ div.side-panel.close {
   background-color: #555555;
   color: white;
   transition-duration: 0.4s;
-  padding: 16px 32px;
+  padding: 16px 8px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
@@ -474,7 +506,29 @@ div.side-panel.close {
   margin: 4px 2px;
   cursor: pointer;
   border-radius: 10px;
-  max-width: 100%;
+  width: 100%;
+  /* Ensure the button takes a maximum of half of its parent width */
+}
+
+.border-button.active {
+  background-color: #3498db;
+  color: black;
+  border: 2px solid #555555;
+}
+
+.border-button {
+  background-color: #555555;
+  color: white;
+  transition-duration: 0.4s;
+  padding: 2px 8px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 10px;
+  width: 100%;
   /* Ensure the button takes a maximum of half of its parent width */
 }
 
@@ -599,28 +653,6 @@ div.side-panel.close {
   font-family: TransportMedium;
   font-size: 20px;
   font-display: swap;
-}
-
-
-
-.symbol-separator {
-  width: 100%;
-  border: 0;
-  height: 4px;
-  background-color: rgb(255, 255, 255);
-  margin: 1px 0;
-}
-
-.symbol-label {
-  color: #ffffff;
-  font-family: Arial, sans-serif;;
-  font-size: 16px;
-  margin-top: 4px;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
 }
 
 
