@@ -109,7 +109,7 @@ let GeneralHandler = {
     return input
   },
 
-  createSelect: function (name, labelTxt, options, parent, defaultV = null, callback = null, event = null) {
+  createSelect: function (name, labelTxt, options, parent, defaultV = null, callback = null, event = 'change') {
     var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent)
     var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, inputContainer)
     var input = GeneralHandler.createNode("select", { 'class': 'input', 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
@@ -714,51 +714,67 @@ let FormBorderWrapComponent = {
       var borderParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
       GeneralHandler.createInput('input-xHeight', 'x Height', borderParamsContainer, 100)
 
-      // Create a container for border type selection with SVG buttons
-      var borderTypeContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      const borderTypeHeader = GeneralHandler.createNode("div", { 'class': 'placeholder' }, borderTypeContainer);
-      borderTypeHeader.innerHTML = "Select Border Type";
 
-      // Create a mock bbox for the border preview
-      const xHeight = 20; // Small size for the preview
-      const bbox = {
-        left: 0,
-        top: 0,
-        width: 160,
-        height: 100
-      };
-
-      // Create SVG buttons for each border type
-      Object.keys(BorderTypeScheme).forEach(async (borderType) => {
-        const shapeMeta = BorderTypeScheme[borderType](xHeight, bbox, );
-        const svg = await FormBorderWrapComponent.createBorderSVG(shapeMeta,)
-        GeneralHandler.createSVGButton(`button-${borderType}`, svg, parent, 'border', FormDrawAddComponent.BorderCreateHandler, 'click')
-      });
-
-      // Add a hidden input to store the selected border type
-      const hiddenInput = GeneralHandler.createNode("input", { 'type': 'hidden', 'id': 'input-type', 'value': Object.keys(BorderTypeScheme)[0] }, borderTypeContainer);
 
       // Color scheme selection remains as dropdown
-      GeneralHandler.createSelect('input-color', 'Select Color Scheme', Object.keys(BorderColorScheme), borderParamsContainer, null, '', '', 'select')
+      GeneralHandler.createSelect('input-color', 'Select Color Scheme', Object.keys(BorderColorScheme), borderParamsContainer, null, FormBorderWrapComponent.createBorderButtons, 'change')
+
 
       // Create a container for border actions
       var borderActionsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      GeneralHandler.createButton('input-border', 'Select Objects for border', borderActionsContainer, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
+      //GeneralHandler.createButton('input-border', 'Select Objects for border', borderActionsContainer, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
       GeneralHandler.createButton('input-HDivider', 'Add stack border divider', borderActionsContainer, 'input', FormBorderWrapComponent.StackDividerHandler, 'click')
       GeneralHandler.createButton('input-VDivider', 'Add gantry border divider', borderActionsContainer, 'input', FormBorderWrapComponent.GantryDividerHandler, 'click')
+
+      // Create a container for border type selection with SVG buttons
+      var borderTypeContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container', 'id': 'border-select-container' }, parent);
+      const borderTypeHeader = GeneralHandler.createNode("div", { 'class': 'placeholder' }, borderTypeContainer);
+      borderTypeHeader.innerHTML = "Select Border Type";
+      FormBorderWrapComponent.createBorderButtons()
     }
   },
 
-  createBorderSVG: async (shapeMeta,  color = 'white') => {
+  createBorderButtons: function () {
+    const parent = document.getElementById('border-select-container');
+    // Clear any existing border buttons
+    const existingBorderButtons = parent.querySelectorAll('.border-container');
+    if (existingBorderButtons.length > 0) {
+      existingBorderButtons.forEach(button => {
+        button.remove();
+      });
+    }
 
+    // Create a mock bbox for the border preview
+    const xHeight = 20; // Small size for the preview
+    const bbox = {
+      left: 0,
+      top: 0,
+      width: 160,
+      height: 100
+    };
+
+    // Create SVG buttons for each border type
+    Object.keys(BorderTypeScheme).forEach(async (borderType) => {
+      const shapeMeta = BorderTypeScheme[borderType](xHeight, bbox,);
+      const svg = await FormBorderWrapComponent.createBorderSVG(shapeMeta,)
+      GeneralHandler.createSVGButton(`button-${borderType}`, svg, parent, 'border', FormDrawAddComponent.BorderCreateHandler, 'click')
+    });
+  },
+
+  createBorderSVG: async (shapeMeta,) => {
+    const colorScheme = document.getElementById('input-color').value;
+    const color = BorderColorScheme[colorScheme];
     let pathData = await vertexToPath(shapeMeta, color);
+    pathData = pathData.replace(/fill="symbol"/g, `fill="${color.symbol}"`);
+    pathData = pathData.replace(/fill="background"/g, `fill="${color.background}"`);
 
     const svgWidth = 160;
     const svgHeight = 100;
 
-    // Calculate the bounding box of the path
-    const tempPath = new fabric.Path(pathData, { strokeWidth: 0 });
-    let symbolSize = { width: tempPath.width, height: tempPath.height, left: tempPath.left, top: tempPath.top };
+    // Calculate the bounding box of the path  
+
+    const GroupedBorder = new fabric.Path(pathData);
+    let symbolSize = { width: GroupedBorder.width, height: GroupedBorder.height, left: GroupedBorder.left, top: GroupedBorder.top };
 
     const scaleX = svgWidth / symbolSize.width;
     const scaleY = svgHeight / symbolSize.height;
