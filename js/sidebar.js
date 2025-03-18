@@ -749,7 +749,7 @@ let FormBorderWrapComponent = {
     const bbox = {
       left: 0,
       top: 0,
-      width: 160,
+      width: 161,
       height: 100
     };
 
@@ -757,7 +757,7 @@ let FormBorderWrapComponent = {
     Object.keys(BorderTypeScheme).forEach(async (borderType) => {
       const shapeMeta = BorderTypeScheme[borderType](xHeight, bbox,);
       const svg = await FormBorderWrapComponent.createBorderSVG(shapeMeta,)
-      GeneralHandler.createSVGButton(`button-${borderType}`, svg, parent, 'border', FormDrawAddComponent.BorderCreateHandler, 'click')
+      GeneralHandler.createSVGButton(`button-${borderType}`, svg, parent, 'border', FormBorderWrapComponent.BorderCreateHandler, 'click')
     });
   },
 
@@ -790,10 +790,11 @@ let FormBorderWrapComponent = {
 
   },
 
-  BorderCreateHandler: async function () {
+  BorderCreateHandler: async function (event) {
+    const borderType = event.currentTarget.id.replace('button-', '');
     selectObjectHandler('Select shape to calculate border width', function (widthObjects, options, widthText) {
       selectObjectHandler('Select shape to calculate border height', function (heightObjects, options, heightText) {
-        BorderUtilities.BorderGroupCreate(heightObjects, widthObjects, widthText, heightText)
+        BorderUtilities.BorderGroupCreate(borderType, heightObjects, widthObjects, widthText, heightText)
       })
     })
   },

@@ -11,6 +11,10 @@ const BorderColorScheme = {
         'background': 'white',
         'symbol': 'black',
     },
+    "White Background - Parking": {
+        'background': 'white',
+        'symbol': 'black',
+    },
     "Yellow Background": {
         'background': 'yellow',
         'symbol': 'black',
@@ -22,6 +26,9 @@ const BorderTypeScheme = {
     'flagLeft': FlagLeftBorderTemplate,
     'flagRight': FlagRightBorderTemplate,
     'exit': ExitBorderTemplate,
+    'panel': PanelTemplate,
+    'greenPanel': GreenPanelTemplate,
+    'rectangle': RectTemplate,
 }
 
 function applyLengthAndRounding(path, length) {
@@ -33,6 +40,83 @@ function applyLengthAndRounding(path, length) {
     path.arcs.forEach(arc => {
         arc.radius *= length;
     });
+}
+
+function RectTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
+  const length = xHeight / 4;
+
+  const padding = {
+      left:   1   ,
+      top:    1    ,
+      right:  1  ,
+      bottom: 1 ,
+  };
+
+  const returnBorder = [ {
+      'vertex': [
+          { x: 0 - padding.left, y: 0 - padding.top, label: 'V1', start: 1 },
+          { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V2', start: 0 },
+          { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V3',  start: 0 },
+          { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V4', start: 0 },
+      ], 'arcs': [], 'fill': 'background'
+  }];
+
+  returnBorder.forEach(path => applyLengthAndRounding(path, length));
+  return { path: returnBorder };
+}
+
+function PanelTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
+  const length = xHeight / 4;
+
+  const padding = {
+      left: 2.5   ,
+      top: 2.5    ,
+      right: 2.5  ,
+      bottom: 1.5 ,
+  };
+
+  const returnBorder = [ {
+      'vertex': [
+          { x: 0 - padding.left, y: 0 - padding.top, label: 'V1', radius: 1, start: 1 },
+          { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V2', radius: 1, start: 0 },
+          { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V3', radius: 1, start: 0 },
+          { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V4', radius: 1, start: 0 },
+      ], 'arcs': [], 'fill': 'background'
+  }];
+
+  returnBorder.forEach(path => applyLengthAndRounding(path, length));
+  return { path: returnBorder };
+}
+
+function GreenPanelTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
+  const length = xHeight / 4;
+
+  const padding = {
+      left: 2.5   ,
+      top: 2.5    ,
+      right: 2.5  ,
+      bottom: 1.5 ,
+  };
+
+  const border = 0.5;
+  const returnBorder = [{
+      'vertex': [
+          { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', radius: 1.5, start: 1 },
+          { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', radius: 1.5, start: 0 },
+          { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, label: 'V3', radius: 1.5, start: 0 },
+          { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, label: 'V4', radius: 1.5, start: 0 },
+      ], 'arcs': [], 'fill': 'white'
+  }, {
+      'vertex': [
+          { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', radius: 1, start: 1 },
+          { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', radius: 1, start: 0 },
+          { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V7', radius: 1, start: 0 },
+          { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V8', radius: 1, start: 0 },
+      ], 'arcs': [], 'fill': '#006C49'
+  }];
+
+  returnBorder.forEach(path => applyLengthAndRounding(path, length));
+  return { path: returnBorder };
 }
 
 function StackBorderTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
@@ -666,9 +750,9 @@ const BorderUtilities = {
     return { left: coordsWidth.left, top: coordsHeight.top, right: coordsWidth.right, bottom: coordsHeight.bottom }
   },
 
-  BorderGroupCreate: async function (heightObjects, widthObjects, widthText, heightText, options = null) {
+  BorderGroupCreate: async function (borderType, heightObjects, widthObjects, widthText, heightText, options = null) {
     const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
-    const borderType = options ? options.borderType : document.getElementById("input-type").value
+    //const borderType = options ? options.borderType : document.getElementById("input-type").value
     const colorType = options ? options.colorType : document.getElementById("input-color").value
     
     const [fheightObjects, fwidthObjects, VDivider, HDivider] = BorderUtilities.FilterDivider(heightObjects, widthObjects)
@@ -750,58 +834,4 @@ const BorderUtilities = {
       d.updateAllCoord(null, sourceList)
     }
   },
-
-  /**
-   * Creates an SVG preview for border types
-   * @param {string} borderType - The type of border ('stack', 'flagLeft', etc)
-   * @param {string} color - The color scheme name
-   * @return {string} - SVG string representation
-   */
-  createBorderPreviewSVG: function(borderType, color = 'Blue Background') {
-    // Create a mock bbox for the border preview
-    const xHeight = 20; // Small size for the preview
-    const bbox = {
-      left: 0,
-      top: 0,
-      right: 100,
-      bottom: 70
-    };
-    
-    const block = { width: bbox.right - bbox.left, height: bbox.bottom - bbox.top };
-    const rounding = this.calcBorderRounding(borderType, xHeight, bbox);
-    const shapeMeta = BorderTypeScheme[borderType](xHeight, block, rounding);
-    
-    // Create SVG string
-    let svgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 90" width="100" height="70">';
-    
-    // Add paths for the border
-    shapeMeta.path.forEach(p => {
-      const fillColor = BorderColorScheme[color][p.fill] || (borderType === 'exit' ? p.fill : BorderColorScheme[color][p.fill]);
-      
-      // Convert vertices to SVG path
-      let pathD = 'M ';
-      p.vertex.forEach((v, i) => {
-        if (i === 0) {
-          pathD += `${v.x} ${v.y} `;
-        } else if (v.radius && v.radius > 0) {
-          // Handle rounded corners
-          const prev = p.vertex[(i-1) % p.vertex.length];
-          const radius = v.radius;
-          pathD += `L ${prev.x} ${prev.y} Q ${v.x} ${v.y} `;
-          
-          // Find the next point
-          const next = p.vertex[(i+1) % p.vertex.length];
-          pathD += `${next.x} ${next.y} `;
-        } else {
-          pathD += `L ${v.x} ${v.y} `;
-        }
-      });
-      pathD += 'Z';
-      
-      svgString += `<path d="${pathD}" fill="${fillColor}" />`;
-    });
-    
-    svgString += '</svg>';
-    return svgString;
-  }
 }
