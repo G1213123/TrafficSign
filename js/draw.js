@@ -994,10 +994,17 @@ class VertexControl extends fabric.Control {
     
     // Move the group
     if (this.baseGroup.functionalType !== 'MainRoad' && this.baseGroup.functionalType !== 'SideRoad') {
-    this.baseGroup.set({
-      left: newLeft,
-      top: newTop
-    });
+      if (!this.baseGroup.lockMovementX){
+        this.baseGroup.set({
+          left: newLeft,
+        });
+      }
+      if (!this.baseGroup.lockMovementY){
+        this.baseGroup.set({
+          top: newTop,
+        });
+      }
+
   } else {
     this.baseGroup.routeList[0].x = pointer.x
     this.baseGroup.routeList[0].y = pointer.y
