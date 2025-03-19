@@ -652,10 +652,15 @@ const BorderUtilities = {
   FilterDivider: function (heightObjects, widthObjects) {
     let HDividerObject = []
     let VDividerObject = []
+    let borderedObjects = []
     let fwidthObjects = widthObjects.filter(obj => {
       if (obj.functionalType == 'HDivider') {
         HDividerObject.push(obj);
         return false; // Remove the object from original array
+      }
+      else if (obj.borderGroup){
+        borderedObjects.push(obj);
+        return false; // Prevent nested border update
       }
       return true; // Keep the object in original array
     });
@@ -664,10 +669,13 @@ const BorderUtilities = {
       if (obj.functionalType == 'VDivider') {
         VDividerObject.push(obj);
         return false; // Remove the object from original array
+      } else if (obj.borderGroup){
+        borderedObjects.push(obj);
+        return false; // Prevent nested border update
       }
       return true; // Keep the object in original array
     });
-    return [fheightObjects, fwidthObjects, VDividerObject, HDividerObject]
+    return [fheightObjects, fwidthObjects, VDividerObject, HDividerObject, borderedObjects]
   },
 
   RoundingToDivider: function (HDividers, VDividers, rounding, sourceList = []) {
@@ -755,7 +763,7 @@ const BorderUtilities = {
     //const borderType = options ? options.borderType : document.getElementById("input-type").value
     const colorType = options ? options.colorType : document.getElementById("input-color").value
     
-    const [fheightObjects, fwidthObjects, VDivider, HDivider] = BorderUtilities.FilterDivider(heightObjects, widthObjects)
+    const [fheightObjects, fwidthObjects, VDivider, HDivider, bordered] = BorderUtilities.FilterDivider(heightObjects, widthObjects)
 
     // Get the bounding box of the active selection 
     let coords = BorderUtilities.getBorderObjectCoords(fheightObjects, fwidthObjects)
@@ -797,11 +805,11 @@ const BorderUtilities = {
 
     // Combine the arrays and create a Set to remove duplicates
     canvas.sendObjectToBack(borderGroup)
-    widthObjects.forEach(obj => {
+    fwidthObjects.forEach(obj => {
       //canvas.bringObjectToFront(obj)
       obj.borderGroup = borderGroup
     })
-    heightObjects.forEach(obj => {
+    fheightObjects.forEach(obj => {
       //canvas.bringObjectToFront(obj)
       obj.borderGroup = borderGroup
     })

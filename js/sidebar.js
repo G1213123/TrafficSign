@@ -206,15 +206,12 @@ let GeneralHandler = {
 
 /* Text panel */
 let FormTextAddComponent = {
-  textWidthMedium: [{ char: ' ', width: 53, shortWidth: 0 }, { char: 'A', width: 136, shortWidth: 0 }, { char: 'B', width: 147, shortWidth: 0 }, { char: 'C', width: 148, shortWidth: 0 }, { char: 'D', width: 154, shortWidth: 0 }, { char: 'E', width: 132, shortWidth: 0 }, { char: 'F', width: 119, shortWidth: 0 }, { char: 'G', width: 155, shortWidth: 0 }, { char: 'H', width: 160, shortWidth: 0 }, { char: 'I', width: 73, shortWidth: 0 }, { char: 'J', width: 93, shortWidth: 0 }, { char: 'K', width: 138, shortWidth: 0 }, { char: 'L', width: 107, shortWidth: 0 }, { char: 'M', width: 184, shortWidth: 0 }, { char: 'N', width: 168, shortWidth: 0 }, { char: 'O', width: 156, shortWidth: 0 }, { char: 'P', width: 130, shortWidth: 0 }, { char: 'Q', width: 158, shortWidth: 0 }, { char: 'R', width: 141, shortWidth: 0 }, { char: 'S', width: 137, shortWidth: 0 }, { char: 'T', width: 109, shortWidth: 105 }, { char: 'U', width: 154, shortWidth: 0 }, { char: 'V', width: 130, shortWidth: 120 }, { char: 'W', width: 183, shortWidth: 189 }, { char: 'X', width: 128, shortWidth: 0 }, { char: 'Y', width: 123, shortWidth: 118 }, { char: 'Z', width: 119, shortWidth: 0 }, { char: 'a', width: 111, shortWidth: 104 }, { char: 'b', width: 117, shortWidth: 0 }, { char: 'c', width: 103, shortWidth: 0 }, { char: 'd', width: 119, shortWidth: 0 }, { char: 'e', width: 109, shortWidth: 102 }, { char: 'f', width: 75, shortWidth: 0 }, { char: 'g', width: 114, shortWidth: 107 }, { char: 'h', width: 112, shortWidth: 0 }, { char: 'i', width: 54, shortWidth: 0 }, { char: 'j', width: 58, shortWidth: 0 }, { char: 'k', width: 108, shortWidth: 0 }, { char: 'l', width: 62, shortWidth: 0 }, { char: 'm', width: 164, shortWidth: 0 }, { char: 'n', width: 112, shortWidth: 0 }, { char: 'o', width: 118, shortWidth: 111 }, { char: 'p', width: 118, shortWidth: 0 }, { char: 'q', width: 118, shortWidth: 0 }, { char: 'r', width: 73, shortWidth: 59 }, { char: 's', width: 97, shortWidth: 95 }, { char: 't', width: 81, shortWidth: 0 }, { char: 'u', width: 115, shortWidth: 101 }, { char: 'v', width: 98, shortWidth: 0 }, { char: 'w', width: 147, shortWidth: 145 }, { char: 'x', width: 104, shortWidth: 0 }, { char: 'y', width: 98, shortWidth: 96 }, { char: 'z', width: 97, shortWidth: 0 }, { char: '1', width: 78, shortWidth: 0 }, { char: '2', width: 120, shortWidth: 0 }, { char: '3', width: 127, shortWidth: 0 }, { char: '4', width: 132, shortWidth: 0 }, { char: '5', width: 122, shortWidth: 0 }, { char: '6', width: 126, shortWidth: 0 }, { char: '7', width: 104, shortWidth: 0 }, { char: '8', width: 130, shortWidth: 0 }, { char: '9', width: 128, shortWidth: 0 }, { char: '0', width: 133, shortWidth: 0 }, { char: ',', width: 53, shortWidth: 0 }, { char: '.', width: 53, shortWidth: 0 }, { char: "'", width: 39, shortWidth: 0 }, { char: ':', width: 53, shortWidth: 0 }, { char: '•', width: 53, shortWidth: 0 }, { char: '、', width: 53, shortWidth: 0 }, { char: '-', width: 66, shortWidth: 0 }, { char: '&', width: 126, shortWidth: 0 }, { char: '(', width: 105, shortWidth: 0 }, { char: ')', width: 105, shortWidth: 0 }, { char: '/', width: 85, shortWidth: 0 }, { char: '$', width: 100, shortWidth: 0 }, { char: '%', width: 160, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }],
-
-  textWidthHeavy: [{ char: ' ', width: 53, shortWidth: 0 }, { char: 'A', width: 142, shortWidth: 0 }, { char: 'B', width: 146, shortWidth: 0 }, { char: 'C', width: 151, shortWidth: 0 }, { char: 'D', width: 150, shortWidth: 0 }, { char: 'E', width: 136, shortWidth: 0 }, { char: 'F', width: 121, shortWidth: 0 }, { char: 'G', width: 156, shortWidth: 0 }, { char: 'H', width: 159, shortWidth: 0 }, { char: 'I', width: 73, shortWidth: 0 }, { char: 'J', width: 95, shortWidth: 0 }, { char: 'K', width: 138, shortWidth: 0 }, { char: 'L', width: 118, shortWidth: 0 }, { char: 'M', width: 186, shortWidth: 0 }, { char: 'N', width: 168, shortWidth: 0 }, { char: 'O', width: 158, shortWidth: 0 }, { char: 'P', width: 134, shortWidth: 0 }, { char: 'Q', width: 161, shortWidth: 0 }, { char: 'R', width: 148, shortWidth: 0 }, { char: 'S', width: 146, shortWidth: 0 }, { char: 'T', width: 118, shortWidth: 113 }, { char: 'U', width: 157, shortWidth: 0 }, { char: 'V', width: 133, shortWidth: 127 }, { char: 'W', width: 193, shortWidth: 196 }, { char: 'X', width: 130, shortWidth: 0 }, { char: 'Y', width: 128, shortWidth: 125 }, { char: 'Z', width: 119, shortWidth: 0 }, { char: 'a', width: 111, shortWidth: 104 }, { char: 'b', width: 117, shortWidth: 0 }, { char: 'c', width: 107, shortWidth: 0 }, { char: 'd', width: 119, shortWidth: 0 }, { char: 'e', width: 110, shortWidth: 103 }, { char: 'f', width: 79, shortWidth: 0 }, { char: 'g', width: 117, shortWidth: 110 }, { char: 'h', width: 119, shortWidth: 0 }, { char: 'i', width: 55, shortWidth: 0 }, { char: 'j', width: 71, shortWidth: 0 }, { char: 'k', width: 114, shortWidth: 0 }, { char: 'l', width: 63, shortWidth: 0 }, { char: 'm', width: 173, shortWidth: 0 }, { char: 'n', width: 119, shortWidth: 0 }, { char: 'o', width: 115, shortWidth: 107 }, { char: 'p', width: 120, shortWidth: 0 }, { char: 'q', width: 120, shortWidth: 0 }, { char: 'r', width: 80, shortWidth: 67 }, { char: 's', width: 100, shortWidth: 98 }, { char: 't', width: 84, shortWidth: 0 }, { char: 'u', width: 120, shortWidth: 107 }, { char: 'v', width: 107, shortWidth: 0 }, { char: 'w', width: 160, shortWidth: 154 }, { char: 'x', width: 110, shortWidth: 0 }, { char: 'y', width: 106, shortWidth: 104 }, { char: 'z', width: 93, shortWidth: 0 }, { char: '1', width: 84, shortWidth: 0 }, { char: '2', width: 125, shortWidth: 0 }, { char: '3', width: 136, shortWidth: 0 }, { char: '4', width: 138, shortWidth: 0 }, { char: '5', width: 130, shortWidth: 0 }, { char: '6', width: 129, shortWidth: 0 }, { char: '7', width: 107, shortWidth: 0 }, { char: '8', width: 138, shortWidth: 0 }, { char: '9', width: 129, shortWidth: 0 }, { char: '0', width: 145, shortWidth: 0 }, { char: ',', width: 56, shortWidth: 0 }, { char: '.', width: 56, shortWidth: 0 }, { char: "'", width: 41, shortWidth: 0 }, { char: ':', width: 56, shortWidth: 0 }, { char: '•', width: 56, shortWidth: 0 }, { char: '、', width: 53, shortWidth: 0 }, { char: '-', width: 71, shortWidth: 0 }, { char: '&', width: 126, shortWidth: 0 }, { char: '(', width: 115, shortWidth: 0 }, { char: ')', width: 115, shortWidth: 0 }, { char: '/', width: 88, shortWidth: 0 }, { char: '$', width: 100, shortWidth: 0 }, { char: '%', width: 160, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }],
 
   textFont: ['TransportMedium', 'TransportHeavy'],
 
 
 
-  textPanelInit: function (editingTextObject = null) {
+  textPanelInit: function (event, editingTextObject = null) {
     tabNum = 2;
     var parent = GeneralHandler.PanelInit();
     if (parent) {
@@ -404,7 +401,7 @@ let FormTextAddComponent = {
 
   EditOnMouseClick: function (event) {
     document.getElementById('input-text').value = '';
-    FormTextAddComponent.textPanelInit();
+    FormTextAddComponent.textPanelInit(null);
 
   }
 }
@@ -850,21 +847,135 @@ let FormDebugComponent = {
       FormDebugComponent.exportSettings.multiplier, (e) => {
         FormDebugComponent.exportSettings.multiplier = parseFloat(e.target.value);
       }, 'input');
+      
+      // Create toggle for including/excluding grid
+      GeneralHandler.createToggle('Include Grid', ['No', 'Yes'], exportContainer, 'No');
+      
+      // Create toggle for including/excluding background
+      GeneralHandler.createToggle('Include Background', ['No', 'Yes'], exportContainer, 'No');
 
     // Create export buttons
     const buttonContainer = GeneralHandler.createNode("div", { 'class': 'export-buttons-container' }, exportContainer);
 
     // PNG Export
-    GeneralHandler.createButton('export-png', 'Export as PNG', buttonContainer, 'export',
+    GeneralHandler.createButton('export-png', 'Export as PNG', buttonContainer, 'input',
       FormDebugComponent.exportToPNG, 'click');
 
     // SVG Export
-    GeneralHandler.createButton('export-svg', 'Export as SVG', buttonContainer, 'export',
+    GeneralHandler.createButton('export-svg', 'Export as SVG', buttonContainer, 'input',
       FormDebugComponent.exportToSVG, 'click');
 
     // PDF Export
-    GeneralHandler.createButton('export-pdf', 'Export as PDF', buttonContainer, 'export',
+    GeneralHandler.createButton('export-pdf', 'Export as PDF', buttonContainer, 'input',
       FormDebugComponent.exportToPDF, 'click');
+  },
+
+  // Helper function to prepare canvas for export
+  prepareCanvasForExport: function() {
+    const includeGrid = GeneralHandler.getToggleValue('Include Grid-container') === 'Yes';
+    const includeBackground = GeneralHandler.getToggleValue('Include Background-container') === 'Yes';
+    
+    // Store original canvas state
+    const originalState = {
+      backgroundColor: canvas.backgroundColor,
+      width: canvas.width,
+      height: canvas.height,
+      viewportTransform: [...canvas.viewportTransform],
+      zoom: canvas.getZoom(),
+      objects: canvas.getObjects().map(obj => ({
+        obj: obj,
+        visible: obj.visible
+      }))
+    };
+    
+    // Calculate the bounding box that contains all visible objects (excluding grid)
+    const visibleObjects = canvas.getObjects().filter(obj => 
+      obj.visible && (includeGrid || obj.id !== 'grid')
+    );
+    
+    if (visibleObjects.length > 0) {
+      // Find the bounds of all objects
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      
+      visibleObjects.forEach(obj => {
+        // Get the object's bounding rect in canvas coordinates
+        const rect = obj.getBoundingRect();
+        minX = Math.min(minX, rect.left);
+        minY = Math.min(minY, rect.top);
+        maxX = Math.max(maxX, rect.left + rect.width);
+        maxY = Math.max(maxY, rect.top + rect.height);
+      });
+      
+      // Add padding around the objects
+      const padding = 20;
+      minX -= padding;
+      minY -= padding;
+      maxX += padding;
+      maxY += padding;
+      
+      // Calculate dimensions
+      const width = maxX - minX;
+      const height = maxY - minY;
+      
+      // Store the calculated export bounds for later use
+      originalState.exportBounds = {
+        left: minX,
+        top: minY,
+        width: width,
+        height: height
+      };
+      
+      // Temporarily resize canvas to fit all objects and center view
+      canvas.setDimensions({
+        width: width,
+        height: height
+      });
+      
+      // Reset the zoom to 1 (100%)
+      canvas.setZoom(1);
+      
+      // Center the view on the objects
+      canvas.setViewportTransform([1, 0, 0, 1, -minX, -minY]);
+    }
+    
+    // Temporarily modify canvas for export
+    if (!includeBackground) {
+      canvas.backgroundColor = 'rgba(0,0,0,0)'; // Transparent background
+    }
+    
+    if (!includeGrid) {
+      // Hide grid and grid-related objects
+      canvas.getObjects().forEach(obj => {
+        if (obj.id === 'grid') {
+          obj.visible = false;
+        }
+      });
+    }
+    
+    canvas.renderAll();
+    return originalState;
+  },
+
+  // Helper function to restore canvas after export
+  restoreCanvasAfterExport: function(originalState) {
+    // Restore original canvas dimensions
+    canvas.setDimensions({
+      width: originalState.width,
+      height: originalState.height
+    });
+    
+    // Restore original zoom and viewport transform
+    canvas.setViewportTransform(originalState.viewportTransform);
+    
+    // Restore background
+    canvas.backgroundColor = originalState.backgroundColor;
+    
+    // Restore object visibility
+    originalState.objects.forEach(item => {
+      item.obj.visible = item.visible;
+    });
+    
+    canvas.renderAll();
   },
 
   exportToPNG: function () {
@@ -874,7 +985,16 @@ let FormDebugComponent = {
       multiplier: FormDebugComponent.exportSettings.multiplier
     };
 
+    // Prepare canvas for export
+    const originalState = FormDebugComponent.prepareCanvasForExport();
+    
+    // Generate the export
     const dataURL = canvas.toDataURL(options);
+    
+    // Restore canvas
+    FormDebugComponent.restoreCanvasAfterExport(originalState);
+    
+    // Create the download link
     const link = document.createElement('a');
     link.download = `${FormDebugComponent.exportSettings.filename}.png`;
     link.href = dataURL;
@@ -884,7 +1004,24 @@ let FormDebugComponent = {
   },
 
   exportToSVG: function () {
-    const svgData = canvas.toSVG();
+    // Prepare canvas for export
+    const originalState = FormDebugComponent.prepareCanvasForExport();
+    
+    // Generate the SVG data
+    const svgData = canvas.toSVG({
+      // SVG-specific options
+      viewBox: {
+        x: originalState.exportBounds ? originalState.exportBounds.left : 0,
+        y: originalState.exportBounds ? originalState.exportBounds.top : 0,
+        width: originalState.exportBounds ? originalState.exportBounds.width : canvas.width,
+        height: originalState.exportBounds ? originalState.exportBounds.height : canvas.height
+      }
+    });
+    
+    // Restore canvas
+    FormDebugComponent.restoreCanvasAfterExport(originalState);
+    
+    // Create the download
     const blob = new Blob([svgData], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -897,29 +1034,41 @@ let FormDebugComponent = {
   },
 
   exportToPDF: function () {
+    // Prepare canvas for export first
+    const originalState = FormDebugComponent.prepareCanvasForExport();
+    
     // Check if jsPDF is available
     if (typeof jsPDF === 'undefined') {
       // Load jsPDF dynamically if not available
       const script = document.createElement('script');
       script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-      script.onload = createPDF;
+      script.onload = () => createPDF(originalState);
       document.head.appendChild(script);
     } else {
-      createPDF();
+      createPDF(originalState);
     }
 
-    function createPDF() {
+    function createPDF(originalState) {
       const imgData = canvas.toDataURL('image/png', FormDebugComponent.exportSettings.quality);
+      
+      // Use the calculated bounds for PDF dimensions
+      const width = originalState.exportBounds ? originalState.exportBounds.width : canvas.width;
+      const height = originalState.exportBounds ? originalState.exportBounds.height : canvas.height;
+      
       const pdf = new jspdf.jsPDF({
-        orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+        orientation: width > height ? 'landscape' : 'portrait',
         unit: 'px',
-        format: [canvas.width, canvas.height]
+        format: [width, height]
       });
 
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      pdf.addImage(imgData, 'PNG', 0, 0, width, height);
       pdf.save(`${FormDebugComponent.exportSettings.filename}.pdf`);
+      
+      // Restore the canvas after PDF creation
+      FormDebugComponent.restoreCanvasAfterExport(originalState);
     }
   },
+
   DebugPanelInit: function () {
     tabNum = 5
     var parent = GeneralHandler.PanelInit()
@@ -980,29 +1129,32 @@ let FormDebugComponent = {
       objects.length ? object = objects[0] : object = objects
       debugInfoPanel.innerHTML = ''; // Clear previous info
 
-      const div = document.createElement('div');
-      div.style.fontWeight = 'bold'; // Make text bold
-      div.style.textDecoration = 'underline'; // Add underline
-      div.innerText = `${object._showName}`;
-      debugInfoPanel.appendChild(div);
+      if (object.getEffectiveCoords){
 
-      point = object.getEffectiveCoords()
-      const properties = [
-        { label: 'Top', value: Math.round(object.top) },
-        { label: 'Left', value: Math.round(object.left) },
-        { label: 'Width', value: Math.round(object.width) },
-        { label: 'Height', value: Math.round(object.height) },
-        { label: 'Effective Position', value: `x: ${Math.round(point[0].x)}, y: ${Math.round(point[0].y)}` },
-        { label: 'Effective Width', value: Math.round(point[1].x - point[0].x) },
-        { label: 'Effective Height', value: Math.round(point[2].y - point[0].y) },
-
-      ];
-
-      properties.forEach(prop => {
         const div = document.createElement('div');
-        div.innerText = `${prop.label}: ${prop.value}`;
+        div.style.fontWeight = 'bold'; // Make text bold
+        div.style.textDecoration = 'underline'; // Add underline
+        div.innerText = `${object._showName}`;
         debugInfoPanel.appendChild(div);
-      });
+  
+        point = object.getEffectiveCoords()
+        const properties = [
+          { label: 'Top', value: Math.round(object.top) },
+          { label: 'Left', value: Math.round(object.left) },
+          { label: 'Width', value: Math.round(object.width) },
+          { label: 'Height', value: Math.round(object.height) },
+          { label: 'Effective Position', value: `x: ${Math.round(point[0].x)}, y: ${Math.round(point[0].y)}` },
+          { label: 'Effective Width', value: Math.round(point[1].x - point[0].x) },
+          { label: 'Effective Height', value: Math.round(point[2].y - point[0].y) },
+  
+        ];
+  
+        properties.forEach(prop => {
+          const div = document.createElement('div');
+          div.innerText = `${prop.label}: ${prop.value}`;
+          debugInfoPanel.appendChild(div);
+        });
+      }
     }
   },
 

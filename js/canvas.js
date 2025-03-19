@@ -190,22 +190,33 @@ function handleGroupMoving(event) {
 function DrawGrid() {
   // Calculate the appropriate grid distance based on the viewport boundaries
   const corners = canvas.calcViewportBoundaries();
-  var xmin = corners.tl.x// Math.floor(corners.tl.x / 50) * 50;
-  var xmax = corners.br.x// Math.ceil(corners.br.x / 50) * 50;
-  var ymin = corners.tl.y// Math.floor(corners.tl.y / 50) * 50;
-  var ymax = corners.br.y// Math.ceil(corners.br.y / 50) * 50;
+  var xmin = corners.tl.x;
+  var xmax = corners.br.x;
+  var ymin = corners.tl.y;
+  var ymax = corners.br.y;
   const width = xmax - xmin;
   const height = ymax - ymin;
   const maxDimension = Math.max(width, height);
+  const zoom = canvas.getZoom();
 
-  // Determine the grid distance based on the max dimension
+  // Determine the grid distance based on the max dimension AND zoom level
   let gridDistance = 10;
-  if (maxDimension > 10000) {
+  if (zoom < 0.05) {
+    gridDistance = 1000;
+  } else if (zoom < 0.1) {
     gridDistance = 500;
-  } else if (maxDimension > 2000) {
+  } else if (zoom < 0.25) {
+    gridDistance = 200;
+  } else if (zoom < 0.5) {
     gridDistance = 100;
-  } else if (maxDimension > 1000) {
+  } else if (zoom < 1) {
     gridDistance = 50;
+  } else if (zoom < 2) {
+    gridDistance = 20;
+  } else if (zoom < 5) {
+    gridDistance = 10;
+  } else {
+    gridDistance = 5;
   }
 
   xmin = Math.floor(corners.tl.x / gridDistance) * gridDistance;
@@ -217,33 +228,40 @@ function DrawGrid() {
     distance: gridDistance,
     param: {
       stroke: '#ebebeb',
-      strokeWidth: gridDistance / 500,
+      strokeWidth: 0.1 / zoom, // Scale stroke width inversely with zoom for consistent appearance
       selectable: false
     }
   };
 
   const grid_set = [];
-
-  // Calculate the grid lines relative to the canvas origin
-  const zoom = canvas.getZoom();
-  const baseFontSize = gridDistance / 5;
-  const scaledFontSize = baseFontSize / zoom;
+  
+  // Set a constant screen size for text (12px)
+  const constantFontSize = 12;
+  // Scale font size according to zoom to maintain consistent screen size
+  const scaledFontSize = constantFontSize / zoom;
+  
+  // Text appearance threshold - don't show labels when too zoomed out
+  const showLabels = zoom > 0.08;
   
   for (let x = xmin; x <= xmax; x += options.distance) {
     const vertical = new fabric.Line([x, ymin, x, ymax], options.param);
     if (Math.abs(x % (5 * options.distance)) < 1e-6) {
-      vertical.set({ strokeWidth: gridDistance / 100 });
-      const vText = new fabric.Text(String(x), { 
-        left: x, 
-        top: 0, 
-        fill: options.param.stroke, 
-        selectable: false, 
-        hoverCursor: 'default', 
-        fontSize: scaledFontSize,
-        scaleX: zoom * 1.5,
-        scaleY: zoom * 1.5
-      });
-      grid_set.push(vText);
+      vertical.set({ strokeWidth: 0.2 / zoom }); // Thicker lines for major grid lines
+      
+      if (showLabels) {
+        const vText = new fabric.Text(String(x), { 
+          left: x + 2 / zoom, // Add a small offset
+          top: 2 / zoom, 
+          fill: '#a0a0a0', 
+          selectable: false, 
+          hoverCursor: 'default', 
+          fontSize: scaledFontSize,
+          scaleX: 1,
+          scaleY: 1,
+          fontFamily: 'Arial'
+        });
+        grid_set.push(vText);
+      }
     }
     grid_set.push(vertical);
   }
@@ -251,28 +269,33 @@ function DrawGrid() {
   for (let y = ymin; y <= ymax; y += options.distance) {
     const horizontal = new fabric.Line([xmin, y, xmax, y], options.param);
     if (Math.abs(y % (5 * options.distance)) < 1e-6) {
-      horizontal.set({ strokeWidth: gridDistance / 100 });
-      const hText = new fabric.Text(String(y), { 
-        left: 0, 
-        top: y, 
-        fill: options.param.stroke, 
-        selectable: false, 
-        hoverCursor: 'default', 
-        fontSize: scaledFontSize,
-        scaleX: zoom * 1.5,
-        scaleY: zoom * 1.5
-      });
-      grid_set.push(hText);
+      horizontal.set({ strokeWidth: 0.2 / zoom }); // Thicker lines for major grid lines
+      
+      if (showLabels) {
+        const hText = new fabric.Text(String(y), { 
+          left: 2 / zoom, 
+          top: y + 2 / zoom, // Add a small offset
+          fill: '#a0a0a0', 
+          selectable: false, 
+          hoverCursor: 'default', 
+          fontSize: scaledFontSize,
+          scaleX: 1,
+          scaleY: 1,
+          fontFamily: 'Arial'
+        });
+        grid_set.push(hText);
+      }
     }
     grid_set.push(horizontal);
   }
 
   // Ensure the origin (0, 0) is included in the grid
-  const originLineX = new fabric.Line([0, ymin, 0, ymax], { stroke: options.param.stroke, strokeWidth: 1, selectable: false });
-  const originLineY = new fabric.Line([xmin, 0, xmax, 0], { stroke: options.param.stroke, strokeWidth: 1, selectable: false });
+  const originLineX = new fabric.Line([0, ymin, 0, ymax], { stroke: '#ffffff', strokeWidth: 0.5 / zoom, selectable: false });
+  const originLineY = new fabric.Line([xmin, 0, xmax, 0], { stroke: '#ffffff', strokeWidth: 0.5 / zoom, selectable: false });
   grid_set.push(originLineX);
   grid_set.push(originLineY);
 
+  // Remove the existing grid if it exists
   const obj = canvas.getObjects().find(obj => obj.id === 'grid');
   canvas.remove(obj);
 

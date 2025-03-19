@@ -794,7 +794,7 @@ const BorderTest = {
 
     // Create border around the objects
     const borderGroup = await BorderUtilities.BorderGroupCreate(
-      'flagLeft',
+      'stack',
       [object1, object2],
       [object1, object2],
       null,

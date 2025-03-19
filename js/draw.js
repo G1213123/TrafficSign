@@ -701,17 +701,20 @@ class LockIcon {
   createLock(sourcePoint, targetPoint) {
     let midX
     let midY
+    const zoom = canvas.getZoom()
+    const lineWidth = 5/zoom
+    const fontSize = 20/zoom
     // Create lock lines
     if (this.direction == 'x') {
       this.lines.push(new fabric.Line([sourcePoint.x, sourcePoint.y, targetPoint.x, sourcePoint.y], {
         stroke: 'green',
-        strokeWidth: 4,
+        strokeWidth: lineWidth,
         selectable: false,
         functionalType: 'anchorLine',
       }));
       this.lines.push(new fabric.Line([targetPoint.x, sourcePoint.y, targetPoint.x, targetPoint.y], {
         stroke: 'green',
-        strokeWidth: 4,
+        strokeWidth: lineWidth,
         selectable: false,
         strokeDashArray: [10, 5],
         functionalType: 'anchorLine',
@@ -725,7 +728,7 @@ class LockIcon {
         {
           left: midX,
           top: midY - 50,
-          fontSize: 20,
+          fontSize: fontSize,
           fill: 'green', // Text color
           selectable: false,
           stroke: '#000', // Text stroke color
@@ -744,13 +747,13 @@ class LockIcon {
     } else {
       this.lines.push(new fabric.Line([sourcePoint.x, sourcePoint.y, sourcePoint.x, targetPoint.y], {
         stroke: 'red',
-        strokeWidth: 4,
+        strokeWidth: lineWidth,
         selectable: false,
         functionalType: 'anchorLine',
       }));
       this.lines.push(new fabric.Line([sourcePoint.x, targetPoint.y, targetPoint.x, targetPoint.y], {
         stroke: 'red',
-        strokeWidth: 4,
+        strokeWidth: lineWidth,
         selectable: false,
         strokeDashArray: [10, 5],
         functionalType: 'anchorLine',
@@ -763,7 +766,7 @@ class LockIcon {
         {
           left: midX - 50,
           top: midY,
-          fontSize: 20,
+          fontSize: fontSize,
           fill: 'red', // Text color
           selectable: false,
           stroke: '#000', // Text stroke color
@@ -787,7 +790,7 @@ class LockIcon {
       fontWeight: 900,
       left: midX,
       top: midY,
-      fontSize: 20,
+      fontSize: fontSize,
       fill: 'gold', // Gold fill color
       stroke: 'black', // Black border
       strokeWidth: 1, // Border width
