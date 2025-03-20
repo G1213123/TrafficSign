@@ -531,12 +531,13 @@ let FormTextAddComponent = {
   },
 
   TextOnMouseClick: function (event, options = null) {
+    if (event.e.button !== 0) return;
     // Disable default click behavior after creating the object
     if (FormTextAddComponent.newTextObject) {
       // Complete the placement
       if (activeVertex) {
         // Finish the vertex drag
-        activeVertex.finishDrag();
+        activeVertex.handleMouseDownRef(event);
       }
       
       // Clean up
@@ -546,6 +547,7 @@ let FormTextAddComponent = {
       // Reset state
       FormTextAddComponent.newTextObject = null;
       activeVertex = null;
+      document.getElementById('input-text').value = '';
       
       // Reattach default keyboard event listener
       document.removeEventListener('keydown', FormTextAddComponent.cancelInput);
@@ -927,11 +929,12 @@ let FormDrawAddComponent = {
   },
   
   SymbolOnMouseClick: function(event) {
+    if (event.e.button !== 0) return;
     // Finalize symbol placement on click
     if (FormDrawAddComponent.newSymbolObject && event.e.button === 0) {
       // Complete the placement
       if (activeVertex) {
-        activeVertex.finishDrag();
+        activeVertex.handleMouseDownRef(event);
       }
       
       // Clean up
