@@ -209,8 +209,6 @@ let FormTextAddComponent = {
 
   textFont: ['TransportMedium', 'TransportHeavy'],
 
-
-
   textPanelInit: function (event, editingTextObject = null) {
     tabNum = 2;
     var parent = GeneralHandler.PanelInit();
@@ -225,7 +223,92 @@ let FormTextAddComponent = {
       const textInput = GeneralHandler.createInput('input-text', 'Add Text', textContentContainer, '', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler, 'input');
       const fontToggle = GeneralHandler.createToggle('Text Font', FormTextAddComponent.textFont, textContentContainer, 'TransportMedium', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler);
 
+      // Create a container for location selection
+      const locationContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      const regionLabel = GeneralHandler.createNode("div", { 'class': 'placeholder' }, locationContainer);
+      regionLabel.innerHTML = "Destination Selector";
+      
+      // Extract region names from destinations array
+      const regionNames = destinations.map(region => Object.keys(region)[0]);
+      
+      // Create region toggle
+      const regionToggle = GeneralHandler.createToggle('Region', regionNames, locationContainer, regionNames[0], FormTextAddComponent.updateLocationDropdown);
+      
+      // Create location dropdown
+      const locationDropdownContainer = GeneralHandler.createNode("div", { 'class': 'location-dropdown-container' }, locationContainer);
+      
+      // Create the select element for locations
+      const locationSelect = GeneralHandler.createNode("select", { 'class': 'input', 'id': 'location-select' }, locationDropdownContainer, FormTextAddComponent.locationSelected, 'change');
+      
+      // Initialize the location dropdown with locations from the first region
+      FormTextAddComponent.populateLocationDropdown(regionNames[0]);
+    }
+  },
 
+  /**
+   * Updates the location dropdown when a region is selected
+   */
+  updateLocationDropdown: function(selectedButton) {
+    const regionName = selectedButton.getAttribute('data-value');
+    FormTextAddComponent.populateLocationDropdown(regionName);
+  },
+
+  /**
+   * Populates the location dropdown with locations from the selected region
+   */
+  populateLocationDropdown: function(regionName) {
+    const locationSelect = document.getElementById('location-select');
+    if (!locationSelect) return;
+    
+    // Clear existing options
+    locationSelect.innerHTML = '';
+    
+    // Add a default empty option
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.text = '-- Select Location --';
+    locationSelect.appendChild(defaultOption);
+    
+    // Find the selected region in the destinations array
+    const selectedRegion = destinations.find(region => Object.keys(region)[0] === regionName);
+    if (!selectedRegion) return;
+    
+    // Get the locations array for the selected region
+    const locations = selectedRegion[regionName];
+    
+    // Add an option for each location
+    locations.forEach(location => {
+      const option = document.createElement('option');
+      option.value = location;
+      option.text = location;
+      locationSelect.appendChild(option);
+    });
+  },
+
+  /**
+   * Handler for when a location is selected from the dropdown
+   */
+  locationSelected: function(event) {
+    const selectedLocation = event.target.value;
+    if (!selectedLocation) return;
+    
+    // Update the text input with the selected location
+    const textInput = document.getElementById('input-text');
+    if (textInput) {
+      textInput.value = selectedLocation;
+      
+      // Trigger the appropriate text input handler based on whether we're editing or creating
+      const activeObject = canvas.getActiveObject();
+      if (activeObject && activeObject.functionalType === 'Text') {
+        FormTextAddComponent.liveUpdateText();
+      } else {
+        FormTextAddComponent.TextInputHandler(null, { 
+          text: selectedLocation,
+          xHeight: parseInt(document.getElementById('input-xHeight').value),
+          font: document.getElementById('Text Font-container').selected.getAttribute('data-value'),
+          color: document.getElementById('Message Colour-container').selected.getAttribute('data-value')
+        });
+      }
     }
   },
 
@@ -311,6 +394,18 @@ let FormTextAddComponent = {
     cursor.txtChar = [];
     cursor.text = '';
     cursor.shapeMeta = null;
+    // Center the cursor on the canvas viewport
+    const centerX = canvas.width / 2 / canvas.getZoom();
+    const centerY = canvas.height / 2 / canvas.getZoom();
+
+    // Account for any panning that has been done
+    const vpt = canvas.viewportTransform;
+    const actualCenterX = (centerX - vpt[4]) / vpt[0];
+    const actualCenterY = (centerY - vpt[5]) / vpt[3];
+
+    // Set the cursor position
+    cursor.left = actualCenterX;
+    cursor.top = actualCenterY;
 
     const txt = options ? options.text : document.getElementById('input-text').value;
     const xHeight = options ? options.xHeight : parseInt(document.getElementById('input-xHeight').value);

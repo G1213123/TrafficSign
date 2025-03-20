@@ -324,15 +324,15 @@ div.side-panel.close {
 }
 
 .input-button:hover {
-  background-color: white;
-  color: black;
-  border: 2px solid #555555;
+  background-color: #3498db;
+  color: white;
+  border: 2px solid #3498db;
 }
 
 .input-button.active {
-  background-color: white;
-  color: black;
-  border: 2px solid #555555;
+  background-color: #3498db;
+  color: white;
+  border: 2px solid #3498db;
 }
 
 .input-button.deactive {
@@ -378,6 +378,12 @@ div.side-panel.close {
   font-size: 24px;
   border-radius: 4px;
   width: 25%;
+}
+
+.rotate-left-button:hover,
+.rotate-right-button:hover {
+  background-color: #3498db;
+  color: white;
 }
 
 /* Route parameters container styling */
@@ -486,14 +492,14 @@ div.side-panel.close {
 
 .symbol-button:hover {
   background-color: #3498db;
-  color: black;
-  border: 2px solid #555555;
+  color: white;
+  border: 2px solid #3498db;
 }
 
 .symbol-button.active {
   background-color: #3498db;
-  color: black;
-  border: 2px solid #555555;
+  color: white;
+  border: 2px solid #3498db;
 }
 
 .symbol-button {
@@ -514,14 +520,14 @@ div.side-panel.close {
 
 .border-button.active {
   background-color: #3498db;
-  color: black;
-  border: 2px solid #555555;
+  color: white;
+  border: 2px solid #3498db;
 }
 
 .border-button:hover {
   background-color: #3498db;
-  color: black;
-  border: 2px solid #555555;
+  color: white;
+  border: 2px solid #3498db;
 }
 
 .border-button {
@@ -541,15 +547,15 @@ div.side-panel.close {
 }
 
 .angle-button:hover {
-  background-color: white;
-  color: black;
-  border: 2px solid #555555;
+  background-color: #3498db;
+  color: white;
+  border: 2px solid #3498db;
 }
 
 .angle-button.active {
-  background-color: white;
-  color: black;
-  border: 2px solid #555555;
+  background-color: #3498db;
+  color: white;
+  border: 2px solid #3498db;
 }
 
 .angle-button {
@@ -710,8 +716,10 @@ div.side-panel.close {
 
 .github-link-container:hover {
   background-color: #3498db;
+  color: white;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   transform: scale(1.05);
+  border: none;
 }
 
 .github-link-container i {
