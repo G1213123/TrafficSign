@@ -762,6 +762,7 @@ let FormBorderWrapComponent = {
     const colorScheme = document.getElementById('input-color').value;
     const color = BorderColorScheme[colorScheme];
     let pathData = await vertexToPath(shapeMeta, color);
+    pathData = pathData.replace(/fill="border"/g, `fill="${color.border}"`);
     pathData = pathData.replace(/fill="symbol"/g, `fill="${color.symbol}"`);
     pathData = pathData.replace(/fill="background"/g, `fill="${color.background}"`);
 
@@ -813,39 +814,39 @@ let FormBorderWrapComponent = {
   }
 }
 
-/* Debug Panel */
-let FormDebugComponent = {
-  // TODO: Add General settings : e.g. turn off text borders, change background color, show grid, etc.
+/* Export Panel */
+let FormExportComponent = {
   // Export settings for canvas objects
   exportSettings: {
     filename: 'traffic-sign-export',
     quality: 1.0,
     multiplier: 1.0
   },
+  
 
-  createExportPanel: function (parent) {
+  exportPanelInit: function (parent) {
+    tabNum = 5
+    var parent = GeneralHandler.PanelInit()
     // Create container for export options
     const exportContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-    const exportHeader = GeneralHandler.createNode("div", { 'class': 'section-header' }, exportContainer);
-    exportHeader.innerHTML = "Export Options";
 
     // Create filename input
     const filenameInput = GeneralHandler.createInput('export-filename', 'Filename', exportContainer,
-      FormDebugComponent.exportSettings.filename, (e) => {
-        FormDebugComponent.exportSettings.filename = e.target.value;
+      FormExportComponent.exportSettings.filename, (e) => {
+        FormExportComponent.exportSettings.filename = e.target.value;
       }, 'input');
 
     // Create quality selector for raster formats
     const qualitySelect = GeneralHandler.createSelect('export-quality', 'Quality',
       ['1.0', '0.9', '0.8', '0.7', '0.5'], exportContainer, '1.0',
       (e) => {
-        FormDebugComponent.exportSettings.quality = parseFloat(e.target.value);
+        FormExportComponent.exportSettings.quality = parseFloat(e.target.value);
       });
 
     // Create scale multiplier
     const scaleInput = GeneralHandler.createInput('export-scale', 'Scale Multiplier', exportContainer,
-      FormDebugComponent.exportSettings.multiplier, (e) => {
-        FormDebugComponent.exportSettings.multiplier = parseFloat(e.target.value);
+      FormExportComponent.exportSettings.multiplier, (e) => {
+        FormExportComponent.exportSettings.multiplier = parseFloat(e.target.value);
       }, 'input');
       
       // Create toggle for including/excluding grid
@@ -859,15 +860,15 @@ let FormDebugComponent = {
 
     // PNG Export
     GeneralHandler.createButton('export-png', 'Export as PNG', buttonContainer, 'input',
-      FormDebugComponent.exportToPNG, 'click');
+      FormExportComponent.exportToPNG, 'click');
 
     // SVG Export
     GeneralHandler.createButton('export-svg', 'Export as SVG', buttonContainer, 'input',
-      FormDebugComponent.exportToSVG, 'click');
+      FormExportComponent.exportToSVG, 'click');
 
     // PDF Export
     GeneralHandler.createButton('export-pdf', 'Export as PDF', buttonContainer, 'input',
-      FormDebugComponent.exportToPDF, 'click');
+      FormExportComponent.exportToPDF, 'click');
   },
 
   // Helper function to prepare canvas for export
@@ -981,22 +982,22 @@ let FormDebugComponent = {
   exportToPNG: function () {
     const options = {
       format: 'png',
-      quality: FormDebugComponent.exportSettings.quality,
-      multiplier: FormDebugComponent.exportSettings.multiplier
+      quality: FormExportComponent.exportSettings.quality,
+      multiplier: FormExportComponent.exportSettings.multiplier
     };
 
     // Prepare canvas for export
-    const originalState = FormDebugComponent.prepareCanvasForExport();
+    const originalState = FormExportComponent.prepareCanvasForExport();
     
     // Generate the export
     const dataURL = canvas.toDataURL(options);
     
     // Restore canvas
-    FormDebugComponent.restoreCanvasAfterExport(originalState);
+    FormExportComponent.restoreCanvasAfterExport(originalState);
     
     // Create the download link
     const link = document.createElement('a');
-    link.download = `${FormDebugComponent.exportSettings.filename}.png`;
+    link.download = `${FormExportComponent.exportSettings.filename}.png`;
     link.href = dataURL;
     document.body.appendChild(link);
     link.click();
@@ -1005,7 +1006,7 @@ let FormDebugComponent = {
 
   exportToSVG: function () {
     // Prepare canvas for export
-    const originalState = FormDebugComponent.prepareCanvasForExport();
+    const originalState = FormExportComponent.prepareCanvasForExport();
     
     // Generate the SVG data
     const svgData = canvas.toSVG({
@@ -1019,13 +1020,13 @@ let FormDebugComponent = {
     });
     
     // Restore canvas
-    FormDebugComponent.restoreCanvasAfterExport(originalState);
+    FormExportComponent.restoreCanvasAfterExport(originalState);
     
     // Create the download
     const blob = new Blob([svgData], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.download = `${FormDebugComponent.exportSettings.filename}.svg`;
+    link.download = `${FormExportComponent.exportSettings.filename}.svg`;
     link.href = url;
     document.body.appendChild(link);
     link.click();
@@ -1035,7 +1036,7 @@ let FormDebugComponent = {
 
   exportToPDF: function () {
     // Prepare canvas for export first
-    const originalState = FormDebugComponent.prepareCanvasForExport();
+    const originalState = FormExportComponent.prepareCanvasForExport();
     
     // Check if jsPDF is available
     if (typeof jsPDF === 'undefined') {
@@ -1049,7 +1050,7 @@ let FormDebugComponent = {
     }
 
     function createPDF(originalState) {
-      const imgData = canvas.toDataURL('image/png', FormDebugComponent.exportSettings.quality);
+      const imgData = canvas.toDataURL('image/png', FormExportComponent.exportSettings.quality);
       
       // Use the calculated bounds for PDF dimensions
       const width = originalState.exportBounds ? originalState.exportBounds.width : canvas.width;
@@ -1062,28 +1063,29 @@ let FormDebugComponent = {
       });
 
       pdf.addImage(imgData, 'PNG', 0, 0, width, height);
-      pdf.save(`${FormDebugComponent.exportSettings.filename}.pdf`);
+      pdf.save(`${FormExportComponent.exportSettings.filename}.pdf`);
       
       // Restore the canvas after PDF creation
-      FormDebugComponent.restoreCanvasAfterExport(originalState);
+      FormExportComponent.restoreCanvasAfterExport(originalState);
     }
   },
+}
 
+/* Debug Panel */
+let FormDebugComponent = {
+  // TODO: Add General settings : e.g. turn off text borders, change background color, show grid, etc.
+  
   DebugPanelInit: function () {
-    tabNum = 5
+    tabNum = 6
     var parent = GeneralHandler.PanelInit()
     if (parent) {
-      // Create export panel first
-      FormDebugComponent.createExportPanel(parent);
-
-      // Add a separator between export panel and debug info
-      var separatorDiv = GeneralHandler.createNode("div", { 'class': 'panel-separator' }, parent);
-      separatorDiv.style.margin = "20px 0";
-      separatorDiv.style.borderBottom = "1px solid #555";
 
       // Create a container for debug info
       var debugInfoContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
       FormDebugComponent.createDebugInfoPanel(debugInfoContainer);
+      const sponsorDiv = GeneralHandler.createNode("div", { 'class': `input-container` }, parent)
+      sponsorDiv.innerHTML = '<a href="https://www.buymeacoffee.com/G1213123" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174" style="max-width:100%;"></a>'
+
 
       // Update the sidebar when an object is selected
       canvas.on('selection:created', FormDebugComponent.selectionListener);
@@ -1222,10 +1224,11 @@ window.onload = () => {
   document.getElementById('btn_text').onclick = FormTextAddComponent.textPanelInit
   document.getElementById('btn_border').onclick = FormBorderWrapComponent.BorderPanelInit
   document.getElementById('btn_map').onclick = FormDrawMapComponent.drawMapPanelInit
+  document.getElementById('btn_export').onclick = FormExportComponent.exportPanelInit
   document.getElementById('btn_debug').onclick = FormDebugComponent.DebugPanelInit
   //canvas.on('object:added', CanvasObjectInspector.createObjectListPanel);
   //canvas.on('object:removed', CanvasObjectInspector.createObjectListPanel);
   //canvas.on('object:modified', CanvasObjectInspector.createObjectListPanel);
-  FormDrawMapComponent.drawMapPanelInit()
+  FormDrawAddComponent.drawPanelInit()
   document.addEventListener('keydown', ShowHideSideBarEvent);
 }

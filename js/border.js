@@ -2,25 +2,35 @@ const BorderColorScheme = {
     "Blue Background": {
         'background': '#0000FE',
         'symbol': 'white',
+        'border': 'white',
     },
     "Green Background": {
         'background': '#006C49',
         'symbol': 'white',
+        'border': 'white',
     },
     "White Background": {
         'background': 'white',
         'symbol': 'black',
+        'border': 'black',
     },
     "White Background - Parking": {
         'background': 'white',
         'symbol': 'black',
+        'border': '#0000FE',
     },
     "Yellow Background": {
         'background': 'yellow',
         'symbol': 'black',
+        'border': 'black',
+    },
+    "Brown Background": {
+      'background': 'rgb(114,82,60)',
+      'symbol': 'white',
+      'border': 'white',
     },
 }
-
+    
 const BorderTypeScheme = {
     'stack': StackBorderTemplate,
     'flagLeft': FlagLeftBorderTemplate,
@@ -137,7 +147,7 @@ function StackBorderTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
             { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', radius: 3, start: 0 },
             { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, label: 'V3', radius: 3, start: 0 },
             { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, label: 'V4', radius: 3, start: 0 },
-        ], 'arcs': [], 'fill': 'symbol'
+        ], 'arcs': [], 'fill': 'border'
     }, {
         'vertex': [
             { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', radius: 1.5, start: 1 },
@@ -230,7 +240,7 @@ function FlagLeftBorderTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
             { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, radius: v.H, label: 'V3', start: 0 },
             { x: 0 - padding.left + panel.height / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom + border, radius: v.H, label: 'V4', start: 0 },
             { x: 0 - padding.left, y: 0 - v.E - rounding.y - border + panel.height / 2, radius: v.F, label: 'V5', start: 0 }
-        ], 'arcs': [], 'fill': 'symbol'
+        ], 'arcs': [], 'fill': 'border'
     }, {
         'vertex': [
             { x: 0 - padding.left + v.A + (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top, radius: v.G, label: 'V6', start: 1 },
@@ -303,7 +313,7 @@ function FlagRightBorderTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
             { x: block.width / length + padding.right, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, radius: v.F, label: 'V3', start: 0 },
             { x: block.width / length + padding.right - panel.height / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom + border, radius: v.H, label: 'V4', start: 0 },
             { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, radius: v.H, label: 'V5', start: 0 },
-        ], 'arcs': [], 'fill': 'symbol'
+        ], 'arcs': [], 'fill': 'border'
     }, {
         'vertex': [
             { x: 0 - padding.left, y: 0 - padding.top, radius: v.G, label: 'V8', start: 1 },
@@ -428,7 +438,7 @@ const BorderUtilities = {
   VDividerCreate: async function (leftObjects, rightObjects, options = null) {
     const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
     const colorType = options ? options.colorType : document.getElementById("input-color").value
-    const color = BorderColorScheme[colorType]['symbol']
+    const color = BorderColorScheme[colorType]['border']
     const leftObject = this.getExtremeObject(leftObjects, 'left')
     const rightObject = this.getTopMostObject(rightObjects, 'right')
 
@@ -462,7 +472,7 @@ const BorderUtilities = {
   HDividerCreate: async function (aboveObjects, belowObjects, options = null) {
     const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
     const colorType = options ? options.colorType : document.getElementById("input-color").value
-    const color = BorderColorScheme[colorType]['symbol']
+    const color = BorderColorScheme[colorType]['border']
     const aboveObject = this.getBottomMostObject(aboveObjects)
     const belowObject = this.getTopMostObject(belowObjects)
 
