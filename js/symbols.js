@@ -1846,23 +1846,44 @@ function combinePaths(pathsArray) {
   return result;
 }
 
-async function drawLabeledSymbol(symbol, options) {
-  const { x, y, length, angle, color } = options;
-  // Create polygon with labeled vertices
-  const arrow = new GlyphPath();
-  const shapeMeta = calcSymbol(symbol, length, color);
-  // Wait for the initialization to complete
-  const shape = await arrow.initialize(shapeMeta, {
-    left: x,
-    top: y,
-    fill: color || 'black',
-    angle: angle || 0,
+/**
+ * Creates a symbol directly on the canvas without using cursor intermediary
+ * @param {string} symbolType - Type of symbol to create
+ * @param {Object} options - Configuration options: x, y, length, angle, color
+ * @return {Object} The created symbol object
+ */
+async function drawSymbolDirectly(symbolType, options) {
+  // Calculate symbol data
+  const symbolData = calcSymbol(symbolType, options.length, options.color);
+  
+  // Create symbol options
+  const symbolOptions = {
+    left: options.x,
+    top: options.y, 
+    fill: options.color,
+    angle: options.angle || 0,
     objectCaching: false,
-    dirty: true,
-    strokeWidth: 0,
-  })
-
-  arrow.symbol = symbol;
-
-  new BaseGroup(arrow, 'Symbol');
+    strokeWidth: 0
+  };
+  
+  // Create the GlyphPath for the symbol
+  const symbolPath = new GlyphPath(symbolOptions);
+  await symbolPath.initialize(symbolData, symbolOptions);
+  
+  // Create the BaseGroup to wrap the symbol
+  const symbolGroup = new BaseGroup(symbolPath, 'Symbol');
+  
+  // Store symbol properties for later reference
+  symbolGroup.symbol = symbolType;
+  symbolGroup.xHeight = options.length * 4; // Convert back to xHeight
+  symbolGroup.color = options.color;
+  symbolGroup._showName = `<Group ${symbolGroup.canvasID}> Symbol - ${symbolType}`;
+  
+  return symbolGroup;
 }
+
+// Update the drawLabeledSymbol function to use drawSymbolDirectly
+async function drawLabeledSymbol(symbolType, options) {
+  return await drawSymbolDirectly(symbolType, options);
+}
+

@@ -951,9 +951,7 @@ function drawRoadsHandlerOff(event) {
     canvas.off('mouse:move', drawSideRoadOnCursor)
     canvas.off('mouse:move', drawMainRoadOnCursor)
     canvas.off('mouse:down', finishDrawSideRoad)
-    canvas.off('mouse:down', finishDrawMainRoad)
     canvas.off('mouse:down', finishDrawMainRoad);
-    canvas.off('mouse:move', FormDrawAddComponent.DrawOnMouseMove);
     document.removeEventListener('keydown', cancelDraw)
     document.addEventListener('keydown', ShowHideSideBarEvent);
 }
