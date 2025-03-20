@@ -200,17 +200,19 @@ div.side-panel.close {
   /* Arrange children vertically */
   align-items: flex-start;
   /* Align children to the top */
+  
 }
 
 .border-container {
   width: 95%;
-  /* Span 50% of the input form */
+  /* Span 95% of the input form */
   padding: 10px 0px;
   box-sizing: border-box;
   /* Include padding in the element's total width and height */
   display: flex;
-  justify-content: space-around;
+  justify-content: center; /* Changed from space-around to center */
   align-items: center;
+  margin: 0 auto; /* Added to center the container itself */
 }
 
 .symbol-container {
@@ -516,6 +518,12 @@ div.side-panel.close {
   border: 2px solid #555555;
 }
 
+.border-button:hover {
+  background-color: #3498db;
+  color: black;
+  border: 2px solid #555555;
+}
+
 .border-button {
   background-color: #555555;
   color: white;
@@ -655,6 +663,81 @@ div.side-panel.close {
   font-display: swap;
 }
 
+/* Coffee and GitHub link containers styling */
+.coffee-link-container {
+  width: 95%;
+  margin: 15px 10px 5px 10px;
+  padding: 15px;
+  border-radius: 12px;
+  background-color: rgba(60, 60, 65, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.coffee-link-container a img {
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.coffee-link-container a img:hover {
+  transform: scale(1.05);
+}
+
+.github-link-container {
+  width: 80%;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #555555;
+  transition-duration: 0.4s;
+  text-align: center;
+}
+
+.github-link-container a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: white;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+}
+
+.github-link-container:hover {
+  background-color: #3498db;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transform: scale(1.05);
+}
+
+.github-link-container i {
+  font-size: 1.5em;
+  margin-right: 10px;
+}
+
+/* Responsive adjustments for coffee and github links */
+@media (max-width: 768px) {
+  .coffee-link-container {
+    padding: 10px;
+  }
+  
+  .coffee-link-container a img {
+    height: 36px;
+    width: auto;
+  }
+  
+  .github-link-container {
+    padding: 8px;
+  }
+  
+  .github-link-container a {
+    font-size: 14px;
+  }
+}
 
 @media (max-width: 768px) {
   .side-bar[data-position="right"],

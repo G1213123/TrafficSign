@@ -1083,8 +1083,12 @@ let FormDebugComponent = {
       // Create a container for debug info
       var debugInfoContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
       FormDebugComponent.createDebugInfoPanel(debugInfoContainer);
-      const sponsorDiv = GeneralHandler.createNode("div", { 'class': `input-container` }, parent)
+      const sponsorDiv = GeneralHandler.createNode("div", { 'class': `coffee-link-container` }, parent)
       sponsorDiv.innerHTML = '<a href="https://www.buymeacoffee.com/G1213123" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174" style="max-width:100%;"></a>'
+      
+      // Add GitHub repository link
+      const githubLink = GeneralHandler.createNode("div", { 'class': 'github-link-container' }, sponsorDiv);
+      githubLink.innerHTML = '<a href="https://github.com/G1213123/TrafficSign" target="_blank"><i class="fa-brands fa-github"></i><span>Visit GitHub Repository</span></a>';
 
 
       // Update the sidebar when an object is selected
