@@ -1030,8 +1030,12 @@ class VertexControl extends fabric.Control {
       }
 
     } else {
-      this.baseGroup.routeList[0].x = pointer.x
-      this.baseGroup.routeList[0].y = pointer.y
+      this.baseGroup.routeList.forEach(route => {
+        route.x = pointer.x
+        if (this.vertex.label === 'V1') {
+          route.y = pointer.y
+        }
+      })
       this.baseGroup.onMove()
     }
     

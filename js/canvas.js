@@ -360,6 +360,15 @@ document.addEventListener('contextmenu', function (event) {
   event.preventDefault();
 });
 
+
+function CenterCoord(){
+  var zoom=canvas.getZoom()
+   return{
+      x:fabric.util.invertTransform(canvas.viewportTransform)[4]+(canvas.width/zoom)/2,
+      y:fabric.util.invertTransform(canvas.viewportTransform)[5]+(canvas.height/zoom)/2
+   }
+}
+
 function updatePosition(event) {
   const promptBox = document.getElementById('cursorBoxContainer');
   promptBox.style.left = `${event.clientX + 10}px`;

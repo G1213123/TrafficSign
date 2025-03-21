@@ -2,18 +2,18 @@ const roadMapTemplate = {
     'Arrow': {
         path: [{
             'vertex': [
-                { x: -1, y: 1, label: 'V1', start: 1 , display:0},
-                { x: 0, y: 0, label: 'V2', start: 0 , display:1},
-                { x: 1, y: 1, label: 'V3', start: 0, display:0 },
+                { x: -1, y: 1, label: 'V1', start: 1, display: 0 },
+                { x: 0, y: 0, label: 'V2', start: 0, display: 1 },
+                { x: 1, y: 1, label: 'V3', start: 0, display: 0 },
             ], 'arcs': []
         }],
     },
     'Stub': {
         path: [{
             'vertex': [
-                { x: -1, y: 0, label: 'V1', start: 0, display:0 },
-                { x: 0, y: 0, label: 'V2', start: 1, display:1 },
-                { x: 1, y: 0, label: 'V3', start: 0 , display:0},
+                { x: -1, y: 0, label: 'V1', start: 0, display: 0 },
+                { x: 0, y: 0, label: 'V2', start: 1, display: 1 },
+                { x: 1, y: 0, label: 'V3', start: 0, display: 0 },
             ], 'arcs': []
         }],
     },
@@ -27,20 +27,20 @@ const roadMapTemplate = {
     'Root': {
         path: [{
             'vertex': [
-                { x: 1, y: 24, label: 'V1', start: 1 , display:0},
-                { x: -1, y: 24, label: 'V2', start: 0 , display:0},
+                { x: 1, y: 24, label: 'V1', start: 1, display: 0 },
+                { x: -1, y: 24, label: 'V2', start: 0, display: 0 },
             ], 'arcs': []
         }],
     },
     'SpiralRoot': {
         path: [{
             'vertex': [
-                { x: -2, y: 24, label: 'V1', start: 1 , display:0},
-                { x: -2, y: 20.785, label: 'V2', start: 0 , display:0},
-                { x: -7, y: 12.124, label: 'V3', start: 0 , display:0},
-                { x: 2.392, y: 13.794, label: 'V4', start: 0 , display:0},
-                { x: 4, y: 20.785, label: 'V5', start: 0 , display:0},
-                { x: 4, y: 24, label: 'V6', start: 0 , display:0},
+                { x: -2, y: 24, label: 'V1', start: 1, display: 0 },
+                { x: -2, y: 20.785, label: 'V2', start: 0, display: 0 },
+                { x: -7, y: 12.124, label: 'V3', start: 0, display: 0 },
+                { x: 2.392, y: 13.794, label: 'V4', start: 0, display: 0 },
+                { x: 4, y: 20.785, label: 'V5', start: 0, display: 0 },
+                { x: 4, y: 24, label: 'V6', start: 0, display: 0 },
             ], 'arcs': [
                 { start: 'V2', end: 'V3', radius: 10, direction: 0, sweep: 0 },
                 { start: 'V3', end: 'V4', radius: 14, direction: 0, sweep: 0 },
@@ -51,11 +51,11 @@ const roadMapTemplate = {
     'SpiralArrow': {
         path: [{
             'vertex': [
-                { x: 2.092, y: 0.091, label: 'V1', start: 1 , display:1},
-                { x: 3.917, y: 2.266, label: 'V2', start: 0 , display:0},
-                { x: 0.841, y: 10.025, label: 'V3', start: 0 , display:0},
-                { x: -6.949, y: 11.846, label: 'V4', start: 0 , display:0},
-                { x: -0.075, y: 1.909, label: 'V5', start: 0 , display:0},
+                { x: 2.092, y: 0.091, label: 'V1', start: 1, display: 1 },
+                { x: 3.917, y: 2.266, label: 'V2', start: 0, display: 0 },
+                { x: 0.841, y: 10.025, label: 'V3', start: 0, display: 0 },
+                { x: -6.949, y: 11.846, label: 'V4', start: 0, display: 0 },
+                { x: -0.075, y: 1.909, label: 'V5', start: 0, display: 0 },
             ], 'arcs': [
                 { start: 'V2', end: 'V3', radius: 18, direction: 1, sweep: 0 },
                 { start: 'V3', end: 'V4', radius: 14, direction: 0, sweep: 0 },
@@ -67,12 +67,12 @@ const roadMapTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: -12, label: 'V1', start: 1 , display:1}, // Center point
-                    { x: 10.3923, y: 6, label: 'V2', start: 0 , display:0},
-                    { x: 6.0622, y: 3.5, label: 'V3', start: 0 , display:0},
-                    { x: 3.5, y: 6.0622, label: 'V4', start: 0 , display:0},
-                    { x: 6, y: 10.3923, label: 'V5', start: 0 , display:0},
-                    { x: -12, y: 0, label: 'V6', start: 0 , display:0},
+                    { x: 0, y: -12, label: 'V1', start: 1, display: 1 }, // Center point
+                    { x: 10.3923, y: 6, label: 'V2', start: 0, display: 0 },
+                    { x: 6.0622, y: 3.5, label: 'V3', start: 0, display: 0 },
+                    { x: 3.5, y: 6.0622, label: 'V4', start: 0, display: 0 },
+                    { x: 6, y: 10.3923, label: 'V5', start: 0, display: 0 },
+                    { x: -12, y: 0, label: 'V6', start: 0, display: 0 },
                 ], 'arcs': [
                     { start: 'V1', end: 'V2', radius: 12, direction: 1, sweep: 0 },
                     { start: 'V3', end: 'V4', radius: 7, direction: 0, sweep: 1 },
@@ -86,12 +86,12 @@ const roadMapTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: -14, label: 'V1', start: 1 , display:1}, // Center point
-                    { x: 12.1244, y: 7, label: 'V2', start: 0 , display:0},
-                    { x: 8.6603, y: 5, label: 'V3', start: 0 , display:0},
-                    { x: 5, y: 8.6603, label: 'V4', start: 0 , display:0},
-                    { x: 7, y: 12.1244, label: 'V5', start: 0 , display:0},
-                    { x: -14, y: 0, label: 'V6', start: 0 , display:0},
+                    { x: 0, y: -14, label: 'V1', start: 1, display: 1 }, // Center point
+                    { x: 12.1244, y: 7, label: 'V2', start: 0, display: 0 },
+                    { x: 8.6603, y: 5, label: 'V3', start: 0, display: 0 },
+                    { x: 5, y: 8.6603, label: 'V4', start: 0, display: 0 },
+                    { x: 7, y: 12.1244, label: 'V5', start: 0, display: 0 },
+                    { x: -14, y: 0, label: 'V6', start: 0, display: 0 },
                 ], 'arcs': [
                     { start: 'V1', end: 'V2', radius: 14, direction: 1, sweep: 0 },
                     { start: 'V3', end: 'V4', radius: 10, direction: 0, sweep: 1 },
@@ -103,7 +103,7 @@ const roadMapTemplate = {
     },
 };
 
-const calcVertexType = { 'Main Line': calcMainRoadVertices, 'Conventional Roundabout': calcConvRoundaboutVertices, 'Spiral Roundabout': calcSpirRoundaboutVertices}
+const calcVertexType = { 'Main Line': calcMainRoadVertices, 'Conventional Roundabout': calcConvRoundaboutVertices, 'Spiral Roundabout': calcSpirRoundaboutVertices }
 
 // Extract drawing functions from FormDrawMapComponent
 
@@ -121,6 +121,11 @@ function calcMainRoadVertices(xHeight, routeList) {
     let RootTopVertex = getSideRoadCoords(RootTop, length)
 
     const vertexList = [...RootTopVertex.path[0].vertex, ...RootBottomVertex.path[0].vertex]
+    // Move the first vertex to the end of the list
+    if (vertexList.length > 0) {
+        const firstVertex = vertexList.shift();
+        vertexList.push(firstVertex);
+    }
     assignVertexLabel(vertexList)
     return { path: [{ 'vertex': vertexList, 'arcs': [] }] };
 }
@@ -140,9 +145,13 @@ function calcSideRoadVertices(xHeight, mainRouteList, routeList) {
     let RootRight = mainRouteList[0].x + mainRouteList[0].width * xHeight / 8
 
     // Calculate the arrowhead vertices
-    const arrowTipVertex = getSideRoadCoords(routeList[0], length, RootLeft, RootRight)
-
-    return arrowTipVertex;
+    let arrowTipPath = getSideRoadCoords(routeList[0], length, RootLeft, RootRight)
+    let arrowTipVertex = arrowTipPath.path[0].vertex
+    for (var i = 0; i < 3; i++) {
+        arrowTipVertex.push(arrowTipVertex.shift());
+    }
+    assignVertexLabel(arrowTipVertex)
+    return arrowTipPath;
 }
 
 /**
@@ -165,7 +174,7 @@ function calcConvRoundaboutVertices(xHeight, routeList) {
         p.vertex = transformed
     });
 
-    let root = {x: center.x, y: center.y + 24*length, angle: 180, width: 6, shape: 'Stub'}
+    let root = { x: center.x, y: center.y + 24 * length, angle: 180, width: 6, shape: 'Stub' }
     let rootPath = getConvRdAboutSideRoadCoords(root, length, 24 * length, 12, Math.PI * 1 / 2)
     return combinePaths([roundel, rootPath]);
 }
@@ -226,22 +235,23 @@ function getSideRoadCoords(route, length, left, right) {
     arrowTipVertex = arrowTipPath.path[0].vertex
     if (route.angle != 0 && route.angle != 180) {
         if (route.x < left) {
-            const i1 = { x: left, y: arrowTipVertex[0].y - (left - arrowTipVertex[0].x) / Math.tan(route.angle / 180 * Math.PI), radius: length , display:0}
-            const i2 = { x: left, y: arrowTipVertex[2].y - (left - arrowTipVertex[2].x) / Math.tan(route.angle / 180 * Math.PI), radius: length , display:0}
+            const i1 = { x: left, y: arrowTipVertex[0].y - (left - arrowTipVertex[0].x) / Math.tan(route.angle / 180 * Math.PI), radius: length, display: 0 }
+            const i2 = { x: left, y: arrowTipVertex[2].y - (left - arrowTipVertex[2].x) / Math.tan(route.angle / 180 * Math.PI), radius: length, display: 0 }
             const offsetDistance = Math.tan(Math.abs(route.angle * Math.PI / 180) / 2);
-            const i0 = { x: left, y: i1.y + offsetDistance * length , display:0}
-            const i3 = { x: left, y: i2.y - offsetDistance * length , display:0}
+            const i0 = { x: left, y: i1.y + offsetDistance * length, display: 0 }
+            const i3 = { x: left, y: i2.y - offsetDistance * length, display: 0 }
             arrowTipVertex = [i0, i1, ...arrowTipVertex, i2, i3]
         } else if (route.x > right) {
-            const i1 = { x: right, y: arrowTipVertex[0].y + (arrowTipVertex[0].x - right) / Math.tan(route.angle / 180 * Math.PI), radius: length , display:0}
-            const i2 = { x: right, y: arrowTipVertex[2].y + (arrowTipVertex[2].x - right) / Math.tan(route.angle / 180 * Math.PI), radius: length , display:0}
+            const i1 = { x: right, y: arrowTipVertex[0].y + (arrowTipVertex[0].x - right) / Math.tan(route.angle / 180 * Math.PI), radius: length, display: 0 }
+            const i2 = { x: right, y: arrowTipVertex[2].y + (arrowTipVertex[2].x - right) / Math.tan(route.angle / 180 * Math.PI), radius: length, display: 0 }
             const offsetDistance = Math.tan(Math.abs(route.angle * Math.PI / 180) / 2);
-            const i0 = { x: right, y: i1.y - offsetDistance * length , display:0}
-            const i3 = { x: right, y: i2.y + offsetDistance * length , display:0}
+            const i0 = { x: right, y: i1.y - offsetDistance * length, display: 0 }
+            const i3 = { x: right, y: i2.y + offsetDistance * length, display: 0 }
             arrowTipVertex = [i0, i1, ...arrowTipVertex, i2, i3]
         }
     }
-    assignVertexLabel(arrowTipVertex)
+    
+    //assignVertexLabel(arrowTipVertex)
     arrowTipPath.path[0].vertex = arrowTipVertex
     return arrowTipPath
 }
@@ -260,24 +270,24 @@ function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle) {
     const width = route.width
     arrowTipPath.path[0].vertex.map((v) => { v.x *= width / 2; v.y *= width / 2 })
     arrowTipVertex = arrowTipPath.path[0].vertex
-    
+
     // for Stub
     //const ic = { x: width / 2, y: Math.sqrt(radius ** 2 - (width / 2) ** 2) }
     const trimCenter = { x: width / 2 + 1, y: Math.sqrt((radius + 1) ** 2 - (width / 2 + 1) ** 2) }
     const tCenterAngle = Math.atan2(trimCenter.y, trimCenter.x)
-    const i2 = { x: width / 2, y: arm / length - trimCenter.y }
-    const i3 = { x: trimCenter.x - Math.cos(tCenterAngle), y: arm / length - trimCenter.y + Math.sin(tCenterAngle)  }
-    const i0 = { x:-i3.x, y:i3.y}
-    const i1 = { x:-i2.x, y:i2.y}
-    arrowTipVertex = [i0, i1, ...arrowTipVertex, i2, i3]
-    
+    const i2 = { x: width / 2, y: arm / length - trimCenter.y , display: 0 }
+    const i3 = { x: trimCenter.x - Math.cos(tCenterAngle), y: arm / length - trimCenter.y + Math.sin(tCenterAngle), display: 0 }
+    const i0 = { x: -i3.x, y: i3.y , display: 0 }
+    const i1 = { x: -i2.x, y: i2.y , display: 0 }
+    arrowTipVertex = [ ...arrowTipVertex, i2, i3, i0, i1,]
+    arrowTipVertex.push(arrowTipVertex.shift())
     assignVertexLabel(arrowTipVertex)
-    
-    
+
+
     arrowTipPath.path[0].arcs.push(...[
-        { start: 'V1', end: 'V2', radius: 1 , direction: 0, sweep: 0 },
-        { start: 'V6', end: 'V7', radius: 1 , direction: 0, sweep: 0 },
-        { start: 'V7', end: 'V1', radius: 12 , direction: 0, sweep: 0 },
+        { start: 'V3', end: 'V4', radius: 1, direction: 0, sweep: 0 },
+        { start: 'V4', end: 'V5', radius: 12, direction: 0, sweep: 0 },
+        { start: 'V5', end: 'V6', radius: 1, direction: 0, sweep: 0 },
     ])
     arrowTipPath.path[0].vertex = arrowTipVertex
 
@@ -286,7 +296,7 @@ function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle) {
         x: route.x,
         y: route.y,
         angle: angle / Math.PI * 180 + 90
-        
+
     })
     return arrowTipPath
 }
@@ -304,14 +314,14 @@ function getSpirRdAboutSideRoadCoords(route, length, angle) {
     //const width = route.width
     //arrowTipPath.path[0].vertex.map((v) => { v.x *= width / 2; v.y *= width / 2 })
     arrowTipVertex = arrowTipPath.path[0].vertex
-    
+
 
     arrowTipPath = calcSymbol(arrowTipPath, length)
     arrowTipPath.path[0].vertex = calculateTransformedPoints(arrowTipPath, {
         x: route.x,
         y: route.y,
         angle: angle / Math.PI * 180 + 90
-        
+
     })
     return arrowTipPath
 }
@@ -373,7 +383,7 @@ class MainRoadSymbol extends BaseGroup {
         });
 
         // Set the basePolygon that was initially null in the constructor
-        this.setBasePolygon(arrow,false)
+        this.setBasePolygon(arrow, false)
 
 
         return this;
@@ -385,8 +395,19 @@ class MainRoadSymbol extends BaseGroup {
      * @return {Promise<void>}
      */
     async receiveNewRoute(tempBranchRouteList = null) {
-        if (this.roadType !== 'Main Line'){
-            return
+        if (this.roadType !== 'Main Line') {
+            const newPolygon = new GlyphPath();
+        await newPolygon.initialize(calcVertexType[this.roadType](this.xHeight, this.routeList), {
+            left: 0,
+            top: 0,
+            angle: 0,
+            fill: this.color,
+            objectCaching: false,
+            dirty: true,
+            strokeWidth: 0
+        });
+            this.replaceBasePolygon(newPolygon)
+            return;
         }
         let newBottom = this.top + (this.tipLength) * this.xHeight / 4;
         if (tempBranchRouteList) {
@@ -413,7 +434,7 @@ class MainRoadSymbol extends BaseGroup {
             strokeWidth: 0
         });
 
-        this.replaceBasePolygon(newPolygon,false);
+        this.replaceBasePolygon(newPolygon, false);
         this.drawVertex(false);
     }
 
@@ -471,7 +492,7 @@ class SideRoadSymbol extends BaseGroup {
         });
 
         // Set the basePolygon that was initially null in the constructor
-        this.setBasePolygon(branch,false);
+        this.setBasePolygon(branch, false);
 
         return this;
     }
@@ -493,8 +514,8 @@ class SideRoadSymbol extends BaseGroup {
 
         // Update instance properties with constrained values
         this.routeList = result.routeList;
-        if (mainRoad.roadType == 'Main Line'){
-            this.left = this.side ? this.routeList[0].x : mainRoad.left+mainRoad.width;
+        if (mainRoad.roadType == 'Main Line') {
+            this.left = this.side ? this.routeList[0].x : mainRoad.left + mainRoad.width;
         }
         this.refTopLeft.left = this.left;
         //this.top = this.routeList[0].y;
@@ -529,7 +550,7 @@ class SideRoadSymbol extends BaseGroup {
             strokeWidth: 0
         });
 
-        this.replaceBasePolygon(polygon1,false);
+        this.replaceBasePolygon(polygon1, false);
 
         // Update root if needed
         if (updateRoot) {
@@ -553,7 +574,7 @@ function applySideRoadConstraints(sideRoad, mainRoad, sideRouteList, isSideLeft,
     // Make a copy to avoid modifying the original
     const routeList = JSON.parse(JSON.stringify(sideRouteList));
 
-    switch (mainRoad.roadType){
+    switch (mainRoad.roadType) {
         case 'Main Line':
             return applyConstraintsMainLine(sideRoad, mainRoad, routeList, isSideLeft, xHeight)
         case 'Conventional Roundabout':
@@ -565,48 +586,48 @@ function applySideRoadConstraints(sideRoad, mainRoad, sideRouteList, isSideLeft,
 }
 
 function applyConstraintsMainLine(sideRoad, mainRoad, routeList, isSideLeft, xHeight) {
-        // Horizontal constraint based on side
-        const rootLeft = mainRoad.routeList[0].x - mainRoad.routeList[0].width * mainRoad.xHeight / 8;
-        const rootRight = mainRoad.routeList[0].x + mainRoad.routeList[0].width * mainRoad.xHeight / 8;
-        const minBranchShapeXDelta = routeList[0].shape == 'Stub' ? 4 : Math.abs(routeList[0].angle) == 90 ? 12 : 13;
-        const minBranchXDelta = minBranchShapeXDelta * xHeight / 4;
-    
-        // Constrain movement based on side (left or right)
-        if (routeList[0].x + minBranchXDelta > rootLeft && isSideLeft) {
-            // Left side branch constraint
-            routeList[0].x = rootLeft - minBranchXDelta;
-            //sideRoad.left = routeList[0].x;
-        } else if (routeList[0].x - minBranchXDelta < rootRight && !isSideLeft) {
-            // Right side branch constraint
-            routeList[0].x = rootRight + minBranchXDelta;
-            //sideRoad.left = rootRight
-        }
-    
-        // Vertical constraint based on main road top
-        const rootTop = mainRoad.routeList[1].y;
-        const tipLength = mainRoad.tipLength * mainRoad.xHeight / 4;
-    
-        // Calculate vertices with current position
-        let tempVertexList = calcSideRoadVertices(mainRoad.xHeight, mainRoad.routeList, routeList);
-    
-        // Get the vertex that should touch the root (depends on side)
-        const rootTopTouchY = tempVertexList.path[0].vertex[isSideLeft ? 5 : 1];
-    
-        // Ensure branch doesn't go above root + tip length
-        if (rootTopTouchY.y < rootTop + tipLength) {
-            // Push branch down if needed
-            const adjustment = rootTop + tipLength - rootTopTouchY.y;
-            routeList[0].y += adjustment;
-            
-            // Recalculate vertices with new position
-            tempVertexList = calcSideRoadVertices(mainRoad.xHeight, mainRoad.routeList, routeList);
-            sideRoad.top = Math.min(...tempVertexList.path[0].vertex.map(v => v.y));
-        }
-    
-        return { routeList, tempVertexList };
+    // Horizontal constraint based on side
+    const rootLeft = mainRoad.routeList[0].x - mainRoad.routeList[0].width * mainRoad.xHeight / 8;
+    const rootRight = mainRoad.routeList[0].x + mainRoad.routeList[0].width * mainRoad.xHeight / 8;
+    const minBranchShapeXDelta = routeList[0].shape == 'Stub' ? 4 : Math.abs(routeList[0].angle) == 90 ? 12 : 13;
+    const minBranchXDelta = minBranchShapeXDelta * xHeight / 4;
+
+    // Constrain movement based on side (left or right)
+    if (routeList[0].x + minBranchXDelta > rootLeft && isSideLeft) {
+        // Left side branch constraint
+        routeList[0].x = rootLeft - minBranchXDelta;
+        //sideRoad.left = routeList[0].x;
+    } else if (routeList[0].x - minBranchXDelta < rootRight && !isSideLeft) {
+        // Right side branch constraint
+        routeList[0].x = rootRight + minBranchXDelta;
+        //sideRoad.left = rootRight
+    }
+
+    // Vertical constraint based on main road top
+    const rootTop = mainRoad.routeList[1].y;
+    const tipLength = mainRoad.tipLength * mainRoad.xHeight / 4;
+
+    // Calculate vertices with current position
+    let tempVertexList = calcSideRoadVertices(mainRoad.xHeight, mainRoad.routeList, routeList);
+
+    // Get the vertex that should touch the root (depends on side)
+    const rootTopTouchY = tempVertexList.path[0].vertex[isSideLeft ? 5 : 1];
+
+    // Ensure branch doesn't go above root + tip length
+    if (rootTopTouchY.y < rootTop + tipLength) {
+        // Push branch down if needed
+        const adjustment = rootTop + tipLength - rootTopTouchY.y;
+        routeList[0].y += adjustment;
+
+        // Recalculate vertices with new position
+        tempVertexList = calcSideRoadVertices(mainRoad.xHeight, mainRoad.routeList, routeList);
+        sideRoad.top = Math.min(...tempVertexList.path[0].vertex.map(v => v.y));
+    }
+
+    return { routeList, tempVertexList };
 }
 
-function applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeight){
+function applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeight) {
     // Horizontal constraint based on side
     const radius = 12
     const minBranchShapeXDelta = radius + routeList[0].shape == 'Stub' ? 4 : radius;
@@ -619,7 +640,7 @@ function applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeig
     const angleInDegrees = rawAngleToCenter * 180 / Math.PI
     const roundedDegrees = Math.round(angleInDegrees / 15) * 15
     const angleToCenter = roundedDegrees * Math.PI / 180
-    const distToCenter = Math.max(minBranchXDelta, Math.sqrt((routeList[0].y - center.y)**2 +  (routeList[0].x - center.x)**2))
+    const distToCenter = Math.max(minBranchXDelta, Math.sqrt((routeList[0].y - center.y) ** 2 + (routeList[0].x - center.x) ** 2))
 
     routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
     routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
@@ -630,7 +651,7 @@ function applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeig
     return { routeList, tempVertexList };
 }
 
-function applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList, xHeight){
+function applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList, xHeight) {
     // Horizontal constraint based on side
 
     const center = mainRoad.routeList[1]
@@ -660,24 +681,21 @@ function applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList,
  */
 async function drawMainRoadOnCursor(event, params = null) {
     // In case only update parameters of cursor object
-    if (!event.target || !event.target || event.target.id !== 'button-DrawMap') {
+    if (!event || !event.target || event.target.id !== 'button-DrawMap') {
         if (cursor._objects.length == 0) {
-            return
+            return;
         }
     }
+
+    // Remove existing event listeners first to avoid duplicates
+    drawRoadsHandlerOff();
+
+    canvas.discardActiveObject();
     document.removeEventListener('keydown', ShowHideSideBarEvent);
     document.addEventListener('keydown', cancelDraw);
 
-
-    // Remove existing event listeners first to avoid duplicates
-    drawRoadsHandlerOff()
-
-    // Now attach the event listeners
-    canvas.on('mouse:move', FormDrawAddComponent.DrawOnMouseMove);
-    canvas.on('mouse:down', finishDrawMainRoad);
-
     // Get parameters either from DOM elements or provided params
-    let xHeight, rootLength, tipLength;
+    let xHeight, rootLength, tipLength, color, width, shape, roadType;
 
     if (params) {
         xHeight = params.xHeight || 100;
@@ -689,7 +707,7 @@ async function drawMainRoadOnCursor(event, params = null) {
         roadType = params.roadType || 'Main Line';
     } else {
         xHeight = document.getElementById('input-xHeight').value;
-        color = document.getElementById('Message Colour-container').selected.getAttribute('data-value')
+        color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
         rootLength = parseInt(document.getElementById('root-length').value);
         tipLength = parseInt(document.getElementById('tip-length').value);
         width = parseInt(document.getElementById('main-width').value);
@@ -697,31 +715,95 @@ async function drawMainRoadOnCursor(event, params = null) {
         roadType = GeneralHandler.getToggleValue('Main Road Type-container');
     }
 
+    // Center the object on the canvas viewport
+    const canvasCenter = CenterCoord()
+    const centerX = canvasCenter.x;
+    const centerY = canvasCenter.y;
+
+    // Create route list centered on the canvas
     let routeList = [
-        { x: 0, y: (rootLength + tipLength) * xHeight / 4, angle: 180, width: width, shape: 'Stub' },
-        { x: 0, y: 0, angle: 0, width: width, shape: shape }
+        { x: centerX, y: centerY + (rootLength + tipLength) * xHeight / 4, angle: 180, width: width, shape: 'Stub' },
+        { x: centerX, y: centerY, angle: 0, width: width, shape: shape }
     ];
 
-    let vertexList = calcVertexType[roadType](xHeight, routeList);
+    // Create route options for the MainRoadSymbol
+    const routeOptions = {
+        routeList: routeList,
+        xHeight: xHeight,
+        color: color,
+        rootLength: rootLength,
+        tipLength: tipLength,
+        roadType: roadType
+    };
 
-    cursor.forEachObject(function (o) { cursor.remove(o) })
-    cursor.xHeight = xHeight;
-    cursor.color = color
-    cursor.routeList = routeList;
-    cursor.tipLength = tipLength;
-    cursor.rootLength = rootLength;
-    cursor.roadType = roadType;
+    // Create and initialize the MainRoadSymbol
+    const routeMap = new MainRoadSymbol(routeOptions);
+    await routeMap.initialize(calcVertexType[roadType](routeOptions.xHeight, routeOptions.routeList));
 
-    const options = { left: 0, top: 0, angle: 0, fill: color, objectCaching: false, dirty: true, strokeWidth: 0 };
-    Polygon1 = new GlyphPath();
-    await Polygon1.initialize(vertexList, options);
+    // Store reference to the new road object
+    FormDrawAddComponent.newSymbolObject = routeMap;
 
-    symbolOffset = getInsertOffset(vertexList);
+    // Add mouse event handlers for placement
+    canvas.on('mouse:move', mainRoadOnMouseMove);
+    canvas.on('mouse:down', finishDrawMainRoad);
 
-    cursorOffset.x = symbolOffset.left;
-    cursorOffset.y = symbolOffset.top;
+    // Activate the vertex control immediately to enable dragging and snapping
+    if (routeMap.controls && routeMap.controls.V1) {
+        activeVertex = routeMap.controls.V1;
+        activeVertex.isDown = true;
+        activeVertex.originalPosition = {
+            left: routeMap.left + routeMap.width / 2,
+            top: routeMap.top
+        };
 
-    cursor.add(Polygon1);
+        // Store vertex information
+        const v1 = routeMap.getBasePolygonVertex('V1');
+        if (v1) {
+            activeVertex.vertexOriginalPosition = {
+                x: v1.x,
+                y: v1.y
+            };
+            activeVertex.vertexOffset = {
+                x: v1.x - routeMap.left,
+                y: v1.y - routeMap.top
+            };
+
+            // Create indicator for the active vertex
+            if (activeVertex.createIndicator) {
+                activeVertex.createIndicator(v1.x, v1.y);
+            }
+        }
+    }
+
+    canvas.renderAll();
+}
+
+/**
+ * Handle mouse movement for road symbol placement
+ * @param {Event} event - Mouse event
+ */
+function mainRoadOnMouseMove(event) {
+    if (FormDrawAddComponent.newSymbolObject && activeVertex) {
+        const pointer = canvas.getPointer(event.e);
+
+        // If we have an active vertex, let it handle the movement
+        if (activeVertex.handleMouseMoveRef) {
+            // Simulate a mouse move event with the current pointer
+            const simulatedEvent = {
+                e: event.e,
+                pointer: pointer
+            };
+            activeVertex.handleMouseMoveRef(simulatedEvent);
+        } else {
+            // Fallback direct positioning if vertex control isn't active
+            FormDrawAddComponent.newSymbolObject.set({
+                left: pointer.x,
+                top: pointer.y
+            });
+            FormDrawAddComponent.newSymbolObject.setCoords();
+            canvas.renderAll();
+        }
+    }
 }
 
 /**
@@ -731,47 +813,30 @@ async function drawMainRoadOnCursor(event, params = null) {
  * @return {Promise<void>}
  */
 async function finishDrawMainRoad(event, options = null) {
-    if (options) {
-        cursor.set(
-            { left: options.left, top: options.top }
-        )
-        var pointer = { x: options.left, y: options.top }
-        textValue = 'Go'
-        eventButton = 0
-    } else {
-        eventButton = event.e.button
-        var pointer = canvas.getPointer(event.e);
-    }
-    if (eventButton === 0 && cursor._objects.length) {
-        var posX = pointer.x;
-        var posY = pointer.y;
+    if (event.e.button !== 0) return;
 
-        // Create a MainRoute with options
-        const routeOptions = {
-            routeList: calculateTransformedPoints(cursor.routeList, { x: posX, y: posY, angle: 0 }),
-            xHeight: cursor.xHeight,
-            color: cursor.color,
-            rootLength: cursor.rootLength,
-            tipLength: cursor.tipLength,
-            roadType: cursor.roadType
-        };
-
-        let calcType = calcVertexType[roadType]
-
-        // Create and initialize the MainRoute
-        const routeMap = new MainRoadSymbol(routeOptions);
-        await routeMap.initialize(calcType(routeOptions.xHeight, routeOptions.routeList), routeOptions.color);
+    // Finalize main road placement on click
+    if (FormDrawAddComponent.newSymbolObject) {
+        // Complete the placement
+        if (activeVertex) {
+            activeVertex.handleMouseDownRef(event);
+        }
 
         // Set active object
         canvas.discardActiveObject();
-        setTimeout(() => {
-            canvas.setActiveObject(routeMap);
-        }, 300);
+        const placedRoad = FormDrawAddComponent.newSymbolObject;
+
+        // Reset state
+        FormDrawAddComponent.newSymbolObject = null;
+        activeVertex = null;
 
         // Clean up
-        cursor.forEachObject(function (o) { cursor.remove(o) });
         drawRoadsHandlerOff();
-        document.addEventListener('keydown', ShowHideSideBarEvent);
+
+        // Make the new road active after a slight delay
+        setTimeout(() => {
+            canvas.setActiveObject(placedRoad);
+        }, 300);
     }
 }
 
@@ -783,7 +848,21 @@ async function finishDrawMainRoad(event, options = null) {
  */
 async function drawSideRoadOnCursor(event, option = null) {
     document.removeEventListener('keydown', ShowHideSideBarEvent);
+    document.addEventListener('keydown', cancelDraw);
+
     const mainRoad = canvas.getActiveObject();
+    if (!mainRoad || mainRoad.functionalType !== 'MainRoad') return;
+
+    // Clear any existing temp side road
+    if (FormDrawAddComponent.newSymbolObject) {
+        // If there's already a temp side road, remove it
+        const existingSideRoad = FormDrawAddComponent.newSymbolObject;
+        if (existingSideRoad.functionalType === 'SideRoad') {
+            existingSideRoad.deleteObject && existingSideRoad.deleteObject();
+            FormDrawAddComponent.newSymbolObject = null;
+        }
+    }
+
     // Declare variables outside the if-else blocks 
     let routeList = [];
     let angle, shape, width, pointer;
@@ -820,13 +899,13 @@ async function drawSideRoadOnCursor(event, option = null) {
     } else {
         // Normal DOM operation
         pointer = canvas.getPointer(event.e);
-        if (mainRoad.roadType == 'Main Line'){
+        if (mainRoad.roadType == 'Main Line') {
             if (pointer.x > mainRoad.getEffectiveCoords()[0].x && pointer.x < mainRoad.getEffectiveCoords()[1].x) {
                 return;
             }
-        } else if (mainRoad.roadType == 'Conventional Roundabout' || mainRoad.roadType == 'Spiral Roundabout'){ 
-            const center = mainRoad.routeList[1]
-            if ((pointer.x - center.x) ** 2 +( pointer.y - center.y)** 2 < (mainRoad.xHeight * 3) ** 2) {
+        } else if (mainRoad.roadType == 'Conventional Roundabout' || mainRoad.roadType == 'Spiral Roundabout') {
+            const center = mainRoad.routeList[1];
+            if ((pointer.x - center.x) ** 2 + (pointer.y - center.y) ** 2 < (mainRoad.xHeight * 3) ** 2) {
                 //return;
             }
         }
@@ -848,7 +927,7 @@ async function drawSideRoadOnCursor(event, option = null) {
 
     // Apply the same constraints as when moving a side road
     const constrainedResult = applySideRoadConstraints(
-        cursor,
+        {}, // Empty object instead of cursor
         mainRoad,
         routeList,
         isSideLeft,
@@ -859,33 +938,110 @@ async function drawSideRoadOnCursor(event, option = null) {
     routeList = constrainedResult.routeList;
     tempVertexList = constrainedResult.tempVertexList;
 
-    cursor.forEachObject(function (o) { cursor.remove(o) });
-    cursor.xHeight = mainRoad.xHeight;
-    cursor.color = mainRoad.color;
-    cursor.routeList = routeList;
-    cursor.mainRoad = mainRoad;
+    // Create the branch options
+    const branchOptions = {
+        routeList: routeList,
+        xHeight: mainRoad.xHeight,
+        color: mainRoad.color,
+        mainRoad: mainRoad,
+        side: isSideLeft,
+        branchIndex: mainRoad.sideRoad.length + 1
+    };
 
-    polygon1 = new GlyphPath();
-    await polygon1.initialize(tempVertexList, { left: 0, top: 0, angle: 0, fill: mainRoad.color, objectCaching: false, dirty: true, strokeWidth: 0 });
+    // Create and initialize the side road
+    const sideRoad = new SideRoadSymbol(branchOptions);
+    await sideRoad.initialize(tempVertexList);
 
-    symbolOffset = getInsertOffset(tempVertexList);
-    cursorOffset.x = symbolOffset.left;
-    cursorOffset.y = symbolOffset.top;
+    // Store reference to the new side road object
+    FormDrawAddComponent.newSymbolObject = sideRoad;
 
-    cursor.add(polygon1);
-    cursor.shapeMeta = tempVertexList;
-
+    // Update main road to show how it would look with the new side road
     mainRoad.receiveNewRoute(tempVertexList);
     mainRoad.setCoords();
-    canvas.renderAll();
 
-    // Remove existing listeners first to avoid duplicates
+    // Remove any existing event handlers first to avoid duplicates
+    canvas.off('mouse:move', sideRoadOnMouseMove);
     canvas.off('mouse:down', finishDrawSideRoad);
-    document.removeEventListener('keydown', cancelDraw);
 
-    // Add new listeners
+    // Add mouse event handlers for placement
+    canvas.on('mouse:move', sideRoadOnMouseMove);
     canvas.on('mouse:down', finishDrawSideRoad);
-    document.addEventListener('keydown', cancelDraw);
+
+    // Activate the vertex control immediately to enable dragging
+    if (sideRoad.controls && sideRoad.controls.V1) {
+        activeVertex = sideRoad.controls.V1;
+        activeVertex.isDown = true;
+        activeVertex.originalPosition = {
+            left: sideRoad.left,
+            top: sideRoad.top
+        };
+
+        // Store vertex information if available
+        const v1 = sideRoad.getBasePolygonVertex('V1');
+        if (v1) {
+            activeVertex.vertexOriginalPosition = {
+                x: v1.x,
+                y: v1.y
+            };
+            activeVertex.vertexOffset = {
+                x: v1.x - sideRoad.left,
+                y: v1.y - sideRoad.top
+            };
+
+            // Create indicator for the active vertex
+            if (activeVertex.createIndicator) {
+                activeVertex.createIndicator(v1.x, v1.y);
+            }
+        }
+    }
+
+    canvas.renderAll();
+}
+
+/**
+ * Handle mouse movement for side road placement
+ * @param {Event} event - Mouse event
+ */
+function sideRoadOnMouseMove(event) {
+    if (!FormDrawAddComponent.newSymbolObject || !activeVertex) return;
+
+    const sideRoad = FormDrawAddComponent.newSymbolObject;
+    if (sideRoad.functionalType !== 'SideRoad') return;
+
+    const pointer = canvas.getPointer(event.e);
+
+    // If we have an active vertex, let it handle the movement
+    if (activeVertex.handleMouseMoveRef) {
+        // Simulate a mouse move event with the current pointer
+        const simulatedEvent = {
+            e: event.e,
+            pointer: pointer
+        };
+        activeVertex.handleMouseMoveRef(simulatedEvent);
+
+        // Update main road preview with the new side road position
+        const mainRoad = sideRoad.mainRoad;
+        if (mainRoad) {
+            mainRoad.receiveNewRoute(sideRoad.basePolygon);
+            mainRoad.setCoords();
+        }
+    } else {
+        // Fallback direct positioning if vertex control isn't active
+        sideRoad.set({
+            left: pointer.x,
+            top: pointer.y
+        });
+        sideRoad.setCoords();
+
+        // Update main road preview
+        const mainRoad = sideRoad.mainRoad;
+        if (mainRoad) {
+            mainRoad.receiveNewRoute(sideRoad.basePolygon);
+            mainRoad.setCoords();
+        }
+
+        canvas.renderAll();
+    }
 }
 
 /**
@@ -894,51 +1050,54 @@ async function drawSideRoadOnCursor(event, option = null) {
  * @return {Promise<void>}
  */
 async function finishDrawSideRoad(event) {
-    if (event.e.button === 0) {
-        const mainRoad = cursor.mainRoad;
+    if (event.e.button !== 0) return;
 
-        // Prepare the shape metadata
-        const shapeMeta = JSON.parse(JSON.stringify(cursor.shapeMeta));
-        const isSideLeft = cursor.left < mainRoad.left;
-        const branchIndex = mainRoad.sideRoad.length + 1;
+    // Finalize side road placement on click
+    if (!FormDrawAddComponent.newSymbolObject) return;
 
-        // Create side road options
-        const branchOptions = {
-            routeList: cursor.routeList,
-            xHeight: cursor.xHeight,
-            color: cursor.color,
-            mainRoad: mainRoad,
-            side: isSideLeft,
-            branchIndex: branchIndex
-        };
+    const sideRoad = FormDrawAddComponent.newSymbolObject;
+    if (sideRoad.functionalType !== 'SideRoad') return;
 
-        // Create and initialize the branch
-        const sideRoad = new SideRoadSymbol(branchOptions);
-        await sideRoad.initialize(shapeMeta);
+    const mainRoad = sideRoad.mainRoad;
+    if (!mainRoad) return;
 
+    // Complete the placement
+    if (activeVertex) {
+        activeVertex.handleMouseDownRef(event);
+    }
+
+    // Make sure the side road isn't already in the main road's collection
+    if (!mainRoad.sideRoad.includes(sideRoad)) {
         // Add to main road's branch collection
         mainRoad.sideRoad.push(sideRoad);
 
-        // Add connection point for this branch to main road
-        if (mainRoad.roadType == 'Main Line'){
-            const connectPoint = cursor.shapeMeta.path[0].vertex[isSideLeft ? 0 : 6];
+        // Add connection point for this branch to main road if needed
+        if (mainRoad.roadType == 'Main Line') {
+            const isSideLeft = sideRoad.side;
+            const connectPoint = sideRoad.basePolygon.vertex[isSideLeft ? 0 : 6];
             mainRoad.basePolygon.vertex.push({
                 x: connectPoint.x,
                 y: connectPoint.y,
-                label: `C${branchIndex}`
+                label: `C${sideRoad.branchIndex}`
             });
         }
-
-        // Update coordinates
-        mainRoad.setCoords();
-
-        // Make the new branch active after a slight delay
-        setTimeout(() => {
-            canvas.setActiveObject(sideRoad);
-        }, 300);
-
-        drawRoadsHandlerOff();
     }
+
+    // Update coordinates
+    mainRoad.setCoords();
+
+    // Reset state
+    const placedSideRoad = FormDrawAddComponent.newSymbolObject;
+    FormDrawAddComponent.newSymbolObject = null;
+    activeVertex = null;
+
+    // Clean up
+    drawRoadsHandlerOff();
+
+    // Make the new branch active after a slight delay
+    setTimeout(() => {
+        canvas.setActiveObject(placedSideRoad);
+    }, 300);
 }
 
 /**
@@ -947,12 +1106,46 @@ async function finishDrawSideRoad(event) {
  * @return {void}
  */
 function drawRoadsHandlerOff(event) {
-    cursor.forEachObject(function (o) { cursor.remove(o) })
-    canvas.off('mouse:move', drawSideRoadOnCursor)
-    canvas.off('mouse:move', drawMainRoadOnCursor)
-    canvas.off('mouse:down', finishDrawSideRoad)
+    // If there's a new road object being placed, remove it unless it's been added to canvas properly
+    if (FormDrawAddComponent.newSymbolObject) {
+        const newRoad = FormDrawAddComponent.newSymbolObject;
+
+        // If it's a side road and not fully added to a main road, remove it
+        if (newRoad.functionalType === 'SideRoad' && newRoad.mainRoad) {
+            const mainRoad = newRoad.mainRoad;
+
+            // Check if this side road is already part of the main road's side roads
+            const isAdded = mainRoad.sideRoad.includes(newRoad);
+
+            if (!isAdded) {
+                // Update the main road as if the side road wasn't placed
+                mainRoad.receiveNewRoute();
+                mainRoad.setCoords();
+
+                // Remove the temporary side road
+                newRoad.deleteObject && newRoad.deleteObject();
+            }
+        } else if (newRoad.functionalType === 'MainRoad' && !canvasObject.includes(newRoad)) {
+            // If it's a main road that hasn't been properly added to canvas
+            newRoad.deleteObject && newRoad.deleteObject();
+        }
+
+        FormDrawAddComponent.newSymbolObject = null;
+    }
+
+    // Clean up active vertex if there is one
+    if (activeVertex) {
+        activeVertex.cleanupDrag && activeVertex.cleanupDrag();
+        activeVertex = null;
+    }
+
+    cursor.forEachObject(function (o) { cursor.remove(o) });
+    canvas.off('mouse:move', mainRoadOnMouseMove);
+    canvas.off('mouse:move', sideRoadOnMouseMove);
+    canvas.off('mouse:down', finishDrawSideRoad);
     canvas.off('mouse:down', finishDrawMainRoad);
-    document.removeEventListener('keydown', cancelDraw)
+    canvas.off('mouse:move', drawSideRoadOnCursor);
+    document.removeEventListener('keydown', cancelDraw);
     document.addEventListener('keydown', ShowHideSideBarEvent);
 }
 
@@ -964,10 +1157,10 @@ function drawRoadsHandlerOff(event) {
  */
 function cancelDraw(event, force = false) {
     if (event.key === 'Escape' || force) {
-        drawRoadsHandlerOff()
+        drawRoadsHandlerOff();
         setTimeout(() => {
             document.addEventListener('keydown', ShowHideSideBarEvent);
-        }, 1000)
+        }, 1000);
     }
 }
 

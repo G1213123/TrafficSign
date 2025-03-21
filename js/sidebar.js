@@ -456,9 +456,9 @@ let FormTextAddComponent = {
     const centerY = canvas.height / 2 / canvas.getZoom();
 
     // Account for any panning that has been done
-    const vpt = canvas.viewportTransform;
-    const actualCenterX = (centerX - vpt[4]) / vpt[0];
-    const actualCenterY = (centerY - vpt[5]) / vpt[3];
+    const vpt = CenterCoord();
+    const actualCenterX = vpt.x;
+    const actualCenterY = vpt.y;
 
     // Create a real TextObject that will be placed on the canvas
     const textObject = new TextObject({
@@ -798,16 +798,12 @@ let FormDrawAddComponent = {
     const symbolType = event.currentTarget.id.replace('button-', '');
     const xHeight = parseInt(document.getElementById('input-xHeight').value);
     const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
-    
-    // Center the object on the canvas viewport
-    const centerX = canvas.width / 2 / canvas.getZoom();
-    const centerY = canvas.height / 2 / canvas.getZoom();
 
     // Account for any panning that has been done
-    const vpt = canvas.viewportTransform;
-    const actualCenterX = (centerX - vpt[4]) / vpt[0];
-    const actualCenterY = (centerY - vpt[5]) / vpt[3];
-    
+    const vpt = CenterCoord();
+    const actualCenterX = vpt.x;
+    const actualCenterY = vpt.y;
+  
     // Create the symbol directly
     const symbolObject = await drawSymbolDirectly(symbolType, {
       x: actualCenterX,
