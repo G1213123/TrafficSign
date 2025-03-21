@@ -229,7 +229,10 @@ let FormTextAddComponent = {
       regionLabel.innerHTML = "Destination Selector";
       
       // Extract region names from destinations array
-      const regionNames = destinations.map(region => Object.keys(region)[0]);
+      const regionNames = EngDestinations.map(region => Object.keys(region)[0]);
+      
+      // Create language toggle
+      const languageToggle = GeneralHandler.createToggle('Language', ['English', 'Chinese'], locationContainer, 'English' , FormTextAddComponent.updateLocationDropdown);
       
       // Create region toggle
       const regionToggle = GeneralHandler.createToggle('Region', regionNames, locationContainer, regionNames[0], FormTextAddComponent.updateLocationDropdown);
@@ -241,7 +244,7 @@ let FormTextAddComponent = {
       const locationSelect = GeneralHandler.createNode("select", { 'class': 'input', 'id': 'location-select' }, locationDropdownContainer, FormTextAddComponent.locationSelected, 'change');
       
       // Initialize the location dropdown with locations from the first region
-      FormTextAddComponent.populateLocationDropdown(regionNames[0]);
+      FormTextAddComponent.populateLocationDropdown(regionNames[0], "English");
     }
   },
 
@@ -249,14 +252,15 @@ let FormTextAddComponent = {
    * Updates the location dropdown when a region is selected
    */
   updateLocationDropdown: function(selectedButton) {
-    const regionName = selectedButton.getAttribute('data-value');
-    FormTextAddComponent.populateLocationDropdown(regionName);
+    const regionName = GeneralHandler.getToggleValue('Region-container')
+    const language = GeneralHandler.getToggleValue('Language-container')
+    FormTextAddComponent.populateLocationDropdown(regionName, language);
   },
 
   /**
    * Populates the location dropdown with locations from the selected region
    */
-  populateLocationDropdown: function(regionName) {
+  populateLocationDropdown: function(regionName, language) {
     const locationSelect = document.getElementById('location-select');
     if (!locationSelect) return;
     
@@ -270,7 +274,8 @@ let FormTextAddComponent = {
     locationSelect.appendChild(defaultOption);
     
     // Find the selected region in the destinations array
-    const selectedRegion = destinations.find(region => Object.keys(region)[0] === regionName);
+    const languageSet = language=="English"?EngDestinations:ChtDestinations
+    const selectedRegion = languageSet.find(region => Object.keys(region)[0] === regionName);
     if (!selectedRegion) return;
     
     // Get the locations array for the selected region
