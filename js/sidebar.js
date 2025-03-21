@@ -209,8 +209,6 @@ let FormTextAddComponent = {
 
   textFont: ['TransportMedium', 'TransportHeavy'],
 
-
-
   textPanelInit: function (event, editingTextObject = null) {
     tabNum = 2;
     var parent = GeneralHandler.PanelInit();
@@ -225,7 +223,104 @@ let FormTextAddComponent = {
       const textInput = GeneralHandler.createInput('input-text', 'Add Text', textContentContainer, '', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler, 'input');
       const fontToggle = GeneralHandler.createToggle('Text Font', FormTextAddComponent.textFont, textContentContainer, 'TransportMedium', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler);
 
+      // Create a container for location selection
+      const locationContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      const regionLabel = GeneralHandler.createNode("div", { 'class': 'placeholder' }, locationContainer);
+      regionLabel.innerHTML = "Destination Selector";
+      
+      // Extract region names from destinations array
+      const regionNames = destinations.map(region => Object.keys(region)[0]);
+      
+      // Create region toggle
+      const regionToggle = GeneralHandler.createToggle('Region', regionNames, locationContainer, regionNames[0], FormTextAddComponent.updateLocationDropdown);
+      
+      // Create location dropdown
+      const locationDropdownContainer = GeneralHandler.createNode("div", { 'class': 'location-dropdown-container' }, locationContainer);
+      
+      // Create the select element for locations
+      const locationSelect = GeneralHandler.createNode("select", { 'class': 'input', 'id': 'location-select' }, locationDropdownContainer, FormTextAddComponent.locationSelected, 'change');
+      
+      // Initialize the location dropdown with locations from the first region
+      FormTextAddComponent.populateLocationDropdown(regionNames[0]);
+    }
+  },
 
+  /**
+   * Updates the location dropdown when a region is selected
+   */
+  updateLocationDropdown: function(selectedButton) {
+    const regionName = selectedButton.getAttribute('data-value');
+    FormTextAddComponent.populateLocationDropdown(regionName);
+  },
+
+  /**
+   * Populates the location dropdown with locations from the selected region
+   */
+  populateLocationDropdown: function(regionName) {
+    const locationSelect = document.getElementById('location-select');
+    if (!locationSelect) return;
+    
+    // Clear existing options
+    locationSelect.innerHTML = '';
+    
+    // Add a default empty option
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.text = '-- Select Location --';
+    locationSelect.appendChild(defaultOption);
+    
+    // Find the selected region in the destinations array
+    const selectedRegion = destinations.find(region => Object.keys(region)[0] === regionName);
+    if (!selectedRegion) return;
+    
+    // Get the locations array for the selected region
+    const locations = selectedRegion[regionName];
+    
+    // Add an option for each location
+    locations.forEach(location => {
+      const option = document.createElement('option');
+      option.value = location;
+      option.text = location;
+      locationSelect.appendChild(option);
+    });
+  },
+
+  /**
+   * Handler for when a location is selected from the dropdown
+   */
+  locationSelected: function(event) {
+    const selectedLocation = event.target.value;
+    if (!selectedLocation) return;
+    
+    // Update the text input with the selected location
+    const textInput = document.getElementById('input-text');
+    if (textInput) {
+      textInput.value = selectedLocation;
+      
+      // Determine if we're editing or creating
+      const activeObject = canvas.getActiveObject();
+      
+      // If we already have a new text object being placed, update it
+      if (FormTextAddComponent.newTextObject && canvas.contains(FormTextAddComponent.newTextObject)) {
+        const xHeight = parseInt(document.getElementById('input-xHeight').value);
+        const font = document.getElementById('Text Font-container').selected.getAttribute('data-value');
+        const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
+        FormTextAddComponent.newTextObject.updateText(selectedLocation, xHeight, font, color);
+        canvas.renderAll();
+      }
+      // If we're editing an existing text object
+      else if (activeObject && activeObject.functionalType === 'Text') {
+        FormTextAddComponent.liveUpdateText();
+      }
+      // Otherwise create a new text object
+      else {
+        FormTextAddComponent.TextInputHandler(null, { 
+          text: selectedLocation,
+          xHeight: parseInt(document.getElementById('input-xHeight').value),
+          font: document.getElementById('Text Font-container').selected.getAttribute('data-value'),
+          color: document.getElementById('Message Colour-container').selected.getAttribute('data-value')
+        });
+      }
     }
   },
 
@@ -233,6 +328,19 @@ let FormTextAddComponent = {
    * Live update text as the user types or changes parameters
    */
   liveUpdateText: function () {
+    // Make sure we're not in placement mode
+    if (FormTextAddComponent.newTextObject) {
+      // If in placement mode, update the new object being placed
+      const newText = document.getElementById('input-text').value;
+      const newXHeight = parseInt(document.getElementById('input-xHeight').value);
+      const newFont = document.getElementById('Text Font-container').selected.getAttribute('data-value');
+      const newColor = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
+      
+      FormTextAddComponent.newTextObject.updateText(newText, newXHeight, newFont, newColor);
+      return;
+    }
+
+    // Otherwise update the selected object
     canvas.off('mouse:move', FormTextAddComponent.TextOnMouseMove);
     canvas.off('mouse:down', FormTextAddComponent.TextOnMouseClick);
     canvas.on('mouse:down', FormTextAddComponent.EditOnMouseClick);
@@ -255,9 +363,15 @@ let FormTextAddComponent = {
     }
   },
 
-
-
   TextHandlerOff: function () {
+    // If there's a new text object being placed, keep it but finalize its placement
+    if (FormTextAddComponent.newTextObject) {
+      if (activeVertex) {
+        activeVertex.finishDrag();
+      }
+      FormTextAddComponent.newTextObject = null;
+    }
+
     cursor.forEachObject(function (o) { cursor.remove(o) });
     canvas.off('mouse:move', FormTextAddComponent.TextOnMouseMove);
     canvas.off('mouse:down', FormTextAddComponent.TextOnMouseClick);
@@ -286,20 +400,27 @@ let FormTextAddComponent = {
       button.removeEventListener('click', FormTextAddComponent.liveUpdateText);
     });
 
-
-    // Restore mouse events for creating new text 
-    if (tabNum === 2) { // Only if we're still on text panel
-      canvas.on('mouse:move', FormTextAddComponent.TextOnMouseMove);
-      canvas.on('mouse:down', FormTextAddComponent.TextOnMouseClick);
-    }
-
     canvas.renderAll();
   },
 
   cancelInput: function (event) {
     if (event.key === 'Escape') {
+      // If there's a newly created text object being placed, delete it
+      if (FormTextAddComponent.newTextObject && canvas.contains(FormTextAddComponent.newTextObject)) {
+        FormTextAddComponent.newTextObject.deleteObject();
+        FormTextAddComponent.newTextObject = null;
+      }
+      
       document.getElementById('input-text').value = '';
       cursor.forEachObject(function (o) { cursor.remove(o) });
+      
+      // Clean up active vertex if there is one
+      if (activeVertex) {
+        activeVertex.cleanupDrag();
+        activeVertex = null;
+      }
+      
+      canvas.renderAll();
     }
   },
 
@@ -307,50 +428,136 @@ let FormTextAddComponent = {
     document.removeEventListener('keydown', ShowHideSideBarEvent);
     document.addEventListener('keydown', FormTextAddComponent.cancelInput);
 
+    // Clear any existing cursor objects
     cursor.forEachObject(function (o) { cursor.remove(o) });
-    cursor.txtChar = [];
-    cursor.text = '';
-    cursor.shapeMeta = null;
-
+    
+    // Get text and parameters
     const txt = options ? options.text : document.getElementById('input-text').value;
+    if (!txt || txt.trim() === '') return; // Don't create empty text
+    
     const xHeight = options ? options.xHeight : parseInt(document.getElementById('input-xHeight').value);
     const font = options ? options.font : document.getElementById('Text Font-container').selected.getAttribute('data-value');
     const color = options ? options.color : document.getElementById('Message Colour-container').selected.getAttribute('data-value');
 
+    // If we already have a new text object being placed, just update it instead of creating another
+    if (FormTextAddComponent.newTextObject && canvas.contains(FormTextAddComponent.newTextObject)) {
+      FormTextAddComponent.newTextObject.updateText(txt, xHeight, font, color);
+      canvas.renderAll();
+      return;
+    }
 
-    // Create a cursor TextObject for new text creation
+    // Center the object on the canvas viewport
+    const centerX = canvas.width / 2 / canvas.getZoom();
+    const centerY = canvas.height / 2 / canvas.getZoom();
+
+    // Account for any panning that has been done
+    const vpt = canvas.viewportTransform;
+    const actualCenterX = (centerX - vpt[4]) / vpt[0];
+    const actualCenterY = (centerY - vpt[5]) / vpt[3];
+
+    // Create a real TextObject that will be placed on the canvas
     const textObject = new TextObject({
       text: txt,
       xHeight: xHeight,
       font: font,
       color: color,
-      left: cursor.left,
-      top: cursor.top,
-      isCursor: true
+      left: actualCenterX,
+      top: actualCenterY
     });
 
-    // Add the textObject to cursor
-    cursor.add(textObject);
+    // Store reference to the newly created object
+    FormTextAddComponent.newTextObject = textObject;
 
-    // Update cursor properties
-    cursor.text = txt;
-    cursor.xHeight = xHeight;
-    cursor.font = font;
-    cursor.color = color;
+    // Add mouse move handler to position the object
+    canvas.on('mouse:move', FormTextAddComponent.TextOnMouseMove);
+    canvas.on('mouse:down', FormTextAddComponent.TextOnMouseClick);
+
+    // Activate the vertex control immediately to enable dragging and snapping
+    if (textObject.controls && textObject.controls.E1) {
+      activeVertex = textObject.controls.E1;
+      activeVertex.isDown = true;
+      activeVertex.originalPosition = {
+        left: textObject.left,
+        top: textObject.top
+      };
+      activeVertex.vertexOriginalPosition = {
+        x: textObject.getBasePolygonVertex('E1').x,
+        y: textObject.getBasePolygonVertex('E1').y
+      };
+      activeVertex.vertexOffset = {
+        x: textObject.getBasePolygonVertex('E1').x - textObject.left,
+        y: textObject.getBasePolygonVertex('E1').y - textObject.top
+      };
+      
+      // Create indicator for the active vertex
+      if (activeVertex.createIndicator) {
+        activeVertex.createIndicator(textObject.getBasePolygonVertex('E1').x, textObject.getBasePolygonVertex('E1').y);
+      }
+    }
 
     canvas.renderAll();
   },
 
   TextOnMouseMove: function (event) {
-    var pointer = canvas.getPointer(event.e);
-    cursor.set({
-      left: pointer.x,
-      top: pointer.y
-    });
-    canvas.renderAll();
+    if (FormTextAddComponent.newTextObject && activeVertex) {
+      const pointer = canvas.getPointer(event.e);
+      
+      // If we have an active vertex, let it handle the movement
+      if (activeVertex.handleMouseMoveRef) {
+        // Simulate a mouse move event with the current pointer
+        const simulatedEvent = {
+          e: event.e,
+          pointer: pointer
+        };
+        activeVertex.handleMouseMoveRef(simulatedEvent);
+      } else {
+        // Fallback direct positioning if vertex control isn't active
+        FormTextAddComponent.newTextObject.set({
+          left: pointer.x,
+          top: pointer.y
+        });
+        FormTextAddComponent.newTextObject.setCoords();
+        canvas.renderAll();
+      }
+    } else {
+      // Legacy cursor behavior as fallback
+      var pointer = canvas.getPointer(event.e);
+      cursor.set({
+        left: pointer.x,
+        top: pointer.y
+      });
+      canvas.renderAll();
+    }
   },
 
   TextOnMouseClick: function (event, options = null) {
+    if (event.e.button !== 0) return;
+    // Disable default click behavior after creating the object
+    if (FormTextAddComponent.newTextObject) {
+      // Complete the placement
+      if (activeVertex) {
+        // Finish the vertex drag
+        activeVertex.handleMouseDownRef(event);
+      }
+      
+      // Clean up
+      canvas.off('mouse:move', FormTextAddComponent.TextOnMouseMove);
+      canvas.off('mouse:down', FormTextAddComponent.TextOnMouseClick);
+      
+      // Reset state
+      FormTextAddComponent.newTextObject = null;
+      activeVertex = null;
+      document.getElementById('input-text').value = '';
+      
+      // Reattach default keyboard event listener
+      document.removeEventListener('keydown', FormTextAddComponent.cancelInput);
+      document.addEventListener('keydown', ShowHideSideBarEvent);
+      
+      canvas.renderAll();
+      return;
+    }
+
+    // Legacy options handling - should rarely be used now
     if (options) {
       cursor.set({
         left: options.left,
@@ -362,6 +569,9 @@ let FormTextAddComponent = {
       });
       textValue = options.text;
       xHeight = options.xHeight;
+      color = options.color;
+      font = options.font;
+      
       eventButton = 0;
     } else {
       textValue = document.getElementById("input-text").value;
@@ -371,38 +581,21 @@ let FormTextAddComponent = {
       eventButton = event.e.button;
     }
 
-
-    // For new text creation
-    if (textValue !== '' && eventButton === 0) {
-      // Create a real TextObject for the canvas
-      const textObject = new TextObject({
-        text: cursor.text,
-        xHeight: cursor.xHeight,
-        font: cursor.font,
-        color: cursor.color,
-        left: cursor.left,
-        top: cursor.top
+    // For new text creation (legacy path, should be replaced by the new approach)
+    if (textValue !== '' && eventButton === 0 && !FormTextAddComponent.newTextObject) {
+      // Call the new method that creates a direct TextObject
+      FormTextAddComponent.TextInputHandler(null, {
+        text: textValue,
+        xHeight: xHeight,
+        font: font,
+        color: color
       });
-
-      // If we have an active input element, refresh the cursor display
-      if (document.getElementById('input-text')) {
-        FormTextAddComponent.TextInputHandler(null, {
-          text: cursor.text,
-          xHeight: cursor.xHeight,
-          font: cursor.font,
-          color: cursor.color
-        });
-      }
-
-      cursor.text = '';
-      canvas.renderAll();
     }
   },
 
   EditOnMouseClick: function (event) {
     document.getElementById('input-text').value = '';
     FormTextAddComponent.textPanelInit(null);
-
   }
 }
 
@@ -500,6 +693,8 @@ let FormDrawMapComponent = {
 /* Draw Symbol Panel */
 let FormDrawAddComponent = {
   symbolAngle: 0,
+  newSymbolObject: null,
+  
   drawPanelInit: async function () {
     tabNum = 1
     var parent = GeneralHandler.PanelInit()
@@ -537,7 +732,7 @@ let FormDrawAddComponent = {
     }
     Object.keys(symbolsTemplate).forEach(async (symbol) => {
       const svg = await FormDrawAddComponent.createButtonSVG(symbol, 5, color)
-      GeneralHandler.createSVGButton(`button-${symbol}`, svg, parent, 'symbol', FormDrawAddComponent.drawSymbolOnCursor, 'click')
+      GeneralHandler.createSVGButton(`button-${symbol}`, svg, parent, 'symbol', FormDrawAddComponent.createSymbolObject, 'click')
     })
   },
 
@@ -549,51 +744,238 @@ let FormDrawAddComponent = {
     }
     FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle > 90 ? -90 : FormDrawAddComponent.symbolAngle
     FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle < -90 ? +90 : FormDrawAddComponent.symbolAngle
+    
     // Handle the angle selection
     document.getElementById('angle-display').innerText = FormDrawAddComponent.symbolAngle + '°';
-    if (cursor._objects.length) {
-      FormDrawAddComponent.drawSymbolOnCursor(null, { symbol: cursor.symbol, xHeight: cursor.xHeight })
+    
+    // Update the new symbol object if it exists
+    if (FormDrawAddComponent.newSymbolObject) {
+      FormDrawAddComponent.updateSymbolAngle(FormDrawAddComponent.newSymbolObject);
     }
-    // You can add your logic here to apply the angle to the shape
-  },
-
-  DrawHandlerOff: function (event) {
-    cursor.forEachObject(function (o) { cursor.remove(o) })
-    canvas.off('mouse:move', FormDrawAddComponent.DrawOnMouseMove)
-    canvas.off('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
-    canvas.renderAll()
-  },
-
-  DrawOnMouseMove: function (event) {
-    var pointer = canvas.getPointer(event.e);
-    var posx = pointer.x;
-    var posy = pointer.y;
-    cursor.set({
-      left: posx + cursorOffset.x,
-      top: posy + cursorOffset.y,
-    });
+    
     canvas.renderAll();
   },
 
-  SymbolonMouseClick: function (event, options = null) {
-    //permanent cursor object 
-    if (options) {
-      cursor.set(
-        { left: options.left, top: options.top }
-      )
-      var pointer = { x: options.left, y: options.top }
-      eventButton = 0
-    } else {
-      eventButton = event.e.button
-      var pointer = canvas.getPointer(event.e);
+  DrawHandlerOff: function (event) {
+    // If there's a new symbol object being placed, finalize its placement
+    if (FormDrawAddComponent.newSymbolObject) {
+      if (activeVertex) {
+        activeVertex.finishDrag();
+      }
+      FormDrawAddComponent.newSymbolObject = null;
     }
-    if (eventButton === 0 && cursor._objects.length) {
-      var posx = pointer.x;
-      var posy = pointer.y;
-      var xHeight = parseInt(document.getElementById('input-xHeight').value)
-      var color = document.getElementById('Message Colour-container').selected.getAttribute('data-value')
-      const arrowOptions1 = { x: posx, y: posy, length: xHeight / 4, angle: FormDrawAddComponent.symbolAngle, color: color, };
-      drawLabeledSymbol(cursor.symbol, arrowOptions1);
+    
+    // Remove any cursor objects
+    cursor.forEachObject(function (o) { cursor.remove(o) })
+    
+    // Remove event listeners
+    canvas.off('mouse:move', FormDrawAddComponent.SymbolOnMouseMove);
+    canvas.off('mouse:down', FormDrawAddComponent.SymbolOnMouseClick);
+    document.removeEventListener('keydown', FormDrawAddComponent.cancelDraw);
+    document.addEventListener('keydown', ShowHideSideBarEvent);
+    
+    canvas.renderAll();
+  },
+
+  // Create a new symbol object directly instead of using cursor
+  createSymbolObject: async function(event) {
+    // Clear any previous symbol being placed
+    if (FormDrawAddComponent.newSymbolObject) {
+      canvas.remove(FormDrawAddComponent.newSymbolObject);
+      FormDrawAddComponent.newSymbolObject = null;
+    }
+    
+    // Remove event listeners
+    document.removeEventListener('keydown', ShowHideSideBarEvent);
+    document.addEventListener('keydown', FormDrawAddComponent.cancelDraw);
+
+    // Get symbol type and parameters from the button or defaults
+    const symbolType = event.currentTarget.id.replace('button-', '');
+    const xHeight = parseInt(document.getElementById('input-xHeight').value);
+    const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
+    
+    // Center the object on the canvas viewport
+    const centerX = canvas.width / 2 / canvas.getZoom();
+    const centerY = canvas.height / 2 / canvas.getZoom();
+
+    // Account for any panning that has been done
+    const vpt = canvas.viewportTransform;
+    const actualCenterX = (centerX - vpt[4]) / vpt[0];
+    const actualCenterY = (centerY - vpt[5]) / vpt[3];
+    
+    // Create the symbol directly
+    const symbolObject = await drawSymbolDirectly(symbolType, {
+      x: actualCenterX,
+      y: actualCenterY,
+      length: xHeight / 4,
+      angle: FormDrawAddComponent.symbolAngle,
+      color: color
+    });
+    
+    // Store reference to the new symbol
+    FormDrawAddComponent.newSymbolObject = symbolObject;
+    
+    // Add mouse event handlers for placement
+    canvas.on('mouse:move', FormDrawAddComponent.SymbolOnMouseMove);
+    canvas.on('mouse:down', FormDrawAddComponent.SymbolOnMouseClick);
+    
+    // Activate the vertex control immediately to enable dragging and snapping
+    if (symbolObject.controls && symbolObject.controls.V1) {
+      activeVertex = symbolObject.controls.V1;
+      activeVertex.isDown = true;
+      activeVertex.originalPosition = {
+        left: symbolObject.left,
+        top: symbolObject.top
+      };
+      
+      // Store vertex information
+      const v1 = symbolObject.getBasePolygonVertex('V1');
+      if (v1) {
+        activeVertex.vertexOriginalPosition = {
+          x: v1.x,
+          y: v1.y
+        };
+        activeVertex.vertexOffset = {
+          x: v1.x - symbolObject.left,
+          y: v1.y - symbolObject.top
+        };
+        
+        // Create indicator for the active vertex
+        if (activeVertex.createIndicator) {
+          activeVertex.createIndicator(v1.x, v1.y);
+        }
+      }
+    }
+    
+    canvas.renderAll();
+  },
+
+  // Helper function to update symbol angle
+  updateSymbolAngle: async function(symbolObject) {
+    if (!symbolObject) return;
+    
+    const symbolType = symbolObject.symbol;
+    const xHeight = symbolObject.xHeight;
+    const color = symbolObject.color;
+    const position = {
+      x: symbolObject.left,
+      y: symbolObject.top
+    };
+    
+    // Create new symbol with updated angle
+    const newSymbolObject = await drawSymbolDirectly(symbolType, {
+      x: position.x,
+      y: position.y,
+      length: xHeight / 4,
+      angle: FormDrawAddComponent.symbolAngle,
+      color: color
+    });
+    
+    // Replace on canvas
+    canvas.remove(symbolObject);
+    FormDrawAddComponent.newSymbolObject = newSymbolObject;
+    
+    // Re-activate vertex control
+    if (newSymbolObject.controls && newSymbolObject.controls.V1) {
+      activeVertex = newSymbolObject.controls.V1;
+      activeVertex.isDown = true;
+      activeVertex.originalPosition = {
+        left: newSymbolObject.left,
+        top: newSymbolObject.top
+      };
+      
+      // Store vertex information
+      const v1 = newSymbolObject.getBasePolygonVertex('V1');
+      if (v1) {
+        activeVertex.vertexOriginalPosition = {
+          x: v1.x,
+          y: v1.y
+        };
+        activeVertex.vertexOffset = {
+          x: v1.x - newSymbolObject.left,
+          y: v1.y - newSymbolObject.top
+        };
+        
+        // Create indicator for the active vertex
+        if (activeVertex.createIndicator) {
+          activeVertex.createIndicator(v1.x, v1.y);
+        }
+      }
+    }
+  },
+  
+  SymbolOnMouseMove: function(event) {
+    if (FormDrawAddComponent.newSymbolObject && activeVertex) {
+      const pointer = canvas.getPointer(event.e);
+      
+      // If we have an active vertex, let it handle the movement
+      if (activeVertex.handleMouseMoveRef) {
+        // Simulate a mouse move event with the current pointer
+        const simulatedEvent = {
+          e: event.e,
+          pointer: pointer
+        };
+        activeVertex.handleMouseMoveRef(simulatedEvent);
+      } else {
+        // Fallback direct positioning if vertex control isn't active
+        FormDrawAddComponent.newSymbolObject.set({
+          left: pointer.x,
+          top: pointer.y
+        });
+        FormDrawAddComponent.newSymbolObject.setCoords();
+        canvas.renderAll();
+      }
+    }
+  },
+  
+  SymbolOnMouseClick: function(event) {
+    if (event.e.button !== 0) return;
+    // Finalize symbol placement on click
+    if (FormDrawAddComponent.newSymbolObject && event.e.button === 0) {
+      // Complete the placement
+      if (activeVertex) {
+        activeVertex.handleMouseDownRef(event);
+      }
+      
+      // Clean up
+      canvas.off('mouse:move', FormDrawAddComponent.SymbolOnMouseMove);
+      canvas.off('mouse:down', FormDrawAddComponent.SymbolOnMouseClick);
+      
+      // Reset state
+      const placedSymbol = FormDrawAddComponent.newSymbolObject;
+      FormDrawAddComponent.newSymbolObject = null;
+      activeVertex = null;
+      
+      // Reattach default keyboard event listener
+      document.removeEventListener('keydown', FormDrawAddComponent.cancelDraw);
+      document.addEventListener('keydown', ShowHideSideBarEvent);
+      
+      canvas.renderAll();
+      return placedSymbol;
+    }
+  },
+
+  cancelDraw: function(event) {
+    if (event.key === 'Escape') {
+      // If there's a new symbol object being placed, remove it
+      if (FormDrawAddComponent.newSymbolObject) {
+        FormDrawAddComponent.newSymbolObject.deleteObject();
+        FormDrawAddComponent.newSymbolObject = null;
+      }
+      
+      // Clean up active vertex if there is one
+      if (activeVertex) {
+        activeVertex.cleanupDrag();
+        activeVertex = null;
+      }
+      
+      // Restore event listeners
+      canvas.off('mouse:move', FormDrawAddComponent.SymbolOnMouseMove);
+      canvas.off('mouse:down', FormDrawAddComponent.SymbolOnMouseClick);
+      document.removeEventListener('keydown', FormDrawAddComponent.cancelDraw);
+      document.addEventListener('keydown', ShowHideSideBarEvent);
+      
+      canvas.renderAll();
     }
   },
 
@@ -626,79 +1008,7 @@ let FormDrawAddComponent = {
     pathData = pathData.replace(/<svg>/g, '<svg style="width:100;height:100;">')
     pathData = pathData.replace(/<path/g, `<path transform="translate(${translateX}, ${translateY}) scale(${scale})"`);
     return pathData;
-
-  },
-  drawSymbolOnCursor: async (event, options = null) => {
-    canvas.off('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
-    canvas.on('mouse:move', FormDrawAddComponent.DrawOnMouseMove)
-    canvas.on('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
-
-    cursor.forEachObject(function (o) { cursor.remove(o) })
-    cursor.txtChar = []
-    cursor.text = ''
-
-    if (options) {
-      symbol = options.symbol
-      var xHeight = options.xHeight
-      var color = options.color
-    }
-    else {
-      symbol = event.currentTarget.id.replace('button-', '')
-      var xHeight = parseInt(document.getElementById('input-xHeight').value)
-      var color = document.getElementById('Message Colour-container').selected.getAttribute('data-value')
-    }
-
-
-    let symbolObject = calcSymbol(symbol, xHeight / 4, color)
-
-    const arrowOptions1 = {
-      left: 0,
-      top: 0,
-      fill: color,
-      angle: FormDrawAddComponent.symbolAngle,
-      // originX: 'center',
-      objectCaching: false,
-      strokeWidth: 0
-    }
-    //cursor.shapeMeta = symbolObject
-    cursor.symbol = symbol
-
-    Polygon1 = new GlyphPath()
-    await Polygon1.initialize(symbolObject, arrowOptions1)
-
-
-
-    Polygon1.symbol = symbol
-    Polygon1.xHeight = xHeight
-    Polygon1.color = color
-
-    symbolOffset = getInsertOffset(symbolObject)
-    cursorOffset.x = symbolOffset.left
-    cursorOffset.y = symbolOffset.top
-
-    cursor.add(Polygon1)
-    Polygon1.setCoords();
-
-    document.removeEventListener('keydown', ShowHideSideBarEvent);
-    document.addEventListener('keydown', FormDrawAddComponent.cancelDraw)
-
-    canvas.renderAll();
-
-
-  },
-
-  cancelDraw: (event) => {
-    if (event.key === 'Escape') {
-      cursor.forEachObject(function (o) { cursor.remove(o) })
-      canvas.off('mouse:move', FormTextAddComponent.TextOnMouseMove)
-      canvas.off('mouse:down', FormDrawAddComponent.SymbolonMouseClick)
-      canvas.requestRenderAll()
-      setTimeout(() => {
-        document.addEventListener('keydown', ShowHideSideBarEvent);
-      }, 1000); // Delay in milliseconds (e.g., 1000ms = 1 second)
-    }
-  },
-
+  }
 }
 
 /* Border Panel */
@@ -1083,8 +1393,12 @@ let FormDebugComponent = {
       // Create a container for debug info
       var debugInfoContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
       FormDebugComponent.createDebugInfoPanel(debugInfoContainer);
-      const sponsorDiv = GeneralHandler.createNode("div", { 'class': `input-container` }, parent)
-      sponsorDiv.innerHTML = '<a href="https://www.buymeacoffee.com/G1213123" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee" height="41" width="174" style="max-width:100%;"></a>'
+      const sponsorDiv = GeneralHandler.createNode("div", { 'class': `coffee-link-container` }, parent)
+      sponsorDiv.innerHTML = '<a href="https://www.buymeacoffee.com/G1213123" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174" style="max-width:100%;"></a>'
+      
+      // Add GitHub repository link
+      const githubLink = GeneralHandler.createNode("div", { 'class': 'github-link-container' }, sponsorDiv);
+      githubLink.innerHTML = '<a href="https://github.com/G1213123/TrafficSign" target="_blank"><i class="fa-brands fa-github"></i><span>Visit GitHub Repository</span></a>';
 
 
       // Update the sidebar when an object is selected

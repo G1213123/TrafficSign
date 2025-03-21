@@ -1,4 +1,4 @@
-var canvas = this.__canvas = new fabric.Canvas('canvas', { fireMiddleClick: true, fireRightClick: true, preserveObjectStacking: true, enableRetinaScaling: true  });
+var canvas = this.__canvas = new fabric.Canvas('canvas', { fireMiddleClick: true, fireRightClick: true, preserveObjectStacking: true, enableRetinaScaling: true });
 canvas.backgroundColor = '#2f2f2f';
 const ctx = canvas.getContext("2d")
 let activeObject = null
@@ -32,7 +32,7 @@ fabric.Object.prototype.toObject = (function (toObject) {
 })(fabric.Object.prototype.toObject);
 
 // fire moving for group selection
-canvas.on('object:moving', function(event) {
+canvas.on('object:moving', function (event) {
   if (event.target.type === 'activeselection') {
     // Filter out objects with locked movement in x or y from the active selection
     const lockedObjs = event.target._objects.filter(obj => obj.lockMovementX || obj.lockMovementY);
@@ -50,7 +50,7 @@ canvas.on('object:moving', function(event) {
       canvas.requestRenderAll();
     }
     event.target._objects.forEach(obj => {
-      if (obj.updateAllCoord){
+      if (obj.updateAllCoord) {
         obj.updateAllCoord();
       }
     })
@@ -107,6 +107,25 @@ canvas.on('mouse:wheel', function (opt) {
   canvas.requestRenderAll();
 })
 
+canvas.on({
+  'selection:updated': lockGroupSelection,
+  'selection:created': lockGroupSelection
+});
+
+function lockGroupSelection(event) {
+  const activeObjects = canvas.getActiveObject();
+
+  if (activeObjects.type === 'activeselection') {
+    activeObjects.lockMovementX = true;
+    activeObjects.lockMovementY = true; 
+    activeObjects.lockScalingX = true;
+    activeObjects.lockScalingY = true;
+    activeObjects.lockRotation = true;
+    activeObjects.lockUniScaling = true;
+    activeObjects.hasControls = false;   
+  }
+}
+
 // Method to handle arrow key presses for all active objects
 function handleArrowKeys(event) {
   const activeObjects = canvas.getActiveObjects();
@@ -139,7 +158,7 @@ function handleArrowKeys(event) {
         }
         break;
       case 'Delete':
-        if (obj.deleteObject){
+        if (obj.deleteObject) {
           canvas.discardActiveObject(obj)
           canvas.fire('object:deselected', { target: obj });
           obj.deleteObject(null, obj)
@@ -234,27 +253,27 @@ function DrawGrid() {
   };
 
   const grid_set = [];
-  
+
   // Set a constant screen size for text (12px)
   const constantFontSize = 12;
   // Scale font size according to zoom to maintain consistent screen size
   const scaledFontSize = constantFontSize / zoom;
-  
+
   // Text appearance threshold - don't show labels when too zoomed out
   const showLabels = zoom > 0.08;
-  
+
   for (let x = xmin; x <= xmax; x += options.distance) {
     const vertical = new fabric.Line([x, ymin, x, ymax], options.param);
     if (Math.abs(x % (5 * options.distance)) < 1e-6) {
       vertical.set({ strokeWidth: 0.2 / zoom }); // Thicker lines for major grid lines
-      
+
       if (showLabels) {
-        const vText = new fabric.Text(String(x), { 
+        const vText = new fabric.Text(String(x), {
           left: x + 2 / zoom, // Add a small offset
-          top: 2 / zoom, 
-          fill: '#a0a0a0', 
-          selectable: false, 
-          hoverCursor: 'default', 
+          top: 2 / zoom,
+          fill: '#a0a0a0',
+          selectable: false,
+          hoverCursor: 'default',
           fontSize: scaledFontSize,
           scaleX: 1,
           scaleY: 1,
@@ -270,14 +289,14 @@ function DrawGrid() {
     const horizontal = new fabric.Line([xmin, y, xmax, y], options.param);
     if (Math.abs(y % (5 * options.distance)) < 1e-6) {
       horizontal.set({ strokeWidth: 0.2 / zoom }); // Thicker lines for major grid lines
-      
+
       if (showLabels) {
-        const hText = new fabric.Text(String(y), { 
-          left: 2 / zoom, 
+        const hText = new fabric.Text(String(y), {
+          left: 2 / zoom,
           top: y + 2 / zoom, // Add a small offset
-          fill: '#a0a0a0', 
-          selectable: false, 
-          hoverCursor: 'default', 
+          fill: '#a0a0a0',
+          selectable: false,
+          hoverCursor: 'default',
           fontSize: scaledFontSize,
           scaleX: 1,
           scaleY: 1,
@@ -358,7 +377,7 @@ document.addEventListener('mouseup', answerBoxFocus);
 
 let resolveAnswer;
 
-function showTextBox(text, withAnswerBox = null, event='keydown', callback = null) {
+function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = null) {
   const promptBox = document.getElementById('cursorTextBox');
   const answerBox = document.getElementById('cursorAnswerBox');
 

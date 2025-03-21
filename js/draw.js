@@ -939,20 +939,33 @@ class VertexControl extends fabric.Control {
       canvas.on('mouse:up', this.handleMouseUpRef);
       
       // Create a visual indicator showing this vertex is active
-      this.indicator = new fabric.Circle({
-        left: this.vertex.x - 10,
-        top: this.vertex.y - 10,
-        radius: 10,
-        fill: 'rgba(255, 255, 0, 0.5)',
-        stroke: 'yellow',
-        strokeWidth: 2,
-        selectable: false,
-        evented: false
-      });
-      canvas.add(this.indicator);
+      this.createIndicator(this.vertex.x, this.vertex.y);
       
       canvas.renderAll();
     }
+  }
+
+  // New method to create or update the indicator
+  createIndicator(x, y, isSnapping = false) {
+    // Remove existing indicator if it exists
+    if (this.indicator) {
+      canvas.remove(this.indicator);
+    }
+    
+    // Create a new indicator at the specified position
+    this.indicator = new fabric.Circle({
+      left: x - 10,
+      top: y - 10,
+      radius: 10,
+      fill: isSnapping ? 'rgba(0, 255, 0, 0.5)' : 'rgba(255, 255, 0, 0.5)',
+      stroke: isSnapping ? 'lime' : 'yellow',
+      strokeWidth: 2,
+      selectable: false,
+      evented: false
+    });
+    
+    canvas.add(this.indicator);
+    return this.indicator;
   }
 
   handleMouseMove(event) {
@@ -974,25 +987,33 @@ class VertexControl extends fabric.Control {
       newLeft = snapPoint.x - this.vertexOffset.x;
       newTop = snapPoint.y - this.vertexOffset.y;
       
-      // Update indicator to match the snap point
-      this.indicator.set({
-        left: snapPoint.x - 10,
-        top: snapPoint.y - 10,
-        fill: 'rgba(0, 255, 0, 0.5)', // Green indicator when snapping
-        stroke: 'lime'
-      });
+      // Ensure the indicator exists and update it to match the snap point
+      if (!this.indicator) {
+        this.createIndicator(snapPoint.x, snapPoint.y, true);
+      } else {
+        this.indicator.set({
+          left: snapPoint.x - 10,
+          top: snapPoint.y - 10,
+          fill: 'rgba(0, 255, 0, 0.5)', // Green indicator when snapping
+          stroke: 'lime'
+        });
+      }
     } else {
       // Regular movement
       newLeft = pointer.x - this.vertexOffset.x;
       newTop = pointer.y - this.vertexOffset.y;
       
-      // Reset indicator appearance and position
-      this.indicator.set({
-        left: pointer.x - 10,
-        top: pointer.y - 10,
-        fill: 'rgba(255, 255, 0, 0.5)', // Yellow indicator when not snapping
-        stroke: 'yellow'
-      });
+      // Ensure the indicator exists and update it to follow the pointer
+      if (!this.indicator) {
+        this.createIndicator(pointer.x, pointer.y);
+      } else {
+        this.indicator.set({
+          left: pointer.x - 10,
+          top: pointer.y - 10,
+          fill: 'rgba(255, 255, 0, 0.5)', // Yellow indicator when not snapping
+          stroke: 'yellow'
+        });
+      }
     }
     
     // Move the group
@@ -1008,19 +1029,15 @@ class VertexControl extends fabric.Control {
         });
       }
 
-  } else {
-    this.baseGroup.routeList[0].x = pointer.x
-    this.baseGroup.routeList[0].y = pointer.y
-    this.baseGroup.onMove()
-  }
+    } else {
+      this.baseGroup.routeList[0].x = pointer.x
+      this.baseGroup.routeList[0].y = pointer.y
+      this.baseGroup.onMove()
+    }
     
     this.baseGroup.setCoords();
     this.baseGroup.updateAllCoord();
     
-    // Update the original 
-    //if (this.baseGroup.onMove){
-    //  this.baseGroup.onMove()
-    //}
     canvas.renderAll();
   }
 
