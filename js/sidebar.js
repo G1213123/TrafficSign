@@ -1394,7 +1394,7 @@ let FormDebugComponent = {
       var debugInfoContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
       FormDebugComponent.createDebugInfoPanel(debugInfoContainer);
       const sponsorDiv = GeneralHandler.createNode("div", { 'class': `coffee-link-container` }, parent)
-      sponsorDiv.innerHTML = '<a href="https://www.buymeacoffee.com/G1213123" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174" style="max-width:100%;"></a>'
+      sponsorDiv.innerHTML = '<a href="https://www.buymeacoffee.com/G1213123" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee" height="41" width="174" style="max-width:100%;"></a>'
       
       // Add GitHub repository link
       const githubLink = GeneralHandler.createNode("div", { 'class': 'github-link-container' }, sponsorDiv);
