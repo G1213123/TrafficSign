@@ -1321,7 +1321,7 @@ const RouteTest = {
     // Create a Roundabout directly
     const routeOptions = {
       routeList: [
-        { x: params.posx, y: params.posy + (params.rootLength + params.tipLength) * params.xHeight / 4, angle: 180, width: 6, shape: 'Stub' },
+        { x: params.posx, y: params.posy + (params.rootLength + params.tipLength) * params.xHeight / 4, angle: 180, width: 6, shape: 'Conventional' },
         { x: params.posx, y: params.posy, angle: 0, width: 6, shape: 'Stub' }
       ],
       xHeight: params.xHeight,
@@ -1464,7 +1464,7 @@ const SpiralRoundaboutTest = {
     // Create a Spiral Roundabout directly
     const routeOptions = {
       routeList: [
-        { x: params.posx, y: params.posy + (params.rootLength + params.tipLength) * params.xHeight / 4, angle: 180, width: 6, shape: 'Stub' },
+        { x: params.posx, y: params.posy + (params.rootLength + params.tipLength) * params.xHeight / 4, angle: 180, width: 6, shape: 'Conventional' },
         { x: params.posx, y: params.posy, angle: 0, width: 6, shape: 'Stub' }
       ],
       xHeight: params.xHeight,

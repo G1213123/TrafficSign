@@ -227,22 +227,22 @@ let FormTextAddComponent = {
       const locationContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
       const regionLabel = GeneralHandler.createNode("div", { 'class': 'placeholder' }, locationContainer);
       regionLabel.innerHTML = "Destination Selector";
-      
+
       // Extract region names from destinations array
       const regionNames = EngDestinations.map(region => Object.keys(region)[0]);
-      
+
       // Create language toggle
-      const languageToggle = GeneralHandler.createToggle('Language', ['English', 'Chinese'], locationContainer, 'English' , FormTextAddComponent.updateLocationDropdown);
-      
+      const languageToggle = GeneralHandler.createToggle('Language', ['English', 'Chinese'], locationContainer, 'English', FormTextAddComponent.updateLocationDropdown);
+
       // Create region toggle
       const regionToggle = GeneralHandler.createToggle('Region', regionNames, locationContainer, regionNames[0], FormTextAddComponent.updateLocationDropdown);
-      
+
       // Create location dropdown
       const locationDropdownContainer = GeneralHandler.createNode("div", { 'class': 'location-dropdown-container' }, locationContainer);
-      
+
       // Create the select element for locations
       const locationSelect = GeneralHandler.createNode("select", { 'class': 'input', 'id': 'location-select' }, locationDropdownContainer, FormTextAddComponent.locationSelected, 'change');
-      
+
       // Initialize the location dropdown with locations from the first region
       FormTextAddComponent.populateLocationDropdown(regionNames[0], "English");
     }
@@ -251,7 +251,7 @@ let FormTextAddComponent = {
   /**
    * Updates the location dropdown when a region is selected
    */
-  updateLocationDropdown: function(selectedButton) {
+  updateLocationDropdown: function (selectedButton) {
     const regionName = GeneralHandler.getToggleValue('Region-container')
     const language = GeneralHandler.getToggleValue('Language-container')
     FormTextAddComponent.populateLocationDropdown(regionName, language);
@@ -260,27 +260,27 @@ let FormTextAddComponent = {
   /**
    * Populates the location dropdown with locations from the selected region
    */
-  populateLocationDropdown: function(regionName, language) {
+  populateLocationDropdown: function (regionName, language) {
     const locationSelect = document.getElementById('location-select');
     if (!locationSelect) return;
-    
+
     // Clear existing options
     locationSelect.innerHTML = '';
-    
+
     // Add a default empty option
     const defaultOption = document.createElement('option');
     defaultOption.value = '';
     defaultOption.text = '-- Select Location --';
     locationSelect.appendChild(defaultOption);
-    
+
     // Find the selected region in the destinations array
-    const languageSet = language=="English"?EngDestinations:ChtDestinations
+    const languageSet = language == "English" ? EngDestinations : ChtDestinations
     const selectedRegion = languageSet.find(region => Object.keys(region)[0] === regionName);
     if (!selectedRegion) return;
-    
+
     // Get the locations array for the selected region
     const locations = selectedRegion[regionName];
-    
+
     // Add an option for each location
     locations.forEach(location => {
       const option = document.createElement('option');
@@ -293,18 +293,18 @@ let FormTextAddComponent = {
   /**
    * Handler for when a location is selected from the dropdown
    */
-  locationSelected: function(event) {
+  locationSelected: function (event) {
     const selectedLocation = event.target.value;
     if (!selectedLocation) return;
-    
+
     // Update the text input with the selected location
     const textInput = document.getElementById('input-text');
     if (textInput) {
       textInput.value = selectedLocation;
-      
+
       // Determine if we're editing or creating
       const activeObject = canvas.getActiveObject();
-      
+
       // If we already have a new text object being placed, update it
       if (FormTextAddComponent.newTextObject && canvas.contains(FormTextAddComponent.newTextObject)) {
         const xHeight = parseInt(document.getElementById('input-xHeight').value);
@@ -319,7 +319,7 @@ let FormTextAddComponent = {
       }
       // Otherwise create a new text object
       else {
-        FormTextAddComponent.TextInputHandler(null, { 
+        FormTextAddComponent.TextInputHandler(null, {
           text: selectedLocation,
           xHeight: parseInt(document.getElementById('input-xHeight').value),
           font: document.getElementById('Text Font-container').selected.getAttribute('data-value'),
@@ -340,7 +340,7 @@ let FormTextAddComponent = {
       const newXHeight = parseInt(document.getElementById('input-xHeight').value);
       const newFont = document.getElementById('Text Font-container').selected.getAttribute('data-value');
       const newColor = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
-      
+
       FormTextAddComponent.newTextObject.updateText(newText, newXHeight, newFont, newColor);
       return;
     }
@@ -415,16 +415,16 @@ let FormTextAddComponent = {
         FormTextAddComponent.newTextObject.deleteObject();
         FormTextAddComponent.newTextObject = null;
       }
-      
+
       document.getElementById('input-text').value = '';
       cursor.forEachObject(function (o) { cursor.remove(o) });
-      
+
       // Clean up active vertex if there is one
       if (activeVertex) {
         activeVertex.cleanupDrag();
         activeVertex = null;
       }
-      
+
       canvas.renderAll();
     }
   },
@@ -435,11 +435,11 @@ let FormTextAddComponent = {
 
     // Clear any existing cursor objects
     cursor.forEachObject(function (o) { cursor.remove(o) });
-    
+
     // Get text and parameters
     const txt = options ? options.text : document.getElementById('input-text').value;
     if (!txt || txt.trim() === '') return; // Don't create empty text
-    
+
     const xHeight = options ? options.xHeight : parseInt(document.getElementById('input-xHeight').value);
     const font = options ? options.font : document.getElementById('Text Font-container').selected.getAttribute('data-value');
     const color = options ? options.color : document.getElementById('Message Colour-container').selected.getAttribute('data-value');
@@ -493,7 +493,7 @@ let FormTextAddComponent = {
         x: textObject.getBasePolygonVertex('E1').x - textObject.left,
         y: textObject.getBasePolygonVertex('E1').y - textObject.top
       };
-      
+
       // Create indicator for the active vertex
       if (activeVertex.createIndicator) {
         activeVertex.createIndicator(textObject.getBasePolygonVertex('E1').x, textObject.getBasePolygonVertex('E1').y);
@@ -506,7 +506,7 @@ let FormTextAddComponent = {
   TextOnMouseMove: function (event) {
     if (FormTextAddComponent.newTextObject && activeVertex) {
       const pointer = canvas.getPointer(event.e);
-      
+
       // If we have an active vertex, let it handle the movement
       if (activeVertex.handleMouseMoveRef) {
         // Simulate a mouse move event with the current pointer
@@ -544,20 +544,20 @@ let FormTextAddComponent = {
         // Finish the vertex drag
         activeVertex.handleMouseDownRef(event);
       }
-      
+
       // Clean up
       canvas.off('mouse:move', FormTextAddComponent.TextOnMouseMove);
       canvas.off('mouse:down', FormTextAddComponent.TextOnMouseClick);
-      
+
       // Reset state
       FormTextAddComponent.newTextObject = null;
       activeVertex = null;
       document.getElementById('input-text').value = '';
-      
+
       // Reattach default keyboard event listener
       document.removeEventListener('keydown', FormTextAddComponent.cancelInput);
       document.addEventListener('keydown', ShowHideSideBarEvent);
-      
+
       canvas.renderAll();
       return;
     }
@@ -576,7 +576,7 @@ let FormTextAddComponent = {
       xHeight = options.xHeight;
       color = options.color;
       font = options.font;
-      
+
       eventButton = 0;
     } else {
       textValue = document.getElementById("input-text").value;
@@ -608,6 +608,7 @@ let FormTextAddComponent = {
 let FormDrawMapComponent = {
   MapType: ['Main Line', 'Conventional Roundabout', 'Spiral Roundabout',],
   EndShape: ['Arrow', 'Stub'],
+  RoundaboutFeatures: ['Conventional','Auxiliary', 'U-turn'],
   permitAngle: [45, 60, 90],
   defaultRoute: [{ x: 0, y: 7, angle: 60, width: 4, shape: 'Arrow' }],
 
@@ -627,13 +628,19 @@ let FormDrawMapComponent = {
 
       // Create a container for route parameters
       var MainRoadParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      GeneralHandler.createToggle('Main Road Type', FormDrawMapComponent.MapType, MainRoadParamsContainer, 'Main Line', drawMainRoadOnCursor)
-      const drawMapButton = GeneralHandler.createButton('button-DrawMap', 'Draw Main Road Symbol', MainRoadParamsContainer, 'input', drawMainRoadOnCursor, 'click');
+      GeneralHandler.createToggle('Main Road Type', FormDrawMapComponent.MapType, MainRoadParamsContainer, 'Main Line', FormDrawMapComponent.updateRoadTypeSettings)
+      //const drawMapButton = GeneralHandler.createButton('button-DrawMap', 'Draw Main Road Symbol', MainRoadParamsContainer, 'input', drawMainRoadOnCursor, 'click');
 
-      GeneralHandler.createInput('root-length', 'Main Road Root Length', MainRoadParamsContainer, 7, drawMainRoadOnCursor, 'input')
-      GeneralHandler.createInput('tip-length', 'Main Road Tip Length', MainRoadParamsContainer, 12, drawMainRoadOnCursor, 'input')
-      GeneralHandler.createInput('main-width', 'Main Road Width', MainRoadParamsContainer, 6, drawMainRoadOnCursor, 'input')
-      GeneralHandler.createToggle(`Main Road Shape`, FormDrawMapComponent.EndShape, MainRoadParamsContainer, 'Arrow', drawMainRoadOnCursor)
+      // Create a container for road type-specific settings
+      const roadTypeSettingsContainer = GeneralHandler.createNode("div", { 'class': 'road-type-settings' }, MainRoadParamsContainer);
+
+
+      // Initial setup of settings based on default selection
+      FormDrawMapComponent.updateRoadTypeSettings(roadTypeSettingsContainer);
+
+
+      // Create the Draw Map button
+      const drawMapButton = GeneralHandler.createButton('button-DrawMap', 'Draw Main Road Symbol', MainRoadParamsContainer, 'input', FormDrawMapComponent.gatherMainRoadParams, 'click');
 
       const existingRoute = canvas.getActiveObjects().length == 1 && canvas.getActiveObject.functionalType == 'MainRoute' ? canvas.getActiveObjects()[0] : null
       const routeList = existingRoute ? existingRoute.routeList : FormDrawMapComponent.defaultRoute
@@ -657,6 +664,64 @@ let FormDrawMapComponent = {
         })
       }
     }
+  },
+
+  // Function to show the appropriate settings based on selected road type
+  updateRoadTypeSettings: function () {
+    // Clear current settings
+    const roadTypeSettingsContainer = document.querySelector('.road-type-settings');
+    roadTypeSettingsContainer.innerHTML = '';
+
+    // Get selected road type
+    const roadType = GeneralHandler.getToggleValue('Main Road Type-container');
+
+    // Show settings based on road type
+    if (roadType === 'Main Line') {
+      // Main Line settings
+      GeneralHandler.createInput('root-length', 'Main Road Root Length', roadTypeSettingsContainer, 7, drawMainRoadOnCursor, 'input');
+      GeneralHandler.createInput('tip-length', 'Main Road Tip Length', roadTypeSettingsContainer, 12, drawMainRoadOnCursor, 'input');
+      GeneralHandler.createInput('main-width', 'Main Road Width', roadTypeSettingsContainer, 6, drawMainRoadOnCursor, 'input');
+      GeneralHandler.createToggle(`Main Road Shape`, FormDrawMapComponent.EndShape, roadTypeSettingsContainer, 'Arrow', drawMainRoadOnCursor);
+    } else if (roadType === 'Conventional Roundabout') {
+      // Placeholder for Conventional Roundabout settings
+
+      GeneralHandler.createToggle(`Roundabout Features`, FormDrawMapComponent.RoundaboutFeatures, roadTypeSettingsContainer, 'Conventional', drawMainRoadOnCursor);
+      } else if (roadType === 'Spiral Roundabout') {
+      // Placeholder for Spiral Roundabout settings
+      
+      GeneralHandler.createToggle(`Roundabout Features`, FormDrawMapComponent.RoundaboutFeatures, roadTypeSettingsContainer, 'Conventional', drawMainRoadOnCursor);
+      }
+  },
+
+  gatherMainRoadParams: function () {
+    const xHeight = parseInt(document.getElementById('input-xHeight').value);
+    const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
+    const roadType = GeneralHandler.getToggleValue('Main Road Type-container');
+
+    const rootLengthElement = document.getElementById('root-length');
+    const tipLengthElement = document.getElementById('tip-length');
+    const mainWidthElement = document.getElementById('main-width');
+    const mainRoadShapeContainer = document.getElementById('Main Road Shape-container');
+    const roundaboutFeaturesContainer = document.getElementById('Roundabout Features-container');
+
+    const rootLength = rootLengthElement ? parseInt(rootLengthElement.value) : null;
+    const tipLength = tipLengthElement ? parseInt(tipLengthElement.value) : null;
+    const mainWidth = mainWidthElement ? parseInt(mainWidthElement.value) : null;
+    const endShape = mainRoadShapeContainer ? GeneralHandler.getToggleValue('Main Road Shape-container') : null;
+    const roundaboutFeatures = roundaboutFeaturesContainer ? GeneralHandler.getToggleValue('Roundabout Features-container') : null;
+
+    const mainRoadParams = {
+      xHeight: xHeight,
+      color: color,
+      roadType: roadType,
+      rootLength: rootLength,
+      tipLength: tipLength,
+      mainWidth: mainWidth,
+      endShape: endShape,
+      roundaboutFeatures: roundaboutFeatures
+    };
+
+    drawMainRoadOnCursor(null, mainRoadParams);
   },
 
   /**
@@ -699,7 +764,7 @@ let FormDrawMapComponent = {
 let FormDrawAddComponent = {
   symbolAngle: 0,
   newSymbolObject: null,
-  
+
   drawPanelInit: async function () {
     tabNum = 1
     var parent = GeneralHandler.PanelInit()
@@ -749,15 +814,15 @@ let FormDrawAddComponent = {
     }
     FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle > 90 ? -90 : FormDrawAddComponent.symbolAngle
     FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle < -90 ? +90 : FormDrawAddComponent.symbolAngle
-    
+
     // Handle the angle selection
     document.getElementById('angle-display').innerText = FormDrawAddComponent.symbolAngle + '°';
-    
+
     // Update the new symbol object if it exists
     if (FormDrawAddComponent.newSymbolObject) {
       FormDrawAddComponent.updateSymbolAngle(FormDrawAddComponent.newSymbolObject);
     }
-    
+
     canvas.renderAll();
   },
 
@@ -769,27 +834,27 @@ let FormDrawAddComponent = {
       }
       FormDrawAddComponent.newSymbolObject = null;
     }
-    
+
     // Remove any cursor objects
     cursor.forEachObject(function (o) { cursor.remove(o) })
-    
+
     // Remove event listeners
     canvas.off('mouse:move', FormDrawAddComponent.SymbolOnMouseMove);
     canvas.off('mouse:down', FormDrawAddComponent.SymbolOnMouseClick);
     document.removeEventListener('keydown', FormDrawAddComponent.cancelDraw);
     document.addEventListener('keydown', ShowHideSideBarEvent);
-    
+
     canvas.renderAll();
   },
 
   // Create a new symbol object directly instead of using cursor
-  createSymbolObject: async function(event) {
+  createSymbolObject: async function (event) {
     // Clear any previous symbol being placed
     if (FormDrawAddComponent.newSymbolObject) {
       canvas.remove(FormDrawAddComponent.newSymbolObject);
       FormDrawAddComponent.newSymbolObject = null;
     }
-    
+
     // Remove event listeners
     document.removeEventListener('keydown', ShowHideSideBarEvent);
     document.addEventListener('keydown', FormDrawAddComponent.cancelDraw);
@@ -803,7 +868,7 @@ let FormDrawAddComponent = {
     const vpt = CenterCoord();
     const actualCenterX = vpt.x;
     const actualCenterY = vpt.y;
-  
+
     // Create the symbol directly
     const symbolObject = await drawSymbolDirectly(symbolType, {
       x: actualCenterX,
@@ -812,14 +877,14 @@ let FormDrawAddComponent = {
       angle: FormDrawAddComponent.symbolAngle,
       color: color
     });
-    
+
     // Store reference to the new symbol
     FormDrawAddComponent.newSymbolObject = symbolObject;
-    
+
     // Add mouse event handlers for placement
     canvas.on('mouse:move', FormDrawAddComponent.SymbolOnMouseMove);
     canvas.on('mouse:down', FormDrawAddComponent.SymbolOnMouseClick);
-    
+
     // Activate the vertex control immediately to enable dragging and snapping
     if (symbolObject.controls && symbolObject.controls.V1) {
       activeVertex = symbolObject.controls.V1;
@@ -828,7 +893,7 @@ let FormDrawAddComponent = {
         left: symbolObject.left,
         top: symbolObject.top
       };
-      
+
       // Store vertex information
       const v1 = symbolObject.getBasePolygonVertex('V1');
       if (v1) {
@@ -840,21 +905,21 @@ let FormDrawAddComponent = {
           x: v1.x - symbolObject.left,
           y: v1.y - symbolObject.top
         };
-        
+
         // Create indicator for the active vertex
         if (activeVertex.createIndicator) {
           activeVertex.createIndicator(v1.x, v1.y);
         }
       }
     }
-    
+
     canvas.renderAll();
   },
 
   // Helper function to update symbol angle
-  updateSymbolAngle: async function(symbolObject) {
+  updateSymbolAngle: async function (symbolObject) {
     if (!symbolObject) return;
-    
+
     const symbolType = symbolObject.symbol;
     const xHeight = symbolObject.xHeight;
     const color = symbolObject.color;
@@ -862,7 +927,7 @@ let FormDrawAddComponent = {
       x: symbolObject.left,
       y: symbolObject.top
     };
-    
+
     // Create new symbol with updated angle
     const newSymbolObject = await drawSymbolDirectly(symbolType, {
       x: position.x,
@@ -871,11 +936,11 @@ let FormDrawAddComponent = {
       angle: FormDrawAddComponent.symbolAngle,
       color: color
     });
-    
+
     // Replace on canvas
     canvas.remove(symbolObject);
     FormDrawAddComponent.newSymbolObject = newSymbolObject;
-    
+
     // Re-activate vertex control
     if (newSymbolObject.controls && newSymbolObject.controls.V1) {
       activeVertex = newSymbolObject.controls.V1;
@@ -884,7 +949,7 @@ let FormDrawAddComponent = {
         left: newSymbolObject.left,
         top: newSymbolObject.top
       };
-      
+
       // Store vertex information
       const v1 = newSymbolObject.getBasePolygonVertex('V1');
       if (v1) {
@@ -896,7 +961,7 @@ let FormDrawAddComponent = {
           x: v1.x - newSymbolObject.left,
           y: v1.y - newSymbolObject.top
         };
-        
+
         // Create indicator for the active vertex
         if (activeVertex.createIndicator) {
           activeVertex.createIndicator(v1.x, v1.y);
@@ -904,11 +969,11 @@ let FormDrawAddComponent = {
       }
     }
   },
-  
-  SymbolOnMouseMove: function(event) {
+
+  SymbolOnMouseMove: function (event) {
     if (FormDrawAddComponent.newSymbolObject && activeVertex) {
       const pointer = canvas.getPointer(event.e);
-      
+
       // If we have an active vertex, let it handle the movement
       if (activeVertex.handleMouseMoveRef) {
         // Simulate a mouse move event with the current pointer
@@ -928,8 +993,8 @@ let FormDrawAddComponent = {
       }
     }
   },
-  
-  SymbolOnMouseClick: function(event) {
+
+  SymbolOnMouseClick: function (event) {
     if (event.e.button !== 0) return;
     // Finalize symbol placement on click
     if (FormDrawAddComponent.newSymbolObject && event.e.button === 0) {
@@ -937,45 +1002,45 @@ let FormDrawAddComponent = {
       if (activeVertex) {
         activeVertex.handleMouseDownRef(event);
       }
-      
+
       // Clean up
       canvas.off('mouse:move', FormDrawAddComponent.SymbolOnMouseMove);
       canvas.off('mouse:down', FormDrawAddComponent.SymbolOnMouseClick);
-      
+
       // Reset state
       const placedSymbol = FormDrawAddComponent.newSymbolObject;
       FormDrawAddComponent.newSymbolObject = null;
       activeVertex = null;
-      
+
       // Reattach default keyboard event listener
       document.removeEventListener('keydown', FormDrawAddComponent.cancelDraw);
       document.addEventListener('keydown', ShowHideSideBarEvent);
-      
+
       canvas.renderAll();
       return placedSymbol;
     }
   },
 
-  cancelDraw: function(event) {
+  cancelDraw: function (event) {
     if (event.key === 'Escape') {
       // If there's a new symbol object being placed, remove it
       if (FormDrawAddComponent.newSymbolObject) {
         FormDrawAddComponent.newSymbolObject.deleteObject();
         FormDrawAddComponent.newSymbolObject = null;
       }
-      
+
       // Clean up active vertex if there is one
       if (activeVertex) {
         activeVertex.cleanupDrag();
         activeVertex = null;
       }
-      
+
       // Restore event listeners
       canvas.off('mouse:move', FormDrawAddComponent.SymbolOnMouseMove);
       canvas.off('mouse:down', FormDrawAddComponent.SymbolOnMouseClick);
       document.removeEventListener('keydown', FormDrawAddComponent.cancelDraw);
       document.addEventListener('keydown', ShowHideSideBarEvent);
-      
+
       canvas.renderAll();
     }
   },
@@ -1133,7 +1198,7 @@ let FormExportComponent = {
     quality: 1.0,
     multiplier: 1.0
   },
-  
+
 
   exportPanelInit: function (parent) {
     tabNum = 5
@@ -1159,12 +1224,12 @@ let FormExportComponent = {
       FormExportComponent.exportSettings.multiplier, (e) => {
         FormExportComponent.exportSettings.multiplier = parseFloat(e.target.value);
       }, 'input');
-      
-      // Create toggle for including/excluding grid
-      GeneralHandler.createToggle('Include Grid', ['No', 'Yes'], exportContainer, 'No');
-      
-      // Create toggle for including/excluding background
-      GeneralHandler.createToggle('Include Background', ['No', 'Yes'], exportContainer, 'No');
+
+    // Create toggle for including/excluding grid
+    GeneralHandler.createToggle('Include Grid', ['No', 'Yes'], exportContainer, 'No');
+
+    // Create toggle for including/excluding background
+    GeneralHandler.createToggle('Include Background', ['No', 'Yes'], exportContainer, 'No');
 
     // Create export buttons
     const buttonContainer = GeneralHandler.createNode("div", { 'class': 'export-buttons-container' }, exportContainer);
@@ -1183,10 +1248,10 @@ let FormExportComponent = {
   },
 
   // Helper function to prepare canvas for export
-  prepareCanvasForExport: function() {
+  prepareCanvasForExport: function () {
     const includeGrid = GeneralHandler.getToggleValue('Include Grid-container') === 'Yes';
     const includeBackground = GeneralHandler.getToggleValue('Include Background-container') === 'Yes';
-    
+
     // Store original canvas state
     const originalState = {
       backgroundColor: canvas.backgroundColor,
@@ -1199,16 +1264,16 @@ let FormExportComponent = {
         visible: obj.visible
       }))
     };
-    
+
     // Calculate the bounding box that contains all visible objects (excluding grid)
-    const visibleObjects = canvas.getObjects().filter(obj => 
+    const visibleObjects = canvas.getObjects().filter(obj =>
       obj.visible && (includeGrid || obj.id !== 'grid')
     );
-    
+
     if (visibleObjects.length > 0) {
       // Find the bounds of all objects
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-      
+
       visibleObjects.forEach(obj => {
         // Get the object's bounding rect in canvas coordinates
         const rect = obj.getBoundingRect();
@@ -1217,18 +1282,18 @@ let FormExportComponent = {
         maxX = Math.max(maxX, rect.left + rect.width);
         maxY = Math.max(maxY, rect.top + rect.height);
       });
-      
+
       // Add padding around the objects
       const padding = 20;
       minX -= padding;
       minY -= padding;
       maxX += padding;
       maxY += padding;
-      
+
       // Calculate dimensions
       const width = maxX - minX;
       const height = maxY - minY;
-      
+
       // Store the calculated export bounds for later use
       originalState.exportBounds = {
         left: minX,
@@ -1236,25 +1301,25 @@ let FormExportComponent = {
         width: width,
         height: height
       };
-      
+
       // Temporarily resize canvas to fit all objects and center view
       canvas.setDimensions({
         width: width,
         height: height
       });
-      
+
       // Reset the zoom to 1 (100%)
       canvas.setZoom(1);
-      
+
       // Center the view on the objects
       canvas.setViewportTransform([1, 0, 0, 1, -minX, -minY]);
     }
-    
+
     // Temporarily modify canvas for export
     if (!includeBackground) {
       canvas.backgroundColor = 'rgba(0,0,0,0)'; // Transparent background
     }
-    
+
     if (!includeGrid) {
       // Hide grid and grid-related objects
       canvas.getObjects().forEach(obj => {
@@ -1263,30 +1328,30 @@ let FormExportComponent = {
         }
       });
     }
-    
+
     canvas.renderAll();
     return originalState;
   },
 
   // Helper function to restore canvas after export
-  restoreCanvasAfterExport: function(originalState) {
+  restoreCanvasAfterExport: function (originalState) {
     // Restore original canvas dimensions
     canvas.setDimensions({
       width: originalState.width,
       height: originalState.height
     });
-    
+
     // Restore original zoom and viewport transform
     canvas.setViewportTransform(originalState.viewportTransform);
-    
+
     // Restore background
     canvas.backgroundColor = originalState.backgroundColor;
-    
+
     // Restore object visibility
     originalState.objects.forEach(item => {
       item.obj.visible = item.visible;
     });
-    
+
     canvas.renderAll();
   },
 
@@ -1299,13 +1364,13 @@ let FormExportComponent = {
 
     // Prepare canvas for export
     const originalState = FormExportComponent.prepareCanvasForExport();
-    
+
     // Generate the export
     const dataURL = canvas.toDataURL(options);
-    
+
     // Restore canvas
     FormExportComponent.restoreCanvasAfterExport(originalState);
-    
+
     // Create the download link
     const link = document.createElement('a');
     link.download = `${FormExportComponent.exportSettings.filename}.png`;
@@ -1318,7 +1383,7 @@ let FormExportComponent = {
   exportToSVG: function () {
     // Prepare canvas for export
     const originalState = FormExportComponent.prepareCanvasForExport();
-    
+
     // Generate the SVG data
     const svgData = canvas.toSVG({
       // SVG-specific options
@@ -1329,10 +1394,10 @@ let FormExportComponent = {
         height: originalState.exportBounds ? originalState.exportBounds.height : canvas.height
       }
     });
-    
+
     // Restore canvas
     FormExportComponent.restoreCanvasAfterExport(originalState);
-    
+
     // Create the download
     const blob = new Blob([svgData], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
@@ -1348,7 +1413,7 @@ let FormExportComponent = {
   exportToPDF: function () {
     // Prepare canvas for export first
     const originalState = FormExportComponent.prepareCanvasForExport();
-    
+
     // Check if jsPDF is available
     if (typeof jsPDF === 'undefined') {
       // Load jsPDF dynamically if not available
@@ -1362,11 +1427,11 @@ let FormExportComponent = {
 
     function createPDF(originalState) {
       const imgData = canvas.toDataURL('image/png', FormExportComponent.exportSettings.quality);
-      
+
       // Use the calculated bounds for PDF dimensions
       const width = originalState.exportBounds ? originalState.exportBounds.width : canvas.width;
       const height = originalState.exportBounds ? originalState.exportBounds.height : canvas.height;
-      
+
       const pdf = new jspdf.jsPDF({
         orientation: width > height ? 'landscape' : 'portrait',
         unit: 'px',
@@ -1375,7 +1440,7 @@ let FormExportComponent = {
 
       pdf.addImage(imgData, 'PNG', 0, 0, width, height);
       pdf.save(`${FormExportComponent.exportSettings.filename}.pdf`);
-      
+
       // Restore the canvas after PDF creation
       FormExportComponent.restoreCanvasAfterExport(originalState);
     }
@@ -1385,7 +1450,7 @@ let FormExportComponent = {
 /* Debug Panel */
 let FormDebugComponent = {
   // TODO: Add General settings : e.g. turn off text borders, change background color, show grid, etc.
-  
+
   DebugPanelInit: function () {
     tabNum = 6
     var parent = GeneralHandler.PanelInit()
@@ -1396,7 +1461,7 @@ let FormDebugComponent = {
       FormDebugComponent.createDebugInfoPanel(debugInfoContainer);
       const sponsorDiv = GeneralHandler.createNode("div", { 'class': `coffee-link-container` }, parent)
       sponsorDiv.innerHTML = '<a href="https://www.buymeacoffee.com/G1213123" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee" height="41" width="174" style="max-width:100%;"></a>'
-      
+
       // Add GitHub repository link
       const githubLink = GeneralHandler.createNode("div", { 'class': 'github-link-container' }, sponsorDiv);
       githubLink.innerHTML = '<a href="https://github.com/G1213123/TrafficSign" target="_blank"><i class="fa-brands fa-github"></i><span>Visit GitHub Repository</span></a>';
@@ -1446,14 +1511,14 @@ let FormDebugComponent = {
       objects.length ? object = objects[0] : object = objects
       debugInfoPanel.innerHTML = ''; // Clear previous info
 
-      if (object.getEffectiveCoords){
+      if (object.getEffectiveCoords) {
 
         const div = document.createElement('div');
         div.style.fontWeight = 'bold'; // Make text bold
         div.style.textDecoration = 'underline'; // Add underline
         div.innerText = `${object._showName}`;
         debugInfoPanel.appendChild(div);
-  
+
         point = object.getEffectiveCoords()
         const properties = [
           { label: 'Top', value: Math.round(object.top) },
@@ -1463,9 +1528,9 @@ let FormDebugComponent = {
           { label: 'Effective Position', value: `x: ${Math.round(point[0].x)}, y: ${Math.round(point[0].y)}` },
           { label: 'Effective Width', value: Math.round(point[1].x - point[0].x) },
           { label: 'Effective Height', value: Math.round(point[2].y - point[0].y) },
-  
+
         ];
-  
+
         properties.forEach(prop => {
           const div = document.createElement('div');
           div.innerText = `${prop.label}: ${prop.value}`;

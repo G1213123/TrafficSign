@@ -32,7 +32,49 @@ const roadMapTemplate = {
             ], 'arcs': []
         }],
     },
-    'SpiralRoot': {
+    'CConventional': {
+        path: [{
+            'vertex': [
+                { x: -3, y: 30, label: 'V1', start: 1, display: 0 },
+                { x: -3, y: 12.3693, label: 'V13', start: 0, display: 0 },
+                { x: -3.6923, y: 11.4178, label: 'V14', start: 0, display: 0 },
+                { x: 3.6923, y: 11.4178, label: 'V15', start: 0, display: 0 },
+                { x: 3, y: 12.3693, label: 'V16', start: 0, display: 0 },
+                { x: 3, y: 30, label: 'V17', start: 0, display: 0 },
+            ], 'arcs': []
+        }],
+    },
+    'CAuxiliary': {
+        path: [{
+            'vertex': [
+                { x: -3, y: 30, label: 'V1', start: 1, display: 0 },
+                { x: -3, y: 20.3345, label: 'V2', start: 0, radius: 4, display: 0 },
+                { x: -19.3345, y: 4, label: 'V3', start: 0, radius: 4, display: 0 },
+                { x: -27, y: 4, label: 'V4', start: 0, display: 0 },
+                { x: -30, y: 1, label: 'V5', start: 0, display: 0 },
+                { x: -27, y: -2, label: 'V6', start: 0, display: 0 },
+                { x: -12.6491, y: -2, label: 'V7', start: 0, display: 0 },
+                { x: -11.6761, y: -2.7692, label: 'V8', start: 0, display: 0 },
+                { x: -11.6761, y: 2.7692, label: 'V9', start: 0, display: 0 },
+                { x: -12.6491, y: 2, label: 'V10', start: 0, display: 0 },
+                { x: -17.7990, y: 2, label: 'V11', start: 0, display: 0 },
+                { x: -3, y: 16.7990, label: 'V12', start: 0, display: 0 },
+                { x: -3, y: 12.3693, label: 'V13', start: 0, display: 0 },
+                { x: -3.6923, y: 11.4178, label: 'V14', start: 0, display: 0 },
+                { x: 3.6923, y: 11.4178, label: 'V15', start: 0, display: 0 },
+                { x: 3, y: 12.3693, label: 'V16', start: 0, display: 0 },
+                { x: 3, y: 30, label: 'V17', start: 0, display: 0 },
+            ], 'arcs': [
+                { start: 'V7', end: 'V8', radius: 1, direction: 0, sweep: 0 },
+                { start: 'V8', end: 'V9', radius: 12, direction: 0, sweep: 0 },
+                { start: 'V9', end: 'V10', radius: 1, direction: 0, sweep: 0 },
+                { start: 'V13', end: 'V14', radius: 1, direction: 0, sweep: 0 },
+                { start: 'V14', end: 'V15', radius: 12, direction: 0, sweep: 0 },
+                { start: 'V15', end: 'V16', radius: 1, direction: 0, sweep: 0 },
+            ]
+        }],
+    },
+    'SConventional': {
         path: [{
             'vertex': [
                 { x: -2, y: 24, label: 'V1', start: 1, display: 0 },
@@ -174,9 +216,17 @@ function calcConvRoundaboutVertices(xHeight, routeList) {
         p.vertex = transformed
     });
 
-    let root = { x: center.x, y: center.y + 24 * length, angle: 180, width: 6, shape: 'Stub' }
-    let rootPath = getConvRdAboutSideRoadCoords(root, length, 24 * length, 12, Math.PI * 1 / 2)
-    return combinePaths([roundel, rootPath]);
+    let root = JSON.parse(JSON.stringify(roadMapTemplate['C' + routeList[0].shape]))
+    root = calcSymbol(root, length)
+    root.path.map((p) => {
+        let transformed = calculateTransformedPoints(p.vertex, {
+            x: center.x,
+            y: center.y,
+            angle: 0
+        });
+        p.vertex = transformed
+    });
+    return combinePaths([roundel, root]);
 }
 
 /**
@@ -199,7 +249,7 @@ function calcSpirRoundaboutVertices(xHeight, routeList) {
         p.vertex = transformed
     });
 
-    let root = JSON.parse(JSON.stringify(roadMapTemplate['SpiralRoot']))
+    let root = JSON.parse(JSON.stringify(roadMapTemplate['S' + routeList[0].shape]))
     root = calcSymbol(root, length)
     root.path.map((p) => {
         let transformed = calculateTransformedPoints(p.vertex, {
@@ -640,7 +690,7 @@ function applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeig
     const minBranchShapeXDelta = radius + routeList[0].shape == 'Stub' ? 4 : radius;
     const minBranchXDelta = (minBranchShapeXDelta + radius) * xHeight / 4;
     const center = mainRoad.routeList[1]
-    const length = xHeight / 4 
+    const length = xHeight / 4
 
     const rawAngleToCenter = Math.atan2(routeList[0].y - center.y, routeList[0].x - center.x)
     // Convert to degrees, round to nearest 15 degrees, then back to radians
@@ -659,7 +709,7 @@ function applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeig
         sideRoad.left = offset.left;
         sideRoad.top = offset.top;
     }
-    
+
     return { routeList, tempVertexList };
 }
 
@@ -684,7 +734,7 @@ function applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList,
         sideRoad.left = offset.left;
         sideRoad.top = offset.top;
     }
-    
+
     return { routeList, tempVertexList };
 }
 
@@ -696,11 +746,11 @@ function applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList,
  */
 async function drawMainRoadOnCursor(event, params = null) {
     // In case only update parameters of cursor object
-    if (!event || !event.target || event.target.id !== 'button-DrawMap') {
-        if (cursor._objects.length == 0) {
-            return;
-        }
-    }
+    //if (!event || !event.target || event.target.id !== 'button-DrawMap') {
+    //    if (cursor._objects.length == 0) {
+    //        return;
+    //    }
+    //}
 
     // Remove existing event listeners first to avoid duplicates
     drawRoadsHandlerOff();
@@ -720,14 +770,9 @@ async function drawMainRoadOnCursor(event, params = null) {
         width = params.width || 6;
         shape = params.shape || 'Arrow';
         roadType = params.roadType || 'Main Line';
+        RAfeature = params.roundaboutFeatures || 'Conventional';
     } else {
-        xHeight = document.getElementById('input-xHeight').value;
-        color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
-        rootLength = parseInt(document.getElementById('root-length').value);
-        tipLength = parseInt(document.getElementById('tip-length').value);
-        width = parseInt(document.getElementById('main-width').value);
-        shape = GeneralHandler.getToggleValue('Main Road Shape-container');
-        roadType = GeneralHandler.getToggleValue('Main Road Type-container');
+        return;
     }
 
     // Center the object on the canvas viewport
@@ -737,7 +782,7 @@ async function drawMainRoadOnCursor(event, params = null) {
 
     // Create route list centered on the canvas
     let routeList = [
-        { x: centerX, y: centerY + (rootLength + tipLength) * xHeight / 4, angle: 180, width: width, shape: 'Stub' },
+        { x: centerX, y: centerY + (rootLength + tipLength) * xHeight / 4, angle: 180, width: width, shape: roadType == 'Main Line' ? 'Stub' : RAfeature },
         { x: centerX, y: centerY, angle: 0, width: width, shape: shape }
     ];
 
@@ -966,7 +1011,7 @@ async function drawSideRoadOnCursor(event, option = null) {
     // Create and initialize the side road
     const sideRoad = new SideRoadSymbol(branchOptions);
     await sideRoad.initialize(tempVertexList);
-    
+
     // Store reference to the new side road object
     FormDrawAddComponent.newSymbolObject = sideRoad;
 
@@ -1171,7 +1216,7 @@ function drawRoadsHandlerOff(event) {
     canvas.off('mouse:move', drawSideRoadOnCursor);
     document.removeEventListener('keydown', cancelDraw);
     document.addEventListener('keydown', ShowHideSideBarEvent);
-    
+
     // Force a final render to clean up any visual artifacts
     canvas.renderAll();
 }
