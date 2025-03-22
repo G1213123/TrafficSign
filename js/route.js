@@ -250,7 +250,7 @@ function getSideRoadCoords(route, length, left, right) {
             arrowTipVertex = [i0, i1, ...arrowTipVertex, i2, i3]
         }
     }
-    
+
     //assignVertexLabel(arrowTipVertex)
     arrowTipPath.path[0].vertex = arrowTipVertex
     return arrowTipPath
@@ -275,11 +275,11 @@ function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle) {
     //const ic = { x: width / 2, y: Math.sqrt(radius ** 2 - (width / 2) ** 2) }
     const trimCenter = { x: width / 2 + 1, y: Math.sqrt((radius + 1) ** 2 - (width / 2 + 1) ** 2) }
     const tCenterAngle = Math.atan2(trimCenter.y, trimCenter.x)
-    const i2 = { x: width / 2, y: arm / length - trimCenter.y , display: 0 }
+    const i2 = { x: width / 2, y: arm / length - trimCenter.y, display: 0 }
     const i3 = { x: trimCenter.x - Math.cos(tCenterAngle), y: arm / length - trimCenter.y + Math.sin(tCenterAngle), display: 0 }
-    const i0 = { x: -i3.x, y: i3.y , display: 0 }
-    const i1 = { x: -i2.x, y: i2.y , display: 0 }
-    arrowTipVertex = [ ...arrowTipVertex, i2, i3, i0, i1,]
+    const i0 = { x: -i3.x, y: i3.y, display: 0 }
+    const i1 = { x: -i2.x, y: i2.y, display: 0 }
+    arrowTipVertex = [...arrowTipVertex, i2, i3, i0, i1,]
     arrowTipVertex.push(arrowTipVertex.shift())
     assignVertexLabel(arrowTipVertex)
 
@@ -397,23 +397,30 @@ class MainRoadSymbol extends BaseGroup {
     async receiveNewRoute(tempBranchRouteList = null) {
         if (this.roadType !== 'Main Line') {
             const newPolygon = new GlyphPath();
-        await newPolygon.initialize(calcVertexType[this.roadType](this.xHeight, this.routeList), {
-            left: 0,
-            top: 0,
-            angle: 0,
-            fill: this.color,
-            objectCaching: false,
-            dirty: true,
-            strokeWidth: 0
-        });
+            await newPolygon.initialize(calcVertexType[this.roadType](this.xHeight, this.routeList), {
+                left: 0,
+                top: 0,
+                angle: 0,
+                fill: this.color,
+                objectCaching: false,
+                dirty: true,
+                strokeWidth: 0
+            });
             this.replaceBasePolygon(newPolygon)
             return;
         }
         let newBottom = this.top + (this.tipLength) * this.xHeight / 4;
         if (tempBranchRouteList) {
             const vertexList = tempBranchRouteList.path ? tempBranchRouteList.path[0].vertex : tempBranchRouteList.basePolygon.vertex;
-            const newLeft = vertexList[3].x;
-            newBottom = newLeft < this.left ? vertexList[0].y : vertexList[6].y;
+
+            let bottommostY = -Infinity;
+            // Loop through all vertices to find the leftmost and bottommost points
+            for (const vertex of vertexList) {
+                if (vertex.y > bottommostY) { // Note: y increases downward in canvas
+                    bottommostY = vertex.y;
+                }
+            }
+            newBottom = bottommostY;
         }
 
         this.routeList.forEach(route => {
@@ -611,7 +618,7 @@ function applyConstraintsMainLine(sideRoad, mainRoad, routeList, isSideLeft, xHe
     let tempVertexList = calcSideRoadVertices(mainRoad.xHeight, mainRoad.routeList, routeList);
 
     // Get the vertex that should touch the root (depends on side)
-    const rootTopTouchY = tempVertexList.path[0].vertex[isSideLeft ? 5 : 1];
+    const rootTopTouchY = tempVertexList.path[0].vertex[isSideLeft ? 3 : 4];
 
     // Ensure branch doesn't go above root + tip length
     if (rootTopTouchY.y < rootTop + tipLength) {
@@ -633,7 +640,7 @@ function applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeig
     const minBranchShapeXDelta = radius + routeList[0].shape == 'Stub' ? 4 : radius;
     const minBranchXDelta = (minBranchShapeXDelta + radius) * xHeight / 4;
     const center = mainRoad.routeList[1]
-    const length = sideRoad.xHeight / 4
+    const length = xHeight / 4 
 
     const rawAngleToCenter = Math.atan2(routeList[0].y - center.y, routeList[0].x - center.x)
     // Convert to degrees, round to nearest 15 degrees, then back to radians
@@ -644,18 +651,21 @@ function applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeig
 
     routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
     routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
-    tempVertexList = getConvRdAboutSideRoadCoords(routeList[0], length, distToCenter, radius, angleToCenter);
+    const tempVertexList = getConvRdAboutSideRoadCoords(routeList[0], length, distToCenter, radius, angleToCenter);
 
-    sideRoad.left = getInsertOffset(tempVertexList).left
-    sideRoad.top = getInsertOffset(tempVertexList).top
+    // Only set left/top if sideRoad is a real object with those properties
+    if (sideRoad && sideRoad.left !== undefined) {
+        const offset = getInsertOffset(tempVertexList);
+        sideRoad.left = offset.left;
+        sideRoad.top = offset.top;
+    }
+    
     return { routeList, tempVertexList };
 }
 
 function applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList, xHeight) {
-    // Horizontal constraint based on side
-
     const center = mainRoad.routeList[1]
-    const length = sideRoad.xHeight / 4
+    const length = xHeight / 4 // Use the parameter directly for temp objects without sideRoad object
 
     const rawAngleToCenter = Math.atan2(routeList[0].y - center.y, routeList[0].x - center.x)
     // Convert to degrees, round to nearest 15 degrees, then back to radians
@@ -666,10 +676,15 @@ function applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList,
 
     routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
     routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
-    tempVertexList = getSpirRdAboutSideRoadCoords(routeList[0], length, angleToCenter);
+    const tempVertexList = getSpirRdAboutSideRoadCoords(routeList[0], length, angleToCenter);
 
-    sideRoad.left = getInsertOffset(tempVertexList).left
-    sideRoad.top = getInsertOffset(tempVertexList).top
+    // Only set left/top if sideRoad is a real object with those properties
+    if (sideRoad && sideRoad.left !== undefined) {
+        const offset = getInsertOffset(tempVertexList);
+        sideRoad.left = offset.left;
+        sideRoad.top = offset.top;
+    }
+    
     return { routeList, tempVertexList };
 }
 
@@ -951,7 +966,7 @@ async function drawSideRoadOnCursor(event, option = null) {
     // Create and initialize the side road
     const sideRoad = new SideRoadSymbol(branchOptions);
     await sideRoad.initialize(tempVertexList);
-
+    
     // Store reference to the new side road object
     FormDrawAddComponent.newSymbolObject = sideRoad;
 
@@ -966,6 +981,10 @@ async function drawSideRoadOnCursor(event, option = null) {
     // Add mouse event handlers for placement
     canvas.on('mouse:move', sideRoadOnMouseMove);
     canvas.on('mouse:down', finishDrawSideRoad);
+
+    if (activeVertex) {
+        canvas.remove(activeVertex.indicator);
+    }
 
     // Activate the vertex control immediately to enable dragging
     if (sideRoad.controls && sideRoad.controls.V1) {
@@ -1122,7 +1141,9 @@ function drawRoadsHandlerOff(event) {
                 mainRoad.receiveNewRoute();
                 mainRoad.setCoords();
 
-                // Remove the temporary side road
+                // Remove the temporary side road from canvas explicitly
+                canvas.remove(newRoad);
+                // Then delete the object
                 newRoad.deleteObject && newRoad.deleteObject();
             }
         } else if (newRoad.functionalType === 'MainRoad' && !canvasObject.includes(newRoad)) {
@@ -1135,6 +1156,9 @@ function drawRoadsHandlerOff(event) {
 
     // Clean up active vertex if there is one
     if (activeVertex) {
+        if (activeVertex.indicator) {
+            canvas.remove(activeVertex.indicator);
+        }
         activeVertex.cleanupDrag && activeVertex.cleanupDrag();
         activeVertex = null;
     }
@@ -1147,6 +1171,9 @@ function drawRoadsHandlerOff(event) {
     canvas.off('mouse:move', drawSideRoadOnCursor);
     document.removeEventListener('keydown', cancelDraw);
     document.addEventListener('keydown', ShowHideSideBarEvent);
+    
+    // Force a final render to clean up any visual artifacts
+    canvas.renderAll();
 }
 
 /**

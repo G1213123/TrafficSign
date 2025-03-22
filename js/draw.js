@@ -1031,9 +1031,9 @@ class VertexControl extends fabric.Control {
 
     } else {
       this.baseGroup.routeList.forEach(route => {
-        route.x = pointer.x
+        route.x = newLeft + this.vertexOffset.x
         if (this.vertex.label === 'V1') {
-          route.y = pointer.y
+          route.y = newTop + this.vertexOffset.y
         }
       })
       this.baseGroup.onMove()

@@ -1249,7 +1249,7 @@ const RouteTest = {
 
     // Get the top-most part of the side road
     const sideRoadTopVertices = sideRoad.basePolygon.vertex.filter(v =>
-      v.label === 'V2');
+      v.label === 'V5');
     const branchTopY = Math.min(...sideRoadTopVertices.map(v => v.y));
 
     passed = passed && TestTracker.assertTrue(
