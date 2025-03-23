@@ -4,6 +4,17 @@ const deleteIcon =
 let activeVertex = null
 let vertexSnapInProgress = false; // New flag to prevent multiple clicks during snapping
 
+// Create a canvas tracker instance directly
+const canvasTracker = window.CanvasTracker ? new window.CanvasTracker() : {
+  track: function() {}, // Provide a dummy implementation if not available
+  history: [],
+  clearHistory: function() { this.history = []; },
+  replay: function() {}
+};
+
+// Make the tracker available globally
+window.canvasTracker = canvasTracker;
+
 // additional property for fabric object
 const originalToObject = fabric.Object.prototype.toObject;
 const myAdditional = ['functionalType'];
@@ -178,6 +189,12 @@ class BaseGroup extends fabric.Group {
       this.drawAnchorLinkage();
       CanvasObjectInspector.SetActiveObjectList(this);
       this.showLockHighlights();
+      
+      // Track object selection
+      canvasTracker.track('objectSelected', [{
+        id: this.canvasID,
+        type: this.functionalType
+      }]);
     });
 
     this.on('deselected', () => {
@@ -190,6 +207,12 @@ class BaseGroup extends fabric.Group {
         this.hideLockHighlights();
       }, 0)
       CanvasObjectInspector.SetActiveObjectList(null)
+      
+      // Track object deselection
+      canvasTracker.track('objectDeselected', [{
+        id: this.canvasID,
+        type: this.functionalType
+      }]);
     });
 
     this.on('mouseover', function () {
@@ -230,6 +253,19 @@ class BaseGroup extends fabric.Group {
 
     this.on('modified', this.updateAllCoord.bind(this));
     this.on('moving', this.updateAllCoord.bind(this));
+    
+    // Track object creation
+    canvasTracker.track('objectCreated', [{
+      id: this.canvasID,
+      type: this.functionalType,
+      basePolygon: basePolygon ? true : false,
+      properties: {
+        left: this.left,
+        top: this.top,
+        angle: this.angle,
+        options: options
+      }
+    }]);
   }
 
   /**
@@ -257,6 +293,17 @@ class BaseGroup extends fabric.Group {
           left: this.basePolygon.getCoords()[0].x
         };
       }
+      
+      // Track basePolygon setting
+      canvasTracker.track('setBasePolygon', [{
+        id: this.canvasID,
+        type: this.functionalType,
+        polygonDetails: {
+          hasVertex: this.basePolygon.vertex ? true : false,
+          text: basePolygon.text,
+          symbol: basePolygon.symbol
+        }
+      }]);
     }
   }
 
@@ -445,6 +492,20 @@ class BaseGroup extends fabric.Group {
     if (document.getElementById('debug-info-panel')){
       FormDebugComponent.updateDebugInfo(canvas.getActiveObjects())
     }
+    
+    // Track coordinate updates if there's actual movement
+    if (deltaX !== 0 || deltaY !== 0) {
+      canvasTracker.track('updateCoordinates', [{
+        id: this.canvasID,
+        type: this.functionalType,
+        deltaX: deltaX,
+        deltaY: deltaY,
+        newPosition: {
+          left: this.left,
+          top: this.top
+        }
+      }]);
+    }
   }
 
   // Method to update coordinates
@@ -579,6 +640,17 @@ class BaseGroup extends fabric.Group {
     if (deleteObj.heightObjects) {
       deleteObj.heightObjects.forEach(obj => obj.borderGroup = null)
     }
+    
+    // Track object deletion
+    canvasTracker.track('objectDeleted', [{
+      id: deleteObj.canvasID,
+      type: deleteObj.functionalType,
+      properties: {
+        left: deleteObj.left,
+        top: deleteObj.top
+      }
+    }]);
+    
     canvas.remove(deleteObj);
     CanvasObjectInspector.createObjectListPanelInit()
     canvas.requestRenderAll();

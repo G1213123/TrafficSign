@@ -847,3 +847,73 @@ div.side-panel.close {
     font-size: 12px;
   }
 }
+
+/* Canvas History Panel styles - Made similar to debug info panel */
+.canvas-history-panel {
+  background-color: #2a2a2c;
+  padding: 10px;
+  border-radius: 4px;
+  color: #eee;
+  margin-bottom: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.canvas-history-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.history-buttons button {
+  background-color: #555;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  margin-left: 5px;
+}
+
+.history-buttons button:hover {
+  background-color: #3498db;
+}
+
+.history-item {
+  background-color: #333;
+  padding: 8px;
+  margin-bottom: 5px;
+  border-radius: 4px;
+}
+
+.history-timestamp {
+  color: #aaa;
+  font-size: 12px;
+}
+
+.history-action {
+  color: #fff;
+  font-weight: bold;
+  margin: 4px 0;
+}
+
+.history-params {
+  color: #bbb;
+  font-family: monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Group header - Simple styling */
+.group-header {
+  background-color: #43a;
+  color: white;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+

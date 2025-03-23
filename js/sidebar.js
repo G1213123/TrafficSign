@@ -1453,29 +1453,69 @@ let FormDebugComponent = {
     tabNum = 6
     var parent = GeneralHandler.PanelInit()
     if (parent) {
+      // ===== GROUP 1: Debug Info Panel (Active Object Information) =====
+      const debugInfoGroup = GeneralHandler.createNode("div", { 'class': 'input-group-container', 'id': 'debug-info-group' }, parent);
+      const debugInfoHeader = GeneralHandler.createNode("div", { 'class': 'group-header' }, debugInfoGroup);
+      debugInfoHeader.innerHTML = "Active Object Information";
+      
+      // Create the debug info panel for object properties
+      FormDebugComponent.createDebugInfoPanel(debugInfoGroup);
+      
+      // ===== GROUP 2: Canvas History Panel (Tracking History) =====
+      const historyGroup = GeneralHandler.createNode("div", { 'class': 'input-group-container', 'id': 'history-group' }, parent);
+      const historyHeader = GeneralHandler.createNode("div", { 'class': 'group-header' }, historyGroup);
+      historyHeader.innerHTML = "Canvas Operation History";
+      
+      // Create a container for the history panel
+      const historyPanelContainer = GeneralHandler.createNode("div", { 'class': 'canvas-history-panel', 'id': 'canvasHistoryPanel' }, historyGroup);
+      
+      // Create the header with buttons
+      const historyPanelHeader = GeneralHandler.createNode("div", { 'class': 'canvas-history-heading' }, historyPanelContainer);
+      historyPanelHeader.innerHTML = "Canvas Operations";
+      
+      // Add control buttons
+      const buttonContainer = GeneralHandler.createNode("div", { 'class': 'history-buttons' }, historyPanelHeader);
+      
+      const refreshButton = GeneralHandler.createNode("button", { 'id': 'refreshHistoryBtn', 'type': 'button' }, buttonContainer);
+      refreshButton.innerHTML = "Refresh";
+      refreshButton.addEventListener('click', FormDebugComponent.refreshCanvasHistory);
+      
+      const clearButton = GeneralHandler.createNode("button", { 'id': 'clearHistoryBtn', 'type': 'button' }, buttonContainer);
+      clearButton.innerHTML = "Clear";
+      clearButton.addEventListener('click', FormDebugComponent.clearCanvasHistory);
+      
+      // Create the content area for history items
+      const historyContent = GeneralHandler.createNode("div", { 'class': 'canvas-history-content', 'id': 'canvasHistoryContent' }, historyPanelContainer);
+      
+      // Populate the history panel with current data
+      FormDebugComponent.refreshCanvasHistory();
+      
+      // ===== GROUP 3: Sponsor Links =====
+      const sponsorGroup = GeneralHandler.createNode("div", { 'class': 'input-group-container', 'id': 'sponsor-group' }, parent);
+      const sponsorHeader = GeneralHandler.createNode("div", { 'class': 'group-header' }, sponsorGroup);
+      sponsorHeader.innerHTML = "Support & Resources";
+      
+      // Buy me a coffee link
+      const sponsorDiv = GeneralHandler.createNode("div", { 'class': 'coffee-link-container' }, sponsorGroup);
+      sponsorDiv.innerHTML = '<a href="https://www.buymeacoffee.com/G1213123" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee" height="41" width="174" style="max-width:100%;"></a>';
 
-      // Create a container for debug info
-      var debugInfoContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      FormDebugComponent.createDebugInfoPanel(debugInfoContainer);
-      const sponsorDiv = GeneralHandler.createNode("div", { 'class': `coffee-link-container` }, parent)
-      sponsorDiv.innerHTML = '<a href="https://www.buymeacoffee.com/G1213123" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee" height="41" width="174" style="max-width:100%;"></a>'
-
-      // Add GitHub repository link
-      const githubLink = GeneralHandler.createNode("div", { 'class': 'github-link-container' }, sponsorDiv);
+      // GitHub repository link
+      const githubLink = GeneralHandler.createNode("div", { 'class': 'github-link-container' }, sponsorGroup);
       githubLink.innerHTML = '<a href="https://github.com/G1213123/TrafficSign" target="_blank"><i class="fa-brands fa-github"></i><span>Visit GitHub Repository</span></a>';
 
-
-      // Update the sidebar when an object is selected
+      // Set up event listeners for object selection
       canvas.on('selection:created', FormDebugComponent.selectionListener);
       canvas.on('selection:updated', FormDebugComponent.selectionListener);
       canvas.on('object:modified', FormDebugComponent.selectionListener);
-      // Clear the sidebar when no object is selected
       canvas.on('selection:cleared', FormDebugComponent.clearSelectionListener);
+      
+      // Update with the active object if one is already selected
       if (canvas.getActiveObject()) {
         FormDebugComponent.updateDebugInfo(canvas.getActiveObjects());
       }
     }
   },
+
   selectionListener: function (event) {
     let selectedObject = null
     if (event.target) {
@@ -1543,7 +1583,171 @@ let FormDebugComponent = {
     canvas.off('selection:updated', this.selectionListener)
     canvas.off('selection:cleared', this.clearSelectionListener)
   },
+  init: function () {
+    // Change the heading
+    document.getElementById('content-heading').textContent = 'Debug Panel';
+    // Clear the form
+    document.getElementById('input-form').innerHTML = '';
+    // Show the debug info panel
+    this.createDebugInfoPanel();
+    // Show the canvas history panel
+    this.showCanvasHistoryPanel();
+    
+    // Add event listeners to the history panel buttons
+    document.getElementById('clearHistoryBtn').addEventListener('click', this.clearCanvasHistory);
+    document.getElementById('refreshHistoryBtn').addEventListener('click', this.refreshCanvasHistory);
+  },
+
+  createDebugInfoPanel: function () {
+    const form = document.getElementById('input-form');
+    form.classList.add('debug-form')
+    form.innerHTML = `
+        <div id="debug-info-panel">
+            <div>X Height: <span id="debug-xHeight">--</span></div>
+            <div>Canvas Objects: <span id="debug-canvasObjects">--</span></div>
+            <div>Object Type: <span id="debug-objectType">--</span></div>
+            <div>Object Position: <span id="debug-objectPosition">--</span></div>
+            <div>Left: <span id="debug-left">--</span></div>
+            <div>Top: <span id="debug-top">--</span></div>
+            <div>Width: <span id="debug-width">--</span></div>
+            <div>Height: <span id="debug-height">--</span></div>
+        </div>`;
+  },
+
+  showCanvasHistoryPanel: function() {
+    // Show the canvas history panel
+    const historyPanel = document.getElementById('canvasHistoryPanel');
+    historyPanel.style.display = 'block';
+    
+    // Populate the history panel with current data
+    this.refreshCanvasHistory();
+  },
+
+  refreshCanvasHistory: function() {
+    const historyContent = document.getElementById('canvasHistoryContent');
+    if (!historyContent) {
+      // Create the content area if it doesn't exist yet
+      const historyPanel = document.getElementById('canvasHistoryPanel');
+      if (historyPanel) {
+        const newHistoryContent = document.createElement('div');
+        newHistoryContent.className = 'canvas-history-content';
+        newHistoryContent.id = 'canvasHistoryContent';
+        historyPanel.appendChild(newHistoryContent);
+        historyContent = newHistoryContent;
+      } else {
+        console.error('Canvas history panel not found');
+        return;
+      }
+    }
+
+    // Clear existing content
+    historyContent.innerHTML = '';
+    
+    // Access the global canvasTracker instance
+    if (!window.canvasTracker) {
+      historyContent.innerHTML = '<div class="history-item">Canvas tracker not initialized</div>';
+      return;
+    }
+    
+    const history = window.canvasTracker.history;
+    
+    if (!history || history.length === 0) {
+      historyContent.innerHTML = '<div class="history-item">No canvas operations recorded yet</div>';
+      return;
+    }
+    
+    // Create history items for the 20 most recent entries (to prevent overwhelming the panel)
+    const recentHistory = history.slice(-20);
+    recentHistory.forEach((entry, index) => {
+      const historyItem = document.createElement('div');
+      historyItem.className = 'history-item';
+      
+      // Format timestamp to be more readable
+      const timestamp = new Date(entry.timestamp);
+      const formattedTime = timestamp.toLocaleTimeString();
+      
+      const timestampDiv = document.createElement('div');
+      timestampDiv.className = 'history-timestamp';
+      timestampDiv.textContent = formattedTime;
+      
+      const actionDiv = document.createElement('div');
+      actionDiv.className = 'history-action';
+      actionDiv.textContent = entry.action;
+      
+      const paramsDiv = document.createElement('div');
+      paramsDiv.className = 'history-params';
+      
+      // Format the parameters more cleanly
+      let paramsText = '';
+      if (entry.params && entry.params.length > 0) {
+        const param = entry.params[0];
+        if (param.id !== undefined) {
+          paramsText += `ID: ${param.id}\n`;
+        }
+        if (param.type !== undefined) {
+          paramsText += `Type: ${param.type}\n`;
+        }
+        if (param.deltaX !== undefined || param.deltaY !== undefined) {
+          paramsText += `Move: (${param.deltaX || 0}, ${param.deltaY || 0})\n`;
+        }
+        if (param.properties) {
+          paramsText += `Position: (${Math.round(param.properties.left || 0)}, ${Math.round(param.properties.top || 0)})\n`;
+        }
+      }
+      
+      paramsDiv.textContent = paramsText || JSON.stringify(entry.params);
+      
+      historyItem.appendChild(timestampDiv);
+      historyItem.appendChild(actionDiv);
+      historyItem.appendChild(paramsDiv);
+      
+      historyContent.appendChild(historyItem);
+    });
+    
+    // Scroll to the bottom to show the most recent items
+    historyContent.scrollTop = historyContent.scrollHeight;
+  },
+
+  clearCanvasHistory: function() {
+    if (window.canvasTracker) {
+      window.canvasTracker.clearHistory();
+      FormDebugComponent.refreshCanvasHistory();
+    }
+  },
+
+  updateDebugInfo: function (objects) {
+    // Update debug panel with info about the selected object
+    if (!document.getElementById('debug-info-panel')) {
+      return;
+    }
+
+    // Update object count
+    document.getElementById('debug-canvasObjects').textContent = canvasObject.length;
+
+    if (!objects || objects.length === 0) {
+      document.getElementById('debug-objectType').textContent = '--';
+      document.getElementById('debug-objectPosition').textContent = '--';
+      document.getElementById('debug-left').textContent = '--';
+      document.getElementById('debug-top').textContent = '--';
+      document.getElementById('debug-width').textContent = '--';
+      document.getElementById('debug-height').textContent = '--';
+      document.getElementById('debug-xHeight').textContent = '--';
+      return;
+    }
+
+    const obj = objects[0];
+
+    document.getElementById('debug-objectType').textContent = obj.functionalType || obj.type;
+    document.getElementById('debug-objectPosition').textContent = `(${Math.round(obj.left)}, ${Math.round(obj.top)})`;
+    document.getElementById('debug-left').textContent = Math.round(obj.left);
+    document.getElementById('debug-top').textContent = Math.round(obj.top);
+    document.getElementById('debug-width').textContent = Math.round(obj.width);
+    document.getElementById('debug-height').textContent = Math.round(obj.height);
+    document.getElementById('debug-xHeight').textContent = obj.xHeight || 'N/A';
+  }
 };
+
+
 
 let CanvasObjectInspector = {
   createObjectListPanelInit: function () {
