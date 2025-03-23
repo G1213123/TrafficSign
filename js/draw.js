@@ -119,6 +119,7 @@ class GlyphPath extends fabric.Group {
     const result = await fabric.loadSVGFromString(pathData)
     const obj = fabric.util.groupSVGElements(result.objects);
     obj.set(options);
+    obj.set({strokeWidth:0})
     this.add(obj);
     this.setCoords();
 
@@ -510,27 +511,27 @@ class BaseGroup extends fabric.Group {
     }
 
     //delete route branch
-    if (deleteObj.rootRoute) {
-      const rootRoute = deleteObj.rootRoute
-      const branchIndex = rootRoute.branchRoute.indexOf(deleteObj)
-      rootRoute.branchRoute.splice(branchIndex, 1)
+    if (deleteObj.mainRoad) {
+      const mainRoad = deleteObj.mainRoad
+      const branchIndex = mainRoad.sideRoad.indexOf(deleteObj)
+      mainRoad.sideRoad.splice(branchIndex, 1)
       
       //deleteObj.rootRoute = null
 
       // Find and remove the vertices with matching labels for the branch being deleted
       const vertexLabels = [`C${branchIndex }`];
-      rootRoute.basePolygon.vertex = rootRoute.basePolygon.vertex.filter(vertex => 
+      mainRoad.basePolygon.vertex = mainRoad.basePolygon.vertex.filter(vertex => 
         !vertexLabels.includes(vertex.label)
       );
 
-      rootRoute.receiveNewRoute()
-      rootRoute.setCoords()
+      mainRoad.receiveNewRoute()
+      mainRoad.setCoords()
 
-    } else if (deleteObj.branchRoute) {
-      const branchRoute = deleteObj.branchRoute
-      branchRoute.forEach(branch => {
-        branch.rootRoute = null
-        branch.deleteObject()
+    } else if (deleteObj.sideRoad) {
+      const sideRoad = deleteObj.sideRoad
+      sideRoad.forEach(side => {
+        side.mainRoad = null
+        side.deleteObject()
       })
     }
 

@@ -35,7 +35,7 @@ const roadMapTemplate = {
     'UArrow Conventional': {
         path: [{
             'vertex': [
-                { x: 6, y: 33.4, label: 'V1', start: 1, display: 0 },
+                { x: 6, y: 33.4, label: 'V1', start: 1, display: 1 },
                 { x: 8, y: 31.4, label: 'V2', start: 0, display: 0 },
                 { x: 8, y: 9.3808, label: 'V13', start: 0, display: 0 },
                 { x: 8.3077, y: 8.6592, label: 'V14', start: 0, display: 0 },
@@ -52,13 +52,13 @@ const roadMapTemplate = {
     'UArrow Spiral': {
         path: [{
             'vertex': [
-                { x: 8, y: 35.4, label: 'V1', start: 1, display: 0 },
-                { x: 6, y: 33.4, label: 'V2', start: 1, display: 0 },
-                { x: 6, y: 17.8885, label: 'V3', start: 0, display: 0 },
-                { x: 9.3333, y: 10.4350, label: 'V4', start: 0, display: 0 },
-                { x: 2.6252, y: 13.7517, label: 'V5', start: 0, display: 0 },
-                { x: 2, y: 17.8885, label: 'V6', start: 0, display: 0 },
-                { x: 2, y: 33.4, label: 'V7', start: 0, display: 0 },
+                { x: 6, y: 35.4, label: 'V1', start: 1, display: 1 },
+                { x: 8, y: 33.4, label: 'V2', start: 0, display: 0 },
+                { x: 8, y: 15.8745, label: 'V3', start: 0, display: 0 },
+                { x: 10.5, y: 9.2601, label: 'V4', start: 0, display: 0 },
+                { x: 4.2303, y: 13.3456, label: 'V5', start: 0, display: 0 },
+                { x: 4, y: 17.8745, label: 'V6', start: 0, display: 0 },
+                { x: 4, y: 33.4, label: 'V7', start: 0, display: 0 },
             ], 'arcs': [
                 { start: 'V3', end: 'V4', radius: 10, direction: 1, sweep: 0 },
                 { start: 'V4', end: 'V5', radius: 14, direction: 1, sweep: 0 },
@@ -529,7 +529,7 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
 
 
     arrowTipPath = calcSymbol(arrowTipPath, length)
-    const transform = route.shape !== 'UArrow Conventional'?{
+    const transform = route.shape !== 'UArrow Spiral'?{
         x: route.x,
         y: route.y,
         angle: angle / Math.PI * 180 + 90
@@ -1022,17 +1022,15 @@ async function addUTurnRoute(mainRoad) {
         x: 0,
         y: 0,
         routeList: [{
-            x: 6, y: 33.4,
+            x: 6, y: 33.4 + (mainRoad.roadType == 'Spiral Roundabout' ? 2 : 0),
             angle: 0,
-            shape: 'UArrow Conventional',
+            shape: 'UArrow ' + mainRoad.roadType.split(' ')[0],
             width: 4
         }]
     };
 
     // Declare variables outside the if-else blocks 
-    let routeList = [];
-
-    routeList.push({ x: 6, y: 33.4, angle: 0, shape: 'UArrow Conventional', width: 4, });
+    let routeList = options.routeList;
     let arrow = JSON.parse(JSON.stringify(roadMapTemplate[routeList[0].shape]))
     arrow = calcSymbol(arrow, mainRoad.xHeight / 4)
 
