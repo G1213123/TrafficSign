@@ -1,3 +1,4 @@
+// Check CIE standard for color contrast
 const BorderColorScheme = {
     "Blue Background": {
         'background': '#0000FE',

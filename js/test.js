@@ -1300,10 +1300,26 @@ const RouteTest = {
   },
 
   /**
-   * Test creation of a Roundabout and adding a side road to it
+   * Run all route tests
    */
-  async testRoundabout() {
-    TestTracker.startTest("Roundabout");
+  runAll: async function () {
+    await this.testMainRoad();
+    await this.testLeftSideRoad();
+    await this.testRightSideRoad();
+    await this.testSideRoadMovement();
+    // Roundabout tests moved to dedicated test suite
+  }
+};
+
+/**
+ * Test suite for roundabout functionality (both conventional and spiral)
+ */
+const RoundaboutTest = {
+  /**
+   * Test creation of a Conventional Roundabout and adding a side road to it
+   */
+  async testConventionalRoundabout() {
+    TestTracker.startTest("ConventionalRoundabout");
 
     // Set up test parameters for roundabout
     const params = {
@@ -1321,7 +1337,7 @@ const RouteTest = {
     // Create a Roundabout directly
     const routeOptions = {
       routeList: [
-        { x: params.posx, y: params.posy + (params.rootLength + params.tipLength) * params.xHeight / 4, angle: 180, width: 6, shape: 'Conventional' },
+        { x: params.posx, y: params.posy + (params.rootLength + params.tipLength) * params.xHeight / 4, angle: 180, width: 6, shape: 'Normal' },
         { x: params.posx, y: params.posy, angle: 0, width: 6, shape: 'Stub' }
       ],
       xHeight: params.xHeight,
@@ -1332,8 +1348,8 @@ const RouteTest = {
     };
 
     const roundabout = new MainRoadSymbol(routeOptions);
-    await roundabout.initialize(calcConvRoundaboutVertices(params.xHeight, routeOptions.routeList));
-    TestTracker.register("roundabout", roundabout);
+    await roundabout.initialize(calcRoundaboutVertices('Conventional', params.xHeight, routeOptions.routeList));
+    TestTracker.register("conventionalRoundabout", roundabout);
 
     // Test assertions
     let passed = true;
@@ -1427,22 +1443,6 @@ const RouteTest = {
   },
 
   /**
-   * Run all route tests
-   */
-  runAll: async function () {
-    await this.testMainRoad();
-    await this.testLeftSideRoad();
-    await this.testRightSideRoad();
-    await this.testSideRoadMovement();
-    await this.testRoundabout(); // Added this new test
-  }
-};
-
-/**
- * Test suite for spiral roundabout functionality
- */
-const SpiralRoundaboutTest = {
-  /**
    * Create and test a spiral roundabout with multiple arms
    */
   async testSpiralRoundabout() {
@@ -1455,7 +1455,7 @@ const SpiralRoundaboutTest = {
       tipLength: 12,
       color: 'white',
       width: 6,
-      shape: 'Arrow',
+      shape: 'Spiral Arrow',
       roadType: 'Spiral Roundabout',
       posx: 2500,
       posy: 600
@@ -1464,7 +1464,7 @@ const SpiralRoundaboutTest = {
     // Create a Spiral Roundabout directly
     const routeOptions = {
       routeList: [
-        { x: params.posx, y: params.posy + (params.rootLength + params.tipLength) * params.xHeight / 4, angle: 180, width: 6, shape: 'Conventional' },
+        { x: params.posx, y: params.posy + (params.rootLength + params.tipLength) * params.xHeight / 4, angle: 180, width: 6, shape: 'Auxiliary' },
         { x: params.posx, y: params.posy, angle: 0, width: 6, shape: 'Stub' }
       ],
       xHeight: params.xHeight,
@@ -1475,7 +1475,7 @@ const SpiralRoundaboutTest = {
     };
 
     const spiralRoundabout = new MainRoadSymbol(routeOptions);
-    await spiralRoundabout.initialize(calcSpirRoundaboutVertices(params.xHeight, routeOptions.routeList));
+    await spiralRoundabout.initialize(calcRoundaboutVertices('Spiral', params.xHeight, routeOptions.routeList));
     TestTracker.register("spiralRoundabout", spiralRoundabout);
 
     // Test assertions for the roundabout
@@ -1575,7 +1575,7 @@ const SpiralRoundaboutTest = {
       y: y,
       routeParams: {
         angle: angleDegrees,
-        shape: 'Arrow',
+        shape: 'Spiral Arrow',
         width: 4
       }
     };
@@ -1597,20 +1597,21 @@ const SpiralRoundaboutTest = {
   },
 
   /**
-   * Run all spiral roundabout tests
+   * Run all roundabout tests
    */
   runAll: async function () {
+    await this.testConventionalRoundabout();
     await this.testSpiralRoundabout();
   }
 };
 
-// Update testToRun to include all test suites in order
+// Update testToRun to use the new consolidated RoundaboutTest instead of SpiralRoundaboutTest
 testToRun = [
   ShapeTest.runAll.bind(ShapeTest),
   AnchorTest.runAll.bind(AnchorTest),
   RouteTest.runAll.bind(RouteTest),
   BorderTest.runAll.bind(BorderTest),
-  SpiralRoundaboutTest.runAll.bind(SpiralRoundaboutTest), // Add the new test suite
+  RoundaboutTest.runAll.bind(RoundaboutTest), // Replace SpiralRoundaboutTest with RoundaboutTest
 ];
 
 async function runTests(tests) {

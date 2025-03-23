@@ -608,7 +608,7 @@ let FormTextAddComponent = {
 let FormDrawMapComponent = {
   MapType: ['Main Line', 'Conventional Roundabout', 'Spiral Roundabout',],
   EndShape: ['Arrow', 'Stub'],
-  RoundaboutFeatures: ['Conventional','Auxiliary', 'U-turn'],
+  RoundaboutFeatures: ['Normal','Auxiliary', 'U-turn'],
   permitAngle: [45, 60, 90],
   defaultRoute: [{ x: 0, y: 7, angle: 60, width: 4, shape: 'Arrow' }],
 
@@ -684,12 +684,10 @@ let FormDrawMapComponent = {
       GeneralHandler.createToggle(`Main Road Shape`, FormDrawMapComponent.EndShape, roadTypeSettingsContainer, 'Arrow', drawMainRoadOnCursor);
     } else if (roadType === 'Conventional Roundabout') {
       // Placeholder for Conventional Roundabout settings
-
-      GeneralHandler.createToggle(`Roundabout Features`, FormDrawMapComponent.RoundaboutFeatures, roadTypeSettingsContainer, 'Conventional', drawMainRoadOnCursor);
+      GeneralHandler.createToggle(`Roundabout Type`, FormDrawMapComponent.RoundaboutFeatures, roadTypeSettingsContainer, 'Normal', drawMainRoadOnCursor);
       } else if (roadType === 'Spiral Roundabout') {
       // Placeholder for Spiral Roundabout settings
-      
-      GeneralHandler.createToggle(`Roundabout Features`, FormDrawMapComponent.RoundaboutFeatures, roadTypeSettingsContainer, 'Conventional', drawMainRoadOnCursor);
+      GeneralHandler.createToggle(`Roundabout Type`, FormDrawMapComponent.RoundaboutFeatures, roadTypeSettingsContainer, 'Normal', drawMainRoadOnCursor);
       }
   },
 
@@ -702,13 +700,13 @@ let FormDrawMapComponent = {
     const tipLengthElement = document.getElementById('tip-length');
     const mainWidthElement = document.getElementById('main-width');
     const mainRoadShapeContainer = document.getElementById('Main Road Shape-container');
-    const roundaboutFeaturesContainer = document.getElementById('Roundabout Features-container');
+    const roundaboutFeaturesContainer = document.getElementById('Roundabout Type-container');
 
     const rootLength = rootLengthElement ? parseInt(rootLengthElement.value) : null;
     const tipLength = tipLengthElement ? parseInt(tipLengthElement.value) : null;
     const mainWidth = mainWidthElement ? parseInt(mainWidthElement.value) : null;
     const endShape = mainRoadShapeContainer ? GeneralHandler.getToggleValue('Main Road Shape-container') : null;
-    const roundaboutFeatures = roundaboutFeaturesContainer ? GeneralHandler.getToggleValue('Roundabout Features-container') : null;
+    const roundaboutFeatures = roundaboutFeaturesContainer ? GeneralHandler.getToggleValue('Roundabout Type-container') : null;
 
     const mainRoadParams = {
       xHeight: xHeight,
