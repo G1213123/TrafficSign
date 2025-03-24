@@ -660,6 +660,7 @@ class MainRoadSymbol extends BaseGroup {
 
         this.replaceBasePolygon(newPolygon, false);
         this.drawVertex(false);
+        canvas.renderAll()
     }
 
     /**
@@ -1224,7 +1225,7 @@ async function drawSideRoadOnCursor(event, option = null) {
     FormDrawAddComponent.newSymbolObject = sideRoad;
 
     // Update main road to show how it would look with the new side road
-    mainRoad.receiveNewRoute(tempVertexList);
+    mainRoad.receiveNewRoute(sideRoad);
     mainRoad.setCoords();
 
     // Remove any existing event handlers first to avoid duplicates
