@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Road Sign Factory</title>
     <link rel="stylesheet" href="css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/fabric@6.4.3/dist/index.js"></script>
     <script src="https://kit.fontawesome.com/d9b171ca69.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
     <script src="https://opentype.js.org/dist/opentype.js"></script>
@@ -49,15 +48,19 @@
         <div id="cursorTextBox" class="cursor-box">Follow the cursor</div>
         <input type="text" id="cursorAnswerBox" class="cursor-box" value=0 />
     </div>
-    <script type="text/javascript" src="js/canvas.js"></script>
-    <script type="text/javascript" src="js/anchor.js"></script>
-    <script type="text/javascript" src="js/draw.js"></script>
-    <script type="text/javascript" src="js/symbols.js"></script>
-    <script type="text/javascript" src="js/text.js"></script>
-    <script type="text/javascript" src="js/route.js"></script>
-    <script type="text/javascript" src="js/border.js"></script>
-    <script type="text/javascript" src="js/sidebar.js"></script>
-    <script type="text/javascript" src="js/test.js"></script>
+    <!-- Load modules directly -->
+    <script type="importmap">
+        {
+          "imports": {
+            "fabric": "https://cdn.jsdelivr.net/npm/fabric@6.4.3/dist/fabric.mjs",
+            "canvas": "./js/canvas.js",
+            "sidebar": "./js/sidebar.js",
+            "test": "./js/test.js"
+          }
+        }
+      </script>
+      
+      <script type="module" src="./js/canvas.js"></script>
 </body>
 
 </html>

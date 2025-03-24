@@ -1,5 +1,10 @@
+import { canvas, showTextBox } from './canvas.js';
+import { BaseGroup, GlyphPath } from './draw.js';
+import { anchorShape } from './anchor.js';
+import { vertexToPath } from './symbols.js';
+
 // Check CIE standard for color contrast
-const BorderColorScheme = {
+export const BorderColorScheme = {
     "Blue Background": {
         'background': '#0000FE',
         'symbol': 'white',
@@ -32,7 +37,7 @@ const BorderColorScheme = {
     },
 }
     
-const BorderTypeScheme = {
+export const BorderTypeScheme = {
     'stack': StackBorderTemplate,
     'flagLeft': FlagLeftBorderTemplate,
     'flagRight': FlagRightBorderTemplate,
@@ -53,7 +58,7 @@ function applyLengthAndRounding(path, length) {
     });
 }
 
-function RectTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
+export function RectTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
   const length = xHeight / 4;
 
   const padding = {
@@ -76,7 +81,7 @@ function RectTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
   return { path: returnBorder };
 }
 
-function PanelTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
+export function PanelTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
   const length = xHeight / 4;
 
   const padding = {
@@ -99,7 +104,7 @@ function PanelTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
   return { path: returnBorder };
 }
 
-function GreenPanelTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
+export function GreenPanelTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
   const length = xHeight / 4;
 
   const padding = {
@@ -130,7 +135,7 @@ function GreenPanelTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
   return { path: returnBorder };
 }
 
-function StackBorderTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
+export function StackBorderTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
     const length = xHeight / 4;
     rounding.x /= length;
     rounding.y /= length;
@@ -162,7 +167,7 @@ function StackBorderTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
     return { path: returnBorder };
 }
 
-function ExitBorderTemplate(xHeight, block,rounding = {x: 0, y: 0}) {
+export function ExitBorderTemplate(xHeight, block,rounding = {x: 0, y: 0}) {
     const length = xHeight / 4;
     const padding = {
         left: 0.5,
@@ -192,7 +197,7 @@ function ExitBorderTemplate(xHeight, block,rounding = {x: 0, y: 0}) {
     return { path: returnBorder };
 }
 
-function FlagLeftBorderTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
+export function FlagLeftBorderTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
     const length = xHeight / 4;
     rounding.x /= length;
     rounding.y /= length;
@@ -265,7 +270,7 @@ function FlagLeftBorderTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
     return { path: returnBorder };
 }
 
-function FlagRightBorderTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
+export function FlagRightBorderTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
     const length = xHeight / 4;
     rounding.x /= length;
     rounding.y /= length;
@@ -338,7 +343,7 @@ function FlagRightBorderTemplate(xHeight, block, rounding = {x: 0, y: 0}) {
     return { path: returnBorder };
 }
 
-function drawLabeledBorder(borderType, xHeight, bbox, color) {
+export function drawLabeledBorder(borderType, xHeight, bbox, color) {
     const block = { width: bbox.right - bbox.left, height: bbox.bottom - bbox.top };
     const rounding = BorderUtilities.calcBorderRounding(borderType, xHeight, bbox);
     const shapeMeta = BorderTypeScheme[borderType](xHeight, block, rounding);
@@ -373,7 +378,7 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
     return GroupedBorder;
 }
 
-drawDivider = async function (xHeight, color, top, left, width, vertical=false){
+export const drawDivider = async function (xHeight, color, top, left, width, vertical=false){
     const length = xHeight / 4
     const Xwidth = width / length
     
@@ -435,7 +440,7 @@ drawDivider = async function (xHeight, color, top, left, width, vertical=false){
 }
 
 // Add BorderUtilities object to hold functions moved from FormBorderWrapComponent
-const BorderUtilities = {
+export const BorderUtilities = {
   VDividerCreate: async function (leftObjects, rightObjects, options = null) {
     const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
     const colorType = options ? options.colorType : document.getElementById("input-color").value

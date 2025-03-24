@@ -1,4 +1,11 @@
-const roadMapTemplate = {
+import { canvas } from './canvas.js';
+import { BaseGroup } from './draw.js';
+import { GlyphPath } from './draw.js';
+import { GeneralHandler, ShowHideSideBarEvent, CenterCoord } from './sidebar.js';
+import { calcSymbol, calculateTransformedPoints } from './symbols.js';
+
+// All existing route templates
+export const roadMapTemplate = {
     'Arrow': {
         path: [{
             'vertex': [
@@ -337,11 +344,19 @@ const roadMapTemplate = {
     },
 };
 
-const calcVertexType = {
+export const calcVertexType = {
     'Main Line': calcMainRoadVertices,
     'Conventional Roundabout': (xHeight, routeList) => calcRoundaboutVertices('Conventional', xHeight, routeList),
     'Spiral Roundabout': (xHeight, routeList) => calcRoundaboutVertices('Spiral', xHeight, routeList)
 }
+
+// Track the currently active vertex for drawing operations
+let activeVertex = null;
+
+// Reference to form draw component for adding new objects
+const FormDrawAddComponent = {
+    newSymbolObject: null
+};
 
 // Extract drawing functions from FormDrawMapComponent
 
@@ -351,20 +366,20 @@ const calcVertexType = {
  * @param {Array} routeList - List of routes
  * @return {Object} Vertex list object
  */
-function calcMainRoadVertices(xHeight, routeList) {
-    const length = xHeight / 4
-    let RootBottom = routeList.filter(item => item.angle === 180)[0]
-    let RootTop = routeList.filter(item => item.angle === 0)[0]
-    let RootBottomVertex = getSideRoadCoords(RootBottom, length)
-    let RootTopVertex = getSideRoadCoords(RootTop, length)
+export function calcMainRoadVertices(xHeight, routeList) {
+    const length = xHeight / 4;
+    let RootBottom = routeList.filter(item => item.angle === 180)[0];
+    let RootTop = routeList.filter(item => item.angle === 0)[0];
+    let RootBottomVertex = getSideRoadCoords(RootBottom, length);
+    let RootTopVertex = getSideRoadCoords(RootTop, length);
 
-    const vertexList = [...RootTopVertex.path[0].vertex, ...RootBottomVertex.path[0].vertex]
+    const vertexList = [...RootTopVertex.path[0].vertex, ...RootBottomVertex.path[0].vertex];
     // Move the first vertex to the end of the list
     if (vertexList.length > 0) {
         const firstVertex = vertexList.shift();
         vertexList.push(firstVertex);
     }
-    assignVertexLabel(vertexList)
+    assignVertexLabel(vertexList);
     return { path: [{ 'vertex': vertexList, 'arcs': [] }] };
 }
 
@@ -375,7 +390,7 @@ function calcMainRoadVertices(xHeight, routeList) {
  * @param {Array} routeList - List of routes
  * @return {Object} Vertex list object
  */
-function calcSideRoadVertices(xHeight, mainRouteList, routeList) {
+export function calcSideRoadVertices(xHeight, mainRouteList, routeList) {
     const length = xHeight / 4
 
     // Calculate the direction vector of the arrow
@@ -398,7 +413,7 @@ function calcSideRoadVertices(xHeight, mainRouteList, routeList) {
  * @param {Array} routeList - List of routes with the center point
  * @return {Object} Vertex list object for roundabout
  */
-function calcRoundaboutVertices(type, xHeight, routeList) {
+export function calcRoundaboutVertices(type, xHeight, routeList) {
     const length = xHeight / 4
     const center = routeList[1] // use tip location
     const templateName = routeList[0].shape + ' ' + type
@@ -425,7 +440,7 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
  * @param {number} right - Right boundary
  * @return {Array} Array of vertex coordinates
  */
-function getSideRoadCoords(route, length, left, right) {
+export function getSideRoadCoords(route, length, left, right) {
     let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]))
     arrowTipPath.path[0].vertex.map((v) => { v.x *= route.width / 2; v.y *= route.width / 2 })
     arrowTipPath = calcSymbol(arrowTipPath, length)
@@ -469,7 +484,7 @@ function getSideRoadCoords(route, length, left, right) {
  * @param {number} right - Right boundary
  * @return {Array} Array of vertex coordinates
  */
-function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle, center) {
+export function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle, center) {
 
     let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]))
     if (route.shape !== 'UArrow Conventional') {
@@ -520,7 +535,7 @@ function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle, center)
  * @param {number} right - Right boundary
  * @return {Array} Array of vertex coordinates
  */
-function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
+export function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
 
     let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]))
     //const width = route.width
@@ -548,7 +563,7 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
  * @param {Array} vertexList - List of vertices to label
  * @return {void}
  */
-function assignVertexLabel(vertexList) {
+export function assignVertexLabel(vertexList) {
     vertexList.map((vertex, index) => {
         vertex.label = `V${index + 1}`
         vertex.start = index == 0 ? 1 : 0
@@ -558,7 +573,7 @@ function assignVertexLabel(vertexList) {
 /**
  * MainRoute class extends baseGroup to create route objects
  */
-class MainRoadSymbol extends BaseGroup {
+export class MainRoadSymbol extends BaseGroup {
     constructor(options = {}) {
         // We need to pass null as basePolygon initially, as we'll set it after initialize()
         super(null, 'MainRoad', options);
@@ -680,7 +695,7 @@ class MainRoadSymbol extends BaseGroup {
 /**
  * SideRoadSymbol class extends baseGroup for side roads
  */
-class SideRoadSymbol extends BaseGroup {
+export class SideRoadSymbol extends BaseGroup {
     constructor(options = {}) {
         // Initialize with null basePolygon, will set it later
         super(null, 'SideRoad', options);
@@ -795,7 +810,7 @@ class SideRoadSymbol extends BaseGroup {
  * @param {number} xHeight - X-height value for measurements
  * @return {Object} - Updated side road data and vertex list
  */
-function applySideRoadConstraints(sideRoad, mainRoad, sideRouteList, isSideLeft, xHeight) {
+export function applySideRoadConstraints(sideRoad, mainRoad, sideRouteList, isSideLeft, xHeight) {
     // Make a copy to avoid modifying the original
     const routeList = JSON.parse(JSON.stringify(sideRouteList));
 
@@ -810,7 +825,7 @@ function applySideRoadConstraints(sideRoad, mainRoad, sideRouteList, isSideLeft,
 
 }
 
-function applyConstraintsMainLine(sideRoad, mainRoad, routeList, isSideLeft, xHeight) {
+export function applyConstraintsMainLine(sideRoad, mainRoad, routeList, isSideLeft, xHeight) {
     // Horizontal constraint based on side
     const rootLeft = mainRoad.routeList[0].x - mainRoad.routeList[0].width * mainRoad.xHeight / 8;
     const rootRight = mainRoad.routeList[0].x + mainRoad.routeList[0].width * mainRoad.xHeight / 8;
@@ -852,7 +867,7 @@ function applyConstraintsMainLine(sideRoad, mainRoad, routeList, isSideLeft, xHe
     return { routeList, tempVertexList };
 }
 
-function applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeight) {
+export function applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeight) {
     // Horizontal constraint based on side
     const radius = 12
     const minBranchShapeXDelta = radius + routeList[0].shape == 'Stub' ? 4 : radius;
@@ -883,7 +898,7 @@ function applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeig
     return { routeList, tempVertexList };
 }
 
-function applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList, xHeight) {
+export function applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList, xHeight) {
     const center = mainRoad.routeList[1]
     const length = xHeight / 4 // Use the parameter directly for temp objects without sideRoad object
 
@@ -917,7 +932,7 @@ function applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList,
  * @param {Object} params - Optional parameters for testing
  * @return {Promise<void>}
  */
-async function drawMainRoadOnCursor(event, params = null) {
+export async function drawMainRoadOnCursor(event, params = null) {
     // In case only update parameters of cursor object
     //if (!event || !event.target || event.target.id !== 'button-DrawMap') {
     //    if (cursor._objects.length == 0) {
@@ -1016,7 +1031,7 @@ async function drawMainRoadOnCursor(event, params = null) {
     canvas.renderAll();
 }
 
-async function addUTurnRoute(mainRoad) {
+export async function addUTurnRoute(mainRoad) {
 
     // Create options for the arm
     const options = {
@@ -1081,7 +1096,7 @@ function mainRoadOnMouseMove(event) {
  * @param {Object} options - Optional parameters
  * @return {Promise<void>}
  */
-async function finishDrawMainRoad(event, options = null) {
+export async function finishDrawMainRoad(event, options = null) {
     if (event.e.button !== 0) return;
 
     // Finalize main road placement on click
@@ -1115,7 +1130,7 @@ async function finishDrawMainRoad(event, options = null) {
  * @param {Object} option - Optional parameters for testing
  * @return {Promise<void>}
  */
-async function drawSideRoadOnCursor(event, option = null) {
+export async function drawSideRoadOnCursor(event, option = null) {
     document.removeEventListener('keydown', ShowHideSideBarEvent);
     document.addEventListener('keydown', cancelDraw);
 
@@ -1322,7 +1337,7 @@ function sideRoadOnMouseMove(event) {
  * @param {Event} event - Mouse event
  * @return {Promise<void>}
  */
-async function finishDrawSideRoad(event) {
+export async function finishDrawSideRoad(event) {
     if (event.e.button !== 0) return;
 
     // Finalize side road placement on click
@@ -1378,7 +1393,7 @@ async function finishDrawSideRoad(event) {
  * @param {Event} event - Optional event object
  * @return {void}
  */
-function drawRoadsHandlerOff(event) {
+export function drawRoadsHandlerOff(event) {
     // If there's a new road object being placed, remove it unless it's been added to canvas properly
     if (FormDrawAddComponent.newSymbolObject) {
         const newRoad = FormDrawAddComponent.newSymbolObject;
@@ -1436,7 +1451,7 @@ function drawRoadsHandlerOff(event) {
  * @param {boolean} force - Force cancel flag
  * @return {void}
  */
-function cancelDraw(event, force = false) {
+export function cancelDraw(event, force = false) {
     if (event.key === 'Escape' || force) {
         drawRoadsHandlerOff();
         setTimeout(() => {
@@ -1450,7 +1465,7 @@ function cancelDraw(event, force = false) {
  * @param {Event} event - Selection event
  * @return {void}
  */
-function roadMapOnSelect(event) {
+export function roadMapOnSelect(event) {
     const panel = document.getElementById("button-DrawMap");
     const parent = document.getElementById("input-form");
     const existingRoute = canvas.getActiveObjects()
@@ -1467,7 +1482,7 @@ function roadMapOnSelect(event) {
  * @param {Event} event - Deselection event
  * @return {void}
  */
-function roadMapOnDeselect(event) {
+export function roadMapOnDeselect(event) {
     const panel = document.getElementById("button-addRoute");
     if (panel) {
         //panel.parentNode.parentNode.removeChild(panel.parentNode)
@@ -1484,7 +1499,7 @@ function roadMapOnDeselect(event) {
  * @param {string} buttonId - The ID of the button to toggle
  * @param {boolean} isActive - Whether to make the button active (true) or deactive (false)
  */
-function toggleButtonState(buttonId, isActive) {
+export function toggleButtonState(buttonId, isActive) {
     const button = document.getElementById(buttonId);
     if (!button) return;
 

@@ -1,4 +1,4 @@
-const symbolsTemplate = {
+export const symbolsTemplate = {
   // TODO: permitted angle
 
 
@@ -1033,7 +1033,7 @@ const symbolsTemplate = {
           { x: 2, y: 5.8, label: 'V1', start: 0, display: 0 },
           { x: 1.4667, y: 5.8, label: 'V1', start: 0, display: 0 },
           { x: 1.4667, y: 5.5333, label: 'V1', start: 0, display: 0 },
-          /////
+          ///// 
           { x: -1.4667, y: 5.5333, label: 'V1', start: 0, display: 0 },
           { x: -1.4667, y: 5.8, label: 'V1', start: 0, display: 0 },
           { x: -2, y: 5.8, label: 'V1', start: 0, display: 0 },
@@ -1059,7 +1059,7 @@ const symbolsTemplate = {
 
 };
 
-const symbolsTemplateAlt = {
+export const symbolsTemplateAlt = {
   'Hospital': {
     path: [ // 3.5.7.31
       {
@@ -1532,7 +1532,7 @@ const symbolsTemplateAlt = {
   },
 }
 
-async function getFontPath(t) {
+export async function getFontPath(t) {
   let buffer;
   if (t.fontFamily == 'TransportMedium') {
     buffer = await fetch('./css/font/TransportMedium.woff').then(res => res.arrayBuffer());
@@ -1545,7 +1545,7 @@ async function getFontPath(t) {
 
 
 
-function calcSymbol(type, length, color='white') {
+export function calcSymbol(type, length, color='white') {
   let symbol
   if (typeof type === 'string') {
     const symbolsT = JSON.parse(JSON.stringify((color=='Black' && (type.includes('Hospital') || type.includes('Route')))?symbolsTemplateAlt:symbolsTemplate)); // Deep copy to avoid mutation
@@ -1579,14 +1579,14 @@ function calcSymbol(type, length, color='white') {
   return symbol;
 }
 
-function getInsertOffset(shapeMeta, angle = 0) {
+export function getInsertOffset(shapeMeta, angle = 0) {
   const vertexleft = Math.min(...shapeMeta.path.map(p => p.vertex).flat().map(v => v.x));
   const vertextop = Math.min(...shapeMeta.path.map(p => p.vertex).flat().map(v => v.y));
   return { left: vertexleft, top: vertextop }
 }
 
 // draw segment in svg between vertex
-function drawSegment(current, next, previous, prevArc, final = false) {
+export function drawSegment(current, next, previous, prevArc, final = false) {
   let pathString = ''
   if (current.radius) {
     // Calculate the exterior angle θ
@@ -1618,7 +1618,7 @@ function drawSegment(current, next, previous, prevArc, final = false) {
 }
 
 // Convert shapeMeta.vertex points to SVG path string with circular trims
-function vertexToPath(shapeMeta, color) {
+export async function vertexToPath(shapeMeta, color) {
   let svgContent = '<svg>';
   let pathString = '';
   let textPromises = [];
@@ -1671,11 +1671,9 @@ function vertexToPath(shapeMeta, color) {
 
       // If we have text promises, await them all before returning the SVG content
       if (textPromises.length > 0) {
-        return (async () => {
-          await Promise.all(textPromises);
-          svgContent += '</svg>';
-          return svgContent;
-        })();
+        await Promise.all(textPromises);
+        svgContent += '</svg>';
+        return svgContent;
       } else {
         // If no text promises, just return the SVG content immediately
         svgContent += '</svg>';
@@ -1684,7 +1682,7 @@ function vertexToPath(shapeMeta, color) {
 }
 
 // Calculate the exterior angle between the edges
-function calculateAngle(prev, current, next) {
+export function calculateAngle(prev, current, next) {
   const v1 = { x: current.x - prev.x, y: current.y - prev.y };
   const v2 = { x: next.x - current.x, y: next.y - current.y };
   const dotProduct = v1.x * v2.x + v1.y * v2.y;
@@ -1694,7 +1692,7 @@ function calculateAngle(prev, current, next) {
 }
 
 // Calculate the tangent point for the arc
-function calculateTangentPoint(point, center, offsetDistance) {
+export function calculateTangentPoint(point, center, offsetDistance) {
   const angle = Math.atan2(point.y - center.y, point.x - center.x);
   const offsetX = Math.round(offsetDistance * Math.cos(angle) * 100) / 100;
   const offsetY = Math.round(offsetDistance * Math.sin(angle) * 100) / 100;
@@ -1704,7 +1702,7 @@ function calculateTangentPoint(point, center, offsetDistance) {
   };
 }
 
-function calculateTransformedPoints(pointsList, options) {
+export function calculateTransformedPoints(pointsList, options) {
   const { x, y, angle } = options;
   const radians = angle * (Math.PI / 180); // Convert angle to radians
   const points = pointsList.path?pointsList.path[0].vertex:pointsList
@@ -1729,13 +1727,13 @@ function calculateTransformedPoints(pointsList, options) {
 }
 
 // Determine the arc direction (clockwise or counterclockwise)
-function getArcDirection(prev, current, next) {
+export function getArcDirection(prev, current, next) {
   const crossProduct = (current.x - prev.x) * (next.y - prev.y) - (current.y - prev.y) * (next.x - prev.x);
   return crossProduct > 0 ? 0 : 1; // 0 for counterclockwise, 1 for clockwise
 }
 
 // Calculate the intersection point of two lines
-function intersectLines(p1, p2, p3, p4) {
+export function intersectLines(p1, p2, p3, p4) {
   const denom = (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x);
   if (denom === 0) return null; // Lines are parallel
 
@@ -1746,7 +1744,7 @@ function intersectLines(p1, p2, p3, p4) {
 }
 
 // Calculate the arc center by offsetting both edges by the radius
-function calculateArcCenter(prev, current, next, radius) {
+export function calculateArcCenter(prev, current, next, radius) {
   const offsetPrev = offsetPoint(prev, current, radius);
   const offsetNext = offsetPoint(next, current, radius);
 
@@ -1754,7 +1752,7 @@ function calculateArcCenter(prev, current, next, radius) {
 }
 
 // Offset a point by the radius
-function offsetPoint(point, center, radius) {
+export function offsetPoint(point, center, radius) {
   const angle = Math.atan2(point.y - center.y, point.x - center.x);
   const offsetX = radius * Math.cos(angle);
   const offsetY = radius * Math.sin(angle);
@@ -1769,7 +1767,7 @@ function offsetPoint(point, center, radius) {
  * @param {Array<Object>} pathsArray - Array of path objects or objects containing path arrays
  * @returns {Object} - Object with combined paths array, properly reindexed vertices and updated arc references
  */
-function combinePaths(pathsArray) {
+export function combinePaths(pathsArray) {
   // Handle edge cases
   if (!pathsArray || pathsArray.length === 0) return null;
   if (pathsArray.length === 1) return JSON.parse(JSON.stringify(pathsArray[0]));
@@ -1852,7 +1850,7 @@ function combinePaths(pathsArray) {
  * @param {Object} options - Configuration options: x, y, length, angle, color
  * @return {Object} The created symbol object
  */
-async function drawSymbolDirectly(symbolType, options) {
+export async function drawSymbolDirectly(symbolType, options) {
   // Calculate symbol data
   const symbolData = calcSymbol(symbolType, options.length, options.color);
   
@@ -1883,7 +1881,7 @@ async function drawSymbolDirectly(symbolType, options) {
 }
 
 // Update the drawLabeledSymbol function to use drawSymbolDirectly
-async function drawLabeledSymbol(symbolType, options) {
+export async function drawLabeledSymbol(symbolType, options) {
   return await drawSymbolDirectly(symbolType, options);
 }
 

@@ -1,4 +1,12 @@
-let equalAnchorTest = function () {
+import { canvas, canvasObject } from './canvas.js';
+import { EQanchorShape, anchorShape, BaseGroup } from './draw.js';
+import { calcRoundaboutVertices, calcMainRoadVertices } from './route.js';
+import { MainRoadSymbol, drawSideRoadOnCursor, finishDrawSideRoad } from './route.js';
+import { TextObject } from './text.js';
+import { BorderUtilities, drawLabeledBorder } from './border.js';
+import { drawLabeledSymbol } from './symbols.js';
+
+export const equalAnchorTest = function () {
   const anchor = {
     sourcePoint: 'E1', targetPoint: 'E1', sourceObject: canvasObject[4], TargetObject: canvasObject[5],
     secondSourcePoint: 'E3', secondTargetPoint: 'E3', secondSourceObject: canvasObject[4], secondTargetObject: canvasObject[5]
@@ -6,10 +14,9 @@ let equalAnchorTest = function () {
   EQanchorShape('x', anchor)
 }
 
-
 // MIT http://rem.mit-license.org
 // https://stackoverflow.com/questions/33777577/javascript-get-actual-rendered-font-height
-function textXHeight() {
+export function textXHeight() {
   // Create a blank canvas (by not filling a background color).
   var canvasElement = document.getElementById('canvas2');
   var canvas = new fabric.Canvas(canvasElement);
@@ -113,7 +120,7 @@ function textXHeight() {
 /**
  * TestTracker: Utility to track objects created during tests
  */
-const TestTracker = {
+export const TestTracker = {
   testSections: {},
   currentTest: "",
   currentLine: 0,
@@ -443,7 +450,7 @@ const TestTracker = {
 /**
  * Test suite for basic shape creation and positioning
  */
-const ShapeTest = {
+export const ShapeTest = {
   /**
    * Create and test basic shapes (text and symbols)
    */
@@ -541,7 +548,7 @@ const ShapeTest = {
 /**
  * Test suite for object anchoring functionality
  */
-const AnchorTest = {
+export const AnchorTest = {
   /**
    * Create and test anchored objects
    */
@@ -755,7 +762,7 @@ const AnchorTest = {
 /**
  * Test suite for border creation and functionality
  */
-const BorderTest = {
+export const BorderTest = {
   /**
    * Create and test border around objects
    */
@@ -1007,7 +1014,7 @@ const BorderTest = {
 /**
  * Test suite for route.js functionality
  */
-const RouteTest = {
+export const RouteTest = {
   /**
    * Test creation of a Main Road using route.js drawing functions
    */
@@ -1314,7 +1321,7 @@ const RouteTest = {
 /**
  * Test suite for roundabout functionality (both conventional and spiral)
  */
-const RoundaboutTest = {
+export const RoundaboutTest = {
   /**
    * Test creation of a Conventional Roundabout and adding a side road to it
    */
@@ -1605,16 +1612,16 @@ const RoundaboutTest = {
   }
 };
 
-// Update testToRun to use the new consolidated RoundaboutTest instead of SpiralRoundaboutTest
-testToRun = [
+// Export the array of tests to run
+export const testToRun = [
   ShapeTest.runAll.bind(ShapeTest),
   AnchorTest.runAll.bind(AnchorTest),
   RouteTest.runAll.bind(RouteTest),
   BorderTest.runAll.bind(BorderTest),
-  RoundaboutTest.runAll.bind(RoundaboutTest), // Replace SpiralRoundaboutTest with RoundaboutTest
+  RoundaboutTest.runAll.bind(RoundaboutTest),
 ];
 
-async function runTests(tests) {
+export async function runTests(tests) {
   console.log("======== RUNNING TESTS ========\n");
 
   for (const test of tests) {
@@ -1625,4 +1632,5 @@ async function runTests(tests) {
   TestTracker.printSummary();
 }
 
-runTests(testToRun)
+// Run tests when the module is imported
+runTests(testToRun);

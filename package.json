@@ -1,0 +1,26 @@
+{
+  "name": "traffic-sign",
+  "version": "0.9.0",
+  "description": "Traffic Sign editor",
+  "main": "index.html",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "serve ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fabric": "^6.6.1",
+    "serve": "^14.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/G1213123/TrafficSign.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/G1213123/TrafficSign/issues"
+  },
+  "homepage": "https://github.com/G1213123/TrafficSign#readme"
+}

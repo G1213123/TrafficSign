@@ -1,9 +1,16 @@
+import { canvas, showTextBox } from './canvas.js';
+import { vertexToPath } from './symbols.js';
+import { BorderColorScheme, BorderTypeScheme, BorderUtilities } from './border.js';
+import { drawSymbolDirectly, symbolsTemplate, calcSymbol } from './symbols.js';
+import { drawMainRoadOnCursor, drawSideRoadOnCursor } from './route.js';
+import { EngDestinations, ChtDestinations } from './text.js';
+
 var cursor = new fabric.Group();
-cursor.set({ id: 'cursor', "selectable": false })
+cursor.set({ id: 'cursor', "selectable": false });
 cursor.lockScalingX = true;
 cursor.lockScalingY = true;
 cursor.lockUniScaling = true;
-var cursorOffset = { x: 0, y: 0 }
+var cursorOffset = { x: 0, y: 0 };
 let tabNum = 2;
 
 canvas.add(cursor);
@@ -11,7 +18,7 @@ canvas.add(cursor);
 canvas.snap_pts = [];
 
 /* General Sidebar Panel */
-let GeneralHandler = {
+export let GeneralHandler = {
   panelOpened: true,
   ShowHideSideBar: function (event, force = null) {
     if (force === null) {
@@ -205,7 +212,7 @@ let GeneralHandler = {
 }
 
 /* Text panel */
-let FormTextAddComponent = {
+export let FormTextAddComponent = {
 
   textFont: ['TransportMedium', 'TransportHeavy'],
 
@@ -605,7 +612,7 @@ let FormTextAddComponent = {
 }
 
 /* Draw Map Panel */
-let FormDrawMapComponent = {
+export let FormDrawMapComponent = {
   MapType: ['Main Line', 'Conventional Roundabout', 'Spiral Roundabout',],
   EndShape: ['Arrow', 'Stub'],
   RoundaboutFeatures: ['Normal','Auxiliary', 'U-turn'],
@@ -759,7 +766,7 @@ let FormDrawMapComponent = {
 }
 
 /* Draw Symbol Panel */
-let FormDrawAddComponent = {
+export let FormDrawAddComponent = {
   symbolAngle: 0,
   newSymbolObject: null,
 
@@ -1076,7 +1083,7 @@ let FormDrawAddComponent = {
 }
 
 /* Border Panel */
-let FormBorderWrapComponent = {
+export let FormBorderWrapComponent = {
   BorderPanelInit: function () {
     tabNum = 3
     var parent = GeneralHandler.PanelInit()
@@ -1189,7 +1196,7 @@ let FormBorderWrapComponent = {
 }
 
 /* Export Panel */
-let FormExportComponent = {
+export let FormExportComponent = {
   // Export settings for canvas objects
   exportSettings: {
     filename: 'traffic-sign-export',
@@ -1446,7 +1453,7 @@ let FormExportComponent = {
 }
 
 /* Debug Panel */
-let FormDebugComponent = {
+export let FormDebugComponent = {
   // TODO: Add General settings : e.g. turn off text borders, change background color, show grid, etc.
 
   DebugPanelInit: function () {
@@ -1545,7 +1552,7 @@ let FormDebugComponent = {
   },
 };
 
-let CanvasObjectInspector = {
+export let CanvasObjectInspector = {
   createObjectListPanelInit: function () {
     const objectListPanel = document.getElementById('objectListPanel');
 
@@ -1588,7 +1595,7 @@ let CanvasObjectInspector = {
 }
 
 // Define the event handler function
-function ShowHideSideBarEvent(e) {
+export function ShowHideSideBarEvent(e) {
   switch (e.keyCode) {
     case 27: // esc
       GeneralHandler.ShowHideSideBar(e);
@@ -1596,17 +1603,35 @@ function ShowHideSideBarEvent(e) {
   }
 }
 
+export function CenterCoord() {
+  return {
+    x: canvas.width / 2 / canvas.getZoom() - canvas.viewportTransform[4] / canvas.getZoom(),
+    y: canvas.height / 2 / canvas.getZoom() - canvas.viewportTransform[5] / canvas.getZoom()
+  };
+}
+
+export function selectObjectHandler(message, callback, shape1 = null) {
+  showTextBox(message);
+  let selectionDoneCallback = (select) => {
+    if (select.selected && select.selected.length > 0) {
+      callback(select.selected, shape1);
+    } else if (select.target) {
+      callback([select.target], shape1);
+    }
+    canvas.off('selection:created', selectionDoneCallback);
+  };
+  canvas.on('selection:created', selectionDoneCallback);
+}
+
 window.onload = () => {
   document.getElementById('show_hide').onclick = GeneralHandler.ShowHideSideBar;
-  document.getElementById('btn_draw').onclick = FormDrawAddComponent.drawPanelInit
-  document.getElementById('btn_text').onclick = FormTextAddComponent.textPanelInit
-  document.getElementById('btn_border').onclick = FormBorderWrapComponent.BorderPanelInit
-  document.getElementById('btn_map').onclick = FormDrawMapComponent.drawMapPanelInit
-  document.getElementById('btn_export').onclick = FormExportComponent.exportPanelInit
-  document.getElementById('btn_debug').onclick = FormDebugComponent.DebugPanelInit
-  //canvas.on('object:added', CanvasObjectInspector.createObjectListPanel);
-  //canvas.on('object:removed', CanvasObjectInspector.createObjectListPanel);
-  //canvas.on('object:modified', CanvasObjectInspector.createObjectListPanel);
-  FormDrawAddComponent.drawPanelInit()
+  document.getElementById('btn_draw').onclick = FormDrawAddComponent.drawPanelInit;
+  document.getElementById('btn_text').onclick = FormTextAddComponent.textPanelInit;
+  document.getElementById('btn_border').onclick = FormBorderWrapComponent.BorderPanelInit;
+  document.getElementById('btn_map').onclick = FormDrawMapComponent.drawMapPanelInit;
+  document.getElementById('btn_export').onclick = FormExportComponent.exportPanelInit;
+  document.getElementById('btn_debug').onclick = FormDebugComponent.DebugPanelInit;
+  
+  FormDrawAddComponent.drawPanelInit();
   document.addEventListener('keydown', ShowHideSideBarEvent);
-}
+};

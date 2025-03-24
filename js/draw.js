@@ -1,7 +1,11 @@
-let cursorClickMode = 'normal'
+import { canvas, selectedArrow, canvasObject, showTextBox } from './canvas.js';
+import { ShowHideSideBarEvent } from './sidebar.js';
+import { calculateTransformedPoints, vertexToPath } from './symbols.js';
+
+let cursorClickMode = 'normal';
 const deleteIcon =
-  "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
-let activeVertex = null
+  "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
+let activeVertex = null;
 let vertexSnapInProgress = false; // New flag to prevent multiple clicks during snapping
 
 // additional property for fabric object
@@ -29,29 +33,23 @@ canvas.on('mouse:down', function(options) {
 });
 
 function PolarPoint(r, a) {
-  return new fabric.Point(r * Math.cos(a), r * Math.sin(a))
+  return new fabric.Point(r * Math.cos(a), r * Math.sin(a));
 }
 
-
-class GlyphPolygon extends fabric.Polygon {
+export class GlyphPolygon extends fabric.Polygon {
   constructor(shapeMeta, options) {
-    shapeMeta.vertex.forEach((p) => {
-      transformed = calculateTransformedPoints(p, {
-        x: options.left,
-        y: options.top,
-        angle: options.angle
-      });
-      p.x = transformed.x
-      p.y = transformed.y
+    const transformed = calculateTransformedPoints(shapeMeta.vertex, {
+      x: options.left,
+      y: options.top,
+      angle: options.angle
     });
+    shapeMeta.vertex = transformed;
     super(shapeMeta.vertex.map(p => ({ x: p.x, y: p.y })), options);
-    this.shapeMeta.vertex = shapeMeta.vertex // Add a list inside the object
-    this.insertPoint = shapeMeta.vertex[0]
-    // this.on('moving', this.onMoving.bind(this)); // Listen for modifications
-    // this.on('modified', this.onMoving.bind(this)); // Listen for modifications
-    this.left = this.getCorners().left
-    this.top = this.getCorners().top
-    this.setCoords()
+    this.shapeMeta = { vertex: shapeMeta.vertex }; // Add a list inside the object
+    this.insertPoint = shapeMeta.vertex[0];
+    this.left = this.getCorners().left;
+    this.top = this.getCorners().top;
+    this.setCoords();
   }
 
   // Method to get the corners
@@ -67,19 +65,16 @@ class GlyphPolygon extends fabric.Polygon {
       top: minY,
       bottom: maxY
     };
-    ;
   }
 
   getEffectiveCoords() {
-    return this.getCoords()
+    return this.getCoords();
   }
 }
 
-class GlyphPath extends fabric.Group {
+export class GlyphPath extends fabric.Group {
   constructor(options) {
     super([], options); // Call the parent class constructor first
-
-    //this.initialize(shapeMeta, options);
   }
 
   async initialize(shapeMeta, options) {
@@ -116,19 +111,17 @@ class GlyphPath extends fabric.Group {
     this.vertex = shapeMeta.path.map(p => p.vertex).flat(); // Store the shapeMeta.vertex points
     this.insertPoint = shapeMeta.path[0].vertex[0];
 
-    const result = await fabric.loadSVGFromString(pathData)
+    const result = await fabric.loadSVGFromString(pathData);
     const obj = fabric.util.groupSVGElements(result.objects);
     obj.set(options);
-    obj.set({strokeWidth:0})
+    obj.set({strokeWidth:0});
     this.add(obj);
     this.setCoords();
-
   }
 }
 
-
 // Define the BaseGroup class using ES6 class syntax
-class BaseGroup extends fabric.Group {
+export class BaseGroup extends fabric.Group {
   constructor(basePolygon, functionalType, options = {}) {
     super([], Object.assign({}, options, {
       subTargetCheck: true, 
@@ -154,7 +147,7 @@ class BaseGroup extends fabric.Group {
     // remove default fabric control
     Object.values(this.controls).forEach((control) => {
       control.visible = false;
-    })
+    });
     
     // If basePolygon is provided, initialize with it
     if (basePolygon) {
@@ -185,11 +178,11 @@ class BaseGroup extends fabric.Group {
         this.anchorageLink.forEach(obj => {
           obj.objects.forEach(o => {
             o.set('opacity', 0);
-          })
+          });
         });
         this.hideLockHighlights();
-      }, 0)
-      CanvasObjectInspector.SetActiveObjectList(null)
+      }, 0);
+      CanvasObjectInspector.SetActiveObjectList(null);
     });
 
     this.on('mouseover', function () {
@@ -198,12 +191,12 @@ class BaseGroup extends fabric.Group {
       });
       if (this.__corner){
         if (this.controls[this.__corner].onHover){
-          this.controls[this.__corner].onHover()
+          this.controls[this.__corner].onHover();
         } else {
-          Object.values(this.controls).forEach(control => {if(control.onMouseOut) {control.onMouseOut()}})
+          Object.values(this.controls).forEach(control => {if(control.onMouseOut) {control.onMouseOut();}});
         }
       } else {
-        Object.values(this.controls).forEach(control => {if(control.onMouseOut) {control.onMouseOut()}})
+        Object.values(this.controls).forEach(control => {if(control.onMouseOut) {control.onMouseOut();}});
       }
       canvas.renderAll();
     });
@@ -211,12 +204,12 @@ class BaseGroup extends fabric.Group {
     this.on('mousemove', function () {
       if (this.__corner){
         if (this.controls[this.__corner].onHover){
-          this.controls[this.__corner].onHover()
+          this.controls[this.__corner].onHover();
         } else {
-          Object.values(this.controls).forEach(control => {if(control.onMouseOut) {control.onMouseOut()}})
+          Object.values(this.controls).forEach(control => {if(control.onMouseOut) {control.onMouseOut();}});
         }
       } else {
-        Object.values(this.controls).forEach(control => {if(control.onMouseOut) {control.onMouseOut()}})
+        Object.values(this.controls).forEach(control => {if(control.onMouseOut) {control.onMouseOut();}});
       }
     });
 
@@ -224,7 +217,7 @@ class BaseGroup extends fabric.Group {
       this.set({
         opacity: 1
       });
-      Object.values(this.controls).forEach(control => {if(control.onMouseOut) {control.onMouseOut()}})
+      Object.values(this.controls).forEach(control => {if(control.onMouseOut) {control.onMouseOut();}});
       canvas.renderAll();
     });
 
@@ -668,7 +661,7 @@ class BaseGroup extends fabric.Group {
 // Register the custom class with Fabric.js
 fabric.BaseGroup = BaseGroup;
 
-class LockIcon {
+export class LockIcon {
   constructor(baseGroup, lockParam, direction) {
     this.baseGroup = baseGroup;
     this.direction = direction
@@ -844,7 +837,7 @@ class LockIcon {
   }
 }
 
-class VertexControl extends fabric.Control {
+export class VertexControl extends fabric.Control {
   constructor(vertex, baseGroup) {
     super({
       x: (vertex.x - baseGroup.left) / baseGroup.width - 0.5,
@@ -1352,6 +1345,20 @@ class VertexControl extends fabric.Control {
   }
 }
 
+// Export helper functions and variables
+export function anchorShape(inputShape1, inputShape2, options = {}, sourceList = []) {
+  // Implementation of anchorShape...
+}
 
+export function EQanchorShape(direction, options, sourceList = []) {
+  // Implementation of EQanchorShape...
+}
 
-
+// Export all other necessary functions and variables
+export {
+  cursorClickMode,
+  deleteIcon,
+  activeVertex,
+  vertexSnapInProgress,
+  PolarPoint
+};
