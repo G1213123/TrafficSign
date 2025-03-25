@@ -1662,6 +1662,13 @@ window.onload = () => {
   document.getElementById('btn_map').onclick = FormDrawMapComponent.drawMapPanelInit
   document.getElementById('btn_export').onclick = FormExportComponent.exportPanelInit
   document.getElementById('btn_debug').onclick = FormDebugComponent.DebugPanelInit
+  document.getElementById('btn_tracker').addEventListener('click', function() {
+    if (CanvasTrackerComponent.initialized) {
+      CanvasTrackerComponent.restoreUI();
+    } else {
+      CanvasTrackerComponent.initialize();
+    }
+  });
   //canvas.on('object:added', CanvasObjectInspector.createObjectListPanel);
   //canvas.on('object:removed', CanvasObjectInspector.createObjectListPanel);
   //canvas.on('object:modified', CanvasObjectInspector.createObjectListPanel);

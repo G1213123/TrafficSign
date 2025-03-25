@@ -606,11 +606,112 @@ div.side-panel.close {
   /* Initially hidden */
 }
 
-.cursor-box-contained {
-  position: absolute;
+/* Canvas Tracker UI Styles */
+.history-list {
+  max-height: 100%;
+  overflow-y: auto;
+  border: 1px solid #555;
+  padding: 5px;
+  margin-top: 10px;
+  background-color: rgba(60, 60, 65, 0.4);
+  border-radius: 8px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.history-controls {
   display: flex;
-  flex-direction: column;
-  align-items: left;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.primary-button, .secondary-button {
+  background-color: #555555;
+  color: white;
+  transition-duration: 0.4s;
+  padding: 8px 16px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 10px;
+  border: none;
+  font-family: Arial, sans-serif;
+}
+
+.primary-button:hover {
+  background-color: #3498db;
+  color: white;
+}
+
+.secondary-button {
+  background-color: #404042;
+}
+
+.secondary-button:hover {
+  background-color: #505052;
+}
+
+.history-item {
+  padding: 8px;
+  border-bottom: 1px solid #444;
+  font-size: 0.9em;
+  background-color: #333;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  font-family: Arial, sans-serif;
+  color: #eee;
+  transition: background-color 0.2s ease;
+}
+
+.history-item:hover {
+  background-color: #444;
+}
+
+.history-item-time {
+  font-size: 0.8em;
+  color: #aaa;
+  margin-bottom: 3px;
+  font-family: 'Lato', TransportMedium;
+}
+
+.history-item-content {
+  color: #fff;
+  font-family: Arial, sans-serif;
+}
+
+.empty-history {
+  padding: 20px;
+  text-align: center;
+  color: #999;
+  font-family: 'Lato', TransportMedium;
+  font-style: italic;
+}
+
+.undoable {
+  cursor: pointer;
+  border-left: 3px solid #3498db;
+}
+
+.undoable:hover {
+  background-color: #454555;
+}
+
+.section-header {
+  color: #dadada;
+  font-family: TransportMedium;
+  font-size: 20px;
+  text-align: center;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #444;
+}
+
+.section-content {
+  padding: 5px;
+  width: 100%;
+  height: 85%;
+  overflow: hidden;
 }
 
 /* Debug panel text */

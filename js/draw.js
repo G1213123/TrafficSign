@@ -4,6 +4,9 @@ const deleteIcon =
 let activeVertex = null
 let vertexSnapInProgress = false; // New flag to prevent multiple clicks during snapping
 
+// Initialize canvas tracker to monitor object creation, deletion, and modification
+const canvasTracker = new CanvasTracker();
+
 // additional property for fabric object
 const originalToObject = fabric.Object.prototype.toObject;
 const myAdditional = ['functionalType'];
@@ -150,6 +153,14 @@ class BaseGroup extends fabric.Group {
 
     // Add to canvas regardless of basePolygon
     canvas.add(this);
+    
+    // Track object creation
+    canvasTracker.track('createObject', [{
+      type: 'BaseGroup',
+      id: this.canvasID,
+      functionalType: functionalType,
+      hasBasePolygon: !!basePolygon
+    }]);
     
     // remove default fabric control
     Object.values(this.controls).forEach((control) => {
@@ -423,6 +434,19 @@ class BaseGroup extends fabric.Group {
     
     const deltaX = this.basePolygon.getCoords()[0].x - this.refTopLeft.left;
     const deltaY = this.basePolygon.getCoords()[0].y - this.refTopLeft.top;
+    
+    // Only track modifications if actual movement occurred
+    if (deltaX !== 0 || deltaY !== 0) {
+      // Track object modification
+      canvasTracker.track('modifyObject', [{
+        type: 'BaseGroup',
+        id: this.canvasID,
+        functionalType: this.functionalType,
+        deltaX: deltaX,
+        deltaY: deltaY
+      }]);
+    }
+    
     this.updateCoord(deltaX, deltaY);
     this.refTopLeft = { top: this.basePolygon.getCoords()[0].y, left: this.basePolygon.getCoords()[0].x };
     
@@ -501,6 +525,13 @@ class BaseGroup extends fabric.Group {
   // Method to delete the object
   deleteObject(_eventData, transform) {
     const deleteObj = transform?.target || transform || this
+
+    // Track object deletion before actually deleting it
+    canvasTracker.track('deleteObject', [{
+      type: 'BaseGroup',
+      id: deleteObj.canvasID,
+      functionalType: deleteObj.functionalType
+    }]);
 
     const index = canvasObject.indexOf(deleteObj)
     if (index > -1) {
@@ -1351,7 +1382,3 @@ class VertexControl extends fabric.Control {
     canvas.renderAll();
   }
 }
-
-
-
-
