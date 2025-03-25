@@ -608,7 +608,7 @@ let FormTextAddComponent = {
 let FormDrawMapComponent = {
   MapType: ['Main Line', 'Conventional Roundabout', 'Spiral Roundabout',],
   EndShape: ['Arrow', 'Stub'],
-  RoundaboutFeatures: ['Normal','Auxiliary', 'U-turn'],
+  RoundaboutFeatures: ['Normal', 'Auxiliary', 'U-turn'],
   permitAngle: [45, 60, 90],
   defaultRoute: [{ x: 0, y: 7, angle: 60, width: 4, shape: 'Arrow' }],
 
@@ -685,10 +685,10 @@ let FormDrawMapComponent = {
     } else if (roadType === 'Conventional Roundabout') {
       // Placeholder for Conventional Roundabout settings
       GeneralHandler.createToggle(`Roundabout Type`, FormDrawMapComponent.RoundaboutFeatures, roadTypeSettingsContainer, 'Normal', drawMainRoadOnCursor);
-      } else if (roadType === 'Spiral Roundabout') {
+    } else if (roadType === 'Spiral Roundabout') {
       // Placeholder for Spiral Roundabout settings
       GeneralHandler.createToggle(`Roundabout Type`, FormDrawMapComponent.RoundaboutFeatures, roadTypeSettingsContainer, 'Normal', drawMainRoadOnCursor);
-      }
+    }
   },
 
   gatherMainRoadParams: function () {
@@ -1313,7 +1313,7 @@ let FormExportComponent = {
       canvas.setViewportTransform([1, 0, 0, 1, -minX, -minY]);
     }
 
-    // Temporarily modify canvas for export
+    // Set background to transparent if not including it
     if (!includeBackground) {
       canvas.backgroundColor = 'rgba(0,0,0,0)'; // Transparent background
     }
@@ -1382,6 +1382,28 @@ let FormExportComponent = {
     // Prepare canvas for export
     const originalState = FormExportComponent.prepareCanvasForExport();
 
+    const includeBackground = GeneralHandler.getToggleValue('Include Background-container') === 'Yes';
+
+    // Add a temporary background rectangle if background should be included
+    if (includeBackground && originalState.exportBounds) {
+      // Add a temporary background rectangle that matches the export bounds
+      const bgColor = canvas.backgroundColor || '#ffffff';
+      const bgRect = new fabric.Rect({
+        left: originalState.exportBounds.left,
+        top: originalState.exportBounds.top,
+        width: originalState.exportBounds.width,
+        height: originalState.exportBounds.height,
+        fill: bgColor,
+        selectable: false,
+        evented: false,
+        id: 'temp-export-bg'
+      });
+
+      // Insert at the bottom of the stack
+      canvas.insertAt(0, bgRect);
+      originalState.tempBackgroundRect = bgRect;
+    }
+
     // Generate the SVG data
     const svgData = canvas.toSVG({
       // SVG-specific options
@@ -1392,6 +1414,11 @@ let FormExportComponent = {
         height: originalState.exportBounds ? originalState.exportBounds.height : canvas.height
       }
     });
+
+    // Remove temporary background rectangle if it was added
+    if (originalState.tempBackgroundRect) {
+      canvas.remove(originalState.tempBackgroundRect);
+    }
 
     // Restore canvas
     FormExportComponent.restoreCanvasAfterExport(originalState);
@@ -1411,37 +1438,68 @@ let FormExportComponent = {
   exportToPDF: function () {
     // Prepare canvas for export first
     const originalState = FormExportComponent.prepareCanvasForExport();
+    
+    const includeBackground = GeneralHandler.getToggleValue('Include Background-container') === 'Yes';
 
-    // Check if jsPDF is available
-    if (typeof jsPDF === 'undefined') {
-      // Load jsPDF dynamically if not available
-      const script = document.createElement('script');
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-      script.onload = () => createPDF(originalState);
-      document.head.appendChild(script);
-    } else {
-      createPDF(originalState);
-    }
-
-    function createPDF(originalState) {
-      const imgData = canvas.toDataURL('image/png', FormExportComponent.exportSettings.quality);
-
-      // Use the calculated bounds for PDF dimensions
-      const width = originalState.exportBounds ? originalState.exportBounds.width : canvas.width;
-      const height = originalState.exportBounds ? originalState.exportBounds.height : canvas.height;
-
-      const pdf = new jspdf.jsPDF({
-        orientation: width > height ? 'landscape' : 'portrait',
-        unit: 'px',
-        format: [width, height]
+    // Add a temporary background rectangle if background should be included
+    if (includeBackground && originalState.exportBounds) {
+      // Add a temporary background rectangle that matches the export bounds
+      const bgColor = canvas.backgroundColor || '#ffffff';
+      const bgRect = new fabric.Rect({
+        left: originalState.exportBounds.left,
+        top: originalState.exportBounds.top,
+        width: originalState.exportBounds.width,
+        height: originalState.exportBounds.height,
+        fill: bgColor,
+        selectable: false,
+        evented: false,
+        id: 'temp-export-bg'
       });
 
-      pdf.addImage(imgData, 'PNG', 0, 0, width, height);
-      pdf.save(`${FormExportComponent.exportSettings.filename}.pdf`);
-
-      // Restore the canvas after PDF creation
-      FormExportComponent.restoreCanvasAfterExport(originalState);
+      // Insert at the bottom of the stack
+      canvas.insertAt(0, bgRect);
+      originalState.tempBackgroundRect = bgRect;
     }
+    
+    // Use the calculated bounds for PDF dimensions
+    const width = originalState.exportBounds ? originalState.exportBounds.width : canvas.width;
+    const height = originalState.exportBounds ? originalState.exportBounds.height : canvas.height;
+
+    // Create a new jsPDF instance with appropriate orientation
+    const pdf = new jsPDF({
+      orientation: width > height ? 'landscape' : 'portrait',
+      unit: 'px',
+      format: [width, height],
+      compress: true
+    });
+
+    // Get PNG data URL from canvas
+    const dataURL = canvas.toDataURL({
+      format: 'png',
+      quality: FormExportComponent.exportSettings.quality,
+      multiplier: FormExportComponent.exportSettings.multiplier
+    });
+
+    // Remove temporary background rectangle if it was added
+    if (originalState.tempBackgroundRect) {
+      canvas.remove(originalState.tempBackgroundRect);
+    }
+
+    // Add the image to the PDF
+    pdf.addImage(
+      dataURL,
+      'PNG',
+      0,
+      0,
+      width,
+      height
+    );
+
+    // Save the PDF
+    pdf.save(`${FormExportComponent.exportSettings.filename}.pdf`);
+    
+    // Restore the canvas after PDF creation
+    FormExportComponent.restoreCanvasAfterExport(originalState);
   },
 }
 
