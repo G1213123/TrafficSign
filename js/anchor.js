@@ -26,7 +26,24 @@ document.getElementById('set-anchor').addEventListener('click', function () {
   
     const movingPoint = shape2.getBasePolygonVertex(vertexIndex1.toUpperCase())
     const targetPoint = shape1.getBasePolygonVertex(vertexIndex2.toUpperCase())
-  
+    
+    // Track anchor operations - prepare tracking params
+    const anchorTrackParams = {
+      type: 'Anchor',
+      source: {
+        id: shape2.canvasID,
+        functionalType: shape2.functionalType,
+        vertex: vertexIndex1
+      },
+      target: {
+        id: shape1.canvasID,
+        functionalType: shape1.functionalType,
+        vertex: vertexIndex2
+      },
+      spacingX: spacingX,
+      spacingY: spacingY
+    };
+
     if (!isNaN(parseInt(spacingX))) {
       // Snap arrow 1 to arrow 2 with the specified spacing
       shape2.set({
@@ -51,6 +68,38 @@ document.getElementById('set-anchor').addEventListener('click', function () {
           if (vertexIndex4 === null) return;
   
           anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1, secondSourcePoint: vertexIndex3, secondTargetPoint: vertexIndex4, secondSourceObject: shape3[0], secondTargetObject: shape4[0] }
+          
+          // Track equal-distance X anchoring
+          const eqAnchorTrackParams = {
+            type: 'EqualAnchor',
+            axis: 'x',
+            source1: {
+              id: shape2.canvasID,
+              functionalType: shape2.functionalType,
+              vertex: vertexIndex1
+            },
+            target1: {
+              id: shape1.canvasID,
+              functionalType: shape1.functionalType,
+              vertex: vertexIndex2
+            },
+            source2: {
+              id: shape3[0].canvasID,
+              functionalType: shape3[0].functionalType,
+              vertex: vertexIndex3
+            },
+            target2: {
+              id: shape4[0].canvasID,
+              functionalType: shape4[0].functionalType,
+              vertex: vertexIndex4
+            }
+          };
+          
+          // Track the equal anchoring operation in history
+          if (canvasTracker) {
+            canvasTracker.track('anchorObject', [eqAnchorTrackParams]);
+          }
+          
           EQanchorShape('x', anchor)
           shape2.lockXToPolygon = anchor
           shape3.lockXToPolygon = anchor
@@ -82,6 +131,38 @@ document.getElementById('set-anchor').addEventListener('click', function () {
           if (vertexIndex4 === null) return;
   
           const anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1, secondSourcePoint: vertexIndex3, secondTargetPoint: vertexIndex4, secondSourceObject: shape3[0], secondTargetObject: shape4[0] }
+          
+          // Track equal-distance Y anchoring
+          const eqAnchorTrackParams = {
+            type: 'EqualAnchor',
+            axis: 'y',
+            source1: {
+              id: shape2.canvasID,
+              functionalType: shape2.functionalType,
+              vertex: vertexIndex1
+            },
+            target1: {
+              id: shape1.canvasID,
+              functionalType: shape1.functionalType,
+              vertex: vertexIndex2
+            },
+            source2: {
+              id: shape3[0].canvasID,
+              functionalType: shape3[0].functionalType,
+              vertex: vertexIndex3
+            },
+            target2: {
+              id: shape4[0].canvasID,
+              functionalType: shape4[0].functionalType,
+              vertex: vertexIndex4
+            }
+          };
+          
+          // Track the equal anchoring operation in history
+          if (canvasTracker) {
+            canvasTracker.track('anchorObject', [eqAnchorTrackParams]);
+          }
+          
           EQanchorShape('y', anchor)
           shape2.lockYToPolygon = anchor
           shape3.lockYToPolygon = anchor
@@ -111,6 +192,12 @@ document.getElementById('set-anchor').addEventListener('click', function () {
     document.addEventListener('keydown', ShowHideSideBarEvent);
   
     canvas.renderAll();
+    
+    // Track the regular anchoring operation in history
+    // Only track if both X and Y aren't "EQ" (those are tracked separately)
+    if (canvasTracker && !(spacingX.toString().toUpperCase() === 'EQ' && spacingY.toString().toUpperCase() === 'EQ')) {
+      canvasTracker.track('anchorObject', [anchorTrackParams]);
+    }
     
     // Return a resolved promise to allow for chaining
     return Promise.resolve();

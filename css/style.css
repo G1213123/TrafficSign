@@ -175,7 +175,6 @@ div.side-panel.close {
 
 .input-form {
   width: 100%;
-  max-height: 70%;
   margin-top: 5px;
   display: flex;
   flex-wrap: wrap;
@@ -184,7 +183,7 @@ div.side-panel.close {
   justify-content: center;
   overflow-y: auto;
   gap: 0px 10px;
-  flex: 0 0 calc(80%); /* Alternatively, adjust as needed */
+  flex: 1; /* Changed from fixed value to flex: 1 to use remaining space */
 }
 
 .input-container {
@@ -606,6 +605,13 @@ div.side-panel.close {
   /* Initially hidden */
 }
 
+.cursor-box-contained {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+}
+
 /* Canvas Tracker UI Styles */
 .history-list {
   max-height: 100%;
@@ -684,8 +690,7 @@ div.side-panel.close {
   padding: 20px;
   text-align: center;
   color: #999;
-  font-family: 'Lato', TransportMedium;
-  font-style: italic;
+  font-family: 'Lato', Arial, Helvetica, sans-serif;
 }
 
 .undoable {
@@ -728,18 +733,16 @@ div.side-panel.close {
 /* Position the answer box 5px to the right of the prompt box */
 
 .object-list-panel {
-  height: 30%;
-  /* Adjust the height as needed */
   overflow-y: auto;
   background-color: #222;
   border-top: 4px solid #ccc;
   color: #fff;
-  /* White text for readability */
   font-family: Arial, sans-serif;
   font-size: 16px;
   padding: 4px;
   justify-content: left;
-  flex: 1; /* Fills remaining space in bottom section */
+  flex: 0 1 auto; /* Changed from flex: 1 to flex: 0 1 auto to size based on content */
+  max-height: 25%; /* Changed from 30% to 25% */
 }
 
 .object-list-item {
@@ -947,4 +950,30 @@ div.side-panel.close {
   .symbol-label {
     font-size: 12px;
   }
+}
+
+.chain-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+  padding: 2px 5px;
+  border-radius: 10px;
+  font-size: 0.75em;
+  color: white;
+  font-weight: bold;
+}
+
+.chain-symbol i {
+  margin-right: 3px;
+}
+
+/* Styling for history items that are part of a chain */
+.history-item[style*="border-left"] {
+  padding-left: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.history-item[style*="border-left"]:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }

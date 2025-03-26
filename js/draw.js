@@ -7,6 +7,17 @@ let vertexSnapInProgress = false; // New flag to prevent multiple clicks during 
 // Initialize canvas tracker to monitor object creation, deletion, and modification
 const canvasTracker = new CanvasTracker();
 
+// Add event listeners to detect the end of drag operations
+canvas.on('mouse:up', function() {
+  // When mouse is released, signal the end of any ongoing drag
+  canvasTracker.endDrag();
+});
+
+canvas.on('object:modified', function() {
+  // When an object is modified (e.g., after resizing or rotation is complete), signal the end of any drag
+  canvasTracker.endDrag();
+});
+
 // additional property for fabric object
 const originalToObject = fabric.Object.prototype.toObject;
 const myAdditional = ['functionalType'];
@@ -463,8 +474,8 @@ class BaseGroup extends fabric.Group {
     sourceList.includes(this) ? sourceList : sourceList.push(this);
     if (!selfOnly) {
       this.emitDelta(deltaX, deltaY, sourceList);
-      this.borderResize(sourceList);
     }
+    this.borderResize(sourceList);
     
     if (document.getElementById('debug-info-panel')){
       FormDebugComponent.updateDebugInfo(canvas.getActiveObjects())
@@ -854,21 +865,72 @@ class LockIcon {
   onClick() {
     // Remove lock lines and lock icon from the canvas and baseGroup
     canvas.remove(...this.objects);
-    this.baseGroup.anchorageLink = this.baseGroup.anchorageLink.filter(obj => obj !== this.line1 && obj !== this.line2 && obj !== this.lockIcon);
-    const anchorX = this.baseGroup.lockXToPolygon.TargetObject
-    const anchorY = this.baseGroup.lockYToPolygon.TargetObject
+    
+    // Remove this lock icon from the baseGroup's anchorageLink list
+    const anchorageIndex = this.baseGroup.anchorageLink.indexOf(this);
+    if (anchorageIndex !== -1) {
+      this.baseGroup.anchorageLink.splice(anchorageIndex, 1);
+    }
+
+    // Get references to both target objects (if they exist)
+    const anchorX = this.baseGroup.lockXToPolygon.TargetObject;
+    const anchorY = this.baseGroup.lockYToPolygon.TargetObject;
+
     if (this.direction == 'x') {
-      this.baseGroup.lockMovementX = false
-      this.baseGroup.lockXToPolygon = {}
-      if (anchorY != anchorX && anchorX) {
-        anchorX.anchoredPolygon = anchorX.anchoredPolygon.filter(item => item !== this.baseGroup)
+      // Handle X direction unlock
+      this.baseGroup.lockMovementX = false;
+      this.baseGroup.lockXToPolygon = {};
+
+      // Only remove from anchoredPolygon if this object is not also Y-anchored to the same target
+      if (anchorX && (anchorY !== anchorX)) {
+        const anchoredIndex = anchorX.anchoredPolygon.indexOf(this.baseGroup);
+        if (anchoredIndex !== -1) {
+          anchorX.anchoredPolygon.splice(anchoredIndex, 1);
+        }
       }
     } else {
-      this.baseGroup.lockMovementY = false
-      this.baseGroup.lockYToPolygon = {}
-      if (anchorX != anchorY && anchorY) {
-        anchorY.anchoredPolygon = anchorY.anchoredPolygon.filter(item => item !== this.baseGroup)
+      // Handle Y direction unlock
+      this.baseGroup.lockMovementY = false;
+      this.baseGroup.lockYToPolygon = {};
+
+      // Only remove from anchoredPolygon if this object is not also X-anchored to the same target
+      if (anchorY && (anchorX !== anchorY)) {
+        const anchoredIndex = anchorY.anchoredPolygon.indexOf(this.baseGroup);
+        if (anchoredIndex !== -1) {
+          anchorY.anchoredPolygon.splice(anchoredIndex, 1);
+        }
       }
+    }
+    
+    // If the object is no longer anchored to anything, ensure it's removed from all anchoredPolygon lists
+    if (Object.keys(this.baseGroup.lockXToPolygon).length === 0 && 
+        Object.keys(this.baseGroup.lockYToPolygon).length === 0) {
+      
+      // Check if we need to remove from anchorX's list
+      if (anchorX) {
+        const anchoredIndex = anchorX.anchoredPolygon.indexOf(this.baseGroup);
+        if (anchoredIndex !== -1) {
+          anchorX.anchoredPolygon.splice(anchoredIndex, 1);
+        }
+      }
+      
+      // Check if we need to remove from anchorY's list (if different from anchorX)
+      if (anchorY && anchorY !== anchorX) {
+        const anchoredIndex = anchorY.anchoredPolygon.indexOf(this.baseGroup);
+        if (anchoredIndex !== -1) {
+          anchorY.anchoredPolygon.splice(anchoredIndex, 1);
+        }
+      }
+    }
+
+    // Record this unlock operation in history (if canvasTracker exists)
+    if (canvasTracker) {
+      canvasTracker.track('unlockObject', [{
+        type: 'Unlock',
+        objectId: this.baseGroup.canvasID,
+        functionalType: this.baseGroup.functionalType,
+        direction: this.direction
+      }]);
     }
 
     canvas.renderAll();
