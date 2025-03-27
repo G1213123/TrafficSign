@@ -1,3 +1,4 @@
+//TODO: check updateAllCoord for anchor object inside border / divider not working
 document.getElementById('set-anchor').addEventListener('click', function () {
     if (selectedArrow) {
       this.parentElement.parentElement.style.display = 'none';

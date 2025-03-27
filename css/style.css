@@ -991,7 +991,7 @@ div.side-panel.close {
 .settings-buttons-container {
   display: flex;
   justify-content: space-between;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .color-picker {

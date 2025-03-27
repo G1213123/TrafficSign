@@ -979,7 +979,7 @@ async function drawMainRoadOnCursor(event, params = null) {
     }
 
     // Store reference to the new road object
-    FormDrawAddComponent.newSymbolObject = routeMap;
+    canvas.newSymbolObject = routeMap;
 
     // Add mouse event handlers for placement
     canvas.on('mouse:move', mainRoadOnMouseMove);
@@ -1052,7 +1052,7 @@ async function addUTurnRoute(mainRoad) {
  * @param {Event} event - Mouse event
  */
 function mainRoadOnMouseMove(event) {
-    if (FormDrawAddComponent.newSymbolObject && activeVertex) {
+    if (canvas.newSymbolObject && activeVertex) {
         const pointer = canvas.getPointer(event.e);
 
         // If we have an active vertex, let it handle the movement
@@ -1065,11 +1065,11 @@ function mainRoadOnMouseMove(event) {
             activeVertex.handleMouseMoveRef(simulatedEvent);
         } else {
             // Fallback direct positioning if vertex control isn't active
-            FormDrawAddComponent.newSymbolObject.set({
+            canvas.newSymbolObject.set({
                 left: pointer.x,
                 top: pointer.y
             });
-            FormDrawAddComponent.newSymbolObject.setCoords();
+            canvas.newSymbolObject.setCoords();
             canvas.renderAll();
         }
     }
@@ -1085,7 +1085,7 @@ async function finishDrawMainRoad(event, options = null) {
     if (event.e.button !== 0) return;
 
     // Finalize main road placement on click
-    if (FormDrawAddComponent.newSymbolObject) {
+    if (canvas.newSymbolObject) {
         // Complete the placement
         if (activeVertex) {
             activeVertex.handleMouseDownRef(event);
@@ -1093,10 +1093,10 @@ async function finishDrawMainRoad(event, options = null) {
 
         // Set active object
         canvas.discardActiveObject();
-        const placedRoad = FormDrawAddComponent.newSymbolObject;
+        const placedRoad = canvas.newSymbolObject;
 
         // Reset state
-        FormDrawAddComponent.newSymbolObject = null;
+        canvas.newSymbolObject = null;
         activeVertex = null;
 
         // Clean up
@@ -1123,12 +1123,12 @@ async function drawSideRoadOnCursor(event, option = null) {
     if (!mainRoad || mainRoad.functionalType !== 'MainRoad') return;
 
     // Clear any existing temp side road
-    if (FormDrawAddComponent.newSymbolObject) {
+    if (canvas.newSymbolObject) {
         // If there's already a temp side road, remove it
-        const existingSideRoad = FormDrawAddComponent.newSymbolObject;
+        const existingSideRoad = canvas.newSymbolObject;
         if (existingSideRoad.functionalType === 'SideRoad') {
             existingSideRoad.deleteObject && existingSideRoad.deleteObject();
-            FormDrawAddComponent.newSymbolObject = null;
+            canvas.newSymbolObject = null;
         }
     }
 
@@ -1222,7 +1222,7 @@ async function drawSideRoadOnCursor(event, option = null) {
     await sideRoad.initialize(tempVertexList);
 
     // Store reference to the new side road object
-    FormDrawAddComponent.newSymbolObject = sideRoad;
+    canvas.newSymbolObject = sideRoad;
 
     // Update main road to show how it would look with the new side road
     mainRoad.receiveNewRoute(sideRoad);
@@ -1276,9 +1276,9 @@ async function drawSideRoadOnCursor(event, option = null) {
  * @param {Event} event - Mouse event
  */
 function sideRoadOnMouseMove(event) {
-    if (!FormDrawAddComponent.newSymbolObject || !activeVertex) return;
+    if (!canvas.newSymbolObject || !activeVertex) return;
 
-    const sideRoad = FormDrawAddComponent.newSymbolObject;
+    const sideRoad = canvas.newSymbolObject;
     if (sideRoad.functionalType !== 'SideRoad') return;
 
     const pointer = canvas.getPointer(event.e);
@@ -1326,9 +1326,9 @@ async function finishDrawSideRoad(event) {
     if (event.e.button !== 0) return;
 
     // Finalize side road placement on click
-    if (!FormDrawAddComponent.newSymbolObject) return;
+    if (!canvas.newSymbolObject) return;
 
-    const sideRoad = FormDrawAddComponent.newSymbolObject;
+    const sideRoad = canvas.newSymbolObject;
     if (sideRoad.functionalType !== 'SideRoad') return;
 
     const mainRoad = sideRoad.mainRoad;
@@ -1360,8 +1360,8 @@ async function finishDrawSideRoad(event) {
     mainRoad.setCoords();
 
     // Reset state
-    const placedSideRoad = FormDrawAddComponent.newSymbolObject;
-    FormDrawAddComponent.newSymbolObject = null;
+    const placedSideRoad = canvas.newSymbolObject;
+    canvas.newSymbolObject = null;
     activeVertex = null;
 
     // Clean up
@@ -1380,8 +1380,8 @@ async function finishDrawSideRoad(event) {
  */
 function drawRoadsHandlerOff(event) {
     // If there's a new road object being placed, remove it unless it's been added to canvas properly
-    if (FormDrawAddComponent.newSymbolObject) {
-        const newRoad = FormDrawAddComponent.newSymbolObject;
+    if (canvas.newSymbolObject) {
+        const newRoad = canvas.newSymbolObject;
 
         // If it's a side road and not fully added to a main road, remove it
         if (newRoad.functionalType === 'SideRoad' && newRoad.mainRoad) {
@@ -1405,7 +1405,7 @@ function drawRoadsHandlerOff(event) {
             newRoad.deleteObject && newRoad.deleteObject();
         }
 
-        FormDrawAddComponent.newSymbolObject = null;
+        canvas.newSymbolObject = null;
     }
 
     // Clean up active vertex if there is one
