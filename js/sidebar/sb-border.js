@@ -44,10 +44,16 @@ let FormBorderWrapComponent = {
       width: 161,
       height: 100
     };
+    const bboxExit = {
+      left: 0,
+      top: 0,
+      width: 60,
+      height: 100
+    };
 
     // Create SVG buttons for each border type
     Object.keys(BorderTypeScheme).forEach(async (borderType) => {
-      const shapeMeta = BorderTypeScheme[borderType](xHeight, bbox,);
+      const shapeMeta = BorderTypeScheme[borderType](xHeight, borderType=='exit'?bboxExit:bbox,);
       const svg = await FormBorderWrapComponent.createBorderSVG(shapeMeta,)
       GeneralHandler.createSVGButton(`button-${borderType}`, svg, parent, 'border', FormBorderWrapComponent.BorderCreateHandler, 'click')
     });

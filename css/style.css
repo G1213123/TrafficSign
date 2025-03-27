@@ -1012,3 +1012,50 @@ div.side-panel.close {
   background-color: #f44336;
   color: white;
 }
+
+/* Custom tooltip styling */
+.tooltip {
+    position: absolute;
+    background-color: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 16px;
+    z-index: 1000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    white-space: nowrap;
+    border: 2px solid white; /* Added white border */
+}
+
+/* Remove the default arrow completely */
+.tooltip::after {
+    display: none;
+}
+
+/* Add left-pointing arrow for right-positioned tooltip */
+.tooltip.tooltip-right::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -12px; /* Adjusted for the border width */
+    margin-top: -6px; /* Adjusted for slightly larger arrow */
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent white transparent transparent; /* White border on arrow */
+}
+
+/* Add a second arrow inside the first to create the border effect on the arrow */
+.tooltip.tooltip-right::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -9px; /* Position it inside the white border arrow */
+    margin-top: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent #333 transparent transparent; /* Inner arrow matches tooltip background */
+    display: block; /* Override the previous display:none */
+}
