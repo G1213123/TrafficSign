@@ -8,6 +8,23 @@ canvas.isDragging = false;
 canvas.lastPosX = 0;
 canvas.lastPosY = 0;
 
+  // Settings configuration - can be accessed by other components
+ let GeneralSettings= {
+    // Visual settings
+    showTextBorders: true,
+    showGrid: true,
+    snapToGrid: true,
+    // Canvas settings
+    backgroundColor: '#2f2f2f',
+    gridColor: '#ffffff',
+    gridSize: 20,
+    // Performance settings
+    autoSave: true,
+    autoSaveInterval: 60, // seconds
+    // Export settings
+    defaultExportScale: 2
+  }
+
 canvas.setZoom(0.5);
 
 window.addEventListener('resize', resizeCanvas, false);
@@ -207,6 +224,14 @@ function handleGroupMoving(event) {
 }
 
 function DrawGrid() {
+  // Check if grid should be visible
+  if (GeneralSettings && GeneralSettings.showGrid === false) {
+    // Remove the existing grid if it exists
+    const obj = canvas.getObjects().find(obj => obj.id === 'grid');
+    if (obj) canvas.remove(obj);
+    return;
+  }
+
   // Calculate the appropriate grid distance based on the viewport boundaries
   const corners = canvas.calcViewportBoundaries();
   var xmin = corners.tl.x;
@@ -218,8 +243,14 @@ function DrawGrid() {
   const maxDimension = Math.max(width, height);
   const zoom = canvas.getZoom();
 
+  // Get grid color from settings, default to '#ffffff' if not available
+  const gridColor = GeneralSettings.gridColor || '#ffffff';
+                    
+  // Get grid size from settings, default to 20 if not available
+  const gridSize = GeneralSettings.gridSize || 20;
+
   // Determine the grid distance based on the max dimension AND zoom level
-  let gridDistance = 10;
+  let gridDistance = gridSize; // Use setting value, default to 20 if not set
   if (zoom < 0.05) {
     gridDistance = 1000;
   } else if (zoom < 0.1) {
@@ -246,7 +277,7 @@ function DrawGrid() {
   const options = {
     distance: gridDistance,
     param: {
-      stroke: '#ebebeb',
+      stroke: gridColor, // Use settings color instead of hardcoded '#ebebeb'
       strokeWidth: 0.1 / zoom, // Scale stroke width inversely with zoom for consistent appearance
       selectable: false
     }
@@ -271,7 +302,7 @@ function DrawGrid() {
         const vText = new fabric.Text(String(x), {
           left: x + 2 / zoom, // Add a small offset
           top: 2 / zoom,
-          fill: '#a0a0a0',
+          fill: gridColor, // Use settings color instead of hardcoded '#a0a0a0'
           selectable: false,
           hoverCursor: 'default',
           fontSize: scaledFontSize,
@@ -294,7 +325,7 @@ function DrawGrid() {
         const hText = new fabric.Text(String(y), {
           left: 2 / zoom,
           top: y + 2 / zoom, // Add a small offset
-          fill: '#a0a0a0',
+          fill: gridColor, // Use settings color instead of hardcoded '#a0a0a0'
           selectable: false,
           hoverCursor: 'default',
           fontSize: scaledFontSize,
@@ -321,7 +352,7 @@ function DrawGrid() {
   const grid_group = new fabric.Group(grid_set, { id: 'grid', selectable: false, evented: false });
   canvas.add(grid_group);
   canvas.sendObjectToBack(grid_group);
-};
+}
 
 // Context menu
 const contextMenu = document.getElementById('context-menu');
@@ -371,8 +402,36 @@ function CenterCoord(){
 
 function updatePosition(event) {
   const promptBox = document.getElementById('cursorBoxContainer');
-  promptBox.style.left = `${event.clientX + 10}px`;
-  promptBox.style.top = `${event.clientY + 10}px`;
+  const promptText = document.getElementById('cursorTextBox');
+  const answerBox = document.getElementById('cursorAnswerBox');
+  
+  // Get viewport dimensions
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  
+  // Get cursor box dimensions
+  const boxWidth = promptBox.offsetWidth;
+  const boxHeight = promptBox.offsetHeight;
+  
+  // Default offset
+  let xOffset = 10;
+  let yOffset = 10;
+  
+  // Check if box would overflow right edge
+  if (event.clientX + xOffset + boxWidth > viewportWidth) {
+    // Position to the left of cursor instead
+    xOffset = -boxWidth - 10;
+  }
+  
+  // Check if box would overflow bottom edge
+  if (event.clientY + yOffset + boxHeight > viewportHeight) {
+    // Position above cursor instead
+    yOffset = -boxHeight - 10;
+  }
+  
+  // Apply the position
+  promptBox.style.left = `${event.clientX + xOffset}px`;
+  promptBox.style.top = `${event.clientY + yOffset}px`;
 }
 document.addEventListener('mousemove', updatePosition);
 

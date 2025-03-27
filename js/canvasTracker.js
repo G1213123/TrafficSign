@@ -254,7 +254,7 @@ class CanvasTrackerUI {
     
     // Initialize the tracker UI panel
     initialize() {
-      document.getElementById('content-heading').textContent = 'Canvas History';
+      GeneralHandler.PanelInit();
       
       // Create UI elements
       const form = document.getElementById('input-form');

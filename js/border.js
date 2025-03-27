@@ -444,7 +444,7 @@ const BorderUtilities = {
     const rightObject = this.getTopMostObject(rightObjects, 'right')
 
     if (Object.keys(leftObject.lockXToPolygon).length != 0) {
-      showTextBox('Unlock the object below divider in X axis')
+      showTextBox('Unlock the object below divider in X axis','')
       return
     }
     const leftObjectBBox = BorderUtilities.getBoundingBox(leftObjects)
@@ -478,7 +478,7 @@ const BorderUtilities = {
     const belowObject = this.getTopMostObject(belowObjects)
 
     if (Object.keys(belowObject.lockYToPolygon).length != 0) {
-      showTextBox('Unlock the object below divider in Y axis')
+      showTextBox('Unlock the object below divider in Y axis','')
       return
     }
     const aboveObjectBBox = BorderUtilities.getBoundingBox(aboveObjects)

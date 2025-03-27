@@ -41,10 +41,6 @@ class TextObject extends BaseGroup {
     group.text = options.text;
     group.xHeight = options.xHeight;
 
-    // If this is a cursor object, we don't want to create a full BaseGroup
-    if (options.isCursor) {
-      return group;
-    }
 
     // Call the BaseGroup constructor with our prepared group
     super(group, 'Text', { calcVertex: false });
@@ -54,6 +50,8 @@ class TextObject extends BaseGroup {
     this.xHeight = options.xHeight;
     this.font = options.font;
     this.color = options.color;
+    this.txtCharList = txtCharList;
+    this.txtFrameList = txtFrameList;
 
     // Add double-click event handler
     this.on('mousedblclick', this.onDoubleClick.bind(this));
@@ -290,6 +288,8 @@ class TextObject extends BaseGroup {
     this.xHeight = newXHeight;
     this.font = newFont;
     this.color = newColor;
+    this.txtCharList = txtCharList;
+    this.txtFrameList = txtFrameList;
 
     // Update the name for the object inspector
     this._showName = `<Group ${this.canvasID}> Text - ${newText}`;

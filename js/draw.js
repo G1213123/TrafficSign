@@ -8,12 +8,12 @@ let vertexSnapInProgress = false; // New flag to prevent multiple clicks during 
 const canvasTracker = new CanvasTracker();
 
 // Add event listeners to detect the end of drag operations
-canvas.on('mouse:up', function() {
+canvas.on('mouse:up', function () {
   // When mouse is released, signal the end of any ongoing drag
   canvasTracker.endDrag();
 });
 
-canvas.on('object:modified', function() {
+canvas.on('object:modified', function () {
   // When an object is modified (e.g., after resizing or rotation is complete), signal the end of any drag
   canvasTracker.endDrag();
 });
@@ -26,7 +26,7 @@ fabric.Object.prototype.toObject = function (additionalProperties) {
 }
 
 // Enable double-click detection on canvas
-canvas.on('mouse:down', function(options) {
+canvas.on('mouse:down', function (options) {
   if (options.e.type === 'dblclick') {
     const target = options.target;
     if (target && target.dblclick) {
@@ -133,7 +133,7 @@ class GlyphPath extends fabric.Group {
     const result = await fabric.loadSVGFromString(pathData)
     const obj = fabric.util.groupSVGElements(result.objects);
     obj.set(options);
-    obj.set({strokeWidth:0})
+    obj.set({ strokeWidth: 0 })
     this.add(obj);
     this.setCoords();
 
@@ -145,11 +145,11 @@ class GlyphPath extends fabric.Group {
 class BaseGroup extends fabric.Group {
   constructor(basePolygon, functionalType, options = {}) {
     super([], Object.assign({}, options, {
-      subTargetCheck: true, 
+      subTargetCheck: true,
       lockScalingX: true,// lock scaling
       lockScalingY: true
     }));
-    
+
     this.functionalType = functionalType;
     this.anchoredPolygon = [];
     this.anchorageLink = [];
@@ -164,7 +164,7 @@ class BaseGroup extends fabric.Group {
 
     // Add to canvas regardless of basePolygon
     canvas.add(this);
-    
+
     // Track object creation
     canvasTracker.track('createObject', [{
       type: 'BaseGroup',
@@ -172,12 +172,12 @@ class BaseGroup extends fabric.Group {
       functionalType: functionalType,
       hasBasePolygon: !!basePolygon
     }]);
-    
+
     // remove default fabric control
     Object.values(this.controls).forEach((control) => {
       control.visible = false;
     })
-    
+
     // If basePolygon is provided, initialize with it
     if (basePolygon) {
       this.setBasePolygon(basePolygon, options.calcVertex);
@@ -218,27 +218,27 @@ class BaseGroup extends fabric.Group {
       this.set({
         opacity: 0.5
       });
-      if (this.__corner){
-        if (this.controls[this.__corner].onHover){
+      if (this.__corner) {
+        if (this.controls[this.__corner].onHover) {
           this.controls[this.__corner].onHover()
         } else {
-          Object.values(this.controls).forEach(control => {if(control.onMouseOut) {control.onMouseOut()}})
+          Object.values(this.controls).forEach(control => { if (control.onMouseOut) { control.onMouseOut() } })
         }
       } else {
-        Object.values(this.controls).forEach(control => {if(control.onMouseOut) {control.onMouseOut()}})
+        Object.values(this.controls).forEach(control => { if (control.onMouseOut) { control.onMouseOut() } })
       }
       canvas.renderAll();
     });
 
     this.on('mousemove', function () {
-      if (this.__corner){
-        if (this.controls[this.__corner].onHover){
+      if (this.__corner) {
+        if (this.controls[this.__corner].onHover) {
           this.controls[this.__corner].onHover()
         } else {
-          Object.values(this.controls).forEach(control => {if(control.onMouseOut) {control.onMouseOut()}})
+          Object.values(this.controls).forEach(control => { if (control.onMouseOut) { control.onMouseOut() } })
         }
       } else {
-        Object.values(this.controls).forEach(control => {if(control.onMouseOut) {control.onMouseOut()}})
+        Object.values(this.controls).forEach(control => { if (control.onMouseOut) { control.onMouseOut() } })
       }
     });
 
@@ -246,7 +246,7 @@ class BaseGroup extends fabric.Group {
       this.set({
         opacity: 1
       });
-      Object.values(this.controls).forEach(control => {if(control.onMouseOut) {control.onMouseOut()}})
+      Object.values(this.controls).forEach(control => { if (control.onMouseOut) { control.onMouseOut() } })
       canvas.renderAll();
     });
 
@@ -261,11 +261,11 @@ class BaseGroup extends fabric.Group {
    */
   setBasePolygon(basePolygon, calcVertex = true) {
     this.basePolygon = basePolygon;
-    
+
     if (this.basePolygon) {
       // Update name with additional info if available
       this._showName = `<Group ${this.canvasID}> ${this.functionalType}${basePolygon.text ? ' - ' + basePolygon.text : ''}${basePolygon.symbol ? ' - ' + basePolygon.symbol : ''}${this.roadType ? ' - ' + this.roadType : ''}`;
-      
+
       this.basePolygon.insertPoint = this.basePolygon.vertex ? this.basePolygon.vertex[0] : null;
       canvas.remove(this.basePolygon);
       this.add(this.basePolygon);
@@ -295,7 +295,7 @@ class BaseGroup extends fabric.Group {
     if (!this.basePolygon.vertex) {
       this.basePolygon.vertex = [];
     }
-    
+
     if (calc) {
       let basePolygonCoords = Object.values(this.basePolygon.getCoords());
       basePolygonCoords.forEach((p, i) => {
@@ -314,7 +314,7 @@ class BaseGroup extends fabric.Group {
 
     // Draw the vertices and labels
     if (this.basePolygon.vertex) {
-      this.basePolygon.vertex.filter(v => (v.display!==0)).forEach(v => {
+      this.basePolygon.vertex.filter(v => (v.display !== 0)).forEach(v => {
         const vControl = new VertexControl(v, this);
         this.controls[v.label] = vControl;
       });
@@ -370,12 +370,12 @@ class BaseGroup extends fabric.Group {
       // Get the bounding box of the active selection 
       let coords = BorderUtilities.getBorderObjectCoords(BG.heightObjects, BG.widthObjects)
 
-      if (!isNaN(parseInt(BG.fixedWidth))){
-        const padding = parseInt(BG.fixedWidth)  - coords.right + coords.left
+      if (!isNaN(parseInt(BG.fixedWidth))) {
+        const padding = parseInt(BG.fixedWidth) - coords.right + coords.left
         coords.left -= padding / 2
         coords.right += padding / 2
       }
-      if (!isNaN(parseInt(BG.fixedHeight))){
+      if (!isNaN(parseInt(BG.fixedHeight))) {
         const padding = parseInt(BG.fixedHeight) - coords.bottom + coords.top
         coords.top -= padding / 2
         coords.bottom += padding / 2
@@ -387,12 +387,12 @@ class BaseGroup extends fabric.Group {
 
       const borderObject = drawLabeledBorder(BG.borderType, BG.xHeight, coords, BG.color)
 
-          BG.add(borderObject)
-          BG.basePolygon = borderObject
-          BorderUtilities.assignWidthToDivider(BG, sourceList)
-          BG.updateAllCoord(null, sourceList)
-          BG.drawVertex()
-        
+      BG.add(borderObject)
+      BG.basePolygon = borderObject
+      BorderUtilities.assignWidthToDivider(BG, sourceList)
+      BG.updateAllCoord(null, sourceList)
+      BG.drawVertex()
+
     }
   }
 
@@ -442,10 +442,10 @@ class BaseGroup extends fabric.Group {
       // If basePolygon doesn't exist yet, just return
       return;
     }
-    
+
     const deltaX = this.basePolygon.getCoords()[0].x - this.refTopLeft.left;
     const deltaY = this.basePolygon.getCoords()[0].y - this.refTopLeft.top;
-    
+
     // Only track modifications if actual movement occurred
     if (deltaX !== 0 || deltaY !== 0) {
       // Track object modification
@@ -457,27 +457,27 @@ class BaseGroup extends fabric.Group {
         deltaY: deltaY
       }]);
     }
-    
+
     this.updateCoord(deltaX, deltaY);
     this.refTopLeft = { top: this.basePolygon.getCoords()[0].y, left: this.basePolygon.getCoords()[0].x };
-    
+
     // Check for route-specific methods
     if (this.onMove) {
       this.onMove();
     }
-    
+
     if (canvas.getActiveObject() === this) {
       this.drawAnchorLinkage();
       this.showLockHighlights();
     }
-    
+
     sourceList.includes(this) ? sourceList : sourceList.push(this);
     if (!selfOnly) {
       this.emitDelta(deltaX, deltaY, sourceList);
     }
     this.borderResize(sourceList);
-    
-    if (document.getElementById('debug-info-panel')){
+
+    if (document.getElementById('debug-info-panel')) {
       FormDebugComponent.updateDebugInfo(canvas.getActiveObjects())
     }
   }
@@ -488,7 +488,7 @@ class BaseGroup extends fabric.Group {
     if (!this.basePolygon || !this.basePolygon.vertex) {
       return;
     }
-    
+
     const polygon = this.basePolygon;
 
     const transformedPoints = calculateTransformedPoints(polygon.vertex, {
@@ -525,7 +525,7 @@ class BaseGroup extends fabric.Group {
         { x: this.left, y: this.top + this.height }
       ];
     }
-    
+
     if (this.basePolygon.getCombinedBoundingBoxOfRects) {
       var allCoords = this.basePolygon.getCombinedBoundingBoxOfRects();
       return [allCoords[0], allCoords[2], allCoords[4], allCoords[6]];
@@ -557,12 +557,12 @@ class BaseGroup extends fabric.Group {
       const mainRoad = deleteObj.mainRoad
       const branchIndex = mainRoad.sideRoad.indexOf(deleteObj)
       mainRoad.sideRoad.splice(branchIndex, 1)
-      
+
       //deleteObj.rootRoute = null
 
       // Find and remove the vertices with matching labels for the branch being deleted
-      const vertexLabels = [`C${branchIndex }`];
-      mainRoad.basePolygon.vertex = mainRoad.basePolygon.vertex.filter(vertex => 
+      const vertexLabels = [`C${branchIndex}`];
+      mainRoad.basePolygon.vertex = mainRoad.basePolygon.vertex.filter(vertex =>
         !vertexLabels.includes(vertex.label)
       );
 
@@ -580,14 +580,14 @@ class BaseGroup extends fabric.Group {
     // Free anchored Polygon
     if (deleteObj.anchoredPolygon) {
       deleteObj.anchoredPolygon.forEach(anchoredGroup => {
-        
+
         if (anchoredGroup.lockXToPolygon.TargetObject == deleteObj) {
           anchoredGroup.lockXToPolygon = {}
           anchoredGroup.set({ lockMovementX: false });
         }
         if (anchoredGroup.lockYToPolygon.TargetObject == deleteObj) {
           anchoredGroup.lockYToPolygon = {}
-          anchoredGroup.set({  lockMovementY: false });
+          anchoredGroup.set({ lockMovementY: false });
         }
         anchoredGroup.drawAnchorLinkage()
       })
@@ -745,8 +745,8 @@ class LockIcon {
     let midX
     let midY
     const zoom = canvas.getZoom()
-    const lineWidth = 5/zoom
-    const fontSize = 20/zoom
+    const lineWidth = 5 / zoom
+    const fontSize = 20 / zoom
     // Create lock lines
     if (this.direction == 'x') {
       this.lines.push(new fabric.Line([sourcePoint.x, sourcePoint.y, targetPoint.x, sourcePoint.y], {
@@ -865,7 +865,7 @@ class LockIcon {
   onClick() {
     // Remove lock lines and lock icon from the canvas and baseGroup
     canvas.remove(...this.objects);
-    
+
     // Remove this lock icon from the baseGroup's anchorageLink list
     const anchorageIndex = this.baseGroup.anchorageLink.indexOf(this);
     if (anchorageIndex !== -1) {
@@ -901,11 +901,11 @@ class LockIcon {
         }
       }
     }
-    
+
     // If the object is no longer anchored to anything, ensure it's removed from all anchoredPolygon lists
-    if (Object.keys(this.baseGroup.lockXToPolygon).length === 0 && 
-        Object.keys(this.baseGroup.lockYToPolygon).length === 0) {
-      
+    if (Object.keys(this.baseGroup.lockXToPolygon).length === 0 &&
+      Object.keys(this.baseGroup.lockYToPolygon).length === 0) {
+
       // Check if we need to remove from anchorX's list
       if (anchorX) {
         const anchoredIndex = anchorX.anchoredPolygon.indexOf(this.baseGroup);
@@ -913,7 +913,7 @@ class LockIcon {
           anchorX.anchoredPolygon.splice(anchoredIndex, 1);
         }
       }
-      
+
       // Check if we need to remove from anchorY's list (if different from anchorX)
       if (anchorY && anchorY !== anchorX) {
         const anchoredIndex = anchorY.anchoredPolygon.indexOf(this.baseGroup);
@@ -941,7 +941,7 @@ class VertexControl extends fabric.Control {
   constructor(vertex, baseGroup) {
     super({
       x: (vertex.x - baseGroup.left) / baseGroup.width - 0.5,
-      y: (vertex.y - baseGroup.top) / baseGroup.height -0.5,
+      y: (vertex.y - baseGroup.top) / baseGroup.height - 0.5,
       offsetX: 0,
       offsetY: 0,
       cursorStyle: 'pointer',
@@ -981,8 +981,8 @@ class VertexControl extends fabric.Control {
     ctx.fillText(this.vertex.label, left, this.vertex.label.includes('E') ? top - 15 : top + 15);
   }
 
-  VertexColorPicker(vertex){
-    switch (vertex.label.substring(0,1)){
+  VertexColorPicker(vertex) {
+    switch (vertex.label.substring(0, 1)) {
       case 'E':
         return 'red'
       case 'V':
@@ -995,17 +995,17 @@ class VertexControl extends fabric.Control {
   onClick(eventData, transform) {
     // Check if it's a left-click (button 1)
     if (eventData.button !== 0) return;
-    
+
     // Prevent clicks during ongoing snap operations
     if (vertexSnapInProgress) return;
-    
+
     const vertexX = this.vertex.x;
     const vertexY = this.vertex.y;
-    
+
     if (!activeVertex) {
       activeVertex = this;
       this.isDown = true;
-      
+
       // Store original position and offset from vertex to group center
       this.originalPosition = {
         left: this.baseGroup.left,
@@ -1016,25 +1016,25 @@ class VertexControl extends fabric.Control {
         x: this.vertex.x,
         y: this.vertex.y
       };
-      
+
       this.vertexOffset = {
         x: this.vertex.x - this.baseGroup.left,
         y: this.vertex.y - this.baseGroup.top
       };
-      
+
       // Set cursor style for canvas
       canvas.defaultCursor = 'move';
-      
+
       // Add mouse move and click handlers for drag behavior
       document.removeEventListener('keydown', ShowHideSideBarEvent);
       document.addEventListener('keydown', this.cancelDragRef);
       canvas.on('mouse:move', this.handleMouseMoveRef);
       canvas.on('mouse:down', this.handleMouseDownRef);
       canvas.on('mouse:up', this.handleMouseUpRef);
-      
+
       // Create a visual indicator showing this vertex is active
       this.createIndicator(this.vertex.x, this.vertex.y);
-      
+
       canvas.renderAll();
     }
   }
@@ -1045,7 +1045,7 @@ class VertexControl extends fabric.Control {
     if (this.indicator) {
       canvas.remove(this.indicator);
     }
-    
+
     // Create a new indicator at the specified position
     this.indicator = new fabric.Circle({
       left: x - 10,
@@ -1057,30 +1057,30 @@ class VertexControl extends fabric.Control {
       selectable: false,
       evented: false
     });
-    
+
     canvas.add(this.indicator);
     return this.indicator;
   }
 
   handleMouseMove(event) {
     if (!this.isDown) return;
-    
+
     const pointer = canvas.getPointer(event.e);
-    
+
     // Find nearest vertex for snapping
     this.checkForSnapTargets(pointer);
-    
+
     // Calculate new position of group based on vertex position
     let newLeft, newTop;
-    
+
     if (this.snapTarget) {
       // Snap to the target vertex
       const snapPoint = this.snapTarget.vertex;
-      
+
       // Calculate the position adjustment needed to align the vertex with snap target
       newLeft = snapPoint.x - this.vertexOffset.x;
       newTop = snapPoint.y - this.vertexOffset.y;
-      
+
       // Ensure the indicator exists and update it to match the snap point
       if (!this.indicator) {
         this.createIndicator(snapPoint.x, snapPoint.y, true);
@@ -1096,7 +1096,7 @@ class VertexControl extends fabric.Control {
       // Regular movement
       newLeft = pointer.x - this.vertexOffset.x;
       newTop = pointer.y - this.vertexOffset.y;
-      
+
       // Ensure the indicator exists and update it to follow the pointer
       if (!this.indicator) {
         this.createIndicator(pointer.x, pointer.y);
@@ -1109,15 +1109,15 @@ class VertexControl extends fabric.Control {
         });
       }
     }
-    
+
     // Move the group
     if (this.baseGroup.functionalType !== 'MainRoad' && this.baseGroup.functionalType !== 'SideRoad') {
-      if (!this.baseGroup.lockMovementX){
+      if (!this.baseGroup.lockMovementX) {
         this.baseGroup.set({
           left: newLeft,
         });
       }
-      if (!this.baseGroup.lockMovementY){
+      if (!this.baseGroup.lockMovementY) {
         this.baseGroup.set({
           top: newTop,
         });
@@ -1132,10 +1132,10 @@ class VertexControl extends fabric.Control {
       })
       this.baseGroup.onMove()
     }
-    
+
     this.baseGroup.setCoords();
     this.baseGroup.updateAllCoord();
-    
+
     canvas.renderAll();
   }
 
@@ -1143,22 +1143,22 @@ class VertexControl extends fabric.Control {
     // Clear previous snap highlights
     this.clearSnapHighlight();
     this.snapTarget = null;
-    
+
     // Check all canvas objects for potential snap targets
     let closestDistance = this.snapThreshold;
     let closestVertex = null;
     let closestObject = null;
-    
+
     canvasObject.forEach(obj => {
       // Skip the current object and objects without basePolygon
       if (obj === this.baseGroup || !obj.basePolygon || !obj.basePolygon.vertex) return;
-      
+
       // Check each vertex
       obj.basePolygon.vertex.forEach(vertex => {
         const dx = vertex.x - (pointer.x);
         const dy = vertex.y - (pointer.y);
         const distance = Math.sqrt(dx * dx + dy * dy);
-        
+
         if (distance < closestDistance) {
           closestDistance = distance;
           closestVertex = vertex;
@@ -1166,14 +1166,14 @@ class VertexControl extends fabric.Control {
         }
       });
     });
-    
+
     // If we found a vertex within threshold, highlight it
     if (closestVertex) {
-      this.snapTarget = { 
-        object: closestObject, 
-        vertex: closestVertex 
+      this.snapTarget = {
+        object: closestObject,
+        vertex: closestVertex
       };
-      
+
       // Create a snap highlight
       this.snapHighlight = new fabric.Circle({
         left: closestVertex.x - 15,
@@ -1198,22 +1198,22 @@ class VertexControl extends fabric.Control {
 
   handleMouseDown(event) {
     if (!this.isDown) return;
-    
+
     // Check for right-click (button 2)
     if (event.e.button === 2) {
       // Cancel drag on right-click
       this.restoreOriginalPosition();
       return;
     }
-    
+
     // Only process left clicks (button 1) for object selection
     if (event.e.button !== 0) return;
-    
+
     // If we have a snap target, use that for anchoring
     if (this.snapTarget) {
       // Set the flag to prevent additional onClick events
       vertexSnapInProgress = true;
-      
+
       // Store the snap target before finishing the drag
       const savedSnapTarget = {
         object: this.snapTarget.object,
@@ -1221,17 +1221,17 @@ class VertexControl extends fabric.Control {
       };
       const savedVertex = this.vertex;
       const savedBaseGroup = this.baseGroup;
-      
+
       this.finishDrag();
-      
+
       // Start the anchor process with the saved snap target
       setTimeout(() => {
         anchorShape(
           savedSnapTarget.object,
           savedBaseGroup,
-          { 
-            vertexIndex1: savedVertex.label, 
-            vertexIndex2: savedSnapTarget.vertex.label 
+          {
+            vertexIndex1: savedVertex.label,
+            vertexIndex2: savedSnapTarget.vertex.label
           }
         ).then(() => {
           // Reset the flag after anchoring completes
@@ -1244,10 +1244,10 @@ class VertexControl extends fabric.Control {
       }, 100);
       return;
     }
-    
+
     const pointer = canvas.getPointer(event.e);
     const targetObject = canvas.findTarget(event.e);
-    
+
     // Check if we clicked on another object with vertices
     if (targetObject && targetObject !== this.baseGroup && targetObject.basePolygon && targetObject.basePolygon.vertex) {
       // Find the closest vertex to the click point
@@ -1255,44 +1255,44 @@ class VertexControl extends fabric.Control {
       if (!vertices) {
         // Set flag before starting the finishing process
         vertexSnapInProgress = true;
-        
+
         // Finish drag with a delay to ensure proper cleanup
         this.finishDrag();
-        
+
         // Reset the flag after a delay
         setTimeout(() => {
           vertexSnapInProgress = false;
         }, 300);
         return;
       }
-      
+
       let closestVertex = null;
       let minDistance = 30; // Minimum distance to consider a hit
-      
+
       for (const vertex of vertices) {
         const dx = vertex.x - pointer.x;
         const dy = vertex.y - pointer.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        
+
         if (distance < minDistance) {
           minDistance = distance;
           closestVertex = vertex;
         }
       }
-      
+
       if (closestVertex) {
         // Found a vertex to anchor to
         vertexSnapInProgress = true;
         this.finishDrag();
-        
+
         // Start the anchor process
         setTimeout(() => {
           anchorShape(
-            targetObject, 
-            this.baseGroup, 
-            { 
-              vertexIndex1: this.vertex.label, 
-              vertexIndex2: closestVertex.label 
+            targetObject,
+            this.baseGroup,
+            {
+              vertexIndex1: this.vertex.label,
+              vertexIndex2: closestVertex.label
             }
           ).then(() => {
             // Reset the flag after anchoring completes
@@ -1306,17 +1306,17 @@ class VertexControl extends fabric.Control {
         return;
       }
     }
-    
+
     // If we click on empty space, set flag and finish the drag with delay
     vertexSnapInProgress = true;
-    
+
     // Remove all mouse events immediately to prevent further processing
     this.removeAllMouseEvents();
-    
+
     // Store reference to the current drag state
     const baseGroup = this.baseGroup;
     const indicator = this.indicator;
-    
+
     // Clear indicator and snap highlight immediately
     if (this.snapHighlight) {
       canvas.remove(this.snapHighlight);
@@ -1326,22 +1326,22 @@ class VertexControl extends fabric.Control {
       canvas.remove(indicator);
       this.indicator = null;
     }
-    
+
     // Clean up the drag state with proper callbacks
     setTimeout(() => {
       // Update coordinates and call appropriate move method
       baseGroup.updateAllCoord(null, []);
-      
+
       // Call the appropriate onMove method for special object types
       if (baseGroup.functionalType === 'MainRoad' && typeof baseGroup.onMove === 'function') {
         baseGroup.onMove();
       } else if (baseGroup.functionalType === 'SideRoad' && typeof baseGroup.onMove === 'function') {
         baseGroup.onMove();
       }
-      
+
       // Reset active vertex
       activeVertex = null;
-      
+
       // Reset the flag after a delay to prevent new clicks
       setTimeout(() => {
         vertexSnapInProgress = false;
@@ -1349,34 +1349,34 @@ class VertexControl extends fabric.Control {
       }, 300);
     }, 50);
   }
-  
+
   // New helper method to remove all mouse events immediately
   removeAllMouseEvents() {
     canvas.off('mouse:move', this.handleMouseMoveRef);
     canvas.off('mouse:down', this.handleMouseDownRef);
     canvas.off('mouse:up', this.handleMouseUpRef);
     document.removeEventListener('keydown', this.cancelDragRef);
-    
+
     // Restore default behavior
     document.addEventListener('keydown', ShowHideSideBarEvent);
     canvas.defaultCursor = 'default';
-    
+
     // Reset internal state
     this.isDown = false;
   }
-  
+
   finishDrag() {
     this.clearSnapHighlight();
     this.cleanupDrag();
     this.baseGroup.updateAllCoord(null, []);
-    
+
     // Call the appropriate onMove method for special object types
     if (this.baseGroup.functionalType === 'MainRoad' && typeof this.baseGroup.onMove === 'function') {
       this.baseGroup.onMove();
     } else if (this.baseGroup.functionalType === 'SideRoad' && typeof this.baseGroup.onMove === 'function') {
       this.baseGroup.onMove();
     }
-    
+
     activeVertex = null;
     canvas.renderAll();
   }
@@ -1395,7 +1395,7 @@ class VertexControl extends fabric.Control {
     this.baseGroup.set(this.originalPosition);
     this.baseGroup.setCoords();
     this.baseGroup.updateAllCoord();
-    
+
     this.clearSnapHighlight();
     this.cleanupDrag();
     activeVertex = null;
@@ -1411,23 +1411,23 @@ class VertexControl extends fabric.Control {
   cleanupDrag() {
     // First reset object properties
     this.isDown = false;
-    
+
     // Remove event listeners using stored references
     canvas.off('mouse:move', this.handleMouseMoveRef);
     canvas.off('mouse:down', this.handleMouseDownRef);
     canvas.off('mouse:up', this.handleMouseUpRef);
     document.removeEventListener('keydown', this.cancelDragRef);
-    
+
     // Restore default behavior
     document.addEventListener('keydown', ShowHideSideBarEvent);
     canvas.defaultCursor = 'default';
-    
+
     // Remove visual indicators
     if (this.indicator) {
       canvas.remove(this.indicator);
       this.indicator = null;
     }
-    
+
     // Make sure we're no longer active
     if (activeVertex === this) {
       activeVertex = null;
