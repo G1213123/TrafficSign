@@ -107,8 +107,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Set up the sidebar state
     GeneralHandler.ShowHideSideBar(null, 'on');
 
-    // Also load the CanvasObjectInspector for the object list panel
-    return SidebarModuleSystem.loadModule('CanvasObjectInspector');
+
   }).then(() => {
     // Add event listeners to sidebar buttons that will load their modules on first click
 

@@ -1,34 +1,34 @@
 // Check CIE standard for color contrast, color reference in EN 12899-1:2007 Table 2 and Table 4
 const BorderColorScheme = {
   "Blue Background": {
-    'background': '#0000fe',
+    'background': 'rgb(0, 121, 193)',
     'symbol': 'white',
     'border': 'white',
   },
   "Green Background": {
-    'background': '#00fe00',
-    'symbol': 'white',
-    'border': 'white',
+    'background': 'rgb(0, 112, 60)',
+    'symbol': '#ffffff',
+    'border': '#ffffff',
   },
   "White Background": {
-    'background': 'white',
-    'symbol': 'black',
-    'border': 'black',
+    'background': '#ffffff',
+    'symbol': '#000000',
+    'border': '#000000',
   },
   "White Background - Parking": {
-    'background': 'white',
-    'symbol': 'black',
-    'border': '#0055FE',
+    'background': '#ffffff',
+    'symbol': '#000000',
+    'border': 'rgb(0, 121, 193)',
   },
   "Yellow Background": {
-    'background': '#fed500',
-    'symbol': 'black',
-    'border': 'black',
+    'background': '#ffc614',
+    'symbol': '#000000',
+    'border': '#000000',
   },
   "Brown Background": {
-    'background': 'rgb(114,82,60)',
-    'symbol': 'white',
-    'border': 'white',
+    'background': 'rgb(116,48,1)',
+    'symbol': '#ffffff',
+    'border': '#ffffff',
   },
 }
 
@@ -116,14 +116,14 @@ function GreenPanelTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
       { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', radius: 1.5, start: 0 },
       { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, label: 'V3', radius: 1.5, start: 0 },
       { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, label: 'V4', radius: 1.5, start: 0 },
-    ], 'arcs': [], 'fill': 'white'
+    ], 'arcs': [], 'fill': '#ffffff'
   }, {
     'vertex': [
       { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', radius: 1, start: 1 },
       { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', radius: 1, start: 0 },
       { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V7', radius: 1, start: 0 },
       { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V8', radius: 1, start: 0 },
-    ], 'arcs': [], 'fill': 'green'
+    ], 'arcs': [], 'fill': 'rgb(0, 112, 60)'
   }];
 
   returnBorder.forEach(path => applyLengthAndRounding(path, length));
@@ -178,14 +178,14 @@ function ExitBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
       { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', start: 0 },
       { x: block.width / length + padding.right + border, y: 7.2, label: 'V3', start: 0 },
       { x: 0 - padding.left - border, y: 7.2, label: 'V4', start: 0 },
-    ], 'arcs': [], 'fill': 'white'
+    ], 'arcs': [], 'fill': '#ffffff'
   }, {
     'vertex': [
       { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', start: 1 },
       { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', start: 0 },
       { x: block.width / length + padding.right, y: 6.7, label: 'V7', start: 0 },
       { x: 0 - padding.right, y: 6.7, label: 'V8', start: 0 },
-    ], 'arcs': [], 'fill': 'black'
+    ], 'arcs': [], 'fill': '#000000'
   }];
 
   returnBorder.forEach(path => applyLengthAndRounding(path, length));
@@ -359,7 +359,7 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
       new fabric.Path(pathData, {
         left: bbox.left - vertexleft,
         top: bbox.top - vertextop,
-        fill: borderType == ('exit'|| 'greenPanel') ? p['fill'] : BorderColorScheme[color][p['fill']],
+        fill: (p['fill'] == 'background')||(p['fill'] == 'symbol')||(p['fill'] == 'border') ?  BorderColorScheme[color][p['fill']]:p['fill'] ,
         objectCaching: false,
         strokeWidth: 0,
       })

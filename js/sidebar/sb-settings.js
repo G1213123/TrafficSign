@@ -178,11 +178,28 @@ let FormSettingsComponent = {
       FormSettingsComponent.autoSaveTimerId = null;
     }
   },
+
+  simpleStringify: function(object) {
+    const simpleObject = {};
+    for (const prop in object) {
+        if (!object.hasOwnProperty(prop)) {
+            continue;
+        }
+        if (typeof(object[prop]) == 'object') {
+            continue;
+        }
+        if (typeof(object[prop]) == 'function') {
+            continue;
+        }
+        simpleObject[prop] = object[prop];
+    }
+    return JSON.stringify(simpleObject);
+  },
   
   saveCanvasState: function() {
     // Save the current canvas state to localStorage
     try {
-      const canvasJSON = JSON.stringify(canvas);
+      const canvasJSON = FormSettingsComponent.simpleStringify(canvas);
       localStorage.setItem('canvasState', canvasJSON);
       console.log('Canvas state auto-saved', new Date());
     } catch (e) {
