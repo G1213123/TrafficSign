@@ -1617,6 +1617,8 @@ testToRun = [
 async function runTests(tests) {
   console.log("======== RUNNING TESTS ========\n");
 
+  
+
   for (const test of tests) {
     await test();
   }
@@ -1624,5 +1626,6 @@ async function runTests(tests) {
   // Print just the final summary
   TestTracker.printSummary();
 }
-
-runTests(testToRun)
+window.addEventListener("load", () => {
+  runTests(testToRun);
+}, );
