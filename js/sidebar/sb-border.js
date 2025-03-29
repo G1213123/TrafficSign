@@ -17,6 +17,7 @@ let FormBorderWrapComponent = {
       //GeneralHandler.createButton('input-border', 'Select Objects for border', borderActionsContainer, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
       GeneralHandler.createButton('input-HDivider', 'Add stack border divider', borderActionsContainer, 'input', FormBorderWrapComponent.StackDividerHandler, 'click')
       GeneralHandler.createButton('input-VDivider', 'Add gantry border divider', borderActionsContainer, 'input', FormBorderWrapComponent.GantryDividerHandler, 'click')
+      GeneralHandler.createButton('input-HLine', 'Add gantry destination line', borderActionsContainer, 'input', FormBorderWrapComponent.GantryLineHandler, 'click')
 
       // Create a container for border type selection with SVG buttons
       var borderTypeContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container', 'id': 'border-select-container' }, parent);
@@ -111,7 +112,15 @@ let FormBorderWrapComponent = {
         BorderUtilities.VDividerCreate(leftObject, rightObject)
       })
     })
-  }
+  },
+
+  GantryLineHandler: function () {
+    selectObjectHandler('Select object above divider', function (aboveObject) {
+      selectObjectHandler('Select object below divider', function (belowObject) {
+        BorderUtilities.HLineCreate(aboveObject, belowObject)
+      })
+    })
+  },
 }
 
 // Export the FormBorderWrapComponent for use in other files

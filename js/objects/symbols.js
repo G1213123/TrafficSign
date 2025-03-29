@@ -124,10 +124,6 @@ function vertexToPath(shapeMeta, color) {
   if (shapeMeta.text && shapeMeta.text.length > 0) {
     shapeMeta.text.forEach(t => {
       let fillColor = t.fill || color || 'white';
-
-      // Create a promise for each text element
-
-
       const origY = t.y;
 
       t.y = 0;
@@ -135,7 +131,7 @@ function vertexToPath(shapeMeta, color) {
       const minTop = Math.min(...charPath.commands.map(c => c.y));
       charPath.commands.forEach((command) => {
         command.y = command.y - origY- minTop;
-        if (command.y1) {
+        if (command.y1 !== undefined) {
           command.y1 = command.y1 - origY - minTop;
         }
       })

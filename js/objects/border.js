@@ -359,7 +359,7 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
       new fabric.Path(pathData, {
         left: bbox.left - vertexleft,
         top: bbox.top - vertextop,
-        fill: (p['fill'] == 'background')||(p['fill'] == 'symbol')||(p['fill'] == 'border') ?  BorderColorScheme[color][p['fill']]:p['fill'] ,
+        fill: (p['fill'] == 'background') || (p['fill'] == 'symbol') || (p['fill'] == 'border') ? BorderColorScheme[color][p['fill']] : p['fill'],
         objectCaching: false,
         strokeWidth: 0,
       })
@@ -373,12 +373,19 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
   return GroupedBorder;
 }
 
-drawDivider = async function (xHeight, color, top, left, width, vertical = false) {
-  const length = xHeight / 4
-  const Xwidth = width / length
+const DividerScheme = {
+  'HDivider': HDividerTemplate,
+  'VDivider': VDividerTemplate,
+  'HLine': HLineTemplate,
+}
 
-  // Vertical divider template
-  let horizontalTemplate = [{
+function HDividerTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
+  const length = xHeight / 4;
+  const Xwidth = block.width / length;
+  rounding.x /= length;
+  rounding.y /= length;
+
+  const returnBorder = [{
     'vertex': [
       { x: 0, y: 0, label: 'V1', start: 1 },
       { x: Xwidth / 2, y: 0, label: 'V2', radius: 1.5, start: 0 },
@@ -389,11 +396,29 @@ drawDivider = async function (xHeight, color, top, left, width, vertical = false
       { x: -Xwidth / 2, y: 2.5, label: 'V7', start: 0 },
       { x: -Xwidth / 2, y: -1.5, label: 'V8', start: 0 },
       { x: -Xwidth / 2, y: 0, label: 'V9', radius: 1.5, start: 0 },
-    ], 'arcs': [],
-  }];
+    ], 'arcs': [], 'fill': 'border'
+  },];
 
-  // Horizontal divider template
-  let verticalTemplate = [{
+  returnBorder.forEach(p => {
+    p.vertex.forEach(vertex => {
+      vertex.x *= length;
+      vertex.x += position.left + (Xwidth / 2) * length;
+      vertex.y *= length;
+      vertex.y += position.top + (1.5) * length;
+      if (vertex.radius) vertex.radius *= length;
+    });
+  });
+
+  return { path: returnBorder };
+}
+
+function VDividerTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
+  const length = xHeight / 4;
+  const Xwidth = block.height;
+  rounding.x /= length;
+  rounding.y /= length;
+
+  const returnBorder = [{
     'vertex': [
       { x: 0, y: 0, label: 'V1', start: 1 },
       { x: 0, y: Xwidth / 2, label: 'V2', radius: 1.5, start: 0 },
@@ -404,21 +429,53 @@ drawDivider = async function (xHeight, color, top, left, width, vertical = false
       { x: 2.5, y: -Xwidth / 2, label: 'V7', start: 0 },
       { x: -1.5, y: -Xwidth / 2, label: 'V8', start: 0 },
       { x: 0, y: -Xwidth / 2, label: 'V9', radius: 1.5, start: 0 },
-    ], 'arcs': [],
-  }];
+    ], 'arcs': [], 'fill': 'border'
+  },];
 
-  // Choose the template based on the horizontal parameter
-  let dividerTemplate = vertical ? verticalTemplate : horizontalTemplate;
-
-  dividerTemplate.forEach(p => {
+  returnBorder.forEach(p => {
     p.vertex.forEach(vertex => {
       vertex.x *= length;
-      vertex.x += left + (vertical ? 2.5 : Xwidth / 2) * length;
+      vertex.x += position.left + (1.5) * length;
       vertex.y *= length;
-      vertex.y += top + (vertical ? Xwidth / 2 : 1.5) * length;
+      vertex.y += position.top + (Xwidth / 2) * length;
       if (vertex.radius) vertex.radius *= length;
     });
   });
+  return { path: returnBorder };
+}
+
+function HLineTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
+  const length = xHeight / 4;
+  const Xwidth = block.width / length;
+  rounding.x /= length;
+  rounding.y /= length;
+
+  const returnBorder = [{
+    'vertex': [
+      { x: 0, y: 0, label: 'V1', start: 1 },
+      { x: Xwidth / 2 - 1.5, y: 0, label: 'V2', start: 0 },
+      { x: Xwidth / 2 - 1.5, y: 1, label: 'V3', start: 0 },
+      { x: -Xwidth / 2 + 1.5, y: 1, label: 'V4', start: 0 },
+      { x: -Xwidth / 2 + 1.5, y: 0, label: 'V5', start: 0 },
+    ], 'arcs': [], 'fill': 'border'
+  },];
+
+  returnBorder.forEach(p => {
+    p.vertex.forEach(vertex => {
+      vertex.x *= length;
+      vertex.x += position.left + (Xwidth / 2) * length;
+      vertex.y *= length;
+      vertex.y += position.top + (1) * length;
+    });
+  });
+
+  return { path: returnBorder };
+}
+
+drawDivider = async function (xHeight, color, position, size, type) {
+
+  // Choose the template based on the horizontal parameter
+  let dividerTemplate = DividerScheme[type](xHeight, position, size, { x: 0, y: 0 }).path;
 
   const arrowOptions1 = {
     left: 0,
@@ -448,9 +505,8 @@ const BorderUtilities = {
       return
     }
     const leftObjectBBox = BorderUtilities.getBoundingBox(leftObjects)
-    const leftRight = leftObjectBBox.right
-    const height = leftObjectBBox.bottom - leftObjectBBox.top
-    const BaseBorder = await drawDivider(xHeight, color, leftObjectBBox.top, leftRight, height, true) // Added true param to indicate vertical divider
+    const leftObjectSize = { width: leftObjectBBox.right - leftObjectBBox.left, height: leftObjectBBox.bottom - leftObjectBBox.top }
+    const BaseBorder = await drawDivider(xHeight, color, leftObjectBBox, leftObjectSize, 'VDivider') // Added true param to indicate vertical divider
     const borderGroup = new BaseGroup(BaseBorder, 'VDivider')
     borderGroup.xHeight = xHeight
     borderGroup.color = color
@@ -482,9 +538,9 @@ const BorderUtilities = {
       return
     }
     const aboveObjectBBox = BorderUtilities.getBoundingBox(aboveObjects)
-    const aboveBottom = aboveObjectBBox.bottom
-    const width = aboveObjectBBox.right - aboveObjectBBox.left
-    const BaseBorder = await drawDivider(xHeight, color, aboveBottom, aboveObjectBBox.left, width)
+    const aboveObjectSize = { width: aboveObjectBBox.right - aboveObjectBBox.left, height: aboveObjectBBox.bottom - aboveObjectBBox.top }
+
+    const BaseBorder = await drawDivider(xHeight, color, aboveObjectBBox, aboveObjectSize, 'HDivider') // Added true param to indicate horizontal divider
     const borderGroup = new BaseGroup(BaseBorder, 'HDivider')
     borderGroup.xHeight = xHeight
     borderGroup.color = color
@@ -493,6 +549,40 @@ const BorderUtilities = {
       vertexIndex2: 'E6',
       spacingX: '',
       spacingY: 0
+    })
+    anchorShape(borderGroup, belowObject, {
+      vertexIndex1: 'E2',
+      vertexIndex2: 'E6',
+      spacingX: '',
+      spacingY: 1. * xHeight / 4
+    })
+    borderGroup.setCoords()
+    borderGroup.updateAllCoord()
+  },
+
+  HLineCreate: async function (aboveObjects, belowObjects, options = null) {
+    const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
+    const colorType = options ? options.colorType : document.getElementById("input-color").value
+    const color = BorderColorScheme[colorType]['border']
+    const aboveObject = this.getBottomMostObject(aboveObjects)
+    const belowObject = this.getTopMostObject(belowObjects)
+
+    if (Object.keys(belowObject.lockYToPolygon).length != 0) {
+      showTextBox('Unlock the object below divider in Y axis', '')
+      return
+    }
+    const aboveObjectBBox = BorderUtilities.getBoundingBox(aboveObjects)
+    const aboveObjectSize = { width: aboveObjectBBox.right - aboveObjectBBox.left, height: aboveObjectBBox.bottom - aboveObjectBBox.top }
+
+    const BaseBorder = await drawDivider(xHeight, color, aboveObjectBBox, aboveObjectSize, 'HLine') // Added true param to indicate horizontal divider
+    const borderGroup = new BaseGroup(BaseBorder, 'HLine')
+    borderGroup.xHeight = xHeight
+    borderGroup.color = color
+    anchorShape(aboveObject, borderGroup, {
+      vertexIndex1: 'E2',
+      vertexIndex2: 'E6',
+      spacingX: '',
+      spacingY: 1. * xHeight / 4
     })
     anchorShape(borderGroup, belowObject, {
       vertexIndex1: 'E2',
@@ -665,7 +755,7 @@ const BorderUtilities = {
     let VDividerObject = []
     let borderedObjects = []
     let fwidthObjects = widthObjects.filter(obj => {
-      if (obj.functionalType == 'HDivider') {
+      if (obj.functionalType == 'HDivider' || obj.functionalType == 'HLine') {
         HDividerObject.push(obj);
         return false; // Remove the object from original array
       }
@@ -835,19 +925,20 @@ const BorderUtilities = {
     const innerHeight = borderSize.height - frame * 2
     const innerLeft = borderSize.left + frame
     const innerTop = borderSize.top + frame
+    const bbox = { left: innerLeft, top: innerTop, right: innerLeft + innerWidth, bottom: innerTop + innerHeight, width: innerWidth, height: innerHeight }
     for (const d of borderGroup.HDivider) {
       // Store the group's initial top position
       const initialTop = d.getEffectiveCoords()[0].y
-      const res = await drawDivider(d.xHeight, d.color, d.top, d.left, innerWidth)
+      const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top + (d.functionalType == 'HLine' ? - borderGroup.xHeight/4 : 0 )}, bbox, d.functionalType)
       d.replaceBasePolygon(res)
-      d.set({ top: initialTop, left: innerLeft });
+      d.set({ top: initialTop, left: innerLeft + (d.functionalType == 'HLine' ? frame : 0 )});
       d.updateAllCoord(null, sourceList)
     }
 
     for (const d of borderGroup.VDivider) {
       // Store the group's initial top position
       const initialLeft = d.getEffectiveCoords()[0].x
-      const res = await drawDivider(d.xHeight, d.color, d.top, d.left, innerHeight, true)
+      const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, bbox, d.functionalType)
       d.replaceBasePolygon(res)
       d.set({ top: innerTop, left: initialLeft });
       d.updateAllCoord(null, sourceList)
