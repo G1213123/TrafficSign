@@ -154,10 +154,20 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
 
-    // Tracker module button
-    document.getElementById('btn_tracker').addEventListener('click', function (e) {
-      // History tracker module is loaded by default, see CanvasTracker.js
+  // Event listener for the tracker button
+  if (typeof CanvasTrackerComponent == 'undefined') {
+    SidebarHelpers.loadTrackerModule().then(module => {
+      // Create singleton instance
+      window.CanvasTrackerComponent = new CanvasTrackerUI();
     });
+  }
+  document.getElementById('btn_tracker').addEventListener('click', function () {
+    if (CanvasTrackerComponent && CanvasTrackerComponent.initialized) {
+      CanvasTrackerComponent.restoreUI();
+    } else {
+      CanvasTrackerComponent.initialize();
+    } 
+  });
 
     // Debug module button (if it exists)
     const debugBtn = document.getElementById('btn_debug');
