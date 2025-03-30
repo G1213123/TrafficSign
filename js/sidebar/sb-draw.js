@@ -220,7 +220,7 @@ let FormDrawAddComponent = {
     if (!symbolObject) return;
 
     const symbolType = symbolObject.symbol;
-    const xHeight = symbolObject.xHeight;
+    const xHeight = symbolObject.xHeight* 4 ;
     const color = symbolObject.color;
     const position = {
       x: symbolObject.left,
