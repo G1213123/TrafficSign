@@ -655,6 +655,7 @@ const AnchorTest = {
       x: 1500,
       y: -1000,
       length: 25,
+      angle: 0,
       color: 'white'
     });
     TestTracker.register("baseTunnel1");

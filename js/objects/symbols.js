@@ -437,7 +437,7 @@ async function drawSymbolDirectly(symbolType, options) {
     p.vertex = calculateTransformedPoints(p.vertex, {
       x: 0,
       y: 0,
-      angle: options.angle
+      angle: options.angle || 0
     });
   });
 
