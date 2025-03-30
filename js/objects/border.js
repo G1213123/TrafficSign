@@ -914,7 +914,7 @@ const BorderUtilities = {
       //canvas.bringObjectToFront(obj)
       obj.borderGroup = borderGroup
     })
-    canvas.requestRenderAll();
+    canvas.renderAll();
     return borderGroup
   },
 

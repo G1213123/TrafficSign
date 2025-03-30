@@ -65,7 +65,6 @@ class CanvasTrackerUI {
       // Create UI elements
       const form = document.getElementById('input-form');
       form.innerHTML = `
-        <div class="section-header">Canvas History Tracker</div>
         <div class="section-content">
           <div class="history-controls">
             <button type="button" id="clearHistory" class="primary-button">Clear History</button>
@@ -105,7 +104,6 @@ class CanvasTrackerUI {
         return;
       }
       
-      document.getElementById('content-heading').textContent = 'Canvas History';
       const form = document.getElementById('input-form');
       form.innerHTML = this.trackerContainer;
       

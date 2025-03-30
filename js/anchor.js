@@ -15,14 +15,15 @@ document.getElementById('set-anchor').addEventListener('click', function () {
   
     const shape1 = Array.isArray(inputShape1) ? inputShape1[0] : inputShape1
     const shape2 = Array.isArray(inputShape2) ? inputShape2[0] : inputShape2
+    const xHeight = shape1.xHeight || shape2.xHeight || parseInt(document.getElementById("input-xHeight").value)
   
     const vertexIndex1 = options.vertexIndex1 ? options.vertexIndex1 : await showTextBox('Enter vertex index for First Polygon:', 'E1')
     if (!vertexIndex1) { setInterval(document.addEventListener('keydown', ShowHideSideBarEvent), 1000); return }
     const vertexIndex2 = options.vertexIndex2 ? options.vertexIndex2 : await showTextBox('Enter vertex index for Second Polygon:', 'E1')
     if (!vertexIndex2) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
-    const spacingX = options.spacingX != null ? options.spacingX : await showTextBox('Enter spacing in X \n (Leave empty if no need for axis):', 100)
+    const spacingX = options.spacingX != null ? options.spacingX : await showTextBox('Enter spacing in X \n (Leave empty if no need for axis):', 100, 'keydown', null, xHeight)
     if (spacingX == null) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
-    const spacingY = options.spacingY != null ? options.spacingY : await showTextBox('Enter spacing in Y \n (Leave empty if no need for axis):', 100)
+    const spacingY = options.spacingY != null ? options.spacingY : await showTextBox('Enter spacing in Y \n (Leave empty if no need for axis):', 100, 'keydown', null, xHeight)
     if (spacingY == null) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
   
     const movingPoint = shape2.getBasePolygonVertex(vertexIndex1.toUpperCase())

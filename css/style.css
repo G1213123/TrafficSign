@@ -1075,3 +1075,23 @@ div.side-panel.close {
     border-color: transparent #333 transparent transparent; /* Inner arrow matches tooltip background */
     display: block; /* Override the previous display:none */
 }
+
+/* Unit display for text box in unit mode */
+.unit-display {
+  position: absolute;
+  pointer-events: none;
+  background-color: transparent;
+  color: #333333;
+  padding: 2px;
+  text-align: right;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  right: 8px;
+  top: 68px;
+  transform: translateY(-50%);
+  user-select: none;
+}
+
+#cursorAnswerBox {
+  padding-right: 30px; /* Make space for the unit display on the right */
+}

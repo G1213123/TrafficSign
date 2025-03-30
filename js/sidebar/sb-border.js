@@ -92,15 +92,16 @@ let FormBorderWrapComponent = {
 
   BorderCreateHandler: async function (event) {
     const borderType = event.currentTarget.id.replace('button-', '');
+    const xHeight = parseInt(document.getElementById("input-xHeight").value);
     selectObjectHandler('Select shape to calculate border width', function (widthObjects, options, widthText) {
       selectObjectHandler('Select shape to calculate border height', function (heightObjects, options, heightText) {
         BorderUtilities.BorderGroupCreate(borderType, heightObjects, widthObjects, widthText, heightText)
-      })
-    })
+      }, null, xHeight);
+    }, null, xHeight);
   },
 
   StackDividerHandler: function () {
-    selectObjectHandler('Select object above divider', function (aboveObject) {
+        selectObjectHandler('Select object above divider', function (aboveObject) {
       selectObjectHandler('Select object below divider', function (belowObject) {
         BorderUtilities.HDividerCreate(aboveObject, belowObject)
       })
@@ -108,7 +109,7 @@ let FormBorderWrapComponent = {
   },
 
   GantryDividerHandler: function () {
-    selectObjectHandler('Select object left to divider', function (leftObject) {
+        selectObjectHandler('Select object left to divider', function (leftObject) {
       selectObjectHandler('Select object right to divider', function (rightObject) {
         BorderUtilities.VDividerCreate(leftObject, rightObject)
       })
@@ -116,7 +117,7 @@ let FormBorderWrapComponent = {
   },
 
   GantryLineHandler: function () {
-    selectObjectHandler('Select object above divider', function (aboveObject) {
+        selectObjectHandler('Select object above divider', function (aboveObject) {
       selectObjectHandler('Select object below divider', function (belowObject) {
         BorderUtilities.HLineCreate(aboveObject, belowObject)
       })
