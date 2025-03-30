@@ -38,7 +38,33 @@ let CanvasObjectInspector = {
         item.classList.remove('selected');
       }
     });
+  },
+  
+  initPanelToggle: function() {
+    const heading = document.querySelector('.object-list-heading');
+    const panel = document.getElementById('objectListPanel');
+    const icon = document.getElementById('toggle-object-list');
+    
+    heading.addEventListener('click', () => {
+      // Toggle the contracted class on the panel
+      panel.classList.toggle('contracted');
+      
+      // Toggle the rotated class on the icon
+      icon.classList.toggle('rotated');
+      
+      // Make sure the icon matches the correct state:
+      // When panel is contracted (hidden) - icon should point up (rotated)
+      // When panel is expanded - icon should point down (not rotated)
+      if (panel.classList.contains('contracted')) {
+        icon.classList.add('rotated');  // Panel is contracted, icon points up
+      } else {
+        icon.classList.remove('rotated'); // Panel is expanded, icon points down
+      }
+    });
   }
 }
+
+// Initialize the panel toggle functionality when the script loads
+CanvasObjectInspector.initPanelToggle();
 
 // Export the CanvasObjectInspector for use in other files

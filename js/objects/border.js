@@ -1,12 +1,12 @@
 // Check CIE standard for color contrast, color reference in EN 12899-1:2007 Table 2 and Table 4
 const BorderColorScheme = {
   "Blue Background": {
-    'background': 'rgb(0, 121, 193)',
-    'symbol': 'white',
-    'border': 'white',
+    'background': 'rgb(0, 51, 162)',
+    'symbol': '#ffffff',
+    'border': '#ffffff',
   },
   "Green Background": {
-    'background': 'rgb(0, 112, 60)',
+    'background': 'rgb(0, 105, 40)',
     'symbol': '#ffffff',
     'border': '#ffffff',
   },
@@ -18,15 +18,15 @@ const BorderColorScheme = {
   "White Background - Parking": {
     'background': '#ffffff',
     'symbol': '#000000',
-    'border': 'rgb(0, 121, 193)',
+    'border': 'rgb(0, 15, 162)',
   },
   "Yellow Background": {
-    'background': '#ffc614',
+    'background': 'rgb(233, 181, 0)',
     'symbol': '#000000',
     'border': '#000000',
   },
   "Brown Background": {
-    'background': 'rgb(116,48,1)',
+    'background': 'rgb(117,75,42)',
     'symbol': '#ffffff',
     'border': '#ffffff',
   },
@@ -123,7 +123,7 @@ function GreenPanelTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
       { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', radius: 1, start: 0 },
       { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V7', radius: 1, start: 0 },
       { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V8', radius: 1, start: 0 },
-    ], 'arcs': [], 'fill': 'rgb(0, 112, 60)'
+    ], 'arcs': [], 'fill': 'rgb(0, 105, 40)'
   }];
 
   returnBorder.forEach(path => applyLengthAndRounding(path, length));

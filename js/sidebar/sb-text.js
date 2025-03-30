@@ -171,7 +171,6 @@ let FormTextAddComponent = {
       FormTextAddComponent.newTextObject = null;
     }
 
-    cursor.forEachObject(function (o) { cursor.remove(o) });
     canvas.off('mouse:move', FormTextAddComponent.TextOnMouseMove);
     canvas.off('mouse:down', FormTextAddComponent.TextOnMouseClick);
     canvas.off('mouse:down', FormTextAddComponent.EditOnMouseClick);
@@ -211,7 +210,6 @@ let FormTextAddComponent = {
       }
 
       document.getElementById('input-text').value = '';
-      cursor.forEachObject(function (o) { cursor.remove(o) });
 
       // Clean up active vertex if there is one
       if (activeVertex) {
@@ -226,9 +224,6 @@ let FormTextAddComponent = {
   TextInputHandler: function (event, options = null) {
     document.removeEventListener('keydown', ShowHideSideBarEvent);
     document.addEventListener('keydown', FormTextAddComponent.cancelInput);
-
-    // Clear any existing cursor objects
-    cursor.forEachObject(function (o) { cursor.remove(o) });
 
     // Get text and parameters
     const txt = options ? options.text : document.getElementById('input-text').value;
@@ -320,12 +315,6 @@ let FormTextAddComponent = {
       }
     } else {
       // Legacy cursor behavior as fallback
-      var pointer = canvas.getPointer(event.e);
-      cursor.set({
-        left: pointer.x,
-        top: pointer.y
-      });
-      canvas.renderAll();
     }
   },
 
@@ -358,19 +347,10 @@ let FormTextAddComponent = {
 
     // Legacy options handling - should rarely be used now
     if (options) {
-      cursor.set({
-        left: options.left,
-        top: options.top,
-        text: options.text,
-        xHeight: options.xHeight,
-        font: options.font,
-        color: options.color
-      });
       textValue = options.text;
       xHeight = options.xHeight;
       color = options.color;
       font = options.font;
-
       eventButton = 0;
     } else {
       textValue = document.getElementById("input-text").value;

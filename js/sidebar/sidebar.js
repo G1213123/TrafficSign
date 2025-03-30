@@ -6,16 +6,8 @@
  */
 
 // Initialize global variables
-var cursor = new fabric.Group();
-cursor.set({ id: 'cursor', "selectable": false })
-cursor.lockScalingX = true;
-cursor.lockScalingY = true;
-cursor.lockUniScaling = true;
-var cursorOffset = { x: 0, y: 0 }
-let tabNum = 2;
 
-canvas.add(cursor);
-canvas.snap_pts = [];
+let tabNum = 2;
 
 
 // Keyboard shortcut for showing/hiding sidebar
@@ -117,7 +109,21 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('btn_settings').onclick = FormSettingsComponent.settingsPanelInit || function () { };
     });
 
-
+    // Event listener for the tracker button
+    if (typeof CanvasTrackerComponent == 'undefined') {
+      SidebarHelpers.loadTrackerModule().then(module => {
+        // Create singleton instance
+        window.CanvasTrackerComponent = new CanvasTrackerUI();
+      });
+    }
+    document.getElementById('btn_tracker').addEventListener('click', function () {
+      if (CanvasTrackerComponent && CanvasTrackerComponent.initialized) {
+        CanvasTrackerComponent.restoreUI();
+      } else {
+        CanvasTrackerComponent.initialize();
+      }
+    });
+    
     // Text module button
     document.getElementById('btn_text').addEventListener('click', function (e) {
       SidebarHelpers.loadTextModule().then(module => {
@@ -127,7 +133,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Draw module button (# Default module)
-
     SidebarHelpers.loadDrawModule().then(module => {
       document.getElementById('btn_draw').onclick = FormDrawAddComponent.drawPanelInit || function () { };
     });
@@ -154,20 +159,6 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
 
-  // Event listener for the tracker button
-  if (typeof CanvasTrackerComponent == 'undefined') {
-    SidebarHelpers.loadTrackerModule().then(module => {
-      // Create singleton instance
-      window.CanvasTrackerComponent = new CanvasTrackerUI();
-    });
-  }
-  document.getElementById('btn_tracker').addEventListener('click', function () {
-    if (CanvasTrackerComponent && CanvasTrackerComponent.initialized) {
-      CanvasTrackerComponent.restoreUI();
-    } else {
-      CanvasTrackerComponent.initialize();
-    } 
-  });
 
     // Debug module button (if it exists)
     const debugBtn = document.getElementById('btn_debug');

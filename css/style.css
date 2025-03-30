@@ -743,6 +743,39 @@ div.side-panel.close {
   justify-content: left;
   flex: 0 1 auto; /* Changed from flex: 1 to flex: 0 1 auto to size based on content */
   max-height: 25%; /* Changed from 30% to 25% */
+  transition: max-height 0.3s ease, padding 0.3s ease, border-top 0.3s ease;
+}
+
+.object-list-panel.contracted {
+  max-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border-top: 0;
+}
+
+.object-list-heading {
+  background-color: #ccc;
+  border-radius: 12px 12px 0 0;
+  border: 0;
+  box-sizing: border-box;
+  padding: 10px 5px 0px 5px;
+  flex: 0 0 30px;
+  font-family: TransportMedium;
+  font-size: 20px;
+  font-display: swap;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.object-list-heading i {
+  margin-right: 10px;
+  transition: transform 0.3s ease;
+}
+
+.object-list-heading i.rotated {
+  transform: rotate(180deg);
 }
 
 .object-list-item {
@@ -759,18 +792,6 @@ div.side-panel.close {
   background-color: #d0d0d0;
   color: #353535;
   border: 2px solid #353535; /* added border color */
-}
-
-.object-list-heading {
-  background-color: #ccc;
-  border-radius: 12px 12px 0 0;
-  border: 0;
-  box-sizing: border-box;
-  padding: 10px 5px 0px 5px;
-  flex: 0 0 30px;
-  font-family: TransportMedium;
-  font-size: 20px;
-  font-display: swap;
 }
 
 /* Coffee and GitHub link containers styling */

@@ -1102,9 +1102,7 @@ const RouteTest = {
       routeParams: params
     });
 
-    // Simulate cursor position
-    cursor.left = posx;
-    cursor.top = posy;
+
 
     // Create the Side Road with a simulated mouse click
     await finishDrawSideRoad({ e: { button: 0 } });
@@ -1184,9 +1182,6 @@ const RouteTest = {
       routeParams: params
     });
 
-    // Simulate cursor position
-    cursor.left = posx;
-    cursor.top = posy;
 
     // Create the Side Road with a simulated mouse click
     await finishDrawSideRoad({ e: { button: 0 } });

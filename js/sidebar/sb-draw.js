@@ -73,9 +73,6 @@ let FormDrawAddComponent = {
       FormDrawAddComponent.newSymbolObject = null;
     }
 
-    // Remove any cursor objects
-    cursor.forEachObject(function (o) { cursor.remove(o) })
-
     // Remove event listeners
     canvas.off('mouse:move', FormDrawAddComponent.SymbolOnMouseMove);
     canvas.off('mouse:down', FormDrawAddComponent.SymbolOnMouseClick);

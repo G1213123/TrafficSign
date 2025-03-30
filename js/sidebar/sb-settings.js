@@ -321,6 +321,11 @@ let FormSettingsComponent = {
         // Apply loaded settings to the canvas
         FormSettingsComponent.applyAllSettings();
         FormSettingsComponent.updateSettingsUI();
+
+        // Run tests if enabled
+        if (GeneralSettings.runTestsOnStart) {
+          FormSettingsComponent.runTests();
+        }
         
         // Load canvas state after settings are applied
         FormSettingsComponent.loadCanvasState();

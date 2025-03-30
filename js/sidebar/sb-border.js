@@ -73,7 +73,8 @@ let FormBorderWrapComponent = {
 
     // Calculate the bounding box of the path  
 
-    const GroupedBorder = new fabric.Path(pathData);
+    const result = await fabric.loadSVGFromString(pathData);
+    const GroupedBorder = fabric.util.groupSVGElements(result.objects);
     let symbolSize = { width: GroupedBorder.width, height: GroupedBorder.height, left: GroupedBorder.left, top: GroupedBorder.top };
 
     const scaleX = svgWidth / symbolSize.width;

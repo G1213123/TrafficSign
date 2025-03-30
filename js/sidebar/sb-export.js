@@ -245,70 +245,95 @@ let FormExportComponent = {
   },
 
   exportToPDF: function () {
-    // Prepare canvas for export first
-    const originalState = FormExportComponent.prepareCanvasForExport();
-    
-    const includeBackground = GeneralHandler.getToggleValue('Include Background-container') === 'Yes';
+    try {
+      // Prepare canvas for export first
+      const originalState = FormExportComponent.prepareCanvasForExport();
+      
+      const includeGrid = GeneralHandler.getToggleValue('Include Grid-container') === 'Yes';
+      const includeBackground = GeneralHandler.getToggleValue('Include Background-container') === 'Yes';
+      
+      // Special handling for grid to prevent color issues
+      if (includeGrid) {
+        // Temporarily adjust grid properties if needed
+        const gridObj = canvas.getObjects().find(obj => obj.id === 'grid');
+        if (gridObj) {
+          // Store original grid properties
+          originalState.gridProps = {
+            opacity: gridObj.opacity,
+            stroke: gridObj.stroke
+          };
+          
+          // Adjust grid to render better in PDF
+          gridObj.opacity = 0.8;
+          canvas.renderAll();
+        }
+      }
 
-    // Add a temporary background rectangle if background should be included
-    if (includeBackground && originalState.exportBounds) {
-      // Add a temporary background rectangle that matches the export bounds
-      const bgColor = canvas.backgroundColor || '#ffffff';
-      const bgRect = new fabric.Rect({
-        left: originalState.exportBounds.left,
-        top: originalState.exportBounds.top,
-        width: originalState.exportBounds.width,
-        height: originalState.exportBounds.height,
-        fill: bgColor,
-        selectable: false,
-        evented: false,
-        id: 'temp-export-bg'
+      // Use the calculated bounds for PDF dimensions with proper padding
+      const width = originalState.exportBounds ? 
+                    Math.ceil(originalState.exportBounds.width) : canvas.width;
+      const height = originalState.exportBounds ? 
+                    Math.ceil(originalState.exportBounds.height) : canvas.height;
+
+      // Create a new jsPDF instance with appropriate orientation
+      const pdf = new jsPDF({
+        orientation: width > height ? 'landscape' : 'portrait',
+        unit: 'pt', // Use points for more accurate dimensions
+        format: [width, height],
+        compress: true
       });
 
-      // Insert at the bottom of the stack
-      canvas.insertAt(0, bgRect);
-      originalState.tempBackgroundRect = bgRect;
+      // Convert to PNG with appropriate settings
+      const dataURL = canvas.toDataURL({
+        format: 'png',
+        quality: FormExportComponent.exportSettings.quality,
+        multiplier: FormExportComponent.exportSettings.multiplier
+      });
+
+      // Remove temporary background rectangle if it was added
+      if (originalState.tempBackgroundRect) {
+        canvas.remove(originalState.tempBackgroundRect);
+      }
+      
+      // Restore grid properties if they were modified
+      if (includeGrid && originalState.gridProps) {
+        const gridObj = canvas.getObjects().find(obj => obj.id === 'grid');
+        if (gridObj) {
+          gridObj.opacity = originalState.gridProps.opacity;
+          gridObj.stroke = originalState.gridProps.stroke;
+        }
+      }
+
+      // Add the image to the PDF - use exact dimensions to prevent stretching
+      pdf.addImage(
+        dataURL,
+        'PNG',
+        0,
+        0,
+        width,
+        height
+      );
+
+      // Save the PDF - use setTimeout to prevent UI blocking
+      setTimeout(() => {
+        pdf.save(`${FormExportComponent.exportSettings.filename}.pdf`);
+        
+        // Restore the canvas after PDF creation
+        FormExportComponent.restoreCanvasAfterExport(originalState);
+      }, 100);
+    } catch (error) {
+      console.error("PDF export failed:", error);
+      alert("PDF export failed. Please try again with different settings.");
+      
+      // Ensure canvas is restored even if export fails
+      try {
+        FormExportComponent.restoreCanvasAfterExport(originalState);
+      } catch (e) {
+        console.error("Failed to restore canvas:", e);
+        // Force canvas refresh as last resort
+        canvas.renderAll();
+      }
     }
-    
-    // Use the calculated bounds for PDF dimensions
-    const width = originalState.exportBounds ? originalState.exportBounds.width : canvas.width;
-    const height = originalState.exportBounds ? originalState.exportBounds.height : canvas.height;
-
-    // Create a new jsPDF instance with appropriate orientation
-    const pdf = new jsPDF({
-      orientation: width > height ? 'landscape' : 'portrait',
-      unit: 'px',
-      format: [width, height],
-      compress: true
-    });
-
-    // Get PNG data URL from canvas
-    const dataURL = canvas.toDataURL({
-      format: 'png',
-      quality: FormExportComponent.exportSettings.quality,
-      multiplier: FormExportComponent.exportSettings.multiplier
-    });
-
-    // Remove temporary background rectangle if it was added
-    if (originalState.tempBackgroundRect) {
-      canvas.remove(originalState.tempBackgroundRect);
-    }
-
-    // Add the image to the PDF
-    pdf.addImage(
-      dataURL,
-      'PNG',
-      0,
-      0,
-      width,
-      height
-    );
-
-    // Save the PDF
-    pdf.save(`${FormExportComponent.exportSettings.filename}.pdf`);
-    
-    // Restore the canvas after PDF creation
-    FormExportComponent.restoreCanvasAfterExport(originalState);
   },
 }
 

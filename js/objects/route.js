@@ -276,6 +276,17 @@ class MainRoadSymbol extends BaseGroup {
      */
     async receiveNewRoute(tempBranchRouteList = null) {
         if (this.roadType !== 'Main Line') {
+            const newPolygon = new GlyphPath();
+            await newPolygon.initialize(calcVertexType[this.roadType](this.xHeight, this.routeList), {
+                left: 0,
+                top: 0,
+                angle: 0,
+                fill: this.color,
+                objectCaching: false,
+                dirty: true,
+                strokeWidth: 0
+            });
+            this.replaceBasePolygon(newPolygon)
             return;
         }
         let newBottom = this.top + (this.tipLength) * this.xHeight / 4;
@@ -1076,7 +1087,6 @@ function drawRoadsHandlerOff(event) {
         activeVertex = null;
     }
 
-    cursor.forEachObject(function (o) { cursor.remove(o) });
     canvas.off('mouse:move', mainRoadOnMouseMove);
     canvas.off('mouse:move', sideRoadOnMouseMove);
     canvas.off('mouse:down', finishDrawSideRoad);
