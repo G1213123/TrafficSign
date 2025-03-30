@@ -276,17 +276,6 @@ class MainRoadSymbol extends BaseGroup {
      */
     async receiveNewRoute(tempBranchRouteList = null) {
         if (this.roadType !== 'Main Line') {
-            const newPolygon = new GlyphPath();
-            await newPolygon.initialize(calcVertexType[this.roadType](this.xHeight, this.routeList), {
-                left: 0,
-                top: 0,
-                angle: 0,
-                fill: this.color,
-                objectCaching: false,
-                dirty: true,
-                strokeWidth: 0
-            });
-            this.replaceBasePolygon(newPolygon)
             return;
         }
         let newBottom = this.top + (this.tipLength) * this.xHeight / 4;
@@ -302,6 +291,13 @@ class MainRoadSymbol extends BaseGroup {
             }
             newBottom = bottommostY;
         }
+
+        this.sideRoad.forEach(side => {
+            const sideBottom = side.basePolygon.vertex[side.side ? 4 : 3].y;
+            if (sideBottom > newBottom) {
+                newBottom = sideBottom;
+            }
+        });
 
         this.routeList.forEach(route => {
             if (route.angle === 180) {

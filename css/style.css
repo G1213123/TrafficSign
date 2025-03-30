@@ -991,7 +991,6 @@ div.side-panel.close {
 .settings-buttons-container {
   display: flex;
   justify-content: space-between;
-  margin-top: 10px;
 }
 
 .color-picker {
@@ -1003,13 +1002,9 @@ div.side-panel.close {
   cursor: pointer;
 }
 
-.input-button#save-settings {
-  background-color: #4CAF50;
-  color: white;
-}
+
 
 .input-button#reset-settings {
-  background-color: #f44336;
   color: white;
 }
 

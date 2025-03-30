@@ -1,5 +1,4 @@
 var canvas = this.__canvas = new fabric.Canvas('canvas', { fireMiddleClick: true, fireRightClick: true, preserveObjectStacking: true, enableRetinaScaling: true });
-canvas.backgroundColor = '#2f2f2f';
 const ctx = canvas.getContext("2d")
 let activeObject = null
 let selectedArrow = null
@@ -10,6 +9,8 @@ canvas.lastPosY = 0;
 
   // Settings configuration - can be accessed by other components
  let GeneralSettings= {
+    // Test settings
+    runTestsOnStart: false,
     // Visual settings
     showTextBorders: true,
     showGrid: true,
@@ -25,7 +26,7 @@ canvas.lastPosY = 0;
     defaultExportScale: 2
   }
 
-canvas.setZoom(0.5);
+canvas.setZoom(0.2);
 
 window.addEventListener('resize', resizeCanvas, false);
 

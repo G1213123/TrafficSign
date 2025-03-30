@@ -1627,5 +1627,8 @@ async function runTests(tests) {
   TestTracker.printSummary();
 }
 window.addEventListener("load", () => {
-  runTests(testToRun);
-}, );
+  // Check if tests should run on start
+  if (typeof GeneralSettings !== 'undefined' && GeneralSettings.runTestsOnStart) {
+    runTests(testToRun);
+  }
+});

@@ -200,6 +200,11 @@ class BaseGroup extends fabric.Group {
       this.drawAnchorLinkage();
       CanvasObjectInspector.SetActiveObjectList(this);
       this.showLockHighlights();
+      
+      // Redraw vertices when selected to apply current vertex display settings
+      if (this.basePolygon && this.basePolygon.vertex) {
+        this.drawVertex(false);
+      }
     });
 
     this.on('deselected', () => {
@@ -312,9 +317,22 @@ class BaseGroup extends fabric.Group {
       }
     }
 
-    // Draw the vertices and labels
+    // Remove existing vertex controls before adding new ones
+    Object.keys(this.controls).forEach(key => {
+      if (key !== 'deleteControl' && this.controls[key] instanceof VertexControl) {
+        delete this.controls[key];
+      }
+    });
+
+    // Draw the vertices and labels - ensure we always check the current setting
     if (this.basePolygon.vertex) {
-      this.basePolygon.vertex.filter(v => (v.display !== 0)).forEach(v => {
+      // Always check current GeneralSettings, not just when toggled
+      const showAllVertices = GeneralSettings && GeneralSettings.showAllVertices;
+      const vertices = showAllVertices 
+        ? this.basePolygon.vertex
+        : this.basePolygon.vertex.filter(v => (v.display !== 0));
+        
+      vertices.forEach(v => {
         const vControl = new VertexControl(v, this);
         this.controls[v.label] = vControl;
       });
@@ -556,15 +574,14 @@ class BaseGroup extends fabric.Group {
     if (deleteObj.mainRoad) {
       const mainRoad = deleteObj.mainRoad
       const branchIndex = mainRoad.sideRoad.indexOf(deleteObj)
-      mainRoad.sideRoad.splice(branchIndex, 1)
-
-      //deleteObj.rootRoute = null
-
-      // Find and remove the vertices with matching labels for the branch being deleted
-      const vertexLabels = [`C${branchIndex}`];
-      mainRoad.basePolygon.vertex = mainRoad.basePolygon.vertex.filter(vertex =>
-        !vertexLabels.includes(vertex.label)
-      );
+      if (branchIndex >= 0){
+        mainRoad.sideRoad.splice(branchIndex, 1)
+        // Find and remove the vertices with matching labels for the branch being deleted
+        const vertexLabels = [`C${branchIndex}`];
+        mainRoad.basePolygon.vertex = mainRoad.basePolygon.vertex.filter(vertex =>
+          !vertexLabels.includes(vertex.label)
+        );
+      }
 
       mainRoad.receiveNewRoute()
       mainRoad.setCoords()
