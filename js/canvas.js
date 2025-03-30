@@ -119,6 +119,14 @@ canvas.on('mouse:wheel', function (opt) {
   opt.e.preventDefault();
   opt.e.stopPropagation();
   DrawGrid()
+  
+  // Check if active object exists and has lock indicators that need to be redrawn
+  const activeObj = canvas.getActiveObject();
+  if (activeObj && activeObj.anchorageLink && activeObj.anchorageLink.length > 0) {
+    // Redraw anchor linkages to update with new zoom level
+    activeObj.drawAnchorLinkage();
+  }
+  
   canvas.getObjects().forEach(obj => {
     obj.setCoords();
   });

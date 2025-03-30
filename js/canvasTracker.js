@@ -191,3 +191,16 @@ class CanvasTracker {
 window.CanvasTracker = CanvasTracker;
 
 
+// Initialize canvas tracker to monitor object creation, deletion, and modification
+const canvasTracker = new CanvasTracker();
+
+// Add event listeners to detect the end of drag operations
+canvas.on('mouse:up', function () {
+  // When mouse is released, signal the end of any ongoing drag
+  canvasTracker.endDrag();
+});
+
+canvas.on('object:modified', function () {
+  // When an object is modified (e.g., after resizing or rotation is complete), signal the end of any drag
+  canvasTracker.endDrag();
+});

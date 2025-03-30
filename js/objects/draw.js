@@ -4,19 +4,7 @@ const deleteIcon =
 let activeVertex = null
 let vertexSnapInProgress = false; // New flag to prevent multiple clicks during snapping
 
-// Initialize canvas tracker to monitor object creation, deletion, and modification
-const canvasTracker = new CanvasTracker();
 
-// Add event listeners to detect the end of drag operations
-canvas.on('mouse:up', function () {
-  // When mouse is released, signal the end of any ongoing drag
-  canvasTracker.endDrag();
-});
-
-canvas.on('object:modified', function () {
-  // When an object is modified (e.g., after resizing or rotation is complete), signal the end of any drag
-  canvasTracker.endDrag();
-});
 
 // additional property for fabric object
 const originalToObject = fabric.Object.prototype.toObject;
@@ -42,52 +30,6 @@ canvas.on('mouse:down', function (options) {
   }
 });
 
-function PolarPoint(r, a) {
-  return new fabric.Point(r * Math.cos(a), r * Math.sin(a))
-}
-
-
-class GlyphPolygon extends fabric.Polygon {
-  constructor(shapeMeta, options) {
-    shapeMeta.vertex.forEach((p) => {
-      transformed = calculateTransformedPoints(p, {
-        x: options.left,
-        y: options.top,
-        angle: options.angle
-      });
-      p.x = transformed.x
-      p.y = transformed.y
-    });
-    super(shapeMeta.vertex.map(p => ({ x: p.x, y: p.y })), options);
-    this.shapeMeta.vertex = shapeMeta.vertex // Add a list inside the object
-    this.insertPoint = shapeMeta.vertex[0]
-    // this.on('moving', this.onMoving.bind(this)); // Listen for modifications
-    // this.on('modified', this.onMoving.bind(this)); // Listen for modifications
-    this.left = this.getCorners().left
-    this.top = this.getCorners().top
-    this.setCoords()
-  }
-
-  // Method to get the corners
-  getCorners() {
-    const minX = Math.min(...this.shapeMeta.vertex.map(v => v.x));
-    const maxX = Math.max(...this.shapeMeta.vertex.map(v => v.x));
-    const minY = Math.min(...this.shapeMeta.vertex.map(v => v.y));
-    const maxY = Math.max(...this.shapeMeta.vertex.map(v => v.y));
-
-    return {
-      left: minX,
-      right: maxX,
-      top: minY,
-      bottom: maxY
-    };
-    ;
-  }
-
-  getEffectiveCoords() {
-    return this.getCoords()
-  }
-}
 
 class GlyphPath extends fabric.Group {
   constructor(options) {
@@ -754,111 +696,236 @@ class LockIcon {
     })
 
     // Add lock lines and lock icon to the canvas
-    //return[this.line1, this.line2, this.lockIcon]
     this.objects = [...this.lines, ...this.dimensionTexts, ...this.icons,]
   }
 
   createLock(sourcePoint, targetPoint) {
-    let midX
-    let midY
-    const zoom = canvas.getZoom()
-    const lineWidth = 5 / zoom
-    const fontSize = 20 / zoom
-    // Create lock lines
+    // Fixed offset distances for engineering dimension style
+    const offsetDistance = 30; // Fixed pixel offset for dimension line
+    const iconOffset = 15;     // Fixed pixel offset for lock icon
+    
+    // Scale adjustments based on zoom
+    const zoom = canvas.getZoom();
+    const lineWidth = 1 / zoom;        // Thinner lines for engineering style
+    const fontSize = 15 / zoom;        // Fixed 15px font size
+    const arrowSize = 6 / zoom;        // Size of dimension arrows
+    const extensionLineLength = 8 / zoom; // Length of extension lines
+    
+    // Create dimension lines and position lock icon based on direction
     if (this.direction == 'x') {
-      this.lines.push(new fabric.Line([sourcePoint.x, sourcePoint.y, targetPoint.x, sourcePoint.y], {
-        stroke: 'green',
-        strokeWidth: lineWidth,
-        selectable: false,
-        functionalType: 'anchorLine',
-      }));
-      this.lines.push(new fabric.Line([targetPoint.x, sourcePoint.y, targetPoint.x, targetPoint.y], {
-        stroke: 'green',
-        strokeWidth: lineWidth,
-        selectable: false,
-        strokeDashArray: [10, 5],
-        functionalType: 'anchorLine',
-      }));
-      // Calculate the midpoint of line1
-      midX = (sourcePoint.x + targetPoint.x) / 2;
-      midY = sourcePoint.y;
-
-
-      this.dimensionTexts.push(new fabric.Text((targetPoint.x - sourcePoint.x).toFixed() + 'mm',
+      // Position of dimension line, offset from source and target points
+      const dimLineY = sourcePoint.y - offsetDistance / zoom;
+      
+      // Extension lines (vertical lines from source and target points to dimension line)
+      this.lines.push(new fabric.Line(
+        [sourcePoint.x, sourcePoint.y, sourcePoint.x, dimLineY - extensionLineLength],
+        {
+          stroke: 'green',
+          strokeWidth: lineWidth,
+          selectable: false,
+          functionalType: 'anchorLine'
+        }
+      ));
+      
+      this.lines.push(new fabric.Line(
+        [targetPoint.x, targetPoint.y, targetPoint.x, dimLineY - extensionLineLength],
+        {
+          stroke: 'green',
+          strokeWidth: lineWidth,
+          selectable: false,
+          functionalType: 'anchorLine'
+        }
+      ));
+      
+      // Main dimension line
+      this.lines.push(new fabric.Line(
+        [sourcePoint.x, dimLineY, targetPoint.x, dimLineY],
+        {
+          stroke: 'green',
+          strokeWidth: lineWidth,
+          selectable: false,
+          functionalType: 'anchorLine',
+        }
+      ));
+      
+      // Add arrow endpoints
+      this.addArrow(sourcePoint.x, dimLineY, 'right', 'green', arrowSize);
+      this.addArrow(targetPoint.x, dimLineY, 'left', 'green', arrowSize);
+      
+      // Calculate the midpoint for dimension text and icon
+      const midX = (sourcePoint.x + targetPoint.x) / 2;
+      const midY = dimLineY - (iconOffset / zoom);
+      
+      // Dimension text
+      this.dimensionTexts.push(new fabric.Text(
+        (targetPoint.x - sourcePoint.x).toFixed() + 'mm',
         {
           left: midX,
-          top: midY - 50,
+          top: dimLineY - (25 / zoom),
           fontSize: fontSize,
-          fill: 'green', // Text color
+          fill: 'green',
           selectable: false,
-          stroke: '#000', // Text stroke color
-          strokeWidth: 3,
-          paintFirst: 'stroke', // Stroke behind fill
-          fontFamily: 'Arial, sans-serif', // Modern font family
-          padding: 10, // Padding around the text
+          stroke: '#000',
+          strokeWidth: 0.5 / zoom,
+          paintFirst: 'stroke',
+          fontFamily: 'Arial, sans-serif',
+          originX: 'center',
+          originY: 'bottom',
           shadow: new fabric.Shadow({
-            color: 'rgba(0, 0, 0, 0.5)',
-            blur: 10,
-            offsetX: 2,
-            offsetY: 2
+            color: 'rgba(0, 0, 0, 0.3)',
+            blur: 3 / zoom,
+            offsetX: 1 / zoom,
+            offsetY: 1 / zoom
           })
-        })
-      )
-    } else {
-      this.lines.push(new fabric.Line([sourcePoint.x, sourcePoint.y, sourcePoint.x, targetPoint.y], {
-        stroke: 'red',
-        strokeWidth: lineWidth,
+        }
+      ));
+      
+      // Lock icon at fixed position relative to dimension line
+      this.icons.push(new fabric.Text('\uf023', {
+        fontFamily: 'Font Awesome 5 Free',
+        fontWeight: 900,
+        left: midX,
+        top: midY,
+        fontSize: fontSize,
+        fill: 'gold',
+        stroke: 'black',
+        strokeWidth: 0.5 / zoom,
+        originX: 'center',
+        originY: 'center',
         selectable: false,
-        functionalType: 'anchorLine',
+        functionalType: 'lockIcon',
       }));
-      this.lines.push(new fabric.Line([sourcePoint.x, targetPoint.y, targetPoint.x, targetPoint.y], {
-        stroke: 'red',
-        strokeWidth: lineWidth,
-        selectable: false,
-        strokeDashArray: [10, 5],
-        functionalType: 'anchorLine',
-      }));
-      // Calculate the midpoint of line1
-      midX = sourcePoint.x;
-      midY = (sourcePoint.y + targetPoint.y) / 2;
-
-      this.dimensionTexts.push(new fabric.Text((targetPoint.y - sourcePoint.y).toFixed() + 'mm',
+      
+    } else { // Y direction
+      // Position of dimension line, offset from source and target points
+      const dimLineX = sourcePoint.x - offsetDistance / zoom;
+      
+      // Extension lines (horizontal lines from source and target points to dimension line)
+      this.lines.push(new fabric.Line(
+        [sourcePoint.x, sourcePoint.y, dimLineX - extensionLineLength, sourcePoint.y],
         {
-          left: midX - 50,
+          stroke: 'red',
+          strokeWidth: lineWidth,
+          selectable: false,
+          functionalType: 'anchorLine'
+        }
+      ));
+      
+      this.lines.push(new fabric.Line(
+        [targetPoint.x, targetPoint.y, dimLineX - extensionLineLength, targetPoint.y],
+        {
+          stroke: 'red',
+          strokeWidth: lineWidth,
+          selectable: false,
+          functionalType: 'anchorLine'
+        }
+      ));
+      
+      // Main dimension line
+      this.lines.push(new fabric.Line(
+        [dimLineX, sourcePoint.y, dimLineX, targetPoint.y],
+        {
+          stroke: 'red',
+          strokeWidth: lineWidth,
+          selectable: false,
+          functionalType: 'anchorLine',
+        }
+      ));
+      
+      // Add arrow endpoints
+      this.addArrow(dimLineX, sourcePoint.y, 'down', 'red', arrowSize);
+      this.addArrow(dimLineX, targetPoint.y, 'up', 'red', arrowSize);
+      
+      // Calculate the midpoint for dimension text and icon
+      const midX = dimLineX - (iconOffset / zoom);
+      const midY = (sourcePoint.y + targetPoint.y) / 2;
+      
+      // Dimension text
+      this.dimensionTexts.push(new fabric.Text(
+        (targetPoint.y - sourcePoint.y).toFixed() + 'mm',
+        {
+          left: dimLineX - (25 / zoom),
           top: midY,
           fontSize: fontSize,
-          fill: 'red', // Text color
+          fill: 'red',
           selectable: false,
-          stroke: '#000', // Text stroke color
-          strokeWidth: 3,
-          paintFirst: 'stroke', // Stroke behind fill
-          fontFamily: 'Arial, sans-serif', // Modern font family
-          padding: 10, // Padding around the text
+          stroke: '#000',
+          strokeWidth: 0.5 / zoom,
+          paintFirst: 'stroke',
+          fontFamily: 'Arial, sans-serif',
+          originX: 'right',
+          originY: 'center',
           shadow: new fabric.Shadow({
-            color: 'rgba(0, 0, 0, 0.5)',
-            blur: 10,
-            offsetX: 2,
-            offsetY: 2
+            color: 'rgba(0, 0, 0, 0.3)',
+            blur: 3 / zoom,
+            offsetX: 1 / zoom,
+            offsetY: 1 / zoom
           })
-        })
-      )
+        }
+      ));
+      
+      // Lock icon at fixed position relative to dimension line
+      this.icons.push(new fabric.Text('\uf023', {
+        fontFamily: 'Font Awesome 5 Free',
+        fontWeight: 900,
+        left: midX,
+        top: midY,
+        fontSize: fontSize,
+        fill: 'gold',
+        stroke: 'black',
+        strokeWidth: 0.5 / zoom,
+        originX: 'center',
+        originY: 'center',
+        selectable: false,
+        functionalType: 'lockIcon',
+      }));
     }
-
-    // Create a lock icon using Font Awesome
-    this.icons.push(new fabric.Text('\uf023', {
-      fontFamily: 'Font Awesome 5 Free',
-      fontWeight: 900,
-      left: midX,
-      top: midY,
-      fontSize: fontSize,
-      fill: 'gold', // Gold fill color
-      stroke: 'black', // Black border
-      strokeWidth: 1, // Border width
-      originX: 'center',
-      originY: 'center',
+  }
+  
+  // Helper method to add arrow endpoints to the dimension lines
+  addArrow(x, y, direction, color, size) {
+    let points;
+    
+    switch (direction) {
+      case 'right':
+        points = [
+          { x: x, y: y },
+          { x: x + size, y: y - size/2 },
+          { x: x + size, y: y + size/2 }
+        ];
+        break;
+      case 'left':
+        points = [
+          { x: x, y: y },
+          { x: x - size, y: y - size/2 },
+          { x: x - size, y: y + size/2 }
+        ];
+        break;
+      case 'up':
+        points = [
+          { x: x, y: y },
+          { x: x - size/2, y: y - size },
+          { x: x + size/2, y: y - size }
+        ];
+        break;
+      case 'down':
+        points = [
+          { x: x, y: y },
+          { x: x - size/2, y: y + size },
+          { x: x + size/2, y: y + size }
+        ];
+        break;
+    }
+    
+    const arrow = new fabric.Polygon(points, {
+      fill: color,
+      stroke: color,
+      strokeWidth: 0,
       selectable: false,
-      functionalType: 'lockIcon',
-    }));
+      functionalType: 'anchorArrow'
+    });
+    
+    this.lines.push(arrow);
   }
 
   onHover(event) {
@@ -874,7 +941,7 @@ class LockIcon {
     const i = this.icons.indexOf(event.target)
     this.icons[i].set('text', '\uf023');
     this.icons[i].set('fill', 'gold');
-    this.dimensionTexts[i].set('fill', this.direction = 'x' ? 'green' : 'red');
+    this.dimensionTexts[i].set('fill', this.direction === 'x' ? 'green' : 'red');
     this.icons[i].set('hoverCursor', 'default')
     canvas.renderAll();
   }
@@ -953,6 +1020,7 @@ class LockIcon {
     canvas.renderAll();
   }
 }
+
 
 class VertexControl extends fabric.Control {
   constructor(vertex, baseGroup) {

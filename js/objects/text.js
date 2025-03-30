@@ -51,8 +51,29 @@ class TextObject extends BaseGroup {
    * Handle double-click on the text object
   */
   onDoubleClick() {
-    FormTextAddComponent.textPanelInit(null, this);
-
+    // Check if FormTextAddComponent is defined
+    if (typeof FormTextAddComponent === 'undefined') {
+      // If not defined, load the text module first
+      if (typeof SidebarHelpers !== 'undefined' && SidebarHelpers.loadTextModule) {
+        SidebarHelpers.loadTextModule().then(() => {
+          // Once the module is loaded, initialize the panel with this text object
+          FormTextAddComponent.textPanelInit(null, this);
+          this.setupTextPanelInputs();
+        });
+      } else {
+        console.error('SidebarHelpers not defined or loadTextModule not available');
+      }
+    } else {
+      // If already defined, initialize directly
+      FormTextAddComponent.textPanelInit(null, this);
+      this.setupTextPanelInputs();
+    }
+  }
+  
+  /**
+   * Setup text panel inputs with current text values
+   */
+  setupTextPanelInputs() {
     // Wait for the panel to initialize
     setTimeout(() => {
       // Fill the text input with the current text
@@ -89,9 +110,6 @@ class TextObject extends BaseGroup {
           }
         });
       }
-
-
-
     }, 100);
   }
 
@@ -127,13 +145,14 @@ class TextObject extends BaseGroup {
       const fontSize = containsNonAlphabetic ?
         (isKnownPunctuation ? xHeight * 1.88 : xHeight * 2.25) :
         xHeight * 1.88;
+      const shortWidth = (i > 0 && ['T', 'U', 'V'].includes(txt[i - 1])) ? true : false;
 
       // Determine character width based on font and character
       const fontWidth = font.replace('Transport', '') === 'Heavy' ? textWidthHeavy : textWidthMedium;
       const charWidthObj = isKnownPunctuation ?
         textWidthHeavy.find(e => e.char === textChar) :
         fontWidth.find(e => e.char === textChar);
-      const charWidth = charWidthObj ? charWidthObj.width : (containsNonAlphabetic && !isKnownPunctuation ? 275 : 100);
+      const charWidth = charWidthObj ? (shortWidth?(charWidthObj.shortWidth===0?charWidthObj.width:charWidthObj.shortWidth):charWidthObj.width) : (containsNonAlphabetic && !isKnownPunctuation ? 275 : 100);
 
       // Calculate position adjustments for horizontal positioning
       let charLeftPos = left_pos + (containsNonAlphabetic ? 0.25 * xHeight : 0);

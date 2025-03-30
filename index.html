@@ -44,6 +44,10 @@
                     class="fa fa-angle-double-right"></i></div>
         </div>
     </div>
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading resources...</div>
+    </div>
     <div id="canvas-container">
         <canvas id="canvas"></canvas>
     </div>
@@ -57,9 +61,45 @@
         <input type="text" id="cursorAnswerBox" class="cursor-box" value=0 />
     </div>
     <script type="text/javascript">
-        fetch('./css/font/TransportMedium.woff').then(res => res.arrayBuffer()).then(buffer => window.buffer1 = buffer);
-        fetch('./css/font/TransportHeavy.woff').then(res => res.arrayBuffer()).then(buffer => window.buffer2 = buffer);
-        fetch('./css/font/NotoSansHK-Medium.ttf').then(res => res.arrayBuffer()).then(buffer => window.buffer3 = buffer);
+        // Keep track of loaded resources
+        const resourcesToLoad = 3; 
+        let resourcesLoaded = 0;
+        
+        function checkAllResourcesLoaded() {
+            resourcesLoaded++;
+            if (resourcesLoaded >= resourcesToLoad) {
+                // All resources loaded, remove the overlay
+                document.getElementById('loading-overlay').style.display = 'none';
+            }
+        }
+
+        fetch('./css/font/TransportMedium.woff')
+            .then(res => res.arrayBuffer())
+            .then(buffer => {
+                window.buffer1 = buffer;
+                checkAllResourcesLoaded();
+            });
+            
+        fetch('./css/font/TransportHeavy.woff')
+            .then(res => res.arrayBuffer())
+            .then(buffer => {
+                window.buffer2 = buffer;
+                checkAllResourcesLoaded();
+            });
+            
+        fetch('./css/font/NotoSansHK-Medium.ttf')
+            .then(res => res.arrayBuffer())
+            .then(buffer => {
+                window.buffer3 = buffer;
+                checkAllResourcesLoaded();
+            });
+            
+        // Backup: If for some reason resources don't load, hide the overlay after window load
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('loading-overlay').style.display = 'none';
+            }, 3000); // 3 second backup timeout
+        });
     </script>
     <script type="text/javascript" src="js/canvas.js"></script>
     <script type="text/javascript" src="js/canvasTracker.js"></script>

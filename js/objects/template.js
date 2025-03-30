@@ -423,7 +423,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 4.5, y: 0, label: 'V2', radius: 0.75, start: 0, display: 0 },
                     { x: 4.5, y: 9, label: 'V3', radius: 0.75, start: 0, display: 0 },
                     { x: -4.5, y: 9, label: 'V4', radius: 0.75, start: 0, display: 0 },
@@ -437,7 +437,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0.25, y: 1.25, label: 'V11', start: 1, display: 1 },
+                    { x: 0.25, y: 1.25, label: 'V11', start: 1, display: 0 },
                     { x: 0.75, y: 1.25, label: 'V12', start: 0, display: 0 },
                     { x: 0.972, y: 2.75, label: 'V13', start: 0, display: 0 },
                     { x: 0.25, y: 2.75, label: 'V14', start: 0, display: 0 },
@@ -445,7 +445,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: -0.25, y: 1.25, label: 'V15', start: 1, display: 1 },
+                    { x: -0.25, y: 1.25, label: 'V15', start: 1, display: 0 },
                     { x: -0.25, y: 2.75, label: 'V16', start: 0, display: 0 },
                     { x: -0.972, y: 2.75, label: 'V17', start: 0, display: 0 },
                     { x: -0.75, y: 1.25, label: 'V18', start: 0, display: 0 },
@@ -453,7 +453,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 3.25, label: 'V19', start: 1, display: 1 },
+                    { x: 0, y: 3.25, label: 'V19', start: 1, display: 0 },
                     { x: 3.5, y: 3.25, label: 'V20', start: 0, display: 0 },
                     { x: 3.5, y: 3.75, label: 'V21', start: 0, display: 0 },
                     { x: 2.75, y: 3.75, label: 'V22', radius: 0.25, start: 0, display: 0 },
@@ -470,7 +470,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0.25, y: 4.25, label: 'V32', start: 1, display: 1 },
+                    { x: 0.25, y: 4.25, label: 'V32', start: 1, display: 0 },
                     { x: 1.194, y: 4.25, label: 'V33', start: 0, display: 0 },
                     { x: 1.5, y: 8, label: 'V34', start: 0, display: 0 },
                     { x: 0.25, y: 8, label: 'V35', start: 0, display: 0 },
@@ -478,7 +478,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: -0.25, y: 4.25, label: 'V36', start: 1, display: 1 },
+                    { x: -0.25, y: 4.25, label: 'V36', start: 1, display: 0 },
                     { x: -0.25, y: 8, label: 'V371', start: 0, display: 0 },
                     { x: -1.5, y: 8, label: 'V38', start: 0, display: 0 },
                     { x: -1.194, y: 4.25, label: 'V39', start: 0, display: 0 },
@@ -509,7 +509,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0.25, y: 1.25, label: 'V11', start: 1, display: 1 },
+                    { x: 0.25, y: 1.25, label: 'V11', start: 1, display: 0 },
                     { x: 0.75, y: 1.25, label: 'V12', start: 0, display: 0 },
                     { x: 0.972, y: 2.75, label: 'V13', start: 0, display: 0 },
                     { x: 0.25, y: 2.75, label: 'V14', start: 0, display: 0 },
@@ -517,7 +517,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: -0.25, y: 1.25, label: 'V15', start: 1, display: 1 },
+                    { x: -0.25, y: 1.25, label: 'V15', start: 1, display: 0 },
                     { x: -0.25, y: 2.75, label: 'V16', start: 0, display: 0 },
                     { x: -0.972, y: 2.75, label: 'V17', start: 0, display: 0 },
                     { x: -0.75, y: 1.25, label: 'V18', start: 0, display: 0 },
@@ -525,7 +525,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 3.25, label: 'V19', start: 1, display: 1 },
+                    { x: 0, y: 3.25, label: 'V19', start: 1, display: 0 },
                     { x: 3.5, y: 3.25, label: 'V20', start: 0, display: 0 },
                     { x: 3.5, y: 3.75, label: 'V21', start: 0, display: 0 },
                     { x: 2.75, y: 3.75, label: 'V22', radius: 0.25, start: 0, display: 0 },
@@ -542,7 +542,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0.25, y: 4.25, label: 'V32', start: 1, display: 1 },
+                    { x: 0.25, y: 4.25, label: 'V32', start: 1, display: 0 },
                     { x: 1.194, y: 4.25, label: 'V33', start: 0, display: 0 },
                     { x: 1.5, y: 8, label: 'V34', start: 0, display: 0 },
                     { x: 0.25, y: 8, label: 'V35', start: 0, display: 0 },
@@ -550,7 +550,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: -0.25, y: 4.25, label: 'V36', start: 1, display: 1 },
+                    { x: -0.25, y: 4.25, label: 'V36', start: 1, display: 0 },
                     { x: -0.25, y: 8, label: 'V371', start: 0, display: 0 },
                     { x: -1.5, y: 8, label: 'V38', start: 0, display: 0 },
                     { x: -1.194, y: 4.25, label: 'V39', start: 0, display: 0 },
