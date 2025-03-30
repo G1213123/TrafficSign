@@ -2,46 +2,112 @@
 let FormDrawAddComponent = {
   symbolAngle: 0,
   newSymbolObject: null,
+  editingExistingSymbol: null, // Track when we're editing an existing symbol
 
-  drawPanelInit: async function () {
+  drawPanelInit: async function (e, existingSymbol = null) {
     tabNum = 1
     var parent = GeneralHandler.PanelInit()
+    
+    // If an existing symbol was passed, set it as the editing symbol
+    if (existingSymbol) {
+      FormDrawAddComponent.editingExistingSymbol = existingSymbol;
+      FormDrawAddComponent.symbolAngle = existingSymbol.angle;
+    } else {
+      FormDrawAddComponent.editingExistingSymbol = null;
+    }
+    
     if (parent) {
       // Create a container for basic symbol parameters
       var basicParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 100, null, 'input')
-      GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, 'White', FormDrawAddComponent.addAllSymbolsButton)
+      GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 
+        FormDrawAddComponent.editingExistingSymbol ? FormDrawAddComponent.editingExistingSymbol.xHeight : 100, 
+        null, 'input')
+      GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, 
+        FormDrawAddComponent.editingExistingSymbol ? FormDrawAddComponent.editingExistingSymbol.color : 'White', 
+        FormDrawAddComponent.addAllSymbolsButton)
 
       // Create a container for angle controls
       var angleControlContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      // Replace slider with two rotate buttons:
       var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, angleControlContainer);
 
       var btnRotateLeft = GeneralHandler.createButton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawAddComponent.setAngle, 'click')
-
       var btnRotateRight = GeneralHandler.createButton(`rotate-right`, '<i class="fa-solid fa-rotate-right"></i>', angleContainer, null, FormDrawAddComponent.setAngle, 'click')
 
       var angleDisplay = GeneralHandler.createNode("div", { 'id': 'angle-display', 'class': 'angle-display' }, angleContainer);
       angleDisplay.innerText = FormDrawAddComponent.symbolAngle + '°';
 
+      // Add Update button container if editing an existing symbol
+      if (FormDrawAddComponent.editingExistingSymbol) {
+        var updateButtonContainer = GeneralHandler.createNode("div", { 'class': 'update-button-container' }, parent);
+        var updateButton = GeneralHandler.createButton('update-symbol-button', 'Update Symbol', updateButtonContainer, null, FormDrawAddComponent.updateExistingSymbol, 'click');
+        updateButton.classList.add('primary-button');
+      }
+
       FormDrawAddComponent.addAllSymbolsButton()
+    }
+  },
+
+  // Function to update only angle and xHeight of an existing symbol
+  updateExistingSymbol: function() {
+    if (FormDrawAddComponent.editingExistingSymbol) {
+      const xHeight = parseInt(document.getElementById('input-xHeight').value);
+      const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
+      const angle = FormDrawAddComponent.symbolAngle;
+
+      // Update the symbol with new properties, but keep the same symbol type
+      FormDrawAddComponent.editingExistingSymbol.updateSymbol(
+        FormDrawAddComponent.editingExistingSymbol.symbol, 
+        xHeight / 4, 
+        color, 
+        angle
+      );
+      
+      // Reset the editing state
+      FormDrawAddComponent.editingExistingSymbol = null;
     }
   },
 
   addAllSymbolsButton: function () {
     const parent = document.getElementById("input-form");
-    const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value')
+    const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value') || 'white';
+    
     // Clear any existing symbol containers
-    const existingSymbolContainers = parent.querySelectorAll('.symbol-container');
+    const existingSymbolContainers = parent.querySelectorAll('.symbols-grid');
     if (existingSymbolContainers.length > 0) {
       existingSymbolContainers.forEach(container => {
         container.remove();
       });
     }
+    
+    // Create a container for all symbols with the proper grid layout
+    const symbolsContainer = GeneralHandler.createNode("div", { 'class': 'symbols-grid' }, parent);
+
+    // Add symbols to the grid - two in each row
     Object.keys(symbolsTemplate).forEach(async (symbol) => {
-      const svg = await FormDrawAddComponent.createButtonSVG(symbol, 5, color)
-      GeneralHandler.createSVGButton(`button-${symbol}`, svg, parent, 'symbol', FormDrawAddComponent.createSymbolObject, 'click')
-    })
+      const svg = await FormDrawAddComponent.createButtonSVG(symbol, 5, color);
+      const symbolBtn = GeneralHandler.createSVGButton(
+        `button-${symbol}`, 
+        svg, 
+        symbolsContainer, 
+        'symbol', 
+        FormDrawAddComponent.createSymbolObject, 
+        'click'
+      );
+      
+      // Store the symbol type as data attribute
+      symbolBtn.setAttribute('data-symbol-type', symbol);
+    });
+  },
+
+  // New function to select a symbol when editing
+  selectSymbolForEditing: function(event) {
+    // Remove selection from all buttons
+    document.querySelectorAll('.symbol-button').forEach(btn => {
+      btn.classList.remove('selected');
+    });
+    
+    // Add selection to clicked button
+    event.currentTarget.classList.add('selected');
   },
 
   setAngle: function (event) {
@@ -306,6 +372,7 @@ let FormDrawAddComponent = {
 
     pathData = pathData.replace(/<svg>/g, '<svg style="width:100;height:100;">')
     pathData = pathData.replace(/<path/g, `<path transform="translate(${translateX}, ${translateY}) scale(${scale})"`);
+
     return pathData;
   }
 }

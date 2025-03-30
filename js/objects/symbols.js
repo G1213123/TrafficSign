@@ -1,4 +1,3 @@
-
 function getFontPath(t) {
   let buffer;
   if (t.fontFamily == 'TransportMedium') {
@@ -313,6 +312,108 @@ function combinePaths(pathsArray) {
 }
 
 /**
+ * SymbolObject extends BaseGroup to create symbols with editing functionality
+ */
+class SymbolObject extends BaseGroup {
+  constructor(symbolType, options = {}) {
+    // Store symbol properties before creating the base group
+    const symbolProperties = {
+      symbol: symbolType,
+      xHeight: options.length || (options.xHeight || 100),
+      color: options.color || 'White',
+      symbolAngle: options.angle || 0,
+    };
+
+    // Call the BaseGroup constructor with the symbol path
+    super(null, 'Symbol');
+    
+    // Apply stored symbol properties
+    Object.assign(this, symbolProperties);
+    
+    // Set the display name
+    this._showName = `<Group ${this.canvasID}> Symbol - ${symbolType}`;
+
+    // Add double-click event handler
+    this.on('mousedblclick', this.onDoubleClick.bind(this));
+  }
+
+  async initialize(symbolPath) {
+    // Set the basePolygon that was initially null in the constructor
+    this.setBasePolygon(symbolPath)
+
+
+    return this;
+}
+
+  /**
+   * Handle double-click on the symbol object
+   */
+  onDoubleClick() {
+    // Check if FormDrawAddComponent is defined
+    if (typeof FormDrawAddComponent === 'undefined') {
+      // If not defined, load the draw module first
+      if (typeof SidebarHelpers !== 'undefined' && SidebarHelpers.loadDrawModule) {
+        SidebarHelpers.loadDrawModule().then(() => {
+          // Once the module is loaded, initialize the panel for editing this symbol
+          FormDrawAddComponent.drawPanelInit(null, this);
+        });
+      } else {
+        console.error('SidebarHelpers not defined or loadDrawModule not available');
+      }
+    } else {
+      // If already defined, initialize directly
+      FormDrawAddComponent.drawPanelInit(null, this);
+    }
+  }
+  
+  /**
+   * Update symbol properties and visuals
+   */
+  updateSymbol(symbolType, length, color, angle) {
+    // Create new symbol data
+    const symbolData = calcSymbol(symbolType, length, color);
+    
+    // Store the new properties
+    this.symbol = symbolType;
+    this.xHeight = length * 4; // Convert back to xHeight
+    this.color = color;
+    this.symbolAngle = angle;
+    
+    // Create symbol options - keep angle at 0 for the actual path object
+    const symbolOptions = {
+      left: this.left,
+      top: this.top,
+      fill: color,
+      objectCaching: false,
+      strokeWidth: 0
+    };
+
+    // Create a new GlyphPath for the symbol
+    const symbolPath = new GlyphPath(symbolOptions);
+    
+    // Apply the rotation transform to vertex coordinates before creating the path
+    symbolData.path.forEach(p => {
+      p.vertex = calculateTransformedPoints(p.vertex, {
+        x: 0, 
+        y: 0, 
+        angle: angle
+      });
+    });
+    
+    // Initialize the new path with transformed coordinates and replace the current one
+    symbolPath.initialize(symbolData, symbolOptions).then(() => {
+      // Apply the desired angle to the group itself
+      this.set({ angle: 0 }); // Reset angle before replacing basePolygon
+      this.replaceBasePolygon(symbolPath, false);
+      this._showName = `<Group ${this.canvasID}> Symbol - ${symbolType}`;
+      this.canvas.renderAll();
+    });
+  }
+}
+
+// Update the existing functions to use the new SymbolObject class
+
+/**
  * Creates a symbol directly on the canvas without using cursor intermediary
  * @param {string} symbolType - Type of symbol to create
  * @param {Object} options - Configuration options: x, y, length, angle, color
@@ -327,23 +428,27 @@ async function drawSymbolDirectly(symbolType, options) {
     left: options.x,
     top: options.y,
     fill: options.color,
-    angle: options.angle || 0,
+    angle: 0,
     objectCaching: false,
     strokeWidth: 0
   };
+
+  symbolData.path.forEach(p => {
+    p.vertex = calculateTransformedPoints(p.vertex, {
+      x: 0,
+      y: 0,
+      angle: options.angle
+    });
+  });
 
   // Create the GlyphPath for the symbol
   const symbolPath = new GlyphPath(symbolOptions);
   await symbolPath.initialize(symbolData, symbolOptions);
 
-  // Create the BaseGroup to wrap the symbol
-  const symbolGroup = new BaseGroup(symbolPath, 'Symbol');
-
-  // Store symbol properties for later reference
-  symbolGroup.symbol = symbolType;
-  symbolGroup.xHeight = options.length * 4; // Convert back to xHeight
-  symbolGroup.color = options.color;
-  symbolGroup._showName = `<Group ${symbolGroup.canvasID}> Symbol - ${symbolType}`;
+  // Create the SymbolObject with all original parameters, but the actual path
+  // has pre-rotated vertices instead of a rotation transform
+  const symbolGroup = new SymbolObject(symbolType, options);
+  await symbolGroup.initialize(symbolPath);
 
   return symbolGroup;
 }

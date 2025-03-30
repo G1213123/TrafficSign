@@ -217,7 +217,7 @@ div.side-panel.close {
 .symbol-container {
   width: 45%;
   /* Span 50% of the input form */
-  padding: 10px 0px;
+  padding: 0px 0px;
   box-sizing: border-box;
   /* Include padding in the element's total width and height */
   display: flex;
@@ -1130,4 +1130,68 @@ div.side-panel.close {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Symbol grid layout for displaying symbol buttons in two columns */
+.symbols-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 5px;
+  overflow-y: auto;
+  max-height: 600px;
+}
+
+/* Reset symbol button to use original styling */
+.symbols-grid .symbol-button {
+  background-color: #555555;
+  color: white;
+  transition-duration: 0.4s;
+  padding: 16px 8px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 10px;
+  width: 100%;
+  min-height: 120px;
+}
+
+.symbols-grid .symbol-button:hover {
+  background-color: #3498db;
+  color: white;
+  border: 2px solid #3498db;
+}
+
+.symbols-grid .symbol-button.selected {
+  background-color: #3498db;
+  color: white;
+  border: 2px solid #fff;
+}
+
+/* Ensure SVG fills the button properly */
+.symbols-grid .symbol-button svg {
+  width: 100%;
+  height: 100px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Update button container */
+.update-button-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+  padding: 0 10px;
+}
+
+.update-button-container .primary-button {
+  width: 80%;
+  padding: 10px;
 }
