@@ -373,7 +373,7 @@ class SymbolObject extends BaseGroup {
    */
   updateSymbol(symbolType, length, color, angle) {
     // Create new symbol data
-    const symbolData = calcSymbol(symbolType, length, color);
+    const symbolData = calcSymbol(symbolType, length / 4, color);
     
     // Store the new properties
     this.symbol = symbolType;
@@ -388,11 +388,12 @@ class SymbolObject extends BaseGroup {
       fill: color,
       objectCaching: false,
       strokeWidth: 0,
-      angle : angle
+      angle : 0
     };
 
     // Create a new GlyphPath for the symbol
-    const symbolPath = new GlyphPath(symbolOptions);
+    const symbolPath = new GlyphPath();
+    symbolPath.initialize(symbolData, symbolOptions);
     
     // Apply the rotation transform to vertex coordinates before creating the path
     symbolData.path.forEach(p => {
@@ -404,13 +405,7 @@ class SymbolObject extends BaseGroup {
     });
     
     // Initialize the new path with transformed coordinates and replace the current one
-    symbolPath.initialize(symbolData, symbolOptions).then(() => {
-      // Apply the desired angle to the group itself
-      this.set({ angle: 0 }); // Reset angle before replacing basePolygon
-      this.replaceBasePolygon(symbolPath, false);
-      this._showName = `<Group ${this.canvasID}> Symbol - ${symbolType}`;
-      this.canvas.renderAll();
-    });
+    this.replaceBasePolygon(symbolPath);
   }
 }
 
@@ -424,18 +419,19 @@ class SymbolObject extends BaseGroup {
  */
 async function drawSymbolDirectly(symbolType, options) {
   // Calculate symbol data
-  const symbolData = calcSymbol(symbolType, options.length, options.color);
+  const symbolData = calcSymbol(symbolType, options.xHeight / 4, options.color);
 
   // Create symbol options
   const symbolOptions = {
-    left: options.x,
-    top: options.y,
-    fill: options.color,
+    left: options.x || 0,
+    top: options.y || 0,
+    fill: options.color || 'white',
     angle: 0,
     objectCaching: false,
     strokeWidth: 0
   };
 
+  // separate the angle handling from the symbol path creation
   symbolData.path.forEach(p => {
     p.vertex = calculateTransformedPoints(p.vertex, {
       x: 0,
@@ -452,6 +448,10 @@ async function drawSymbolDirectly(symbolType, options) {
   // has pre-rotated vertices instead of a rotation transform
   const symbolGroup = new SymbolObject(symbolType, options);
   await symbolGroup.initialize(symbolPath);
+
+  symbolGroup.set({
+    symbolAngle: options.angle || 0,
+  })
 
   return symbolGroup;
 }

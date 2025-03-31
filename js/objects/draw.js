@@ -233,6 +233,7 @@ class BaseGroup extends fabric.Group {
     this.removeAll();
     this.setBasePolygon(newBasePolygon, calcVertex);
     this.setCoords();
+    canvas.renderAll();
   }
 
   drawVertex(calc = true) {

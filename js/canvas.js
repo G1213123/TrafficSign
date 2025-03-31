@@ -467,7 +467,7 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
   let unitDisplay = null;
   let inputValue = '';
 
-  if (withAnswerBox) {
+  if (withAnswerBox !== null) {
     answerBox.style.display = 'block';
     answerBox.value = withAnswerBox;
     answerBox.focus();

@@ -21,9 +21,19 @@ document.getElementById('set-anchor').addEventListener('click', function () {
     if (!vertexIndex1) { setInterval(document.addEventListener('keydown', ShowHideSideBarEvent), 1000); return }
     const vertexIndex2 = options.vertexIndex2 ? options.vertexIndex2 : await showTextBox('Enter vertex index for Second Polygon:', 'E1')
     if (!vertexIndex2) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
-    const spacingX = options.spacingX != null ? options.spacingX : await showTextBox('Enter spacing in X \n (Leave empty if no need for axis):', 100, 'keydown', null, xHeight)
+    
+    // Check if object is already anchored in X axis
+    const isAlreadyAnchoredInX = Object.keys(shape2.lockXToPolygon || {}).length > 0;
+    const spacingX = options.spacingX != null ? options.spacingX : 
+                     isAlreadyAnchoredInX ? '' : 
+                     await showTextBox('Enter spacing in X \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight)
     if (spacingX == null) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
-    const spacingY = options.spacingY != null ? options.spacingY : await showTextBox('Enter spacing in Y \n (Leave empty if no need for axis):', 100, 'keydown', null, xHeight)
+    
+    // Check if object is already anchored in Y axis
+    const isAlreadyAnchoredInY = Object.keys(shape2.lockYToPolygon || {}).length > 0;
+    const spacingY = options.spacingY != null ? options.spacingY : 
+                     isAlreadyAnchoredInY ? '' : 
+                     await showTextBox('Enter spacing in Y \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight)
     if (spacingY == null) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
   
     const movingPoint = shape2.getBasePolygonVertex(vertexIndex1.toUpperCase())

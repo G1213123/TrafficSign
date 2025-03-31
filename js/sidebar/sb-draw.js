@@ -11,7 +11,7 @@ let FormDrawAddComponent = {
     // If an existing symbol was passed, set it as the editing symbol
     if (existingSymbol) {
       FormDrawAddComponent.editingExistingSymbol = existingSymbol;
-      FormDrawAddComponent.symbolAngle = existingSymbol.angle;
+      FormDrawAddComponent.symbolAngle = existingSymbol.symbolAngle;
     } else {
       FormDrawAddComponent.editingExistingSymbol = null;
     }
@@ -52,7 +52,7 @@ let FormDrawAddComponent = {
   // Function to update only angle and xHeight of an existing symbol
   updateExistingSymbol: function() {
     if (FormDrawAddComponent.editingExistingSymbol) {
-      const xHeight = parseInt(document.getElementById('input-xHeight').value) * 4;
+      const xHeight = parseInt(document.getElementById('input-xHeight').value) ;
       const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
       const angle = FormDrawAddComponent.symbolAngle;
 
@@ -176,7 +176,7 @@ let FormDrawAddComponent = {
     const symbolObject = await drawSymbolDirectly(symbolType, {
       x: actualCenterX,
       y: actualCenterY,
-      length: xHeight / 4,
+      length: xHeight,
       angle: FormDrawAddComponent.symbolAngle,
       color: color
     });
@@ -222,7 +222,7 @@ let FormDrawAddComponent = {
     if (!symbolObject) return;
 
     const symbolType = symbolObject.symbol;
-    const xHeight = symbolObject.xHeight* 4 ;
+    const xHeight = symbolObject.xHeight ;
     const color = symbolObject.color;
     const position = {
       x: symbolObject.left,
@@ -233,7 +233,7 @@ let FormDrawAddComponent = {
     const newSymbolObject = await drawSymbolDirectly(symbolType, {
       x: position.x,
       y: position.y,
-      length: xHeight / 4,
+      length: xHeight,
       angle: FormDrawAddComponent.symbolAngle,
       color: color
     });

@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "dxf-writer": "^1.18.4"
+  },
+  "devDependencies": {
+    "browserify": "^17.0.1"
+  }
+}

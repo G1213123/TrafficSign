@@ -475,9 +475,9 @@ const ShapeTest = {
     // Create symbol (unchanged)
     await drawLabeledSymbol('StackArrow', {
       x: -1500,
-      y: -800,
-      length: 25,
-      angle: -90,
+      y: -900,
+      xHeight: 100,
+      angle: -45,
       color: 'white'
     });
     TestTracker.register("symbol");
@@ -506,7 +506,7 @@ const ShapeTest = {
     const symbolV1 = symbol.getBasePolygonVertex('V1');
     passed = passed && symbol.functionalType === 'Symbol';
     passed = passed && TestTracker.assert(symbolV1.x, -1500, "Symbol left position incorrect", 5);
-    passed = passed && TestTracker.assert(symbolV1.y, -800, "Symbol top position incorrect", 5);
+    passed = passed && TestTracker.assert(symbolV1.y, -900, "Symbol top position incorrect", 5);
 
     // Check that text objects are instances of TextObject class
     passed = passed && TestTracker.assertTrue(
@@ -553,7 +553,7 @@ const AnchorTest = {
     await drawLabeledSymbol('Tunnel', {
       x: 300,
       y: -1000,
-      length: 25,
+      xHeight: 100,
       color: 'white'
     });
     TestTracker.register("baseTunnel");
@@ -562,7 +562,7 @@ const AnchorTest = {
     await drawLabeledSymbol('Airport', {
       x: 400,
       y: -400,
-      length: 25,
+      xHeight: 100,
       angle: 0,
       color: 'white'
     });
@@ -572,7 +572,7 @@ const AnchorTest = {
     await drawLabeledSymbol('Hospital', {
       x: 300,
       y: -300,
-      length: 25,
+      xHeight: 100,
       color: 'white'
     });
     TestTracker.register("bottomHospital");
@@ -654,7 +654,7 @@ const AnchorTest = {
     await drawLabeledSymbol('EHC', {
       x: 1500,
       y: -1000,
-      length: 25,
+      xHeight: 100,
       angle: 0,
       color: 'white'
     });
@@ -663,7 +663,7 @@ const AnchorTest = {
     await drawLabeledSymbol('WHC', {
       x: 1500,
       y: -1000,
-      length: 25,
+      xHeight: 100,
       angle: 0,
       color: 'white'
     });
@@ -673,7 +673,7 @@ const AnchorTest = {
     await drawLabeledSymbol('Hospital', {
       x: 1575,
       y: -550,
-      length: 25,
+      xHeight: 100,
       color: 'white'
     });
     TestTracker.register("baseHospital");
@@ -681,7 +681,7 @@ const AnchorTest = {
     await drawLabeledSymbol('CHT', {
       x: 1575,
       y: -550,
-      length: 25,
+      xHeight: 100,
       angle: 0,
       color: 'white'
     });

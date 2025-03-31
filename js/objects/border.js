@@ -472,6 +472,12 @@ function HLineTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
   return { path: returnBorder };
 }
 
+const DividerMargin = {
+  'HDivider': { left: 0, top: 0, right: 0, bottom: 1 },
+  'VDivider': { left: 1, top: 0, right: 1, bottom: 0 },
+  'HLine': { left: 1.5, top: 1, right: 1.5, bottom: 1 },
+}
+
 drawDivider = async function (xHeight, color, position, size, type) {
 
   // Choose the template based on the horizontal parameter
@@ -513,13 +519,13 @@ const BorderUtilities = {
     anchorShape(leftObject, borderGroup, {
       vertexIndex1: 'E1',
       vertexIndex2: 'E3',
-      spacingX: 2.5 * xHeight / 4,
+      spacingX: DividerMargin['VDivider']['left'] * xHeight / 4,
       spacingY: ''
     })
     anchorShape(borderGroup, rightObject, {
       vertexIndex1: 'E1',
       vertexIndex2: 'E3',
-      spacingX: 2.5 * xHeight / 4,
+      spacingX: DividerMargin['VDivider']['right'] * xHeight / 4,
       spacingY: ''
     })
     borderGroup.setCoords()
@@ -548,13 +554,13 @@ const BorderUtilities = {
       vertexIndex1: 'E2',
       vertexIndex2: 'E6',
       spacingX: '',
-      spacingY: 0
+      spacingY: DividerMargin['HDivider']['top'] * xHeight / 4
     })
     anchorShape(borderGroup, belowObject, {
       vertexIndex1: 'E2',
       vertexIndex2: 'E6',
       spacingX: '',
-      spacingY: 1. * xHeight / 4
+      spacingY: DividerMargin['HDivider']['bottom'] * xHeight / 4
     })
     borderGroup.setCoords()
     borderGroup.updateAllCoord()
@@ -582,13 +588,13 @@ const BorderUtilities = {
       vertexIndex1: 'E2',
       vertexIndex2: 'E6',
       spacingX: '',
-      spacingY: 1. * xHeight / 4
+      spacingY: DividerMargin['HLine']['top'] * xHeight / 4
     })
     anchorShape(borderGroup, belowObject, {
       vertexIndex1: 'E2',
       vertexIndex2: 'E6',
       spacingX: '',
-      spacingY: 1. * xHeight / 4
+      spacingY: DividerMargin['HLine']['bottom'] * xHeight / 4
     })
     borderGroup.setCoords()
     borderGroup.updateAllCoord()
@@ -783,12 +789,12 @@ const BorderUtilities = {
     rounding.x /= (VDividers.length + 1) * 2
     rounding.y /= (HDividers.length + 1) * 2
     HDividers.forEach(h => {
-      if (!sourceList.includes(h.lockYToPolygon.TargetObject)) {
+      if (!sourceList.includes(h.lockYToPolygon.TargetObject) && h.functionalType == 'HDivider') {
         anchorShape(h.lockYToPolygon.TargetObject, h, {
           vertexIndex1: h.lockYToPolygon.sourcePoint,
           vertexIndex2: h.lockYToPolygon.targetPoint,
           spacingX: '',
-          spacingY: h.lockYToPolygon.spacing + rounding.y
+          spacingY: DividerMargin[h.functionalType]['top'] * h.xHeight/4 + rounding.y
         }, sourceList)
       }
       const nextAnchor = h.anchoredPolygon[0]
@@ -797,16 +803,16 @@ const BorderUtilities = {
           vertexIndex1: nextAnchor.lockYToPolygon.sourcePoint,
           vertexIndex2: nextAnchor.lockYToPolygon.targetPoint,
           spacingX: '',
-          spacingY: nextAnchor.lockYToPolygon.spacing + rounding.y
+          spacingY: DividerMargin[h.functionalType]['bottom']  * h.xHeight/4 + rounding.y
         }, sourceList)
       }
     })
     VDividers.forEach(v => {
-      if (!sourceList.includes(v.lockXToPolygon.TargetObject)) {
+      if (!sourceList.includes(v.lockXToPolygon.TargetObject) && v.functionalType == 'VDivider') {
         anchorShape(v.lockXToPolygon.TargetObject, v, {
           vertexIndex1: v.lockXToPolygon.sourcePoint,
           vertexIndex2: v.lockXToPolygon.targetPoint,
-          spacingX: v.lockXToPolygon.spacing,
+          spacingX: DividerMargin[v.functionalType]['left'] * v.xHeight/4 + rounding.x,
           spacingY: ''
         }, sourceList)
       }
@@ -815,9 +821,10 @@ const BorderUtilities = {
         anchorShape(v, nextAnchor, {
           vertexIndex1: nextAnchor.lockXToPolygon.sourcePoint,
           vertexIndex2: nextAnchor.lockXToPolygon.targetPoint,
-          spacingX: nextAnchor.lockXToPolygon.spacing,
+          spacingX: DividerMargin[v.functionalType]['right'] * v.xHeight/4 + rounding.x,
           spacingY: ''
         }, sourceList)
+        nextAnchor.rounded = {x: rounding.x, y: 0}
       }
     })
   },
@@ -929,9 +936,9 @@ const BorderUtilities = {
     for (const d of borderGroup.HDivider) {
       // Store the group's initial top position
       const initialTop = d.getEffectiveCoords()[0].y
-      const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top + (d.functionalType == 'HLine' ? - borderGroup.xHeight/4 : 0 )}, bbox, d.functionalType)
+      const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top - DividerMargin[d.functionalType].top * d.xHeight/4}, bbox, d.functionalType)
       d.replaceBasePolygon(res)
-      d.set({ top: initialTop, left: innerLeft + (d.functionalType == 'HLine' ? frame : 0 )});
+      d.set({ top: initialTop, left: innerLeft + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
       d.updateAllCoord(null, sourceList)
     }
 
