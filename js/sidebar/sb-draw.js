@@ -22,8 +22,10 @@ let FormDrawAddComponent = {
       GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 
         FormDrawAddComponent.editingExistingSymbol ? FormDrawAddComponent.editingExistingSymbol.xHeight : 100, 
         null, 'input')
+      let existingColor = FormDrawAddComponent.editingExistingSymbol ?FormDrawAddComponent.editingExistingSymbol.color: null
+      if (existingColor) {existingColor = (existingColor.charAt(0).toUpperCase() + existingColor.slice(1));}
       GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, 
-        FormDrawAddComponent.editingExistingSymbol ? FormDrawAddComponent.editingExistingSymbol.color : 'White', 
+        FormDrawAddComponent.editingExistingSymbol ? existingColor : 'White', 
         FormDrawAddComponent.addAllSymbolsButton)
 
       // Create a container for angle controls
@@ -50,14 +52,14 @@ let FormDrawAddComponent = {
   // Function to update only angle and xHeight of an existing symbol
   updateExistingSymbol: function() {
     if (FormDrawAddComponent.editingExistingSymbol) {
-      const xHeight = parseInt(document.getElementById('input-xHeight').value);
+      const xHeight = parseInt(document.getElementById('input-xHeight').value) * 4;
       const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
       const angle = FormDrawAddComponent.symbolAngle;
 
       // Update the symbol with new properties, but keep the same symbol type
       FormDrawAddComponent.editingExistingSymbol.updateSymbol(
         FormDrawAddComponent.editingExistingSymbol.symbol, 
-        xHeight / 4, 
+        xHeight, 
         color, 
         angle
       );
@@ -69,7 +71,7 @@ let FormDrawAddComponent = {
 
   addAllSymbolsButton: function () {
     const parent = document.getElementById("input-form");
-    const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value') || 'white';
+    const color = document.getElementById('Message Colour-container').selected?document.getElementById('Message Colour-container').selected.getAttribute('data-value') : 'white';
     
     // Clear any existing symbol containers
     const existingSymbolContainers = parent.querySelectorAll('.symbols-grid');

@@ -708,7 +708,7 @@ class LockIcon {
     const zoom = canvas.getZoom();
     const lineWidth = 1 / zoom;        // Thinner lines for engineering style
     const fontSize = 15 / zoom;        // Fixed 15px font size
-    const arrowSize = 6 / zoom;        // Size of dimension arrows
+    const arrowSize = 12 / zoom;        // Size of dimension arrows
     const extensionLineLength = 8 / zoom; // Length of extension lines
     
     // Create dimension lines and position lock icon based on direction
@@ -835,7 +835,7 @@ class LockIcon {
       // Add arrow endpoints
       this.addArrow(dimLineX, sourcePoint.y, 'down', 'red', arrowSize);
       this.addArrow(dimLineX, targetPoint.y, 'up', 'red', arrowSize);
-      
+       
       // Calculate the midpoint for dimension text and icon
       const midX = dimLineX - (iconOffset / zoom);
       const midY = (sourcePoint.y + targetPoint.y) / 2;
@@ -890,29 +890,29 @@ class LockIcon {
       case 'right':
         points = [
           { x: x, y: y },
-          { x: x + size, y: y - size/2 },
-          { x: x + size, y: y + size/2 }
+          { x: x + size, y: y - size/4 },
+          { x: x + size, y: y + size/4 }
         ];
         break;
       case 'left':
         points = [
           { x: x, y: y },
-          { x: x - size, y: y - size/2 },
-          { x: x - size, y: y + size/2 }
+          { x: x - size, y: y - size/4 },
+          { x: x - size, y: y + size/4 }
         ];
         break;
       case 'up':
         points = [
           { x: x, y: y },
-          { x: x - size/2, y: y - size },
-          { x: x + size/2, y: y - size }
+          { x: x - size/4, y: y - size },
+          { x: x + size/4, y: y - size }
         ];
         break;
       case 'down':
         points = [
           { x: x, y: y },
-          { x: x - size/2, y: y + size },
-          { x: x + size/2, y: y + size }
+          { x: x - size/4, y: y + size },
+          { x: x + size/4, y: y + size }
         ];
         break;
     }

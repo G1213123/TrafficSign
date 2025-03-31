@@ -11,12 +11,12 @@ let FormSettingsComponent = {
 
       // Create a container for testing
       var testingContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      
-      
+
+
       // Add Run Tests button
       GeneralHandler.createButton('run-tests', 'Run Tests', testingContainer, 'input',
         FormSettingsComponent.runTests, 'click');
-      
+
       // Add Run Tests on Start toggle
       GeneralHandler.createToggle('Run Tests on Start', ['Yes', 'No'], testingContainer,
         GeneralSettings.runTestsOnStart ? 'Yes' : 'No',
@@ -144,7 +144,7 @@ let FormSettingsComponent = {
   },
 
   // Toggle handler for Run Tests on Start
-  toggleRunTestsOnStart: function(button) {
+  toggleRunTestsOnStart: function (button) {
     const value = button.getAttribute('data-value') === 'Yes';
     GeneralSettings.runTestsOnStart = value;
     FormSettingsComponent.saveSettings(); // Auto-save settings
@@ -243,11 +243,11 @@ let FormSettingsComponent = {
       // Save canvas properties (background color, etc.)
       const canvasJSON = FormSettingsComponent.simpleStringify(canvas);
       localStorage.setItem('canvasState', canvasJSON);
-      
+
       // Save canvas objects (shapes, texts, etc.)
       const canvasObjects = JSON.stringify(canvas.toJSON(['functionalType', 'txtFrameList', 'basePolygon']));
       localStorage.setItem('canvasObjects', canvasObjects);
-      
+
       console.log('Canvas state and objects auto-saved', new Date());
     } catch (e) {
       console.error('Failed to auto-save canvas state', e);
@@ -259,29 +259,29 @@ let FormSettingsComponent = {
     try {
       // Save settings
       localStorage.setItem('appSettings', JSON.stringify(GeneralSettings));
-      
+
       // Also save canvas state
       FormSettingsComponent.saveCanvasState();
-      
+
       console.log('Settings and canvas state saved to localStorage');
     } catch (e) {
       console.error('Failed to save settings', e);
     }
   },
 
-  loadCanvasState: function() {
+  loadCanvasState: function () {
     try {
       const savedCanvas = localStorage.getItem('canvasState');
       if (savedCanvas) {
         const parsedCanvas = JSON.parse(savedCanvas);
-        
+
         // Apply saved canvas properties
         for (const prop in parsedCanvas) {
           if (canvas.hasOwnProperty(prop) && typeof canvas[prop] !== 'function') {
             canvas[prop] = parsedCanvas[prop];
           }
         }
-        
+
         // Reload canvas objects if they're saved separately
         if (localStorage.getItem('canvasObjects')) {
           try {
@@ -295,7 +295,7 @@ let FormSettingsComponent = {
             console.error('Failed to load canvas objects', e);
           }
         }
-        
+
         canvas.renderAll();
         console.log('Canvas state loaded from localStorage');
         return true;
@@ -307,7 +307,7 @@ let FormSettingsComponent = {
     }
   },
 
-  loadSettings: function () {
+  loadSettings: async function () {
     try {
       const savedSettings = localStorage.getItem('appSettings');
       if (savedSettings) {
@@ -326,7 +326,7 @@ let FormSettingsComponent = {
         if (GeneralSettings.runTestsOnStart) {
           FormSettingsComponent.runTests();
         }
-        
+
         // Load canvas state after settings are applied
         FormSettingsComponent.loadCanvasState();
       }
@@ -411,7 +411,7 @@ let FormSettingsComponent = {
     if (activeObject && activeObject instanceof fabric.BaseGroup) {
       activeObject.drawVertex(false);
     }
-    
+
     // Also update all BaseGroup objects on the canvas to ensure 
     // they respect the setting when selected later
     canvasObject.forEach(obj => {
@@ -419,7 +419,7 @@ let FormSettingsComponent = {
         obj.drawVertex(false);
       }
     });
-    
+
     canvas.renderAll();
   },
 
@@ -487,7 +487,7 @@ let FormSettingsComponent = {
   },
 
   // Run tests function
-  runTests: function() {
+  runTests: function () {
     if (typeof runTests === 'function' && typeof testToRun !== 'undefined') {
       console.clear();
       console.log("Starting tests from settings panel...");
@@ -498,8 +498,14 @@ let FormSettingsComponent = {
   }
 };
 
-window.addEventListener('load', function () {
-  FormSettingsComponent.loadSettings();
+window.addEventListener('load', async function () {
+  await FormSettingsComponent.loadSettings();
+
+
+  setTimeout(function () {
+    document.getElementById('loading-overlay').style.display = 'none';
+  }, 3000); // 3 second backup timeout
+
 });
 
 // Export the FormSettingsComponent for use in other files

@@ -107,7 +107,9 @@ function vertexToPath(shapeMeta, color) {
       if (next.start == 1) {
         // Handle the last corner (which is also the first corner)
         const finalArc = path.arcs.find(arc => (arc.start == current.label))
-        pathString += drawSegment(pathStart, pathNext, current, finalArc, true)
+        if (finalArc){
+          pathString += drawSegment(pathStart, pathNext, current, finalArc, true)
+        }
         pathString += ' Z'
         pathStart = next
         pathNext = path.vertex[(i + 2) % path.vertex.length];
@@ -375,7 +377,7 @@ class SymbolObject extends BaseGroup {
     
     // Store the new properties
     this.symbol = symbolType;
-    this.xHeight = length * 4; // Convert back to xHeight
+    this.xHeight = length; // Convert back to xHeight
     this.color = color;
     this.symbolAngle = angle;
     
@@ -385,7 +387,8 @@ class SymbolObject extends BaseGroup {
       top: this.top,
       fill: color,
       objectCaching: false,
-      strokeWidth: 0
+      strokeWidth: 0,
+      angle : angle
     };
 
     // Create a new GlyphPath for the symbol

@@ -331,6 +331,7 @@ let FormTextAddComponent = {
       // Clean up
       canvas.off('mouse:move', FormTextAddComponent.TextOnMouseMove);
       canvas.off('mouse:down', FormTextAddComponent.TextOnMouseClick);
+      canvas.discardActiveObject();
 
       // Reset state
       FormTextAddComponent.newTextObject = null;

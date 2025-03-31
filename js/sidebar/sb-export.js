@@ -1,3 +1,5 @@
+var makerjs = require('makerjs');
+
 /* Export Panel */
 let FormExportComponent = {
   // Export settings for canvas objects
@@ -52,6 +54,10 @@ let FormExportComponent = {
     // PDF Export
     GeneralHandler.createButton('export-pdf', 'Export as PDF', buttonContainer, 'input',
       FormExportComponent.exportToPDF, 'click');
+
+    // DXF Export
+    GeneralHandler.createButton('export-dxf', 'Export as DXF (Outline Only)', buttonContainer, 'input',
+      FormExportComponent.exportToDXF, 'click');
   },
 
   // Helper function to prepare canvas for export
@@ -162,6 +168,99 @@ let FormExportComponent = {
     canvas.renderAll();
   },
 
+  combineSvgPaths: function (svgString) {
+            // Helper function to apply transformations
+    function applyTransform(pathData, transform) {
+      let commands = pathData.match(/[a-zA-Z][^a-zA-Z]*/g);
+      let transformedCommands = [];
+      let translate = { x: 0, y: 0 };
+      let rotate = { angle: 0, cx: 0, cy: 0 };
+
+      // Parse the transform string
+      if (transform) {
+          let translateMatch = transform.match(/translate\(([^)]+)\)/);
+          if (translateMatch) {
+              let [x, y] = translateMatch[1].split(/\s*,\s*|\s+/).map(Number);
+              translate = { x: x || 0, y: y || 0 };
+          }
+
+          let rotateMatch = transform.match(/rotate\(([^)]+)\)/);
+          if (rotateMatch) {
+              let [angle, cx, cy] = rotateMatch[1].split(/\s*,\s*|\s+/).map(Number);
+              rotate = { angle: angle || 0, cx: cx || 0, cy: cy || 0 };
+          }
+      }
+
+      // Apply transformations to each command
+      for (let command of commands) {
+          let type = command[0];
+          let coords = command.slice(1).trim().split(/\s*,\s*|\s+/).map(Number);
+
+          if (type === 'M' || type === 'L' || type === 'C' || type === 'Q') {
+              for (let i = 0; i < coords.length; i += 2) {
+                  let x = coords[i];
+                  let y = coords[i + 1];
+
+                  // Apply translation
+                  x += translate.x;
+                  y += translate.y;
+
+                  // Apply rotation
+                  if (rotate.angle !== 0) {
+                      let rad = (rotate.angle * Math.PI) / 180;
+                      let cos = Math.cos(rad);
+                      let sin = Math.sin(rad);
+                      let dx = x - rotate.cx;
+                      let dy = y - rotate.cy;
+                      x = rotate.cx + dx * cos - dy * sin;
+                      y = rotate.cy + dx * sin + dy * cos;
+                  }
+
+                  coords[i] = x;
+                  coords[i + 1] = y;
+              }
+          }
+
+          transformedCommands.push(type + ' ' + coords.join(' '));
+      }
+
+      return transformedCommands.join(' ');
+      }
+  
+      // Parse the SVG string into a DOM element
+      var parser = new DOMParser();
+      var svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
+      var svgElement = svgDoc.documentElement;
+  
+      // Get all path elements within the SVG
+      var paths = svgElement.getElementsByTagName('path');
+      var combinedPathData = '';
+  
+      // Get the transform attribute from the SVG element
+      var svgTransform = svgElement.getAttribute('transform');
+  
+      // Loop through each path element and append its 'd' attribute to the combined path data
+      for (var i = 0; i < paths.length; i++) {
+          var path = paths[i];
+          var pathData = path.getAttribute('d');
+          var pathTransform = path.getAttribute('transform');
+          if (pathData !== ''){
+
+            // Apply transformations if present
+            if (svgTransform) {
+                pathData = applyTransform(pathData, svgTransform);
+            }
+            if (pathTransform) {
+                pathData = applyTransform(pathData, pathTransform);
+            }
+    
+            combinedPathData += pathData + ' ';
+          }
+      }
+  
+      return combinedPathData.trim();
+  },
+
   exportToPNG: function () {
     const options = {
       format: 'png',
@@ -244,14 +343,69 @@ let FormExportComponent = {
     URL.revokeObjectURL(url);
   },
 
+  exportToDXF: function () {
+    // Prepare canvas for export
+    const originalState = FormExportComponent.prepareCanvasForExport();
+
+    const includeBackground = GeneralHandler.getToggleValue('Include Background-container') === 'Yes';
+
+    // Add a temporary background rectangle if background should be included
+    if (includeBackground && originalState.exportBounds) {
+      // Add a temporary background rectangle that matches the export bounds
+      const bgColor = canvas.backgroundColor || '#ffffff';
+      const bgRect = new fabric.Rect({
+        left: originalState.exportBounds.left,
+        top: originalState.exportBounds.top,
+        width: originalState.exportBounds.width,
+        height: originalState.exportBounds.height,
+        fill: bgColor,
+        selectable: false,
+        evented: false,
+        id: 'temp-export-bg'
+      });
+
+      // Insert at the bottom of the stack
+      canvas.insertAt(0, bgRect);
+      originalState.tempBackgroundRect = bgRect;
+    }
+
+    // Generate the SVG data
+    const svgData = canvas.toSVG();
+
+    // Remove temporary background rectangle if it was added
+    if (originalState.tempBackgroundRect) {
+      canvas.remove(originalState.tempBackgroundRect);
+    }
+
+    // Restore canvas
+    FormExportComponent.restoreCanvasAfterExport(originalState);
+
+    // Create the download
+    var options = {
+      bezierAccuracy: 1 // Adjust this value as needed
+    };
+    const svgPath = FormExportComponent.combineSvgPaths(svgData)
+    var model = makerjs.importer.fromSVGPathData(svgPath, options);
+    const exportData = makerjs.exporter.toDXF(model)
+    const blob = new Blob([exportData], { type: 'application/dxf' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = `${FormExportComponent.exportSettings.filename}.dxf`;
+    link.href = url;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  },
+
   exportToPDF: function () {
     try {
       // Prepare canvas for export first
       const originalState = FormExportComponent.prepareCanvasForExport();
-      
+
       const includeGrid = GeneralHandler.getToggleValue('Include Grid-container') === 'Yes';
       const includeBackground = GeneralHandler.getToggleValue('Include Background-container') === 'Yes';
-      
+
       // Special handling for grid to prevent color issues
       if (includeGrid) {
         // Temporarily adjust grid properties if needed
@@ -262,7 +416,7 @@ let FormExportComponent = {
             opacity: gridObj.opacity,
             stroke: gridObj.stroke
           };
-          
+
           // Adjust grid to render better in PDF
           gridObj.opacity = 0.8;
           canvas.renderAll();
@@ -270,10 +424,10 @@ let FormExportComponent = {
       }
 
       // Use the calculated bounds for PDF dimensions with proper padding
-      const width = originalState.exportBounds ? 
-                    Math.ceil(originalState.exportBounds.width) : canvas.width;
-      const height = originalState.exportBounds ? 
-                    Math.ceil(originalState.exportBounds.height) : canvas.height;
+      const width = originalState.exportBounds ?
+        Math.ceil(originalState.exportBounds.width) : canvas.width;
+      const height = originalState.exportBounds ?
+        Math.ceil(originalState.exportBounds.height) : canvas.height;
 
       // Create a new jsPDF instance with appropriate orientation
       const pdf = new jsPDF({
@@ -294,7 +448,7 @@ let FormExportComponent = {
       if (originalState.tempBackgroundRect) {
         canvas.remove(originalState.tempBackgroundRect);
       }
-      
+
       // Restore grid properties if they were modified
       if (includeGrid && originalState.gridProps) {
         const gridObj = canvas.getObjects().find(obj => obj.id === 'grid');
@@ -317,14 +471,14 @@ let FormExportComponent = {
       // Save the PDF - use setTimeout to prevent UI blocking
       setTimeout(() => {
         pdf.save(`${FormExportComponent.exportSettings.filename}.pdf`);
-        
+
         // Restore the canvas after PDF creation
         FormExportComponent.restoreCanvasAfterExport(originalState);
       }, 100);
     } catch (error) {
       console.error("PDF export failed:", error);
       alert("PDF export failed. Please try again with different settings.");
-      
+
       // Ensure canvas is restored even if export fails
       try {
         FormExportComponent.restoreCanvasAfterExport(originalState);
