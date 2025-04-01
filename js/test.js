@@ -488,7 +488,7 @@ const ShapeTest = {
     // Check English text using tracker
     const englishTextV1 = englishText.getBasePolygonVertex('E1');
     passed = passed && englishText.functionalType === 'Text' && TestTracker.trackLine();
-    
+
     // Update the position checks to use the base group position instead of vertex position
     passed = passed && TestTracker.assert(englishText.left, -1050, "English text left position incorrect", 20);
     passed = passed && TestTracker.assert(englishText.top, -1000, "English text top position incorrect", 20);
@@ -496,7 +496,7 @@ const ShapeTest = {
     // Check Chinese text using tracker
     const chineseTextV1 = chineseText.getBasePolygonVertex('E1');
     passed = passed && chineseText.functionalType === 'Text';
-    
+
     // Update the position checks for Chinese text
     passed = passed && TestTracker.assert(chineseText.left, -1050, "Chinese text left position incorrect", 20);
     passed = passed && TestTracker.assert(chineseText.top, -800, "Chinese text top position incorrect", 20);
@@ -914,7 +914,7 @@ const BorderTest = {
       'stack',
       [aboveObject, belowObject, divider],
       [aboveObject, belowObject, divider],
-      null,null,
+      null, null,
       { xHeight: 100, borderType: 'stack', colorType: 'Yellow Background' }
     );
     TestTracker.register("combinedBorder", borderGroup);
@@ -1613,7 +1613,7 @@ testToRun = [
 async function runTests(tests) {
   console.log("======== RUNNING TESTS ========\n");
 
-  
+
 
   for (const test of tests) {
     await test();
@@ -1628,3 +1628,102 @@ window.addEventListener("load", () => {
     runTests(testToRun);
   }
 });
+
+/**
+ * Test for TextObject to DXF export
+ * This test verifies that a TextObject maintains its position when exported to DXF
+ */
+function testTextObjectDXFExport() {
+  // Create a new DXF document using our npm module
+  const dxf = new DxfWriter();
+
+  // Set document properties
+  dxf.setUnits('Millimeters');
+  dxf.addLayer('Outlines', 1, 'continuous', 'red');
+
+  // Create a test text object at a specific position
+  const textPosition = { left: 200, top: 150 };
+  const testText = new TextObject({
+    text: 'O',
+    left: textPosition.left,
+    top: textPosition.top,
+    xHeight: 100,
+    color: '#ffffff',
+    font: 'TransportMedium'
+  });
+
+  // Add text to canvas temporarily
+  canvas.add(testText);
+  canvas.renderAll();
+
+  // Export to DXF using the existing FormExportComponent.exportToDXF function
+  // This is asynchronous since the exportToDXF function creates a blob and triggers a download
+
+  const pathObject = [];
+  FormExportComponent.collectPathObjects(testText, pathObject);
+
+  const minX = testText.left;
+  const minY = testText.top;
+  pathObject.forEach(path => {
+    FormExportComponent.processPathForDXF(path, dxf, minX, minY);
+  })
+
+  // Generate the DXF content
+  const dxfContent = dxf.toDxfString();
+
+  verifyTextPositionInDXF(dxfContent, testText)
+
+  // Create download link
+  const blob = new Blob([dxfContent], { type: 'application/dxf' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.download = `${FormExportComponent.exportSettings.filename}.dxf`;
+  link.href = url;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * Helper function to verify text position in DXF content
+ * @param {string} dxfContent - The DXF content string
+ * @param {Object} originalPosition - Original position {left, top}
+ * @returns {string} - Test result message
+ */
+function verifyTextPositionInDXF(dxfContent, originalPosition) {
+  // A basic check for coordinates in the DXF
+  // DXF format has coordinates after code 10 (X) and 20 (Y)
+
+  // Find position entries in DXF
+  const positionEntries = [];
+  const lines = dxfContent.split('\n');
+
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].trim() === '10') { // X coordinate identifier
+      const xValue = parseFloat(lines[i + 1]);
+
+      if (lines[i + 2].trim() === '20') { // Y coordinate identifier
+        const yValue = parseFloat(lines[i + 3]);
+        positionEntries.push({ x: xValue, y: yValue });
+      }
+    }
+  }
+
+  // Check if any position is close to the original text position
+  const tolerance = 1; // Allow 1 unit of tolerance for floating point precision
+  const positionMatched = positionEntries.some(pos =>
+    Math.abs(pos.x - originalPosition.left) <= tolerance &&
+    Math.abs(pos.y - originalPosition.top) <= tolerance
+  );
+
+  if (positionMatched) {
+    return `✅ Text position verified in DXF output! Original: (${originalPosition.left}, ${originalPosition.top})`;
+  } else {
+    if (positionEntries.length > 0) {
+      return `❌ Text position not found in DXF! Original: (${originalPosition.left}, ${originalPosition.top}), Found positions: ${JSON.stringify(positionEntries.slice(0, 3))}...`;
+    } else {
+      return `❌ No position coordinates found in DXF output!`;
+    }
+  }
+}

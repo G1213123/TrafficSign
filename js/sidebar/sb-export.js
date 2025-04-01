@@ -171,20 +171,20 @@ let FormExportComponent = {
     var parser = new DOMParser();
     var svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
     var svgElement = svgDoc.documentElement;
-    
+
     // Get attributes that might affect position
     var viewBox = svgElement.getAttribute('viewBox');
     var viewBoxValues = viewBox ? viewBox.split(' ').map(Number) : [0, 0, 0, 0];
     var viewBoxX = viewBoxValues[0] || 0;
     var viewBoxY = viewBoxValues[1] || 0;
-    
+
     // Get all path elements containing lines and curves
     var paths = svgElement.getElementsByTagName('path');
     var lines = svgElement.getElementsByTagName('line');
-    
+
     // Use a single combined path for DXF export
     var combinedPathData = '';
-    
+
     // Function to apply transformation matrix to a point
     function applyTransform(matrix, x, y) {
       return {
@@ -192,27 +192,27 @@ let FormExportComponent = {
         y: matrix.b * x + matrix.d * y + matrix.f
       };
     }
-    
+
     // Function to get transformation matrix from a transform attribute
     function getTransformMatrix(element) {
       // Create a default identity matrix
-      var matrix = {a: 1, b: 0, c: 0, d: 1, e: 0, f: 0};
-      
+      var matrix = { a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 };
+
       // Handle parent transformations recursively
       var currentElement = element;
       var transformList = [];
-      
+
       while (currentElement && currentElement !== svgElement) {
         if (currentElement.getAttribute('transform')) {
           transformList.unshift(currentElement.getAttribute('transform'));
         }
         currentElement = currentElement.parentElement;
       }
-      
+
       // Apply all transformations
       for (var i = 0; i < transformList.length; i++) {
         var transform = transformList[i];
-        
+
         // Parse transform attribute (simplified for common transforms)
         if (transform.includes('translate')) {
           var translateMatch = transform.match(/translate\s*\(\s*([^,\s]+)(?:\s*,\s*([^,\s]+))?\s*\)/);
@@ -224,25 +224,25 @@ let FormExportComponent = {
             matrix.f += ty;
           }
         }
-        
+
         if (transform.includes('rotate')) {
           var rotateMatch = transform.match(/rotate\s*\(\s*([^,\s]+)(?:\s*,\s*([^,\s]+)(?:\s*,\s*([^,\s]+))?)?\s*\)/);
           if (rotateMatch) {
             var angle = parseFloat(rotateMatch[1]) || 0;
             var cx = parseFloat(rotateMatch[2]) || 0;
             var cy = parseFloat(rotateMatch[3]) || 0;
-            
+
             // Convert angle to radians
             var rad = angle * Math.PI / 180;
             var cos = Math.cos(rad);
             var sin = Math.sin(rad);
-            
+
             // If rotation is around a point other than origin
             if (cx !== 0 || cy !== 0) {
               // Translate to origin
               matrix.e += cx;
               matrix.f += cy;
-              
+
               // Apply rotation
               var newA = matrix.a * cos - matrix.b * sin;
               var newB = matrix.a * sin + matrix.b * cos;
@@ -252,7 +252,7 @@ let FormExportComponent = {
               matrix.b = newB;
               matrix.c = newC;
               matrix.d = newD;
-              
+
               // Translate back
               matrix.e -= cx;
               matrix.f -= cy;
@@ -270,18 +270,18 @@ let FormExportComponent = {
           }
         }
       }
-      
+
       return matrix;
     }
-    
+
     // Process all path elements (which contain lines and curves)
     for (var i = 0; i < paths.length; i++) {
       var path = paths[i];
       var pathData = path.getAttribute('d');
-      
+
       if (pathData && pathData.trim() !== '') {
         var matrix = getTransformMatrix(path);
-        
+
         // Create a simplified path object by extracting control points
         var commands = pathData.match(/[MmLlCcQqTtSsAaZz][^MmLlCcQqTtSsAaZz]*/g) || [];
         var currentX = 0;
@@ -289,11 +289,11 @@ let FormExportComponent = {
         var firstX = 0;
         var firstY = 0;
         var transformedPath = '';
-        
+
         for (var j = 0; j < commands.length; j++) {
           var command = commands[j][0]; // First character is the command type
           var params = commands[j].substring(1).trim().split(/[\s,]+/).map(parseFloat).filter(p => !isNaN(p));
-          
+
           switch (command) {
             case 'M': // Move to (absolute)
               if (params.length >= 2) {
@@ -301,35 +301,35 @@ let FormExportComponent = {
                 currentY = params[1];
                 firstX = currentX;
                 firstY = currentY;
-                
+
                 // Transform the point
                 var transformed = applyTransform(matrix, currentX, currentY);
                 currentX = transformed.x;
                 currentY = transformed.y;
                 firstX = currentX;
                 firstY = currentY;
-                
+
                 // Add to transformed path
                 transformedPath += 'M ' + currentX.toFixed(3) + ' ' + currentY.toFixed(3) + ' ';
               }
               break;
-              
+
             case 'L': // Line to (absolute)
               if (params.length >= 2) {
                 var x = params[0];
                 var y = params[1];
-                
+
                 // Transform end point
                 var end = applyTransform(matrix, x, y);
-                
+
                 // Add to transformed path
                 transformedPath += 'L ' + end.x.toFixed(3) + ' ' + end.y.toFixed(3) + ' ';
-                
+
                 currentX = end.x;
                 currentY = end.y;
               }
               break;
-              
+
             case 'C': // Cubic bezier (absolute)
               if (params.length >= 6) {
                 var x1 = params[0];
@@ -338,29 +338,29 @@ let FormExportComponent = {
                 var y2 = params[3];
                 var x = params[4];
                 var y = params[5];
-                
+
                 // Transform all control points
                 var cp1 = applyTransform(matrix, x1, y1);
                 var cp2 = applyTransform(matrix, x2, y2);
                 var end = applyTransform(matrix, x, y);
-                
+
                 // Add to transformed path
-                transformedPath += 'C ' + 
+                transformedPath += 'C ' +
                   cp1.x.toFixed(3) + ' ' + cp1.y.toFixed(3) + ' ' +
                   cp2.x.toFixed(3) + ' ' + cp2.y.toFixed(3) + ' ' +
                   end.x.toFixed(3) + ' ' + end.y.toFixed(3) + ' ';
-                
+
                 currentX = end.x;
                 currentY = end.y;
               }
               break;
-              
+
             case 'Z': // Close path
               transformedPath += 'Z ';
               currentX = firstX;
               currentY = firstY;
               break;
-              
+
             // For any other commands, we just leave them unchanged for now
             default:
               // This handles lowercase (relative) commands and others not explicitly handled
@@ -368,12 +368,12 @@ let FormExportComponent = {
               break;
           }
         }
-        
+
         // Add this path's transformed data to the combined path
         combinedPathData += transformedPath + ' ';
       }
     }
-    
+
     // Process direct line elements
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i];
@@ -381,16 +381,16 @@ let FormExportComponent = {
       var y1 = parseFloat(line.getAttribute('y1') || 0);
       var x2 = parseFloat(line.getAttribute('x2') || 0);
       var y2 = parseFloat(line.getAttribute('y2') || 0);
-      
+
       var matrix = getTransformMatrix(line);
       var start = applyTransform(matrix, x1, y1);
       var end = applyTransform(matrix, x2, y2);
-      
+
       // Add to combined path as a move + line
       combinedPathData += 'M ' + start.x.toFixed(3) + ' ' + start.y.toFixed(3) + ' ';
       combinedPathData += 'L ' + end.x.toFixed(3) + ' ' + end.y.toFixed(3) + ' ';
     }
-    
+
     return combinedPathData.trim();
   },
 
@@ -483,216 +483,25 @@ let FormExportComponent = {
     try {
       // Create a new DXF document using our npm module
       const dxf = new DxfWriter();
-      
+
       // Set document properties
       dxf.setUnits('Millimeters');
       dxf.addLayer('Outlines', 1, 'continuous', 'red');
-      
+
       // Check if we have any objects to export
       if (!canvasObject || canvasObject.length === 0) {
         throw new Error('No objects available for export');
       }
-      
+
       // Track the bounds to adjust coordinates later
       let minX = Infinity, minY = Infinity;
       const pathObjects = [];
-      
-      // First, recursively collect all path objects
-      function collectPathObjects(obj) {
-        // Skip grid objects
-        if (obj.id === 'grid') return;
-        
-        // Special handling for TextObjects - collect both frames and character paths
-        if (obj.functionalType === 'Text') {
-          // Process text frames if available
-          if (obj.txtFrameList) {
-            obj.txtFrameList.forEach(frame => {
-              // Get proper frame position relative to text object
-              const frameOffsetX = frame.left || 0;
-              const frameOffsetY = frame.top || 0;
-              
-              // Create a path representing the text frame
-              const framePoints = [
-                { x: obj.left + frameOffsetX, y: obj.top + frameOffsetY },
-                { x: obj.left + frameOffsetX + frame.width, y: obj.top + frameOffsetY },
-                { x: obj.left + frameOffsetX + frame.width, y: obj.top + frameOffsetY + frame.height },
-                { x: obj.left + frameOffsetX, y: obj.top + frameOffsetY + frame.height }
-              ];
-              
-              // Create a synthetic path object from the frame
-              const framePath = {
-                type: 'path',
-                path: [
-                  ['M', framePoints[0].x, framePoints[0].y],
-                  ['L', framePoints[1].x, framePoints[1].y],
-                  ['L', framePoints[2].x, framePoints[2].y],
-                  ['L', framePoints[3].x, framePoints[3].y],
-                  ['Z']
-                ],
-                isOuterPath: true // Mark as outer path for proper hole handling
-              };
-              
-              pathObjects.push(framePath);
-            });
-          }
-          
-          // Process text character paths if available
-          if (obj.txtCharList && obj.txtCharList.length > 0) {
-            obj.txtCharList.forEach(charObj => {
-              if (charObj && charObj.type === 'path' && charObj.path) {
-                // Create a copy of the path to preserve the original
-                const pathCopy = {
-                  type: 'path',
-                  path: charObj.path.slice(),
-                  left: charObj.left,
-                  top: charObj.top,
-                  scaleX: charObj.scaleX || 1,
-                  scaleY: charObj.scaleY || 1,
-                  angle: charObj.angle || 0
-                };
-                
-                // Apply transformations based on the character's position within the text object
-                const transformedPath = FormExportComponent.transformPath(
-                  pathCopy,
-                  obj.left,
-                  obj.top
-                );
-                
-                if (transformedPath) {
-                  pathObjects.push(transformedPath);
-                }
-              }
-            });
-          }
-          return;
-        }
-        
-        // Handle SVG paths with potential holes
-        if (obj.basePolygon && obj.basePolygon.type === 'path' && obj.basePolygon.path) {
-          // Add the complete path object from basePolygon
-          const rawPath = obj.basePolygon;
-          
-          // Add as a regular path
-          pathObjects.push({
-            type: 'path',
-            path: rawPath.path,
-            isOuterPath: true, // Mark as potentially having holes
-            left: rawPath.left || 0,
-            top: rawPath.top || 0,
-            scaleX: rawPath.scaleX || 1,
-            scaleY: rawPath.scaleY || 1
-          });
-        }
-        // If the object has a basePolygon with _objects
-        else if (obj.basePolygon && obj.basePolygon._objects) {
-          obj.basePolygon._objects.forEach(nestedObj => {
-            collectNestedPathObjects(nestedObj, pathObjects, obj);
-          });
-        } 
-        // If it's a fabric Group object that might contain paths
-        else if (obj.type === 'group' && obj._objects) {
-          obj._objects.forEach(nestedObj => {
-            collectNestedPathObjects(nestedObj, pathObjects, obj);
-          });
-        }
-        // Direct path objects
-        else if (obj.type === 'path') {
-          // Add path direction info (clockwise/counterclockwise) for hole detection
-          const pathWithDirection = {
-            ...obj,
-            isOuterPath: FormExportComponent.isClockwise(obj.path)
-          };
-          pathObjects.push(pathWithDirection);
-        }
-        // Direct rect objects
-        else if (obj.type === 'rect') {
-          const rectPathObj = convertRectToPath(obj);
-          if (rectPathObj) {
-            rectPathObj.isOuterPath = true; // Rectangles are always outer paths
-            pathObjects.push(rectPathObj);
-          }
-        }
-      }
-      
-      // Function to recursively collect path objects from nested structures
-      function collectNestedPathObjects(obj, collection, parentObj) {
-        // Skip nulls or undefined
-        if (!obj) return;
-        
-        if (obj.type === 'path') {
-          // Determine if the path is an outer path or a hole (inner path)
-          const isClockwise = FormExportComponent.isClockwise(obj.path);
-          const pathWithDirection = {
-            ...obj,
-            isOuterPath: isClockwise,
-            parentObj: parentObj
-          };
-          collection.push(pathWithDirection);
-        } 
-        else if (obj.type === 'rect') {
-          const rectPathObj = convertRectToPath(obj);
-          if (rectPathObj) {
-            rectPathObj.isOuterPath = true; // Rectangles are always outer paths
-            rectPathObj.parentObj = parentObj;
-            collection.push(rectPathObj);
-          }
-        }
-        else if (obj.type === 'group' && obj._objects) {
-          obj._objects.forEach(nestedObj => {
-            collectNestedPathObjects(nestedObj, collection, parentObj || obj);
-          });
-        }
-      }
-      
-      // Helper function to convert a rectangle to a path object
-      function convertRectToPath(rectObj) {
-        if (!rectObj || !rectObj.width || !rectObj.height) return null;
-        
-        // Get the actual position of the rect considering its parent transformations
-        let left = rectObj.left || 0;
-        let top = rectObj.top || 0;
-        let width = rectObj.width;
-        let height = rectObj.height;
-        
-        // If the rect is part of a group, we need to apply the group's transformations
-        if (rectObj.group) {
-          const transformMatrix = rectObj.group.calcTransformMatrix();
-          const tl = fabric.util.transformPoint({x: left, y: top}, transformMatrix);
-          const tr = fabric.util.transformPoint({x: left + width, y: top}, transformMatrix);
-          const br = fabric.util.transformPoint({x: left + width, y: top + height}, transformMatrix);
-          const bl = fabric.util.transformPoint({x: left, y: top + height}, transformMatrix);
-          
-          // Create a pathData array using the transformed points
-          return {
-            type: 'path',
-            path: [
-              ['M', tl.x, tl.y],
-              ['L', tr.x, tr.y],
-              ['L', br.x, br.y],
-              ['L', bl.x, bl.y],
-              ['Z']
-            ]
-          };
-        }
-        
-        // For standalone rects, create a simple path
-        return {
-          type: 'path',
-          path: [
-            ['M', left, top],
-            ['L', left + width, top],
-            ['L', left + width, top + height],
-            ['L', left, top + height],
-            ['Z']
-          ]
-        };
-      }
-      
+
       // Collect all path objects from canvasObject
       canvasObject.forEach(obj => {
-        collectPathObjects(obj);
+        FormExportComponent.collectPathObjects(obj, pathObjects);
       });
-      
+
       // Now find the min bounds across all collected path objects
       pathObjects.forEach(obj => {
         // For normal objects with getBoundingRect
@@ -700,7 +509,7 @@ let FormExportComponent = {
           const bounds = obj.getBoundingRect(true);
           minX = Math.min(minX, bounds.left);
           minY = Math.min(minY, bounds.top);
-        } 
+        }
         // For synthetic path objects (from rectangles or text frames)
         else if (obj.path) {
           obj.path.forEach(cmd => {
@@ -711,19 +520,19 @@ let FormExportComponent = {
           });
         }
       });
-      
+
       // Apply an offset to ensure all objects are in the positive quadrant
       const offsetX = minX < 0 ? -minX : 0;
       const offsetY = minY < 0 ? -minY : 0;
-      
+
       // Process each path object for DXF export
       pathObjects.forEach(pathObj => {
         FormExportComponent.processPathForDXF(pathObj, dxf, offsetX, offsetY);
       });
-      
+
       // Generate the DXF content
       const dxfContent = dxf.toDxfString();
-      
+
       // Create download link
       const blob = new Blob([dxfContent], { type: 'application/dxf' });
       const url = URL.createObjectURL(blob);
@@ -734,7 +543,7 @@ let FormExportComponent = {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      
+
     } catch (error) {
       console.error("DXF export failed:", error);
       alert("DXF export failed: " + error.message);
@@ -743,31 +552,221 @@ let FormExportComponent = {
       FormExportComponent.restoreCanvasAfterExport(originalState);
     }
   },
-  
+
+  // First, recursively collect all path objects
+  collectPathObjects: function (obj, pathObjects) {
+    // Skip grid objects
+    if (obj.id === 'grid') return;
+
+    // Special handling for TextObjects - collect both frames and character paths
+    if (obj.functionalType === 'Text') {
+      // Process text frames if available
+      if (obj.txtFrameList) {
+        obj.txtFrameList.forEach(frame => {
+          // Get proper frame position relative to text object
+          const frameOffsetX = frame.left || 0;
+          const frameOffsetY = frame.top  || 0;
+
+          // Create a path representing the text frame
+          const framePoints = [
+            { x:  frameOffsetX, y:  frameOffsetY },
+            { x:  frameOffsetX + frame.width, y: frameOffsetY },
+            { x:  frameOffsetX + frame.width, y:  frameOffsetY + frame.height },
+            { x:  frameOffsetX, y:  frameOffsetY + frame.height }
+          ];
+
+          // Create a synthetic path object from the frame
+          const framePath = {
+            type: 'path',
+            path: [
+              ['M', framePoints[0].x, framePoints[0].y],
+              ['L', framePoints[1].x, framePoints[1].y],
+              ['L', framePoints[2].x, framePoints[2].y],
+              ['L', framePoints[3].x, framePoints[3].y],
+              ['Z']
+            ],
+          };
+
+          pathObjects.push(framePath);
+        });
+      }
+
+      // Process text character paths if available
+      if (obj.txtCharList && obj.txtCharList.length > 0) {
+        obj.txtCharList.forEach(charObj => {
+          if (charObj && charObj.type === 'path' && charObj.path) {
+            // Create a copy of the path to preserve the original
+            const pathCopy = {
+              type: 'path',
+              path: charObj.path.slice(),
+              left: charObj.left  ,
+              top: charObj.top    ,
+              scaleX: charObj.scaleX || 1,
+              scaleY: charObj.scaleY || 1,
+              angle: charObj.angle || 0
+            };
+
+            // Apply transformations based on the character's position within the text object
+            const transformedPath = FormExportComponent.transformPath(
+              pathCopy,
+              obj.left,
+              obj.top
+            );
+
+            if (transformedPath) {
+              pathObjects.push(transformedPath);
+            }
+          }
+        });
+      }
+      return;
+    }
+
+    // Handle SVG paths with potential holes
+    if (obj.basePolygon && obj.basePolygon.type === 'path' && obj.basePolygon.path) {
+      // Add the complete path object from basePolygon
+      const rawPath = obj.basePolygon;
+
+      // Add as a regular path
+      pathObjects.push({
+        type: 'path',
+        path: rawPath.path,
+        isOuterPath: true, // Mark as potentially having holes
+        left: rawPath.left || 0,
+        top: rawPath.top || 0,
+        scaleX: rawPath.scaleX || 1,
+        scaleY: rawPath.scaleY || 1
+      });
+    }
+    // If the object has a basePolygon with _objects
+    else if (obj.basePolygon && obj.basePolygon._objects) {
+      obj.basePolygon._objects.forEach(nestedObj => {
+        FormExportComponent.collectNestedPathObjects(nestedObj, pathObjects, obj);
+      });
+    }
+    // If it's a fabric Group object that might contain paths
+    else if (obj.type === 'group' && obj._objects) {
+      obj._objects.forEach(nestedObj => {
+        FormExportComponent.collectNestedPathObjects(nestedObj, pathObjects, obj);
+      });
+    }
+    // Direct path objects
+    else if (obj.type === 'path') {
+      // Add path direction info (clockwise/counterclockwise) for hole detection
+      const pathWithDirection = {
+        ...obj,
+        isOuterPath: FormExportComponent.isClockwise(obj.path)
+      };
+      pathObjects.push(pathWithDirection);
+    }
+    // Direct rect objects
+    else if (obj.type === 'rect') {
+      const rectPathObj = FormExportComponent.convertRectToPath(obj);
+      if (rectPathObj) {
+        rectPathObj.isOuterPath = true; // Rectangles are always outer paths
+        pathObjects.push(rectPathObj);
+      }
+    }
+  },
+
+  // Function to recursively collect path objects from nested structures
+  collectNestedPathObjects: function (obj, collection, parentObj) {
+    // Skip nulls or undefined
+    if (!obj) return;
+
+    if (obj.type === 'path') {
+      // Determine if the path is an outer path or a hole (inner path)
+      const isClockwise = FormExportComponent.isClockwise(obj.path);
+      const pathWithDirection = {
+        ...obj,
+        isOuterPath: isClockwise,
+        parentObj: parentObj
+      };
+      collection.push(pathWithDirection);
+    }
+    else if (obj.type === 'rect') {
+      const rectPathObj = FormExportComponent.convertRectToPath(obj);
+      if (rectPathObj) {
+        rectPathObj.isOuterPath = true; // Rectangles are always outer paths
+        rectPathObj.parentObj = parentObj;
+        collection.push(rectPathObj);
+      }
+    }
+    else if (obj.type === 'group' && obj._objects) {
+      obj._objects.forEach(nestedObj => {
+        FormExportComponent.collectNestedPathObjects(nestedObj, collection, parentObj || obj);
+      });
+    }
+  },
+
+  // Helper function to convert a rectangle to a path object
+  convertRectToPath: function (rectObj) {
+    if (!rectObj || !rectObj.width || !rectObj.height) return null;
+
+    // Get the actual position of the rect considering its parent transformations
+    let left = rectObj.left || 0;
+    let top = rectObj.top || 0;
+    let width = rectObj.width;
+    let height = rectObj.height;
+
+    // If the rect is part of a group, we need to apply the group's transformations
+    if (rectObj.group) {
+      const transformMatrix = rectObj.group.calcTransformMatrix();
+      const tl = fabric.util.transformPoint({ x: left, y: top }, transformMatrix);
+      const tr = fabric.util.transformPoint({ x: left + width, y: top }, transformMatrix);
+      const br = fabric.util.transformPoint({ x: left + width, y: top + height }, transformMatrix);
+      const bl = fabric.util.transformPoint({ x: left, y: top + height }, transformMatrix);
+
+      // Create a pathData array using the transformed points
+      return {
+        type: 'path',
+        path: [
+          ['M', tl.x, tl.y],
+          ['L', tr.x, tr.y],
+          ['L', br.x, br.y],
+          ['L', bl.x, bl.y],
+          ['Z']
+        ]
+      };
+    }
+
+    // For standalone rects, create a simple path
+    return {
+      type: 'path',
+      path: [
+        ['M', left, top],
+        ['L', left + width, top],
+        ['L', left + width, top + height],
+        ['L', left, top + height],
+        ['Z']
+      ]
+    };
+  },
+
   // Helper method to process a path object for DXF export
-  processPathForDXF: function(pathObj, dxf, offsetX, offsetY) {
+  processPathForDXF: function (pathObj, dxf, offsetX, offsetY) {
     // Convert path to polyline
     const pathData = pathObj.path || [];
     let currentX = 0, currentY = 0;
     let points = [];
-    
+
     for (let i = 0; i < pathData.length; i++) {
       const command = pathData[i][0];
       const values = pathData[i].slice(1);
-      
+
       switch (command) {
         case 'M': // moveTo
           currentX = values[0] + offsetX;
           currentY = -(values[1] + offsetY); // Flip Y coordinate for DXF
           points = [[currentX, currentY]];
           break;
-          
+
         case 'L': // lineTo
           currentX = values[0] + offsetX;
           currentY = -(values[1] + offsetY); // Flip Y coordinate for DXF
           points.push([currentX, currentY]);
           break;
-          
+
         case 'C': // bezierCurveTo - approximate with multiple line segments
           const startX = currentX;
           const startY = currentY;
@@ -777,25 +776,25 @@ let FormExportComponent = {
           const cp2y = -(values[3] + offsetY); // Flip Y coordinate for DXF
           const endX = values[4] + offsetX;
           const endY = -(values[5] + offsetY); // Flip Y coordinate for DXF
-          
+
           // Add several points along the bezier curve to approximate it
           for (let t = 0.1; t <= 1; t += 0.1) {
-            const bx = Math.pow(1-t, 3) * startX + 
-                     3 * Math.pow(1-t, 2) * t * cp1x + 
-                     3 * (1-t) * Math.pow(t, 2) * cp2x + 
-                     Math.pow(t, 3) * endX;
-                     
-            const by = Math.pow(1-t, 3) * startY + 
-                     3 * Math.pow(1-t, 2) * t * cp1y + 
-                     3 * (1-t) * Math.pow(t, 2) * cp2y + 
-                     Math.pow(t, 3) * endY;
-                     
+            const bx = Math.pow(1 - t, 3) * startX +
+              3 * Math.pow(1 - t, 2) * t * cp1x +
+              3 * (1 - t) * Math.pow(t, 2) * cp2x +
+              Math.pow(t, 3) * endX;
+
+            const by = Math.pow(1 - t, 3) * startY +
+              3 * Math.pow(1 - t, 2) * t * cp1y +
+              3 * (1 - t) * Math.pow(t, 2) * cp2y +
+              Math.pow(t, 3) * endY;
+
             points.push([bx, by]);
           }
           currentX = endX;
           currentY = endY;
           break;
-          
+
         case 'Q': // quadraticCurveTo - approximate with multiple line segments
           const qStartX = currentX;
           const qStartY = currentY;
@@ -803,31 +802,31 @@ let FormExportComponent = {
           const qCpy = -(values[1] + offsetY); // Flip Y coordinate for DXF
           const qEndX = values[2] + offsetX;
           const qEndY = -(values[3] + offsetY); // Flip Y coordinate for DXF
-          
+
           // Add several points along the quadratic curve to approximate it
           for (let t = 0.1; t <= 1; t += 0.1) {
             // Quadratic Bezier formula: B(t) = (1-t)^2*P0 + 2(1-t)t*P1 + t^2*P2
-            const qbx = Math.pow(1-t, 2) * qStartX + 
-                      2 * (1-t) * t * qCpx + 
-                      Math.pow(t, 2) * qEndX;
-                     
-            const qby = Math.pow(1-t, 2) * qStartY + 
-                      2 * (1-t) * t * qCpy + 
-                      Math.pow(t, 2) * qEndY;
-                     
+            const qbx = Math.pow(1 - t, 2) * qStartX +
+              2 * (1 - t) * t * qCpx +
+              Math.pow(t, 2) * qEndX;
+
+            const qby = Math.pow(1 - t, 2) * qStartY +
+              2 * (1 - t) * t * qCpy +
+              Math.pow(t, 2) * qEndY;
+
             points.push([qbx, qby]);
           }
           currentX = qEndX;
           currentY = qEndY;
           break;
-          
+
         case 'Z': // closePath
           if (points.length > 0 && (points[0][0] !== currentX || points[0][1] !== currentY)) {
             points.push([points[0][0], points[0][1]]);
           }
           break;
       }
-      
+
       if (command === 'Z' || i === pathData.length - 1) {
         if (points.length > 1) {
           // Add the polyline to the DXF
@@ -837,35 +836,44 @@ let FormExportComponent = {
       }
     }
   },
-  
+
   // Helper method to transform a path based on parent position
-  transformPath: function(pathObj, parentLeft, parentTop) {
+  transformPath: function (pathObj, parentLeft, parentTop) {
     const path = pathObj.path.slice();
-    
+
     // Calculate absolute position of the path in the canvas
     const absLeft = parentLeft + pathObj.left;
     const absTop = parentTop + pathObj.top;
-    
+
     // Apply transformations directly to path commands
     const transformedPath = {
       type: 'path',
       path: []
     };
-    
+
     for (let i = 0; i < path.length; i++) {
       const command = path[i][0];
       const values = path[i].slice(1);
-      
+
       switch (command) {
         case 'M': // moveTo
+        if (i !== 0) {
+          transformedPath.path.push(['Z']);
+        }
+        transformedPath.path.push([
+          command,
+          absLeft + values[0],
+          absTop + values[1]
+        ]);
+        break;
         case 'L': // lineTo
           transformedPath.path.push([
-            command, 
-            absLeft + values[0], 
+            command,
+            absLeft + values[0],
             absTop + values[1]
           ]);
           break;
-          
+
         case 'C': // bezierCurveTo
           transformedPath.path.push([
             command,
@@ -877,7 +885,7 @@ let FormExportComponent = {
             absTop + values[5]
           ]);
           break;
-          
+
         case 'Q': // quadraticCurveTo
           transformedPath.path.push([
             command,
@@ -887,21 +895,21 @@ let FormExportComponent = {
             absTop + values[3]
           ]);
           break;
-          
+
         case 'Z': // closePath
           transformedPath.path.push([command]);
           break;
-          
+
         default:
           transformedPath.path.push(path[i].slice());
           break;
       }
     }
-    
+
     return transformedPath;
   },
 
-  isClockwise: function(path) {
+  isClockwise: function (path) {
     // Calculate the area of the path to determine if it's clockwise or counterclockwise
     let total = 0;
     for (let i = 0; i < path.length - 1; i++) {
@@ -911,6 +919,6 @@ let FormExportComponent = {
     }
     return total > 0;
   },
-} 
+}
 
 // Export the FormExportComponent for use in other files
