@@ -855,8 +855,32 @@ let FormExportComponent = {
     const path = pathObj.path.slice();
 
     // Calculate absolute position of the path in the canvas
-    const minX = Math.min(...path.map(p => p[1]).filter(p => p!==undefined))
-    const minY = Math.min(...path.map(p => p[2]).filter(p => p!==undefined))
+    // Extract all x,y coordinates from all command types
+    let coordinates = [];
+    path.forEach(cmd => {
+      if (cmd.length >= 3 && cmd[1] !== undefined && cmd[2] !== undefined) {
+        // Handle M and L commands
+        coordinates.push({ x: cmd[1], y: cmd[2] });
+      }
+      
+      if (cmd[0] === 'C' && cmd.length >= 7) {
+        // Handle Bézier curve control points
+        coordinates.push({ x: cmd[1], y: cmd[2] }); // First control point
+        coordinates.push({ x: cmd[3], y: cmd[4] }); // Second control point
+        coordinates.push({ x: cmd[5], y: cmd[6] }); // End point
+      }
+      
+      if (cmd[0] === 'Q' && cmd.length >= 5) {
+        // Handle quadratic curve control points
+        coordinates.push({ x: cmd[1], y: cmd[2] }); // Control point
+        coordinates.push({ x: cmd[3], y: cmd[4] }); // End point
+      }
+    });
+    
+    // Find minimum x and y from all collected coordinates
+    const minX = coordinates.length > 0 ? Math.min(...coordinates.map(p => p.x)) : 0;
+    const minY = coordinates.length > 0 ? Math.min(...coordinates.map(p => p.y)) : 0;
+    
     const absLeft = parentLeft + pathObj.left - minX;
     const absTop = parentTop + pathObj.top - minY;
 
