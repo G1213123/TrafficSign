@@ -502,29 +502,6 @@ let FormExportComponent = {
         FormExportComponent.collectPathObjects(obj, pathObjects);
       });
 
-      // Now find the min bounds across all collected path objects
-      //pathObjects.forEach(obj => {
-      //  // For normal objects with getBoundingRect
-      //  if (obj.getBoundingRect) {
-      //    const bounds = obj.getBoundingRect(true);
-      //    minX = Math.min(minX, bounds.left);
-      //    minY = Math.min(minY, bounds.top);
-      //  }
-      //  // For synthetic path objects (from rectangles or text frames)
-      //  else if (obj.path) {
-      //    obj.path.forEach(cmd => {
-      //      if (cmd[0] === 'M' || cmd[0] === 'L') {
-      //        minX = Math.min(minX, cmd[1]);
-      //        minY = Math.min(minY, cmd[2]);
-      //      }
-      //    });
-      //  }
-      //});
-      //
-      //// Apply an offset to ensure all objects are in the positive quadrant
-      //const offsetX = minX < 0 ? -minX : 0;
-      //const offsetY = minY < 0 ? -minY : 0;
-
       // Process each path object for DXF export
       pathObjects.forEach(pathObj => {
         FormExportComponent.processPathForDXF(pathObj, dxf, 0, 0);
@@ -758,96 +735,172 @@ let FormExportComponent = {
 
   // Helper method to process a path object for DXF export
   processPathForDXF: function (pathObj, dxf, offsetX, offsetY) {
-    // Convert path to polyline
+    // Process SVG path data for DXF export
     const pathData = pathObj.path || [];
-    let currentX = 0, currentY = 0;
-    let points = [];
-
-    for (let i = 0; i < pathData.length; i++) {
-      const command = pathData[i][0];
-      const values = pathData[i].slice(1);
-
-      switch (command) {
-        case 'M': // moveTo
-          currentX = values[0] + offsetX;
-          currentY = -(values[1] + offsetY); // Flip Y coordinate for DXF
-          points = [[currentX, currentY]];
-          break;
-
-        case 'L': // lineTo
-          currentX = values[0] + offsetX;
-          currentY = -(values[1] + offsetY); // Flip Y coordinate for DXF
-          points.push([currentX, currentY]);
-          break;
-
-        case 'C': // bezierCurveTo - approximate with multiple line segments
-          const startX = currentX;
-          const startY = currentY;
-          const cp1x = values[0] + offsetX;
-          const cp1y = -(values[1] + offsetY); // Flip Y coordinate for DXF
-          const cp2x = values[2] + offsetX;
-          const cp2y = -(values[3] + offsetY); // Flip Y coordinate for DXF
-          const endX = values[4] + offsetX;
-          const endY = -(values[5] + offsetY); // Flip Y coordinate for DXF
-
-          // Add several points along the bezier curve to approximate it
-          for (let t = 0.1; t <= 1; t += 0.1) {
-            const bx = Math.pow(1 - t, 3) * startX +
-              3 * Math.pow(1 - t, 2) * t * cp1x +
-              3 * (1 - t) * Math.pow(t, 2) * cp2x +
-              Math.pow(t, 3) * endX;
-
-            const by = Math.pow(1 - t, 3) * startY +
-              3 * Math.pow(1 - t, 2) * t * cp1y +
-              3 * (1 - t) * Math.pow(t, 2) * cp2y +
-              Math.pow(t, 3) * endY;
-
-            points.push([bx, by]);
-          }
-          currentX = endX;
-          currentY = endY;
-          break;
-
-        case 'Q': // quadraticCurveTo - approximate with multiple line segments
-          const qStartX = currentX;
-          const qStartY = currentY;
-          const qCpx = values[0] + offsetX;
-          const qCpy = -(values[1] + offsetY); // Flip Y coordinate for DXF
-          const qEndX = values[2] + offsetX;
-          const qEndY = -(values[3] + offsetY); // Flip Y coordinate for DXF
-
-          // Add several points along the quadratic curve to approximate it
-          for (let t = 0.1; t <= 1; t += 0.1) {
-            // Quadratic Bezier formula: B(t) = (1-t)^2*P0 + 2(1-t)t*P1 + t^2*P2
-            const qbx = Math.pow(1 - t, 2) * qStartX +
-              2 * (1 - t) * t * qCpx +
-              Math.pow(t, 2) * qEndX;
-
-            const qby = Math.pow(1 - t, 2) * qStartY +
-              2 * (1 - t) * t * qCpy +
-              Math.pow(t, 2) * qEndY;
-
-            points.push([qbx, qby]);
-          }
-          currentX = qEndX;
-          currentY = qEndY;
-          break;
-
-        case 'Z': // closePath
-          if (points.length > 0 && (points[0][0] !== currentX || points[0][1] !== currentY)) {
-            points.push([points[0][0], points[0][1]]);
-          }
-          break;
-      }
-
-      if (command === 'Z' || i === pathData.length - 1) {
-        if (points.length > 1) {
-          // Add the polyline to the DXF
-          dxf.drawPolyline(points, true);
+    
+    // First, we'll analyze the path to find subpaths (segments starting with 'M')
+    const subpaths = [];
+    let currentSubpath = [];
+    let firstPointInSubpath = null;
+    
+    // Group commands by subpaths
+    pathData.forEach(cmd => {
+      if (cmd[0] === 'M') {
+        // Start a new subpath
+        if (currentSubpath.length > 0) {
+          subpaths.push({
+            commands: currentSubpath,
+            firstPoint: firstPointInSubpath,
+            closed: false
+          });
         }
-        points = [];
+        currentSubpath = [cmd];
+        firstPointInSubpath = [
+          cmd[1] + offsetX,
+          -(cmd[2] + offsetY) // Flip Y coordinate for DXF
+        ];
+      } else {
+        currentSubpath.push(cmd);
+        // Mark if path is closed
+        if (cmd[0] === 'Z') {
+          subpaths.push({
+            commands: currentSubpath,
+            firstPoint: firstPointInSubpath,
+            closed: false
+          });
+          currentSubpath = [];
+          firstPointInSubpath = null;
+        }
       }
+    });
+    
+    // Add the last subpath if it exists and wasn't closed with Z
+    if (currentSubpath.length > 0) {
+      subpaths.push({
+        commands: currentSubpath,
+        firstPoint: firstPointInSubpath,
+        closed: false
+      });
     }
+    
+    // Now process each subpath
+    subpaths.forEach(subpath => {
+      // For each subpath, we'll build spline control points and polyline points
+      let currentX, currentY;
+      let polylinePoints = [];
+      let currentCmd;
+      
+      // Process the commands in this subpath
+      for (let i = 0; i < subpath.commands.length; i++) {
+        currentCmd = subpath.commands[i];
+        const command = currentCmd[0];
+        const values = currentCmd.slice(1);
+        
+        switch (command) {
+          case 'M': // moveTo
+            currentX = values[0] + offsetX;
+            currentY = -(values[1] + offsetY); // Flip Y coordinate for DXF
+            polylinePoints = [[currentX, currentY]];
+            break;
+            
+          case 'L': // lineTo
+            currentX = values[0] + offsetX;
+            currentY = -(values[1] + offsetY); // Flip Y coordinate for DXF
+            polylinePoints.push([currentX, currentY]);
+            break;
+            
+          case 'C': { // bezierCurveTo - use spline for better representation
+            const cp1x = values[0] + offsetX;
+            const cp1y = -(values[1] + offsetY); // Flip Y coordinate for DXF
+            const cp2x = values[2] + offsetX;
+            const cp2y = -(values[3] + offsetY); // Flip Y coordinate for DXF
+            const endX = values[4] + offsetX;
+            const endY = -(values[5] + offsetY); // Flip Y coordinate for DXF
+            
+            // If we have accumulated polyline points, draw them first
+            if (polylinePoints.length > 1) {
+              dxf.drawPolyline(polylinePoints, false);
+              // Start new polyline with the endpoint of the existing one
+              polylinePoints = [[polylinePoints[polylinePoints.length - 1][0], polylinePoints[polylinePoints.length - 1][1]]];
+            }
+            
+            // Create control points for a cubic spline (degree 3)
+            const cubicControlPoints = [
+              [currentX, currentY],   // Start point
+              [cp1x, cp1y],          // First control point
+              [cp2x, cp2y],          // Second control point
+              [endX, endY]           // End point
+            ];
+            
+            // Draw the spline
+            dxf.drawSpline(cubicControlPoints, 3);
+            
+            // Update current position
+            currentX = endX;
+            currentY = endY;
+            
+            // Continue the polyline from here
+            polylinePoints = [[currentX, currentY]];
+            break;
+          }
+            
+          case 'Q': { // quadraticCurveTo - use spline for better representation
+            const qCpx = values[0] + offsetX;
+            const qCpy = -(values[1] + offsetY); // Flip Y coordinate for DXF
+            const qEndX = values[2] + offsetX;
+            const qEndY = -(values[3] + offsetY); // Flip Y coordinate for DXF
+            
+            // If we have accumulated polyline points, draw them first
+            if (polylinePoints.length > 1) {
+              dxf.drawPolyline(polylinePoints, false);
+              // Start new polyline with the endpoint of the existing one
+              polylinePoints = [[polylinePoints[polylinePoints.length - 1][0], polylinePoints[polylinePoints.length - 1][1]]];
+            }
+            
+            // Create control points for a quadratic spline (degree 2)
+            const quadraticControlPoints = [
+              [currentX, currentY],  // Start point
+              [qCpx, qCpy],          // Control point
+              [qEndX, qEndY]         // End point
+            ];
+            
+            // Draw the spline
+            dxf.drawSpline(quadraticControlPoints, 2);
+            
+            // Update current position
+            currentX = qEndX;
+            currentY = qEndY;
+            
+            // Continue the polyline from here
+            polylinePoints = [[currentX, currentY]];
+            break;
+          }
+            
+          case 'Z': // closePath
+            // If we have a first point and it's different from current position,
+            // add it to close the path
+            if (subpath.firstPoint && 
+                (subpath.firstPoint[0] !== currentX || subpath.firstPoint[1] !== currentY)) {
+              polylinePoints.push([subpath.firstPoint[0], subpath.firstPoint[1]]);
+            }
+            break;
+        }
+      }
+      
+      // Draw any remaining polyline points
+      if (polylinePoints.length > 1) {
+        dxf.drawPolyline(polylinePoints, subpath.closed);
+      }
+
+      // Close the path if it was marked as closed
+      if (polylinePoints && polylinePoints.length > 0 ) {
+
+        if (polylinePoints[[polylinePoints.length - 1]][0] !== subpath.firstPoint[0] || 
+            polylinePoints[[polylinePoints.length - 1]][1] !== subpath.firstPoint[1]) {
+          dxf.drawPolyline([polylinePoints[polylinePoints.length - 1], subpath.firstPoint], false);
+        }
+      }
+    });
   },
 
   // Helper method to transform a path based on parent position
