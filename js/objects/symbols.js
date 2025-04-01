@@ -331,15 +331,13 @@ class SymbolObject extends BaseGroup {
     
     // Apply stored symbol properties
     Object.assign(this, symbolProperties);
-    
-    // Set the display name
-    this._showName = `<Group ${this.canvasID}> Symbol - ${symbolType}`;
 
     // Add double-click event handler
     this.on('mousedblclick', this.onDoubleClick.bind(this));
   }
 
   async initialize(symbolPath) {
+    symbolPath.symbol = this.symbol
     // Set the basePolygon that was initially null in the constructor
     this.setBasePolygon(symbolPath)
 

@@ -503,31 +503,31 @@ let FormExportComponent = {
       });
 
       // Now find the min bounds across all collected path objects
-      pathObjects.forEach(obj => {
-        // For normal objects with getBoundingRect
-        if (obj.getBoundingRect) {
-          const bounds = obj.getBoundingRect(true);
-          minX = Math.min(minX, bounds.left);
-          minY = Math.min(minY, bounds.top);
-        }
-        // For synthetic path objects (from rectangles or text frames)
-        else if (obj.path) {
-          obj.path.forEach(cmd => {
-            if (cmd[0] === 'M' || cmd[0] === 'L') {
-              minX = Math.min(minX, cmd[1]);
-              minY = Math.min(minY, cmd[2]);
-            }
-          });
-        }
-      });
-
-      // Apply an offset to ensure all objects are in the positive quadrant
-      const offsetX = minX < 0 ? -minX : 0;
-      const offsetY = minY < 0 ? -minY : 0;
+      //pathObjects.forEach(obj => {
+      //  // For normal objects with getBoundingRect
+      //  if (obj.getBoundingRect) {
+      //    const bounds = obj.getBoundingRect(true);
+      //    minX = Math.min(minX, bounds.left);
+      //    minY = Math.min(minY, bounds.top);
+      //  }
+      //  // For synthetic path objects (from rectangles or text frames)
+      //  else if (obj.path) {
+      //    obj.path.forEach(cmd => {
+      //      if (cmd[0] === 'M' || cmd[0] === 'L') {
+      //        minX = Math.min(minX, cmd[1]);
+      //        minY = Math.min(minY, cmd[2]);
+      //      }
+      //    });
+      //  }
+      //});
+      //
+      //// Apply an offset to ensure all objects are in the positive quadrant
+      //const offsetX = minX < 0 ? -minX : 0;
+      //const offsetY = minY < 0 ? -minY : 0;
 
       // Process each path object for DXF export
       pathObjects.forEach(pathObj => {
-        FormExportComponent.processPathForDXF(pathObj, dxf, offsetX, offsetY);
+        FormExportComponent.processPathForDXF(pathObj, dxf, 0, 0);
       });
 
       // Generate the DXF content
@@ -564,15 +564,15 @@ let FormExportComponent = {
       if (obj.txtFrameList) {
         obj.txtFrameList.forEach(frame => {
           // Get proper frame position relative to text object
-          const frameOffsetX = frame.left || 0;
-          const frameOffsetY = frame.top  || 0;
+          const frameOffsetX = frame.left + obj.width / 2 + obj.left || 0;
+          const frameOffsetY = frame.top + obj.height / 2 + obj.top || 0;
 
           // Create a path representing the text frame
           const framePoints = [
-            { x:  frameOffsetX, y:  frameOffsetY },
-            { x:  frameOffsetX + frame.width, y: frameOffsetY },
-            { x:  frameOffsetX + frame.width, y:  frameOffsetY + frame.height },
-            { x:  frameOffsetX, y:  frameOffsetY + frame.height }
+            { x: frameOffsetX, y: frameOffsetY },
+            { x: frameOffsetX + frame.width, y: frameOffsetY },
+            { x: frameOffsetX + frame.width, y: frameOffsetY + frame.height },
+            { x: frameOffsetX, y: frameOffsetY + frame.height }
           ];
 
           // Create a synthetic path object from the frame
@@ -599,8 +599,8 @@ let FormExportComponent = {
             const pathCopy = {
               type: 'path',
               path: charObj.path.slice(),
-              left: charObj.left  ,
-              top: charObj.top    ,
+              left: charObj.left,
+              top: charObj.top,
               scaleX: charObj.scaleX || 1,
               scaleY: charObj.scaleY || 1,
               angle: charObj.angle || 0
@@ -609,8 +609,8 @@ let FormExportComponent = {
             // Apply transformations based on the character's position within the text object
             const transformedPath = FormExportComponent.transformPath(
               pathCopy,
-              obj.left,
-              obj.top
+              obj.left + obj.width / 2,
+              obj.top + obj.height / 2
             );
 
             if (transformedPath) {
@@ -675,14 +675,27 @@ let FormExportComponent = {
     if (!obj) return;
 
     if (obj.type === 'path') {
-      // Determine if the path is an outer path or a hole (inner path)
-      const isClockwise = FormExportComponent.isClockwise(obj.path);
-      const pathWithDirection = {
-        ...obj,
-        isOuterPath: isClockwise,
-        parentObj: parentObj
+      // Add the complete path object from basePolygon
+      const rawPath = {
+        type: 'path',
+        path: obj.path,
+        isOuterPath: true, // Mark as potentially having holes
+        left: obj.left  || 0,
+        top: obj.top  || 0,
+        scaleX: obj.scaleX || 1,
+        scaleY: obj.scaleY || 1
       };
-      collection.push(pathWithDirection);
+      // Add as a regular path
+      // Apply transformations based on the character's position within the text object
+      const transformedPath = FormExportComponent.transformPath(
+        rawPath,
+        parentObj.left + parentObj.width / 2,
+        parentObj.top + parentObj.height / 2
+      );
+
+      collection.push(transformedPath);
+
+
     }
     else if (obj.type === 'rect') {
       const rectPathObj = FormExportComponent.convertRectToPath(obj);
@@ -830,7 +843,7 @@ let FormExportComponent = {
       if (command === 'Z' || i === pathData.length - 1) {
         if (points.length > 1) {
           // Add the polyline to the DXF
-          dxf.drawPolyline(points, 'Outlines', true);
+          dxf.drawPolyline(points, true);
         }
         points = [];
       }
@@ -842,8 +855,10 @@ let FormExportComponent = {
     const path = pathObj.path.slice();
 
     // Calculate absolute position of the path in the canvas
-    const absLeft = parentLeft + pathObj.left;
-    const absTop = parentTop + pathObj.top;
+    const minX = Math.min(...path.map(p => p[1]).filter(p => p!==undefined))
+    const minY = Math.min(...path.map(p => p[2]).filter(p => p!==undefined))
+    const absLeft = parentLeft + pathObj.left - minX;
+    const absTop = parentTop + pathObj.top - minY;
 
     // Apply transformations directly to path commands
     const transformedPath = {
@@ -857,15 +872,15 @@ let FormExportComponent = {
 
       switch (command) {
         case 'M': // moveTo
-        if (i !== 0) {
-          transformedPath.path.push(['Z']);
-        }
-        transformedPath.path.push([
-          command,
-          absLeft + values[0],
-          absTop + values[1]
-        ]);
-        break;
+          if (i !== 0) {
+            transformedPath.path.push(['Z']);
+          }
+          transformedPath.path.push([
+            command,
+            absLeft + values[0],
+            absTop + values[1]
+          ]);
+          break;
         case 'L': // lineTo
           transformedPath.path.push([
             command,

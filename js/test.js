@@ -1642,7 +1642,7 @@ function testTextObjectDXFExport() {
   dxf.addLayer('Outlines', 1, 'continuous', 'red');
 
   // Create a test text object at a specific position
-  const textPosition = { left: 200, top: 150 };
+  const textPosition = { left: 0, top: 0 };
   const testText = new TextObject({
     text: 'O',
     left: textPosition.left,
