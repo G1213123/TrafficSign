@@ -7,6 +7,7 @@ let equalAnchorTest = function () {
 }
 
 
+
 // MIT http://rem.mit-license.org
 // https://stackoverflow.com/questions/33777577/javascript-get-actual-rendered-font-height
 function textXHeight() {
@@ -900,9 +901,11 @@ const BorderTest = {
     const belowObject = TestTracker.get("belowText");
 
     // Create horizontal divider between objects
-    await BorderUtilities.HDividerCreate(
+    await HDividerCreate(
       [aboveObject],
       [belowObject],
+      null,
+      null,
       { xHeight: 100, colorType: 'Yellow Background' }
     );
     TestTracker.register("divider");

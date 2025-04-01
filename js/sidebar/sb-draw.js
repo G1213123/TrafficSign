@@ -14,37 +14,39 @@ let FormDrawAddComponent = {
       FormDrawAddComponent.symbolAngle = existingSymbol.symbolAngle;
     } else {
       FormDrawAddComponent.editingExistingSymbol = null;
+      FormDrawAddComponent.symbolAngle = 0;
     }
     
     if (parent) {
       // Create a container for basic symbol parameters
       var basicParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 
+      
+      // Create xHeight input with update handler
+      const xHeightInput = GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 
         FormDrawAddComponent.editingExistingSymbol ? FormDrawAddComponent.editingExistingSymbol.xHeight : 100, 
-        null, 'input')
-      let existingColor = FormDrawAddComponent.editingExistingSymbol ?FormDrawAddComponent.editingExistingSymbol.color: null
+        FormDrawAddComponent.handleXHeightChange, 'input');
+      
+      // Add debounced event listener for real-time updates
+      xHeightInput.addEventListener('input', FormDrawAddComponent.debounce(function(e) {
+        FormDrawAddComponent.handleXHeightChange(e);
+      }, 300));
+      
+      // Create color toggle with update handler
+      let existingColor = FormDrawAddComponent.editingExistingSymbol ?FormDrawAddComponent.editingExistingSymbol.color: null;
       if (existingColor) {existingColor = (existingColor.charAt(0).toUpperCase() + existingColor.slice(1));}
+      
       GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, 
         FormDrawAddComponent.editingExistingSymbol ? existingColor : 'White', 
-        FormDrawAddComponent.addAllSymbolsButton)
+        FormDrawAddComponent.handleColorChange);
 
-      // Create a container for angle controls
-      var angleControlContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, angleControlContainer);
-
-      var btnRotateLeft = GeneralHandler.createButton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawAddComponent.setAngle, 'click')
-      var btnRotateRight = GeneralHandler.createButton(`rotate-right`, '<i class="fa-solid fa-rotate-right"></i>', angleContainer, null, FormDrawAddComponent.setAngle, 'click')
-
-      var angleDisplay = GeneralHandler.createNode("div", { 'id': 'angle-display', 'class': 'angle-display' }, angleContainer);
-      angleDisplay.innerText = FormDrawAddComponent.symbolAngle + '°';
-
-      // Add Update button container if editing an existing symbol
+      // Create a placeholder container for angle controls - will only be populated if needed
+      var angleControlContainer = GeneralHandler.createNode("div", { 'id': 'angle-control-container', 'class': 'input-group-container', 'style': 'display: none;' }, parent);
+      
+      // If we're editing an existing symbol, toggle the angle controls based on its type
       if (FormDrawAddComponent.editingExistingSymbol) {
-        var updateButtonContainer = GeneralHandler.createNode("div", { 'class': 'update-button-container' }, parent);
-        var updateButton = GeneralHandler.createButton('update-symbol-button', 'Update Symbol', updateButtonContainer, null, FormDrawAddComponent.updateExistingSymbol, 'click');
-        updateButton.classList.add('primary-button');
+        FormDrawAddComponent.toggleAngleControls(FormDrawAddComponent.editingExistingSymbol.symbol);
       }
-
+      
       FormDrawAddComponent.addAllSymbolsButton()
     }
   },
@@ -113,20 +115,69 @@ let FormDrawAddComponent = {
   },
 
   setAngle: function (event) {
-    if (event.currentTarget.id.search('left') > -1) {
-      FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle - 45
-    } else {
-      FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle + 45
-    }
-    FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle > 90 ? -90 : FormDrawAddComponent.symbolAngle
-    FormDrawAddComponent.symbolAngle = FormDrawAddComponent.symbolAngle < -90 ? +90 : FormDrawAddComponent.symbolAngle
-
-    // Handle the angle selection
-    document.getElementById('angle-display').innerText = FormDrawAddComponent.symbolAngle + '°';
-
-    // Update the new symbol object if it exists
+    // Store original angle to check if it changes
+    const originalAngle = FormDrawAddComponent.symbolAngle;
+    
+    // Get current symbol type
+    let symbolType = null;
+    let currentSymbol = null;
     if (FormDrawAddComponent.newSymbolObject) {
-      FormDrawAddComponent.updateSymbolAngle(FormDrawAddComponent.newSymbolObject);
+      symbolType = FormDrawAddComponent.newSymbolObject.symbol;
+      currentSymbol = FormDrawAddComponent.newSymbolObject;
+    } else if (FormDrawAddComponent.editingExistingSymbol) {
+      symbolType = FormDrawAddComponent.editingExistingSymbol.symbol;
+      currentSymbol = FormDrawAddComponent.editingExistingSymbol;
+    }
+    
+    // If we don't have a symbol type or permitted angles, hide the angle controls
+    if (!symbolType || !symbolsPermittedAngle || !symbolsPermittedAngle[symbolType]) {
+      FormDrawAddComponent.hideAngleControls();
+      return;
+    }
+    
+    // Use permitted angles for increments
+    const permittedAngles = symbolsPermittedAngle[symbolType];
+    if (permittedAngles.length > 1) {
+      // Find the current index in the permitted angles array
+      let currentIndex = permittedAngles.indexOf(FormDrawAddComponent.symbolAngle);
+      if (currentIndex === -1) {
+        // If current angle is not in the array, find the closest one
+        let closestIndex = 0;
+        let minDifference = Math.abs(permittedAngles[0] - FormDrawAddComponent.symbolAngle);
+        
+        for (let i = 1; i < permittedAngles.length; i++) {
+          const difference = Math.abs(permittedAngles[i] - FormDrawAddComponent.symbolAngle);
+          if (difference < minDifference) {
+            minDifference = difference;
+            closestIndex = i;
+          }
+        }
+        
+        currentIndex = closestIndex;
+      }
+      
+      // Determine next index based on rotation direction
+      if (event.currentTarget.id.search('left') > -1) {
+        // Rotate left (counterclockwise)
+        currentIndex = (currentIndex - 1 + permittedAngles.length) % permittedAngles.length;
+      } else {
+        // Rotate right (clockwise)
+        currentIndex = (currentIndex + 1) % permittedAngles.length;
+      }
+      
+      // Set the new angle
+      FormDrawAddComponent.symbolAngle = permittedAngles[currentIndex];
+    }
+
+    // Update the UI regardless
+    const angleDisplay = document.getElementById('angle-display');
+    if (angleDisplay) {
+      angleDisplay.innerText = FormDrawAddComponent.symbolAngle + '°';
+    }
+
+    // Update the symbol object only if we actually changed the angle
+    if (FormDrawAddComponent.symbolAngle !== originalAngle && currentSymbol) {
+      FormDrawAddComponent.updateSymbol(currentSymbol, { angle: FormDrawAddComponent.symbolAngle });
     }
 
     canvas.renderAll();
@@ -140,6 +191,9 @@ let FormDrawAddComponent = {
       }
       FormDrawAddComponent.newSymbolObject = null;
     }
+
+    // Hide angle controls when drawing handler is turned off
+    FormDrawAddComponent.hideAngleControls();
 
     // Remove event listeners
     canvas.off('mouse:move', FormDrawAddComponent.SymbolOnMouseMove);
@@ -156,6 +210,9 @@ let FormDrawAddComponent = {
     if (FormDrawAddComponent.newSymbolObject) {
       canvas.remove(FormDrawAddComponent.newSymbolObject);
       FormDrawAddComponent.newSymbolObject = null;
+      activeVertex.clearSnapHighlight();
+      activeVertex.cleanupDrag();
+      activeVertex = null;
     }
 
     // Remove event listeners
@@ -167,6 +224,12 @@ let FormDrawAddComponent = {
     const xHeight = parseInt(document.getElementById('input-xHeight').value);
     const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
 
+    // Toggle angle controls based on symbol type
+    FormDrawAddComponent.toggleAngleControls(symbolType);
+
+    // Check and adjust angle based on permitted angles
+    FormDrawAddComponent.validateAndAdjustAngle(symbolType);
+
     // Account for any panning that has been done
     const vpt = CenterCoord();
     const actualCenterX = vpt.x;
@@ -176,7 +239,7 @@ let FormDrawAddComponent = {
     const symbolObject = await drawSymbolDirectly(symbolType, {
       x: actualCenterX,
       y: actualCenterY,
-      length: xHeight,
+      xHeight: xHeight,
       angle: FormDrawAddComponent.symbolAngle,
       color: color
     });
@@ -217,29 +280,85 @@ let FormDrawAddComponent = {
     }
   },
 
-  // Helper function to update symbol angle
-  updateSymbolAngle: async function (symbolObject) {
+  // New function to validate and adjust angle based on permitted angles for the symbol
+  validateAndAdjustAngle: function(symbolType) {
+    // Check if there are restrictions for this symbol type
+    if (symbolsPermittedAngle && symbolsPermittedAngle[symbolType]) {
+      const permittedAngles = symbolsPermittedAngle[symbolType];
+      
+      // If current angle not in the permitted list, find closest
+      if (!permittedAngles.includes(FormDrawAddComponent.symbolAngle)) {
+        let closestAngle = permittedAngles[0]; // Default to first angle
+        let minDifference = Math.abs(FormDrawAddComponent.symbolAngle - closestAngle);
+        
+        // Find closest permitted angle
+        for (let i = 1; i < permittedAngles.length; i++) {
+          const difference = Math.abs(FormDrawAddComponent.symbolAngle - permittedAngles[i]);
+          if (difference < minDifference) {
+            minDifference = difference;
+            closestAngle = permittedAngles[i];
+          }
+        }
+        
+        // Update to the closest permitted angle
+        FormDrawAddComponent.symbolAngle = closestAngle;
+        
+        // Update the angle display in the sidebar
+        const angleDisplay = document.getElementById('angle-display');
+        if (angleDisplay) {
+          angleDisplay.innerText = FormDrawAddComponent.symbolAngle + '°';
+        }
+      }
+    } else {
+      // If no restrictions defined for this symbol, default to allowing only 0 degrees
+      if (FormDrawAddComponent.symbolAngle !== 0) {
+        FormDrawAddComponent.symbolAngle = 0;
+        
+        // Update the angle display in the sidebar
+        const angleDisplay = document.getElementById('angle-display');
+        if (angleDisplay) {
+          angleDisplay.innerText = FormDrawAddComponent.symbolAngle + '°';
+        }
+      }
+    }
+  },
+
+  // Helper function to update symbol properties (angle, color, xHeight)
+  updateSymbol: async function (symbolObject, options = {}) {
     if (!symbolObject) return;
 
     const symbolType = symbolObject.symbol;
-    const xHeight = symbolObject.xHeight ;
-    const color = symbolObject.color;
+    const xHeight = options.xHeight !== undefined ? options.xHeight : symbolObject.xHeight;
+    const color = options.color !== undefined ? options.color : symbolObject.color;
     const position = {
       x: symbolObject.left,
       y: symbolObject.top
     };
+    
+    // If angle is provided, validate it against permitted values
+    if (options.angle !== undefined) {
+      FormDrawAddComponent.symbolAngle = options.angle;
+      FormDrawAddComponent.validateAndAdjustAngle(symbolType);
+    }
 
-    // Create new symbol with updated angle
+    // Create new symbol with updated properties
     const newSymbolObject = await drawSymbolDirectly(symbolType, {
       x: position.x,
       y: position.y,
-      length: xHeight,
+      xHeight: xHeight,
       angle: FormDrawAddComponent.symbolAngle,
       color: color
     });
 
+    // clear active vertex
+    if (activeVertex) {
+      activeVertex.clearSnapHighlight();
+      activeVertex.cleanupDrag();
+      activeVertex = null;
+    }
+    
     // Replace on canvas
-    canvas.remove(symbolObject);
+    symbolObject.deleteObject();
     FormDrawAddComponent.newSymbolObject = newSymbolObject;
 
     // Re-activate vertex control
@@ -269,6 +388,8 @@ let FormDrawAddComponent = {
         }
       }
     }
+    
+    return newSymbolObject;
   },
 
   SymbolOnMouseMove: function (event) {
@@ -313,6 +434,9 @@ let FormDrawAddComponent = {
       FormDrawAddComponent.newSymbolObject = null;
       activeVertex = null;
 
+      // Hide angle controls when symbol placement is complete
+      FormDrawAddComponent.hideAngleControls();
+
       // Reattach default keyboard event listener
       document.removeEventListener('keydown', FormDrawAddComponent.cancelDraw);
       document.addEventListener('keydown', ShowHideSideBarEvent);
@@ -335,6 +459,9 @@ let FormDrawAddComponent = {
         activeVertex.cleanupDrag();
         activeVertex = null;
       }
+
+      // Hide angle controls when drawing is canceled
+      FormDrawAddComponent.hideAngleControls();
 
       // Restore event listeners
       canvas.off('mouse:move', FormDrawAddComponent.SymbolOnMouseMove);
@@ -376,7 +503,96 @@ let FormDrawAddComponent = {
     pathData = pathData.replace(/<path/g, `<path transform="translate(${translateX}, ${translateY}) scale(${scale})"`);
 
     return pathData;
-  }
+  },
+
+  // Toggle angle controls based on symbol type
+  toggleAngleControls: function(symbolType) {
+    const angleControlContainer = document.getElementById('angle-control-container');
+    
+    // If container exists
+    if (angleControlContainer) {
+      // Only show angle controls if this symbol has permitted angles defined
+      const hasPermittedAngles = symbolsPermittedAngle && symbolsPermittedAngle[symbolType] && 
+                                symbolsPermittedAngle[symbolType].length > 1;
+      
+      if (hasPermittedAngles) {
+        // Clear any existing angle controls
+        angleControlContainer.innerHTML = '';
+        
+        // Create a container for angle controls
+        var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, angleControlContainer);
+
+        var btnRotateLeft = GeneralHandler.createButton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawAddComponent.setAngle, 'click');
+        var btnRotateRight = GeneralHandler.createButton(`rotate-right`, '<i class="fa-solid fa-rotate-right"></i>', angleContainer, null, FormDrawAddComponent.setAngle, 'click');
+
+        var angleDisplay = GeneralHandler.createNode("div", { 'id': 'angle-display', 'class': 'angle-display' }, angleContainer);
+        angleDisplay.innerText = FormDrawAddComponent.symbolAngle + '°';
+        
+        // Show the angle controls
+        angleControlContainer.style.display = 'block';
+      } else {
+        // Hide the angle controls
+        angleControlContainer.style.display = 'none';
+        
+        // Reset angle to 0 for symbols with no angle options
+        FormDrawAddComponent.symbolAngle = 0;
+      }
+    }
+  },
+
+  hideAngleControls: function() {
+    const angleControlContainer = document.getElementById('angle-control-container');
+    if (angleControlContainer) {
+      angleControlContainer.style.display = 'none';
+      
+      // Reset angle to default when hiding controls
+      FormDrawAddComponent.symbolAngle = 0;
+    }
+  },
+
+  // Handler for xHeight input change
+  handleXHeightChange: function(event) {
+    const xHeight = parseInt(event.target.value);
+    if (isNaN(xHeight) || xHeight <= 0) return;
+    
+    if (FormDrawAddComponent.newSymbolObject) {
+      // Update the symbol with new xHeight
+      FormDrawAddComponent.updateSymbol(FormDrawAddComponent.newSymbolObject, { xHeight: xHeight });
+    } else if (FormDrawAddComponent.editingExistingSymbol) {
+      // Update the existing symbol with new xHeight
+      FormDrawAddComponent.updateSymbol(FormDrawAddComponent.editingExistingSymbol, { xHeight: xHeight });
+    }
+  },
+  
+  // Handler for color change
+  handleColorChange: function(event) {
+    
+    const color = event.getAttribute('data-value');
+    if (!color) return;
+    
+    if (FormDrawAddComponent.newSymbolObject) {
+      // Update the symbol with new color
+      FormDrawAddComponent.updateSymbol(FormDrawAddComponent.newSymbolObject, { color: color.toLowerCase() });
+    } else if (FormDrawAddComponent.editingExistingSymbol) {
+      // Update the existing symbol with new color
+      FormDrawAddComponent.updateSymbol(FormDrawAddComponent.editingExistingSymbol, { color: cotoLowerCase() });
+    }
+    
+    // Update all symbol buttons with new color
+    if (document.getElementById("input-form")) {
+      FormDrawAddComponent.addAllSymbolsButton();
+    }
+  },
+  
+  // Debounce function to limit rapid successive updates
+  debounce: function(func, wait) {
+    let timeout;
+    return function(...args) {
+      const context = this;
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+  },
 }
 
 // Export the FormDrawAddComponent for use in other files

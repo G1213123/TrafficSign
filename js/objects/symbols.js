@@ -412,7 +412,7 @@ class SymbolObject extends BaseGroup {
 /**
  * Creates a symbol directly on the canvas without using cursor intermediary
  * @param {string} symbolType - Type of symbol to create
- * @param {Object} options - Configuration options: x, y, length, angle, color
+ * @param {Object} options - Configuration options: x, y, xHeight, angle, color
  * @return {Object} The created symbol object
  */
 async function drawSymbolDirectly(symbolType, options) {

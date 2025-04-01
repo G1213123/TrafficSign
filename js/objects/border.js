@@ -1,604 +1,6 @@
-// Check CIE standard for color contrast, color reference in EN 12899-1:2007 Table 2 and Table 4
-const BorderColorScheme = {
-  "Blue Background": {
-    'background': 'rgb(0, 51, 162)',
-    'symbol': '#ffffff',
-    'border': '#ffffff',
-  },
-  "Green Background": {
-    'background': 'rgb(0, 105, 40)',
-    'symbol': '#ffffff',
-    'border': '#ffffff',
-  },
-  "White Background": {
-    'background': '#ffffff',
-    'symbol': '#000000',
-    'border': '#000000',
-  },
-  "White Background - Parking": {
-    'background': '#ffffff',
-    'symbol': '#000000',
-    'border': 'rgb(0, 15, 162)',
-  },
-  "Yellow Background": {
-    'background': 'rgb(233, 181, 0)',
-    'symbol': '#000000',
-    'border': '#000000',
-  },
-  "Brown Background": {
-    'background': 'rgb(117,75,42)',
-    'symbol': '#ffffff',
-    'border': '#ffffff',
-  },
-}
-
-const BorderTypeScheme = {
-  'stack': StackBorderTemplate,
-  'flagLeft': FlagLeftBorderTemplate,
-  'flagRight': FlagRightBorderTemplate,
-  'exit': ExitBorderTemplate,
-  'panel': PanelTemplate,
-  'greenPanel': GreenPanelTemplate,
-  'rectangle': RectTemplate,
-}
-
-function applyLengthAndRounding(path, length) {
-  path.vertex.forEach(vertex => {
-    vertex.x *= length;
-    vertex.y *= length;
-    if (vertex.radius) vertex.radius *= length;
-  });
-  path.arcs.forEach(arc => {
-    arc.radius *= length;
-  });
-}
-
-function RectTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
-  const length = xHeight / 4;
-
-  const padding = {
-    left: 1,
-    top: 1,
-    right: 1,
-    bottom: 1,
-  };
-
-  const returnBorder = [{
-    'vertex': [
-      { x: 0 - padding.left, y: 0 - padding.top, label: 'V1', start: 1 },
-      { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V2', start: 0 },
-      { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V3', start: 0 },
-      { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V4', start: 0 },
-    ], 'arcs': [], 'fill': 'background'
-  }];
-
-  returnBorder.forEach(path => applyLengthAndRounding(path, length));
-  return { path: returnBorder };
-}
-
-function PanelTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
-  const length = xHeight / 4;
-
-  const padding = {
-    left: 2.5,
-    top: 2.5,
-    right: 2.5,
-    bottom: 1.5,
-  };
-
-  const returnBorder = [{
-    'vertex': [
-      { x: 0 - padding.left, y: 0 - padding.top, label: 'V1', radius: 1, start: 1 },
-      { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V2', radius: 1, start: 0 },
-      { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V3', radius: 1, start: 0 },
-      { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V4', radius: 1, start: 0 },
-    ], 'arcs': [], 'fill': 'background'
-  }];
-
-  returnBorder.forEach(path => applyLengthAndRounding(path, length));
-  return { path: returnBorder };
-}
-
-function GreenPanelTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
-  const length = xHeight / 4;
-
-  const padding = {
-    left: 2.5,
-    top: 2.5,
-    right: 2.5,
-    bottom: 1.5,
-  };
-
-  const border = 0.5;
-  const returnBorder = [{
-    'vertex': [
-      { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', radius: 1.5, start: 1 },
-      { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', radius: 1.5, start: 0 },
-      { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, label: 'V3', radius: 1.5, start: 0 },
-      { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, label: 'V4', radius: 1.5, start: 0 },
-    ], 'arcs': [], 'fill': '#ffffff'
-  }, {
-    'vertex': [
-      { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', radius: 1, start: 1 },
-      { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', radius: 1, start: 0 },
-      { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V7', radius: 1, start: 0 },
-      { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V8', radius: 1, start: 0 },
-    ], 'arcs': [], 'fill': 'rgb(0, 105, 40)'
-  }];
-
-  returnBorder.forEach(path => applyLengthAndRounding(path, length));
-  return { path: returnBorder };
-}
-
-function StackBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
-  const length = xHeight / 4;
-  rounding.x /= length;
-  rounding.y /= length;
-  const padding = {
-    left: 2.5 + rounding.x,
-    top: 2.5 + rounding.y,
-    right: 2.5 + rounding.x,
-    bottom: 1.5 + rounding.y,
-  };
-
-  const border = 1.5;
-  const returnBorder = [{
-    'vertex': [
-      { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', radius: 3, start: 1 },
-      { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', radius: 3, start: 0 },
-      { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, label: 'V3', radius: 3, start: 0 },
-      { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, label: 'V4', radius: 3, start: 0 },
-    ], 'arcs': [], 'fill': 'border'
-  }, {
-    'vertex': [
-      { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', radius: 1.5, start: 1 },
-      { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', radius: 1.5, start: 0 },
-      { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V7', radius: 1.5, start: 0 },
-      { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V8', radius: 1.5, start: 0 },
-    ], 'arcs': [], 'fill': 'background'
-  }];
-
-  returnBorder.forEach(path => applyLengthAndRounding(path, length));
-  return { path: returnBorder };
-}
-
-function ExitBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
-  const length = xHeight / 4;
-  const padding = {
-    left: 0.5,
-    top: 0.3,
-    right: 0.5,
-    bottom: 0,
-  };
-
-  const border = 0.5;
-  const returnBorder = [{
-    'vertex': [
-      { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', start: 1 },
-      { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', start: 0 },
-      { x: block.width / length + padding.right + border, y: 7.2, label: 'V3', start: 0 },
-      { x: 0 - padding.left - border, y: 7.2, label: 'V4', start: 0 },
-    ], 'arcs': [], 'fill': '#ffffff'
-  }, {
-    'vertex': [
-      { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', start: 1 },
-      { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', start: 0 },
-      { x: block.width / length + padding.right, y: 6.7, label: 'V7', start: 0 },
-      { x: 0 - padding.right, y: 6.7, label: 'V8', start: 0 },
-    ], 'arcs': [], 'fill': '#000000'
-  }];
-
-  returnBorder.forEach(path => applyLengthAndRounding(path, length));
-  return { path: returnBorder };
-}
-
-function FlagLeftBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
-  const length = xHeight / 4;
-  rounding.x /= length;
-  rounding.y /= length;
-  const variables = {
-    '2Lines': {
-      'A': 1.5,
-      'B': 2.5,
-      'C': 4.5,
-      'D': 1.5,
-      'E': 2.5,
-      'F': 1.5,
-      'G': 1.5,
-      'H': 3,
-    },
-    '4Lines': {
-      'A': 1.5,
-      'B': 3.5,
-      'C': 6,
-      'D': 1.5,
-      'E': 2.5,
-      'F': 1.5,
-      'G': 1.5,
-      'H': 3,
-    }
-  };
-  const v = block.height > 4.85 * xHeight ? variables['4Lines'] : variables['2Lines'];
-
-  const padding = {
-    left: v.D + (block.height / length + v.E + rounding.y / 2 - v.D) / 2 / Math.tan(Math.PI / 3) + (v.A + v.B + v.C) / Math.cos(Math.PI / 6),
-    top: v.E + rounding.y,
-    right: v.E,
-    bottom: v.D + rounding.y,
-  };
-
-  const border = v.A;
-  const panel = {
-    height: (block.height / length + v.E + rounding.y * 2 + v.D + v.A * 2)
-  };
-
-  const returnBorder = [{
-    'vertex': [{ x: 0, y: 0, label: 'V0', start: 1 }], 'arcs': [], 'fill': 'symbol'
-  }, {
-    'vertex': [
-      { x: 0 - padding.left + panel.height / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top - border, radius: v.H, label: 'V1', start: 1 },
-      { x: block.width / length + padding.right + border, y: 0 - padding.top - border, radius: v.H, label: 'V2', start: 0 },
-      { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, radius: v.H, label: 'V3', start: 0 },
-      { x: 0 - padding.left + panel.height / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom + border, radius: v.H, label: 'V4', start: 0 },
-      { x: 0 - padding.left, y: 0 - v.E - rounding.y - border + panel.height / 2, radius: v.F, label: 'V5', start: 0 }
-    ], 'arcs': [], 'fill': 'border'
-  }, {
-    'vertex': [
-      { x: 0 - padding.left + v.A + (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top, radius: v.G, label: 'V6', start: 1 },
-      { x: block.width / length + padding.right, y: 0 - padding.top, radius: v.G, label: 'V7', start: 0 },
-      { x: block.width / length + padding.right, y: block.height / length + padding.bottom, radius: v.G, label: 'V8', start: 0 },
-      { x: 0 - padding.left + v.A + (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom, radius: v.G, label: 'V9', start: 0 },
-      { x: 0 - padding.left + v.A, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V10', start: 0 }
-    ], 'arcs': [], 'fill': 'background'
-  }, {
-    'vertex': [
-      { x: 0 - v.D - v.C / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y + v.D, label: 'V11', start: 1 },
-      { x: 0 - v.D, y: 0 - v.E - rounding.y + v.D, label: 'V12', start: 0 },
-      { x: -padding.left + v.A + (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V13', start: 0 },
-      { x: 0 - v.D, y: 0 + block.height / length, label: 'V14', start: 0 },
-      { x: 0 - v.D - v.C / Math.cos(Math.PI / 6), y: 0 + block.height / length, label: 'V15', start: 0 },
-      { x: -padding.left + v.A + v.B / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V16', start: 0 },
-    ], 'arcs': [], 'fill': 'symbol'
-  }];
-
-  returnBorder.forEach(path => applyLengthAndRounding(path, length));
-  return { path: returnBorder };
-}
-
-function FlagRightBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
-  const length = xHeight / 4;
-  rounding.x /= length;
-  rounding.y /= length;
-  const variables = {
-    '2Lines': {
-      'A': 1.5,
-      'B': 2.5,
-      'C': 4.5,
-      'D': 1.5,
-      'E': 2.5,
-      'F': 1.5,
-      'G': 1.5,
-      'H': 3,
-    },
-    '4Lines': {
-      'A': 1.5,
-      'B': 3.5,
-      'C': 6,
-      'D': 1.5,
-      'E': 2.5,
-      'F': 1.5,
-      'G': 1.5,
-      'H': 3,
-    }
-  };
-  const v = block.height > 4.85 * xHeight ? variables['4Lines'] : variables['2Lines'];
-
-  const padding = {
-    left: v.E,
-    top: v.E + rounding.y,
-    right: v.D + (block.height / length + v.E + rounding.y / 2 - v.D) / 2 / Math.tan(Math.PI / 3) + (v.A + v.B + v.C) / Math.cos(Math.PI / 6),
-    bottom: v.D + rounding.y,
-  };
-
-  const border = v.A;
-  const panel = {
-    height: (block.height / length + v.E + rounding.y * 2 + v.D + v.A * 2)
-  };
-
-  const returnBorder = [{
-    'vertex': [{ x: 0, y: 0, label: 'V0', start: 1 }], 'arcs': [], 'fill': 'symbol'
-  }, {
-    'vertex': [
-      { x: 0 - padding.left - border, y: 0 - padding.top - border, radius: v.H, label: 'V1', start: 1 },
-      { x: block.width / length + padding.right - panel.height / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top - border, radius: v.H, label: 'V2', start: 0 },
-      { x: block.width / length + padding.right, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, radius: v.F, label: 'V3', start: 0 },
-      { x: block.width / length + padding.right - panel.height / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom + border, radius: v.H, label: 'V4', start: 0 },
-      { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, radius: v.H, label: 'V5', start: 0 },
-    ], 'arcs': [], 'fill': 'border'
-  }, {
-    'vertex': [
-      { x: 0 - padding.left, y: 0 - padding.top, radius: v.G, label: 'V8', start: 1 },
-      { x: block.width / length + padding.right - v.A - (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top, radius: v.G, label: 'V7', start: 0 },
-      { x: block.width / length + padding.right - v.A, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V8', start: 0 },
-      { x: block.width / length + padding.right - v.A - (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom, radius: v.G, label: 'V9', start: 0 },
-      { x: 0 - padding.left, y: block.height / length + padding.bottom, radius: v.G, label: 'V10', start: 0 },
-    ], 'arcs': [], 'fill': 'background'
-  }, {
-    'vertex': [
-      { x: block.width / length + v.D + v.C / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y + v.D, label: 'V11', start: 1 },
-      { x: block.width / length + v.D, y: 0 - v.E - rounding.y + v.D, label: 'V12', start: 0 },
-      { x: block.width / length + padding.right - v.A - (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V13', start: 0 },
-      { x: block.width / length + v.D, y: 0 + block.height / length, label: 'V14', start: 0 },
-      { x: block.width / length + v.D + v.C / Math.cos(Math.PI / 6), y: 0 + block.height / length, label: 'V15', start: 0 },
-      { x: block.width / length + padding.right - v.A - v.B / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V16', start: 0 },
-    ], 'arcs': [], 'fill': 'symbol'
-  }];
-
-  returnBorder.forEach(path => applyLengthAndRounding(path, length));
-  return { path: returnBorder };
-}
-
-function drawLabeledBorder(borderType, xHeight, bbox, color) {
-  const block = { width: bbox.right - bbox.left, height: bbox.bottom - bbox.top };
-  const rounding = BorderUtilities.calcBorderRounding(borderType, xHeight, bbox);
-  const shapeMeta = BorderTypeScheme[borderType](xHeight, block, rounding);
-  const baseGroup = [];
-
-  // Create polygon with labeled vertices
-  shapeMeta.path.forEach(async (p) => {
-    const vertexleft = -Math.min(...p.vertex.map(v => v.x));
-    const vertextop = -Math.min(...p.vertex.map(v => v.y));
-
-    p.vertex.forEach((vertex) => {
-      vertex.x = vertex.x + bbox.left;
-      vertex.y = vertex.y + bbox.top;
-    });
-
-    const pathData = vertexToPath({ path: [p] });
-    baseGroup.push(
-      new fabric.Path(pathData, {
-        left: bbox.left - vertexleft,
-        top: bbox.top - vertextop,
-        fill: (p['fill'] == 'background') || (p['fill'] == 'symbol') || (p['fill'] == 'border') ? BorderColorScheme[color][p['fill']] : p['fill'],
-        objectCaching: false,
-        strokeWidth: 0,
-      })
-    );
-  });
-
-  const GroupedBorder = new fabric.Group(baseGroup);
-  GroupedBorder.vertex = shapeMeta.path.map(p => p.vertex).flat();
-  GroupedBorder.rounding = rounding;
-
-  return GroupedBorder;
-}
-
-const DividerScheme = {
-  'HDivider': HDividerTemplate,
-  'VDivider': VDividerTemplate,
-  'HLine': HLineTemplate,
-}
-
-function HDividerTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
-  const length = xHeight / 4;
-  const Xwidth = block.width / length;
-  rounding.x /= length;
-  rounding.y /= length;
-
-  const returnBorder = [{
-    'vertex': [
-      { x: 0, y: 0, label: 'V1', start: 1 },
-      { x: Xwidth / 2, y: 0, label: 'V2', radius: 1.5, start: 0 },
-      { x: Xwidth / 2, y: -1.5, label: 'V3', start: 0 },
-      { x: Xwidth / 2, y: 2.5, label: 'V4', start: 0 },
-      { x: Xwidth / 2, y: 1, label: 'V5', radius: 1.5, start: 0 },
-      { x: -Xwidth / 2, y: 1, label: 'V6', radius: 1.5, start: 0 },
-      { x: -Xwidth / 2, y: 2.5, label: 'V7', start: 0 },
-      { x: -Xwidth / 2, y: -1.5, label: 'V8', start: 0 },
-      { x: -Xwidth / 2, y: 0, label: 'V9', radius: 1.5, start: 0 },
-    ], 'arcs': [], 'fill': 'border'
-  },];
-
-  returnBorder.forEach(p => {
-    p.vertex.forEach(vertex => {
-      vertex.x *= length;
-      vertex.x += position.left + (Xwidth / 2) * length;
-      vertex.y *= length;
-      vertex.y += position.top + (1.5) * length;
-      if (vertex.radius) vertex.radius *= length;
-    });
-  });
-
-  return { path: returnBorder };
-}
-
-function VDividerTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
-  const length = xHeight / 4;
-  const Xwidth = block.height;
-  rounding.x /= length;
-  rounding.y /= length;
-
-  const returnBorder = [{
-    'vertex': [
-      { x: 0, y: 0, label: 'V1', start: 1 },
-      { x: 0, y: Xwidth / 2, label: 'V2', radius: 1.5, start: 0 },
-      { x: -1.5, y: Xwidth / 2, label: 'V3', start: 0 },
-      { x: 2.5, y: Xwidth / 2, label: 'V4', start: 0 },
-      { x: 1, y: Xwidth / 2, label: 'V5', radius: 1.5, start: 0 },
-      { x: 1, y: -Xwidth / 2, label: 'V6', radius: 1.5, start: 0 },
-      { x: 2.5, y: -Xwidth / 2, label: 'V7', start: 0 },
-      { x: -1.5, y: -Xwidth / 2, label: 'V8', start: 0 },
-      { x: 0, y: -Xwidth / 2, label: 'V9', radius: 1.5, start: 0 },
-    ], 'arcs': [], 'fill': 'border'
-  },];
-
-  returnBorder.forEach(p => {
-    p.vertex.forEach(vertex => {
-      vertex.x *= length;
-      vertex.x += position.left + (1.5) * length;
-      vertex.y *= length;
-      vertex.y += position.top + (Xwidth / 2) * length;
-      if (vertex.radius) vertex.radius *= length;
-    });
-  });
-  return { path: returnBorder };
-}
-
-function HLineTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
-  const length = xHeight / 4;
-  const Xwidth = block.width / length;
-  rounding.x /= length;
-  rounding.y /= length;
-
-  const returnBorder = [{
-    'vertex': [
-      { x: 0, y: 0, label: 'V1', start: 1 },
-      { x: Xwidth / 2 - 1.5, y: 0, label: 'V2', start: 0 },
-      { x: Xwidth / 2 - 1.5, y: 1, label: 'V3', start: 0 },
-      { x: -Xwidth / 2 + 1.5, y: 1, label: 'V4', start: 0 },
-      { x: -Xwidth / 2 + 1.5, y: 0, label: 'V5', start: 0 },
-    ], 'arcs': [], 'fill': 'border'
-  },];
-
-  returnBorder.forEach(p => {
-    p.vertex.forEach(vertex => {
-      vertex.x *= length;
-      vertex.x += position.left + (Xwidth / 2) * length;
-      vertex.y *= length;
-      vertex.y += position.top + (1) * length;
-    });
-  });
-
-  return { path: returnBorder };
-}
-
-const DividerMargin = {
-  'HDivider': { left: 0, top: 0, right: 0, bottom: 1 },
-  'VDivider': { left: 1, top: 0, right: 1, bottom: 0 },
-  'HLine': { left: 1.5, top: 1, right: 1.5, bottom: 1 },
-}
-
-drawDivider = async function (xHeight, color, position, size, type) {
-
-  // Choose the template based on the horizontal parameter
-  let dividerTemplate = DividerScheme[type](xHeight, position, size, { x: 0, y: 0 }).path;
-
-  const arrowOptions1 = {
-    left: 0,
-    top: 0,
-    fill: color,
-    angle: 0,
-    objectCaching: false,
-    strokeWidth: 0
-  };
-
-  const dividerShape = new GlyphPath();
-  await dividerShape.initialize({ path: dividerTemplate }, arrowOptions1);
-  return dividerShape;
-}
-
 // Add BorderUtilities object to hold functions moved from FormBorderWrapComponent
 const BorderUtilities = {
-  VDividerCreate: async function (leftObjects, rightObjects, options = null) {
-    const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
-    const colorType = options ? options.colorType : document.getElementById("input-color").value
-    const color = BorderColorScheme[colorType]['border']
-    const leftObject = this.getExtremeObject(leftObjects, 'left')
-    const rightObject = this.getTopMostObject(rightObjects, 'right')
 
-    if (Object.keys(leftObject.lockXToPolygon).length != 0) {
-      showTextBox('Unlock the object below divider in X axis', '')
-      return
-    }
-    const leftObjectBBox = BorderUtilities.getBoundingBox(leftObjects)
-    const leftObjectSize = { width: leftObjectBBox.right - leftObjectBBox.left, height: leftObjectBBox.bottom - leftObjectBBox.top }
-    const BaseBorder = await drawDivider(xHeight, color, leftObjectBBox, leftObjectSize, 'VDivider') // Added true param to indicate vertical divider
-    const borderGroup = new BaseGroup(BaseBorder, 'VDivider')
-    borderGroup.xHeight = xHeight
-    borderGroup.color = color
-    anchorShape(leftObject, borderGroup, {
-      vertexIndex1: 'E1',
-      vertexIndex2: 'E3',
-      spacingX: DividerMargin['VDivider']['left'] * xHeight / 4,
-      spacingY: ''
-    })
-    anchorShape(borderGroup, rightObject, {
-      vertexIndex1: 'E1',
-      vertexIndex2: 'E3',
-      spacingX: DividerMargin['VDivider']['right'] * xHeight / 4,
-      spacingY: ''
-    })
-    borderGroup.setCoords()
-    borderGroup.updateAllCoord()
-  },
-
-  HDividerCreate: async function (aboveObjects, belowObjects, options = null) {
-    const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
-    const colorType = options ? options.colorType : document.getElementById("input-color").value
-    const color = BorderColorScheme[colorType]['border']
-    const aboveObject = this.getBottomMostObject(aboveObjects)
-    const belowObject = this.getTopMostObject(belowObjects)
-
-    if (Object.keys(belowObject.lockYToPolygon).length != 0) {
-      showTextBox('Unlock the object below divider in Y axis', '')
-      return
-    }
-    const aboveObjectBBox = BorderUtilities.getBoundingBox(aboveObjects)
-    const aboveObjectSize = { width: aboveObjectBBox.right - aboveObjectBBox.left, height: aboveObjectBBox.bottom - aboveObjectBBox.top }
-
-    const BaseBorder = await drawDivider(xHeight, color, aboveObjectBBox, aboveObjectSize, 'HDivider') // Added true param to indicate horizontal divider
-    const borderGroup = new BaseGroup(BaseBorder, 'HDivider')
-    borderGroup.xHeight = xHeight
-    borderGroup.color = color
-    anchorShape(aboveObject, borderGroup, {
-      vertexIndex1: 'E2',
-      vertexIndex2: 'E6',
-      spacingX: '',
-      spacingY: DividerMargin['HDivider']['top'] * xHeight / 4
-    })
-    anchorShape(borderGroup, belowObject, {
-      vertexIndex1: 'E2',
-      vertexIndex2: 'E6',
-      spacingX: '',
-      spacingY: DividerMargin['HDivider']['bottom'] * xHeight / 4
-    })
-    borderGroup.setCoords()
-    borderGroup.updateAllCoord()
-  },
-
-  HLineCreate: async function (aboveObjects, belowObjects, options = null) {
-    const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
-    const colorType = options ? options.colorType : document.getElementById("input-color").value
-    const color = BorderColorScheme[colorType]['border']
-    const aboveObject = this.getBottomMostObject(aboveObjects)
-    const belowObject = this.getTopMostObject(belowObjects)
-
-    if (Object.keys(belowObject.lockYToPolygon).length != 0) {
-      showTextBox('Unlock the object below divider in Y axis', '')
-      return
-    }
-    const aboveObjectBBox = BorderUtilities.getBoundingBox(aboveObjects)
-    const aboveObjectSize = { width: aboveObjectBBox.right - aboveObjectBBox.left, height: aboveObjectBBox.bottom - aboveObjectBBox.top }
-
-    const BaseBorder = await drawDivider(xHeight, color, aboveObjectBBox, aboveObjectSize, 'HLine') // Added true param to indicate horizontal divider
-    const borderGroup = new BaseGroup(BaseBorder, 'HLine')
-    borderGroup.xHeight = xHeight
-    borderGroup.color = color
-    anchorShape(aboveObject, borderGroup, {
-      vertexIndex1: 'E2',
-      vertexIndex2: 'E6',
-      spacingX: '',
-      spacingY: DividerMargin['HLine']['top'] * xHeight / 4
-    })
-    anchorShape(borderGroup, belowObject, {
-      vertexIndex1: 'E2',
-      vertexIndex2: 'E6',
-      spacingX: '',
-      spacingY: DividerMargin['HLine']['bottom'] * xHeight / 4
-    })
-    borderGroup.setCoords()
-    borderGroup.updateAllCoord()
-  },
 
   getExtremeObject: function (objects, direction) {
     let extremeObject = null;
@@ -789,12 +191,17 @@ const BorderUtilities = {
     rounding.x /= (VDividers.length + 1) * 2
     rounding.y /= (HDividers.length + 1) * 2
     HDividers.forEach(h => {
+      // Skip rounding if divider has fixed distance values
+      if (h.fixedTopValue || h.fixedBottomValue) {
+        return;
+      }
+
       if (!sourceList.includes(h.lockYToPolygon.TargetObject) && h.functionalType == 'HDivider') {
         anchorShape(h.lockYToPolygon.TargetObject, h, {
           vertexIndex1: h.lockYToPolygon.sourcePoint,
           vertexIndex2: h.lockYToPolygon.targetPoint,
           spacingX: '',
-          spacingY: DividerMargin[h.functionalType]['top'] * h.xHeight/4 + rounding.y
+          spacingY: DividerMargin[h.functionalType]['top'] * h.xHeight / 4 + rounding.y
         }, sourceList)
       }
       const nextAnchor = h.anchoredPolygon[0]
@@ -803,16 +210,21 @@ const BorderUtilities = {
           vertexIndex1: nextAnchor.lockYToPolygon.sourcePoint,
           vertexIndex2: nextAnchor.lockYToPolygon.targetPoint,
           spacingX: '',
-          spacingY: DividerMargin[h.functionalType]['bottom']  * h.xHeight/4 + rounding.y
+          spacingY: DividerMargin[h.functionalType]['bottom'] * h.xHeight / 4 + rounding.y
         }, sourceList)
       }
     })
     VDividers.forEach(v => {
+      // Skip rounding if divider has fixed distance values
+      if (v.fixedLeftValue || v.fixedRightValue) {
+        return;
+      }
+
       if (!sourceList.includes(v.lockXToPolygon.TargetObject) && v.functionalType == 'VDivider') {
         anchorShape(v.lockXToPolygon.TargetObject, v, {
           vertexIndex1: v.lockXToPolygon.sourcePoint,
           vertexIndex2: v.lockXToPolygon.targetPoint,
-          spacingX: DividerMargin[v.functionalType]['left'] * v.xHeight/4 + rounding.x,
+          spacingX: DividerMargin[v.functionalType]['left'] * v.xHeight / 4 + rounding.x,
           spacingY: ''
         }, sourceList)
       }
@@ -821,43 +233,12 @@ const BorderUtilities = {
         anchorShape(v, nextAnchor, {
           vertexIndex1: nextAnchor.lockXToPolygon.sourcePoint,
           vertexIndex2: nextAnchor.lockXToPolygon.targetPoint,
-          spacingX: DividerMargin[v.functionalType]['right'] * v.xHeight/4 + rounding.x,
+          spacingX: DividerMargin[v.functionalType]['right'] * v.xHeight / 4 + rounding.x,
           spacingY: ''
         }, sourceList)
-        nextAnchor.rounded = {x: rounding.x, y: 0}
+        nextAnchor.rounded = { x: rounding.x, y: 0 }
       }
     })
-  },
-
-  addMidPointToDivider: function (borderGroup) {
-    let top = borderGroup.getEffectiveCoords()[0].y
-    let left = borderGroup.getEffectiveCoords()[0].x
-    const width = borderGroup.getBoundingRect().width
-    const height = borderGroup.getBoundingRect().height
-    const frame = 1.5 * borderGroup.xHeight / 4
-    let i = 0
-    borderGroup.HDivider.forEach(d => {
-      const midPt = (top + d.getEffectiveCoords()[0].y) / 2
-      borderGroup.basePolygon.vertex.push({ x: left, y: midPt + frame, label: `C${i += 1}` })
-      borderGroup.basePolygon.vertex.push({ x: left + width, y: midPt + frame, label: `C${i += 1}` })
-      top = d.getEffectiveCoords()[0].y
-    })
-    if (borderGroup.HDivider.length > 0) {
-      const midPt = (borderGroup.HDivider.at(-1).getEffectiveCoords()[2].y + borderGroup.getEffectiveCoords()[2].y) / 2
-      borderGroup.basePolygon.vertex.push({ x: left, y: midPt - frame, label: `C${i += 1}` })
-      borderGroup.basePolygon.vertex.push({ x: left + width, y: midPt - frame, label: `C${i += 1}` })
-    }
-    borderGroup.VDivider.forEach(d => {
-      const midPt = (left + d.getEffectiveCoords()[0].x) / 2
-      borderGroup.basePolygon.vertex.push({ x: midPt + frame, y: top, label: `C${i += 1}` })
-      borderGroup.basePolygon.vertex.push({ x: midPt + frame, y: top + height, label: `C${i += 1}` })
-      left = d.getEffectiveCoords()[0].x
-    })
-    if (borderGroup.VDivider.length > 0) {
-      const midPt = (borderGroup.VDivider.at(-1).getEffectiveCoords()[2].x + borderGroup.getEffectiveCoords()[2].x) / 2
-      borderGroup.basePolygon.vertex.push({ x: midPt - frame, y: top, label: `C${i += 1}` })
-      borderGroup.basePolygon.vertex.push({ x: midPt - frame, y: top + height, label: `C${i += 1}` })
-    }
   },
 
   getBorderObjectCoords: function (fheightObjects, fwidthObjects) {
@@ -892,63 +273,414 @@ const BorderUtilities = {
     }
 
     const BaseBorder = await drawLabeledBorder(borderType, xHeight, coords, colorType)
-    borderGroup = new BaseGroup(BaseBorder, 'Border')
-    borderGroup.widthObjects = [...fwidthObjects]
-    borderGroup.heightObjects = [...fheightObjects]
-    borderGroup.fixedWidth = widthText
-    borderGroup.fixedHeight = heightText
-    borderGroup.VDivider = VDivider
-    borderGroup.HDivider = HDivider
 
-    borderGroup.borderType = borderType
-    borderGroup.xHeight = xHeight
-    borderGroup.color = colorType
-    BorderUtilities.addMidPointToDivider(borderGroup)
-    BorderUtilities.assignWidthToDivider(borderGroup)
-    borderGroup.addMidPointToDivider = BorderUtilities.addMidPointToDivider
-    borderGroup.assignWidthToDivider = BorderUtilities.assignWidthToDivider
+    // Use the new BorderGroup class instead of BaseGroup
+    const borderGroup = new BorderGroup(BaseBorder, borderType, {
+      widthObjects: [...fwidthObjects],
+      heightObjects: [...fheightObjects],
+      fixedWidth: widthText,
+      fixedHeight: heightText,
+      VDivider: VDivider,
+      HDivider: HDivider,
+      xHeight: xHeight,
+      color: colorType
+    });
 
-    borderGroup.lockMovementX = true
-    borderGroup.lockMovementY = true
+    // Add mid points and assign widths to dividers
+    borderGroup.addMidPointToDivider();
+    borderGroup.assignWidthToDivider();
 
-    // Combine the arrays and create a Set to remove duplicates
-    canvas.sendObjectToBack(borderGroup)
+    // Send border to back and update object references
+    canvas.sendObjectToBack(borderGroup);
+
+    // Update border reference in width objects
     fwidthObjects.forEach(obj => {
-      //canvas.bringObjectToFront(obj)
-      obj.borderGroup = borderGroup
-    })
+      obj.borderGroup = borderGroup;
+    });
+
+    // Update border reference in height objects
     fheightObjects.forEach(obj => {
-      //canvas.bringObjectToFront(obj)
-      obj.borderGroup = borderGroup
-    })
+      obj.borderGroup = borderGroup;
+    });
+
     canvas.renderAll();
-    return borderGroup
+    return borderGroup;
   },
 
-  assignWidthToDivider: async function (borderGroup, sourceList = []) {
-    const borderSize = borderGroup.getBoundingRect()
-    const frame = 1.5 * borderGroup.xHeight / 4
-    const innerWidth = borderSize.width - frame * 2
-    const innerHeight = borderSize.height - frame * 2
-    const innerLeft = borderSize.left + frame
-    const innerTop = borderSize.top + frame
-    const bbox = { left: innerLeft, top: innerTop, right: innerLeft + innerWidth, bottom: innerTop + innerHeight, width: innerWidth, height: innerHeight }
-    for (const d of borderGroup.HDivider) {
-      // Store the group's initial top position
-      const initialTop = d.getEffectiveCoords()[0].y
-      const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top - DividerMargin[d.functionalType].top * d.xHeight/4}, bbox, d.functionalType)
-      d.replaceBasePolygon(res)
-      d.set({ top: initialTop, left: innerLeft + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
-      d.updateAllCoord(null, sourceList)
-    }
 
-    for (const d of borderGroup.VDivider) {
-      // Store the group's initial top position
-      const initialLeft = d.getEffectiveCoords()[0].x
-      const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, bbox, d.functionalType)
-      d.replaceBasePolygon(res)
-      d.set({ top: innerTop, left: initialLeft });
-      d.updateAllCoord(null, sourceList)
-    }
-  },
 }
+
+// Define BorderGroup class that extends BaseGroup
+class BorderGroup extends BaseGroup {
+  constructor(baseBorder, borderType, options = {}) {
+    // Call the parent constructor with the base border and 'Border' functional type
+    super(baseBorder, 'Border', options);
+
+    // Initialize border-specific properties
+    this.widthObjects = options.widthObjects || [];
+    this.heightObjects = options.heightObjects || [];
+    this.fixedWidth = options.fixedWidth;
+    this.fixedHeight = options.fixedHeight;
+    this.VDivider = options.VDivider || [];
+    this.HDivider = options.HDivider || [];
+    this.borderType = borderType;
+    this.xHeight = options.xHeight || 100;
+    this.color = options.color;
+    this.dimensionAnnotations = []
+
+    // Lock movement for border
+    this.lockMovementX = true;
+    this.lockMovementY = true;
+
+
+  }
+
+  // Show border dimensions when selected
+  showDimensions() {
+    // Clean up any existing dimension annotations
+    this.hideDimensions();
+
+    // Get border coordinates
+    const borderRect = this.getBoundingRect();
+    const frame = 1.5 * this.xHeight / 4;
+
+    // Find closest objects in each direction to show dimensions
+    this.createDimensionAnnotations(borderRect);
+
+    // Find closest objects in each direction to show dimensions
+    this.createBorderDimensionAnnotations(borderRect, frame);
+  }
+
+
+  // Create dimension annotations for the border and contained objects
+  createBorderDimensionAnnotations(borderRect, frame) {
+    // Calculate inner content area of border (accounting for frame)
+    const innerBorder = {
+      left: borderRect.left + frame,
+      top: borderRect.top + frame,
+      right: borderRect.left + borderRect.width - frame,
+      bottom: borderRect.top + borderRect.height - frame,
+      width: borderRect.width - (2 * frame),
+      height: borderRect.height - (2 * frame)
+    };
+
+    // Create horizontal dimensions (left and right)
+    if (this.widthObjects.length > 0) {
+      // Find object closest to left border
+      const leftObject = this.findClosestObject(this.widthObjects, 'left', innerBorder);
+      if (leftObject) {
+        const leftObjectRect = leftObject.getBoundingRect();
+        // Create left dimension annotation
+        const leftDimension = new BorderDimensionDisplay({
+          direction: 'horizontal',
+          startX: innerBorder.left,
+          startY: leftObjectRect.top + (leftObjectRect.height / 2),
+          endX: leftObjectRect.left,
+          color: 'green',
+          offset: 30 / canvas.getZoom()
+        });
+        this.dimensionAnnotations.push(leftDimension);
+      }
+
+      // Find object closest to right border
+      const rightObject = this.findClosestObject(this.widthObjects, 'right', innerBorder);
+      if (rightObject) {
+        const rightObjectRect = rightObject.getBoundingRect();
+        // Create right dimension annotation
+        const rightDimension = new BorderDimensionDisplay({
+          direction: 'horizontal',
+          startX: rightObjectRect.left + rightObjectRect.width,
+          startY: rightObjectRect.top + (rightObjectRect.height / 2),
+          endX: innerBorder.right,
+          color: 'green',
+          offset: 30 / canvas.getZoom()
+        });
+        this.dimensionAnnotations.push(rightDimension);
+      }
+    }
+
+    // Create vertical dimensions (top and bottom)
+    if (this.heightObjects.length > 0) {
+      // Find object closest to top border
+      const topObject = this.findClosestObject(this.heightObjects, 'top', innerBorder);
+      if (topObject) {
+        const topObjectRect = topObject.getBoundingRect();
+        // Create top dimension annotation
+        const topDimension = new BorderDimensionDisplay({
+          direction: 'vertical',
+          startX: topObjectRect.left + (topObjectRect.width / 2),
+          startY: innerBorder.top,
+          endY: topObjectRect.top,
+          color: 'red',
+          offset: 30 / canvas.getZoom()
+        });
+        this.dimensionAnnotations.push(topDimension);
+      }
+
+      // Find object closest to bottom border
+      const bottomObject = this.findClosestObject(this.heightObjects, 'bottom', innerBorder);
+      if (bottomObject) {
+        const bottomObjectRect = bottomObject.getBoundingRect();
+        // Create bottom dimension annotation
+        const bottomDimension = new BorderDimensionDisplay({
+          direction: 'vertical',
+          startX: bottomObjectRect.left + (bottomObjectRect.width / 2),
+          startY: bottomObjectRect.top + bottomObjectRect.height,
+          endY: innerBorder.bottom,
+          color: 'red',
+          offset: 30 / canvas.getZoom()
+        });
+        this.dimensionAnnotations.push(bottomDimension);
+      }
+    }
+  }
+
+  // Find the object closest to a border edge
+  findClosestObject(objects, direction, innerBorder) {
+    if (!objects || objects.length === 0) return null;
+
+    let closestObject = null;
+    let minDistance = Number.MAX_VALUE;
+
+    objects.forEach(obj => {
+      if (!obj.getBoundingRect) return;
+
+      const objRect = obj.getBoundingRect();
+      let distance = 0;
+
+      switch (direction) {
+        case 'top':
+          distance = objRect.top - innerBorder.top;
+          break;
+        case 'bottom':
+          distance = innerBorder.bottom - (objRect.top + objRect.height);
+          break;
+        case 'left':
+          distance = objRect.left - innerBorder.left;
+          break;
+        case 'right':
+          distance = innerBorder.right - (objRect.left + objRect.width);
+          break;
+      }
+
+      // Only consider positive distances (objects inside the border)
+      if (distance >= 0 && distance < minDistance) {
+        minDistance = distance;
+        closestObject = obj;
+      }
+    });
+
+    return closestObject;
+  }
+
+  // Add mid points to divider
+  addMidPointToDivider() {
+    let top = this.getEffectiveCoords()[0].y;
+    let left = this.getEffectiveCoords()[0].x;
+    const width = this.getBoundingRect().width;
+    const height = this.getBoundingRect().height;
+    const frame = 1.5 * this.xHeight / 4;
+    let i = 0;
+
+    this.HDivider.forEach(d => {
+      const midPt = (top + d.getEffectiveCoords()[0].y) / 2;
+      this.basePolygon.vertex.push({ x: left, y: midPt + frame, label: `C${i += 1}` });
+      this.basePolygon.vertex.push({ x: left + width, y: midPt + frame, label: `C${i += 1}` });
+      top = d.getEffectiveCoords()[0].y;
+    });
+
+    if (this.HDivider.length > 0) {
+      const midPt = (this.HDivider.at(-1).getEffectiveCoords()[2].y + this.getEffectiveCoords()[2].y) / 2;
+      this.basePolygon.vertex.push({ x: left, y: midPt - frame, label: `C${i += 1}` });
+      this.basePolygon.vertex.push({ x: left + width, y: midPt - frame, label: `C${i += 1}` });
+    }
+
+    this.VDivider.forEach(d => {
+      const midPt = (left + d.getEffectiveCoords()[0].x) / 2;
+      this.basePolygon.vertex.push({ x: midPt + frame, y: top, label: `C${i += 1}` });
+      this.basePolygon.vertex.push({ x: midPt + frame, y: top + height, label: `C${i += 1}` });
+      left = d.getEffectiveCoords()[0].x;
+    });
+
+    if (this.VDivider.length > 0) {
+      const midPt = (this.VDivider.at(-1).getEffectiveCoords()[2].x + this.getEffectiveCoords()[2].x) / 2;
+      this.basePolygon.vertex.push({ x: midPt - frame, y: top, label: `C${i += 1}` });
+      this.basePolygon.vertex.push({ x: midPt - frame, y: top + height, label: `C${i += 1}` });
+    }
+  }
+
+  // Assign width to divider
+  async assignWidthToDivider(sourceList = []) {
+    const borderSize = this.getBoundingRect();
+    const frame = 1.5 * this.xHeight / 4;
+    const innerWidth = borderSize.width - frame * 2;
+    const innerHeight = borderSize.height - frame * 2;
+    const innerLeft = borderSize.left + frame;
+    const innerTop = borderSize.top + frame;
+    const bbox = {
+      left: innerLeft,
+      top: innerTop,
+      right: innerLeft + innerWidth,
+      bottom: innerTop + innerHeight,
+      width: innerWidth,
+      height: innerHeight
+    };
+
+    // Handle HDividers
+    for (const d of this.HDivider) {
+      // Check if divider has fixed distance values
+      if (d.fixedTopValue || d.fixedBottomValue) {
+        // Store the group's initial position
+        const initialTop = d.getEffectiveCoords()[0].y;
+        const initialLeft = d.left;
+
+        // Redraw the divider with the border's dimensions
+        const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4 }, bbox, d.functionalType);
+        d.replaceBasePolygon(res);
+
+        // Position divider horizontally same as before
+        d.set({ left: innerLeft + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
+
+        // For fixed values, anchor to the border instead of objects
+        // Priority: use the bottom value if both are specified
+        if (d.fixedBottomValue !== undefined) {
+          // Anchor to bottom of border
+          d.set({ top: borderSize.top + borderSize.height - frame - d.fixedBottomValue - DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4 });
+
+          // Remove any existing anchoring
+          if (d.lockYToPolygon && Object.keys(d.lockYToPolygon).length > 0) {
+            removeAnchor(d.lockYToPolygon.TargetObject, d);
+          }
+          if (d.anchoredPolygon && d.anchoredPolygon.length > 0) {
+            for (const anchoredObj of d.anchoredPolygon) {
+              if (anchoredObj.lockYToPolygon && Object.keys(anchoredObj.lockYToPolygon).length > 0) {
+                removeAnchor(d, anchoredObj);
+              }
+            }
+          }
+        } else if (d.fixedTopValue !== undefined) {
+          // Anchor to top of border
+          d.set({ top: borderSize.top + frame + d.fixedTopValue + DividerMargin[d.functionalType]['top'] * d.xHeight / 4 });
+
+          // Remove any existing anchoring
+          if (d.lockYToPolygon && Object.keys(d.lockYToPolygon).length > 0) {
+            removeAnchor(d.lockYToPolygon.TargetObject, d);
+          }
+          if (d.anchoredPolygon && d.anchoredPolygon.length > 0) {
+            for (const anchoredObj of d.anchoredPolygon) {
+              if (anchoredObj.lockYToPolygon && Object.keys(anchoredObj.lockYToPolygon).length > 0) {
+                removeAnchor(d, anchoredObj);
+              }
+            }
+          }
+        }
+      } else {
+        // Regular object-anchored divider
+        const initialTop = d.getEffectiveCoords()[0].y;
+        const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4 }, bbox, d.functionalType);
+        d.replaceBasePolygon(res);
+        d.set({ top: initialTop, left: innerLeft + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
+      }
+      d.updateAllCoord(null, sourceList);
+    }
+
+    // Handle VDividers
+    for (const d of this.VDivider) {
+      // Check if divider has fixed distance values
+      if (d.fixedLeftValue || d.fixedRightValue) {
+        // Store the group's initial position
+        const initialLeft = d.getEffectiveCoords()[0].x;
+        const initialTop = d.top;
+
+        // Redraw the divider with the border's dimensions
+        const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, bbox, d.functionalType);
+        d.replaceBasePolygon(res);
+
+        // Position divider vertically same as before
+        d.set({ top: innerTop });
+
+        // For fixed values, anchor to the border instead of objects
+        // Priority: use the right value if both are specified
+        if (d.fixedRightValue !== undefined) {
+          // Anchor to right of border
+          d.set({ left: borderSize.left + borderSize.width - frame - d.fixedRightValue - DividerMargin[d.functionalType]['right'] * d.xHeight / 4 });
+
+          // Remove any existing anchoring
+          if (d.lockXToPolygon && Object.keys(d.lockXToPolygon).length > 0) {
+            removeAnchor(d.lockXToPolygon.TargetObject, d);
+          }
+          if (d.anchoredPolygon && d.anchoredPolygon.length > 0) {
+            for (const anchoredObj of d.anchoredPolygon) {
+              if (anchoredObj.lockXToPolygon && Object.keys(anchoredObj.lockXToPolygon).length > 0) {
+                removeAnchor(d, anchoredObj);
+              }
+            }
+          }
+        } else if (d.fixedLeftValue !== undefined) {
+          // Anchor to left of border
+          d.set({ left: borderSize.left + frame + d.fixedLeftValue + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
+
+          // Remove any existing anchoring
+          if (d.lockXToPolygon && Object.keys(d.lockXToPolygon).length > 0) {
+            removeAnchor(d.lockXToPolygon.TargetObject, d);
+          }
+          if (d.anchoredPolygon && d.anchoredPolygon.length > 0) {
+            for (const anchoredObj of d.anchoredPolygon) {
+              if (anchoredObj.lockXToPolygon && Object.keys(anchoredObj.lockXToPolygon).length > 0) {
+                removeAnchor(d, anchoredObj);
+              }
+            }
+          }
+        }
+      } else {
+        // Regular object-anchored divider
+        const initialLeft = d.getEffectiveCoords()[0].x;
+        const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, bbox, d.functionalType);
+        d.replaceBasePolygon(res);
+        d.set({ top: initialTop, left: initialLeft });
+      }
+      d.updateAllCoord(null, sourceList);
+    }
+  }
+}
+
+
+function drawLabeledBorder(borderType, xHeight, bbox, color) {
+  const block = { width: bbox.right - bbox.left, height: bbox.bottom - bbox.top };
+  const rounding = BorderUtilities.calcBorderRounding(borderType, xHeight, bbox);
+  const shapeMeta = BorderTypeScheme[borderType](xHeight, block, rounding);
+  const baseGroup = [];
+
+  // Create polygon with labeled vertices
+  shapeMeta.path.forEach(async (p) => {
+    const vertexleft = -Math.min(...p.vertex.map(v => v.x));
+    const vertextop = -Math.min(...p.vertex.map(v => v.y));
+
+    p.vertex.forEach((vertex) => {
+      vertex.x = vertex.x + bbox.left;
+      vertex.y = vertex.y + bbox.top;
+    });
+
+    const pathData = vertexToPath({ path: [p] });
+    baseGroup.push(
+      new fabric.Path(pathData, {
+        left: bbox.left - vertexleft,
+        top: bbox.top - vertextop,
+        fill: (p['fill'] == 'background') || (p['fill'] == 'symbol') || (p['fill'] == 'border') ? BorderColorScheme[color][p['fill']] : p['fill'],
+        objectCaching: false,
+        strokeWidth: 0,
+      })
+    );
+  });
+
+  const GroupedBorder = new fabric.Group(baseGroup);
+  GroupedBorder.vertex = shapeMeta.path.map(p => p.vertex).flat();
+  GroupedBorder.rounding = rounding;
+
+  return GroupedBorder;
+}
+
+
+
+
+

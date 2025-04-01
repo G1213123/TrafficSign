@@ -101,25 +101,28 @@ let FormBorderWrapComponent = {
   },
 
   StackDividerHandler: function () {
-        selectObjectHandler('Select object above divider', function (aboveObject) {
-      selectObjectHandler('Select object below divider', function (belowObject) {
-        BorderUtilities.HDividerCreate(aboveObject, belowObject)
+    selectObjectHandler('Select object above divider or type in fixed distance to border top', function (aboveObject, options, aboveValue) {
+      selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
+        // Pass both objects and entered values to allow for fixed distance options
+        HDividerCreate(aboveObject, belowObject, aboveValue, belowValue)
       })
     })
   },
 
   GantryDividerHandler: function () {
-        selectObjectHandler('Select object left to divider', function (leftObject) {
-      selectObjectHandler('Select object right to divider', function (rightObject) {
-        BorderUtilities.VDividerCreate(leftObject, rightObject)
+    selectObjectHandler('Select object left to divider or type in fixed distance to border left', function (leftObject, options, leftValue) {
+      selectObjectHandler('Select object right to divider or type in fixed distance to border right', function (rightObject, options, rightValue) {
+        // Pass both objects and entered values to allow for fixed distance options
+        VDividerCreate(leftObject, rightObject, leftValue, rightValue)
       })
     })
   },
 
   GantryLineHandler: function () {
-        selectObjectHandler('Select object above divider', function (aboveObject) {
-      selectObjectHandler('Select object below divider', function (belowObject) {
-        BorderUtilities.HLineCreate(aboveObject, belowObject)
+    selectObjectHandler('Select object above divider or type in fixed distance to border top', function (aboveObject, options, aboveValue) {
+      selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
+        // Pass both objects and entered values to allow for fixed distance options
+        HLineCreate(aboveObject, belowObject, aboveValue, belowValue)
       })
     })
   },

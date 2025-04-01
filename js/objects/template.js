@@ -337,6 +337,12 @@ const roadMapTemplate = {
     },
 };
 
+const symbolsPermittedAngle = {
+    'StackArrow': [-135,-90,-45,-22.5,0,22.5,45,90,135],
+    'Airport': [-90,-45,0,45,90],
+
+};
+
 const symbolsTemplate = {
     // TODO: permitted angle
 
@@ -1883,3 +1889,450 @@ const ChtDestinations = [{ "Hong Kong Island": ["香港", "香港(東)", "香港
 { "Kowloon": ["九龍", "九龍(中)", "九龍(東)", "九龍(西)", "筆架山", "荼果嶺", "長沙灣", "長沙灣(西)", "彩虹", "竹園", "郵輪碼頭", "鑽石山", "坑口", "何文田", "紅磡", "紅磡灣", "啟德", "京士柏", "九龍灣", "九龍城區", "九龍塘", "觀塘", "觀塘商貿區", "荔枝角", "荔枝角(南)", "藍田", "樂富", "馬頭圍", "美孚", "旺角", "牛池灣", "牛頭角", "昂船洲", "坪石", "寶琳", "新蒲崗", "深水埗", "深水埗(西)", "石硤尾", "秀茂坪", "大角咀", "大角咀(西)", "調景嶺", "土瓜灣", "尖沙咀", "尖沙咀東", "慈雲山", "橫頭磡", "西九文化區", "西九龍總站", "黃大仙", "油馬地", "油馬地(西)", "油塘", "又一村",] },
 { "New Terriitories": ["大嶼山", "機場", "凹頭", "清水灣", "愉景灣", "錦綉花園", "粉嶺", "火炭", "廈村", "顯田", "香園圍", "康樂園", "洪水橋", "錦田", "葵涌", "葵芳", "葵興", "古洞", "麗景", "藍地", "大嶼山", "流浮山", "梨木樹", "落馬洲", "朗屏", "聯和墟", "鹿頸", "龍鼓灘", "馬鞍山", "馬鞍山市中心", "馬料水", "馬灣", "文錦渡", "梅窩", "昂坪", "安樂村", "白石角", "北潭涌", "八鄉", "坪輋", "坪山", "貝澳", "內河碼頭", "西沙", "西貢", "三聖墟", "新田", "新墟", "科學園", "沙頭角", "沙田", "沙田巿中心", "深井", "石崗", "石籬", "石壁", "石湖墟", "石蔭", "深圳灣", "上水", "尚德", "小欖", "小瀝源", "掃管笏", "太興", "大美督", "大澳", "大埔", "大埔工業邨", "大埔滘", "大埔墟", "大埔市中心", "大埔(北)", "大埔(南)", "大水坑", "大圍", "天水圍", "大連排", "大窩口", "田心", "天水圍(北)", "天水圍(南)", "天水圍(中)", "天水圍(西)", "汀九", "調景嶺", "將軍澳", "將軍澳(東)", "將軍澳工業邨", "將軍澳市中心", "青龍頭", "青衣", "青衣市中心", "青衣(北)", "青衣(南)", "青衣(東)", "荃灣", "荃灣(中)", "荃灣(北)", "荃灣(南)", "翠林", "屯門", "屯門市中心", "屯門(西)", "東涌", "東涌市中心", "東涌(西)", "東涌(北)", "東頭工業區", "和合石", "烏溪沙", "圓洲角", "元朗", "元朗(中)", "元朗(南)", "元朗(南)", "元朗工業邨"] }
 ]
+
+
+const BorderColorScheme = {
+    "Blue Background": {
+      'background': 'rgb(0, 51, 162)',
+      'symbol': '#ffffff',
+      'border': '#ffffff',
+    },
+    "Green Background": {
+      'background': 'rgb(0, 105, 40)',
+      'symbol': '#ffffff',
+      'border': '#ffffff',
+    },
+    "White Background": {
+      'background': '#ffffff',
+      'symbol': '#000000',
+      'border': '#000000',
+    },
+    "White Background - Parking": {
+      'background': '#ffffff',
+      'symbol': '#000000',
+      'border': 'rgb(0, 15, 162)',
+    },
+    "Yellow Background": {
+      'background': 'rgb(233, 181, 0)',
+      'symbol': '#000000',
+      'border': '#000000',
+    },
+    "Brown Background": {
+      'background': 'rgb(117,75,42)',
+      'symbol': '#ffffff',
+      'border': '#ffffff',
+    },
+  }
+  
+  const BorderTypeScheme = {
+    'stack': StackBorderTemplate,
+    'flagLeft': FlagLeftBorderTemplate,
+    'flagRight': FlagRightBorderTemplate,
+    'exit': ExitBorderTemplate,
+    'panel': PanelTemplate,
+    'greenPanel': GreenPanelTemplate,
+    'rectangle': RectTemplate,
+  }
+
+  
+function applyLengthAndRounding(path, length) {
+    path.vertex.forEach(vertex => {
+      vertex.x *= length;
+      vertex.y *= length;
+      if (vertex.radius) vertex.radius *= length;
+    });
+    path.arcs.forEach(arc => {
+      arc.radius *= length;
+    });
+  }
+  
+  function RectTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+    const length = xHeight / 4;
+  
+    const padding = {
+      left: 1,
+      top: 1,
+      right: 1,
+      bottom: 1,
+    };
+  
+    const returnBorder = [{
+      'vertex': [
+        { x: 0 - padding.left, y: 0 - padding.top, label: 'V1', start: 1 },
+        { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V2', start: 0 },
+        { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V3', start: 0 },
+        { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V4', start: 0 },
+      ], 'arcs': [], 'fill': 'background'
+    }];
+  
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
+  }
+  
+  function PanelTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+    const length = xHeight / 4;
+  
+    const padding = {
+      left: 2.5,
+      top: 2.5,
+      right: 2.5,
+      bottom: 1.5,
+    };
+  
+    const returnBorder = [{
+      'vertex': [
+        { x: 0 - padding.left, y: 0 - padding.top, label: 'V1', radius: 1, start: 1 },
+        { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V2', radius: 1, start: 0 },
+        { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V3', radius: 1, start: 0 },
+        { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V4', radius: 1, start: 0 },
+      ], 'arcs': [], 'fill': 'background'
+    }];
+  
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
+  }
+  
+  function GreenPanelTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+    const length = xHeight / 4;
+  
+    const padding = {
+      left: 2.5,
+      top: 2.5,
+      right: 2.5,
+      bottom: 1.5,
+    };
+  
+    const border = 0.5;
+    const returnBorder = [{
+      'vertex': [
+        { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', radius: 1.5, start: 1 },
+        { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', radius: 1.5, start: 0 },
+        { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, label: 'V3', radius: 1.5, start: 0 },
+        { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, label: 'V4', radius: 1.5, start: 0 },
+      ], 'arcs': [], 'fill': '#ffffff'
+    }, {
+      'vertex': [
+        { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', radius: 1, start: 1 },
+        { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', radius: 1, start: 0 },
+        { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V7', radius: 1, start: 0 },
+        { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V8', radius: 1, start: 0 },
+      ], 'arcs': [], 'fill': 'rgb(0, 105, 40)'
+    }];
+  
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
+  }
+  
+  function StackBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+    const length = xHeight / 4;
+    rounding.x /= length;
+    rounding.y /= length;
+    const padding = {
+      left: 2.5 + rounding.x,
+      top: 2.5 + rounding.y,
+      right: 2.5 + rounding.x,
+      bottom: 1.5 + rounding.y,
+    };
+  
+    const border = 1.5;
+    const returnBorder = [{
+      'vertex': [
+        { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', radius: 3, start: 1 },
+        { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', radius: 3, start: 0 },
+        { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, label: 'V3', radius: 3, start: 0 },
+        { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, label: 'V4', radius: 3, start: 0 },
+      ], 'arcs': [], 'fill': 'border'
+    }, {
+      'vertex': [
+        { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', radius: 1.5, start: 1 },
+        { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', radius: 1.5, start: 0 },
+        { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V7', radius: 1.5, start: 0 },
+        { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V8', radius: 1.5, start: 0 },
+      ], 'arcs': [], 'fill': 'background'
+    }];
+  
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
+  }
+  
+  function ExitBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+    const length = xHeight / 4;
+    const padding = {
+      left: 0.5,
+      top: 0.3,
+      right: 0.5,
+      bottom: 0,
+    };
+  
+    const border = 0.5;
+    const returnBorder = [{
+      'vertex': [
+        { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', start: 1 },
+        { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', start: 0 },
+        { x: block.width / length + padding.right + border, y: 7.2, label: 'V3', start: 0 },
+        { x: 0 - padding.left - border, y: 7.2, label: 'V4', start: 0 },
+      ], 'arcs': [], 'fill': '#ffffff'
+    }, {
+      'vertex': [
+        { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', start: 1 },
+        { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', start: 0 },
+        { x: block.width / length + padding.right, y: 6.7, label: 'V7', start: 0 },
+        { x: 0 - padding.right, y: 6.7, label: 'V8', start: 0 },
+      ], 'arcs': [], 'fill': '#000000'
+    }];
+  
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
+  }
+  
+  function FlagLeftBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+    const length = xHeight / 4;
+    rounding.x /= length;
+    rounding.y /= length;
+    const variables = {
+      '2Lines': {
+        'A': 1.5,
+        'B': 2.5,
+        'C': 4.5,
+        'D': 1.5,
+        'E': 2.5,
+        'F': 1.5,
+        'G': 1.5,
+        'H': 3,
+      },
+      '4Lines': {
+        'A': 1.5,
+        'B': 3.5,
+        'C': 6,
+        'D': 1.5,
+        'E': 2.5,
+        'F': 1.5,
+        'G': 1.5,
+        'H': 3,
+      }
+    };
+    const v = block.height > 4.85 * xHeight ? variables['4Lines'] : variables['2Lines'];
+  
+    const padding = {
+      left: v.D + (block.height / length + v.E + rounding.y / 2 - v.D) / 2 / Math.tan(Math.PI / 3) + (v.A + v.B + v.C) / Math.cos(Math.PI / 6),
+      top: v.E + rounding.y,
+      right: v.E,
+      bottom: v.D + rounding.y,
+    };
+  
+    const border = v.A;
+    const panel = {
+      height: (block.height / length + v.E + rounding.y * 2 + v.D + v.A * 2)
+    };
+  
+    const returnBorder = [{
+      'vertex': [{ x: 0, y: 0, label: 'V0', start: 1 }], 'arcs': [], 'fill': 'symbol'
+    }, {
+      'vertex': [
+        { x: 0 - padding.left + panel.height / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top - border, radius: v.H, label: 'V1', start: 1 },
+        { x: block.width / length + padding.right + border, y: 0 - padding.top - border, radius: v.H, label: 'V2', start: 0 },
+        { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, radius: v.H, label: 'V3', start: 0 },
+        { x: 0 - padding.left + panel.height / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom + border, radius: v.H, label: 'V4', start: 0 },
+        { x: 0 - padding.left, y: 0 - v.E - rounding.y - border + panel.height / 2, radius: v.F, label: 'V5', start: 0 }
+      ], 'arcs': [], 'fill': 'border'
+    }, {
+      'vertex': [
+        { x: 0 - padding.left + v.A + (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top, radius: v.G, label: 'V6', start: 1 },
+        { x: block.width / length + padding.right, y: 0 - padding.top, radius: v.G, label: 'V7', start: 0 },
+        { x: block.width / length + padding.right, y: block.height / length + padding.bottom, radius: v.G, label: 'V8', start: 0 },
+        { x: 0 - padding.left + v.A + (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom, radius: v.G, label: 'V9', start: 0 },
+        { x: 0 - padding.left + v.A, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V10', start: 0 }
+      ], 'arcs': [], 'fill': 'background'
+    }, {
+      'vertex': [
+        { x: 0 - v.D - v.C / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y + v.D, label: 'V11', start: 1 },
+        { x: 0 - v.D, y: 0 - v.E - rounding.y + v.D, label: 'V12', start: 0 },
+        { x: -padding.left + v.A + (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V13', start: 0 },
+        { x: 0 - v.D, y: 0 + block.height / length, label: 'V14', start: 0 },
+        { x: 0 - v.D - v.C / Math.cos(Math.PI / 6), y: 0 + block.height / length, label: 'V15', start: 0 },
+        { x: -padding.left + v.A + v.B / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V16', start: 0 },
+      ], 'arcs': [], 'fill': 'symbol'
+    }];
+  
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
+  }
+  
+  function FlagRightBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+    const length = xHeight / 4;
+    rounding.x /= length;
+    rounding.y /= length;
+    const variables = {
+      '2Lines': {
+        'A': 1.5,
+        'B': 2.5,
+        'C': 4.5,
+        'D': 1.5,
+        'E': 2.5,
+        'F': 1.5,
+        'G': 1.5,
+        'H': 3,
+      },
+      '4Lines': {
+        'A': 1.5,
+        'B': 3.5,
+        'C': 6,
+        'D': 1.5,
+        'E': 2.5,
+        'F': 1.5,
+        'G': 1.5,
+        'H': 3,
+      }
+    };
+    const v = block.height > 4.85 * xHeight ? variables['4Lines'] : variables['2Lines'];
+  
+    const padding = {
+      left: v.E,
+      top: v.E + rounding.y,
+      right: v.D + (block.height / length + v.E + rounding.y / 2 - v.D) / 2 / Math.tan(Math.PI / 3) + (v.A + v.B + v.C) / Math.cos(Math.PI / 6),
+      bottom: v.D + rounding.y,
+    };
+  
+    const border = v.A;
+    const panel = {
+      height: (block.height / length + v.E + rounding.y * 2 + v.D + v.A * 2)
+    };
+  
+    const returnBorder = [{
+      'vertex': [{ x: 0, y: 0, label: 'V0', start: 1 }], 'arcs': [], 'fill': 'symbol'
+    }, {
+      'vertex': [
+        { x: 0 - padding.left - border, y: 0 - padding.top - border, radius: v.H, label: 'V1', start: 1 },
+        { x: block.width / length + padding.right - panel.height / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top - border, radius: v.H, label: 'V2', start: 0 },
+        { x: block.width / length + padding.right, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, radius: v.F, label: 'V3', start: 0 },
+        { x: block.width / length + padding.right - panel.height / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom + border, radius: v.H, label: 'V4', start: 0 },
+        { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, radius: v.H, label: 'V5', start: 0 },
+      ], 'arcs': [], 'fill': 'border'
+    }, {
+      'vertex': [
+        { x: 0 - padding.left, y: 0 - padding.top, radius: v.G, label: 'V8', start: 1 },
+        { x: block.width / length + padding.right - v.A - (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top, radius: v.G, label: 'V7', start: 0 },
+        { x: block.width / length + padding.right - v.A, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V8', start: 0 },
+        { x: block.width / length + padding.right - v.A - (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom, radius: v.G, label: 'V9', start: 0 },
+        { x: 0 - padding.left, y: block.height / length + padding.bottom, radius: v.G, label: 'V10', start: 0 },
+      ], 'arcs': [], 'fill': 'background'
+    }, {
+      'vertex': [
+        { x: block.width / length + v.D + v.C / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y + v.D, label: 'V11', start: 1 },
+        { x: block.width / length + v.D, y: 0 - v.E - rounding.y + v.D, label: 'V12', start: 0 },
+        { x: block.width / length + padding.right - v.A - (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V13', start: 0 },
+        { x: block.width / length + v.D, y: 0 + block.height / length, label: 'V14', start: 0 },
+        { x: block.width / length + v.D + v.C / Math.cos(Math.PI / 6), y: 0 + block.height / length, label: 'V15', start: 0 },
+        { x: block.width / length + padding.right - v.A - v.B / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V16', start: 0 },
+      ], 'arcs': [], 'fill': 'symbol'
+    }];
+  
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
+  }
+
+  
+const DividerScheme = {
+    'HDivider': HDividerTemplate,
+    'VDivider': VDividerTemplate,
+    'HLine': HLineTemplate,
+}
+
+function HDividerTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
+    const length = xHeight / 4;
+    const Xwidth = block.width / length;
+    rounding.x /= length;
+    rounding.y /= length;
+
+    const returnBorder = [{
+        'vertex': [
+            { x: 0, y: 0, label: 'V1', start: 1 },
+            { x: Xwidth / 2, y: 0, label: 'V2', radius: 1.5, start: 0 },
+            { x: Xwidth / 2, y: -1.5, label: 'V3', start: 0 },
+            { x: Xwidth / 2, y: 2.5, label: 'V4', start: 0 },
+            { x: Xwidth / 2, y: 1, label: 'V5', radius: 1.5, start: 0 },
+            { x: -Xwidth / 2, y: 1, label: 'V6', radius: 1.5, start: 0 },
+            { x: -Xwidth / 2, y: 2.5, label: 'V7', start: 0 },
+            { x: -Xwidth / 2, y: -1.5, label: 'V8', start: 0 },
+            { x: -Xwidth / 2, y: 0, label: 'V9', radius: 1.5, start: 0 },
+        ], 'arcs': [], 'fill': 'border'
+    },];
+
+    returnBorder.forEach(p => {
+        p.vertex.forEach(vertex => {
+            vertex.x *= length;
+            vertex.x += position.left + (Xwidth / 2) * length;
+            vertex.y *= length;
+            vertex.y += position.top + (1.5) * length;
+            if (vertex.radius) vertex.radius *= length;
+        });
+    });
+
+    return { path: returnBorder };
+}
+
+function VDividerTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
+    const length = xHeight / 4;
+    const Xwidth = block.height / length;
+    rounding.x /= length;
+    rounding.y /= length;
+
+    const returnBorder = [{
+        'vertex': [
+            { x: 0, y: 0, label: 'V1', start: 1 },
+            { x: 0, y: Xwidth / 2, label: 'V2', radius: 1.5, start: 0 },
+            { x: -1.5, y: Xwidth / 2, label: 'V3', start: 0 },
+            { x: 2.5, y: Xwidth / 2, label: 'V4', start: 0 },
+            { x: 1, y: Xwidth / 2, label: 'V5', radius: 1.5, start: 0 },
+            { x: 1, y: -Xwidth / 2, label: 'V6', radius: 1.5, start: 0 },
+            { x: 2.5, y: -Xwidth / 2, label: 'V7', start: 0 },
+            { x: -1.5, y: -Xwidth / 2, label: 'V8', start: 0 },
+            { x: 0, y: -Xwidth / 2, label: 'V9', radius: 1.5, start: 0 },
+        ], 'arcs': [], 'fill': 'border'
+    },];
+
+    returnBorder.forEach(p => {
+        p.vertex.forEach(vertex => {
+            vertex.x *= length;
+            vertex.x += position.left + (1.5) * length;
+            vertex.y *= length;
+            vertex.y += position.top + (Xwidth / 2) * length;
+            if (vertex.radius) vertex.radius *= length;
+        });
+    });
+    return { path: returnBorder };
+}
+
+function HLineTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
+    const length = xHeight / 4;
+    const Xwidth = block.width / length;
+    rounding.x /= length;
+    rounding.y /= length;
+
+    const returnBorder = [{
+        'vertex': [
+            { x: 0, y: 0, label: 'V1', start: 1 },
+            { x: Xwidth / 2 - 1.5, y: 0, label: 'V2', start: 0 },
+            { x: Xwidth / 2 - 1.5, y: 1, label: 'V3', start: 0 },
+            { x: -Xwidth / 2 + 1.5, y: 1, label: 'V4', start: 0 },
+            { x: -Xwidth / 2 + 1.5, y: 0, label: 'V5', start: 0 },
+        ], 'arcs': [], 'fill': 'border'
+    },];
+
+    returnBorder.forEach(p => {
+        p.vertex.forEach(vertex => {
+            vertex.x *= length;
+            vertex.x += position.left + (Xwidth / 2) * length;
+            vertex.y *= length;
+            vertex.y += position.top + (1) * length;
+        });
+    });
+
+    return { path: returnBorder };
+}
+
+const DividerMargin = {
+    'HDivider': { left: 0, top: 0, right: 0, bottom: 1 },
+    'VDivider': { left: 1, top: 0, right: 1, bottom: 0 },
+    'HLine': { left: 1.5, top: 1, right: 1.5, bottom: 1 },
+}

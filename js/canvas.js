@@ -6,6 +6,7 @@ let canvasObject = []
 canvas.isDragging = false;
 canvas.lastPosX = 0;
 canvas.lastPosY = 0;
+let cursorClickMode = 'normal'; // Default click mode
 
   // Settings configuration - can be accessed by other components
  let GeneralSettings= {
@@ -109,13 +110,14 @@ canvas.on('mouse:up', function (opt) {
 
 });
 
-canvas.on('mouse:wheel', function (opt) {
+// Handle zoom events
+canvas.on('mouse:wheel', function(opt) {
   var delta = opt.e.deltaY;
   var zoom = canvas.getZoom();
   zoom *= 0.999 ** delta;
   if (zoom > 20) zoom = 20;
   if (zoom < 0.01) zoom = 0.01;
-  canvas.zoomToPoint(new fabric.Point(opt.e.clientX, opt.e.clientY), zoom);
+  canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
   opt.e.preventDefault();
   opt.e.stopPropagation();
   DrawGrid()
@@ -125,6 +127,12 @@ canvas.on('mouse:wheel', function (opt) {
   if (activeObj && activeObj.anchorageLink && activeObj.anchorageLink.length > 0) {
     // Redraw anchor linkages to update with new zoom level
     activeObj.drawAnchorLinkage();
+  }
+  
+  // Update dimension lines on zoom if they exist
+  if (activeObj && activeObj.showDimensions) {
+    // Refresh dimension lines with new zoom level
+    activeObj.showDimensions();
   }
   
   canvas.getObjects().forEach(obj => {
