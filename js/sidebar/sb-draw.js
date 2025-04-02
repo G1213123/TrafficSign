@@ -484,8 +484,9 @@ let FormDrawAddComponent = {
     const svgHeight = 100;
 
     // Calculate the bounding box of the path
-    const tempPath = new fabric.Path(pathData, { strokeWidth: 0 });
-    let symbolSize = { width: tempPath.width, height: tempPath.height, left: tempPath.left, top: tempPath.top };
+    const tempPath = await fabric.loadSVGFromString(pathData);
+    const tempSymbol = fabric.util.groupSVGElements(tempPath.objects);
+    let symbolSize = { width: tempSymbol.width, height: tempSymbol.height, left: tempSymbol.left, top: tempSymbol.top };
     // override the err width and height of symbol with circular border
     if (symbolType === 'MTR') {
       symbolSize.width = 130;

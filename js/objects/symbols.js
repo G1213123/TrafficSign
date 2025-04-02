@@ -404,6 +404,8 @@ class SymbolObject extends BaseGroup {
     
     // Initialize the new path with transformed coordinates and replace the current one
     this.replaceBasePolygon(symbolPath);
+
+    this.showDimensions()
   }
 }
 

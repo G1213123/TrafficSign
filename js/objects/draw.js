@@ -505,6 +505,7 @@ class BaseGroup extends fabric.Group {
     if (canvas.getActiveObject() === this) {
       this.drawAnchorLinkage();
       this.showLockHighlights();
+      this.showDimensions();
     }
 
     sourceList.includes(this) ? sourceList : sourceList.push(this);
@@ -1269,13 +1270,13 @@ class VertexControl extends fabric.Control {
         this.baseGroup.set({
           left: newLeft,
         });
-        this.baseGroup.showDimensions()
+
       }
       if (!this.baseGroup.lockMovementY) {
         this.baseGroup.set({
           top: newTop,
         });
-        this.baseGroup.showDimensions()
+
       }
 
     } else {
@@ -1287,7 +1288,7 @@ class VertexControl extends fabric.Control {
       })
       this.baseGroup.onMove()
     }
-
+    
     this.baseGroup.setCoords();
     this.baseGroup.updateAllCoord();
 

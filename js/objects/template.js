@@ -70,7 +70,7 @@ const roadMapTemplate = {
     'Normal Conventional': {
         path: [{
             'vertex': [
-                { x: -3, y: 30, label: 'V1', start: 1, display: 0 },
+                { x: -3, y: 30, label: 'V1', start: 1, display: 1 },
                 { x: -3, y: 12.3693, label: 'V13', start: 0, display: 0 },
                 { x: -3.6923, y: 11.4178, label: 'V14', start: 0, display: 0 },
                 { x: 3.6923, y: 11.4178, label: 'V15', start: 0, display: 0 },
@@ -102,7 +102,7 @@ const roadMapTemplate = {
     'U-turn Conventional': {
         path: [{
             'vertex': [
-                { x: -8, y: 45, label: 'V1', start: 1, display: 0 },
+                { x: -8, y: 45, label: 'V1', start: 1, display: 1 },
                 { x: -8, y: 9.3808, label: 'V13', start: 0, display: 0 },
                 { x: -8.3077, y: 8.6592, label: 'V14', start: 0, display: 0 },
                 { x: -2.7692, y: 11.6761, label: 'V15', start: 0, display: 0 },
@@ -134,7 +134,7 @@ const roadMapTemplate = {
     'Auxiliary Conventional': {
         path: [{
             'vertex': [
-                { x: -3, y: 30, label: 'V1', start: 1, display: 0 },
+                { x: -3, y: 30, label: 'V1', start: 1, display: 1 },
                 { x: -3, y: 20.3345, label: 'V2', start: 0, radius: 4, display: 0 },
                 { x: -19.3345, y: 4, label: 'V3', start: 0, radius: 4, display: 0 },
                 { x: -27, y: 4, label: 'V4', start: 0, display: 0 },
@@ -179,7 +179,7 @@ const roadMapTemplate = {
     'Normal Spiral': {
         path: [{
             'vertex': [
-                { x: -2, y: 24, label: 'V1', start: 1, display: 0 },
+                { x: -2, y: 24, label: 'V1', start: 1, display: 1 },
                 { x: -2, y: 20.785, label: 'V2', start: 0, display: 0 },
                 { x: -7, y: 12.124, label: 'V3', start: 0, display: 0 },
                 { x: 2.392, y: 13.794, label: 'V4', start: 0, display: 0 },
@@ -210,7 +210,7 @@ const roadMapTemplate = {
     'U-turn Spiral': {
         path: [{
             'vertex': [
-                { x: -6, y: 45, label: 'V1', start: 1, display: 0 },
+                { x: -6, y: 45, label: 'V1', start: 1, display: 1 },
                 { x: -6, y: 17.8885, label: 'V2', start: 0, display: 0 },
                 { x: -9.3333, y: 10.4350, label: 'V3', start: 0, display: 0 },
                 { x: -2.6252, y: 13.7517, label: 'V4', start: 0, display: 0 },
@@ -242,7 +242,7 @@ const roadMapTemplate = {
     'Auxiliary Spiral': {
         path: [{
             'vertex': [
-                { x: -2, y: 30, label: 'V1', start: 1, display: 0 },
+                { x: -2, y: 30, label: 'V1', start: 1, display: 1 },
                 { x: -2, y: 24.1630, label: 'V2', start: 0, radius: 4, display: 0 },
                 { x: -24.3045, y: 1.8584, label: 'V3', start: 0, radius: 4, display: 0 },
                 { x: -31.2484, y: 1.2509, label: 'V4', start: 0, display: 0 },
@@ -612,7 +612,7 @@ const symbolsTemplate = {
                 ], 'arcs': [
                     { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -633,7 +633,7 @@ const symbolsTemplate = {
                 ], 'arcs': [
                     { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -654,7 +654,7 @@ const symbolsTemplate = {
                 ], 'arcs': [
                     { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -675,7 +675,7 @@ const symbolsTemplate = {
                 ], 'arcs': [
                     { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -696,7 +696,7 @@ const symbolsTemplate = {
                 ], 'arcs': [
                     { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -717,7 +717,7 @@ const symbolsTemplate = {
                 ], 'arcs': [
                     { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -738,7 +738,7 @@ const symbolsTemplate = {
                 ], 'arcs': [
                     { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -759,7 +759,7 @@ const symbolsTemplate = {
                 ], 'arcs': [
                     { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -780,7 +780,7 @@ const symbolsTemplate = {
                 ], 'arcs': [
                     { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -805,7 +805,7 @@ const symbolsTemplate = {
                     { start: 'V4', end: 'V5', radius: 9, direction: 1, sweep: 0 },
                     { start: 'V5', end: 'V6', radius: 9, direction: 1, sweep: 0 },
                     { start: 'V6', end: 'V7', radius: 4, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -830,7 +830,7 @@ const symbolsTemplate = {
                     { start: 'V4', end: 'V5', radius: 9, direction: 1, sweep: 0 },
                     { start: 'V5', end: 'V6', radius: 9, direction: 1, sweep: 0 },
                     { start: 'V6', end: 'V7', radius: 4, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -855,7 +855,7 @@ const symbolsTemplate = {
                     { start: 'V4', end: 'V5', radius: 9, direction: 1, sweep: 0 },
                     { start: 'V5', end: 'V6', radius: 9, direction: 1, sweep: 0 },
                     { start: 'V6', end: 'V7', radius: 4, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -1471,7 +1471,7 @@ const symbolsTemplateAlt = {
                 ], 'arcs': [
                     { start: 'V3', end: 'V4', radius: 5.5, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 5.5, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -1504,7 +1504,7 @@ const symbolsTemplateAlt = {
                 ], 'arcs': [
                     { start: 'V3', end: 'V4', radius: 5.5, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 5.5, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -1538,7 +1538,7 @@ const symbolsTemplateAlt = {
                 ], 'arcs': [
                     { start: 'V3', end: 'V4', radius: 5.5, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 5.5, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -1572,7 +1572,7 @@ const symbolsTemplateAlt = {
                 ], 'arcs': [
                     { start: 'V3', end: 'V4', radius: 5.5, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 5.5, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -1606,7 +1606,7 @@ const symbolsTemplateAlt = {
                 ], 'arcs': [
                     { start: 'V3', end: 'V4', radius: 5.5, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 5.5, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -1640,7 +1640,7 @@ const symbolsTemplateAlt = {
                 ], 'arcs': [
                     { start: 'V3', end: 'V4', radius: 5.5, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 5.5, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -1674,7 +1674,7 @@ const symbolsTemplateAlt = {
                 ], 'arcs': [
                     { start: 'V3', end: 'V4', radius: 5.5, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 5.5, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -1708,7 +1708,7 @@ const symbolsTemplateAlt = {
                 ], 'arcs': [
                     { start: 'V3', end: 'V4', radius: 5.5, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 5.5, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -1742,7 +1742,7 @@ const symbolsTemplateAlt = {
                 ], 'arcs': [
                     { start: 'V3', end: 'V4', radius: 5.5, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 5.5, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -1784,7 +1784,7 @@ const symbolsTemplateAlt = {
                     { start: 'V4', end: 'V5', radius: 8.5, direction: 1, sweep: 0 },
                     { start: 'V5', end: 'V6', radius: 8.5, direction: 1, sweep: 0 },
                     { start: 'V6', end: 'V7', radius: 3.5, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -1826,7 +1826,7 @@ const symbolsTemplateAlt = {
                     { start: 'V4', end: 'V5', radius: 8.5, direction: 1, sweep: 0 },
                     { start: 'V5', end: 'V6', radius: 8.5, direction: 1, sweep: 0 },
                     { start: 'V6', end: 'V7', radius: 3.5, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
@@ -1868,7 +1868,7 @@ const symbolsTemplateAlt = {
                     { start: 'V4', end: 'V5', radius: 8.5, direction: 1, sweep: 0 },
                     { start: 'V5', end: 'V6', radius: 8.5, direction: 1, sweep: 0 },
                     { start: 'V6', end: 'V7', radius: 3.5, direction: 1, sweep: 0 },
-                ], 'fill': '#ffff01'
+                ], 'fill': 'rgb(233, 181, 0)'
             },
         ],
         text: [
