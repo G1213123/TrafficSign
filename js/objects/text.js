@@ -8,7 +8,7 @@ class TextObject extends BaseGroup {
   constructor(options = {}) {
     options.color = options.color === 'White' ? '#ffffff' : (options.color === 'Black' ? '#000000' : options.color);
     // Create the fabric objects first
-    const { txtCharList, txtFrameList } = TextObject.createTextElements(
+    const { txtCharList, txtFrameList , containsNonAlphabetic} = TextObject.createTextElements(
       options.text || '',
       options.xHeight || 100,
       options.color || '#ffffff',
@@ -42,7 +42,7 @@ class TextObject extends BaseGroup {
     this.color = options.color;
     this.txtCharList = txtCharList;
     this.txtFrameList = txtFrameList;
-    this.language = options.language || 'en';
+    this.containsNonAlphabetic = containsNonAlphabetic;
 
     // Add double-click event handler
     this.on('mousedblclick', this.onDoubleClick.bind(this));
@@ -248,7 +248,7 @@ class TextObject extends BaseGroup {
         charWidth * xHeight / 100;
     }
 
-    return { txtCharList, txtFrameList };
+    return { txtCharList, txtFrameList, containsNonAlphabetic };
   }
 
   /**
@@ -299,7 +299,7 @@ class TextObject extends BaseGroup {
     this.removeAll();
 
     // Create new text elements
-    const { txtCharList, txtFrameList } = TextObject.createTextElements(
+    const { txtCharList, txtFrameList, containsNonAlphabetic } = TextObject.createTextElements(
       newText,
       newXHeight,
       newColor,
@@ -331,6 +331,7 @@ class TextObject extends BaseGroup {
     this.color = newColor;
     this.txtCharList = txtCharList;
     this.txtFrameList = txtFrameList;
+    this.containsNonAlphabetic = containsNonAlphabetic;
 
     // Update the name for the object inspector
     this._showName = `<Group ${this.canvasID}> Text - ${newText}`;
