@@ -42,6 +42,7 @@ class TextObject extends BaseGroup {
     this.color = options.color;
     this.txtCharList = txtCharList;
     this.txtFrameList = txtFrameList;
+    this.language = options.language || 'en';
 
     // Add double-click event handler
     this.on('mousedblclick', this.onDoubleClick.bind(this));
@@ -69,7 +70,7 @@ class TextObject extends BaseGroup {
       this.setupTextPanelInputs();
     }
   }
-  
+
   /**
    * Setup text panel inputs with current text values
    */
@@ -133,7 +134,7 @@ class TextObject extends BaseGroup {
       // Check if the character is a Chinese character
       const bracketOffset = ['(', ')',].includes(txt.charAt(i)) ? 0.2 : 0;
       let textChar = txt.charAt(i);
-   
+
       // Determine font family and size based on character type
       const isKnownPunctuation = textWidthHeavy.map(item => item.char).includes(textChar);
       const fontFamily = containsNonAlphabetic ?
@@ -152,11 +153,11 @@ class TextObject extends BaseGroup {
       const charWidthObj = containsNonAlphabetic && isKnownPunctuation ?
         textWidthHeavy.find(e => e.char === textChar) :
         fontWidth.find(e => e.char === textChar);
-      const charWidth = charWidthObj ? (shortWidth?(charWidthObj.shortWidth===0?charWidthObj.width:charWidthObj.shortWidth):charWidthObj.width) : (containsNonAlphabetic && !isKnownPunctuation ? 275 : 100);
+      const charWidth = charWidthObj ? (shortWidth ? (charWidthObj.shortWidth === 0 ? charWidthObj.width : charWidthObj.shortWidth) : charWidthObj.width) : (containsNonAlphabetic && !isKnownPunctuation ? 275 : 100);
 
       // Calculate position adjustments for horizontal positioning
       let charLeftPos = left_pos + (containsNonAlphabetic ? 0.25 * xHeight : 0);
-      let charTopPos = containsNonAlphabetic?-0.2:0.1* xHeight;
+      let charTopPos = containsNonAlphabetic ? -0.2 : 0.1 * xHeight;
 
       // Create the frame rectangle - we'll need these dimensions for centering
       const frameWidth = containsNonAlphabetic ?
@@ -215,7 +216,7 @@ class TextObject extends BaseGroup {
       // Create a path from the font path data
       const txt_char = new fabric.Path(charSVG, {
         left: charGlyph.leftSideBearing * fontScale + charLeftPos,
-        top: minTop + charTopPos ,
+        top: minTop + charTopPos,
         fill: color,
         originX: 'left',
         originY: 'top'
