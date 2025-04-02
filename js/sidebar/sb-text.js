@@ -5,6 +5,7 @@ let FormTextAddComponent = {
 
   textPanelInit: function (event, editingTextObject = null) {
     tabNum = 2;
+    textLineInput = 1;
     var parent = GeneralHandler.PanelInit();
     if (parent) {
       // Create a container for basic text parameters
@@ -26,7 +27,10 @@ let FormTextAddComponent = {
       const regionNames = EngDestinations.map(region => Object.keys(region)[0]);
 
       // Create language toggle
-      const languageToggle = GeneralHandler.createToggle('Language', ['English', 'Chinese'], locationContainer, 'English', FormTextAddComponent.updateLocationDropdown);
+      const languageToggle = GeneralHandler.createToggle('Language', ['2Liner', 'English', 'Chinese'], locationContainer, '2Liner', FormTextAddComponent.updateLocationDropdown);
+
+      // Create Justification toggle
+      const JustificationToggle = GeneralHandler.createToggle('Justification', ['Left', 'Middle', 'Right'], locationContainer, 'Left', )
 
       // Create region toggle
       const regionToggle = GeneralHandler.createToggle('Region', regionNames, locationContainer, regionNames[0], FormTextAddComponent.updateLocationDropdown);
@@ -47,7 +51,12 @@ let FormTextAddComponent = {
    */
   updateLocationDropdown: function (selectedButton) {
     const regionName = GeneralHandler.getToggleValue('Region-container')
-    const language = GeneralHandler.getToggleValue('Language-container')
+    const languageInput = GeneralHandler.getToggleValue('Language-container')
+    let language = languageInput == '2Liner' ? 'English' : languageInput
+    if (languageInput == '2Liner') 
+      { FormTextAddComponent.textLineInput = 2 }
+    else 
+    { FormTextAddComponent.textLineInput = 1 }
     FormTextAddComponent.populateLocationDropdown(regionName, language);
   },
 
@@ -290,7 +299,7 @@ let FormTextAddComponent = {
         activeVertex.createIndicator(textObject.getBasePolygonVertex('E1').x, textObject.getBasePolygonVertex('E1').y);
       }
     }
-    
+
     canvas.renderAll();
   },
 
@@ -336,7 +345,7 @@ let FormTextAddComponent = {
       canvas.discardActiveObject();
 
       // Reset state
-      FormTextAddComponent.newTextObject.isTemporary=false
+      FormTextAddComponent.newTextObject.isTemporary = false
       FormTextAddComponent.newTextObject = null;
       activeVertex = null;
       document.getElementById('input-text').value = '';

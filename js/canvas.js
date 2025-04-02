@@ -471,7 +471,7 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
   document.removeEventListener('keydown', ShowHideSideBarEvent);
 
   // Unit handling variables
-  let currentUnit = 'mm';
+  let currentUnit = 'sw';
   let unitDisplay = null;
   let inputValue = '';
 
