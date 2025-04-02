@@ -21,3 +21,7 @@ You can access the test site [here](https://g1213123.github.io/TrafficSign/).
 ## Contact
 
 For any questions or feedback, please contact us at [GitHub Repository](https://github.com/G1213123/TrafficSign/tree/master).
+
+## Disclaimer
+
+Font Transport Medium and Transport Heavy is subject to Crown Copyright, and contains public sector information licensed under the Open Government Licence v1.0.

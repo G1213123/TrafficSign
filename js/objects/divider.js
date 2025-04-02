@@ -263,3 +263,109 @@ async function HLineCreate(aboveObjects, belowObjects, aboveValue, belowValue, o
     borderGroup.updateAllCoord()
 }
 
+async function VLaneCreate(leftObjects, rightObjects, leftValue, rightValue, options = null) {
+    const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
+    const colorType = options ? options.colorType : document.getElementById("input-color").value
+    const color = BorderColorScheme[colorType]['border']
+
+    // Get border canvas area coordinates
+    let borderCoords = null;
+    let leftObject = null;
+    let rightObject = null;
+    let hasFixedLeft = false;
+    let hasFixedRight = false;
+
+    // Handle fixed value for left position
+    if (!isNaN(parseInt(leftValue))) {
+        hasFixedLeft = true;
+        // Create virtual border coords with fixed distance from left border
+        const fixedDistanceFromLeft = parseInt(leftValue);
+        // We need to get the border bounding box
+        if (!borderCoords) {
+            borderCoords = canvas.vptCoords; // Use viewport as fallback
+        }
+        // Use canvas center y coordinate
+        const centerY = CenterCoord().y;
+        leftObject = { left: borderCoords.tl.x + fixedDistanceFromLeft, top: centerY };
+    } else if (Array.isArray(leftObjects) && leftObjects.length) {
+        leftObject = BorderUtilities.getExtremeObject(leftObjects, 'left');
+    }
+
+    // Handle fixed value for right position
+    if (!isNaN(parseInt(rightValue))) {
+        hasFixedRight = true;
+        // Create virtual border coords with fixed distance from right border
+        const fixedDistanceFromRight = parseInt(rightValue);
+        if (!borderCoords) {
+            borderCoords = canvas.vptCoords; // Use viewport as fallback
+        }
+        // Use canvas center y coordinate
+        const centerY = CenterCoord().y;
+        rightObject = { left: borderCoords.tr.x - fixedDistanceFromRight, top: centerY };
+    } else if (Array.isArray(rightObjects) && rightObjects.length) {
+        rightObject = BorderUtilities.getExtremeObject(rightObjects, 'right');
+    }
+
+    if (!leftObject || !rightObject) {
+        showTextBox('Please provide valid objects or values for both left and right positions', '');
+        return;
+    }
+
+    // Check if left object has X lock - only if it's a real object
+    if (!hasFixedLeft && leftObject.lockXToPolygon && Object.keys(leftObject.lockXToPolygon).length != 0) {
+        showTextBox('Unlock the object left of divider in X axis', '')
+        return
+    }
+
+    // Get bounding boxes
+    const leftObjectBBox = leftObject.getBoundingRect ?
+        BorderUtilities.getBoundingBox([leftObject]) :
+        { left: leftObject.left - 10, top: leftObject.top - 50, right: leftObject.left + 10, bottom: leftObject.top + 50 };
+
+    const leftObjectSize = { width: leftObjectBBox.right - leftObjectBBox.left, height: leftObjectBBox.bottom - leftObjectBBox.top }
+
+    const BaseBorder = await drawDivider(xHeight, color, leftObjectBBox, leftObjectSize, 'VLane')
+    const borderGroup = new BaseGroup(BaseBorder, 'VLane')
+    borderGroup.xHeight = xHeight
+    borderGroup.color = color
+
+    // Store fixed distance values in the divider object if provided
+    if (hasFixedLeft) {
+        borderGroup.fixedLeftValue = parseInt(leftValue);
+    }
+
+    if (hasFixedRight) {
+        borderGroup.fixedRightValue = parseInt(rightValue);
+    }
+
+    // Handle anchoring only if we have real objects, not fixed values
+    if (!hasFixedLeft && leftObject.getBoundingRect) {
+        anchorShape(leftObject, borderGroup, {
+            vertexIndex1: 'E1',
+            vertexIndex2: 'E3',
+            spacingX: DividerMargin['VLane']['left'] * xHeight / 4,
+            spacingY: ''
+        })
+    } else if (hasFixedLeft) {
+        // Position divider based on fixed left position without anchoring
+        borderGroup.set({ left: leftObject.left + DividerMargin['VLane']['left'] * xHeight / 4 });
+    }
+
+    if (!hasFixedRight && rightObject.getBoundingRect) {
+        anchorShape(borderGroup, rightObject, {
+            vertexIndex1: 'E1',
+            vertexIndex2: 'E3',
+            spacingX: DividerMargin['VLane']['right'] * xHeight / 4,
+            spacingY: ''
+        })
+    } else if (hasFixedRight) {
+        // For fixed value, remember the position for later usage
+        // We don't need to adjust position here as the left position is already set
+        // This will be handled later during border's assignWidthToDivider
+    }
+
+    borderGroup.setCoords()
+    borderGroup.updateAllCoord()
+    return borderGroup
+}
+

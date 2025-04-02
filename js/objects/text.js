@@ -133,10 +133,7 @@ class TextObject extends BaseGroup {
       // Check if the character is a Chinese character
       const bracketOffset = ['(', ')',].includes(txt.charAt(i)) ? 0.2 : 0;
       let textChar = txt.charAt(i);
-      if (textChar === '、') {
-        textChar = '、';
-      }
-
+   
       // Determine font family and size based on character type
       const isKnownPunctuation = textWidthHeavy.map(item => item.char).includes(textChar);
       const fontFamily = containsNonAlphabetic ?
@@ -146,10 +143,13 @@ class TextObject extends BaseGroup {
         (isKnownPunctuation ? xHeight * 1.88 : xHeight * 2.25) :
         xHeight * 1.88;
       const shortWidth = (i > 0 && ['T', 'U', 'V'].includes(txt[i - 1])) ? true : false;
+      if (textChar === ',' && containsNonAlphabetic) {
+        textChar = '、';
+      }
 
       // Determine character width based on font and character
       const fontWidth = font.replace('Transport', '') === 'Heavy' ? textWidthHeavy : textWidthMedium;
-      const charWidthObj = isKnownPunctuation ?
+      const charWidthObj = containsNonAlphabetic && isKnownPunctuation ?
         textWidthHeavy.find(e => e.char === textChar) :
         fontWidth.find(e => e.char === textChar);
       const charWidth = charWidthObj ? (shortWidth?(charWidthObj.shortWidth===0?charWidthObj.width:charWidthObj.shortWidth):charWidthObj.width) : (containsNonAlphabetic && !isKnownPunctuation ? 275 : 100);

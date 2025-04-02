@@ -18,6 +18,7 @@ let FormBorderWrapComponent = {
       GeneralHandler.createButton('input-HDivider', 'Add stack border divider', borderActionsContainer, 'input', FormBorderWrapComponent.StackDividerHandler, 'click')
       GeneralHandler.createButton('input-VDivider', 'Add gantry border divider', borderActionsContainer, 'input', FormBorderWrapComponent.GantryDividerHandler, 'click')
       GeneralHandler.createButton('input-HLine', 'Add gantry destination line', borderActionsContainer, 'input', FormBorderWrapComponent.GantryLineHandler, 'click')
+      GeneralHandler.createButton('input-VLane', 'Add lane separation line', borderActionsContainer, 'input', FormBorderWrapComponent.LaneLineHandler, 'click')
 
       // Create a container for border type selection with SVG buttons
       var borderTypeContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container', 'id': 'border-select-container' }, parent);
@@ -123,6 +124,15 @@ let FormBorderWrapComponent = {
       selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
         // Pass both objects and entered values to allow for fixed distance options
         HLineCreate(aboveObject, belowObject, aboveValue, belowValue)
+      })
+    })
+  },
+
+  LaneLineHandler: function () {
+    selectObjectHandler('Select object left to lane or type in fixed distance to border left', function (leftObject, options, leftValue) {
+      selectObjectHandler('Select object right to lane or type in fixed distance to border right', function (rightObject, options, rightValue) {
+        // Pass both objects and entered values to allow for fixed distance options
+        VLaneCreate(leftObject, rightObject, leftValue, rightValue)
       })
     })
   },

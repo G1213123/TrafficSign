@@ -99,6 +99,7 @@ class BaseGroup extends fabric.Group {
     this.lockYToPolygon = {};
     this.refTopLeft = { top: 0, left: 0 }; // Initialize even without basePolygon
     this.dimensionAnnotations = []; // Array to hold dimension line objects
+    this.isTemporary = false
 
     canvasObject.push(this);
     this.canvasID = canvasObject.length - 1;
@@ -149,7 +150,9 @@ class BaseGroup extends fabric.Group {
       }
 
       // Show dimension lines when object is selected
-      this.showDimensions();
+
+        this.showDimensions();
+      
     });
 
     this.on('deselected', () => {
@@ -208,10 +211,14 @@ class BaseGroup extends fabric.Group {
 
 
     this.on('moving', () => {
-      this.showDimensions();
+
+        this.showDimensions();
+      
     });
     this.on('modified', () => {
-      this.showDimensions();
+
+        this.showDimensions();
+
     });
   }
 
@@ -224,7 +231,9 @@ class BaseGroup extends fabric.Group {
     const borderRect = this.getBoundingRect();
 
     // Find closest objects in each direction to show dimensions
-    this.createDimensionAnnotations(borderRect);
+    if (!this.isTemporary){
+      this.createDimensionAnnotations(borderRect);
+    }
   }
 
   // Hide all dimension annotations
@@ -1260,11 +1269,13 @@ class VertexControl extends fabric.Control {
         this.baseGroup.set({
           left: newLeft,
         });
+        this.baseGroup.showDimensions()
       }
       if (!this.baseGroup.lockMovementY) {
         this.baseGroup.set({
           top: newTop,
         });
+        this.baseGroup.showDimensions()
       }
 
     } else {

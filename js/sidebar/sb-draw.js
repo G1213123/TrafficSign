@@ -246,6 +246,7 @@ let FormDrawAddComponent = {
 
     // Store reference to the new symbol
     FormDrawAddComponent.newSymbolObject = symbolObject;
+    symbolObject.isTemporary = true;
 
     // Add mouse event handlers for placement
     canvas.on('mouse:move', FormDrawAddComponent.SymbolOnMouseMove);
@@ -431,6 +432,7 @@ let FormDrawAddComponent = {
 
       // Reset state
       const placedSymbol = FormDrawAddComponent.newSymbolObject;
+      placedSymbol.isTemporary = false;
       FormDrawAddComponent.newSymbolObject = null;
       activeVertex = null;
 

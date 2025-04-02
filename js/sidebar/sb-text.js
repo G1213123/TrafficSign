@@ -259,6 +259,8 @@ let FormTextAddComponent = {
       top: actualCenterY
     });
 
+    textObject.isTemporary = true
+
     // Store reference to the newly created object
     FormTextAddComponent.newTextObject = textObject;
 
@@ -288,7 +290,7 @@ let FormTextAddComponent = {
         activeVertex.createIndicator(textObject.getBasePolygonVertex('E1').x, textObject.getBasePolygonVertex('E1').y);
       }
     }
-
+    
     canvas.renderAll();
   },
 
@@ -334,6 +336,7 @@ let FormTextAddComponent = {
       canvas.discardActiveObject();
 
       // Reset state
+      FormTextAddComponent.newTextObject.isTemporary=false
       FormTextAddComponent.newTextObject = null;
       activeVertex = null;
       document.getElementById('input-text').value = '';

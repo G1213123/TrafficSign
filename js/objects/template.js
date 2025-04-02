@@ -338,8 +338,8 @@ const roadMapTemplate = {
 };
 
 const symbolsPermittedAngle = {
-    'StackArrow': [-135,-90,-45,-22.5,0,22.5,45,90,135],
-    'Airport': [-90,-45,0,45,90],
+    'StackArrow': [-135, -90, -45, -22.5, 0, 22.5, 45, 90, 135],
+    'Airport': [-90, -45, 0, 45, 90],
 
 };
 
@@ -1877,8 +1877,8 @@ const symbolsTemplateAlt = {
     },
 }
 
-const textWidthMedium = [{ char: ' ', width: 53, shortWidth: 0 }, { char: 'A', width: 136, shortWidth: 0 }, { char: 'B', width: 147, shortWidth: 0 }, { char: 'C', width: 148, shortWidth: 0 }, { char: 'D', width: 154, shortWidth: 0 }, { char: 'E', width: 132, shortWidth: 0 }, { char: 'F', width: 119, shortWidth: 0 }, { char: 'G', width: 155, shortWidth: 0 }, { char: 'H', width: 160, shortWidth: 0 }, { char: 'I', width: 73, shortWidth: 0 }, { char: 'J', width: 93, shortWidth: 0 }, { char: 'K', width: 138, shortWidth: 0 }, { char: 'L', width: 107, shortWidth: 0 }, { char: 'M', width: 184, shortWidth: 0 }, { char: 'N', width: 168, shortWidth: 0 }, { char: 'O', width: 156, shortWidth: 0 }, { char: 'P', width: 130, shortWidth: 0 }, { char: 'Q', width: 158, shortWidth: 0 }, { char: 'R', width: 141, shortWidth: 0 }, { char: 'S', width: 137, shortWidth: 0 }, { char: 'T', width: 109, shortWidth: 105 }, { char: 'U', width: 154, shortWidth: 0 }, { char: 'V', width: 130, shortWidth: 120 }, { char: 'W', width: 183, shortWidth: 189 }, { char: 'X', width: 128, shortWidth: 0 }, { char: 'Y', width: 123, shortWidth: 118 }, { char: 'Z', width: 119, shortWidth: 0 }, { char: 'a', width: 111, shortWidth: 104 }, { char: 'b', width: 117, shortWidth: 0 }, { char: 'c', width: 103, shortWidth: 0 }, { char: 'd', width: 119, shortWidth: 0 }, { char: 'e', width: 109, shortWidth: 102 }, { char: 'f', width: 75, shortWidth: 0 }, { char: 'g', width: 114, shortWidth: 107 }, { char: 'h', width: 112, shortWidth: 0 }, { char: 'i', width: 54, shortWidth: 0 }, { char: 'j', width: 58, shortWidth: 0 }, { char: 'k', width: 108, shortWidth: 0 }, { char: 'l', width: 62, shortWidth: 0 }, { char: 'm', width: 164, shortWidth: 0 }, { char: 'n', width: 112, shortWidth: 0 }, { char: 'o', width: 118, shortWidth: 111 }, { char: 'p', width: 118, shortWidth: 0 }, { char: 'q', width: 118, shortWidth: 0 }, { char: 'r', width: 73, shortWidth: 59 }, { char: 's', width: 97, shortWidth: 95 }, { char: 't', width: 81, shortWidth: 0 }, { char: 'u', width: 115, shortWidth: 101 }, { char: 'v', width: 98, shortWidth: 0 }, { char: 'w', width: 147, shortWidth: 145 }, { char: 'x', width: 104, shortWidth: 0 }, { char: 'y', width: 98, shortWidth: 96 }, { char: 'z', width: 97, shortWidth: 0 }, { char: '1', width: 78, shortWidth: 0 }, { char: '2', width: 120, shortWidth: 0 }, { char: '3', width: 127, shortWidth: 0 }, { char: '4', width: 132, shortWidth: 0 }, { char: '5', width: 122, shortWidth: 0 }, { char: '6', width: 126, shortWidth: 0 }, { char: '7', width: 104, shortWidth: 0 }, { char: '8', width: 130, shortWidth: 0 }, { char: '9', width: 128, shortWidth: 0 }, { char: '0', width: 133, shortWidth: 0 }, { char: ',', width: 53, shortWidth: 0 }, { char: '.', width: 53, shortWidth: 0 }, { char: "'", width: 39, shortWidth: 0 }, { char: ':', width: 53, shortWidth: 0 }, { char: '•', width: 53, shortWidth: 0 }, { char: '、', width: 53, shortWidth: 0 }, { char: '-', width: 66, shortWidth: 0 }, { char: '&', width: 126, shortWidth: 0 }, { char: '(', width: 105, shortWidth: 0 }, { char: ')', width: 105, shortWidth: 0 }, { char: '/', width: 85, shortWidth: 0 }, { char: '$', width: 100, shortWidth: 0 }, { char: '%', width: 160, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }]
-const textWidthHeavy = [{ char: ' ', width: 53, shortWidth: 0 }, { char: 'A', width: 142, shortWidth: 0 }, { char: 'B', width: 146, shortWidth: 0 }, { char: 'C', width: 151, shortWidth: 0 }, { char: 'D', width: 150, shortWidth: 0 }, { char: 'E', width: 136, shortWidth: 0 }, { char: 'F', width: 121, shortWidth: 0 }, { char: 'G', width: 156, shortWidth: 0 }, { char: 'H', width: 159, shortWidth: 0 }, { char: 'I', width: 73, shortWidth: 0 }, { char: 'J', width: 95, shortWidth: 0 }, { char: 'K', width: 138, shortWidth: 0 }, { char: 'L', width: 118, shortWidth: 0 }, { char: 'M', width: 186, shortWidth: 0 }, { char: 'N', width: 168, shortWidth: 0 }, { char: 'O', width: 158, shortWidth: 0 }, { char: 'P', width: 134, shortWidth: 0 }, { char: 'Q', width: 161, shortWidth: 0 }, { char: 'R', width: 148, shortWidth: 0 }, { char: 'S', width: 146, shortWidth: 0 }, { char: 'T', width: 118, shortWidth: 113 }, { char: 'U', width: 157, shortWidth: 0 }, { char: 'V', width: 133, shortWidth: 127 }, { char: 'W', width: 193, shortWidth: 196 }, { char: 'X', width: 130, shortWidth: 0 }, { char: 'Y', width: 128, shortWidth: 125 }, { char: 'Z', width: 119, shortWidth: 0 }, { char: 'a', width: 111, shortWidth: 104 }, { char: 'b', width: 117, shortWidth: 0 }, { char: 'c', width: 107, shortWidth: 0 }, { char: 'd', width: 119, shortWidth: 0 }, { char: 'e', width: 110, shortWidth: 103 }, { char: 'f', width: 79, shortWidth: 0 }, { char: 'g', width: 117, shortWidth: 110 }, { char: 'h', width: 119, shortWidth: 0 }, { char: 'i', width: 55, shortWidth: 0 }, { char: 'j', width: 71, shortWidth: 0 }, { char: 'k', width: 114, shortWidth: 0 }, { char: 'l', width: 63, shortWidth: 0 }, { char: 'm', width: 173, shortWidth: 0 }, { char: 'n', width: 119, shortWidth: 0 }, { char: 'o', width: 115, shortWidth: 107 }, { char: 'p', width: 120, shortWidth: 0 }, { char: 'q', width: 120, shortWidth: 0 }, { char: 'r', width: 80, shortWidth: 67 }, { char: 's', width: 100, shortWidth: 98 }, { char: 't', width: 84, shortWidth: 0 }, { char: 'u', width: 120, shortWidth: 107 }, { char: 'v', width: 107, shortWidth: 0 }, { char: 'w', width: 160, shortWidth: 154 }, { char: 'x', width: 110, shortWidth: 0 }, { char: 'y', width: 106, shortWidth: 104 }, { char: 'z', width: 93, shortWidth: 0 }, { char: '1', width: 84, shortWidth: 0 }, { char: '2', width: 125, shortWidth: 0 }, { char: '3', width: 136, shortWidth: 0 }, { char: '4', width: 138, shortWidth: 0 }, { char: '5', width: 130, shortWidth: 0 }, { char: '6', width: 129, shortWidth: 0 }, { char: '7', width: 107, shortWidth: 0 }, { char: '8', width: 138, shortWidth: 0 }, { char: '9', width: 129, shortWidth: 0 }, { char: '0', width: 145, shortWidth: 0 }, { char: ',', width: 56, shortWidth: 0 }, { char: '.', width: 56, shortWidth: 0 }, { char: "'", width: 41, shortWidth: 0 }, { char: ':', width: 56, shortWidth: 0 }, { char: '•', width: 56, shortWidth: 0 }, { char: '、', width: 53, shortWidth: 0 }, { char: '-', width: 71, shortWidth: 0 }, { char: '&', width: 126, shortWidth: 0 }, { char: '(', width: 115, shortWidth: 0 }, { char: ')', width: 115, shortWidth: 0 }, { char: '/', width: 88, shortWidth: 0 }, { char: '$', width: 100, shortWidth: 0 }, { char: '%', width: 160, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }]
+const textWidthMedium = [{ char: ' ', width: 50, shortWidth: 0 }, { char: 'A', width: 136, shortWidth: 0 }, { char: 'B', width: 147, shortWidth: 0 }, { char: 'C', width: 148, shortWidth: 0 }, { char: 'D', width: 154, shortWidth: 0 }, { char: 'E', width: 132, shortWidth: 0 }, { char: 'F', width: 119, shortWidth: 0 }, { char: 'G', width: 155, shortWidth: 0 }, { char: 'H', width: 160, shortWidth: 0 }, { char: 'I', width: 73, shortWidth: 0 }, { char: 'J', width: 93, shortWidth: 0 }, { char: 'K', width: 138, shortWidth: 0 }, { char: 'L', width: 107, shortWidth: 0 }, { char: 'M', width: 184, shortWidth: 0 }, { char: 'N', width: 168, shortWidth: 0 }, { char: 'O', width: 156, shortWidth: 0 }, { char: 'P', width: 130, shortWidth: 0 }, { char: 'Q', width: 158, shortWidth: 0 }, { char: 'R', width: 141, shortWidth: 0 }, { char: 'S', width: 137, shortWidth: 0 }, { char: 'T', width: 109, shortWidth: 105 }, { char: 'U', width: 154, shortWidth: 0 }, { char: 'V', width: 130, shortWidth: 120 }, { char: 'W', width: 183, shortWidth: 189 }, { char: 'X', width: 128, shortWidth: 0 }, { char: 'Y', width: 123, shortWidth: 118 }, { char: 'Z', width: 119, shortWidth: 0 }, { char: 'a', width: 111, shortWidth: 104 }, { char: 'b', width: 117, shortWidth: 0 }, { char: 'c', width: 103, shortWidth: 0 }, { char: 'd', width: 119, shortWidth: 0 }, { char: 'e', width: 109, shortWidth: 102 }, { char: 'f', width: 75, shortWidth: 0 }, { char: 'g', width: 114, shortWidth: 107 }, { char: 'h', width: 112, shortWidth: 0 }, { char: 'i', width: 54, shortWidth: 0 }, { char: 'j', width: 58, shortWidth: 0 }, { char: 'k', width: 108, shortWidth: 0 }, { char: 'l', width: 62, shortWidth: 0 }, { char: 'm', width: 164, shortWidth: 0 }, { char: 'n', width: 112, shortWidth: 0 }, { char: 'o', width: 118, shortWidth: 111 }, { char: 'p', width: 118, shortWidth: 0 }, { char: 'q', width: 118, shortWidth: 0 }, { char: 'r', width: 73, shortWidth: 59 }, { char: 's', width: 97, shortWidth: 95 }, { char: 't', width: 81, shortWidth: 0 }, { char: 'u', width: 115, shortWidth: 101 }, { char: 'v', width: 98, shortWidth: 0 }, { char: 'w', width: 147, shortWidth: 145 }, { char: 'x', width: 104, shortWidth: 0 }, { char: 'y', width: 98, shortWidth: 96 }, { char: 'z', width: 97, shortWidth: 0 }, { char: '1', width: 78, shortWidth: 0 }, { char: '2', width: 120, shortWidth: 0 }, { char: '3', width: 127, shortWidth: 0 }, { char: '4', width: 132, shortWidth: 0 }, { char: '5', width: 122, shortWidth: 0 }, { char: '6', width: 126, shortWidth: 0 }, { char: '7', width: 104, shortWidth: 0 }, { char: '8', width: 130, shortWidth: 0 }, { char: '9', width: 128, shortWidth: 0 }, { char: '0', width: 133, shortWidth: 0 }, { char: ',', width: 53, shortWidth: 0 }, { char: '.', width: 53, shortWidth: 0 }, { char: "'", width: 39, shortWidth: 0 }, { char: ':', width: 53, shortWidth: 0 }, { char: '•', width: 53, shortWidth: 0 }, { char: '、', width: 53, shortWidth: 0 }, { char: '-', width: 66, shortWidth: 0 }, { char: '&', width: 126, shortWidth: 0 }, { char: '(', width: 105, shortWidth: 0 }, { char: ')', width: 105, shortWidth: 0 }, { char: '/', width: 85, shortWidth: 0 }, { char: '$', width: 100, shortWidth: 0 }, { char: '%', width: 160, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }]
+const textWidthHeavy = [{ char: ' ', width: 50, shortWidth: 0 }, { char: 'A', width: 142, shortWidth: 0 }, { char: 'B', width: 146, shortWidth: 0 }, { char: 'C', width: 151, shortWidth: 0 }, { char: 'D', width: 150, shortWidth: 0 }, { char: 'E', width: 136, shortWidth: 0 }, { char: 'F', width: 121, shortWidth: 0 }, { char: 'G', width: 156, shortWidth: 0 }, { char: 'H', width: 159, shortWidth: 0 }, { char: 'I', width: 73, shortWidth: 0 }, { char: 'J', width: 95, shortWidth: 0 }, { char: 'K', width: 138, shortWidth: 0 }, { char: 'L', width: 118, shortWidth: 0 }, { char: 'M', width: 186, shortWidth: 0 }, { char: 'N', width: 168, shortWidth: 0 }, { char: 'O', width: 158, shortWidth: 0 }, { char: 'P', width: 134, shortWidth: 0 }, { char: 'Q', width: 161, shortWidth: 0 }, { char: 'R', width: 148, shortWidth: 0 }, { char: 'S', width: 146, shortWidth: 0 }, { char: 'T', width: 118, shortWidth: 113 }, { char: 'U', width: 157, shortWidth: 0 }, { char: 'V', width: 133, shortWidth: 127 }, { char: 'W', width: 193, shortWidth: 196 }, { char: 'X', width: 130, shortWidth: 0 }, { char: 'Y', width: 128, shortWidth: 125 }, { char: 'Z', width: 119, shortWidth: 0 }, { char: 'a', width: 111, shortWidth: 104 }, { char: 'b', width: 117, shortWidth: 0 }, { char: 'c', width: 107, shortWidth: 0 }, { char: 'd', width: 119, shortWidth: 0 }, { char: 'e', width: 110, shortWidth: 103 }, { char: 'f', width: 79, shortWidth: 0 }, { char: 'g', width: 117, shortWidth: 110 }, { char: 'h', width: 119, shortWidth: 0 }, { char: 'i', width: 55, shortWidth: 0 }, { char: 'j', width: 71, shortWidth: 0 }, { char: 'k', width: 114, shortWidth: 0 }, { char: 'l', width: 63, shortWidth: 0 }, { char: 'm', width: 173, shortWidth: 0 }, { char: 'n', width: 119, shortWidth: 0 }, { char: 'o', width: 115, shortWidth: 107 }, { char: 'p', width: 120, shortWidth: 0 }, { char: 'q', width: 120, shortWidth: 0 }, { char: 'r', width: 80, shortWidth: 67 }, { char: 's', width: 100, shortWidth: 98 }, { char: 't', width: 84, shortWidth: 0 }, { char: 'u', width: 120, shortWidth: 107 }, { char: 'v', width: 107, shortWidth: 0 }, { char: 'w', width: 160, shortWidth: 154 }, { char: 'x', width: 110, shortWidth: 0 }, { char: 'y', width: 106, shortWidth: 104 }, { char: 'z', width: 93, shortWidth: 0 }, { char: '1', width: 84, shortWidth: 0 }, { char: '2', width: 125, shortWidth: 0 }, { char: '3', width: 136, shortWidth: 0 }, { char: '4', width: 138, shortWidth: 0 }, { char: '5', width: 130, shortWidth: 0 }, { char: '6', width: 129, shortWidth: 0 }, { char: '7', width: 107, shortWidth: 0 }, { char: '8', width: 138, shortWidth: 0 }, { char: '9', width: 129, shortWidth: 0 }, { char: '0', width: 145, shortWidth: 0 }, { char: ',', width: 56, shortWidth: 0 }, { char: '.', width: 56, shortWidth: 0 }, { char: "'", width: 41, shortWidth: 0 }, { char: ':', width: 56, shortWidth: 0 }, { char: '•', width: 56, shortWidth: 0 }, { char: '、', width: 53, shortWidth: 0 }, { char: '-', width: 71, shortWidth: 0 }, { char: '&', width: 126, shortWidth: 0 }, { char: '(', width: 115, shortWidth: 0 }, { char: ')', width: 115, shortWidth: 0 }, { char: '/', width: 88, shortWidth: 0 }, { char: '$', width: 100, shortWidth: 0 }, { char: '%', width: 160, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }]
 
 const EngDestinations = [{ "Hong Kong Island": ["Hong Kong", "Hong Kong(E)", "Hong Kong(S)", "Hong Kong(W)", "Aberdeen", "Ap Lei Chau", "Causeway Bay", "Central", "Chai Wan", "Chung Hom Kok", "Cyberprot", "Hang Fa Tsuen", "Happy Valley", "Kennedy Town", "Kornhill", "Mid-levels", "North Point", "Pok Fu Lam", "Quarry Bay", "Repulse Bay", "Sai Wan", "Sai Wan Ho", "Sai Ying Pun", "Shau Kei Wan", "Shek O", "Shek Tong Tsui", "Sheung Wan", "Shouson Hill", "Stanley", "Siu Sai Wan", "Tai Hang", "Tai Koo Shing", "The Peak", "Wah Fu", "Wan Chai", "Wan Chai(N)", "Wong Chuk Hang"] },
 { "Kowloon": ["Kowloon", "Kowloon(C)", "Kowloon(E)", "Kowloon(W)", "Beacon Hill", "Cha Kwo Ling", "Cheung Sha Wan", "Cheung Sha Wan(W)", "Choi Hung", "Chuk Yuen", "Cruise Terminal", "Diamond Hill", "Hang Hau", "Ho Man Tin", "Hung Hom", "Hung Hom Bay", "Kai Tak", "King's Park", "Kowloon Bay", "Kowloon City", "Kowloon Tong", "Kwun Tong", "Kwun Tong Business Area", "Lai Chi Kok", "Lai Chi Kok(S)", "Lam Tin", "Lok Fu", "Ma Tau Wai", "Mei Foo", "Mong Kok", "Ngau Chi Wan", "Ngau Tau Kok", "Ngong Shuen Chau", "Ping Shek", "Po Lam", "San Po Kong", "Sham Shui Po", "Sham Shui Po(W)", "Shek Kip Mei", "Sau Mau Ping", "Tai Kok Tsui", "Tai Kok Tsui(W)", "Tiu Keng Leng", "To Kwan Wan", "Tsim Sha Tsui", "Tsim Sha Tsui East", "Tsz Wan Shan", "Wang Tau Hom", "West Kowloon Cultural District", "West Kowloon Terminus", "Wong Tai Sin", "Yau Ma Tei", "Yau Ma Tei(W)", "Yau Tong", "Yau Yat Chuen"] },
@@ -1893,38 +1893,38 @@ const ChtDestinations = [{ "Hong Kong Island": ["香港", "香港(東)", "香港
 
 const BorderColorScheme = {
     "Blue Background": {
-      'background': 'rgb(0, 51, 162)',
-      'symbol': '#ffffff',
-      'border': '#ffffff',
+        'background': 'rgb(0, 51, 162)',
+        'symbol': '#ffffff',
+        'border': '#ffffff',
     },
     "Green Background": {
-      'background': 'rgb(0, 105, 40)',
-      'symbol': '#ffffff',
-      'border': '#ffffff',
+        'background': 'rgb(0, 105, 40)',
+        'symbol': '#ffffff',
+        'border': '#ffffff',
     },
     "White Background": {
-      'background': '#ffffff',
-      'symbol': '#000000',
-      'border': '#000000',
+        'background': '#ffffff',
+        'symbol': '#000000',
+        'border': '#000000',
     },
     "White Background - Parking": {
-      'background': '#ffffff',
-      'symbol': '#000000',
-      'border': 'rgb(0, 15, 162)',
+        'background': '#ffffff',
+        'symbol': '#000000',
+        'border': 'rgb(0, 15, 162)',
     },
     "Yellow Background": {
-      'background': 'rgb(233, 181, 0)',
-      'symbol': '#000000',
-      'border': '#000000',
+        'background': 'rgb(233, 181, 0)',
+        'symbol': '#000000',
+        'border': '#000000',
     },
     "Brown Background": {
-      'background': 'rgb(117,75,42)',
-      'symbol': '#ffffff',
-      'border': '#ffffff',
+        'background': 'rgb(117,75,42)',
+        'symbol': '#ffffff',
+        'border': '#ffffff',
     },
-  }
-  
-  const BorderTypeScheme = {
+}
+
+const BorderTypeScheme = {
     'stack': StackBorderTemplate,
     'flagLeft': FlagLeftBorderTemplate,
     'flagRight': FlagRightBorderTemplate,
@@ -1932,310 +1932,318 @@ const BorderColorScheme = {
     'panel': PanelTemplate,
     'greenPanel': GreenPanelTemplate,
     'rectangle': RectTemplate,
-  }
+}
 
-  
+
 function applyLengthAndRounding(path, length) {
     path.vertex.forEach(vertex => {
-      vertex.x *= length;
-      vertex.y *= length;
-      if (vertex.radius) vertex.radius *= length;
+        vertex.x *= length;
+        vertex.y *= length;
+        if (vertex.radius) vertex.radius *= length;
     });
     path.arcs.forEach(arc => {
-      arc.radius *= length;
+        arc.radius *= length;
     });
-  }
-  
-  function RectTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+}
+
+function RectTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
     const length = xHeight / 4;
-  
+
     const padding = {
-      left: 1,
-      top: 1,
-      right: 1,
-      bottom: 1,
+        left: 1,
+        top: 1,
+        right: 1,
+        bottom: 1,
     };
-  
+
     const returnBorder = [{
-      'vertex': [
-        { x: 0 - padding.left, y: 0 - padding.top, label: 'V1', start: 1 },
-        { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V2', start: 0 },
-        { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V3', start: 0 },
-        { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V4', start: 0 },
-      ], 'arcs': [], 'fill': 'background'
+        'vertex': [
+            { x: 0 - padding.left, y: 0 - padding.top, label: 'V1', start: 1 },
+            { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V2', start: 0 },
+            { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V3', start: 0 },
+            { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V4', start: 0 },
+        ], 'arcs': [], 'fill': 'background'
     }];
-  
+
     returnBorder.forEach(path => applyLengthAndRounding(path, length));
     return { path: returnBorder };
-  }
-  
-  function PanelTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+}
+
+function PanelTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
     const length = xHeight / 4;
-  
+
     const padding = {
-      left: 2.5,
-      top: 2.5,
-      right: 2.5,
-      bottom: 1.5,
+        left: 2.5,
+        top: 2.5,
+        right: 2.5,
+        bottom: 1.5,
     };
-  
+
     const returnBorder = [{
-      'vertex': [
-        { x: 0 - padding.left, y: 0 - padding.top, label: 'V1', radius: 1, start: 1 },
-        { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V2', radius: 1, start: 0 },
-        { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V3', radius: 1, start: 0 },
-        { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V4', radius: 1, start: 0 },
-      ], 'arcs': [], 'fill': 'background'
+        'vertex': [
+            { x: 0 - padding.left, y: 0 - padding.top, label: 'V1', radius: 1, start: 1 },
+            { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V2', radius: 1, start: 0 },
+            { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V3', radius: 1, start: 0 },
+            { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V4', radius: 1, start: 0 },
+        ], 'arcs': [], 'fill': 'background'
     }];
-  
+
     returnBorder.forEach(path => applyLengthAndRounding(path, length));
     return { path: returnBorder };
-  }
-  
-  function GreenPanelTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+}
+
+function GreenPanelTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
     const length = xHeight / 4;
-  
+
     const padding = {
-      left: 2.5,
-      top: 2.5,
-      right: 2.5,
-      bottom: 1.5,
+        left: 2.5,
+        top: 2.5,
+        right: 2.5,
+        bottom: 1.5,
     };
-  
+
     const border = 0.5;
     const returnBorder = [{
-      'vertex': [
-        { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', radius: 1.5, start: 1 },
-        { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', radius: 1.5, start: 0 },
-        { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, label: 'V3', radius: 1.5, start: 0 },
-        { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, label: 'V4', radius: 1.5, start: 0 },
-      ], 'arcs': [], 'fill': '#ffffff'
+        'vertex': [
+            { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', radius: 1.5, start: 1 },
+            { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', radius: 1.5, start: 0 },
+            { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, label: 'V3', radius: 1.5, start: 0 },
+            { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, label: 'V4', radius: 1.5, start: 0 },
+        ], 'arcs': [], 'fill': '#ffffff'
     }, {
-      'vertex': [
-        { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', radius: 1, start: 1 },
-        { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', radius: 1, start: 0 },
-        { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V7', radius: 1, start: 0 },
-        { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V8', radius: 1, start: 0 },
-      ], 'arcs': [], 'fill': 'rgb(0, 105, 40)'
+        'vertex': [
+            { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', radius: 1, start: 1 },
+            { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', radius: 1, start: 0 },
+            { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V7', radius: 1, start: 0 },
+            { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V8', radius: 1, start: 0 },
+        ], 'arcs': [], 'fill': 'rgb(0, 105, 40)'
     }];
-  
+
     returnBorder.forEach(path => applyLengthAndRounding(path, length));
     return { path: returnBorder };
-  }
-  
-  function StackBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+}
+
+function StackBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
     const length = xHeight / 4;
     rounding.x /= length;
     rounding.y /= length;
     const padding = {
-      left: 2.5 + rounding.x,
-      top: 2.5 + rounding.y,
-      right: 2.5 + rounding.x,
-      bottom: 1.5 + rounding.y,
+        left: 2.5 + rounding.x,
+        top: 2.5 + rounding.y,
+        right: 2.5 + rounding.x,
+        bottom: 1.5 + rounding.y,
     };
-  
+
     const border = 1.5;
     const returnBorder = [{
-      'vertex': [
-        { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', radius: 3, start: 1 },
-        { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', radius: 3, start: 0 },
-        { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, label: 'V3', radius: 3, start: 0 },
-        { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, label: 'V4', radius: 3, start: 0 },
-      ], 'arcs': [], 'fill': 'border'
+        'vertex': [
+            { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', radius: 3, start: 1 },
+            { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', radius: 3, start: 0 },
+            { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, label: 'V3', radius: 3, start: 0 },
+            { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, label: 'V4', radius: 3, start: 0 },
+        ], 'arcs': [], 'fill': 'border'
     }, {
-      'vertex': [
-        { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', radius: 1.5, start: 1 },
-        { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', radius: 1.5, start: 0 },
-        { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V7', radius: 1.5, start: 0 },
-        { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V8', radius: 1.5, start: 0 },
-      ], 'arcs': [], 'fill': 'background'
+        'vertex': [
+            { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', radius: 1.5, start: 1 },
+            { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', radius: 1.5, start: 0 },
+            { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V7', radius: 1.5, start: 0 },
+            { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V8', radius: 1.5, start: 0 },
+        ], 'arcs': [], 'fill': 'background'
     }];
-  
+
     returnBorder.forEach(path => applyLengthAndRounding(path, length));
     return { path: returnBorder };
-  }
-  
-  function ExitBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+}
+
+function ExitBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
     const length = xHeight / 4;
     const padding = {
-      left: 0.5,
-      top: 0.3,
-      right: 0.5,
-      bottom: 0,
+        left: 0.5,
+        top: 0.3,
+        right: 0.5,
+        bottom: 0,
     };
-  
+
     const border = 0.5;
     const returnBorder = [{
-      'vertex': [
-        { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', start: 1 },
-        { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', start: 0 },
-        { x: block.width / length + padding.right + border, y: 7.2, label: 'V3', start: 0 },
-        { x: 0 - padding.left - border, y: 7.2, label: 'V4', start: 0 },
-      ], 'arcs': [], 'fill': '#ffffff'
+        'vertex': [
+            { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', start: 1 },
+            { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', start: 0 },
+            { x: block.width / length + padding.right + border, y: 7.2, label: 'V3', start: 0 },
+            { x: 0 - padding.left - border, y: 7.2, label: 'V4', start: 0 },
+        ], 'arcs': [], 'fill': '#ffffff'
     }, {
-      'vertex': [
-        { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', start: 1 },
-        { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', start: 0 },
-        { x: block.width / length + padding.right, y: 6.7, label: 'V7', start: 0 },
-        { x: 0 - padding.right, y: 6.7, label: 'V8', start: 0 },
-      ], 'arcs': [], 'fill': '#000000'
+        'vertex': [
+            { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', start: 1 },
+            { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', start: 0 },
+            { x: block.width / length + padding.right, y: 6.7, label: 'V7', start: 0 },
+            { x: 0 - padding.right, y: 6.7, label: 'V8', start: 0 },
+        ], 'arcs': [], 'fill': '#000000'
     }];
-  
-    returnBorder.forEach(path => applyLengthAndRounding(path, length));
-    return { path: returnBorder };
-  }
-  
-  function FlagLeftBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
-    const length = xHeight / 4;
-    rounding.x /= length;
-    rounding.y /= length;
-    const variables = {
-      '2Lines': {
-        'A': 1.5,
-        'B': 2.5,
-        'C': 4.5,
-        'D': 1.5,
-        'E': 2.5,
-        'F': 1.5,
-        'G': 1.5,
-        'H': 3,
-      },
-      '4Lines': {
-        'A': 1.5,
-        'B': 3.5,
-        'C': 6,
-        'D': 1.5,
-        'E': 2.5,
-        'F': 1.5,
-        'G': 1.5,
-        'H': 3,
-      }
-    };
-    const v = block.height > 4.85 * xHeight ? variables['4Lines'] : variables['2Lines'];
-  
-    const padding = {
-      left: v.D + (block.height / length + v.E + rounding.y / 2 - v.D) / 2 / Math.tan(Math.PI / 3) + (v.A + v.B + v.C) / Math.cos(Math.PI / 6),
-      top: v.E + rounding.y,
-      right: v.E,
-      bottom: v.D + rounding.y,
-    };
-  
-    const border = v.A;
-    const panel = {
-      height: (block.height / length + v.E + rounding.y * 2 + v.D + v.A * 2)
-    };
-  
-    const returnBorder = [{
-      'vertex': [{ x: 0, y: 0, label: 'V0', start: 1 }], 'arcs': [], 'fill': 'symbol'
-    }, {
-      'vertex': [
-        { x: 0 - padding.left + panel.height / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top - border, radius: v.H, label: 'V1', start: 1 },
-        { x: block.width / length + padding.right + border, y: 0 - padding.top - border, radius: v.H, label: 'V2', start: 0 },
-        { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, radius: v.H, label: 'V3', start: 0 },
-        { x: 0 - padding.left + panel.height / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom + border, radius: v.H, label: 'V4', start: 0 },
-        { x: 0 - padding.left, y: 0 - v.E - rounding.y - border + panel.height / 2, radius: v.F, label: 'V5', start: 0 }
-      ], 'arcs': [], 'fill': 'border'
-    }, {
-      'vertex': [
-        { x: 0 - padding.left + v.A + (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top, radius: v.G, label: 'V6', start: 1 },
-        { x: block.width / length + padding.right, y: 0 - padding.top, radius: v.G, label: 'V7', start: 0 },
-        { x: block.width / length + padding.right, y: block.height / length + padding.bottom, radius: v.G, label: 'V8', start: 0 },
-        { x: 0 - padding.left + v.A + (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom, radius: v.G, label: 'V9', start: 0 },
-        { x: 0 - padding.left + v.A, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V10', start: 0 }
-      ], 'arcs': [], 'fill': 'background'
-    }, {
-      'vertex': [
-        { x: 0 - v.D - v.C / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y + v.D, label: 'V11', start: 1 },
-        { x: 0 - v.D, y: 0 - v.E - rounding.y + v.D, label: 'V12', start: 0 },
-        { x: -padding.left + v.A + (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V13', start: 0 },
-        { x: 0 - v.D, y: 0 + block.height / length, label: 'V14', start: 0 },
-        { x: 0 - v.D - v.C / Math.cos(Math.PI / 6), y: 0 + block.height / length, label: 'V15', start: 0 },
-        { x: -padding.left + v.A + v.B / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V16', start: 0 },
-      ], 'arcs': [], 'fill': 'symbol'
-    }];
-  
-    returnBorder.forEach(path => applyLengthAndRounding(path, length));
-    return { path: returnBorder };
-  }
-  
-  function FlagRightBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
-    const length = xHeight / 4;
-    rounding.x /= length;
-    rounding.y /= length;
-    const variables = {
-      '2Lines': {
-        'A': 1.5,
-        'B': 2.5,
-        'C': 4.5,
-        'D': 1.5,
-        'E': 2.5,
-        'F': 1.5,
-        'G': 1.5,
-        'H': 3,
-      },
-      '4Lines': {
-        'A': 1.5,
-        'B': 3.5,
-        'C': 6,
-        'D': 1.5,
-        'E': 2.5,
-        'F': 1.5,
-        'G': 1.5,
-        'H': 3,
-      }
-    };
-    const v = block.height > 4.85 * xHeight ? variables['4Lines'] : variables['2Lines'];
-  
-    const padding = {
-      left: v.E,
-      top: v.E + rounding.y,
-      right: v.D + (block.height / length + v.E + rounding.y / 2 - v.D) / 2 / Math.tan(Math.PI / 3) + (v.A + v.B + v.C) / Math.cos(Math.PI / 6),
-      bottom: v.D + rounding.y,
-    };
-  
-    const border = v.A;
-    const panel = {
-      height: (block.height / length + v.E + rounding.y * 2 + v.D + v.A * 2)
-    };
-  
-    const returnBorder = [{
-      'vertex': [{ x: 0, y: 0, label: 'V0', start: 1 }], 'arcs': [], 'fill': 'symbol'
-    }, {
-      'vertex': [
-        { x: 0 - padding.left - border, y: 0 - padding.top - border, radius: v.H, label: 'V1', start: 1 },
-        { x: block.width / length + padding.right - panel.height / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top - border, radius: v.H, label: 'V2', start: 0 },
-        { x: block.width / length + padding.right, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, radius: v.F, label: 'V3', start: 0 },
-        { x: block.width / length + padding.right - panel.height / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom + border, radius: v.H, label: 'V4', start: 0 },
-        { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, radius: v.H, label: 'V5', start: 0 },
-      ], 'arcs': [], 'fill': 'border'
-    }, {
-      'vertex': [
-        { x: 0 - padding.left, y: 0 - padding.top, radius: v.G, label: 'V8', start: 1 },
-        { x: block.width / length + padding.right - v.A - (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top, radius: v.G, label: 'V7', start: 0 },
-        { x: block.width / length + padding.right - v.A, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V8', start: 0 },
-        { x: block.width / length + padding.right - v.A - (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom, radius: v.G, label: 'V9', start: 0 },
-        { x: 0 - padding.left, y: block.height / length + padding.bottom, radius: v.G, label: 'V10', start: 0 },
-      ], 'arcs': [], 'fill': 'background'
-    }, {
-      'vertex': [
-        { x: block.width / length + v.D + v.C / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y + v.D, label: 'V11', start: 1 },
-        { x: block.width / length + v.D, y: 0 - v.E - rounding.y + v.D, label: 'V12', start: 0 },
-        { x: block.width / length + padding.right - v.A - (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V13', start: 0 },
-        { x: block.width / length + v.D, y: 0 + block.height / length, label: 'V14', start: 0 },
-        { x: block.width / length + v.D + v.C / Math.cos(Math.PI / 6), y: 0 + block.height / length, label: 'V15', start: 0 },
-        { x: block.width / length + padding.right - v.A - v.B / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V16', start: 0 },
-      ], 'arcs': [], 'fill': 'symbol'
-    }];
-  
-    returnBorder.forEach(path => applyLengthAndRounding(path, length));
-    return { path: returnBorder };
-  }
 
-  
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
+}
+
+function FlagLeftBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+    const length = xHeight / 4;
+    rounding.x /= length;
+    rounding.y /= length;
+    const variables = {
+        '2Lines': {
+            'A': 1.5,
+            'B': 2.5,
+            'C': 4.5,
+            'D': 1.5,
+            'E': 2.5,
+            'F': 1.5,
+            'G': 1.5,
+            'H': 3,
+        },
+        '4Lines': {
+            'A': 1.5,
+            'B': 3.5,
+            'C': 6,
+            'D': 1.5,
+            'E': 2.5,
+            'F': 1.5,
+            'G': 1.5,
+            'H': 3,
+        }
+    };
+    const v = block.height > 4.85 * xHeight ? variables['4Lines'] : variables['2Lines'];
+
+    const padding = {
+        left: v.D + (block.height / length + v.E + rounding.y / 2 - v.D) / 2 / Math.tan(Math.PI / 3) + (v.A + v.B + v.C) / Math.cos(Math.PI / 6),
+        top: v.E + rounding.y,
+        right: v.E,
+        bottom: v.D + rounding.y,
+    };
+
+    const border = v.A;
+    const panel = {
+        height: (block.height / length + v.E + rounding.y * 2 + v.D + v.A * 2)
+    };
+
+    const returnBorder = [{
+        'vertex': [{ x: 0, y: 0, label: 'V0', start: 1 }], 'arcs': [], 'fill': 'symbol'
+    }, {
+        'vertex': [
+            { x: 0 - padding.left + panel.height / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top - border, radius: v.H, label: 'V1', start: 1 },
+            { x: block.width / length + padding.right + border, y: 0 - padding.top - border, radius: v.H, label: 'V2', start: 0 },
+            { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, radius: v.H, label: 'V3', start: 0 },
+            { x: 0 - padding.left + panel.height / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom + border, radius: v.H, label: 'V4', start: 0 },
+            { x: 0 - padding.left, y: 0 - v.E - rounding.y - border + panel.height / 2, radius: v.F, label: 'V5', start: 0 }
+        ], 'arcs': [], 'fill': 'border'
+    }, {
+        'vertex': [
+            { x: 0 - padding.left + v.A + (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top, radius: v.G, label: 'V6', start: 1 },
+            { x: block.width / length + padding.right, y: 0 - padding.top, radius: v.G, label: 'V7', start: 0 },
+            { x: block.width / length + padding.right, y: block.height / length + padding.bottom, radius: v.G, label: 'V8', start: 0 },
+            { x: 0 - padding.left + v.A + (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom, radius: v.G, label: 'V9', start: 0 },
+            { x: 0 - padding.left + v.A, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V10', start: 0 }
+        ], 'arcs': [], 'fill': 'background'
+    }, {
+        'vertex': [
+            { x: 0 - v.D - v.C / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y + v.D, label: 'V11', start: 1 },
+            { x: 0 - v.D, y: 0 - v.E - rounding.y + v.D, label: 'V12', start: 0 },
+            { x: -padding.left + v.A + (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V13', start: 0 },
+            { x: 0 - v.D, y: 0 + block.height / length, label: 'V14', start: 0 },
+            { x: 0 - v.D - v.C / Math.cos(Math.PI / 6), y: 0 + block.height / length, label: 'V15', start: 0 },
+            { x: -padding.left + v.A + v.B / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V16', start: 0 },
+        ], 'arcs': [], 'fill': 'symbol'
+    }];
+
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
+}
+
+function FlagRightBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+    const length = xHeight / 4;
+    rounding.x /= length;
+    rounding.y /= length;
+    const variables = {
+        '2Lines': {
+            'A': 1.5,
+            'B': 2.5,
+            'C': 4.5,
+            'D': 1.5,
+            'E': 2.5,
+            'F': 1.5,
+            'G': 1.5,
+            'H': 3,
+        },
+        '4Lines': {
+            'A': 1.5,
+            'B': 3.5,
+            'C': 6,
+            'D': 1.5,
+            'E': 2.5,
+            'F': 1.5,
+            'G': 1.5,
+            'H': 3,
+        }
+    };
+    const v = block.height > 4.85 * xHeight ? variables['4Lines'] : variables['2Lines'];
+
+    const padding = {
+        left: v.E,
+        top: v.E + rounding.y,
+        right: v.D + (block.height / length + v.E + rounding.y / 2 - v.D) / 2 / Math.tan(Math.PI / 3) + (v.A + v.B + v.C) / Math.cos(Math.PI / 6),
+        bottom: v.D + rounding.y,
+    };
+
+    const border = v.A;
+    const panel = {
+        height: (block.height / length + v.E + rounding.y * 2 + v.D + v.A * 2)
+    };
+
+    const returnBorder = [{
+        'vertex': [{ x: 0, y: 0, label: 'V0', start: 1 }], 'arcs': [], 'fill': 'symbol'
+    }, {
+        'vertex': [
+            { x: 0 - padding.left - border, y: 0 - padding.top - border, radius: v.H, label: 'V1', start: 1 },
+            { x: block.width / length + padding.right - panel.height / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top - border, radius: v.H, label: 'V2', start: 0 },
+            { x: block.width / length + padding.right, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, radius: v.F, label: 'V3', start: 0 },
+            { x: block.width / length + padding.right - panel.height / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom + border, radius: v.H, label: 'V4', start: 0 },
+            { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, radius: v.H, label: 'V5', start: 0 },
+        ], 'arcs': [], 'fill': 'border'
+    }, {
+        'vertex': [
+            { x: 0 - padding.left, y: 0 - padding.top, radius: v.G, label: 'V8', start: 1 },
+            { x: block.width / length + padding.right - v.A - (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top, radius: v.G, label: 'V7', start: 0 },
+            { x: block.width / length + padding.right - v.A, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V8', start: 0 },
+            { x: block.width / length + padding.right - v.A - (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom, radius: v.G, label: 'V9', start: 0 },
+            { x: 0 - padding.left, y: block.height / length + padding.bottom, radius: v.G, label: 'V10', start: 0 },
+        ], 'arcs': [], 'fill': 'background'
+    }, {
+        'vertex': [
+            { x: block.width / length + v.D + v.C / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y + v.D, label: 'V11', start: 1 },
+            { x: block.width / length + v.D, y: 0 - v.E - rounding.y + v.D, label: 'V12', start: 0 },
+            { x: block.width / length + padding.right - v.A - (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V13', start: 0 },
+            { x: block.width / length + v.D, y: 0 + block.height / length, label: 'V14', start: 0 },
+            { x: block.width / length + v.D + v.C / Math.cos(Math.PI / 6), y: 0 + block.height / length, label: 'V15', start: 0 },
+            { x: block.width / length + padding.right - v.A - v.B / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V16', start: 0 },
+        ], 'arcs': [], 'fill': 'symbol'
+    }];
+
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
+}
+
+
 const DividerScheme = {
     'HDivider': HDividerTemplate,
     'VDivider': VDividerTemplate,
     'HLine': HLineTemplate,
+    'VLane': VLaneTemplate,
+}
+
+const DividerMargin = {
+    'HDivider': { left: 0, top: 0, right: 0, bottom: 1 },
+    'VDivider': { left: 1, top: 0, right: 1, bottom: 0 },
+    'HLine': { left: 1.5, top: 1, right: 1.5, bottom: 1 },
+    'VLane': { left: 2.5, top: 1.5, right: 2.5, bottom: 1.5 },
 }
 
 function HDividerTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
@@ -2331,8 +2339,38 @@ function HLineTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
     return { path: returnBorder };
 }
 
-const DividerMargin = {
-    'HDivider': { left: 0, top: 0, right: 0, bottom: 1 },
-    'VDivider': { left: 1, top: 0, right: 1, bottom: 0 },
-    'HLine': { left: 1.5, top: 1, right: 1.5, bottom: 1 },
+function VLaneTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
+    const length = xHeight / 4;
+    const BHeight = block.height / length;
+    strokeHeight = 8
+    strokeSpacing = 4
+    rounding.x /= length;
+    rounding.y /= length;
+
+    const strokeCount = Math.floor((BHeight - rounding.y / 2 - DividerMargin['VLane'].top - DividerMargin['VLane'].bottom + strokeSpacing) / (strokeHeight + strokeSpacing));
+
+    let returnBorder = [{
+        'vertex': [], 'arcs': [], 'fill': 'border'
+    },];
+
+    for (i = 0; i < strokeCount; i++) {
+        returnBorder[0].vertex.push(...[
+            { x: 0, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V1', start: 1 },
+            { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V2', start: 0 },
+            { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: 'V3', start: 0 },
+            { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: 'V4', start: 0 },
+            { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V5', start: 0 },
+        ])
+    }
+
+    returnBorder.forEach(p => {
+        p.vertex.forEach(vertex => {
+            vertex.x *= length;
+            vertex.x += position.left;
+            vertex.y *= length;
+            vertex.y += position.top;
+            if (vertex.radius) vertex.radius *= length;
+        });
+    });
+    return { path: returnBorder };
 }

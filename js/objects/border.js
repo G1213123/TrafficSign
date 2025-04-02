@@ -175,7 +175,7 @@ const BorderUtilities = {
     });
 
     let fheightObjects = heightObjects.filter(obj => {
-      if (obj.functionalType == 'VDivider') {
+      if (obj.functionalType == 'VDivider' || obj.functionalType == 'VLane') {
         VDividerObject.push(obj);
         return false; // Remove the object from original array
       } else if (obj.borderGroup) {
@@ -637,7 +637,7 @@ class BorderGroup extends BaseGroup {
         const initialLeft = d.getEffectiveCoords()[0].x;
         const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, bbox, d.functionalType);
         d.replaceBasePolygon(res);
-        d.set({ top: initialTop, left: initialLeft });
+        d.set({ top: innerTop + innerHeight - d.height - DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4, left: initialLeft });
       }
       d.updateAllCoord(null, sourceList);
     }
