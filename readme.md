@@ -9,9 +9,9 @@ You can access the test site [here](https://g1213123.github.io/TrafficSign/).
 ## Features
 
  #### TODO: 
-- [ ] User-friendly interface
-- [ ] Compliance with Hong Kong standards
-- [ ] Easy to use and navigate
+- [ ] Snap Range dependent to canvas zoom
+- [ ] Unify input value of xheight and color in all panel
+- [ ] Chinese Readme file and description
 
 ## Getting Started
 
