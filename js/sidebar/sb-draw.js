@@ -4,6 +4,25 @@ let FormDrawAddComponent = {
   newSymbolObject: null,
   editingExistingSymbol: null, // Track when we're editing an existing symbol
 
+  // Add a custom handler for color change to update SVG buttons immediately
+  handleColorChange: function(event) {
+    const color = event.getAttribute('data-value');
+    if (!color) return;
+    
+    // Update GeneralSettings using the built-in function
+    GeneralHandler.handleColorChange(event);
+    
+    // Update buttons immediately
+    FormDrawAddComponent.addAllSymbolsButton();
+    
+    // Update the symbol with new color if one exists
+    if (FormDrawAddComponent.newSymbolObject) {
+      FormDrawAddComponent.updateSymbol(FormDrawAddComponent.newSymbolObject, { color: color.toLowerCase() });
+    } else if (FormDrawAddComponent.editingExistingSymbol) {
+      FormDrawAddComponent.updateSymbol(FormDrawAddComponent.editingExistingSymbol, { color: color.toLowerCase() });
+    }
+  },
+
   drawPanelInit: async function (e, existingSymbol = null) {
     tabNum = 1
     var parent = GeneralHandler.PanelInit()
@@ -18,28 +37,33 @@ let FormDrawAddComponent = {
     }
     
     if (parent) {
-      // Create a container for basic symbol parameters
+      // Create basic parameters container manually (don't use the shared function)
+      // so we can attach our custom color change handler
       var basicParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
       
-      // Create xHeight input with update handler
+      // Use provided defaults or fall back to GeneralSettings
+      const xHeight = FormDrawAddComponent.editingExistingSymbol ? 
+        FormDrawAddComponent.editingExistingSymbol.xHeight : 
+        GeneralSettings.xHeight;
+      
+      const color = FormDrawAddComponent.editingExistingSymbol ? 
+        FormDrawAddComponent.editingExistingSymbol.color.charAt(0).toUpperCase() + FormDrawAddComponent.editingExistingSymbol.color.slice(1) : 
+        GeneralSettings.messageColor;
+      
+      // Create xHeight input using the standard handler
       const xHeightInput = GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 
-        FormDrawAddComponent.editingExistingSymbol ? FormDrawAddComponent.editingExistingSymbol.xHeight : 100, 
-        FormDrawAddComponent.handleXHeightChange, 'input');
-      
-      // Add debounced event listener for real-time updates
-      xHeightInput.addEventListener('input', FormDrawAddComponent.debounce(function(e) {
-        FormDrawAddComponent.handleXHeightChange(e);
-      }, 300));
-      
-      // Create color toggle with update handler
-      let existingColor = FormDrawAddComponent.editingExistingSymbol ?FormDrawAddComponent.editingExistingSymbol.color: null;
-      if (existingColor) {existingColor = (existingColor.charAt(0).toUpperCase() + existingColor.slice(1));}
-      
-      GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, 
-        FormDrawAddComponent.editingExistingSymbol ? existingColor : 'White', 
+        xHeight, GeneralHandler.handleXHeightChange, 'input');
+        
+      // Create color toggle with our CUSTOM color change handler
+      GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, color, 
         FormDrawAddComponent.handleColorChange);
+      
+      // Add debounced event listener for real-time updates on xHeight input
+      xHeightInput.addEventListener('input', GeneralHandler.debounce(function(e) {
+        // The handleXHeightChange function will update GeneralSettings
+      }, 300));
 
-      // Create a placeholder container for angle controls - will only be populated if needed
+      // Create a placeholder container for angle controls
       var angleControlContainer = GeneralHandler.createNode("div", { 'id': 'angle-control-container', 'class': 'input-group-container', 'style': 'display: none;' }, parent);
       
       // If we're editing an existing symbol, toggle the angle controls based on its type
@@ -184,24 +208,17 @@ let FormDrawAddComponent = {
   },
 
   DrawHandlerOff: function (event) {
-    // If there's a new symbol object being placed, finalize its placement
-    if (FormDrawAddComponent.newSymbolObject) {
-      if (activeVertex) {
-        activeVertex.finishDrag();
-      }
-      FormDrawAddComponent.newSymbolObject = null;
-    }
-
-    // Hide angle controls when drawing handler is turned off
+    // Use the shared handler for cleanup
+    GeneralHandler.genericHandlerOff(
+      FormDrawAddComponent,
+      'newSymbolObject',
+      'SymbolOnMouseMove',
+      'SymbolOnMouseClick',
+      'cancelDraw'
+    );
+    
+    // Additional draw-specific cleanup
     FormDrawAddComponent.hideAngleControls();
-
-    // Remove event listeners
-    canvas.off('mouse:move', FormDrawAddComponent.SymbolOnMouseMove);
-    canvas.off('mouse:down', FormDrawAddComponent.SymbolOnMouseClick);
-    document.removeEventListener('keydown', FormDrawAddComponent.cancelDraw);
-    document.addEventListener('keydown', ShowHideSideBarEvent);
-
-    canvas.renderAll();
   },
 
   // Create a new symbol object directly instead of using cursor
@@ -394,84 +411,44 @@ let FormDrawAddComponent = {
   },
 
   SymbolOnMouseMove: function (event) {
-    if (FormDrawAddComponent.newSymbolObject && activeVertex) {
-      const pointer = canvas.getPointer(event.e);
-
-      // If we have an active vertex, let it handle the movement
-      if (activeVertex.handleMouseMoveRef) {
-        // Simulate a mouse move event with the current pointer
-        const simulatedEvent = {
-          e: event.e,
-          pointer: pointer
-        };
-        activeVertex.handleMouseMoveRef(simulatedEvent);
-      } else {
-        // Fallback direct positioning if vertex control isn't active
-        FormDrawAddComponent.newSymbolObject.set({
-          left: pointer.x,
-          top: pointer.y
-        });
-        FormDrawAddComponent.newSymbolObject.setCoords();
-        canvas.renderAll();
-      }
-    }
+    // Use shared mouse move handler
+    GeneralHandler.handleObjectOnMouseMove(FormDrawAddComponent, event);
   },
 
   SymbolOnMouseClick: function (event) {
     if (event.e.button !== 0) return;
-    // Finalize symbol placement on click
-    if (FormDrawAddComponent.newSymbolObject && event.e.button === 0) {
-      // Complete the placement
-      if (activeVertex) {
-        activeVertex.handleMouseDownRef(event);
-      }
-
-      // Clean up
-      canvas.off('mouse:move', FormDrawAddComponent.SymbolOnMouseMove);
-      canvas.off('mouse:down', FormDrawAddComponent.SymbolOnMouseClick);
-
-      // Reset state
-      const placedSymbol = FormDrawAddComponent.newSymbolObject;
-      placedSymbol.isTemporary = false;
-      FormDrawAddComponent.newSymbolObject = null;
-      activeVertex = null;
-
-      // Hide angle controls when symbol placement is complete
+    
+    // Use shared mouse click handler
+    if (FormDrawAddComponent.newSymbolObject) {
+      GeneralHandler.handleObjectOnMouseClick(
+        FormDrawAddComponent,
+        event,
+        'newSymbolObject',
+        'SymbolOnMouseMove',
+        'SymbolOnMouseClick',
+        'cancelDraw'
+      );
+      
+      // Symbol-specific cleanup
       FormDrawAddComponent.hideAngleControls();
-
-      // Reattach default keyboard event listener
-      document.removeEventListener('keydown', FormDrawAddComponent.cancelDraw);
-      document.addEventListener('keydown', ShowHideSideBarEvent);
-
-      canvas.renderAll();
-      return placedSymbol;
+      
+      return;
     }
   },
 
   cancelDraw: function (event) {
+    // Use shared escape key handler
     if (event.key === 'Escape') {
-      // If there's a new symbol object being placed, remove it
-      if (FormDrawAddComponent.newSymbolObject) {
-        FormDrawAddComponent.newSymbolObject.deleteObject();
-        FormDrawAddComponent.newSymbolObject = null;
-      }
-
-      // Clean up active vertex if there is one
-      if (activeVertex) {
-        activeVertex.cleanupDrag();
-        activeVertex = null;
-      }
-
-      // Hide angle controls when drawing is canceled
+      GeneralHandler.handleCancelWithEscape(
+        FormDrawAddComponent, 
+        event, 
+        'newSymbolObject', 
+        'SymbolOnMouseMove', 
+        'SymbolOnMouseClick'
+      );
+      
+      // Symbol-specific cleanup
       FormDrawAddComponent.hideAngleControls();
-
-      // Restore event listeners
-      canvas.off('mouse:move', FormDrawAddComponent.SymbolOnMouseMove);
-      canvas.off('mouse:down', FormDrawAddComponent.SymbolOnMouseClick);
-      document.removeEventListener('keydown', FormDrawAddComponent.cancelDraw);
-      document.addEventListener('keydown', ShowHideSideBarEvent);
-
-      canvas.renderAll();
     }
   },
 
@@ -551,51 +528,28 @@ let FormDrawAddComponent = {
       // Reset angle to default when hiding controls
       FormDrawAddComponent.symbolAngle = 0;
     }
-  },
-
-  // Handler for xHeight input change
-  handleXHeightChange: function(event) {
-    const xHeight = parseInt(event.target.value);
-    if (isNaN(xHeight) || xHeight <= 0) return;
-    
-    if (FormDrawAddComponent.newSymbolObject) {
-      // Update the symbol with new xHeight
-      FormDrawAddComponent.updateSymbol(FormDrawAddComponent.newSymbolObject, { xHeight: xHeight });
-    } else if (FormDrawAddComponent.editingExistingSymbol) {
-      // Update the existing symbol with new xHeight
-      FormDrawAddComponent.updateSymbol(FormDrawAddComponent.editingExistingSymbol, { xHeight: xHeight });
-    }
-  },
-  
-  // Handler for color change
-  handleColorChange: function(event) {
-    
-    const color = event.getAttribute('data-value');
-    if (!color) return;
-    
-    if (FormDrawAddComponent.newSymbolObject) {
-      // Update the symbol with new color
-      FormDrawAddComponent.updateSymbol(FormDrawAddComponent.newSymbolObject, { color: color.toLowerCase() });
-    } else if (FormDrawAddComponent.editingExistingSymbol) {
-      // Update the existing symbol with new color
-      FormDrawAddComponent.updateSymbol(FormDrawAddComponent.editingExistingSymbol, { color: cotoLowerCase() });
-    }
-    
-    // Update all symbol buttons with new color
-    if (document.getElementById("input-form")) {
-      FormDrawAddComponent.addAllSymbolsButton();
-    }
-  },
-  
-  // Debounce function to limit rapid successive updates
-  debounce: function(func, wait) {
-    let timeout;
-    return function(...args) {
-      const context = this;
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(context, args), wait);
-    };
-  },
+  }
 }
 
-// Export the FormDrawAddComponent for use in other files
+// Use the shared settings listener implementation
+GeneralSettings.addListener(
+  GeneralHandler.createSettingsListener(1, function(setting, value) {
+    // Symbol-specific updates when settings change
+    if (setting === 'xHeight') {
+      if (FormDrawAddComponent.newSymbolObject || FormDrawAddComponent.editingExistingSymbol) {
+        const targetSymbol = FormDrawAddComponent.newSymbolObject || FormDrawAddComponent.editingExistingSymbol;
+        FormDrawAddComponent.updateSymbol(targetSymbol, { xHeight: value });
+      }
+    } else if (setting === 'messageColor') {
+      if (FormDrawAddComponent.newSymbolObject || FormDrawAddComponent.editingExistingSymbol) {
+        const targetSymbol = FormDrawAddComponent.newSymbolObject || FormDrawAddComponent.editingExistingSymbol;
+        FormDrawAddComponent.updateSymbol(targetSymbol, { color: value.toLowerCase() });
+      }
+      
+      // Update all symbol buttons with new color
+      if (document.getElementById("input-form")) {
+        FormDrawAddComponent.addAllSymbolsButton();
+      }
+    }
+  })
+);

@@ -235,7 +235,7 @@ class TextObject extends BaseGroup {
         width: frameWidth,
         height: frameHeight,
         fill: 'rgba(0,0,0,0)',
-        stroke: color,
+        stroke: GeneralSettings.showTextBorders ? color : 'rgba(0,0,0,0)',
         strokeWidth: 2,
         strokeDashArray: [xHeight / 10, xHeight / 10],
       });

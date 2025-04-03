@@ -8,24 +8,6 @@ canvas.lastPosX = 0;
 canvas.lastPosY = 0;
 let cursorClickMode = 'normal'; // Default click mode
 
-  // Settings configuration - can be accessed by other components
- let GeneralSettings= {
-    // Test settings
-    runTestsOnStart: false,
-    // Visual settings
-    showTextBorders: true,
-    showGrid: true,
-    snapToGrid: true,
-    // Canvas settings
-    backgroundColor: '#2f2f2f',
-    gridColor: '#ffffff',
-    gridSize: 20,
-    // Performance settings
-    autoSave: true,
-    autoSaveInterval: 60, // seconds
-    // Export settings
-    defaultExportScale: 2
-  }
 
 canvas.setZoom(0.2);
 
@@ -242,6 +224,7 @@ function handleGroupMoving(event) {
 
 function DrawGrid() {
   // Check if grid should be visible
+  if (typeof GeneralSettings === 'undefined' || GeneralSettings === null) {return;}
   if (GeneralSettings && GeneralSettings.showGrid === false) {
     // Remove the existing grid if it exists
     const obj = canvas.getObjects().find(obj => obj.id === 'grid');

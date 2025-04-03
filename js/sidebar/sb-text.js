@@ -34,16 +34,13 @@ let FormTextAddComponent = {
     return returnText;
   },
 
-
   textPanelInit: function (event, editingTextObject = null) {
     tabNum = 2;
     FormTextAddComponent.textLineInput = 1;
     var parent = GeneralHandler.PanelInit();
     if (parent) {
-      // Create a container for basic text parameters
-      const basicParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 100, editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler, 'input');
-      GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, 'White', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler);
+      // Create the basic parameters container using the shared function
+      GeneralHandler.createBasicParamsContainer(parent, FormTextAddComponent);
 
       // Create a container for text content and font
       const textContentContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
@@ -347,7 +344,8 @@ let FormTextAddComponent = {
 
     const textObj = canvas.getActiveObject();
     if (!textObj || textObj.functionalType !== 'Text') return;
-    const newText = document.getElementById('input-text').value;
+    let newText = document.getElementById('input-text').value;
+    if (!newText || newText.trim() === '') newText = textObj.text; // Don't create empty text
     const newXHeight = parseInt(document.getElementById('input-xHeight').value);
     const newFont = document.getElementById('Text Font-container').selected.getAttribute('data-value');
     const newColor = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
@@ -368,21 +366,16 @@ let FormTextAddComponent = {
   },
 
   TextHandlerOff: function () {
-    // If there's a new text object being placed, keep it but finalize its placement
-    if (FormTextAddComponent.newTextObject) {
-      if (activeVertex) {
-        activeVertex.finishDrag();
-      }
-      FormTextAddComponent.newTextObject = null;
-    }
-
-    canvas.off('mouse:move', FormTextAddComponent.TextOnMouseMove);
-    canvas.off('mouse:down', FormTextAddComponent.TextOnMouseClick);
-    canvas.off('mouse:down', FormTextAddComponent.EditOnMouseClick);
-    document.addEventListener('keydown', ShowHideSideBarEvent);
-    document.removeEventListener('keydown', FormTextAddComponent.cancelInput);
-
-    // Remove input event listeners
+    // Use shared handler to clean up events and state
+    GeneralHandler.genericHandlerOff(
+      FormTextAddComponent,
+      'newTextObject',
+      'TextOnMouseMove',
+      'TextOnMouseClick',
+      'cancelInput'
+    );
+    
+    // Additional text-specific cleanup
     const textInput = document.getElementById('input-text');
     if (textInput) {
       textInput.removeEventListener('input', FormTextAddComponent.liveUpdateText);
@@ -403,26 +396,22 @@ let FormTextAddComponent = {
       button.removeEventListener('click', FormTextAddComponent.liveUpdateText);
     });
 
-    canvas.renderAll();
+    canvas.off('mouse:down', FormTextAddComponent.EditOnMouseClick);
   },
 
   cancelInput: function (event) {
+    // Use shared escape key handler
+    GeneralHandler.handleCancelWithEscape(
+      FormTextAddComponent, 
+      event, 
+      'newTextObject', 
+      'TextOnMouseMove', 
+      'TextOnMouseClick'
+    );
+    
+    // Additional text-specific cleanup
     if (event.key === 'Escape') {
-      // If there's a newly created text object being placed, delete it
-      if (FormTextAddComponent.newTextObject && canvas.contains(FormTextAddComponent.newTextObject)) {
-        FormTextAddComponent.newTextObject.deleteObject();
-        FormTextAddComponent.newTextObject = null;
-      }
-
       document.getElementById('input-text').value = '';
-
-      // Clean up active vertex if there is one
-      if (activeVertex) {
-        activeVertex.cleanupDrag();
-        activeVertex = null;
-      }
-
-      canvas.renderAll();
     }
   },
 
@@ -573,57 +562,26 @@ let FormTextAddComponent = {
   },
 
   TextOnMouseMove: function (event) {
-    if (FormTextAddComponent.newTextObject && activeVertex) {
-      const pointer = canvas.getPointer(event.e);
-
-      // If we have an active vertex, let it handle the movement
-      if (activeVertex.handleMouseMoveRef) {
-        // Simulate a mouse move event with the current pointer
-        const simulatedEvent = {
-          e: event.e,
-          pointer: pointer
-        };
-        activeVertex.handleMouseMoveRef(simulatedEvent);
-      } else {
-        // Fallback direct positioning if vertex control isn't active
-        FormTextAddComponent.newTextObject.set({
-          left: pointer.x,
-          top: pointer.y
-        });
-        FormTextAddComponent.newTextObject.setCoords();
-        canvas.renderAll();
-      }
-    } else {
-      // Legacy cursor behavior as fallback
-    }
+    // Use shared mouse move handler
+    GeneralHandler.handleObjectOnMouseMove(FormTextAddComponent, event);
   },
 
   TextOnMouseClick: function (event, options = null) {
     if (event.e.button !== 0) return;
-    // Disable default click behavior after creating the object
+    
+    // Use shared mouse click handler for new text objects
     if (FormTextAddComponent.newTextObject) {
-      // Complete the placement
-      if (activeVertex) {
-        // Finish the vertex drag
-        activeVertex.handleMouseDownRef(event);
-      }
-
-      // Clean up
-      canvas.off('mouse:move', FormTextAddComponent.TextOnMouseMove);
-      canvas.off('mouse:down', FormTextAddComponent.TextOnMouseClick);
-      canvas.discardActiveObject();
-
-      // Reset state
-      FormTextAddComponent.newTextObject.isTemporary = false
-      FormTextAddComponent.newTextObject = null;
-      activeVertex = null;
+      GeneralHandler.handleObjectOnMouseClick(
+        FormTextAddComponent,
+        event,
+        'newTextObject',
+        'TextOnMouseMove',
+        'TextOnMouseClick',
+        'cancelInput'
+      );
+      
+      // Text-specific cleanup
       document.getElementById('input-text').value = '';
-
-      // Reattach default keyboard event listener
-      document.removeEventListener('keydown', FormTextAddComponent.cancelInput);
-      document.addEventListener('keydown', ShowHideSideBarEvent);
-
-      canvas.renderAll();
       return;
     }
 
@@ -658,4 +616,14 @@ let FormTextAddComponent = {
     document.getElementById('input-text').value = '';
     FormTextAddComponent.textPanelInit(null);
   }
-}
+};
+
+// Replace the settings listener with the shared implementation
+GeneralSettings.addListener(
+  GeneralHandler.createSettingsListener(2, function(setting, value) {
+    // Text-specific updates when settings change
+    if (FormTextAddComponent.newTextObject || canvas.getActiveObject()?.functionalType === 'Text') {
+      FormTextAddComponent.liveUpdateText();
+    }
+  })
+);

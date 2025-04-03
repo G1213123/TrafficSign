@@ -5,6 +5,7 @@ let FormDrawMapComponent = {
   RoundaboutFeatures: ['Normal', 'Auxiliary', 'U-turn'],
   permitAngle: [45, 60, 90],
   defaultRoute: [{ x: 0, y: 7, angle: 60, width: 4, shape: 'Arrow' }],
+  newMapObject: null,
 
   /**
    * Initializes the map drawing panel with input fields and buttons
@@ -15,23 +16,18 @@ let FormDrawMapComponent = {
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       parent.routeCount = 0
-      // Create a container for basic parameters
-      var basicParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 100, null, 'input')
-      GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, 'White', drawMainRoadOnCursor)
+      // Create a container for basic parameters using the shared function
+      GeneralHandler.createBasicParamsContainer(parent, FormDrawMapComponent);
 
       // Create a container for route parameters
       var MainRoadParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      GeneralHandler.createToggle('Main Road Type', FormDrawMapComponent.MapType, MainRoadParamsContainer, 'Main Line', FormDrawMapComponent.updateRoadTypeSettings)
-      //const drawMapButton = GeneralHandler.createButton('button-DrawMap', 'Draw Main Road Symbol', MainRoadParamsContainer, 'input', drawMainRoadOnCursor, 'click');
+      GeneralHandler.createToggle('Main Road Type', FormDrawMapComponent.MapType, MainRoadParamsContainer, 'Main Line', FormDrawMapComponent.updateRoadTypeSettings);
 
       // Create a container for road type-specific settings
       const roadTypeSettingsContainer = GeneralHandler.createNode("div", { 'class': 'road-type-settings' }, MainRoadParamsContainer);
 
-
       // Initial setup of settings based on default selection
       FormDrawMapComponent.updateRoadTypeSettings(roadTypeSettingsContainer);
-
 
       // Create the Draw Map button
       const drawMapButton = GeneralHandler.createButton('button-DrawMap', 'Draw Main Road Symbol', MainRoadParamsContainer, 'input', FormDrawMapComponent.gatherMainRoadParams, 'click');
@@ -128,7 +124,6 @@ let FormDrawMapComponent = {
       canvas.off('mouse:move', drawSideRoadOnCursor)
       canvas.on('mouse:move', drawSideRoadOnCursor)
     }
-
   },
 
   /**
@@ -145,9 +140,78 @@ let FormDrawMapComponent = {
     const currentText = angleDisplay.innerText.slice(0, -1); // Remove the degree symbol
 
     const angleIndex = FormDrawMapComponent.permitAngle.indexOf(parseInt(currentText))
-    //FormDrawMapComponent.routeAngle = FormDrawMapComponent.permitAngle[(angleIndex + 1) % FormDrawMapComponent.permitAngle.length]
     angleDisplay.innerText = FormDrawMapComponent.permitAngle[(angleIndex + 1) % FormDrawMapComponent.permitAngle.length] + '°';
+  },
+
+  /**
+   * Clean up resources when switching away from the map panel
+   */
+  MapHandlerOff: function() {
+    // Use shared handler for cleanup
+    GeneralHandler.genericHandlerOff(
+      FormDrawMapComponent,
+      'newMapObject',
+      'MapOnMouseMove',
+      'MapOnMouseClick',
+      'cancelMap'
+    );
+  },
+
+  /**
+   * Handles map object movement
+   */
+  MapOnMouseMove: function (event) {
+    // Use shared mouse move handler
+    GeneralHandler.handleObjectOnMouseMove(FormDrawMapComponent, event);
+  },
+
+  /**
+   * Handles map object placement
+   */
+  MapOnMouseClick: function (event) {
+    if (event.e.button !== 0) return;
+    
+    // Use shared mouse click handler
+    if (FormDrawMapComponent.newMapObject) {
+      GeneralHandler.handleObjectOnMouseClick(
+        FormDrawMapComponent,
+        event,
+        'newMapObject',
+        'MapOnMouseMove',
+        'MapOnMouseClick',
+        'cancelMap'
+      );
+      
+      return;
+    }
+  },
+
+  /**
+   * Handles cancellation of map drawing
+   */
+  cancelMap: function (event) {
+    // Use shared escape key handler
+    GeneralHandler.handleCancelWithEscape(
+      FormDrawMapComponent, 
+      event, 
+      'newMapObject', 
+      'MapOnMouseMove', 
+      'MapOnMouseClick'
+    );
   }
 }
 
-// Export the FormDrawMapComponent for use in other files
+// Use the shared settings listener implementation
+GeneralSettings.addListener(
+  GeneralHandler.createSettingsListener(4, function(setting, value) {
+    // Map-specific updates when settings change
+    if (FormDrawMapComponent.newMapObject) {
+      // Handle map object updates when settings change
+      if (setting === 'xHeight') {
+        // Update the map with new xHeight if needed
+      } else if (setting === 'messageColor') {
+        // Update the map with new color if needed
+      }
+    }
+  })
+);

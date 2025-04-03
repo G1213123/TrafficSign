@@ -312,11 +312,13 @@ let FormSettingsComponent = {
       const savedSettings = localStorage.getItem('appSettings');
       if (savedSettings) {
         const parsedSettings = JSON.parse(savedSettings);
-        // Merge saved settings with defaults
-        GeneralSettings = {
-          ...GeneralSettings,
-          ...parsedSettings
-        };
+        
+        // Update existing settings instead of reassigning
+        Object.keys(parsedSettings).forEach(key => {
+          if (GeneralSettings.hasOwnProperty(key)) {
+            GeneralSettings[key] = parsedSettings[key];
+          }
+        });
 
         // Apply loaded settings to the canvas
         FormSettingsComponent.applyAllSettings();
@@ -337,20 +339,7 @@ let FormSettingsComponent = {
 
   resetSettings: function () {
     // Default settings
-    GeneralSettings = {
-      showTextBorders: true,
-      showObjectBorders: true,
-      showGrid: true,
-      snapToGrid: true,
-      backgroundColor: '#2f2f2f',
-      gridColor: '#ffffff',
-      gridSize: 20,
-      showAllVertices: false,
-      autoSave: true,
-      autoSaveInterval: 60,
-      defaultExportScale: 2,
-      runTestsOnStart: false
-    };
+    GeneralSettings.resetSetting();
 
     // Apply all settings
     FormSettingsComponent.applyAllSettings();
@@ -392,7 +381,7 @@ let FormSettingsComponent = {
     canvas.getObjects().forEach(obj => {
       if (obj.functionalType === 'Text') {
         obj.txtFrameList.forEach(frame => {
-          frame.set('stroke', GeneralSettings.showTextBorders ? '#fff' : 'rgba(0,0,0,0)');
+          frame.set('stroke', GeneralSettings.showTextBorders ? obj.color : 'rgba(0,0,0,0)');
         })
       }
     });
