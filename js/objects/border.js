@@ -638,9 +638,9 @@ class BorderGroup extends BaseGroup {
           // Find the appropriate compartment
           const matchingCompartments = this.compartmentBboxes.filter(cmp => 
             hLinePosition >= cmp.left && 
-            hLinePosition <= cmp.right && 
-            hLineVerticalPosition >= cmp.top &&
-            hLineVerticalPosition <= cmp.bottom
+            hLinePosition <= cmp.right 
+            //hLineVerticalPosition >= cmp.top &&
+            //hLineVerticalPosition <= cmp.bottom
           );
           
           if (matchingCompartments.length > 0) {
