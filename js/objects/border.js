@@ -1,7 +1,6 @@
 // Add BorderUtilities object to hold functions moved from FormBorderWrapComponent
 const BorderUtilities = {
 
-
   getExtremeObject: function (objects, direction) {
     let extremeObject = null;
     let extremeValue = direction === 'bottom' || direction === 'right' ? -Infinity : Infinity;
@@ -287,8 +286,8 @@ const BorderUtilities = {
     });
 
     // Add mid points and assign widths to dividers
-    borderGroup.addMidPointToDivider();
     borderGroup.assignWidthToDivider();
+    borderGroup.addMidPointToDivider();
 
     // Send border to back and update object references
     canvas.sendObjectToBack(borderGroup);
@@ -306,7 +305,6 @@ const BorderUtilities = {
     canvas.renderAll();
     return borderGroup;
   },
-
 
 }
 
@@ -674,7 +672,7 @@ class BorderGroup extends BaseGroup {
           d.set({ top: initialTop, left: this.bbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
         }
       }
-      d.updateAllCoord(null, sourceList);
+      d.updateAllCoord(null, sourceList, true);
     }
     
     // After all dividers are repositioned, update the bboxes again
@@ -798,8 +796,166 @@ class BorderGroup extends BaseGroup {
       }
     }
   }
+
+  // New method to process border resize through the queue
+  processResize() {
+    // Skip if already being updated in current tree cycle
+    if (globalAnchorTree.updateInProgress && globalAnchorTree.updatedObjects.has(this.canvasID)) {
+      return;
+    }
+
+    // Mark as updated if tree update is in progress
+    if (globalAnchorTree.updateInProgress) {
+      globalAnchorTree.updatedObjects.add(this.canvasID);
+    }
+    
+    // Remove all current elements
+    this.removeAll();
+    
+    // Get the bounding box of the active selection 
+    let coords = BorderUtilities.getBorderObjectCoords(this.heightObjects, this.widthObjects);
+
+    if (!isNaN(parseInt(this.fixedWidth))) {
+      const padding = parseInt(this.fixedWidth) - coords.right + coords.left;
+      coords.left -= padding / 2;
+      coords.right += padding / 2;
+    }
+    
+    if (!isNaN(parseInt(this.fixedHeight))) {
+      const padding = parseInt(this.fixedHeight) - coords.bottom + coords.top;
+      coords.top -= padding / 2;
+      coords.bottom += padding / 2;
+    }
+
+    // Handle roundings on borders and dividers
+    const rounding = BorderUtilities.calcBorderRounding(this.borderType, this.xHeight, coords);
+    
+    // Create a new border object
+    const borderObject = drawLabeledBorder(this.borderType, this.xHeight, coords, this.color);
+    this.add(borderObject);
+    this.basePolygon = borderObject;
+    
+    // Handle dividers - avoid using updateAllCoord during this phase
+    this.HDivider.forEach(divider => {
+      if (globalAnchorTree.updateInProgress) {
+        globalAnchorTree.updatedObjects.add(divider.canvasID);
+      }
+      divider.width = rounding.width;
+      if (divider.onResize) divider.onResize();
+    });
+    
+    this.VDivider.forEach(divider => {
+      if (globalAnchorTree.updateInProgress) {
+        globalAnchorTree.updatedObjects.add(divider.canvasID);
+      }
+      divider.height = rounding.height;
+      if (divider.onResize) divider.onResize();
+    });
+    
+    // Update dividers without triggering recursive border updates
+    this.assignWidthToDivider();
+    
+    // Set reference point and update vertices
+    this.refTopLeft = {
+      top: this.basePolygon.getCoords()[0].y,
+      left: this.basePolygon.getCoords()[0].x
+    };
+    
+    this.drawVertex();
+    canvas.renderAll();
+  }
 }
 
+// Border Update Queue System
+class BorderUpdateQueue {
+  constructor() {
+    this.bordersToUpdate = new Set(); // Use a Set to avoid duplicates
+    this.updatedBorders = new Set(); // Track which borders have been updated in this cycle
+  }
+
+  // Add a border to the update queue
+  addBorder(border) {
+    if (!border || !border.canvasID) return;
+    
+    // Add to pending borders set
+    this.bordersToUpdate.add(border.canvasID);
+  }
+
+  // Check if we should update a border immediately during an object's updateAllCoord
+  shouldUpdateBorderNow(updatedObjectID) {
+    // If no borders to update, return false
+    if (this.bordersToUpdate.size === 0) return false;
+    
+    // Get all borders that need updates
+    const pendingBorders = Array.from(this.bordersToUpdate)
+      .map(id => canvasObject.find(obj => obj.canvasID === id))
+      .filter(border => 
+        border && 
+        border.functionalType === 'Border' && 
+        !this.updatedBorders.has(border.canvasID)
+      );
+    
+    // For each pending border, check if it's safe to update
+    for (const border of pendingBorders) {
+      // Skip if already updated in this cycle
+      if (this.updatedBorders.has(border.canvasID)) continue;
+      
+      // Skip border if updatedObjectID is in width/height objects
+      const objectInBorder = 
+        (border.widthObjects && border.widthObjects.some(obj => obj.canvasID === updatedObjectID)) || 
+        (border.heightObjects && border.heightObjects.some(obj => obj.canvasID === updatedObjectID));
+      
+      if (objectInBorder) continue;
+      
+      // Check if any of the active anchor updates include objects that are in this border
+      const hasActiveAnchorUpdates = this.hasActiveAnchorUpdatesForBorder(border);
+      
+      // If no active anchor updates affect this border, it's safe to update it
+      if (!hasActiveAnchorUpdates) {
+        // Mark this border as updated
+        this.updatedBorders.add(border.canvasID);
+        this.bordersToUpdate.delete(border.canvasID);
+        
+        // Return the border to update
+        return border;
+      }
+    }
+    
+    return false; // No borders ready to update yet
+  }
+  
+  // Check if any objects in the border are part of ongoing anchor updates
+  hasActiveAnchorUpdatesForBorder(border) {
+    if (!globalAnchorTree || !globalAnchorTree.updateInProgress) return false;
+    
+    const borderObjects = [...(border.widthObjects || []), ...(border.heightObjects || [])];
+    
+    // If any object in the border is not yet updated in the current anchor cycle,
+    // then there are active anchor updates for this border
+    for (const obj of borderObjects) {
+      const objID = obj.canvasID;
+      
+      // Check if any pending x-axis updates involve this object
+      const pendingXUpdates = globalAnchorTree.getPendingUpdates('x', objID);
+      if (pendingXUpdates && pendingXUpdates.length > 0) return true;
+      
+      // Check if any pending y-axis updates involve this object
+      const pendingYUpdates = globalAnchorTree.getPendingUpdates('y', objID);
+      if (pendingYUpdates && pendingYUpdates.length > 0) return true;
+    }
+    
+    // If we get here, no objects in the border have pending anchor updates
+    return false;
+  }
+  
+  // Reset the update tracking at the end of an update cycle
+  resetCycle() {
+    this.updatedBorders.clear();
+  }
+}
+
+// Create a global instance of the BorderUpdateQueue
+const globalBorderUpdateQueue = new BorderUpdateQueue();
 
 function drawLabeledBorder(borderType, xHeight, bbox, color) {
   const block = { width: bbox.right - bbox.left, height: bbox.bottom - bbox.top };
