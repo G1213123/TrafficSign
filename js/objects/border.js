@@ -326,13 +326,16 @@ class BorderGroup extends BaseGroup {
     this.borderType = borderType;
     this.xHeight = options.xHeight || 100;
     this.color = options.color;
-    this.dimensionAnnotations = []
+    this.dimensionAnnotations = [];
+    this.bbox = null; // Main border bounding box
+    this.compartmentBboxes = []; // Array of compartment bounding boxes
 
     // Lock movement for border
     this.lockMovementX = true;
     this.lockMovementY = true;
 
-
+    // Calculate initial bbox
+    this.updateBboxes();
   }
 
   // Show border dimensions when selected
@@ -475,115 +478,44 @@ class BorderGroup extends BaseGroup {
 
   // Add mid points to divider
   addMidPointToDivider() {
-    let top = this.getEffectiveCoords()[0].y;
-    let left = this.getEffectiveCoords()[0].x;
-    const width = this.getBoundingRect().width;
-    const height = this.getBoundingRect().height;
+    // Make sure bbox is updated - using existing code
+    this.updateBboxes();
+    
     const frame = 1.5 * this.xHeight / 4;
     let i = 0;
-
-    this.HDivider.forEach(d => {
-      const midPt = (top + d.getEffectiveCoords()[0].y) / 2;
-      this.basePolygon.vertex.push({ x: left, y: midPt + frame, label: `C${i += 1}` });
-      this.basePolygon.vertex.push({ x: left + width, y: midPt + frame, label: `C${i += 1}` });
-      top = d.getEffectiveCoords()[0].y;
+    
+    // First clear any existing mid points from previous calculations
+    this.basePolygon.vertex = this.basePolygon.vertex.filter(v => !v.label || !v.label.startsWith('C'));
+    
+    // Loop through each compartment and add midpoints on each edge
+    this.compartmentBboxes.forEach((compartment, index) => {
+      // Calculate midpoints for each edge of the compartment
+      const midX = (compartment.left + compartment.right) / 2;
+      const midY = (compartment.top + compartment.bottom) / 2;
+      
+      // Add midpoint on top edge
+      this.basePolygon.vertex.push({ x: midX, y: compartment.top, label: `C${i += 1}` });
+      
+      // Add midpoint on right edge
+      this.basePolygon.vertex.push({ x: compartment.right, y: midY, label: `C${i += 1}` });
+      
+      // Add midpoint on bottom edge
+      this.basePolygon.vertex.push({ x: midX, y: compartment.bottom, label: `C${i += 1}` });
+      
+      // Add midpoint on left edge
+      this.basePolygon.vertex.push({ x: compartment.left, y: midY, label: `C${i += 1}` });
     });
-
-    if (this.HDivider.length > 0) {
-      const midPt = (this.HDivider.at(-1).getEffectiveCoords()[2].y + this.getEffectiveCoords()[2].y) / 2;
-      this.basePolygon.vertex.push({ x: left, y: midPt - frame, label: `C${i += 1}` });
-      this.basePolygon.vertex.push({ x: left + width, y: midPt - frame, label: `C${i += 1}` });
-    }
-
-    this.VDivider.forEach(d => {
-      const midPt = (left + d.getEffectiveCoords()[0].x) / 2;
-      this.basePolygon.vertex.push({ x: midPt + frame, y: top, label: `C${i += 1}` });
-      this.basePolygon.vertex.push({ x: midPt + frame, y: top + height, label: `C${i += 1}` });
-      left = d.getEffectiveCoords()[0].x;
-    });
-
-    if (this.VDivider.length > 0) {
-      const midPt = (this.VDivider.at(-1).getEffectiveCoords()[2].x + this.getEffectiveCoords()[2].x) / 2;
-      this.basePolygon.vertex.push({ x: midPt - frame, y: top, label: `C${i += 1}` });
-      this.basePolygon.vertex.push({ x: midPt - frame, y: top + height, label: `C${i += 1}` });
-    }
   }
 
   // Assign width to divider
   async assignWidthToDivider(sourceList = []) {
+    // Update bboxes first to ensure we have current border and compartment information
+    this.updateBboxes();
+    
+    // Use the bbox property instead of recalculating it
     const borderSize = this.getBoundingRect();
     const frame = 1.5 * this.xHeight / 4;
-    const innerWidth = borderSize.width - frame * 2;
-    const innerHeight = borderSize.height - frame * 2;
-    const innerLeft = borderSize.left + frame;
-    const innerTop = borderSize.top + frame;
-    const bbox = {
-      left: innerLeft,
-      top: innerTop,
-      right: innerLeft + innerWidth,
-      bottom: innerTop + innerHeight,
-      width: innerWidth,
-      height: innerHeight
-    };
-
-    // Handle HDividers
-    for (const d of this.HDivider) {
-      // Check if divider has fixed distance values
-      if (d.fixedTopValue || d.fixedBottomValue) {
-        // Store the group's initial position
-        const initialTop = d.getEffectiveCoords()[0].y;
-        const initialLeft = d.left;
-
-        // Redraw the divider with the border's dimensions
-        const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4 }, bbox, d.functionalType);
-        d.replaceBasePolygon(res);
-
-        // Position divider horizontally same as before
-        d.set({ left: innerLeft + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
-
-        // For fixed values, anchor to the border instead of objects
-        // Priority: use the bottom value if both are specified
-        if (d.fixedBottomValue !== undefined) {
-          // Anchor to bottom of border
-          d.set({ top: borderSize.top + borderSize.height - frame - d.fixedBottomValue - DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4 });
-
-          // Remove any existing anchoring
-          if (d.lockYToPolygon && Object.keys(d.lockYToPolygon).length > 0) {
-            removeAnchor(d.lockYToPolygon.TargetObject, d);
-          }
-          if (d.anchoredPolygon && d.anchoredPolygon.length > 0) {
-            for (const anchoredObj of d.anchoredPolygon) {
-              if (anchoredObj.lockYToPolygon && Object.keys(anchoredObj.lockYToPolygon).length > 0) {
-                removeAnchor(d, anchoredObj);
-              }
-            }
-          }
-        } else if (d.fixedTopValue !== undefined) {
-          // Anchor to top of border
-          d.set({ top: borderSize.top + frame + d.fixedTopValue + DividerMargin[d.functionalType]['top'] * d.xHeight / 4 });
-
-          // Remove any existing anchoring
-          if (d.lockYToPolygon && Object.keys(d.lockYToPolygon).length > 0) {
-            removeAnchor(d.lockYToPolygon.TargetObject, d);
-          }
-          if (d.anchoredPolygon && d.anchoredPolygon.length > 0) {
-            for (const anchoredObj of d.anchoredPolygon) {
-              if (anchoredObj.lockYToPolygon && Object.keys(anchoredObj.lockYToPolygon).length > 0) {
-                removeAnchor(d, anchoredObj);
-              }
-            }
-          }
-        }
-      } else {
-        // Regular object-anchored divider
-        const initialTop = d.getEffectiveCoords()[0].y;
-        const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4 }, bbox, d.functionalType);
-        d.replaceBasePolygon(res);
-        d.set({ top: initialTop, left: innerLeft + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
-      }
-      d.updateAllCoord(null, sourceList);
-    }
-
+    
     // Handle VDividers
     for (const d of this.VDivider) {
       // Check if divider has fixed distance values
@@ -593,11 +525,11 @@ class BorderGroup extends BaseGroup {
         const initialTop = d.top;
 
         // Redraw the divider with the border's dimensions
-        const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, bbox, d.functionalType);
+        const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, this.bbox, d.functionalType);
         d.replaceBasePolygon(res);
 
         // Position divider vertically same as before
-        d.set({ top: innerTop });
+        d.set({ top: this.bbox.top });
 
         // For fixed values, anchor to the border instead of objects
         // Priority: use the right value if both are specified
@@ -635,11 +567,235 @@ class BorderGroup extends BaseGroup {
       } else {
         // Regular object-anchored divider
         const initialLeft = d.getEffectiveCoords()[0].x;
-        const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, bbox, d.functionalType);
+        const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, this.bbox, d.functionalType);
         d.replaceBasePolygon(res);
-        d.set({ top: innerTop + innerHeight - d.height - DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4, left: initialLeft });
+        d.set({ 
+          top: this.bbox.top, 
+          left: initialLeft 
+        });
       }
       d.updateAllCoord(null, sourceList);
+    }
+
+    // Handle HDividers
+    for (const d of this.HDivider) {
+      // Check if divider has fixed distance values
+      if (d.fixedTopValue || d.fixedBottomValue) {
+        // Store the group's initial position
+        const initialTop = d.getEffectiveCoords()[0].y;
+        const initialLeft = d.left;
+
+        // Redraw the divider with the border's dimensions
+        const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4 }, this.bbox, d.functionalType);
+        d.replaceBasePolygon(res);
+
+        // Position divider horizontally same as before
+        d.set({ left: this.bbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
+
+        // For fixed values, anchor to the border instead of objects
+        // Priority: use the bottom value if both are specified
+        if (d.fixedBottomValue !== undefined) {
+          // Anchor to bottom of border
+          d.set({ top: borderSize.top + borderSize.height - frame - d.fixedBottomValue - DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4 });
+
+          // Remove any existing anchoring
+          if (d.lockYToPolygon && Object.keys(d.lockYToPolygon).length > 0) {
+            removeAnchor(d.lockYToPolygon.TargetObject, d);
+          }
+          if (d.anchoredPolygon && d.anchoredPolygon.length > 0) {
+            for (const anchoredObj of d.anchoredPolygon) {
+              if (anchoredObj.lockYToPolygon && Object.keys(anchoredObj.lockYToPolygon).length > 0) {
+                removeAnchor(d, anchoredObj);
+              }
+            }
+          }
+        } else if (d.fixedTopValue !== undefined) {
+          // Anchor to top of border
+          d.set({ top: borderSize.top + frame + d.fixedTopValue + DividerMargin[d.functionalType]['top'] * d.xHeight / 4 });
+
+          // Remove any existing anchoring
+          if (d.lockYToPolygon && Object.keys(d.lockYToPolygon).length > 0) {
+            removeAnchor(d.lockYToPolygon.TargetObject, d);
+          }
+          if (d.anchoredPolygon && d.anchoredPolygon.length > 0) {
+            for (const anchoredObj of d.anchoredPolygon) {
+              if (anchoredObj.lockYToPolygon && Object.keys(anchoredObj.lockYToPolygon).length > 0) {
+                removeAnchor(d, anchoredObj);
+              }
+            }
+          }
+        }
+      } else {
+        // Regular object-anchored divider
+        const initialTop = d.getEffectiveCoords()[0].y;
+
+        // For HLine dividers, check if there are vertical dividers and calculate the correct cell
+        if (d.functionalType === 'HLine' && this.compartmentBboxes.length > 1) {
+          // Find the compartment that contains the HLine's horizontal position
+          const hLinePosition = d.left + (d.width / 2);
+          const hLineVerticalPosition = d.top;
+          
+          // Find the appropriate compartment
+          const matchingCompartments = this.compartmentBboxes.filter(cmp => 
+            hLinePosition >= cmp.left && 
+            hLinePosition <= cmp.right && 
+            hLineVerticalPosition >= cmp.top &&
+            hLineVerticalPosition <= cmp.bottom
+          );
+          
+          if (matchingCompartments.length > 0) {
+            const cellBbox = matchingCompartments[0];
+            
+            // Draw the HLine with the cell-specific bbox
+            const res = await drawDivider(
+              d.xHeight, 
+              d.color, 
+              { left: cellBbox.left, top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4 }, 
+              cellBbox, 
+              d.functionalType
+            );
+            d.replaceBasePolygon(res);
+
+            // Position HLine in the cell
+            d.set({
+              top: initialTop,
+              left: cellBbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4
+            });
+          } else {
+            // Fallback if no matching compartment found
+            const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4 }, this.bbox, d.functionalType);
+            d.replaceBasePolygon(res);
+            d.set({ top: initialTop, left: this.bbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
+          }
+        } else {
+          // Regular HDivider or HLine without VDividers
+          const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4 }, this.bbox, d.functionalType);
+          d.replaceBasePolygon(res);
+          d.set({ top: initialTop, left: this.bbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
+        }
+      }
+      d.updateAllCoord(null, sourceList);
+    }
+    
+    // After all dividers are repositioned, update the bboxes again
+    this.updateBboxes();
+    
+    // Update mid points
+    this.addMidPointToDivider();
+  }
+
+  // Update the bbox property and compartmentBboxes array
+  updateBboxes() {
+    const borderSize = this.getBoundingRect();
+    const frame = 1.5 * this.xHeight / 4;
+    
+    // Calculate main bbox (inner area of the border)
+    this.bbox = {
+      left: borderSize.left + frame,
+      top: borderSize.top + frame,
+      right: borderSize.left + borderSize.width - frame,
+      bottom: borderSize.top + borderSize.height - frame,
+      width: borderSize.width - (2 * frame),
+      height: borderSize.height - (2 * frame)
+    };
+    
+    // Reset compartment bboxes
+    this.compartmentBboxes = [];
+    
+    // If there are no dividers, the entire inner area is one compartment
+    if (this.VDivider.length === 0 && this.HDivider.length === 0) {
+      this.compartmentBboxes.push({...this.bbox});
+      return;
+    }
+    
+    // Calculate compartments based on dividers
+    this.calculateCompartments();
+  }
+  
+  // Calculate compartments created by dividers
+  calculateCompartments() {
+    // Get sorted dividers
+    const sortedVDividers = this.VDivider.length > 0 ? 
+      [...this.VDivider].sort((a, b) => a.getEffectiveCoords()[0].x - b.getEffectiveCoords()[0].x) : 
+      [];
+      
+    const sortedHDividers = this.HDivider.length > 0 ? 
+      [...this.HDivider].sort((a, b) => a.getEffectiveCoords()[0].y - b.getEffectiveCoords()[0].y) : 
+      [];
+    
+    // Get divider positions, only considering them as position points, not actual width
+    const xPositions = [this.bbox.left];
+    const yPositions = [this.bbox.top];
+    
+    // Add all vertical divider positions - discount the divider width
+    for (const vd of sortedVDividers) {
+      const dividerX = vd.getEffectiveCoords()[0].x;
+      
+      // Add the divider's position (center point), not its edges
+      xPositions.push(dividerX);
+    }
+    xPositions.push(this.bbox.right);
+    
+    // Add all horizontal divider positions - discount the divider height
+    for (const hd of sortedHDividers) {
+      const dividerY = hd.getEffectiveCoords()[0].y;
+      
+      // Add the divider's position (center point), not its edges  
+      yPositions.push(dividerY);
+    }
+    yPositions.push(this.bbox.bottom);
+    
+    // Create compartment bboxes based on divider positions
+    for (let i = 0; i < xPositions.length - 1; i++) {
+      for (let j = 0; j < yPositions.length - 1; j++) {
+        // Get the adjacent dividers to calculate adjusted compartment boundaries
+        const leftDivider = i > 0 ? sortedVDividers[i - 1] : null;
+        const rightDivider = i < sortedVDividers.length ? sortedVDividers[i] : null;
+        const topDivider = j > 0 ? sortedHDividers[j - 1] : null;
+        const bottomDivider = j < sortedHDividers.length ? sortedHDividers[j] : null;
+        
+        // Get base positions
+        let left = xPositions[i];
+        let top = yPositions[j];
+        let right = xPositions[i + 1];
+        let bottom = yPositions[j + 1];
+        
+        // Apply shadowWidth for each divider if present (only in the correct compartment)
+        if (rightDivider && rightDivider.shadowWidth) {
+          // Apply shadowWidth.x from the right divider to the left side of the compartment
+          const shadowX = rightDivider.shadowWidth.x * rightDivider.xHeight / 4;
+          right += shadowX ;
+        }
+        
+        if (leftDivider && leftDivider.shadowWidth) {
+          // Apply shadowWidth.x from the left divider to the right side of the compartment
+          const shadowX = leftDivider.shadowWidth.x * leftDivider.xHeight / 4;
+          left += shadowX;
+        }
+        
+        if (bottomDivider && bottomDivider.shadowWidth) {
+          // Apply shadowWidth.y from the bottom divider to the top of the compartment
+          const shadowY = bottomDivider.shadowWidth.y * bottomDivider.xHeight / 4;
+          bottom += shadowY;
+        }
+        
+        if (topDivider && topDivider.shadowWidth) {
+          // Apply shadowWidth.y from the top divider to the bottom of the compartment
+          const shadowY = topDivider.shadowWidth.y * topDivider.xHeight / 4;
+          top -= shadowY - topDivider.height ;
+        }
+        
+        // Add the compartment with adjusted dimensions
+        this.compartmentBboxes.push({
+          left,
+          top,
+          right,
+          bottom,
+          width: right - left,
+          height: bottom - top,
+          index: this.compartmentBboxes.length
+        });
+      }
     }
   }
 }

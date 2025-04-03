@@ -81,6 +81,7 @@ async function VDividerCreate(leftObjects, rightObjects, leftValue, rightValue, 
 
     const BaseBorder = await drawDivider(xHeight, color, leftObjectBBox, leftObjectSize, 'VDivider')
     const borderGroup = new BaseGroup(BaseBorder, 'VDivider')
+    borderGroup.shadowWidth = {x: 1.5, y: 0}
     borderGroup.xHeight = xHeight
     borderGroup.color = color
 
@@ -186,6 +187,7 @@ async function HDividerCreate(aboveObjects, belowObjects, aboveValue, belowValue
     const aboveObjectSize = { width: aboveObjectBBox.right - aboveObjectBBox.left, height: aboveObjectBBox.bottom - aboveObjectBBox.top }
     const BaseBorder = await drawDivider(xHeight, color, aboveObjectBBox, aboveObjectSize, 'HDivider')
     const borderGroup = new BaseGroup(BaseBorder, 'HDivider')
+    borderGroup.shadowWidth = {x: 0, y: 1.5}
     borderGroup.xHeight = xHeight
     borderGroup.color = color
 
@@ -245,6 +247,7 @@ async function HLineCreate(aboveObjects, belowObjects, aboveValue, belowValue, o
 
     const BaseBorder = await drawDivider(xHeight, color, aboveObjectBBox, aboveObjectSize, 'HLine') // Added true param to indicate horizontal divider
     const borderGroup = new BaseGroup(BaseBorder, 'HLine')
+    borderGroup.shadowWidth = {x: 0, y: 0}
     borderGroup.xHeight = xHeight
     borderGroup.color = color
     anchorShape(aboveObject, borderGroup, {
@@ -326,6 +329,7 @@ async function VLaneCreate(leftObjects, rightObjects, leftValue, rightValue, opt
 
     const BaseBorder = await drawDivider(xHeight, color, leftObjectBBox, leftObjectSize, 'VLane')
     const borderGroup = new BaseGroup(BaseBorder, 'VLane')
+    borderGroup.shadowWidth = {x: 0, y: 0}
     borderGroup.xHeight = xHeight
     borderGroup.color = color
 
