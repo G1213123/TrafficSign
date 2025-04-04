@@ -1617,7 +1617,7 @@ const ComplexSignTest = {
     // ===== LEFT SIDE OF SIGN =====
     // Create first line of 2-liner on left
     const leftTopText = new TextObject({
-      text: 'Central',
+      text: 'Mong Kok, Hong Kong(W)',
       xHeight: 200,
       font: 'TransportHeavy',
       color: 'White',
@@ -1628,7 +1628,7 @@ const ComplexSignTest = {
 
     // Create second line of 2-liner on left
     const leftBottomText = new TextObject({
-      text: 'District',
+      text: 'Kowloon City',
       xHeight: 200,
       font: 'TransportHeavy',
       color: 'White',
@@ -1639,7 +1639,7 @@ const ComplexSignTest = {
 
     // Create destination text on left
     const leftDestination = new TextObject({
-      text: 'Aberdeen',
+      text: '旺角,香港(西),九龍城',
       xHeight: 200,
       font: 'TransportHeavy',
       color: 'White',
@@ -1661,40 +1661,29 @@ const ComplexSignTest = {
     // ===== RIGHT SIDE OF SIGN =====
     // Create first line of 2-liner on right
     const rightTopText = new TextObject({
-      text: 'Western',
+      text: 'Kowloon Tong & Sha Tin',
       xHeight: 200,
       font: 'TransportHeavy',
       color: 'White',
-      left: -2100,
+      left: 3000,
       top: 1800
     });
     TestTracker.register("rightTopText", rightTopText);
 
-    // Create second line of 2-liner on right
-    const rightBottomText = new TextObject({
-      text: 'District',
-      xHeight: 200,
-      font: 'TransportHeavy',
-      color: 'White',
-      left: -2100,
-      top: 2000
-    });
-    TestTracker.register("rightBottomText", rightBottomText);
-
     // Create destination text on right
     const rightDestination = new TextObject({
-      text: 'Kennedy Town',
+      text: '九龍塘及沙田',
       xHeight: 200,
       font: 'TransportHeavy',
       color: 'White',
-      left: -2100,
+      left: 3000,
       top: 2200
     });
     TestTracker.register("rightDestination", rightDestination);
 
     // Create stack arrow below on right
     await drawLabeledSymbol('GantryArrow', {
-      x: 0,
+      x: 3000,
       y: 2500,
       xHeight: 200,
       angle: 0,
@@ -1709,14 +1698,13 @@ const ComplexSignTest = {
     const leftArrowObj = TestTracker.get("leftArrow");
 
     const rightTopObj = TestTracker.get("rightTopText");
-    const rightBottomObj = TestTracker.get("rightBottomText");
     const rightDestObj = TestTracker.get("rightDestination");
     const rightArrowObj = TestTracker.get("rightArrow");
 
     // Create a vertical gantry divider between left and right sides
     await VDividerCreate(
       [leftDestObj],
-      [rightDestObj],
+      [rightTopObj],
       null,
       null,
       { xHeight: 200, colorType: 'Blue Background' }
@@ -1747,7 +1735,7 @@ const ComplexSignTest = {
     const leftHDivider = TestTracker.get("leftHDivider");
     const rightHDivider = TestTracker.get("rightHDivider");
 
-    const overallObject = [leftTopObj, leftBottomObj, leftArrowObj, leftDestObj, rightTopObj, rightBottomObj, rightArrowObj, rightDestObj, vDivider, leftHDivider, rightHDivider]
+    const overallObject = [leftTopObj, leftBottomObj, leftArrowObj, leftDestObj, rightTopObj, rightArrowObj, rightDestObj, vDivider, leftHDivider, rightHDivider]
 
     const overallBorderGroup = await BorderUtilities.BorderGroupCreate(
       'stack',

@@ -98,6 +98,13 @@
                 checkAllResourcesLoaded();
             });
 
+        fetch('./css/font/edukai-5.0.ttf')
+            .then(res => res.arrayBuffer())
+            .then(buffer => {
+                window.buffer4 = buffer;
+                checkAllResourcesLoaded();
+            });
+
 
     </script>
     <script type="text/javascript" src="js/canvas.js"></script>

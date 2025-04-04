@@ -137,7 +137,7 @@ class TextObject extends BaseGroup {
 
       // Determine font family and size based on character type
       const isKnownPunctuation = textWidthHeavy.map(item => item.char).includes(textChar);
-      const fontFamily = containsNonAlphabetic ?
+      let fontFamily = containsNonAlphabetic ?
         (isKnownPunctuation ? 'TransportHeavy' : 'Noto Sans Hong Kong') :
         font;
       const fontSize = containsNonAlphabetic ?
@@ -146,6 +146,7 @@ class TextObject extends BaseGroup {
       const shortWidth = (i > 0 && ['T', 'U', 'V'].includes(txt[i - 1])) ? true : false;
       if (textChar === ',' && containsNonAlphabetic) {
         textChar = '、';
+        fontFamily = 'TW-MOE-Std-Kai';
       }
 
       // Determine character width based on font and character
@@ -167,13 +168,16 @@ class TextObject extends BaseGroup {
 
       // Get the appropriate font buffer
       let buffer;
-      if (fontFamily === 'TransportMedium') {
+      if (fontFamily === 'TransportMedium' && !containsNonAlphabetic) {
         buffer = buffer1;
-      } else if (fontFamily === 'TransportHeavy') {
+      } else if (fontFamily === 'TransportHeavy' && !containsNonAlphabetic) {
         buffer = buffer2;
+      } else if (textChar === '、') {
+        buffer = buffer4;
       } else {
         buffer = buffer3;
       }
+      
 
       // Parse the font to access metrics
       const fontGlyphs = opentype.parse(buffer);
@@ -215,7 +219,7 @@ class TextObject extends BaseGroup {
 
       // Create a path from the font path data
       const txt_char = new fabric.Path(charSVG, {
-        left: charGlyph.leftSideBearing * fontScale + charLeftPos,
+        left: charGlyph.leftSideBearing * fontScale + charLeftPos - (textChar == '、'? 141:0) ,
         top: minTop + charTopPos,
         fill: color,
         originX: 'left',

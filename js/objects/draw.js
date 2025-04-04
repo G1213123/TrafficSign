@@ -99,7 +99,8 @@ class BaseGroup extends fabric.Group {
     this.lockYToPolygon = {};
     this.refTopLeft = { top: 0, left: 0 }; // Initialize even without basePolygon
     this.dimensionAnnotations = []; // Array to hold dimension line objects
-    this.isTemporary = false
+    this.isTemporary = false;
+    this.focusMode = false; // Add focus mode flag
 
     canvasObject.push(this);
     this.canvasID = canvasObject.length - 1;
@@ -231,7 +232,7 @@ class BaseGroup extends fabric.Group {
     const borderRect = this.getBoundingRect();
 
     // Find closest objects in each direction to show dimensions
-    if (!this.isTemporary){
+    if (!this.isTemporary && !this.focusMode){
       this.createDimensionAnnotations(borderRect);
     }
   }
@@ -346,9 +347,19 @@ class BaseGroup extends fabric.Group {
     if (this.basePolygon.vertex) {
       // Always check current GeneralSettings, not just when toggled
       const showAllVertices = GeneralSettings && GeneralSettings.showAllVertices;
-      const vertices = showAllVertices
-        ? this.basePolygon.vertex
-        : this.basePolygon.vertex.filter(v => (v.display !== 0));
+      
+      // In focus mode, only show the active vertex
+      let vertices = [];
+      if (this.focusMode && activeVertex) {
+        // Only show the active vertex when in focus mode
+        const activeVertexLabel = activeVertex.vertex.label;
+        vertices = this.basePolygon.vertex.filter(v => v.label === activeVertexLabel);
+      } else {
+        // Normal mode - show all or filtered vertices
+        vertices = showAllVertices
+          ? this.basePolygon.vertex
+          : this.basePolygon.vertex.filter(v => (v.display !== 0));
+      }
 
       vertices.forEach(v => {
         const vControl = new VertexControl(v, this);
@@ -741,6 +752,23 @@ class BaseGroup extends fabric.Group {
     }
   }
 
+  // New method to enter focus mode
+  enterFocusMode(activeVertexControl) {
+    this.focusMode = true;
+    this.hideDimensions();
+    //this.drawVertex(false);
+    canvas.renderAll();
+  }
+
+  // New method to exit focus mode
+  exitFocusMode() {
+    this.focusMode = false;
+    //this.drawVertex(false);
+    if (canvas.getActiveObject() === this) {
+      this.showDimensions();
+    }
+    canvas.renderAll();
+  }
 }
 
 // Register the custom class with Fabric.js
@@ -1101,7 +1129,8 @@ class VertexControl extends fabric.Control {
       cursorStyle: 'pointer',
       cornerSize: 20,
     });
-    this.hover = false
+    this.hover = false;
+    this.isDragging = false; // New flag to indicate active dragging
     this.mouseUpHandler = this.onClick.bind(this);
     this.render = this.renderControl.bind(this);
     this.vertex = vertex;
@@ -1118,18 +1147,31 @@ class VertexControl extends fabric.Control {
   renderControl(ctx, left, top, styleOverride, fabricObject) {
     const size = this.cornerSize;
 
-    // Draw the circle
+    // Draw the circle with different color based on state
     ctx.beginPath();
     ctx.arc(left, top, size / 2, 0, 2 * Math.PI, false);
-    ctx.fillStyle = `rgba(255, 20, 20, ${this.hover ? 0.7 : 0.2})`;
+    
+    // Different fill colors based on state
+    if (this.isDragging) {
+      // Active dragging state - bright yellow
+      ctx.fillStyle = this.snapTarget ? 'rgba(0, 255, 0, 0.7)' : 'rgba(255, 255, 0, 0.7)';
+    } else if (this.baseGroup.focusMode) {
+      // Focus mode - no color
+      ctx.fillStyle = 'rgba(0, 0, 0, 0)';
+    }
+    else {
+      // Normal or hover state
+      ctx.fillStyle = `rgba(255, 20, 20, ${this.hover ? 0.7 : 0.2})`;
+    }
+    
     ctx.fill();
     ctx.lineWidth = 1;
-    ctx.strokeStyle = this.VertexColorPicker(this.vertex);
+    ctx.strokeStyle = this.baseGroup.focusMode?'rgba(0, 0, 0, 0)':this.VertexColorPicker(this.vertex);
     ctx.stroke();
 
     // Draw the text
     ctx.font = '10px Arial, sans-serif';
-    ctx.fillStyle = this.VertexColorPicker(this.vertex);
+    ctx.fillStyle = this.baseGroup.focusMode?'rgba(0, 0, 0, 0)':this.VertexColorPicker(this.vertex);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(this.vertex.label, left, this.vertex.label.includes('E') ? top - 15 : top + 15);
@@ -1159,6 +1201,7 @@ class VertexControl extends fabric.Control {
     if (!activeVertex) {
       activeVertex = this;
       this.isDown = true;
+      this.isDragging = true; // Set dragging flag
 
       // Store original position and offset from vertex to group center
       this.originalPosition = {
@@ -1186,34 +1229,10 @@ class VertexControl extends fabric.Control {
       canvas.on('mouse:down', this.handleMouseDownRef);
       canvas.on('mouse:up', this.handleMouseUpRef);
 
-      // Create a visual indicator showing this vertex is active
-      this.createIndicator(this.vertex.x, this.vertex.y);
-
       canvas.renderAll();
+
+      this.baseGroup.enterFocusMode()
     }
-  }
-
-  // New method to create or update the indicator
-  createIndicator(x, y, isSnapping = false) {
-    // Remove existing indicator if it exists
-    if (this.indicator) {
-      canvas.remove(this.indicator);
-    }
-
-    // Create a new indicator at the specified position
-    this.indicator = new fabric.Circle({
-      left: x - 20,
-      top: y - 20,
-      radius: 20,
-      fill: isSnapping ? 'rgba(0, 255, 0, 0.5)' : 'rgba(255, 255, 0, 0.5)',
-      stroke: isSnapping ? 'lime' : 'yellow',
-      strokeWidth: 2,
-      selectable: false,
-      evented: false
-    });
-
-    canvas.add(this.indicator);
-    return this.indicator;
   }
 
   handleMouseMove(event) {
@@ -1234,34 +1253,10 @@ class VertexControl extends fabric.Control {
       // Calculate the position adjustment needed to align the vertex with snap target
       newLeft = snapPoint.x - this.vertexOffset.x;
       newTop = snapPoint.y - this.vertexOffset.y;
-
-      // Ensure the indicator exists and update it to match the snap point
-      if (!this.indicator) {
-        this.createIndicator(snapPoint.x, snapPoint.y, true);
-      } else {
-        this.indicator.set({
-          left: snapPoint.x - 20,
-          top: snapPoint.y - 20,
-          fill: 'rgba(0, 255, 0, 0.5)', // Green indicator when snapping
-          stroke: 'lime'
-        });
-      }
     } else {
       // Regular movement
       newLeft = pointer.x - this.vertexOffset.x;
       newTop = pointer.y - this.vertexOffset.y;
-
-      // Ensure the indicator exists and update it to follow the pointer
-      if (!this.indicator) {
-        this.createIndicator(pointer.x, pointer.y);
-      } else {
-        this.indicator.set({
-          left: pointer.x - 20,
-          top: pointer.y - 20,
-          fill: 'rgba(255, 255, 0, 0.5)', // Yellow indicator when not snapping
-          stroke: 'yellow'
-        });
-      }
     }
 
     // Move the group
@@ -1296,8 +1291,6 @@ class VertexControl extends fabric.Control {
   }
 
   checkForSnapTargets(pointer) {
-    // Clear previous snap highlights
-    this.clearSnapHighlight();
     this.snapTarget = null;
 
     // Check all canvas objects for potential snap targets
@@ -1330,27 +1323,12 @@ class VertexControl extends fabric.Control {
         vertex: closestVertex
       };
 
-      // Create a snap highlight
-      this.snapHighlight = new fabric.Circle({
-        left: closestVertex.x - 15,
-        top: closestVertex.y - 15,
-        radius: 15,
-        fill: 'rgba(0, 255, 0, 0.3)',
-        stroke: 'lime',
-        strokeWidth: 2,
-        selectable: false,
-        evented: false
-      });
-      canvas.add(this.snapHighlight);
+      
+      // Force a render to update vertex appearance
+      canvas.renderAll();
     }
   }
 
-  clearSnapHighlight() {
-    if (this.snapHighlight) {
-      canvas.remove(this.snapHighlight);
-      this.snapHighlight = null;
-    }
-  }
 
   handleMouseDown(event) {
     if (!this.isDown) return;
@@ -1471,16 +1449,11 @@ class VertexControl extends fabric.Control {
 
     // Store reference to the current drag state
     const baseGroup = this.baseGroup;
-    const indicator = this.indicator;
 
-    // Clear indicator and snap highlight immediately
+    // Clear snap highlight immediately
     if (this.snapHighlight) {
       canvas.remove(this.snapHighlight);
       this.snapHighlight = null;
-    }
-    if (indicator) {
-      canvas.remove(indicator);
-      this.indicator = null;
     }
 
     // Clean up the drag state with proper callbacks
@@ -1494,6 +1467,8 @@ class VertexControl extends fabric.Control {
       } else if (baseGroup.functionalType === 'SideRoad' && typeof baseGroup.onMove === 'function') {
         baseGroup.onMove();
       }
+
+      baseGroup.exitFocusMode();
 
       // Reset active vertex
       activeVertex = null;
@@ -1519,10 +1494,10 @@ class VertexControl extends fabric.Control {
 
     // Reset internal state
     this.isDown = false;
+    this.isDragging = false; // Reset dragging state
   }
 
   finishDrag() {
-    this.clearSnapHighlight();
     this.cleanupDrag();
     this.baseGroup.updateAllCoord(null, []);
 
@@ -1552,7 +1527,6 @@ class VertexControl extends fabric.Control {
     this.baseGroup.setCoords();
     this.baseGroup.updateAllCoord();
 
-    this.clearSnapHighlight();
     this.cleanupDrag();
     activeVertex = null;
     canvas.renderAll();
@@ -1567,6 +1541,7 @@ class VertexControl extends fabric.Control {
   cleanupDrag() {
     // First reset object properties
     this.isDown = false;
+    this.isDragging = false; // Reset dragging flag
 
     // Remove event listeners using stored references
     canvas.off('mouse:move', this.handleMouseMoveRef);
@@ -1577,12 +1552,6 @@ class VertexControl extends fabric.Control {
     // Restore default behavior
     document.addEventListener('keydown', ShowHideSideBarEvent);
     canvas.defaultCursor = 'default';
-
-    // Remove visual indicators
-    if (this.indicator) {
-      canvas.remove(this.indicator);
-      this.indicator = null;
-    }
 
     // Make sure we're no longer active
     if (activeVertex === this) {

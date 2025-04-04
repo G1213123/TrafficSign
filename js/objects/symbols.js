@@ -1,12 +1,16 @@
 function getFontPath(t) {
-  let buffer;
-  if (t.fontFamily == 'TransportMedium') {
-    buffer = buffer1
-  } else if (t.fontFamily == 'TransportHeavy') {
-    buffer = buffer2
-  } else {
-    buffer = buffer3
-  }
+
+      // Get the appropriate font buffer
+      let buffer;
+      if (t.fontFamily === 'TransportMedium' ) {
+        buffer = buffer1;
+      } else if (t.fontFamily === 'TransportHeavy' ) {
+        buffer = buffer2;
+      } else if (t.fontFamily === 'TW-MOE-Std-Kai') {
+        buffer = buffer4;
+      } else {
+        buffer = buffer3;
+      }
   const FontGlyphs = opentype.parse(buffer);
   return FontGlyphs.getPath(t.character, t.x, t.y, t.fontSize, );
 }
