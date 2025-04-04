@@ -770,7 +770,7 @@ class BorderGroup extends BaseGroup {
         if (leftDivider && leftDivider.shadowWidth) {
           // Apply shadowWidth.x from the left divider to the right side of the compartment
           const shadowX = leftDivider.shadowWidth.x * leftDivider.xHeight / 4;
-          left += shadowX;
+          left += leftDivider.width - shadowX;
         }
         
         if (bottomDivider && bottomDivider.shadowWidth) {
@@ -782,7 +782,7 @@ class BorderGroup extends BaseGroup {
         if (topDivider && topDivider.shadowWidth) {
           // Apply shadowWidth.y from the top divider to the bottom of the compartment
           const shadowY = topDivider.shadowWidth.y * topDivider.xHeight / 4;
-          top -= shadowY - topDivider.height ;
+          top += topDivider.height - shadowY ;
         }
         
         // Add the compartment with adjusted dimensions
