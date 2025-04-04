@@ -1202,9 +1202,9 @@ class VertexControl extends fabric.Control {
 
     // Create a new indicator at the specified position
     this.indicator = new fabric.Circle({
-      left: x - 10,
-      top: y - 10,
-      radius: 10,
+      left: x - 20,
+      top: y - 20,
+      radius: 20,
       fill: isSnapping ? 'rgba(0, 255, 0, 0.5)' : 'rgba(255, 255, 0, 0.5)',
       stroke: isSnapping ? 'lime' : 'yellow',
       strokeWidth: 2,
@@ -1240,8 +1240,8 @@ class VertexControl extends fabric.Control {
         this.createIndicator(snapPoint.x, snapPoint.y, true);
       } else {
         this.indicator.set({
-          left: snapPoint.x - 10,
-          top: snapPoint.y - 10,
+          left: snapPoint.x - 20,
+          top: snapPoint.y - 20,
           fill: 'rgba(0, 255, 0, 0.5)', // Green indicator when snapping
           stroke: 'lime'
         });
@@ -1256,8 +1256,8 @@ class VertexControl extends fabric.Control {
         this.createIndicator(pointer.x, pointer.y);
       } else {
         this.indicator.set({
-          left: pointer.x - 10,
-          top: pointer.y - 10,
+          left: pointer.x - 20,
+          top: pointer.y - 20,
           fill: 'rgba(255, 255, 0, 0.5)', // Yellow indicator when not snapping
           stroke: 'yellow'
         });
