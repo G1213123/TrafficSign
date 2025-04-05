@@ -63,15 +63,26 @@
         <input type="text" id="cursorAnswerBox" class="cursor-box" value=0 />
     </div>
     <script type="text/javascript">
-        // Keep track of loaded resources
-        const resourcesToLoad = 3;
+        // Track resources loading
         let resourcesLoaded = 0;
+        const requiredResources = 4; // Update this if you add more resources
+        
+        // Store parsed fonts
+        window.parsedFontMedium = null;
+        window.parsedFontHeavy = null;
+        window.parsedFontChinese = null;
+        window.parsedFontKai = null;
 
         function checkAllResourcesLoaded() {
             resourcesLoaded++;
-            if (resourcesLoaded >= resourcesToLoad) {
-                // All resources loaded, remove the overlay
-                document.getElementById('loading-overlay').style.display = 'none';
+            if (resourcesLoaded === requiredResources) {
+                // All resources are loaded, now parse the fonts
+                console.log('All resources loaded, parsing fonts...');
+                window.parsedFontMedium = opentype.parse(window.buffer1);
+                window.parsedFontHeavy = opentype.parse(window.buffer2);
+                window.parsedFontChinese = opentype.parse(window.buffer3);
+                window.parsedFontKai = opentype.parse(window.buffer4);
+                console.log('Fonts parsed and ready');
             }
         }
 

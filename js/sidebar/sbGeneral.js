@@ -456,6 +456,11 @@ let GeneralHandler = {
   }
 }
 
+document.getElementById('show_hide').addEventListener('click', function (event) {
+  GeneralHandler.ShowHideSideBar(event)
+}
+)
+
 // GeneralSettings object to store shared settings across sidebar panels
 const GeneralSettings = {
   // Default values
