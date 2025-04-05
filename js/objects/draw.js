@@ -312,7 +312,7 @@ class BaseGroup extends fabric.Group {
     canvas.renderAll();
   }
 
-  drawVertex(calc = true) {
+  drawVertex(calc = false) {
     // If basePolygon doesn't exist, exit early
     if (!this.basePolygon) return;
 
@@ -336,40 +336,47 @@ class BaseGroup extends fabric.Group {
       }
     }
 
-    // Remove existing vertex controls before adding new ones
-    Object.keys(this.controls).forEach(key => {
-      if (key !== 'deleteControl' && this.controls[key] instanceof VertexControl) {
-        delete this.controls[key];
+
+    // Always check current GeneralSettings, not just when toggled
+    const showAllVertices = GeneralSettings && GeneralSettings.showAllVertices;
+
+    // Process vertices according to hierarchy and create/update controls
+    this.basePolygon.vertex.forEach(v => {
+      const vertexLabel = v.label;
+      let shouldDisplay = false;
+
+      // Rule 1: Native controls (ml, tl, br, etc.) should always be hidden
+      if (/^(ml|mr|mt|mb|mtr|tl|tr|bl|br)$/.test(vertexLabel)) {
+        shouldDisplay = false;
+      }
+      // Rule 2: Always no show side road vertices
+      else if (this.functionalType === 'SideRoad' && v.label.startsWith('E')) {
+        shouldDisplay = false;
+      }
+      // Rule 3: Focus mode - only show active vertex
+      else if (this.focusMode && activeVertex) {
+        shouldDisplay = (activeVertex.vertex.label === vertexLabel);
+      }
+      // Rule 4: ShowAllVertices setting overrides other display logic
+      else if (showAllVertices) {
+        shouldDisplay = true;
+      }
+      // Rule 5: Base on display property or default to showing vertex with labels
+      else {
+        shouldDisplay = (v.display !== 0);
+      }
+
+      // Update or create control for this vertex
+      if (!this.controls[vertexLabel]) {
+        // Create new control for vertices that don't have one
+        this.controls[vertexLabel] = new VertexControl(v, this);
+        this.controls[vertexLabel].visible = shouldDisplay;
       }
     });
 
-    // Draw the vertices and labels - ensure we always check the current setting
-    if (this.basePolygon.vertex) {
-      // Always check current GeneralSettings, not just when toggled
-      const showAllVertices = GeneralSettings && GeneralSettings.showAllVertices;
-      
-      // In focus mode, only show the active vertex
-      let vertices = [];
-      if (this.focusMode && activeVertex) {
-        // Only show the active vertex when in focus mode
-        const activeVertexLabel = activeVertex.vertex.label;
-        vertices = this.basePolygon.vertex.filter(v => v.label === activeVertexLabel);
-      } else {
-        // Normal mode - show all or filtered vertices
-        vertices = showAllVertices
-          ? this.basePolygon.vertex
-          : this.basePolygon.vertex.filter(v => (v.display !== 0));
-      }
-
-      vertices.forEach(v => {
-        const vControl = new VertexControl(v, this);
-        this.controls[v.label] = vControl;
-      });
-    }
 
     this.setCoords();
   }
-
   // Method to emit deltaX and deltaY to anchored groups
   emitDelta(deltaX, deltaY, sourceList = []) {
     sourceList.includes(this) ? sourceList : sourceList.push(this)
@@ -429,8 +436,8 @@ class BaseGroup extends fabric.Group {
       }
 
       // handle roundings on borders and dividers
-      const rounding = BorderUtilities.calcBorderRounding(BG.borderType, BG.xHeight, coords)
-      BorderUtilities.RoundingToDivider(BG.HDivider, BG.VDivider, rounding, sourceList)
+      //const rounding = BorderUtilities.calcBorderRounding(BG.borderType, BG.xHeight, coords)
+      //BorderUtilities.RoundingToDivider(BG.HDivider, BG.VDivider, rounding, sourceList)
 
       const borderObject = drawLabeledBorder(BG.borderType, BG.xHeight, coords, BG.color)
 
