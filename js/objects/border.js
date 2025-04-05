@@ -554,12 +554,12 @@ class BorderGroup extends BaseGroup {
 
           // Remove any existing anchoring
           if (d.lockXToPolygon && Object.keys(d.lockXToPolygon).length > 0) {
-            removeAnchor(d.lockXToPolygon.TargetObject, d);
+            //removeAnchor(d.lockXToPolygon.TargetObject, d);
           }
           if (d.anchoredPolygon && d.anchoredPolygon.length > 0) {
             for (const anchoredObj of d.anchoredPolygon) {
               if (anchoredObj.lockXToPolygon && Object.keys(anchoredObj.lockXToPolygon).length > 0) {
-                removeAnchor(d, anchoredObj);
+                //removeAnchor(d, anchoredObj);
               }
             }
           }

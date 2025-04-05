@@ -1730,6 +1730,36 @@ const ComplexSignTest = {
     );
     TestTracker.register("rightHDivider");
 
+    // Anchor the objects in place
+    anchorShape(leftBottomObj,leftDestObj,{
+      vertexIndex1: 'E1',
+      vertexIndex2: 'E7',
+      spacingX: 0,
+      spacingY: 0
+    }
+    )
+
+    anchorShape(leftTopObj, leftBottomObj, {
+      vertexIndex1: 'E1',
+      vertexIndex2: 'E7',
+      spacingX: 0,
+      spacingY: 0
+    });
+
+    anchorShape(rightTopObj,rightDestObj,{
+      vertexIndex1: 'E1',
+      vertexIndex2: 'E7',
+      spacingX: 0,
+      spacingY: 0
+    }    );
+
+    anchorShape(leftBottomObj,rightTopObj,{
+      vertexIndex1: 'E1',
+      vertexIndex2: 'E3',
+      spacingX: '',
+      spacingY: 0
+    }    );
+
     // Create an overall border containing both sides and the dividers
     const vDivider = TestTracker.get("vDivider");
     const leftHDivider = TestTracker.get("leftHDivider");
@@ -1746,6 +1776,20 @@ const ComplexSignTest = {
       { xHeight: 200, borderType: 'stack', colorType: 'Blue Background' }
     );
     TestTracker.register("overallBorderGroup", overallBorderGroup);
+
+    anchorShape(overallBorderGroup,leftArrowObj,{
+      vertexIndex1: 'E6',
+      vertexIndex2: 'C11',
+      spacingX: 0,
+      spacingY: ''
+    }    );
+
+    anchorShape(overallBorderGroup,rightArrowObj,{
+      vertexIndex1: 'E6',
+      vertexIndex2: 'C23',
+      spacingX: 0,
+      spacingY: ''
+    }    );
 
     // Test assertions
     let passed = true;
@@ -1789,13 +1833,13 @@ const ComplexSignTest = {
     // Test 4: Verify that horizontal dividers are positioned correctly between objects
     passed = passed && TestTracker.assertTrue(
       leftHDivider.top > leftBottomObj.top + leftBottomObj.height &&
-      leftHDivider.top < leftDestObj.top,
+      leftHDivider.top < leftArrowObj.top,
       "Left horizontal divider should be between 2-liner and destination"
     );
 
     passed = passed && TestTracker.assertTrue(
-      rightHDivider.top > rightBottomObj.top + rightBottomObj.height &&
-      rightHDivider.top < rightDestObj.top,
+      rightHDivider.top > rightTopObj.top + rightTopObj.height &&
+      rightHDivider.top < rightArrowObj.top,
       "Right horizontal divider should be between 2-liner and destination"
     );
 
@@ -1805,10 +1849,10 @@ const ComplexSignTest = {
     const initialLeftTextLeft = leftTopObj.left;
     const initialRightTextLeft = rightTopObj.left;
 
-    // Move the overall border
-    overallBorderGroup.set({ left: overallBorderGroup.left + 100 });
-    overallBorderGroup.setCoords();
-    overallBorderGroup.updateAllCoord();
+    // Move the overall border by left top object
+    leftTopObj.set({ left: leftTopObj.left + 100 });
+    leftTopObj.setCoords();
+    leftTopObj.updateAllCoord();
 
     // Check that contained elements moved with the border
     passed = passed && TestTracker.assertTrue(
