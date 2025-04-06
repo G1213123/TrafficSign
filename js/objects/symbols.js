@@ -1,17 +1,17 @@
 function getFontPath(t) {
-  let buffer;
-  if (t.fontFamily == 'TransportMedium') {
-    buffer = buffer1
-  } else if (t.fontFamily == 'TransportHeavy') {
-    buffer = buffer2
+  // Use pre-parsed font objects instead of parsing the buffer each time
+  let fontGlyphs;
+  if (t.fontFamily === 'TransportMedium') {
+    fontGlyphs = window.parsedFontMedium || opentype.parse(buffer1);
+  } else if (t.fontFamily === 'TransportHeavy') {
+    fontGlyphs = window.parsedFontHeavy || opentype.parse(buffer2);
+  } else if (t.fontFamily === 'TW-MOE-Std-Kai') {
+    fontGlyphs = window.parsedFontKai || opentype.parse(buffer4);
   } else {
-    buffer = buffer3
+    fontGlyphs = window.parsedFontChinese || opentype.parse(buffer3);
   }
-  const FontGlyphs = opentype.parse(buffer);
-  return FontGlyphs.getPath(t.character, t.x, t.y, t.fontSize, );
+  return fontGlyphs.getPath(t.character, t.x, t.y, t.fontSize);
 }
-
-
 
 function calcSymbol(type, length, color = 'white') {
   let symbol

@@ -493,6 +493,7 @@ window.addEventListener('load', async function () {
 
   setTimeout(function () {
     document.getElementById('loading-overlay').style.display = 'none';
+    canvas.renderAll();
   }, 3000); // 3 second backup timeout
 
 });

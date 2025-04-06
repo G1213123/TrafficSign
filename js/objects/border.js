@@ -1,3 +1,28 @@
+// Add function to remove anchor between objects
+function removeAnchor(sourceObject, targetObject) {
+  // Save the source and target objects before delinking
+  const savedSourceObject = sourceObject;
+  const savedTargetObject = targetObject;
+
+  // Check if the source object has the targetObject in its anchoredPolygon array
+  if (sourceObject.anchoredPolygon && Array.isArray(sourceObject.anchoredPolygon)) {
+    // Remove the target object from the source's anchoredPolygon array
+    sourceObject.anchoredPolygon = sourceObject.anchoredPolygon.filter(obj => obj !== targetObject);
+  }
+
+  // Clean up the target object's lock properties
+  if (targetObject.lockXToPolygon && targetObject.lockXToPolygon.TargetObject === sourceObject) {
+    targetObject.lockXToPolygon = {};
+  }
+
+  if (targetObject.lockYToPolygon && targetObject.lockYToPolygon.TargetObject === sourceObject) {
+    targetObject.lockYToPolygon = {};
+  }
+
+  // Return the saved objects for reference
+  return { source: savedSourceObject, target: savedTargetObject };
+}
+
 // Add BorderUtilities object to hold functions moved from FormBorderWrapComponent
 const BorderUtilities = {
 
@@ -196,23 +221,58 @@ const BorderUtilities = {
       }
 
       if (!sourceList.includes(h.lockYToPolygon.TargetObject) && h.functionalType == 'HDivider') {
-        anchorShape(h.lockYToPolygon.TargetObject, h, {
-          vertexIndex1: h.lockYToPolygon.sourcePoint,
-          vertexIndex2: h.lockYToPolygon.targetPoint,
-          spacingX: '',
-          spacingY: DividerMargin[h.functionalType]['top'] * h.xHeight / 4 + rounding.y
-        }, sourceList)
+        // Directly update anchor properties instead of removing and recreating
+        if (h.lockYToPolygon && Object.keys(h.lockYToPolygon).length > 0) {
+          // Update spacing value
+          h.lockYToPolygon.spacingY = DividerMargin[h.functionalType]['top'] * h.xHeight / 4 + rounding.y;
+
+          // Update object position
+          const targetObj = h.lockYToPolygon.TargetObject;
+          const sourcePoint = h.lockYToPolygon.sourcePoint;
+          const targetPoint = h.lockYToPolygon.targetPoint;
+
+          // Calculate new position
+          const sourceVertexY = targetObj.getBasePolygonVertex(targetPoint).y;
+          const newY = sourceVertexY + h.lockYToPolygon.spacingY;
+          const deltaY = newY - h.getBasePolygonVertex(sourcePoint).y;
+
+          // Update object position and vertices
+          h.set('top', h.top + deltaY);
+          if (h.basePolygon && h.basePolygon.vertex) {
+            h.basePolygon.vertex.forEach(v => {
+              v.y += deltaY;
+            });
+          }
+        }
       }
-      const nextAnchor = h.anchoredPolygon[0]
+
+      const nextAnchor = h.anchoredPolygon[0];
       if (!sourceList.includes(nextAnchor)) {
-        anchorShape(h, nextAnchor, {
-          vertexIndex1: nextAnchor.lockYToPolygon.sourcePoint,
-          vertexIndex2: nextAnchor.lockYToPolygon.targetPoint,
-          spacingX: '',
-          spacingY: DividerMargin[h.functionalType]['bottom'] * h.xHeight / 4 + rounding.y
-        }, sourceList)
+        // Directly update anchor properties instead of removing and recreating
+        if (nextAnchor.lockYToPolygon && Object.keys(nextAnchor.lockYToPolygon).length > 0) {
+          // Update spacing value
+          nextAnchor.lockYToPolygon.spacingY = DividerMargin[h.functionalType]['bottom'] * h.xHeight / 4 + rounding.y;
+
+          // Update object position
+          const sourcePoint = nextAnchor.lockYToPolygon.sourcePoint;
+          const targetPoint = nextAnchor.lockYToPolygon.targetPoint;
+
+          // Calculate new position
+          const sourceVertexY = h.getBasePolygonVertex(targetPoint).y;
+          const newY = sourceVertexY + nextAnchor.lockYToPolygon.spacingY;
+          const deltaY = newY - nextAnchor.getBasePolygonVertex(sourcePoint).y;
+
+          // Update object position and vertices
+          nextAnchor.set('top', nextAnchor.top + deltaY);
+          if (nextAnchor.basePolygon && nextAnchor.basePolygon.vertex) {
+            nextAnchor.basePolygon.vertex.forEach(v => {
+              v.y += deltaY;
+            });
+          }
+        }
       }
     })
+
     VDividers.forEach(v => {
       // Skip rounding if divider has fixed distance values
       if (v.fixedLeftValue || v.fixedRightValue) {
@@ -220,21 +280,55 @@ const BorderUtilities = {
       }
 
       if (!sourceList.includes(v.lockXToPolygon.TargetObject) && v.functionalType == 'VDivider') {
-        anchorShape(v.lockXToPolygon.TargetObject, v, {
-          vertexIndex1: v.lockXToPolygon.sourcePoint,
-          vertexIndex2: v.lockXToPolygon.targetPoint,
-          spacingX: DividerMargin[v.functionalType]['left'] * v.xHeight / 4 + rounding.x,
-          spacingY: ''
-        }, sourceList)
+        // Directly update anchor properties instead of removing and recreating
+        if (v.lockXToPolygon && Object.keys(v.lockXToPolygon).length > 0) {
+          // Update spacing value
+          v.lockXToPolygon.spacingX = DividerMargin[v.functionalType]['left'] * v.xHeight / 4 + rounding.x;
+
+          // Update object position
+          const targetObj = v.lockXToPolygon.TargetObject;
+          const sourcePoint = v.lockXToPolygon.sourcePoint;
+          const targetPoint = v.lockXToPolygon.targetPoint;
+
+          // Calculate new position
+          const sourceVertexX = targetObj.getBasePolygonVertex(targetPoint).x;
+          const newX = sourceVertexX + v.lockXToPolygon.spacingX;
+          const deltaX = newX - v.getBasePolygonVertex(sourcePoint).x;
+
+          // Update object position and vertices
+          v.set('left', v.left + deltaX);
+          if (v.basePolygon && v.basePolygon.vertex) {
+            v.basePolygon.vertex.forEach(vertex => {
+              vertex.x += deltaX;
+            });
+          }
+        }
       }
-      const nextAnchor = v.anchoredPolygon[0]
+
+      const nextAnchor = v.anchoredPolygon[0];
       if (!sourceList.includes(nextAnchor)) {
-        anchorShape(v, nextAnchor, {
-          vertexIndex1: nextAnchor.lockXToPolygon.sourcePoint,
-          vertexIndex2: nextAnchor.lockXToPolygon.targetPoint,
-          spacingX: DividerMargin[v.functionalType]['right'] * v.xHeight / 4 + rounding.x,
-          spacingY: ''
-        }, sourceList)
+        // Directly update anchor properties instead of removing and recreating
+        if (nextAnchor.lockXToPolygon && Object.keys(nextAnchor.lockXToPolygon).length > 0) {
+          // Update spacing value
+          nextAnchor.lockXToPolygon.spacingX = DividerMargin[v.functionalType]['right'] * v.xHeight / 4 + rounding.x;
+
+          // Update object position
+          const sourcePoint = nextAnchor.lockXToPolygon.sourcePoint;
+          const targetPoint = nextAnchor.lockXToPolygon.targetPoint;
+
+          // Calculate new position
+          const sourceVertexX = v.getBasePolygonVertex(targetPoint).x;
+          const newX = sourceVertexX + nextAnchor.lockXToPolygon.spacingX;
+          const deltaX = newX - nextAnchor.getBasePolygonVertex(sourcePoint).x;
+
+          // Update object position and vertices
+          nextAnchor.set('left', nextAnchor.left + deltaX);
+          if (nextAnchor.basePolygon && nextAnchor.basePolygon.vertex) {
+            nextAnchor.basePolygon.vertex.forEach(vertex => {
+              vertex.x += deltaX;
+            });
+          }
+        }
         nextAnchor.rounded = { x: rounding.x, y: 0 }
       }
     })
@@ -271,39 +365,46 @@ const BorderUtilities = {
       coords.bottom += padding / 2
     }
 
-    const BaseBorder = await drawLabeledBorder(borderType, xHeight, coords, colorType)
+    try {
+      const BaseBorder = await drawLabeledBorder(borderType, xHeight, coords, colorType)
 
-    // Use the new BorderGroup class instead of BaseGroup
-    const borderGroup = new BorderGroup(BaseBorder, borderType, {
-      widthObjects: [...fwidthObjects],
-      heightObjects: [...fheightObjects],
-      fixedWidth: widthText,
-      fixedHeight: heightText,
-      VDivider: VDivider,
-      HDivider: HDivider,
-      xHeight: xHeight,
-      color: colorType
-    });
+      // Use the new BorderGroup class instead of BaseGroup
+      const borderGroup = new BorderGroup(BaseBorder, borderType, {
+        widthObjects: [...fwidthObjects],
+        heightObjects: [...fheightObjects],
+        fixedWidth: widthText,
+        fixedHeight: heightText,
+        VDivider: VDivider,
+        HDivider: HDivider,
+        xHeight: xHeight,
+        color: colorType
+      });
 
-    // Add mid points and assign widths to dividers
-    borderGroup.assignWidthToDivider();
-    //borderGroup.addMidPointToDivider();
 
-    // Send border to back and update object references
-    canvas.sendObjectToBack(borderGroup);
+      // Add mid points and assign widths to dividers
+      await borderGroup.assignWidthToDivider(); // Ensure this await is always present
+      //borderGroup.addMidPointToDivider();
 
-    // Update border reference in width objects
-    fwidthObjects.forEach(obj => {
-      obj.borderGroup = borderGroup;
-    });
 
-    // Update border reference in height objects
-    fheightObjects.forEach(obj => {
-      obj.borderGroup = borderGroup;
-    });
+      // Send border to back and update object references
+      canvas.sendObjectToBack(borderGroup);
 
-    canvas.renderAll();
-    return borderGroup;
+      // Update border reference in width objects
+      fwidthObjects.forEach(obj => {
+        obj.borderGroup = borderGroup;
+      });
+
+      // Update border reference in height objects
+      fheightObjects.forEach(obj => {
+        obj.borderGroup = borderGroup;
+      });
+
+      canvas.renderAll();
+      return borderGroup;
+    } catch (error) {
+      console.error("Error creating border group:", error);
+      throw error; // Re-throw to allow calling function to handle errors
+    }
   },
 
 }
@@ -477,29 +578,29 @@ class BorderGroup extends BaseGroup {
   // Add mid points to divider
   addMidPointToDivider() {
     // Make sure bbox is updated - using existing code
-    this.updateBboxes();
-    
+    //this.updateBboxes();
+
     const frame = 1.5 * this.xHeight / 4;
     let i = 0;
-    
+
     // First clear any existing mid points from previous calculations
     this.basePolygon.vertex = this.basePolygon.vertex.filter(v => !v.label || !v.label.startsWith('C'));
-    
+
     // Loop through each compartment and add midpoints on each edge
     this.compartmentBboxes.forEach((compartment, index) => {
       // Calculate midpoints for each edge of the compartment
       const midX = (compartment.left + compartment.right) / 2;
       const midY = (compartment.top + compartment.bottom) / 2;
-      
+
       // Add midpoint on top edge
       this.basePolygon.vertex.push({ x: midX, y: compartment.top, label: `C${i += 1}` });
-      
+
       // Add midpoint on right edge
       this.basePolygon.vertex.push({ x: compartment.right, y: midY, label: `C${i += 1}` });
-      
+
       // Add midpoint on bottom edge
       this.basePolygon.vertex.push({ x: midX, y: compartment.bottom, label: `C${i += 1}` });
-      
+
       // Add midpoint on left edge
       this.basePolygon.vertex.push({ x: compartment.left, y: midY, label: `C${i += 1}` });
     });
@@ -513,6 +614,7 @@ class BorderGroup extends BaseGroup {
     // Use the bbox property instead of recalculating it
     const borderSize = this.getBoundingRect();
     const frame = 1.5 * this.xHeight / 4;
+
 
     // Track which objects are updated to prevent recursive operations
     const updatedObjects = new Set();
@@ -534,6 +636,7 @@ class BorderGroup extends BaseGroup {
       
       // Check if divider has fixed distance values
       if (d.fixedLeftValue || d.fixedRightValue) {
+
         if (needsUpdate) {
           // Redraw the divider with the border's dimensions
           const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, this.bbox, d.functionalType);
@@ -554,6 +657,7 @@ class BorderGroup extends BaseGroup {
             // Remove any existing anchoring but don't trigger further updates
             if (d.lockXToPolygon && Object.keys(d.lockXToPolygon).length > 0) {
               removeAnchor(d.lockXToPolygon.TargetObject, d);
+
             }
           } else if (d.fixedLeftValue !== undefined) {
             // Anchor to left of border
@@ -562,7 +666,7 @@ class BorderGroup extends BaseGroup {
                     DividerMargin[d.functionalType]['left'] * d.xHeight / 4 
             });
           }
-          
+
           // Update positions without triggering further updates
           this.updateDividerCoords(d);
         }
@@ -578,6 +682,7 @@ class BorderGroup extends BaseGroup {
         
         // Update positions without triggering further updates
         this.updateDividerCoords(d);
+
       }
     }
 
@@ -594,6 +699,7 @@ class BorderGroup extends BaseGroup {
       
       // Check if divider has fixed distance values
       if (d.fixedTopValue || d.fixedBottomValue) {
+
         if (needsUpdate) {
           // Redraw the divider with the border's dimensions
           const res = await drawDivider(
@@ -635,6 +741,7 @@ class BorderGroup extends BaseGroup {
           this.updateDividerCoords(d);
         }
       } else if (needsUpdate) {
+
         // For HLine dividers, check if there are vertical dividers and calculate the correct cell
         if (d.functionalType === 'HLine' && this.compartmentBboxes.length > 1) {
           // Find the compartment that contains the HLine's horizontal position
@@ -648,6 +755,7 @@ class BorderGroup extends BaseGroup {
           );
 
           if (matchingCompartments.length > 0) {
+
             const cellBbox = matchingCompartments[0];
 
             // Draw the HLine with the cell-specific bbox
@@ -663,12 +771,9 @@ class BorderGroup extends BaseGroup {
             );
             d.replaceBasePolygon(res);
 
-            // Position HLine in the cell
-            d.set({
-              top: initialTop,
-              left: cellBbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4
-            });
+
           } else {
+
             // No matching compartment found, use the border's bbox
             const res = await drawDivider(
               d.xHeight, 
@@ -680,12 +785,14 @@ class BorderGroup extends BaseGroup {
               this.bbox, 
               d.functionalType
             );
+
             d.replaceBasePolygon(res);
             d.set({ 
               top: initialTop, 
               left: this.bbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 
             });
           }
+
         } else {
           // Regular HDivider or HLine without VDividers
           const res = await drawDivider(
@@ -703,6 +810,7 @@ class BorderGroup extends BaseGroup {
             top: initialTop, 
             left: this.bbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 
           });
+
         }
         
         // Update positions without triggering further updates
@@ -749,7 +857,7 @@ class BorderGroup extends BaseGroup {
   updateBboxes() {
     const borderSize = this.getBoundingRect();
     const frame = 1.5 * this.xHeight / 4;
-    
+
     // Calculate main bbox (inner area of the border)
     this.bbox = {
       left: borderSize.left + frame,
@@ -759,20 +867,20 @@ class BorderGroup extends BaseGroup {
       width: borderSize.width - (2 * frame),
       height: borderSize.height - (2 * frame)
     };
-    
+
     // Reset compartment bboxes
     this.compartmentBboxes = [];
-    
+
     // If there are no dividers, the entire inner area is one compartment
     if (this.VDivider.length === 0 && this.HDivider.length === 0) {
-      this.compartmentBboxes.push({...this.bbox});
+      this.compartmentBboxes.push({ ...this.bbox });
       return;
     }
-    
+
     // Calculate compartments based on dividers
     this.calculateCompartments();
   }
-  
+
   // Calculate compartments created by dividers
   calculateCompartments() {
     // Get sorted dividers
@@ -1067,7 +1175,7 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
   const baseGroup = [];
 
   // Create polygon with labeled vertices
-  shapeMeta.path.forEach(async (p) => {
+  shapeMeta.path.forEach((p) => {
     const vertexleft = -Math.min(...p.vertex.map(v => v.x));
     const vertextop = -Math.min(...p.vertex.map(v => v.y));
 

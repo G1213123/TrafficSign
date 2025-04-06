@@ -137,7 +137,7 @@ class TextObject extends BaseGroup {
 
       // Determine font family and size based on character type
       const isKnownPunctuation = textWidthHeavy.map(item => item.char).includes(textChar);
-      const fontFamily = containsNonAlphabetic ?
+      let fontFamily = containsNonAlphabetic ?
         (isKnownPunctuation ? 'TransportHeavy' : 'Noto Sans Hong Kong') :
         font;
       const fontSize = containsNonAlphabetic ?
@@ -146,6 +146,7 @@ class TextObject extends BaseGroup {
       const shortWidth = (i > 0 && ['T', 'U', 'V'].includes(txt[i - 1])) ? true : false;
       if (textChar === ',' && containsNonAlphabetic) {
         textChar = '、';
+        fontFamily = 'TW-MOE-Std-Kai';
       }
 
       // Determine character width based on font and character
@@ -157,7 +158,7 @@ class TextObject extends BaseGroup {
 
       // Calculate position adjustments for horizontal positioning
       let charLeftPos = left_pos + (containsNonAlphabetic ? 0.25 * xHeight : 0);
-      let charTopPos = containsNonAlphabetic ? -0.2 : 0.1 * xHeight;
+      let charTopPos = (bracketOffset+(containsNonAlphabetic ? -0.2 : 0.1)) * xHeight;
 
       // Create the frame rectangle - we'll need these dimensions for centering
       const frameWidth = containsNonAlphabetic ?
@@ -165,18 +166,17 @@ class TextObject extends BaseGroup {
         charWidth * xHeight / 100 - 2;
       const frameHeight = containsNonAlphabetic ? 2.85 * xHeight - 2 : xHeight * 2 - 2;
 
-      // Get the appropriate font buffer
-      let buffer;
-      if (fontFamily === 'TransportMedium') {
-        buffer = buffer1;
-      } else if (fontFamily === 'TransportHeavy') {
-        buffer = buffer2;
+      // Get the appropriate font - use pre-parsed fonts instead of parsing each time
+      let fontGlyphs;
+      if (fontFamily === 'TransportMedium' && !containsNonAlphabetic) {
+        fontGlyphs = window.parsedFontMedium || opentype.parse(buffer1);
+      } else if (fontFamily === 'TransportHeavy' && !containsNonAlphabetic) {
+        fontGlyphs = window.parsedFontHeavy || opentype.parse(buffer2);
+      } else if (textChar === '、') {
+        fontGlyphs = window.parsedFontKai || opentype.parse(buffer4);
       } else {
-        buffer = buffer3;
+        fontGlyphs = window.parsedFontChinese || opentype.parse(buffer3);
       }
-
-      // Parse the font to access metrics
-      const fontGlyphs = opentype.parse(buffer);
 
       // Access font metrics
       const fontMetrics = {
@@ -215,7 +215,7 @@ class TextObject extends BaseGroup {
 
       // Create a path from the font path data
       const txt_char = new fabric.Path(charSVG, {
-        left: charGlyph.leftSideBearing * fontScale + charLeftPos,
+        left: (textChar == '、'? charGlyph.leftSideBearing-800:charGlyph.leftSideBearing) * fontScale + charLeftPos ,
         top: minTop + charTopPos,
         fill: color,
         originX: 'left',
