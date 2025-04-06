@@ -1731,29 +1731,29 @@ const ComplexSignTest = {
     TestTracker.register("rightHDivider");
 
     // Anchor the objects in place
-    anchorShape(leftBottomObj,leftDestObj,{
-      vertexIndex1: 'E1',
-      vertexIndex2: 'E7',
+    anchorShape(leftDestObj,leftBottomObj,{
+      vertexIndex1: 'E7',
+      vertexIndex2: 'E1',
       spacingX: 0,
       spacingY: 0
     }
     )
 
-    anchorShape(leftTopObj, leftBottomObj, {
-      vertexIndex1: 'E1',
-      vertexIndex2: 'E7',
-      spacingX: 0,
+    anchorShape(leftBottomObj, leftTopObj, {
+      vertexIndex1: 'E7',
+      vertexIndex2: 'E1',
+      spacingX: -0,
       spacingY: 0
     });
 
     anchorShape(rightTopObj,rightDestObj,{
-      vertexIndex1: 'E1',
-      vertexIndex2: 'E7',
+      vertexIndex1: 'E2',
+      vertexIndex2: 'E6',
       spacingX: 0,
       spacingY: 0
     }    );
 
-    anchorShape(leftBottomObj,rightTopObj,{
+    anchorShape(leftDestObj,rightDestObj,{
       vertexIndex1: 'E1',
       vertexIndex2: 'E3',
       spacingX: '',
@@ -1777,17 +1777,17 @@ const ComplexSignTest = {
     );
     TestTracker.register("overallBorderGroup", overallBorderGroup);
 
-    await anchorShape(leftTopObj,leftArrowObj,{
+    anchorShape(overallBorderGroup,leftArrowObj,{
       vertexIndex1: 'E2',
-      vertexIndex2: 'E2',
-      spacingX: 0,
+      vertexIndex2: 'E7',
+      spacingX: 1825,
       spacingY: ''
     }    );
 
-    await anchorShape(rightTopObj,rightArrowObj,{
+    anchorShape(leftArrowObj,rightArrowObj,{
       vertexIndex1: 'E2',
       vertexIndex2: 'E2',
-      spacingX: 0,
+      spacingX: 3650,
       spacingY: ''
     }    );
 
@@ -1846,13 +1846,13 @@ const ComplexSignTest = {
     // Test 5: Verify that moving the overall border moves all contained elements
     // Record initial positions
     const initialVDividerLeft = vDivider.left;
-    const initialLeftTextLeft = leftTopObj.left;
+    const initialLeftTextLeft = leftDestObj.left;
     const initialRightTextLeft = rightTopObj.left;
 
     // Move the overall border by left top object
-    leftTopObj.set({ left: leftTopObj.left + 100 });
-    leftTopObj.setCoords();
-    leftTopObj.updateAllCoord();
+    leftDestObj.set({ left: leftDestObj.left + 100 });
+    leftDestObj.setCoords();
+    leftDestObj.updateAllCoord();
 
     // Check that contained elements moved with the border
     passed = passed && TestTracker.assertTrue(
@@ -1861,7 +1861,7 @@ const ComplexSignTest = {
     );
 
     passed = passed && TestTracker.assertTrue(
-      Math.abs((leftTopObj.left - initialLeftTextLeft) - 100) < 5,
+      Math.abs((leftDestObj.left - initialLeftTextLeft) - 100) < 5,
       "Left text should move with overall border"
     );
 

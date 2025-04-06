@@ -312,7 +312,7 @@ class BaseGroup extends fabric.Group {
     canvas.renderAll();
   }
 
-  drawVertex(calc = false) {
+  drawVertex(calc = true) {
     // If basePolygon doesn't exist, exit early
     if (!this.basePolygon) return;
 
@@ -321,6 +321,7 @@ class BaseGroup extends fabric.Group {
     }
 
     if (calc) {
+      this.basePolygon.vertex = this.basePolygon.vertex.filter(v => !v.label.startsWith('E'));
       let basePolygonCoords = Object.values(this.basePolygon.getCoords());
       basePolygonCoords.forEach((p, i) => {
         this.basePolygon.vertex.push({ x: p.x, y: p.y, label: `E${i * 2 + 1}` });
