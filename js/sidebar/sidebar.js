@@ -170,6 +170,8 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
 
+    canvas.renderAll();
+
 
   });
 });
