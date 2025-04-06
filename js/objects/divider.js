@@ -382,4 +382,3 @@ async function VLaneCreate(leftObjects, rightObjects, leftValue, rightValue, opt
     borderGroup.updateAllCoord()
     return borderGroup
 }
-

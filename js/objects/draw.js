@@ -448,7 +448,22 @@ class BaseGroup extends fabric.Group {
       BG.updateAllCoord(null, sourceList)
       BG.drawVertex()
 
-    }
+    
+    
+    // Update reference points and vertices
+    BG.refTopLeft = {
+      top: BG.basePolygon.getCoords()[0].y,
+      left: BG.basePolygon.getCoords()[0].x
+    };
+    
+    // Safely assign widths to dividers
+    BG.assignWidthToDivider();
+    
+    // Redraw vertices
+    BG.drawVertex();
+    
+    canvas.renderAll();
+  }
   }
 
   getBasePolygonVertex(label) {
@@ -1787,4 +1802,3 @@ class BorderDimensionDisplay {
     this.objects.push(arrow);
   }
 }
-
