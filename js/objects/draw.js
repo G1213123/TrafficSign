@@ -448,7 +448,7 @@ class BaseGroup extends fabric.Group {
       BG.updateAllCoord(null, sourceList)
       BG.drawVertex()
 
-    }
+    
     
     // Update reference points and vertices
     BG.refTopLeft = {
@@ -463,6 +463,7 @@ class BaseGroup extends fabric.Group {
     BG.drawVertex();
     
     canvas.renderAll();
+  }
   }
 
   getBasePolygonVertex(label) {

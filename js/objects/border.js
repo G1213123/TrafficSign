@@ -514,16 +514,27 @@ class BorderGroup extends BaseGroup {
     const borderSize = this.getBoundingRect();
     const frame = 1.5 * this.xHeight / 4;
 
+    // Track which objects are updated to prevent recursive operations
+    const updatedObjects = new Set();
+    if (globalAnchorTree.updateInProgress) {
+      sourceList = sourceList || [];
+      updatedObjects.add(this.canvasID);
+    }
+
     // Handle VDividers
     for (const d of this.VDivider) {
+      // Skip if already updated in this cycle
+      if (updatedObjects.has(d.canvasID)) continue;
+      updatedObjects.add(d.canvasID);
+      
+      // Store initial positions
+      const initialLeft = d.getEffectiveCoords()[0].x;
+      const initialTop = d.top;
+      const needsUpdate = !d.bbox || d.top !== this.bbox.top || d.height !== this.bbox.height;
+      
       // Check if divider has fixed distance values
       if (d.fixedLeftValue || d.fixedRightValue) {
-        // Store the group's initial position
-        const initialLeft = d.getEffectiveCoords()[0].x;
-        const initialTop = d.top;
-
-        if (d.position.top !== this.bbox.top || d.bbox.height !== this.bbox.height) {
-
+        if (needsUpdate) {
           // Redraw the divider with the border's dimensions
           const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, this.bbox, d.functionalType);
           d.replaceBasePolygon(res);
@@ -535,110 +546,95 @@ class BorderGroup extends BaseGroup {
           // Priority: use the right value if both are specified
           if (d.fixedRightValue !== undefined) {
             // Anchor to right of border
-            d.set({ left: borderSize.left + borderSize.width - frame - d.fixedRightValue - DividerMargin[d.functionalType]['right'] * d.xHeight / 4 });
+            d.set({ 
+              left: borderSize.left + borderSize.width - frame - d.fixedRightValue - 
+                    DividerMargin[d.functionalType]['right'] * d.xHeight / 4 
+            });
 
-            // Remove any existing anchoring
+            // Remove any existing anchoring but don't trigger further updates
             if (d.lockXToPolygon && Object.keys(d.lockXToPolygon).length > 0) {
               removeAnchor(d.lockXToPolygon.TargetObject, d);
             }
-            if (d.anchoredPolygon && d.anchoredPolygon.length > 0) {
-              for (const anchoredObj of d.anchoredPolygon) {
-                if (anchoredObj.lockXToPolygon && Object.keys(anchoredObj.lockXToPolygon).length > 0) {
-                  removeAnchor(d, anchoredObj);
-                }
-              }
-            }
           } else if (d.fixedLeftValue !== undefined) {
             // Anchor to left of border
-            d.set({ left: borderSize.left + frame + d.fixedLeftValue + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
-
-            // Remove any existing anchoring
-            if (d.lockXToPolygon && Object.keys(d.lockXToPolygon).length > 0) {
-              //removeAnchor(d.lockXToPolygon.TargetObject, d);
-            }
-            if (d.anchoredPolygon && d.anchoredPolygon.length > 0) {
-              for (const anchoredObj of d.anchoredPolygon) {
-                if (anchoredObj.lockXToPolygon && Object.keys(anchoredObj.lockXToPolygon).length > 0) {
-                  //removeAnchor(d, anchoredObj);
-                }
-              }
-            }
+            d.set({ 
+              left: borderSize.left + frame + d.fixedLeftValue + 
+                    DividerMargin[d.functionalType]['left'] * d.xHeight / 4 
+            });
           }
-          d.updateAllCoord(null, sourceList);
+          
+          // Update positions without triggering further updates
+          this.updateDividerCoords(d);
         }
-
-      } else {
-        if (d.position.top !== this.bbox.top || d.bbox.height !== this.bbox.height) {
-          // Regular object-anchored divider
-          const initialLeft = d.getEffectiveCoords()[0].x;
-          const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, this.bbox, d.functionalType);
-          d.replaceBasePolygon(res);
-          d.set({
-            top: this.bbox.top,
-            left: initialLeft
-          });
-          d.updateAllCoord(null, sourceList);
-        }
-
+      } else if (needsUpdate) {
+        // Regular object-anchored divider
+        const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, this.bbox, d.functionalType);
+        d.replaceBasePolygon(res);
+        
+        d.set({
+          top: this.bbox.top,
+          left: initialLeft
+        });
+        
+        // Update positions without triggering further updates
+        this.updateDividerCoords(d);
       }
     }
 
     // Handle HDividers
     for (const d of this.HDivider) {
+      // Skip if already updated in this cycle
+      if (updatedObjects.has(d.canvasID)) continue;
+      updatedObjects.add(d.canvasID);
+      
+      // Store initial position
+      const initialTop = d.getEffectiveCoords()[0].y;
+      const initialLeft = d.left;
+      const needsUpdate = !d.bbox || d.left !== this.bbox.left || d.width !== this.bbox.width;
+      
       // Check if divider has fixed distance values
       if (d.fixedTopValue || d.fixedBottomValue) {
-        if (d.position.left !== this.bbox.left || d.bbox.width !== this.bbox.width) {
-          // Store the group's initial position
-          const initialTop = d.getEffectiveCoords()[0].y;
-          const initialLeft = d.left;
-
+        if (needsUpdate) {
           // Redraw the divider with the border's dimensions
-          const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4 }, this.bbox, d.functionalType);
+          const res = await drawDivider(
+            d.xHeight, 
+            d.color, 
+            { 
+              left: d.left, 
+              top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4 
+            }, 
+            this.bbox, 
+            d.functionalType
+          );
           d.replaceBasePolygon(res);
 
           // Position divider horizontally same as before
           d.set({ left: this.bbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
 
           // For fixed values, anchor to the border instead of objects
-          // Priority: use the bottom value if both are specified
           if (d.fixedBottomValue !== undefined) {
             // Anchor to bottom of border
-            d.set({ top: borderSize.top + borderSize.height - frame - d.fixedBottomValue - DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4 });
+            d.set({ 
+              top: borderSize.top + borderSize.height - frame - d.fixedBottomValue - 
+                  DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4 
+            });
 
-            // Remove any existing anchoring
+            // Remove any existing anchoring but don't trigger cascading updates
             if (d.lockYToPolygon && Object.keys(d.lockYToPolygon).length > 0) {
               removeAnchor(d.lockYToPolygon.TargetObject, d);
-            }
-            if (d.anchoredPolygon && d.anchoredPolygon.length > 0) {
-              for (const anchoredObj of d.anchoredPolygon) {
-                if (anchoredObj.lockYToPolygon && Object.keys(anchoredObj.lockYToPolygon).length > 0) {
-                  removeAnchor(d, anchoredObj);
-                }
-              }
             }
           } else if (d.fixedTopValue !== undefined) {
             // Anchor to top of border
-            d.set({ top: borderSize.top + frame + d.fixedTopValue + DividerMargin[d.functionalType]['top'] * d.xHeight / 4 });
-
-            // Remove any existing anchoring
-            if (d.lockYToPolygon && Object.keys(d.lockYToPolygon).length > 0) {
-              removeAnchor(d.lockYToPolygon.TargetObject, d);
-            }
-            if (d.anchoredPolygon && d.anchoredPolygon.length > 0) {
-              for (const anchoredObj of d.anchoredPolygon) {
-                if (anchoredObj.lockYToPolygon && Object.keys(anchoredObj.lockYToPolygon).length > 0) {
-                  removeAnchor(d, anchoredObj);
-                }
-              }
-            }
+            d.set({ 
+              top: borderSize.top + frame + d.fixedTopValue + 
+                  DividerMargin[d.functionalType]['top'] * d.xHeight / 4 
+            });
           }
-          d.updateAllCoord(null, sourceList);
+          
+          // Update positions without triggering further updates
+          this.updateDividerCoords(d);
         }
-
-      } else {
-        // Regular object-anchored divider
-        const initialTop = d.getEffectiveCoords()[0].y;
-
+      } else if (needsUpdate) {
         // For HLine dividers, check if there are vertical dividers and calculate the correct cell
         if (d.functionalType === 'HLine' && this.compartmentBboxes.length > 1) {
           // Find the compartment that contains the HLine's horizontal position
@@ -652,45 +648,65 @@ class BorderGroup extends BaseGroup {
           );
 
           if (matchingCompartments.length > 0) {
-            if (d.position.left !== matchingCompartments[0].left || d.bbox.width !== matchingCompartments[0].width) {
-              const cellBbox = matchingCompartments[0];
+            const cellBbox = matchingCompartments[0];
 
-              // Draw the HLine with the cell-specific bbox
-              const res = await drawDivider(
-                d.xHeight,
-                d.color,
-                { left: cellBbox.left, top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4 },
-                cellBbox,
-                d.functionalType
-              );
-              d.replaceBasePolygon(res);
+            // Draw the HLine with the cell-specific bbox
+            const res = await drawDivider(
+              d.xHeight,
+              d.color,
+              { 
+                left: cellBbox.left, 
+                top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4 
+              },
+              cellBbox,
+              d.functionalType
+            );
+            d.replaceBasePolygon(res);
 
-              // Position HLine in the cell
-              d.set({
-                top: initialTop,
-                left: cellBbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4
-              });
-              this.updateAllCoord(null, sourceList);
-            }
-
+            // Position HLine in the cell
+            d.set({
+              top: initialTop,
+              left: cellBbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4
+            });
           } else {
-            if (d.position.left !== this.bbox.left || d.bbox.width !== this.bbox.width) {
-              // No matching compartment found, use the border's bbox
-              const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4 }, this.bbox, d.functionalType);
-              d.replaceBasePolygon(res);
-              d.set({ top: initialTop, left: this.bbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
-              this.updateAllCoord(null, sourceList);
-            }
+            // No matching compartment found, use the border's bbox
+            const res = await drawDivider(
+              d.xHeight, 
+              d.color, 
+              { 
+                left: d.left, 
+                top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4 
+              }, 
+              this.bbox, 
+              d.functionalType
+            );
+            d.replaceBasePolygon(res);
+            d.set({ 
+              top: initialTop, 
+              left: this.bbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 
+            });
           }
         } else {
-          if (d.position.left !== this.bbox.left || d.bbox.width !== this.bbox.width) {
-            // Regular HDivider or HLine without VDividers
-            const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4 }, this.bbox, d.functionalType);
-            d.replaceBasePolygon(res);
-            d.set({ top: initialTop, left: this.bbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
-          }
-          this.updateAllCoord(null, sourceList);
+          // Regular HDivider or HLine without VDividers
+          const res = await drawDivider(
+            d.xHeight, 
+            d.color, 
+            { 
+              left: d.left, 
+              top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4 
+            }, 
+            this.bbox, 
+            d.functionalType
+          );
+          d.replaceBasePolygon(res);
+          d.set({ 
+            top: initialTop, 
+            left: this.bbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 
+          });
         }
+        
+        // Update positions without triggering further updates
+        this.updateDividerCoords(d);
       }
     }
 
@@ -699,6 +715,34 @@ class BorderGroup extends BaseGroup {
 
     // Update mid points
     this.addMidPointToDivider();
+  }
+  
+  // Helper method to update divider coordinates without triggering recursive updates
+  updateDividerCoords(divider) {
+    if (!divider.basePolygon || !divider.basePolygon.vertex) return;
+    
+    // Update reference points
+    divider.setCoords();
+    divider.refTopLeft = {
+      top: divider.basePolygon.getCoords()[0].y,
+      left: divider.basePolygon.getCoords()[0].x
+    };
+    
+    // Update position status for change detection
+    divider.position = {
+      top: divider.top,
+      left: divider.left
+    };
+    
+    divider.bbox = {
+      width: divider.width,
+      height: divider.height
+    };
+    
+    // Mark as updated in the anchor tree if it's active
+    if (globalAnchorTree.updateInProgress) {
+      globalAnchorTree.updatedObjects.add(divider.canvasID);
+    }
   }
 
   // Update the bbox property and compartmentBboxes array
@@ -732,36 +776,36 @@ class BorderGroup extends BaseGroup {
   // Calculate compartments created by dividers
   calculateCompartments() {
     // Get sorted dividers
-    const sortedVDividers = this.VDivider.length > 0 ? 
-      [...this.VDivider].sort((a, b) => a.getEffectiveCoords()[0].x - b.getEffectiveCoords()[0].x) : 
+    const sortedVDividers = this.VDivider.length > 0 ?
+      [...this.VDivider].sort((a, b) => a.getEffectiveCoords()[0].x - b.getEffectiveCoords()[0].x) :
       [];
-      
-    const sortedHDividers = this.HDivider.length > 0 ? 
-      [...this.HDivider].sort((a, b) => a.getEffectiveCoords()[0].y - b.getEffectiveCoords()[0].y) : 
+
+    const sortedHDividers = this.HDivider.length > 0 ?
+      [...this.HDivider].sort((a, b) => a.getEffectiveCoords()[0].y - b.getEffectiveCoords()[0].y) :
       [];
-    
+
     // Get divider positions, only considering them as position points, not actual width
     const xPositions = [this.bbox.left];
     const yPositions = [this.bbox.top];
-    
+
     // Add all vertical divider positions - discount the divider width
     for (const vd of sortedVDividers) {
       const dividerX = vd.getEffectiveCoords()[0].x;
-      
+
       // Add the divider's position (center point), not its edges
       xPositions.push(dividerX);
     }
     xPositions.push(this.bbox.right);
-    
+
     // Add all horizontal divider positions - discount the divider height
     for (const hd of sortedHDividers) {
       const dividerY = hd.getEffectiveCoords()[0].y;
-      
+
       // Add the divider's position (center point), not its edges  
       yPositions.push(dividerY);
     }
     yPositions.push(this.bbox.bottom);
-    
+
     // Create compartment bboxes based on divider positions
     for (let i = 0; i < xPositions.length - 1; i++) {
       for (let j = 0; j < yPositions.length - 1; j++) {
@@ -770,38 +814,38 @@ class BorderGroup extends BaseGroup {
         const rightDivider = i < sortedVDividers.length ? sortedVDividers[i] : null;
         const topDivider = j > 0 ? sortedHDividers[j - 1] : null;
         const bottomDivider = j < sortedHDividers.length ? sortedHDividers[j] : null;
-        
+
         // Get base positions
         let left = xPositions[i];
         let top = yPositions[j];
         let right = xPositions[i + 1];
         let bottom = yPositions[j + 1];
-        
+
         // Apply shadowWidth for each divider if present (only in the correct compartment)
         if (rightDivider && rightDivider.shadowWidth) {
           // Apply shadowWidth.x from the right divider to the left side of the compartment
           const shadowX = rightDivider.shadowWidth.x * rightDivider.xHeight / 4;
-          right += shadowX ;
+          right += shadowX;
         }
-        
+
         if (leftDivider && leftDivider.shadowWidth) {
           // Apply shadowWidth.x from the left divider to the right side of the compartment
           const shadowX = leftDivider.shadowWidth.x * leftDivider.xHeight / 4;
-          left += shadowX;
+          left += leftDivider.width - shadowX;
         }
-        
+
         if (bottomDivider && bottomDivider.shadowWidth) {
           // Apply shadowWidth.y from the bottom divider to the top of the compartment
           const shadowY = bottomDivider.shadowWidth.y * bottomDivider.xHeight / 4;
           bottom += shadowY;
         }
-        
+
         if (topDivider && topDivider.shadowWidth) {
           // Apply shadowWidth.y from the top divider to the bottom of the compartment
           const shadowY = topDivider.shadowWidth.y * topDivider.xHeight / 4;
-          top -= shadowY - topDivider.height ;
+          top += topDivider.height - shadowY;
         }
-        
+
         // Add the compartment with adjusted dimensions
         this.compartmentBboxes.push({
           left,
@@ -816,17 +860,23 @@ class BorderGroup extends BaseGroup {
     }
   }
 
-  // New method to process border resize through the queue
+
+
+  // Optimized method to process border resize without causing infinite loops
   processResize() {
     // Skip if already being updated in current tree cycle
     if (globalAnchorTree.updateInProgress && globalAnchorTree.updatedObjects.has(this.canvasID)) {
       return;
     }
 
-    // Mark as updated if tree update is in progress
-    if (globalAnchorTree.updateInProgress) {
-      globalAnchorTree.updatedObjects.add(this.canvasID);
+    // Start an update cycle if needed
+    const isRootUpdate = !globalAnchorTree.updateInProgress;
+    if (isRootUpdate) {
+      globalAnchorTree.startUpdateCycle();
     }
+
+    // Mark this border as updated in the current cycle
+    globalAnchorTree.updatedObjects.add(this.canvasID);
     
     // Remove all current elements
     this.removeAll();
@@ -834,6 +884,7 @@ class BorderGroup extends BaseGroup {
     // Get the bounding box of the active selection 
     let coords = BorderUtilities.getBorderObjectCoords(this.heightObjects, this.widthObjects);
 
+    // Apply fixed width/height if specified
     if (!isNaN(parseInt(this.fixedWidth))) {
       const padding = parseInt(this.fixedWidth) - coords.right + coords.left;
       coords.left -= padding / 2;
@@ -854,34 +905,67 @@ class BorderGroup extends BaseGroup {
     this.add(borderObject);
     this.basePolygon = borderObject;
     
-    // Handle dividers - avoid using updateAllCoord during this phase
-    this.HDivider.forEach(divider => {
-      if (globalAnchorTree.updateInProgress) {
-        globalAnchorTree.updatedObjects.add(divider.canvasID);
-      }
-      divider.width = rounding.width;
-      if (divider.onResize) divider.onResize();
-    });
-    
-    this.VDivider.forEach(divider => {
-      if (globalAnchorTree.updateInProgress) {
-        globalAnchorTree.updatedObjects.add(divider.canvasID);
-      }
-      divider.height = rounding.height;
-      if (divider.onResize) divider.onResize();
-    });
-    
-    // Update dividers without triggering recursive border updates
-    this.assignWidthToDivider();
-    
-    // Set reference point and update vertices
+    // Set reference point for this border before handling dividers
     this.refTopLeft = {
       top: this.basePolygon.getCoords()[0].y,
       left: this.basePolygon.getCoords()[0].x
     };
     
-    this.drawVertex();
-    canvas.renderAll();
+    // Apply divider updates without triggering recursive updates
+    if (this.HDivider && this.HDivider.length > 0) {
+      this.HDivider.forEach(divider => {
+        // Mark as updated in the tree
+        globalAnchorTree.updatedObjects.add(divider.canvasID);
+        
+        // Update width without triggering updateAllCoord
+        if (divider.width !== rounding.width) {
+          divider.width = rounding.width;
+          if (divider.onResize) {
+            // Call onResize but don't allow it to trigger further border updates
+            const origBorderGroup = divider.borderGroup;
+            divider.borderGroup = null;
+            divider.onResize();
+            divider.borderGroup = origBorderGroup;
+          }
+        }
+      });
+    }
+    
+    if (this.VDivider && this.VDivider.length > 0) {
+      this.VDivider.forEach(divider => {
+        // Mark as updated in the tree
+        globalAnchorTree.updatedObjects.add(divider.canvasID);
+        
+        // Update height without triggering updateAllCoord
+        if (divider.height !== rounding.height) {
+          divider.height = rounding.height;
+          if (divider.onResize) {
+            // Call onResize but don't allow it to trigger further border updates
+            const origBorderGroup = divider.borderGroup;
+            divider.borderGroup = null;
+            divider.onResize();
+            divider.borderGroup = origBorderGroup;
+          }
+        }
+      });
+    }
+    
+    // Update the bounding boxes
+    this.updateBboxes();
+    
+    // Update divider positions and compartments without triggering recursive updates
+    this.assignWidthToDivider();
+    
+    // Redraw vertices
+    this.drawVertex(false);
+    
+    // End the update cycle if we started it
+    if (isRootUpdate) {
+      globalAnchorTree.endUpdateCycle();
+    }
+    
+    // Request a render
+    canvas.requestRenderAll();
   }
 }
 
