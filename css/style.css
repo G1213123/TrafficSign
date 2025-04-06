@@ -134,11 +134,11 @@ div.side-panel.close {
 }
 
 #canvas {
-  background: #111;
+  background: #2f2f2f;
 }
 
 #canvas-container {
-  width: 100%;
+  width: 101%;
   height: 100%;
 }
 
