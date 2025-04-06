@@ -331,9 +331,9 @@ class BaseGroup extends fabric.Group {
         };
         this.basePolygon.vertex.push(midpoint);
       });
-      if (this.addMidPointToDivider) {
-        this.addMidPointToDivider(this);
-      }
+      //if (this.addMidPointToDivider) {
+      //  this.addMidPointToDivider(this);
+      //}
     }
 
 
@@ -397,8 +397,8 @@ class BaseGroup extends fabric.Group {
   // Method to receive deltaX and deltaY and update position
   receiveDelta(caller, deltaX, deltaY, sourceList) {
     sourceList.includes(this) ? sourceList : sourceList.push(this)
-    const newDeltaX = this.lockXToPolygon.TargetObject == caller && !this.lockYToPolygon.secondTargetObject ? deltaX : 0
-    const newDeltaY = this.lockYToPolygon.TargetObject == caller && !this.lockXToPolygon.secondTargetObject ? deltaY : 0
+    const newDeltaX = this.lockXToPolygon.TargetObject == caller  ? deltaX : 0
+    const newDeltaY = this.lockYToPolygon.TargetObject == caller  ? deltaY : 0
     this.set({
       left: this.left + newDeltaX,
       top: this.top + newDeltaY
@@ -444,6 +444,7 @@ class BaseGroup extends fabric.Group {
       BG.add(borderObject)
       BG.basePolygon = borderObject
       BG.assignWidthToDivider(sourceList)
+      //BG.addMidPointToDivider()
       BG.updateAllCoord(null, sourceList)
       BG.drawVertex()
 
@@ -530,7 +531,9 @@ class BaseGroup extends fabric.Group {
     if (!selfOnly) {
       this.emitDelta(deltaX, deltaY, sourceList);
     }
-    this.borderResize(sourceList);
+    if (this.functionalType !== 'HDivider' && this.functionalType !== 'VDivider' && this.functionalType !== 'HLine' && this.functionalType !== 'VLane') {
+      this.borderResize(sourceList);
+    }
 
     if (document.getElementById('debug-info-panel')) {
       FormDebugComponent.updateDebugInfo(canvas.getActiveObjects())

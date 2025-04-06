@@ -1777,19 +1777,19 @@ const ComplexSignTest = {
     );
     TestTracker.register("overallBorderGroup", overallBorderGroup);
 
-    //anchorShape(overallBorderGroup,leftArrowObj,{
-    //  vertexIndex1: 'E6',
-    //  vertexIndex2: 'C11',
-    //  spacingX: 0,
-    //  spacingY: ''
-    //}    );
-//
-    //anchorShape(overallBorderGroup,rightArrowObj,{
-    //  vertexIndex1: 'E6',
-    //  vertexIndex2: 'C23',
-    //  spacingX: 0,
-    //  spacingY: ''
-    //}    );
+    await anchorShape(leftTopObj,leftArrowObj,{
+      vertexIndex1: 'E2',
+      vertexIndex2: 'E2',
+      spacingX: 0,
+      spacingY: ''
+    }    );
+
+    await anchorShape(rightTopObj,rightArrowObj,{
+      vertexIndex1: 'E2',
+      vertexIndex2: 'E2',
+      spacingX: 0,
+      spacingY: ''
+    }    );
 
     // Test assertions
     let passed = true;
