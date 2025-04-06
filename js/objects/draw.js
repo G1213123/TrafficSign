@@ -453,14 +453,13 @@ class BaseGroup extends fabric.Group {
         // Then process Y-axis dependencies
         this.processTreeUpdates('y', deltaY);
       }
-      // NEW: Instead of just queuing the border, check if it can be updated immediately
+
+      // Add border to update queue if this object is part of a border
       if (this.borderGroup) {
-        // Add to update queue if not already there
         globalBorderUpdateQueue.addBorder(this.borderGroup);
-    }
-    
+      }
       
-      // Check if we can update the border immediately
+      // Check if we can safely update any pending borders
       const borderToUpdate = globalBorderUpdateQueue.shouldUpdateBorderNow(this.canvasID);
       if (borderToUpdate) {
         borderToUpdate.processResize();
@@ -510,12 +509,16 @@ class BaseGroup extends fabric.Group {
   processTreeUpdates(direction, delta) {
     if (delta === 0) return;
     
-    // Get all affected objects in this direction
+    // Get all affected objects in this direction in the correct update order
     const affectedObjects = globalAnchorTree.getUpdateOrder(direction, this.canvasID);
     
     // Process each affected object in the proper order
     affectedObjects.forEach(obj => {
-      // Don't skip objects that might have been updated in the other direction
+      // Skip if the object has already been updated in this cycle
+      if (globalAnchorTree.updatedObjects.has(obj.canvasID) && obj.canvasID !== this.canvasID) {
+        return;
+      }
+      
       // Calculate the appropriate delta for this object
       let objDelta = 0;
       
@@ -523,11 +526,20 @@ class BaseGroup extends fabric.Group {
       if (direction === 'x' && 
           obj.lockXToPolygon && 
           obj.lockXToPolygon.TargetObject === this) {
+        // Apply any spacing from the anchor configuration
         objDelta = delta;
+        if (obj.lockXToPolygon.spacing) {
+          // Spacing is already factored in the initial anchoring, so we just need
+          // to propagate the movement delta
+        }
       } else if (direction === 'y' && 
                 obj.lockYToPolygon && 
                 obj.lockYToPolygon.TargetObject === this) {
         objDelta = delta;
+        if (obj.lockYToPolygon.spacing) {
+          // Spacing is already factored in the initial anchoring, so we just need
+          // to propagate the movement delta
+        }
       }
       
       // Apply the delta to the object's position
@@ -565,9 +577,26 @@ class BaseGroup extends fabric.Group {
         // Mark this object as updated in the anchor tree
         globalAnchorTree.updatedObjects.add(obj.canvasID);
         
+        // Handle special update needs for specific object types
+        if (obj.functionalType === 'HDivider' || obj.functionalType === 'VDivider') {
+          // For dividers, make sure their position is correct after moving
+          if (obj.onResize && !obj.fixedTopValue && !obj.fixedBottomValue &&
+              !obj.fixedLeftValue && !obj.fixedRightValue) {
+            obj.onResize();
+          }
+        }
+        
         // Force redrawing of controls
         if (obj === canvas.getActiveObject()) {
           obj.drawVertex(false);
+        }
+        
+        // Update reference point to avoid cumulative errors
+        if (obj.basePolygon && obj.basePolygon.getCoords) {
+          obj.refTopLeft = {
+            top: obj.basePolygon.getCoords()[0].y,
+            left: obj.basePolygon.getCoords()[0].x
+          };
         }
       }
     });
@@ -576,20 +605,23 @@ class BaseGroup extends fabric.Group {
     canvas.requestRenderAll();
   }
 
-  // Method for border resizing - simplified without sourceList
+  // Method for border resizing - optimized to work with anchor tree
   borderResize() {
+    // Skip if border is already being updated in current tree cycle
     if (!this.borderGroup || globalAnchorTree.updatedObjects.has(this.borderGroup.canvasID)) {
       return;
     }
     
+    // Mark border as updated in the anchor tree
     globalAnchorTree.updatedObjects.add(this.borderGroup.canvasID);
     
     const BG = this.borderGroup;
     BG.removeAll();
     
-    // Get the bounding box of the active selection 
+    // Get the bounding box of all border objects 
     let coords = BorderUtilities.getBorderObjectCoords(BG.heightObjects, BG.widthObjects);
 
+    // Handle fixed width/height if specified
     if (!isNaN(parseInt(BG.fixedWidth))) {
       const padding = parseInt(BG.fixedWidth) - coords.right + coords.left;
       coords.left -= padding / 2;
@@ -602,27 +634,21 @@ class BaseGroup extends fabric.Group {
       coords.bottom += padding / 2;
     }
 
-    // Handle roundings on borders and dividers
+    // Calculate border rounding
     const rounding = BorderUtilities.calcBorderRounding(BG.borderType, BG.xHeight, coords);
-    this.roundingToDivider(BG, rounding);
-
+    
+    // Create the new border object
     const borderObject = drawLabeledBorder(BG.borderType, BG.xHeight, coords, BG.color);
-
     BG.add(borderObject);
     BG.basePolygon = borderObject;
-    BG.assignWidthToDivider();
-    BG.updateAllCoord();
-    BG.drawVertex();
-  }
-  
-  // Helper method for handling divider rounding
-  roundingToDivider(BG, rounding) {
+    
+    // Update dividers in a controlled way that avoids recursive updates
     if (BG.HDivider) {
       BG.HDivider.forEach(divider => {
         if (!globalAnchorTree.updatedObjects.has(divider.canvasID)) {
           divider.width = rounding.width;
           globalAnchorTree.updatedObjects.add(divider.canvasID);
-          divider.onResize();
+          if (divider.onResize) divider.onResize();
         }
       });
     }
@@ -632,10 +658,24 @@ class BaseGroup extends fabric.Group {
         if (!globalAnchorTree.updatedObjects.has(divider.canvasID)) {
           divider.height = rounding.height;
           globalAnchorTree.updatedObjects.add(divider.canvasID);
-          divider.onResize();
+          if (divider.onResize) divider.onResize();
         }
       });
     }
+    
+    // Update reference points and vertices
+    BG.refTopLeft = {
+      top: BG.basePolygon.getCoords()[0].y,
+      left: BG.basePolygon.getCoords()[0].x
+    };
+    
+    // Safely assign widths to dividers
+    BG.assignWidthToDivider();
+    
+    // Redraw vertices
+    BG.drawVertex();
+    
+    canvas.renderAll();
   }
 
   getBasePolygonVertex(label) {
