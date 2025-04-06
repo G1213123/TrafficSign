@@ -3,6 +3,8 @@ const deleteIcon =
 let activeVertex = null
 let vertexSnapInProgress = false; // New flag to prevent multiple clicks during snapping
 
+
+
 // additional property for fabric object
 const originalToObject = fabric.Object.prototype.toObject;
 const myAdditional = ['functionalType'];
@@ -27,7 +29,7 @@ canvas.on('mouse:down', function (options) {
   }
 });
 
-// Define the GlyphPath class
+
 class GlyphPath extends fabric.Group {
   constructor(options) {
     super([], options); // Call the parent class constructor first
@@ -79,6 +81,7 @@ class GlyphPath extends fabric.Group {
   }
 }
 
+
 // Define the BaseGroup class using ES6 class syntax
 class BaseGroup extends fabric.Group {
   constructor(basePolygon, functionalType, options = {}) {
@@ -96,7 +99,8 @@ class BaseGroup extends fabric.Group {
     this.lockYToPolygon = {};
     this.refTopLeft = { top: 0, left: 0 }; // Initialize even without basePolygon
     this.dimensionAnnotations = []; // Array to hold dimension line objects
-    this.isTemporary = false
+    this.isTemporary = false;
+    this.focusMode = false; // Add focus mode flag
 
     canvasObject.push(this);
     this.canvasID = canvasObject.length - 1;
@@ -228,7 +232,7 @@ class BaseGroup extends fabric.Group {
     const borderRect = this.getBoundingRect();
 
     // Find closest objects in each direction to show dimensions
-    if (!this.isTemporary){
+    if (!this.isTemporary && !this.focusMode){
       this.createDimensionAnnotations(borderRect);
     }
   }
@@ -308,7 +312,7 @@ class BaseGroup extends fabric.Group {
     canvas.renderAll();
   }
 
-  drawVertex(calc = true) {
+  drawVertex(calc = false) {
     // If basePolygon doesn't exist, exit early
     if (!this.basePolygon) return;
 
@@ -327,35 +331,52 @@ class BaseGroup extends fabric.Group {
         };
         this.basePolygon.vertex.push(midpoint);
       });
-      if (this.addMidPointToDivider) {
-        this.addMidPointToDivider(this);
-      }
+      //if (this.addMidPointToDivider) {
+      //  this.addMidPointToDivider(this);
+      //}
     }
 
-    // Remove existing vertex controls before adding new ones
-    Object.keys(this.controls).forEach(key => {
-      if (key !== 'deleteControl' && this.controls[key] instanceof VertexControl) {
-        delete this.controls[key];
+
+    // Always check current GeneralSettings, not just when toggled
+    const showAllVertices = GeneralSettings && GeneralSettings.showAllVertices;
+
+    // Process vertices according to hierarchy and create/update controls
+    this.basePolygon.vertex.forEach(v => {
+      const vertexLabel = v.label;
+      let shouldDisplay = false;
+
+      // Rule 1: Native controls (ml, tl, br, etc.) should always be hidden
+      if (/^(ml|mr|mt|mb|mtr|tl|tr|bl|br)$/.test(vertexLabel)) {
+        shouldDisplay = false;
+      }
+      // Rule 2: Always no show side road vertices
+      else if (this.functionalType === 'SideRoad' && v.label.startsWith('E')) {
+        shouldDisplay = false;
+      }
+      // Rule 3: Focus mode - only show active vertex
+      else if (this.focusMode && activeVertex) {
+        shouldDisplay = (activeVertex.vertex.label === vertexLabel);
+      }
+      // Rule 4: ShowAllVertices setting overrides other display logic
+      else if (showAllVertices) {
+        shouldDisplay = true;
+      }
+      // Rule 5: Base on display property or default to showing vertex with labels
+      else {
+        shouldDisplay = (v.display !== 0);
+      }
+
+      // Update or create control for this vertex
+      if (!this.controls[vertexLabel]) {
+        // Create new control for vertices that don't have one
+        this.controls[vertexLabel] = new VertexControl(v, this);
+        this.controls[vertexLabel].visible = shouldDisplay;
       }
     });
 
-    // Draw the vertices and labels - ensure we always check the current setting
-    if (this.basePolygon.vertex) {
-      // Always check current GeneralSettings, not just when toggled
-      const showAllVertices = GeneralSettings && GeneralSettings.showAllVertices;
-      const vertices = showAllVertices
-        ? this.basePolygon.vertex
-        : this.basePolygon.vertex.filter(v => (v.display !== 0));
-
-      vertices.forEach(v => {
-        const vControl = new VertexControl(v, this);
-        this.controls[v.label] = vControl;
-      });
-    }
 
     this.setCoords();
   }
-
   // Method to emit deltaX and deltaY to anchored groups
   emitDelta(deltaX, deltaY, sourceList = []) {
     sourceList.includes(this) ? sourceList : sourceList.push(this)
@@ -376,8 +397,8 @@ class BaseGroup extends fabric.Group {
   // Method to receive deltaX and deltaY and update position
   receiveDelta(caller, deltaX, deltaY, sourceList) {
     sourceList.includes(this) ? sourceList : sourceList.push(this)
-    const newDeltaX = this.lockXToPolygon.TargetObject == caller && !this.lockYToPolygon.secondTargetObject ? deltaX : 0
-    const newDeltaY = this.lockYToPolygon.TargetObject == caller && !this.lockXToPolygon.secondTargetObject ? deltaY : 0
+    const newDeltaX = this.lockXToPolygon.TargetObject == caller  ? deltaX : 0
+    const newDeltaY = this.lockYToPolygon.TargetObject == caller  ? deltaY : 0
     this.set({
       left: this.left + newDeltaX,
       top: this.top + newDeltaY
@@ -394,273 +415,39 @@ class BaseGroup extends fabric.Group {
     // Call another function here
   }
 
-  // Method to update coordinates and emit delta
-  updateAllCoord(event, sourceList = [], selfOnly = false) {
-    // Check for basePolygon before calculating deltas
-    if (!this.basePolygon || !this.basePolygon.getCoords) {
-      // If basePolygon doesn't exist yet, just return
-      return;
-    }
+  // Method to call for border resizing
+  borderResize(sourceList = []) {
+    sourceList.includes(this) ? sourceList : sourceList.push(this)
+    if (this.borderGroup && !sourceList.includes(this.borderGroup)) {
+      const BG = this.borderGroup
+      BG.removeAll()
+      // Get the bounding box of the active selection 
+      let coords = BorderUtilities.getBorderObjectCoords(BG.heightObjects, BG.widthObjects)
 
-    // If this update is part of a tree update cycle already in progress, just update self
-    if (globalAnchorTree.updateInProgress && globalAnchorTree.updatedObjects.has(this.canvasID)) {
-      return;
-    }
-    
-    // Start a tree update cycle if one isn't already in progress
-    const isRootUpdate = !globalAnchorTree.updateInProgress;
-    if (isRootUpdate) {
-      globalAnchorTree.startUpdateCycle();
-    }
-    
-    // Mark this object as updated in this cycle
-    globalAnchorTree.updatedObjects.add(this.canvasID);
-
-    const deltaX = this.basePolygon.getCoords()[0].x - this.refTopLeft.left;
-    const deltaY = this.basePolygon.getCoords()[0].y - this.refTopLeft.top;
-
-    // Only track modifications if actual movement occurred
-    if (deltaX !== 0 || deltaY !== 0) {
-      // Track object modification
-      canvasTracker.track('modifyObject', [{
-        type: 'BaseGroup',
-        id: this.canvasID,
-        functionalType: this.functionalType,
-        deltaX: deltaX,
-        deltaY: deltaY
-      }]);
-    }
-
-    this.updateCoord(deltaX, deltaY);
-    this.refTopLeft = { top: this.basePolygon.getCoords()[0].y, left: this.basePolygon.getCoords()[0].x };
-
-    // Check for route-specific methods
-    if (this.onMove) {
-      this.onMove();
-    }
-
-    if (canvas.getActiveObject() === this) {
-      this.drawAnchorLinkage();
-      this.showLockHighlights();
-      this.showDimensions();
-    }
-    
-    if (!selfOnly) {
-      if (isRootUpdate) {
-        // Process X-axis dependencies first
-        this.processTreeUpdates('x', deltaX);
-        
-        // Then process Y-axis dependencies
-        this.processTreeUpdates('y', deltaY);
+      if (!isNaN(parseInt(BG.fixedWidth))) {
+        const padding = parseInt(BG.fixedWidth) - coords.right + coords.left
+        coords.left -= padding / 2
+        coords.right += padding / 2
+      }
+      if (!isNaN(parseInt(BG.fixedHeight))) {
+        const padding = parseInt(BG.fixedHeight) - coords.bottom + coords.top
+        coords.top -= padding / 2
+        coords.bottom += padding / 2
       }
 
-      // Add border to update queue if this object is part of a border
-      if (this.borderGroup) {
-        globalBorderUpdateQueue.addBorder(this.borderGroup);
-      }
-      
-      // Check if we can safely update any pending borders
-      const borderToUpdate = globalBorderUpdateQueue.shouldUpdateBorderNow(this.canvasID);
-      if (borderToUpdate) {
-        borderToUpdate.processResize();
-      }
-    }
+      // handle roundings on borders and dividers
+      //const rounding = BorderUtilities.calcBorderRounding(BG.borderType, BG.xHeight, coords)
+      //BorderUtilities.RoundingToDivider(BG.HDivider, BG.VDivider, rounding, sourceList)
 
-    if (document.getElementById('debug-info-panel')) {
-      FormDebugComponent.updateDebugInfo(canvas.getActiveObjects());
-    }
-    
-    // End the tree update cycle if this is the root update
-    if (isRootUpdate) {
-      // Process any remaining borders that need updates
-      this.processPendingBorders();
-      globalAnchorTree.endUpdateCycle();
-      // Reset the border update queue cycle
-      globalBorderUpdateQueue.resetCycle();
-    }
-  }
-  
-  // NEW: Process any remaining borders that need to be updated
-  processPendingBorders() {
-    const pendingBorders = Array.from(globalBorderUpdateQueue.bordersToUpdate)
-      .map(id => canvasObject.find(obj => obj.canvasID === id))
-      .filter(border => 
-        border && 
-        border.functionalType === 'Border' && 
-        !globalBorderUpdateQueue.updatedBorders.has(border.canvasID)
-      );
+      const borderObject = drawLabeledBorder(BG.borderType, BG.xHeight, coords, BG.color)
 
-    // Process remaining borders by priority (larger borders first)
-    const sortedBorders = pendingBorders.sort((a, b) => {
-      const aArea = a.width * a.height;
-      const bArea = b.width * b.height;
-      return bArea - aArea;
-    });
-    
-    // Process all remaining borders
-    sortedBorders.forEach(border => {
-      globalBorderUpdateQueue.updatedBorders.add(border.canvasID);
-      globalBorderUpdateQueue.bordersToUpdate.delete(border.canvasID);
-      border.processResize();
-    });
-  }
-  
-  // Process updates through the tree for a specific direction
-  processTreeUpdates(direction, delta) {
-    if (delta === 0) return;
-    
-    // Get all affected objects in this direction in the correct update order
-    const affectedObjects = globalAnchorTree.getUpdateOrder(direction, this.canvasID);
-    
-    // Process each affected object in the proper order
-    affectedObjects.forEach(obj => {
-      // Skip if the object has already been updated in this cycle
-      if (globalAnchorTree.updatedObjects.has(obj.canvasID) && obj.canvasID !== this.canvasID) {
-        return;
-      }
-      
-      // Calculate the appropriate delta for this object
-      let objDelta = 0;
-      
-      // Check if this object is directly anchored to the current object
-      if (direction === 'x' && 
-          obj.lockXToPolygon && 
-          obj.lockXToPolygon.TargetObject === this) {
-        // Apply any spacing from the anchor configuration
-        objDelta = delta;
-        if (obj.lockXToPolygon.spacing) {
-          // Spacing is already factored in the initial anchoring, so we just need
-          // to propagate the movement delta
-        }
-      } else if (direction === 'y' && 
-                obj.lockYToPolygon && 
-                obj.lockYToPolygon.TargetObject === this) {
-        objDelta = delta;
-        if (obj.lockYToPolygon.spacing) {
-          // Spacing is already factored in the initial anchoring, so we just need
-          // to propagate the movement delta
-        }
-      }
-      
-      // Apply the delta to the object's position
-      if (objDelta !== 0) {
-        // Update the fabric object position
-        if (direction === 'x') {
-          obj.set({ left: obj.left + objDelta });
-        } else {
-          obj.set({ top: obj.top + objDelta });
-        }
-        
-        // Update the object's internal coordinates
-        obj.setCoords();
-        
-        // Update basePolygon vertex coordinates directly
-        if (obj.basePolygon && obj.basePolygon.vertex) {
-          obj.basePolygon.vertex.forEach(vertex => {
-            if (direction === 'x') {
-              vertex.x += objDelta;
-            } else {
-              vertex.y += objDelta;
-            }
-          });
-          
-          // Update insertion point
-          if (obj.basePolygon.insertPoint) {
-            if (direction === 'x') {
-              obj.basePolygon.insertPoint.x += objDelta;
-            } else {
-              obj.basePolygon.insertPoint.y += objDelta;
-            }
-          }
-        }
-        
-        // Mark this object as updated in the anchor tree
-        globalAnchorTree.updatedObjects.add(obj.canvasID);
-        
-        // Handle special update needs for specific object types
-        if (obj.functionalType === 'HDivider' || obj.functionalType === 'VDivider') {
-          // For dividers, make sure their position is correct after moving
-          if (obj.onResize && !obj.fixedTopValue && !obj.fixedBottomValue &&
-              !obj.fixedLeftValue && !obj.fixedRightValue) {
-            obj.onResize();
-          }
-        }
-        
-        // Force redrawing of controls
-        if (obj === canvas.getActiveObject()) {
-          obj.drawVertex(false);
-        }
-        
-        // Update reference point to avoid cumulative errors
-        if (obj.basePolygon && obj.basePolygon.getCoords) {
-          obj.refTopLeft = {
-            top: obj.basePolygon.getCoords()[0].y,
-            left: obj.basePolygon.getCoords()[0].x
-          };
-        }
-      }
-    });
-    
-    // Request a canvas re-render after all updates
-    canvas.requestRenderAll();
-  }
+      BG.add(borderObject)
+      BG.basePolygon = borderObject
+      BG.assignWidthToDivider(sourceList)
+      //BG.addMidPointToDivider()
+      BG.updateAllCoord(null, sourceList)
+      BG.drawVertex()
 
-  // Method for border resizing - optimized to work with anchor tree
-  borderResize() {
-    // Skip if border is already being updated in current tree cycle
-    if (!this.borderGroup || globalAnchorTree.updatedObjects.has(this.borderGroup.canvasID)) {
-      return;
-    }
-    
-    // Mark border as updated in the anchor tree
-    globalAnchorTree.updatedObjects.add(this.borderGroup.canvasID);
-    
-    const BG = this.borderGroup;
-    BG.removeAll();
-    
-    // Get the bounding box of all border objects 
-    let coords = BorderUtilities.getBorderObjectCoords(BG.heightObjects, BG.widthObjects);
-
-    // Handle fixed width/height if specified
-    if (!isNaN(parseInt(BG.fixedWidth))) {
-      const padding = parseInt(BG.fixedWidth) - coords.right + coords.left;
-      coords.left -= padding / 2;
-      coords.right += padding / 2;
-    }
-    
-    if (!isNaN(parseInt(BG.fixedHeight))) {
-      const padding = parseInt(BG.fixedHeight) - coords.bottom + coords.top;
-      coords.top -= padding / 2;
-      coords.bottom += padding / 2;
-    }
-
-    // Calculate border rounding
-    const rounding = BorderUtilities.calcBorderRounding(BG.borderType, BG.xHeight, coords);
-    
-    // Create the new border object
-    const borderObject = drawLabeledBorder(BG.borderType, BG.xHeight, coords, BG.color);
-    BG.add(borderObject);
-    BG.basePolygon = borderObject;
-    
-    // Update dividers in a controlled way that avoids recursive updates
-    if (BG.HDivider) {
-      BG.HDivider.forEach(divider => {
-        if (!globalAnchorTree.updatedObjects.has(divider.canvasID)) {
-          divider.width = rounding.width;
-          globalAnchorTree.updatedObjects.add(divider.canvasID);
-          if (divider.onResize) divider.onResize();
-        }
-      });
-    }
-    
-    if (BG.VDivider) {
-      BG.VDivider.forEach(divider => {
-        if (!globalAnchorTree.updatedObjects.has(divider.canvasID)) {
-          divider.height = rounding.height;
-          globalAnchorTree.updatedObjects.add(divider.canvasID);
-          if (divider.onResize) divider.onResize();
-        }
-      });
     }
     
     // Update reference points and vertices
@@ -716,6 +503,55 @@ class BaseGroup extends fabric.Group {
     });
     canvas.renderAll();
 
+  }
+  // Method to update coordinates and emit delta
+  updateAllCoord(event, sourceList = [], selfOnly = false) {
+    // Check for basePolygon before calculating deltas
+    if (!this.basePolygon || !this.basePolygon.getCoords) {
+      // If basePolygon doesn't exist yet, just return
+      return;
+    }
+
+    const deltaX = this.basePolygon.getCoords()[0].x - this.refTopLeft.left;
+    const deltaY = this.basePolygon.getCoords()[0].y - this.refTopLeft.top;
+
+    // Only track modifications if actual movement occurred
+    if (deltaX !== 0 || deltaY !== 0) {
+      // Track object modification
+      canvasTracker.track('modifyObject', [{
+        type: 'BaseGroup',
+        id: this.canvasID,
+        functionalType: this.functionalType,
+        deltaX: deltaX,
+        deltaY: deltaY
+      }]);
+    }
+
+    this.updateCoord(deltaX, deltaY);
+    this.refTopLeft = { top: this.basePolygon.getCoords()[0].y, left: this.basePolygon.getCoords()[0].x };
+
+    // Check for route-specific methods
+    if (this.onMove) {
+      this.onMove();
+    }
+
+    if (canvas.getActiveObject() === this) {
+      this.drawAnchorLinkage();
+      this.showLockHighlights();
+      this.showDimensions();
+    }
+
+    sourceList.includes(this) ? sourceList : sourceList.push(this);
+    if (!selfOnly) {
+      this.emitDelta(deltaX, deltaY, sourceList);
+    }
+    if (this.functionalType !== 'HDivider' && this.functionalType !== 'VDivider' && this.functionalType !== 'HLine' && this.functionalType !== 'VLane') {
+      this.borderResize(sourceList);
+    }
+
+    if (document.getElementById('debug-info-panel')) {
+      FormDebugComponent.updateDebugInfo(canvas.getActiveObjects())
+    }
   }
 
   // Method to update coordinates
@@ -940,6 +776,23 @@ class BaseGroup extends fabric.Group {
     }
   }
 
+  // New method to enter focus mode
+  enterFocusMode(activeVertexControl) {
+    this.focusMode = true;
+    this.hideDimensions();
+    //this.drawVertex(false);
+    canvas.renderAll();
+  }
+
+  // New method to exit focus mode
+  exitFocusMode() {
+    this.focusMode = false;
+    //this.drawVertex(false);
+    if (canvas.getActiveObject() === this) {
+      this.showDimensions();
+    }
+    canvas.renderAll();
+  }
 }
 
 // Register the custom class with Fabric.js
@@ -1300,7 +1153,8 @@ class VertexControl extends fabric.Control {
       cursorStyle: 'pointer',
       cornerSize: 20,
     });
-    this.hover = false
+    this.hover = false;
+    this.isDragging = false; // New flag to indicate active dragging
     this.mouseUpHandler = this.onClick.bind(this);
     this.render = this.renderControl.bind(this);
     this.vertex = vertex;
@@ -1317,18 +1171,31 @@ class VertexControl extends fabric.Control {
   renderControl(ctx, left, top, styleOverride, fabricObject) {
     const size = this.cornerSize;
 
-    // Draw the circle
+    // Draw the circle with different color based on state
     ctx.beginPath();
     ctx.arc(left, top, size / 2, 0, 2 * Math.PI, false);
-    ctx.fillStyle = `rgba(255, 20, 20, ${this.hover ? 0.7 : 0.2})`;
+    
+    // Different fill colors based on state
+    if (this.isDragging) {
+      // Active dragging state - bright yellow
+      ctx.fillStyle = this.snapTarget ? 'rgba(0, 255, 0, 0.7)' : 'rgba(255, 255, 0, 0.7)';
+    } else if (this.baseGroup.focusMode) {
+      // Focus mode - no color
+      ctx.fillStyle = 'rgba(0, 0, 0, 0)';
+    }
+    else {
+      // Normal or hover state
+      ctx.fillStyle = `rgba(255, 20, 20, ${this.hover ? 0.7 : 0.2})`;
+    }
+    
     ctx.fill();
     ctx.lineWidth = 1;
-    ctx.strokeStyle = this.VertexColorPicker(this.vertex);
+    ctx.strokeStyle = this.baseGroup.focusMode?'rgba(0, 0, 0, 0)':this.VertexColorPicker(this.vertex);
     ctx.stroke();
 
     // Draw the text
     ctx.font = '10px Arial, sans-serif';
-    ctx.fillStyle = this.VertexColorPicker(this.vertex);
+    ctx.fillStyle = this.baseGroup.focusMode?'rgba(0, 0, 0, 0)':this.VertexColorPicker(this.vertex);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(this.vertex.label, left, this.vertex.label.includes('E') ? top - 15 : top + 15);
@@ -1358,6 +1225,7 @@ class VertexControl extends fabric.Control {
     if (!activeVertex) {
       activeVertex = this;
       this.isDown = true;
+      this.isDragging = true; // Set dragging flag
 
       // Store original position and offset from vertex to group center
       this.originalPosition = {
@@ -1385,34 +1253,10 @@ class VertexControl extends fabric.Control {
       canvas.on('mouse:down', this.handleMouseDownRef);
       canvas.on('mouse:up', this.handleMouseUpRef);
 
-      // Create a visual indicator showing this vertex is active
-      this.createIndicator(this.vertex.x, this.vertex.y);
-
       canvas.renderAll();
+
+      this.baseGroup.enterFocusMode()
     }
-  }
-
-  // New method to create or update the indicator
-  createIndicator(x, y, isSnapping = false) {
-    // Remove existing indicator if it exists
-    if (this.indicator) {
-      canvas.remove(this.indicator);
-    }
-
-    // Create a new indicator at the specified position
-    this.indicator = new fabric.Circle({
-      left: x - 10,
-      top: y - 10,
-      radius: 10,
-      fill: isSnapping ? 'rgba(0, 255, 0, 0.5)' : 'rgba(255, 255, 0, 0.5)',
-      stroke: isSnapping ? 'lime' : 'yellow',
-      strokeWidth: 2,
-      selectable: false,
-      evented: false
-    });
-
-    canvas.add(this.indicator);
-    return this.indicator;
   }
 
   handleMouseMove(event) {
@@ -1433,34 +1277,10 @@ class VertexControl extends fabric.Control {
       // Calculate the position adjustment needed to align the vertex with snap target
       newLeft = snapPoint.x - this.vertexOffset.x;
       newTop = snapPoint.y - this.vertexOffset.y;
-
-      // Ensure the indicator exists and update it to match the snap point
-      if (!this.indicator) {
-        this.createIndicator(snapPoint.x, snapPoint.y, true);
-      } else {
-        this.indicator.set({
-          left: snapPoint.x - 10,
-          top: snapPoint.y - 10,
-          fill: 'rgba(0, 255, 0, 0.5)', // Green indicator when snapping
-          stroke: 'lime'
-        });
-      }
     } else {
       // Regular movement
       newLeft = pointer.x - this.vertexOffset.x;
       newTop = pointer.y - this.vertexOffset.y;
-
-      // Ensure the indicator exists and update it to follow the pointer
-      if (!this.indicator) {
-        this.createIndicator(pointer.x, pointer.y);
-      } else {
-        this.indicator.set({
-          left: pointer.x - 10,
-          top: pointer.y - 10,
-          fill: 'rgba(255, 255, 0, 0.5)', // Yellow indicator when not snapping
-          stroke: 'yellow'
-        });
-      }
     }
 
     // Move the group
@@ -1495,8 +1315,6 @@ class VertexControl extends fabric.Control {
   }
 
   checkForSnapTargets(pointer) {
-    // Clear previous snap highlights
-    this.clearSnapHighlight();
     this.snapTarget = null;
 
     // Check all canvas objects for potential snap targets
@@ -1529,27 +1347,12 @@ class VertexControl extends fabric.Control {
         vertex: closestVertex
       };
 
-      // Create a snap highlight
-      this.snapHighlight = new fabric.Circle({
-        left: closestVertex.x - 15,
-        top: closestVertex.y - 15,
-        radius: 15,
-        fill: 'rgba(0, 255, 0, 0.3)',
-        stroke: 'lime',
-        strokeWidth: 2,
-        selectable: false,
-        evented: false
-      });
-      canvas.add(this.snapHighlight);
+      
+      // Force a render to update vertex appearance
+      canvas.renderAll();
     }
   }
 
-  clearSnapHighlight() {
-    if (this.snapHighlight) {
-      canvas.remove(this.snapHighlight);
-      this.snapHighlight = null;
-    }
-  }
 
   handleMouseDown(event) {
     if (!this.isDown) return;
@@ -1670,16 +1473,11 @@ class VertexControl extends fabric.Control {
 
     // Store reference to the current drag state
     const baseGroup = this.baseGroup;
-    const indicator = this.indicator;
 
-    // Clear indicator and snap highlight immediately
+    // Clear snap highlight immediately
     if (this.snapHighlight) {
       canvas.remove(this.snapHighlight);
       this.snapHighlight = null;
-    }
-    if (indicator) {
-      canvas.remove(indicator);
-      this.indicator = null;
     }
 
     // Clean up the drag state with proper callbacks
@@ -1693,6 +1491,8 @@ class VertexControl extends fabric.Control {
       } else if (baseGroup.functionalType === 'SideRoad' && typeof baseGroup.onMove === 'function') {
         baseGroup.onMove();
       }
+
+      baseGroup.exitFocusMode();
 
       // Reset active vertex
       activeVertex = null;
@@ -1718,10 +1518,10 @@ class VertexControl extends fabric.Control {
 
     // Reset internal state
     this.isDown = false;
+    this.isDragging = false; // Reset dragging state
   }
 
   finishDrag() {
-    this.clearSnapHighlight();
     this.cleanupDrag();
     this.baseGroup.updateAllCoord(null, []);
 
@@ -1751,7 +1551,6 @@ class VertexControl extends fabric.Control {
     this.baseGroup.setCoords();
     this.baseGroup.updateAllCoord();
 
-    this.clearSnapHighlight();
     this.cleanupDrag();
     activeVertex = null;
     canvas.renderAll();
@@ -1766,6 +1565,7 @@ class VertexControl extends fabric.Control {
   cleanupDrag() {
     // First reset object properties
     this.isDown = false;
+    this.isDragging = false; // Reset dragging flag
 
     // Remove event listeners using stored references
     canvas.off('mouse:move', this.handleMouseMoveRef);
@@ -1776,12 +1576,6 @@ class VertexControl extends fabric.Control {
     // Restore default behavior
     document.addEventListener('keydown', ShowHideSideBarEvent);
     canvas.defaultCursor = 'default';
-
-    // Remove visual indicators
-    if (this.indicator) {
-      canvas.remove(this.indicator);
-      this.indicator = null;
-    }
 
     // Make sure we're no longer active
     if (activeVertex === this) {

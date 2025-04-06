@@ -84,6 +84,8 @@ async function VDividerCreate(leftObjects, rightObjects, leftValue, rightValue, 
     borderGroup.shadowWidth = {x: 1.5, y: 0}
     borderGroup.xHeight = xHeight
     borderGroup.color = color
+    borderGroup.position = leftObjectBBox;
+    borderGroup.bbox = leftObjectSize
 
     // Store fixed distance values in the divider object if provided
     if (hasFixedLeft) {
@@ -190,6 +192,8 @@ async function HDividerCreate(aboveObjects, belowObjects, aboveValue, belowValue
     borderGroup.shadowWidth = {x: 0, y: 1.5}
     borderGroup.xHeight = xHeight
     borderGroup.color = color
+    borderGroup.position = aboveObjectBBox;
+    borderGroup.bbox = aboveObjectSize
 
     // Store fixed distance values in the divider object if provided
     if (hasFixedTop) {
@@ -250,6 +254,9 @@ async function HLineCreate(aboveObjects, belowObjects, aboveValue, belowValue, o
     borderGroup.shadowWidth = {x: 0, y: 0}
     borderGroup.xHeight = xHeight
     borderGroup.color = color
+    borderGroup.position = aboveObjectBBox;
+    borderGroup.bbox = aboveObjectSize
+
     anchorShape(aboveObject, borderGroup, {
         vertexIndex1: 'E2',
         vertexIndex2: 'E6',
@@ -332,6 +339,9 @@ async function VLaneCreate(leftObjects, rightObjects, leftValue, rightValue, opt
     borderGroup.shadowWidth = {x: 0, y: 0}
     borderGroup.xHeight = xHeight
     borderGroup.color = color
+    borderGroup.position = leftObjectBBox;
+    borderGroup.bbox = leftObjectSize
+    
 
     // Store fixed distance values in the divider object if provided
     if (hasFixedLeft) {
@@ -372,4 +382,3 @@ async function VLaneCreate(leftObjects, rightObjects, leftValue, rightValue, opt
     borderGroup.updateAllCoord()
     return borderGroup
 }
-

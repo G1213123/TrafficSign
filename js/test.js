@@ -1604,14 +1604,295 @@ const RoundaboutTest = {
   }
 };
 
+/**
+ * Test suite for complex traffic sign layouts
+ */
+const ComplexSignTest = {
+  /**
+   * Create and test a complex sign with multiple borders and dividers
+   */
+  async testComplexSignLayout() {
+    TestTracker.startTest("ComplexSignLayout");
+
+    // ===== LEFT SIDE OF SIGN =====
+    // Create first line of 2-liner on left
+    const leftTopText = new TextObject({
+      text: 'Mong Kok, Hong Kong(W)',
+      xHeight: 200,
+      font: 'TransportHeavy',
+      color: 'White',
+      left: -2500,
+      top: 1800
+    });
+    TestTracker.register("leftTopText", leftTopText);
+
+    // Create second line of 2-liner on left
+    const leftBottomText = new TextObject({
+      text: 'Kowloon City',
+      xHeight: 200,
+      font: 'TransportHeavy',
+      color: 'White',
+      left: -2500,
+      top: 2000
+    });
+    TestTracker.register("leftBottomText", leftBottomText);
+
+    // Create destination text on left
+    const leftDestination = new TextObject({
+      text: '旺角,香港(西),九龍城',
+      xHeight: 200,
+      font: 'TransportHeavy',
+      color: 'White',
+      left: -2500,
+      top: 2200
+    });
+    TestTracker.register("leftDestination", leftDestination);
+
+    // Create stack arrow below on left
+    await drawLabeledSymbol('GantryArrow', {
+      x: -2400,
+      y: 2500,
+      xHeight: 200,
+      angle: 0,
+      color: 'white'
+    });
+    TestTracker.register("leftArrow");
+
+    // ===== RIGHT SIDE OF SIGN =====
+    // Create first line of 2-liner on right
+    const rightTopText = new TextObject({
+      text: 'Kowloon Tong & Sha Tin',
+      xHeight: 200,
+      font: 'TransportHeavy',
+      color: 'White',
+      left: 3000,
+      top: 1800
+    });
+    TestTracker.register("rightTopText", rightTopText);
+
+    // Create destination text on right
+    const rightDestination = new TextObject({
+      text: '九龍塘及沙田',
+      xHeight: 200,
+      font: 'TransportHeavy',
+      color: 'White',
+      left: 3000,
+      top: 2200
+    });
+    TestTracker.register("rightDestination", rightDestination);
+
+    // Create stack arrow below on right
+    await drawLabeledSymbol('GantryArrow', {
+      x: 3000,
+      y: 2500,
+      xHeight: 200,
+      angle: 0,
+      color: 'white'
+    });
+    TestTracker.register("rightArrow");
+
+    // Get all created objects
+    const leftTopObj = TestTracker.get("leftTopText");
+    const leftBottomObj = TestTracker.get("leftBottomText");
+    const leftDestObj = TestTracker.get("leftDestination");
+    const leftArrowObj = TestTracker.get("leftArrow");
+
+    const rightTopObj = TestTracker.get("rightTopText");
+    const rightDestObj = TestTracker.get("rightDestination");
+    const rightArrowObj = TestTracker.get("rightArrow");
+
+    // Create a vertical gantry divider between left and right sides
+    await VDividerCreate(
+      [leftDestObj],
+      [rightTopObj],
+      null,
+      null,
+      { xHeight: 200, colorType: 'Blue Background' }
+    );
+    TestTracker.register("vDivider");
+
+    // Create horizontal dividers between the 2-liner and destination on both sides
+    await HLineCreate(
+      [leftDestObj],
+      [leftArrowObj],
+      null,
+      null,
+      { xHeight: 200, colorType: 'Blue Background' }
+    );
+    TestTracker.register("leftHDivider");
+
+    await HLineCreate(
+      [rightDestObj],
+      [rightArrowObj],
+      null,
+      null,
+      { xHeight: 200, colorType: 'Blue Background' }
+    );
+    TestTracker.register("rightHDivider");
+
+    // Anchor the objects in place
+    anchorShape(leftBottomObj,leftDestObj,{
+      vertexIndex1: 'E1',
+      vertexIndex2: 'E7',
+      spacingX: 0,
+      spacingY: 0
+    }
+    )
+
+    anchorShape(leftTopObj, leftBottomObj, {
+      vertexIndex1: 'E1',
+      vertexIndex2: 'E7',
+      spacingX: 0,
+      spacingY: 0
+    });
+
+    anchorShape(rightTopObj,rightDestObj,{
+      vertexIndex1: 'E1',
+      vertexIndex2: 'E7',
+      spacingX: 0,
+      spacingY: 0
+    }    );
+
+    anchorShape(leftBottomObj,rightTopObj,{
+      vertexIndex1: 'E1',
+      vertexIndex2: 'E3',
+      spacingX: '',
+      spacingY: 0
+    }    );
+
+    // Create an overall border containing both sides and the dividers
+    const vDivider = TestTracker.get("vDivider");
+    const leftHDivider = TestTracker.get("leftHDivider");
+    const rightHDivider = TestTracker.get("rightHDivider");
+
+    const overallObject = [leftTopObj, leftBottomObj, leftArrowObj, leftDestObj, rightTopObj, rightArrowObj, rightDestObj, vDivider, leftHDivider, rightHDivider]
+
+    const overallBorderGroup = await BorderUtilities.BorderGroupCreate(
+      'stack',
+      overallObject,
+      overallObject,
+      null,
+      null,
+      { xHeight: 200, borderType: 'stack', colorType: 'Blue Background' }
+    );
+    TestTracker.register("overallBorderGroup", overallBorderGroup);
+
+    await anchorShape(leftTopObj,leftArrowObj,{
+      vertexIndex1: 'E2',
+      vertexIndex2: 'E2',
+      spacingX: 0,
+      spacingY: ''
+    }    );
+
+    await anchorShape(rightTopObj,rightArrowObj,{
+      vertexIndex1: 'E2',
+      vertexIndex2: 'E2',
+      spacingX: 0,
+      spacingY: ''
+    }    );
+
+    // Test assertions
+    let passed = true;
+
+    // Test 1: Verify that the overall border contains all elements
+    passed = passed && TestTracker.assertTrue(
+      overallBorderGroup.VDivider.includes(vDivider) &&
+      overallBorderGroup.HDivider.includes(leftHDivider) &&
+      overallBorderGroup.HDivider.includes(rightHDivider),
+      "Overall border should contain all elements"
+    );
+
+    // Test 2: Verify that dividers do not cross borders
+    // Get the vertical divider bounding box
+    const vDividerBounds = vDivider.getBoundingRect();
+
+    // Verify vertical divider top and bottom are within the overall border
+    const overallBounds = overallBorderGroup.getBoundingRect();
+    passed = passed && TestTracker.assertTrue(
+      vDividerBounds.top >= overallBounds.top &&
+      vDividerBounds.top + vDividerBounds.height <= overallBounds.top + overallBounds.height,
+      "Vertical divider should not extend beyond overall border"
+    );
+
+    // Test 3: Verify that horizontal dividers do not cross vertical divider
+    const leftHDividerBounds = leftHDivider.getBoundingRect();
+    const rightHDividerBounds = rightHDivider.getBoundingRect();
+
+    // Left horizontal divider should not extend beyond vertical divider
+    passed = passed && TestTracker.assertTrue(
+      leftHDividerBounds.left + leftHDividerBounds.width <= vDividerBounds.left + 5,  // Allow 5px tolerance
+      "Left horizontal divider should not extend beyond vertical divider"
+    );
+
+    // Right horizontal divider should not start before vertical divider
+    passed = passed && TestTracker.assertTrue(
+      rightHDividerBounds.left >= vDividerBounds.left + vDividerBounds.width - 5,  // Allow 5px tolerance
+      "Right horizontal divider should not start before vertical divider"
+    );
+
+    // Test 4: Verify that horizontal dividers are positioned correctly between objects
+    passed = passed && TestTracker.assertTrue(
+      leftHDivider.top > leftBottomObj.top + leftBottomObj.height &&
+      leftHDivider.top < leftArrowObj.top,
+      "Left horizontal divider should be between 2-liner and destination"
+    );
+
+    passed = passed && TestTracker.assertTrue(
+      rightHDivider.top > rightTopObj.top + rightTopObj.height &&
+      rightHDivider.top < rightArrowObj.top,
+      "Right horizontal divider should be between 2-liner and destination"
+    );
+
+    // Test 5: Verify that moving the overall border moves all contained elements
+    // Record initial positions
+    const initialVDividerLeft = vDivider.left;
+    const initialLeftTextLeft = leftTopObj.left;
+    const initialRightTextLeft = rightTopObj.left;
+
+    // Move the overall border by left top object
+    leftTopObj.set({ left: leftTopObj.left + 100 });
+    leftTopObj.setCoords();
+    leftTopObj.updateAllCoord();
+
+    // Check that contained elements moved with the border
+    passed = passed && TestTracker.assertTrue(
+      Math.abs((vDivider.left - initialVDividerLeft) - 100) < 5,
+      "Vertical divider should move with overall border"
+    );
+
+    passed = passed && TestTracker.assertTrue(
+      Math.abs((leftTopObj.left - initialLeftTextLeft) - 100) < 5,
+      "Left text should move with overall border"
+    );
+
+    passed = passed && TestTracker.assertTrue(
+      Math.abs((rightTopObj.left - initialRightTextLeft) - 100) < 5,
+      "Right text should move with overall border"
+    );
+
+    TestTracker.endTest(passed);
+    return passed;
+  },
+
+  /**
+   * Run all complex sign tests
+   */
+  runAll: async function () {
+    await this.testComplexSignLayout();
+  }
+};
+
 // Update testToRun to use the new consolidated RoundaboutTest instead of SpiralRoundaboutTest
-testToRun = [
+const testToRun = [
   ShapeTest.runAll.bind(ShapeTest),
   AnchorTest.runAll.bind(AnchorTest),
   RouteTest.runAll.bind(RouteTest),
   BorderTest.runAll.bind(BorderTest),
   RoundaboutTest.runAll.bind(RoundaboutTest), // Replace SpiralRoundaboutTest with RoundaboutTest
+  ComplexSignTest.runAll.bind(ComplexSignTest),
 ];
+
+
 
 async function runTests(tests) {
   console.log("======== RUNNING TESTS ========\n");
