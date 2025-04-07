@@ -400,7 +400,32 @@ let FormTextAddComponent = {
   },
 
   cancelInput: function (event) {
-    // Use shared escape key handler
+    if (event.key === 'Escape') {
+      // For 2-liner text, we need special handling to remove both English and Chinese texts
+      if (FormTextAddComponent.textLineInput === 2 && 
+          FormTextAddComponent.newTextObject && 
+          canvas.contains(FormTextAddComponent.newTextObject)) {
+        
+        // First, check if the English text has anchored Chinese text
+        if (FormTextAddComponent.newTextObject.anchoredPolygon && 
+            FormTextAddComponent.newTextObject.anchoredPolygon.length > 0) {
+          
+          // Store references to both texts before deletion
+          const anchoredTexts = [...FormTextAddComponent.newTextObject.anchoredPolygon];
+          
+          // Remove anchored Chinese text first to avoid orphaned objects
+          anchoredTexts.forEach(anchoredText => {
+            if (anchoredText && typeof anchoredText.deleteObject === 'function') {
+              anchoredText.deleteObject();
+            }
+          });
+        }
+        
+        // Then continue with the normal escape handling which will remove the English text
+      }
+    }
+    
+    // Use shared escape key handler for standard cleanup
     GeneralHandler.handleCancelWithEscape(
       FormTextAddComponent, 
       event, 
@@ -415,10 +440,7 @@ let FormTextAddComponent = {
     }
   },
 
-  TextInputHandler: function (event, options = null) {
-    document.removeEventListener('keydown', ShowHideSideBarEvent);
-    document.addEventListener('keydown', FormTextAddComponent.cancelInput);
-
+  TextInputHandler: async function (event, options = null) {
     // Get text and parameters
     const txt = options ? options.text : document.getElementById('input-text').value;
     if (!txt || txt.trim() === '') return; // Don't create empty text
@@ -438,133 +460,102 @@ let FormTextAddComponent = {
       return;
     }
 
-    // Center the object on the canvas viewport
-    const centerX = canvas.width / 2 / canvas.getZoom();
-    const centerY = canvas.height / 2 / canvas.getZoom();
-
-    // Account for any panning that has been done
-    const vpt = CenterCoord();
-    const actualCenterX = vpt.x;
-    const actualCenterY = vpt.y;
-
-    if (isTwoLiner) {
-      // Get corresponding Chinese text using the helper function
-      const chtText = FormTextAddComponent.findCorrespondingChineseText(txt);
-
-      // Create English text object
-      const engTextObject = new TextObject({
-        text: txt,
-        xHeight: xHeight,
-        font: font,
-        color: color,
-        left: actualCenterX,
-        top: actualCenterY - xHeight * 0.6 // Position it higher for the top line
-      });
-      engTextObject.isTemporary = true;
-
-      // Create Chinese text object
-      const chtTextObject = new TextObject({
-        text: chtText,
-        xHeight: xHeight,
-        font: font,
-        color: color,
-        left: actualCenterX,
-        top: actualCenterY + xHeight * 0.6 // Position it lower for the bottom line
-      });
-      chtTextObject.isTemporary = true;
-
-
-      // Anchor Chinese text to English text using the justification points
-      setTimeout(() => {
-        anchorShape(engTextObject, chtTextObject, {
-          vertexIndex1: { 'Left': 'E1', 'Middle': 'E2', 'Right': 'E3' }[justification],
-          vertexIndex2: { 'Left': 'E7', 'Middle': 'E6', 'Right': 'E5' }[justification],
-          spacingX: 0,
-          spacingY: 0
-        });
-      }, 100);
-
-
-      // Store reference to the English text object (top one)
-      FormTextAddComponent.newTextObject = engTextObject;
-
-      // Add mouse move handler to position the objects
-      canvas.on('mouse:move', FormTextAddComponent.TextOnMouseMove);
-      canvas.on('mouse:down', FormTextAddComponent.TextOnMouseClick);
-
-      canvas.setActiveObject(engTextObject)
-      engTextObject.enterFocusMode()
-
-      // Activate the vertex control immediately to enable dragging and snapping
-      if (engTextObject.controls && engTextObject.controls.E1) {
-        activeVertex = engTextObject.controls.E1;
-        activeVertex.isDown = true;
-        activeVertex.isDragging = true;
-        activeVertex.originalPosition = {
-          left: engTextObject.left,
-          top: engTextObject.top
+    try {
+      if (isTwoLiner) {
+        // For two-liner mode, we need special handling to create and anchor two text objects
+        // Get corresponding Chinese text using the helper function
+        const chtText = FormTextAddComponent.findCorrespondingChineseText(txt);
+        
+        // Use the general object creation with snapping function
+        const createTwoLinerText = (options) => {
+          // Create English text object (top one)
+          const engTextObject = new TextObject({
+            text: options.text,
+            xHeight: options.xHeight,
+            font: options.font,
+            color: options.color,
+            left: options.position.x,
+            top: options.position.y - options.xHeight * 0.6 // Position it higher for the top line
+          });
+          engTextObject.isTemporary = true;
+  
+          // Create Chinese text object (bottom one)
+          const chtTextObject = new TextObject({
+            text: options.translatedText,
+            xHeight: options.xHeight,
+            font: options.font,
+            color: options.color,
+            left: options.position.x,
+            top: options.position.y + options.xHeight * 0.6 // Position it lower for the bottom line
+          });
+          chtTextObject.isTemporary = true;
+  
+          // Anchor Chinese text to English text using the justification points
+          setTimeout(() => {
+            anchorShape(engTextObject, chtTextObject, {
+              vertexIndex1: { 'Left': 'E1', 'Middle': 'E2', 'Right': 'E3' }[justification],
+              vertexIndex2: { 'Left': 'E7', 'Middle': 'E6', 'Right': 'E5' }[justification],
+              spacingX: 0,
+              spacingY: 0
+            });
+          }, 100);
+          
+          return engTextObject; // Return the top object as the main one
         };
-        activeVertex.vertexOriginalPosition = {
-          x: engTextObject.getBasePolygonVertex('E1').x,
-          y: engTextObject.getBasePolygonVertex('E1').y
+        
+        // Use the general object creation function for two-liner text
+        await GeneralHandler.createObjectWithSnapping(
+          {
+            text: txt,
+            translatedText: chtText,
+            xHeight: xHeight,
+            font: font,
+            color: color
+          },
+          createTwoLinerText,
+          FormTextAddComponent,
+          'newTextObject',
+          'E1',
+          FormTextAddComponent.TextOnMouseMove,
+          FormTextAddComponent.TextOnMouseClick,
+          FormTextAddComponent.cancelInput
+        );
+  
+      } else {
+        // For regular single-line text, use our standard pattern
+        // Create a function that returns a new TextObject
+        const createTextObject = (options) => {
+          return new TextObject({
+            text: options.text,
+            xHeight: options.xHeight,
+            font: options.font,
+            color: options.color,
+            left: options.position.x,
+            top: options.position.y
+          });
         };
-        activeVertex.vertexOffset = {
-          x: engTextObject.getBasePolygonVertex('E1').x - engTextObject.left,
-          y: engTextObject.getBasePolygonVertex('E1').y - engTextObject.top
-        };
-
-        // Create indicator for the active vertex
-        if (activeVertex.createIndicator) {
-          activeVertex.createIndicator(engTextObject.getBasePolygonVertex('E1').x, engTextObject.getBasePolygonVertex('E1').y);
-        }
+        
+        // Use the general object creation function
+        await GeneralHandler.createObjectWithSnapping(
+          {
+            text: txt,
+            xHeight: xHeight,
+            font: font,
+            color: color
+          },
+          createTextObject,
+          FormTextAddComponent,
+          'newTextObject',
+          'E1',
+          FormTextAddComponent.TextOnMouseMove,
+          FormTextAddComponent.TextOnMouseClick,
+          FormTextAddComponent.cancelInput
+        );
       }
-    } else {
-      // Regular single line text object creation
-      const textObject = new TextObject({
-        text: txt,
-        xHeight: xHeight,
-        font: font,
-        color: color,
-        left: actualCenterX,
-        top: actualCenterY
-      });
-
-      textObject.isTemporary = true
-
-      // Store reference to the newly created object
-      FormTextAddComponent.newTextObject = textObject;
-      canvas.setActiveObject(textObject)
-      textObject.enterFocusMode()
-
-      // Add mouse move handler to position the object
-      canvas.on('mouse:move', FormTextAddComponent.TextOnMouseMove);
-      canvas.on('mouse:down', FormTextAddComponent.TextOnMouseClick);
-
-      // Activate the vertex control immediately to enable dragging and snapping
-      if (textObject.controls && textObject.controls.E1) {
-        activeVertex = textObject.controls.E1;
-        activeVertex.isDown = true;
-        activeVertex.isDragging = true;
-        activeVertex.originalPosition = {
-          left: textObject.left,
-          top: textObject.top
-        };
-        activeVertex.vertexOriginalPosition = {
-          x: textObject.getBasePolygonVertex('E1').x,
-          y: textObject.getBasePolygonVertex('E1').y
-        };
-        activeVertex.vertexOffset = {
-          x: textObject.getBasePolygonVertex('E1').x - textObject.left,
-          y: textObject.getBasePolygonVertex('E1').y - textObject.top
-        };
-
-        // Create indicator for the active vertex
-        if (activeVertex.createIndicator) {
-          activeVertex.createIndicator(textObject.getBasePolygonVertex('E1').x, textObject.getBasePolygonVertex('E1').y);
-        }
-      }
+    } catch (error) {
+      console.error('Error creating text object:', error);
     }
-
+    
     canvas.renderAll();
   },
 

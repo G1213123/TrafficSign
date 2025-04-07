@@ -407,6 +407,45 @@ const BorderUtilities = {
     }
   },
 
+  // Find the object closest to a border edge
+  findClosestObject(objects, direction, innerBorder) {
+    if (!objects || objects.length === 0) return null;
+
+    let closestObject = null;
+    let minDistance = Number.MAX_VALUE;
+
+    objects.forEach(obj => {
+      if (!obj.getBoundingRect) return;
+
+      const objRect = obj.getBoundingRect();
+      let distance = 0;
+
+      switch (direction) {
+        case 'top':
+          distance = objRect.top - innerBorder.top;
+          break;
+        case 'bottom':
+          distance = innerBorder.bottom - (objRect.top + objRect.height);
+          break;
+        case 'left':
+          distance = objRect.left - innerBorder.left;
+          break;
+        case 'right':
+          distance = innerBorder.right - (objRect.left + objRect.width);
+          break;
+      }
+
+      // Only consider positive distances (objects inside the border)
+      if (distance >= 0 && distance < minDistance) {
+        minDistance = distance;
+        closestObject = obj;
+      }
+    });
+
+    return closestObject;
+  },
+
+  // Additional border utility methods would go here
 }
 
 // Define BorderGroup class that extends BaseGroup

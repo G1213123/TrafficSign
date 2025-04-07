@@ -398,6 +398,104 @@ let GeneralHandler = {
   },
   
   /**
+   * Creates a new object and activates the snapping system for it
+   * @param {Object} options - Configuration for the object creation
+   * @param {Function} createObjectFn - Function to create the object (may be async)
+   * @param {Object} component - The sidebar component context
+   * @param {string} objectKey - Property name to store the object reference (e.g., 'newTextObject')
+   * @param {string} vertexId - ID of the vertex to activate for snapping (e.g., 'V1', 'E1')
+   * @param {Function} mouseMoveHandler - Handler function for mouse movement
+   * @param {Function} mouseClickHandler - Handler function for mouse clicks
+   * @param {Function} cancelHandler - Handler function for cancellation
+   * @return {Promise<Object>} - A promise that resolves to the created object
+   */
+  createObjectWithSnapping: async function(options, createObjectFn, component, objectKey, vertexId, mouseMoveHandler, mouseClickHandler, cancelHandler) {
+    // Clear any existing object being placed
+    if (component[objectKey]) {
+      canvas.remove(component[objectKey]);
+      component[objectKey] = null;
+      
+      if (activeVertex) {
+        activeVertex.cleanupDrag();
+        activeVertex = null;
+      }
+    }
+    
+    // Remove standard event listeners and add component-specific ones
+    document.removeEventListener('keydown', ShowHideSideBarEvent);
+    document.addEventListener('keydown', cancelHandler);
+    
+    // Get the center of the canvas viewport
+    const vpt = CenterCoord();
+    const centerX = vpt.x;
+    const centerY = vpt.y;
+    
+    // Set position in options
+    options.position = options.position || { x: centerX, y: centerY };
+    
+    try {
+      // Create the object - use await to handle both async and sync functions
+      const newObject = await Promise.resolve(createObjectFn(options));
+      
+      // Store reference to the object
+      component[objectKey] = newObject;
+      
+      // Add mouse event handlers
+      canvas.on('mouse:move', mouseMoveHandler);
+      canvas.on('mouse:down', mouseClickHandler);
+      
+      // Set up the object for snapping
+      canvas.setActiveObject(newObject);
+      newObject.enterFocusMode();
+      newObject.isTemporary = true;
+      
+      // Activate the vertex control for snapping
+      if (newObject.controls && newObject.controls[vertexId]) {
+        // Get the vertex control
+        activeVertex = newObject.controls[vertexId];
+        activeVertex.isDown = true;
+        activeVertex.isDragging = true;
+        
+        // Store original position info
+        activeVertex.originalPosition = {
+          left: newObject.left,
+          top: newObject.top
+        };
+  
+        // Get the vertex coordinates
+        const vertex = newObject.getBasePolygonVertex(vertexId);
+        if (vertex) {
+          // Store vertex positions for snapping
+          activeVertex.vertexOriginalPosition = {
+            x: vertex.x,
+            y: vertex.y
+          };
+          
+          // Calculate offset from object center to vertex
+          activeVertex.vertexOffset = {
+            x: vertex.x - newObject.left,
+            y: vertex.y - newObject.top
+          };
+          
+          // Create indicator for the active vertex if the method exists
+          if (activeVertex.createIndicator) {
+            activeVertex.createIndicator(vertex.x, vertex.y);
+          }
+        }
+      }
+      
+      canvas.renderAll();
+      return newObject;
+    } catch (error) {
+      console.error('Error creating object with snapping:', error);
+      // Clean up event listeners in case of error
+      document.removeEventListener('keydown', cancelHandler);
+      document.addEventListener('keydown', ShowHideSideBarEvent);
+      throw error; // Re-throw to allow caller to handle the error
+    }
+  },
+  
+  /**
    * Generic panel handler off function to clean up when leaving a panel
    * @param {Object} component - The sidebar component context
    * @param {string} objectKey - Key for the object being placed (e.g., 'newTextObject')

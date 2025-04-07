@@ -223,19 +223,6 @@ let FormDrawAddComponent = {
 
   // Create a new symbol object directly instead of using cursor
   createSymbolObject: async function (event) {
-    // Clear any previous symbol being placed
-    if (FormDrawAddComponent.newSymbolObject) {
-      canvas.remove(FormDrawAddComponent.newSymbolObject);
-      FormDrawAddComponent.newSymbolObject = null;
-      //activeVertex.clearSnapHighlight();
-      activeVertex.cleanupDrag();
-      activeVertex = null;
-    }
-
-    // Remove event listeners
-    document.removeEventListener('keydown', ShowHideSideBarEvent);
-    document.addEventListener('keydown', FormDrawAddComponent.cancelDraw);
-
     // Get symbol type and parameters from the button or defaults
     const symbolType = event.currentTarget.id.replace('button-', '');
     const xHeight = parseInt(document.getElementById('input-xHeight').value);
@@ -247,53 +234,37 @@ let FormDrawAddComponent = {
     // Check and adjust angle based on permitted angles
     FormDrawAddComponent.validateAndAdjustAngle(symbolType);
 
-    // Account for any panning that has been done
-    const vpt = CenterCoord();
-    const actualCenterX = vpt.x;
-    const actualCenterY = vpt.y;
+    // Create a function that returns a symbol object
+    const createSymbol = async (options) => {
+      // Account for any panning that has been done
+      return await drawSymbolDirectly(options.type, {
+        x: options.position.x,
+        y: options.position.y,
+        xHeight: options.xHeight,
+        angle: options.angle,
+        color: options.color
+      });
+    };
 
-    // Create the symbol directly
-    const symbolObject = await drawSymbolDirectly(symbolType, {
-      x: actualCenterX,
-      y: actualCenterY,
-      xHeight: xHeight,
-      angle: FormDrawAddComponent.symbolAngle,
-      color: color
-    });
-
-    // Store reference to the new symbol
-    FormDrawAddComponent.newSymbolObject = symbolObject;
-    symbolObject.isTemporary = true;
-    canvas.setActiveObject(symbolObject)
-    symbolObject.enterFocusMode()
-
-    // Add mouse event handlers for placement
-    canvas.on('mouse:move', FormDrawAddComponent.SymbolOnMouseMove);
-    canvas.on('mouse:down', FormDrawAddComponent.SymbolOnMouseClick);
-
-    // Activate the vertex control immediately to enable dragging and snapping
-    if (symbolObject.controls && symbolObject.controls.V1) {
-      activeVertex = symbolObject.controls.V1;
-      activeVertex.isDown = true;
-      activeVertex.isDragging = true;
-      activeVertex.originalPosition = {
-        left: symbolObject.left,
-        top: symbolObject.top
-      };
-
-      // Store vertex information
-      const v1 = symbolObject.getBasePolygonVertex('V1');
-      if (v1) {
-        activeVertex.vertexOriginalPosition = {
-          x: v1.x,
-          y: v1.y
-        };
-        activeVertex.vertexOffset = {
-          x: v1.x - symbolObject.left,
-          y: v1.y - symbolObject.top
-        };
-
-      }
+    try {
+      // Use the general object creation with snapping function
+      await GeneralHandler.createObjectWithSnapping(
+        {
+          type: symbolType,
+          xHeight: xHeight,
+          color: color.toLowerCase(),
+          angle: FormDrawAddComponent.symbolAngle
+        },
+        createSymbol,
+        FormDrawAddComponent,
+        'newSymbolObject',
+        'V1',
+        FormDrawAddComponent.SymbolOnMouseMove,
+        FormDrawAddComponent.SymbolOnMouseClick,
+        FormDrawAddComponent.cancelDraw
+      );
+    } catch (error) {
+      console.error('Error creating symbol object:', error);
     }
   },
 
