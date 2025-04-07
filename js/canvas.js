@@ -15,8 +15,7 @@ window.addEventListener('resize', resizeCanvas, false);
 
 function resizeCanvas() {
   canvasContainer = document.getElementById('canvas-container')
-  canvas.setWidth(canvasContainer.clientWidth)
-  canvas.setHeight(canvasContainer.clientHeight)
+  canvas.setDimensions({width:canvasContainer.clientWidth, height:canvasContainer.clientHeight})
   canvas.absolutePan({ x: -canvas.width / 2, y: -canvas.height / 2 })
   canvas.renderAll();
   DrawGrid()

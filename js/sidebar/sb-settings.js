@@ -276,11 +276,11 @@ let FormSettingsComponent = {
         const parsedCanvas = JSON.parse(savedCanvas);
 
         // Apply saved canvas properties
-        for (const prop in parsedCanvas) {
-          if (canvas.hasOwnProperty(prop) && typeof canvas[prop] !== 'function') {
-            canvas[prop] = parsedCanvas[prop];
-          }
-        }
+        //for (const prop in parsedCanvas) {
+        //  if (canvas.hasOwnProperty(prop) && typeof canvas[prop] !== 'function' && canvas[prop] !== 'width' && canvas[prop] !== 'height' ) {
+        //    canvas[prop] = parsedCanvas[prop];
+        //  }
+        //}
 
         // Reload canvas objects if they're saved separately
         if (localStorage.getItem('canvasObjects')) {
@@ -494,7 +494,7 @@ window.addEventListener('load', async function () {
   setTimeout(function () {
     document.getElementById('loading-overlay').style.display = 'none';
     canvas.renderAll();
-  }, 3000); // 3 second backup timeout
+  }, 1000); // 3 second backup timeout
 
 });
 
