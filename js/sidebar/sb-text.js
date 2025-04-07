@@ -492,10 +492,14 @@ let FormTextAddComponent = {
       canvas.on('mouse:move', FormTextAddComponent.TextOnMouseMove);
       canvas.on('mouse:down', FormTextAddComponent.TextOnMouseClick);
 
+      canvas.setActiveObject(engTextObject)
+      engTextObject.enterFocusMode()
+
       // Activate the vertex control immediately to enable dragging and snapping
       if (engTextObject.controls && engTextObject.controls.E1) {
         activeVertex = engTextObject.controls.E1;
         activeVertex.isDown = true;
+        activeVertex.isDragging = true;
         activeVertex.originalPosition = {
           left: engTextObject.left,
           top: engTextObject.top
@@ -529,6 +533,8 @@ let FormTextAddComponent = {
 
       // Store reference to the newly created object
       FormTextAddComponent.newTextObject = textObject;
+      canvas.setActiveObject(textObject)
+      textObject.enterFocusMode()
 
       // Add mouse move handler to position the object
       canvas.on('mouse:move', FormTextAddComponent.TextOnMouseMove);
@@ -538,6 +544,7 @@ let FormTextAddComponent = {
       if (textObject.controls && textObject.controls.E1) {
         activeVertex = textObject.controls.E1;
         activeVertex.isDown = true;
+        activeVertex.isDragging = true;
         activeVertex.originalPosition = {
           left: textObject.left,
           top: textObject.top

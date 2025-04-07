@@ -227,7 +227,7 @@ let FormDrawAddComponent = {
     if (FormDrawAddComponent.newSymbolObject) {
       canvas.remove(FormDrawAddComponent.newSymbolObject);
       FormDrawAddComponent.newSymbolObject = null;
-      activeVertex.clearSnapHighlight();
+      //activeVertex.clearSnapHighlight();
       activeVertex.cleanupDrag();
       activeVertex = null;
     }
@@ -264,6 +264,8 @@ let FormDrawAddComponent = {
     // Store reference to the new symbol
     FormDrawAddComponent.newSymbolObject = symbolObject;
     symbolObject.isTemporary = true;
+    canvas.setActiveObject(symbolObject)
+    symbolObject.enterFocusMode()
 
     // Add mouse event handlers for placement
     canvas.on('mouse:move', FormDrawAddComponent.SymbolOnMouseMove);
@@ -273,6 +275,7 @@ let FormDrawAddComponent = {
     if (symbolObject.controls && symbolObject.controls.V1) {
       activeVertex = symbolObject.controls.V1;
       activeVertex.isDown = true;
+      activeVertex.isDragging = true;
       activeVertex.originalPosition = {
         left: symbolObject.left,
         top: symbolObject.top
@@ -290,10 +293,6 @@ let FormDrawAddComponent = {
           y: v1.y - symbolObject.top
         };
 
-        // Create indicator for the active vertex
-        if (activeVertex.createIndicator) {
-          activeVertex.createIndicator(v1.x, v1.y);
-        }
       }
     }
   },
@@ -370,7 +369,7 @@ let FormDrawAddComponent = {
 
     // clear active vertex
     if (activeVertex) {
-      activeVertex.clearSnapHighlight();
+      //activeVertex.clearSnapHighlight();
       activeVertex.cleanupDrag();
       activeVertex = null;
     }
@@ -378,11 +377,14 @@ let FormDrawAddComponent = {
     // Replace on canvas
     symbolObject.deleteObject();
     FormDrawAddComponent.newSymbolObject = newSymbolObject;
+    canvas.setActiveObject(newSymbolObject)
+    newSymbolObject.enterFocusMode()
 
     // Re-activate vertex control
     if (newSymbolObject.controls && newSymbolObject.controls.V1) {
       activeVertex = newSymbolObject.controls.V1;
       activeVertex.isDown = true;
+      activeVertex.isDragging = true;
       activeVertex.originalPosition = {
         left: newSymbolObject.left,
         top: newSymbolObject.top
@@ -400,12 +402,10 @@ let FormDrawAddComponent = {
           y: v1.y - newSymbolObject.top
         };
 
-        // Create indicator for the active vertex
-        if (activeVertex.createIndicator) {
-          activeVertex.createIndicator(v1.x, v1.y);
-        }
       }
     }
+
+    canvas.renderAll()
     
     return newSymbolObject;
   },
