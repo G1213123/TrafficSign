@@ -36,6 +36,7 @@ const SidebarModuleSystem = {
     'FormExportComponent': 'js/sidebar/sb-export.js',
     'FormDebugComponent': 'js/sidebar/sb-debug.js',
     'FormSettingsComponent': 'js/sidebar/sb-settings.js',
+    'FormTemplateComponent': 'js/sidebar/sb-template.js',
     'CanvasObjectInspector': 'js/sidebar/sb-inspector.js',
     'CanvasTrackerUI': 'js/sidebar/sb-tracker.js'
   },
@@ -158,14 +159,22 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('btn_export').onclick = FormExportComponent.exportPanelInit || function () { };
       });
     });
-
-
     // Debug module button (if it exists)
     const debugBtn = document.getElementById('btn_debug');
     if (debugBtn) {
       debugBtn.addEventListener('click', function (e) {
         SidebarHelpers.loadDebugModule().then(module => {
           debugBtn.onclick = FormDebugComponent.DebugPanelInit || function () { };
+        });
+      });
+    }
+    
+    // Template module button
+    const templateBtn = document.getElementById('btn_template');
+    if (templateBtn) {
+      templateBtn.addEventListener('click', function (e) {
+        SidebarHelpers.loadTemplateModule().then(module => {
+          templateBtn.onclick = FormTemplateComponent.templatePanelInit || function () { };
         });
       });
     }
@@ -240,11 +249,18 @@ const SidebarHelpers = {
         return module;
       });
   },
-
   loadSettingsModule: function () {
     return SidebarModuleSystem.loadModule('FormSettingsComponent')
       .then(module => {
         FormSettingsComponent.settingsPanelInit();
+        return module;
+      });
+  },
+  
+  loadTemplateModule: function () {
+    return SidebarModuleSystem.loadModule('FormTemplateComponent')
+      .then(module => {
+        FormTemplateComponent.templatePanelInit();
         return module;
       });
   }
