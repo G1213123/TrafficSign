@@ -619,7 +619,7 @@ class BorderGroup extends BaseGroup {
     // Make sure bbox is updated - using existing code
     //this.updateBboxes();
 
-    const frame = 1.5 * this.xHeight / 4;
+    const bbox = this.bbox;
     let i = 0;
 
     // First clear any existing mid points from previous calculations
@@ -632,16 +632,24 @@ class BorderGroup extends BaseGroup {
       const midY = (compartment.top + compartment.bottom) / 2;
 
       // Add midpoint on top edge
-      this.basePolygon.vertex.push({ x: midX, y: compartment.top, label: `C${i += 1}` });
+      if (compartment.top == bbox.top) {
+        this.basePolygon.vertex.push({ x: midX, y: compartment.top, label: `C${i += 1}` });
+      }
 
       // Add midpoint on right edge
-      this.basePolygon.vertex.push({ x: compartment.right, y: midY, label: `C${i += 1}` });
+      if (compartment.right == bbox.right) {
+        this.basePolygon.vertex.push({ x: compartment.right, y: midY, label: `C${i += 1}` });
+      }
 
       // Add midpoint on bottom edge
-      this.basePolygon.vertex.push({ x: midX, y: compartment.bottom, label: `C${i += 1}` });
+      if (compartment.bottom == bbox.bottom) {
+        this.basePolygon.vertex.push({ x: midX, y: compartment.bottom, label: `C${i += 1}` });
+      }
 
       // Add midpoint on left edge
-      this.basePolygon.vertex.push({ x: compartment.left, y: midY, label: `C${i += 1}` });
+      if (compartment.left == bbox.left) {
+        this.basePolygon.vertex.push({ x: compartment.left, y: midY, label: `C${i += 1}` });
+      }
     });
   }
 
@@ -862,6 +870,8 @@ class BorderGroup extends BaseGroup {
 
     // Update mid points
     this.addMidPointToDivider();
+
+    this.drawVertex()
   }
   
   // Helper method to update divider coordinates without triggering recursive updates

@@ -1,5 +1,3 @@
-
-
 const calcVertexType = {
     'Main Line': calcMainRoadVertices,
     'Conventional Roundabout': (xHeight, routeList) => calcRoundaboutVertices('Conventional', xHeight, routeList),
@@ -453,6 +451,7 @@ class SideRoadSymbol extends BaseGroup {
             mainRoad.setCoords();
         }
         this.basePolygon.setCoords();
+        this.drawVertex()
     }
 }
 
@@ -516,7 +515,11 @@ function applyConstraintsMainLine(sideRoad, mainRoad, routeList, isSideLeft, xHe
 
         // Recalculate vertices with new position
         tempVertexList = calcSideRoadVertices(mainRoad.xHeight, mainRoad.routeList, routeList);
-        sideRoad.top = Math.min(...tempVertexList.path[0].vertex.map(v => v.y));
+        
+        // Only set top if sideRoad is not null
+        if (sideRoad) {
+            sideRoad.top = Math.min(...tempVertexList.path[0].vertex.map(v => v.y));
+        }
     }
 
     return { routeList, tempVertexList };
@@ -525,7 +528,7 @@ function applyConstraintsMainLine(sideRoad, mainRoad, routeList, isSideLeft, xHe
 function applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeight) {
     // Horizontal constraint based on side
     const radius = 12
-    const minBranchShapeXDelta = radius + routeList[0].shape == 'Stub' ? 4 : radius;
+    const minBranchShapeXDelta =  (routeList[0].shape == 'Stub' ? 4 : radius);
     const minBranchXDelta = (minBranchShapeXDelta + radius) * xHeight / 4;
     const center = mainRoad.routeList[1]
     const length = xHeight / 4
@@ -588,13 +591,6 @@ function applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList,
  * @return {Promise<void>}
  */
 async function drawMainRoadOnCursor(event, params = null) {
-    // In case only update parameters of cursor object
-    //if (!event || !event.target || event.target.id !== 'button-DrawMap') {
-    //    if (cursor._objects.length == 0) {
-    //        return;
-    //    }
-    //}
-
     // Remove existing event listeners first to avoid duplicates
     drawRoadsHandlerOff();
 
@@ -603,7 +599,7 @@ async function drawMainRoadOnCursor(event, params = null) {
     document.addEventListener('keydown', cancelDraw);
 
     // Get parameters either from DOM elements or provided params
-    let xHeight, rootLength, tipLength, color, width, shape, roadType;
+    let xHeight, rootLength, tipLength, color, width, shape, roadType, RAfeature;
 
     if (params) {
         xHeight = params.xHeight || 100;
@@ -613,77 +609,77 @@ async function drawMainRoadOnCursor(event, params = null) {
         width = params.width || 6;
         shape = params.shape || 'Arrow';
         roadType = params.roadType || 'Main Line';
-        RAfeature = params.roundaboutFeatures || 'Normal';
+        RAfeature = params.RAfeature || 'Normal';
     } else {
         return;
     }
 
-    // Center the object on the canvas viewport
-    const canvasCenter = CenterCoord()
-    const centerX = canvasCenter.x;
-    const centerY = canvasCenter.y;
+    // Create a function that returns a new MainRoadSymbol
+    const createMainRoadObject = async (options) => {
+        // Create route list centered on the provided position
+        const routeList = [
+            { x: options.position.x, y: options.position.y + (options.rootLength + options.tipLength) * options.xHeight / 4, angle: 180, width: options.width, shape: options.roadType == 'Main Line' ? 'Stub' : options.RAfeature },
+            { x: options.position.x, y: options.position.y, angle: 0, width: options.width, shape: options.shape }
+        ];
 
-    // Create route list centered on the canvas
-    let routeList = [
-        { x: centerX, y: centerY + (rootLength + tipLength) * xHeight / 4, angle: 180, width: width, shape: roadType == 'Main Line' ? 'Stub' : RAfeature },
-        { x: centerX, y: centerY, angle: 0, width: width, shape: shape }
-    ];
-
-    // Create route options for the MainRoadSymbol
-    const routeOptions = {
-        routeList: routeList,
-        xHeight: xHeight,
-        color: color,
-        rootLength: rootLength,
-        tipLength: tipLength,
-        roadType: roadType
-    };
-
-    // Create and initialize the MainRoadSymbol
-    const routeMap = new MainRoadSymbol(routeOptions);
-    await routeMap.initialize(calcVertexType[roadType](routeOptions.xHeight, routeOptions.routeList));
-
-    // Add u turn route
-    if (RAfeature == 'U-turn') {
-        await addUTurnRoute(routeMap);
-    }
-
-    // Store reference to the new road object
-    canvas.newSymbolObject = routeMap;
-
-    // Add mouse event handlers for placement
-    canvas.on('mouse:move', mainRoadOnMouseMove);
-    canvas.on('mouse:down', finishDrawMainRoad);
-
-    // Activate the vertex control immediately to enable dragging and snapping
-    if (routeMap.controls && routeMap.controls.V1) {
-        activeVertex = routeMap.controls.V1;
-        activeVertex.isDown = true;
-        activeVertex.originalPosition = {
-            left: routeMap.left + routeMap.width / 2,
-            top: routeMap.top
+        // Create route options for the MainRoadSymbol
+        const routeOptions = {
+            routeList: routeList,
+            xHeight: options.xHeight,
+            color: options.color,
+            rootLength: options.rootLength,
+            tipLength: options.tipLength,
+            roadType: options.roadType,
+            RAfeature: options.RAfeature
         };
 
-        // Store vertex information
-        const v1 = routeMap.getBasePolygonVertex('V1');
-        if (v1) {
-            activeVertex.vertexOriginalPosition = {
-                x: v1.x,
-                y: v1.y
-            };
-            activeVertex.vertexOffset = {
-                x: v1.x - routeMap.left,
-                y: v1.y - routeMap.top
-            };
+        // Create and initialize the MainRoadSymbol
+        const routeMap = new MainRoadSymbol(routeOptions);
+        await routeMap.initialize(calcVertexType[options.roadType](options.xHeight, routeList));
+        
+        // Add special features based on RAfeature
+        if (options.RAfeature === 'U-turn') {
+            await addUTurnRoute(routeMap);
+                }
 
-            // Create indicator for the active vertex
-            if (activeVertex.createIndicator) {
-                activeVertex.createIndicator(v1.x, v1.y);
-            }
-        }
+        return routeMap;
+    };
+    
+    try {
+        // Create a temporary component to store the new object
+        const tempComponent = {
+            newMapObject: null
+        };
+        
+        // Use the general object creation with snapping function
+        await GeneralHandler.createObjectWithSnapping(
+            {
+                position: { 
+                    x: event ? canvas.getPointer(event.e).x : canvas.width/2, 
+                    y: event ? canvas.getPointer(event.e).y : canvas.height/2
+                },
+                xHeight: xHeight,
+                color: color.toLowerCase(),
+                rootLength: rootLength,
+                tipLength: tipLength,
+                width: width,
+                shape: shape,
+                roadType: roadType,
+                RAfeature: RAfeature
+            },
+            createMainRoadObject,
+            tempComponent, // Pass the temp component to store the created object
+            'newMapObject',
+            'V1',
+            mainRoadOnMouseMove,
+            finishDrawMainRoad,
+            cancelDraw
+        );
+
+        canvas.newSymbolObject = tempComponent.newMapObject;
+        } catch (error) {
+        console.error('Error creating main road:', error);
     }
-
-    canvas.renderAll();
 }
 
 async function addUTurnRoute(mainRoad) {
@@ -697,7 +693,8 @@ async function addUTurnRoute(mainRoad) {
             angle: 0,
             shape: 'UArrow ' + mainRoad.roadType.split(' ')[0],
             width: 4
-        }]
+        }],
+        xHeight: mainRoad.xHeight,
     };
 
     // Declare variables outside the if-else blocks 
@@ -717,36 +714,99 @@ async function addUTurnRoute(mainRoad) {
     sideRoad.mainRoad = mainRoad;
 }
 
+
+
 /**
  * Handle mouse movement for road symbol placement
  * @param {Event} event - Mouse event
  */
 function mainRoadOnMouseMove(event) {
-    if (canvas.newSymbolObject && activeVertex) {
-        const pointer = canvas.getPointer(event.e);
-
-        // If we have an active vertex, let it handle the movement
-        if (activeVertex.handleMouseMoveRef) {
-            // Simulate a mouse move event with the current pointer
-            const simulatedEvent = {
-                e: event.e,
-                pointer: pointer
-            };
-            activeVertex.handleMouseMoveRef(simulatedEvent);
-        } else {
-            // Fallback direct positioning if vertex control isn't active
-            canvas.newSymbolObject.set({
-                left: pointer.x,
-                top: pointer.y
+    if (!canvas.newSymbolObject) return;
+    
+    const mainRoad = canvas.newSymbolObject;
+    if (mainRoad.functionalType !== 'MainRoad') return;
+    
+    const pointer = canvas.getPointer(event.e);
+    
+    // If we have an active vertex, handle the vertex-based movement
+    if (activeVertex && activeVertex.handleMouseMoveRef) {
+        // Store the original position of the object for delta calculation
+        const originalLeft = mainRoad.left;
+        const originalTop = mainRoad.top;
+        
+        // Let the vertex handle its movement
+        const simulatedEvent = {
+            e: event.e,
+            pointer: pointer
+        };
+        activeVertex.handleMouseMoveRef(simulatedEvent);
+        
+        // Calculate the delta movement
+        const deltaX = mainRoad.left - originalLeft;
+        const deltaY = mainRoad.top - originalTop;
+        
+        // Update all points in routeList to match the new position
+        mainRoad.routeList.forEach(route => {
+            route.x += deltaX;
+            route.y += deltaY;
+        });
+        
+        // For MainLine type, recalculate the vertices based on updated routeList
+        if (mainRoad.roadType === 'Main Line') {
+            const vertexList = calcVertexType[mainRoad.roadType](mainRoad.xHeight, mainRoad.routeList);
+            mainRoad.basePolygon.vertex = vertexList.path[0].vertex;
+            mainRoad.basePolygon.path = vertexList.path;
+        }
+        
+        // Update any side roads if they exist
+        if (mainRoad.sideRoad && mainRoad.sideRoad.length > 0) {
+            mainRoad.sideRoad.forEach(side => {
+                side.onMove(null, true);
             });
-            canvas.newSymbolObject.setCoords();
-            canvas.renderAll();
+        }
+    } else {
+        // Direct positioning for the whole object - THIS PART IS CRITICAL
+        // Update the position of the entire object to follow the cursor
+        mainRoad.set({
+            left: pointer.x,
+            top: pointer.y
+        });
+        
+        // Update the routeList coordinates to match the new position
+        // For initial placement, we need to recreate routeList at the new position
+        if (mainRoad.routeList && mainRoad.routeList.length >= 2) {
+            // For main road, position the top and bottom points based on cursor
+            mainRoad.routeList[1].x = pointer.x; // Top point (tip)
+            mainRoad.routeList[1].y = pointer.y;
+            
+            // Position the bottom point (root)
+            mainRoad.routeList[0].x = pointer.x;
+            mainRoad.routeList[0].y = pointer.y + (mainRoad.rootLength + mainRoad.tipLength) * mainRoad.xHeight / 4;
+        }
+        
+        // Recalculate the vertices based on updated routeList
+        const vertexList = calcVertexType[mainRoad.roadType](mainRoad.xHeight, mainRoad.routeList);
+        if (mainRoad.basePolygon) {
+            mainRoad.basePolygon.vertex = vertexList.path[0].vertex;
+            mainRoad.basePolygon.path = vertexList.path;
+        }
+        
+        // Update any side roads if they exist
+        if (mainRoad.sideRoad && mainRoad.sideRoad.length > 0) {
+            mainRoad.sideRoad.forEach(side => {
+                side.onMove(null, true);
+            });
         }
     }
+    
+    // Update coordinates and render
+    mainRoad.setCoords();
+    mainRoad.drawVertex();
+    canvas.renderAll();
 }
 
 /**
- * Handles mouse click to place route on canvas
+ * Handles mouse click to place main road on canvas
  * @param {Event} event - Mouse event
  * @param {Object} options - Optional parameters
  * @return {Promise<void>}
@@ -755,28 +815,37 @@ async function finishDrawMainRoad(event, options = null) {
     if (event.e.button !== 0) return;
 
     // Finalize main road placement on click
-    if (canvas.newSymbolObject) {
-        // Complete the placement
-        if (activeVertex) {
-            activeVertex.handleMouseDownRef(event);
-        }
-
-        // Set active object
-        canvas.discardActiveObject();
-        const placedRoad = canvas.newSymbolObject;
-
-        // Reset state
-        canvas.newSymbolObject = null;
-        activeVertex = null;
-
-        // Clean up
-        drawRoadsHandlerOff();
-
-        // Make the new road active after a slight delay
-        setTimeout(() => {
-            canvas.setActiveObject(placedRoad);
-        }, 300);
+    if (!canvas.newSymbolObject) return;
+    
+    const mainRoad = canvas.newSymbolObject;
+    if (mainRoad.functionalType !== 'MainRoad') return;
+    
+    // Complete the placement
+    if (activeVertex) {
+        activeVertex.handleMouseDownRef(event);
     }
+    
+    // Add the main road to the canvas object list if not already added
+    if (!canvasObject.includes(mainRoad)) {
+        canvasObject.push(mainRoad);
+    }
+    
+    // Update coordinates and positions
+    mainRoad.setCoords();
+    mainRoad.isTemporary = false;
+    
+    // Reset state
+    const placedRoad = canvas.newSymbolObject;
+    canvas.newSymbolObject = null;
+    activeVertex = null;
+    
+    // Clean up event handlers
+    drawRoadsHandlerOff();
+    
+    // Make the new road active after a slight delay
+    setTimeout(() => {
+        canvas.setActiveObject(placedRoad);
+    }, 300);
 }
 
 /**
@@ -861,131 +930,252 @@ async function drawSideRoadOnCursor(event, option = null) {
         mainRoad.tempRootList = JSON.parse(JSON.stringify(routeList));
     }
 
-    // Determine which side the branch is on
-    const isSideLeft = routeList[0].x < mainRoad.left + mainRoad.width / 2;
+    // Create a function that returns a new SideRoadSymbol
+    const createSideRoadObject = async (options) => {
+        const pointer = options.position;
+        
+        // Determine which side the branch is on
+        const isSideLeft = pointer.x < mainRoad.left + mainRoad.width / 2;
 
-    // Apply the same constraints as when moving a side road
-    const constrainedResult = applySideRoadConstraints(
-        {}, // Empty object instead of cursor
-        mainRoad,
-        routeList,
-        isSideLeft,
-        mainRoad.xHeight
-    );
-
-    // Use constrained result instead of original
-    routeList = constrainedResult.routeList;
-    tempVertexList = constrainedResult.tempVertexList;
-
-    // Create the branch options
-    const branchOptions = {
-        routeList: routeList,
-        xHeight: mainRoad.xHeight,
-        color: mainRoad.color,
-        mainRoad: mainRoad,
-        side: isSideLeft,
-        branchIndex: mainRoad.sideRoad.length + 1
-    };
-
-    // Create and initialize the side road
-    const sideRoad = new SideRoadSymbol(branchOptions);
-    await sideRoad.initialize(tempVertexList);
-
-    // Store reference to the new side road object
-    canvas.newSymbolObject = sideRoad;
-
-    // Update main road to show how it would look with the new side road
-    mainRoad.receiveNewRoute(sideRoad);
-    mainRoad.setCoords();
-
-    // Remove any existing event handlers first to avoid duplicates
-    canvas.off('mouse:move', sideRoadOnMouseMove);
-    canvas.off('mouse:down', finishDrawSideRoad);
-
-    // Add mouse event handlers for placement
-    canvas.on('mouse:move', sideRoadOnMouseMove);
-    canvas.on('mouse:down', finishDrawSideRoad);
-
-    if (activeVertex) {
-        canvas.remove(activeVertex.indicator);
-    }
-
-    // Activate the vertex control immediately to enable dragging
-    if (sideRoad.controls && sideRoad.controls.V1) {
-        activeVertex = sideRoad.controls.V1;
-        activeVertex.isDown = true;
-        activeVertex.originalPosition = {
-            left: sideRoad.left,
-            top: sideRoad.top
-        };
-
-        // Store vertex information if available
-        const v1 = sideRoad.getBasePolygonVertex('V1');
-        if (v1) {
-            activeVertex.vertexOriginalPosition = {
-                x: v1.x,
-                y: v1.y
-            };
-            activeVertex.vertexOffset = {
-                x: v1.x - sideRoad.left,
-                y: v1.y - sideRoad.top
-            };
-
-            // Create indicator for the active vertex
-            if (activeVertex.createIndicator) {
-                activeVertex.createIndicator(v1.x, v1.y);
-            }
+        // Create the route list with the correct angle direction based on side
+        let localAngle = options.angle;
+        if (isSideLeft) {
+            localAngle = -Math.abs(localAngle);
+        } else {
+            localAngle = Math.abs(localAngle);
         }
+        
+        // Create the route list for the side road
+        const routeList = [{
+            x: pointer.x,
+            y: pointer.y,
+            angle: localAngle,
+            shape: options.shape || (mainRoad.roadType == 'Spiral Roundabout' ? 'Spiral Arrow' : 'Arrow'),
+            width: options.width || 4
+        }];
+        
+        // Apply constraints to position the side road correctly relative to main road
+        const constrainedResult = applySideRoadConstraints(
+            null, // No side road object yet
+            mainRoad,
+            routeList,
+            isSideLeft,
+            mainRoad.xHeight
+        );
+        
+        // Use constrained result
+        const constrainedRouteList = constrainedResult.routeList;
+        const tempVertexList = constrainedResult.tempVertexList;
+        
+        // Store route list in main road for reference
+        mainRoad.tempRootList = JSON.parse(JSON.stringify(constrainedRouteList));
+        
+        // Create the branch options
+        const branchOptions = {
+            routeList: constrainedRouteList,
+            xHeight: mainRoad.xHeight,
+            color: mainRoad.color,
+            mainRoad: mainRoad,
+            side: isSideLeft,
+            branchIndex: mainRoad.sideRoad.length + 1
+        };
+        
+        // Create and initialize the side road
+        const sideRoad = new SideRoadSymbol(branchOptions);
+        await sideRoad.initialize(tempVertexList);
+        
+        // Update main road to show how it would look with the new side road
+        await mainRoad.receiveNewRoute(tempVertexList);
+        
+        return sideRoad;
+    };
+    
+    // Use the general object creation with snapping function
+    try {
+        // Create a temporary component object to use with the general function
+        const tempComponent = {
+            newMapObject: null
+        };
+        
+        // Get current values from DOM or use defaults
+        const currentAngle = angle;
+        const currentShape = shape;
+        const currentWidth = width;
+        
+        await GeneralHandler.createObjectWithSnapping(
+            {
+                position: { 
+                    x: pointer?.x || canvas.width/2, 
+                    y: pointer?.y || canvas.height/2 
+                },
+                angle: currentAngle,
+                shape: currentShape,
+                width: currentWidth,
+                mainRoad: mainRoad
+            },
+            createSideRoadObject,
+            tempComponent,
+            'newMapObject',
+            'V1',
+            sideRoadOnMouseMove,
+            finishDrawSideRoad,
+            cancelDraw
+        );
+        
+        // Move the reference from temporary component to canvas
+        canvas.newSymbolObject = tempComponent.newMapObject;
+    } catch (error) {
+        console.error('Error creating side road:', error);
     }
-
-    canvas.renderAll();
 }
 
 /**
  * Handle mouse movement for side road placement
  * @param {Event} event - Mouse event
  */
-function sideRoadOnMouseMove(event) {
+async function sideRoadOnMouseMove(event) {
     if (!canvas.newSymbolObject || !activeVertex) return;
 
     const sideRoad = canvas.newSymbolObject;
     if (sideRoad.functionalType !== 'SideRoad') return;
 
+    const mainRoad = sideRoad.mainRoad;
+    if (!mainRoad) return;
+    
     const pointer = canvas.getPointer(event.e);
-
-    // If we have an active vertex, let it handle the movement
+    
+    // If we have an active vertex, handle the vertex-based movement
     if (activeVertex.handleMouseMoveRef) {
-        // Simulate a mouse move event with the current pointer
+        // Let the vertex handle its movement first
         const simulatedEvent = {
             e: event.e,
             pointer: pointer
         };
         activeVertex.handleMouseMoveRef(simulatedEvent);
-
-        // Update main road preview with the new side road position
-        const mainRoad = sideRoad.mainRoad;
-        if (mainRoad) {
-            mainRoad.receiveNewRoute(sideRoad.basePolygon);
-            mainRoad.setCoords();
+        
+        // Instead of applying incremental changes to the routeList, 
+        // set it directly to the current pointer position
+        sideRoad.routeList[0].x = pointer.x;
+        sideRoad.routeList[0].y = pointer.y;
+        
+        // Check which side of the main road we're on now and update side property
+        const isSideLeft = pointer.x < mainRoad.left + mainRoad.width / 2;
+        
+        // Update the side property if it changed
+        if (sideRoad.side !== isSideLeft) {
+            // Flip the angle sign when switching sides
+            const currentAngle = Math.abs(sideRoad.routeList[0].angle);
+            sideRoad.routeList[0].angle = isSideLeft ? -currentAngle : currentAngle;
+            
+            // Update the side property
+            sideRoad.side = isSideLeft;
+        }
+        
+        // Apply constraints based on the current pointer position
+        const constrainedResult = applySideRoadConstraints(
+            sideRoad,
+            mainRoad,
+            sideRoad.routeList,
+            sideRoad.side,
+            mainRoad.xHeight
+        );
+        
+        // Update with constrained position
+        sideRoad.routeList = constrainedResult.routeList;
+        
+        // In some cases we need to recreate the vertex list
+        if (constrainedResult.tempVertexList) {
+            // Replace the base polygon vertices with the constrained vertex list
+            sideRoad.basePolygon.vertex = constrainedResult.tempVertexList.path[0].vertex;
+            sideRoad.basePolygon.path = constrainedResult.tempVertexList.path;
         }
     } else {
-        // Fallback direct positioning if vertex control isn't active
-        sideRoad.set({
-            left: pointer.x,
-            top: pointer.y
-        });
-        sideRoad.setCoords();
-
-        // Update main road preview
-        const mainRoad = sideRoad.mainRoad;
-        if (mainRoad) {
-            mainRoad.receiveNewRoute(sideRoad.basePolygon);
-            mainRoad.setCoords();
+        // When no vertex is active, we do direct coordinate updates
+        // Calculate where the side road should be based on pointer
+        
+        // Update the route coordinate with pointer position
+        sideRoad.routeList[0].x = pointer.x;
+        sideRoad.routeList[0].y = pointer.y;
+        
+        // Apply constraints based on main road type
+        const isSideLeft = pointer.x < mainRoad.left + mainRoad.width / 2;
+        sideRoad.side = isSideLeft; // Update the side property
+        
+        // Update angle based on side
+        const currentAngle = Math.abs(sideRoad.routeList[0].angle);
+        sideRoad.routeList[0].angle = isSideLeft ? -currentAngle : currentAngle;
+        
+        // Apply constraints to position
+        const constrainedResult = applySideRoadConstraints(
+            sideRoad,
+            mainRoad,
+            sideRoad.routeList,
+            isSideLeft,
+            mainRoad.xHeight
+        );
+        
+        // Update with constrained position
+        sideRoad.routeList = constrainedResult.routeList;
+        
+        // Set position directly based on constrained result
+        if (constrainedResult.tempVertexList) {
+            // Calculate proper position for the side road
+            const bbox = calculateBoundingBox(constrainedResult.tempVertexList.path[0].vertex);
+            sideRoad.left = bbox.left;
+            sideRoad.top = bbox.top;
+            
+            // Replace the base polygon vertices with the constrained vertex list
+            sideRoad.basePolygon.vertex = constrainedResult.tempVertexList.path[0].vertex;
+            sideRoad.basePolygon.path = constrainedResult.tempVertexList.path;
         }
-
-        canvas.renderAll();
     }
+    
+    // Important: Await the receiveNewRoute call to ensure it completes before continuing
+    try {
+        await mainRoad.receiveNewRoute(sideRoad.basePolygon);
+    } catch (error) {
+        console.error("Error updating main road:", error);
+    }
+    
+    // Update coordinates
+    sideRoad.setCoords();
+    sideRoad.drawVertex();
+    mainRoad.setCoords();
+    
+    canvas.renderAll();
 }
+
+/**
+ * Calculate bounding box for a set of vertices
+ * @param {Array} vertices - Array of vertex points
+ * @return {Object} - Bounding box {left, top, width, height}
+ */
+function calculateBoundingBox(vertices) {
+    if (!vertices || vertices.length === 0) {
+        return { left: 0, top: 0, width: 0, height: 0 };
+    }
+    
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    
+    // Find min and max coordinates
+    vertices.forEach(vertex => {
+        minX = Math.min(minX, vertex.x);
+        minY = Math.min(minY, vertex.y);
+        maxX = Math.max(maxX, vertex.x);
+        maxY = Math.max(maxY, vertex.y);
+    });
+    
+    return {
+        left: minX,
+        top: minY,
+        width: maxX - minX,
+        height: maxY - minY
+    };
+}
+
 
 /**
  * Completes side road drawing and anchors to root
@@ -1026,11 +1216,21 @@ async function finishDrawSideRoad(event) {
         }
     }
 
+    // Ensure main road is properly updated with the new side road
+    try {
+        await mainRoad.receiveNewRoute();
+    } catch (error) {
+        console.error("Error finalizing main road update:", error);
+    }
+
     // Update coordinates
     mainRoad.setCoords();
+    sideRoad.isTemporary = false;
 
-    // Reset state
+    // Reset state - store a reference before clearing
     const placedSideRoad = canvas.newSymbolObject;
+    
+    // Clear the newSymbolObject so a new side road can be drawn immediately
     canvas.newSymbolObject = null;
     activeVertex = null;
 
@@ -1040,6 +1240,7 @@ async function finishDrawSideRoad(event) {
     // Make the new branch active after a slight delay
     setTimeout(() => {
         canvas.setActiveObject(placedSideRoad);
+        // This delay allows UI to update before potentially drawing another side road
     }, 300);
 }
 

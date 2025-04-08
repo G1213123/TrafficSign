@@ -416,6 +416,11 @@ document.getElementById('set-anchor').addEventListener('click', function () {
     if (!shape1.borderType) {
       canvas.bringObjectToFront(shape1)
     }
+
+    // Set focus mode to anchored object if applicable
+    if (shape2.lockMovementX && shape2.lockMovementY) {
+      shape2.enterFocusMode();
+    }
   
     document.addEventListener('keydown', ShowHideSideBarEvent);
   

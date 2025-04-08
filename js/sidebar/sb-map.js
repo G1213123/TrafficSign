@@ -100,15 +100,17 @@ let FormDrawMapComponent = {
 
     const mainRoadParams = {
       xHeight: xHeight,
-      color: color,
+      color: color.toLowerCase(),
       roadType: roadType,
       rootLength: rootLength,
       tipLength: tipLength,
       mainWidth: mainWidth,
-      endShape: endShape,
-      roundaboutFeatures: roundaboutFeatures
+      shape: endShape,
+      width: mainWidth,
+      RAfeature: roundaboutFeatures
     };
 
+    // Use the updated function that uses the general snapping functionality
     drawMainRoadOnCursor(null, mainRoadParams);
   },
 
@@ -118,11 +120,30 @@ let FormDrawMapComponent = {
    * @return {void} 
    */
   addRouteInput: function (event) {
-    var parent = document.getElementById("input-form");
-    const existingRoute = canvas.getActiveObjects()
-    if (existingRoute.length == 1 && existingRoute[0].functionalType === 'MainRoad') {
-      canvas.off('mouse:move', drawSideRoadOnCursor)
-      canvas.on('mouse:move', drawSideRoadOnCursor)
+    const existingRoute = canvas.getActiveObject();
+    if (existingRoute && existingRoute.functionalType === 'MainRoad') {
+      // Get parameters from DOM
+      const xHeight = parseInt(document.getElementById('input-xHeight').value);
+      const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
+      const angle = parseInt(document.getElementById('angle-display').innerText);
+      const width = parseInt(document.getElementById('Side Road width').value);
+      const shape = GeneralHandler.getToggleValue('Side Road Shape-container');
+      
+      // Call the updated function that uses the general snapping functionality
+      const pointer = canvas.getPointer({ e: { clientX: canvas.width/2, clientY: canvas.height/2 } });
+      
+      // Create option object with necessary parameters
+      const option = {
+        x: pointer.x,
+        y: pointer.y,
+        routeParams: {
+          angle: angle,
+          shape: shape,
+          width: width
+        }
+      };
+      
+      drawSideRoadOnCursor(null, option);
     }
   },
 
@@ -141,6 +162,27 @@ let FormDrawMapComponent = {
 
     const angleIndex = FormDrawMapComponent.permitAngle.indexOf(parseInt(currentText))
     angleDisplay.innerText = FormDrawMapComponent.permitAngle[(angleIndex + 1) % FormDrawMapComponent.permitAngle.length] + '°';
+
+    // If we have a side road object being placed, update its angle
+    if (canvas.newSymbolObject && canvas.newSymbolObject.functionalType === 'SideRoad') {
+      const newAngle = FormDrawMapComponent.permitAngle[(angleIndex + 1) % FormDrawMapComponent.permitAngle.length];
+      
+      // Update the object's angle - will be applied during mouse move
+      if (canvas.newSymbolObject.routeList && canvas.newSymbolObject.routeList.length > 0) {
+        const side = canvas.newSymbolObject.side;
+        canvas.newSymbolObject.routeList[0].angle = side ? -Math.abs(newAngle) : Math.abs(newAngle);
+        
+        // Force an update
+        if (activeVertex && activeVertex.handleMouseMoveRef) {
+          // Get current pointer
+          const pointer = canvas.getPointer({ e: window.event });
+          activeVertex.handleMouseMoveRef({
+            e: window.event,
+            pointer: pointer
+          });
+        }
+      }
+    }
   },
 
   /**
@@ -155,6 +197,19 @@ let FormDrawMapComponent = {
       'MapOnMouseClick',
       'cancelMap'
     );
+    
+    // Also clean up any canvas references to map objects
+    if (canvas.newSymbolObject) {
+      if (canvas.newSymbolObject.deleteObject) {
+        canvas.newSymbolObject.deleteObject();
+      } else {
+        canvas.remove(canvas.newSymbolObject);
+      }
+      canvas.newSymbolObject = null;
+    }
+    
+    // Make sure route-specific handlers are also cleaned up
+    drawRoadsHandlerOff();
   },
 
   /**
@@ -190,14 +245,20 @@ let FormDrawMapComponent = {
    * Handles cancellation of map drawing
    */
   cancelMap: function (event) {
-    // Use shared escape key handler
-    GeneralHandler.handleCancelWithEscape(
-      FormDrawMapComponent, 
-      event, 
-      'newMapObject', 
-      'MapOnMouseMove', 
-      'MapOnMouseClick'
-    );
+    // Handle both the FormDrawMapComponent object and canvas.newSymbolObject
+    if (event.key === 'Escape') {
+      // First handle FormDrawMapComponent's object
+      GeneralHandler.handleCancelWithEscape(
+        FormDrawMapComponent, 
+        event, 
+        'newMapObject', 
+        'MapOnMouseMove', 
+        'MapOnMouseClick'
+      );
+      
+      // Then also call the route-specific cancelDraw to handle canvas.newSymbolObject
+      cancelDraw(event);
+    }
   }
 }
 
@@ -205,12 +266,35 @@ let FormDrawMapComponent = {
 GeneralSettings.addListener(
   GeneralHandler.createSettingsListener(4, function(setting, value) {
     // Map-specific updates when settings change
-    if (FormDrawMapComponent.newMapObject) {
+    if (FormDrawMapComponent.newMapObject || canvas.newSymbolObject) {
+      const targetObject = FormDrawMapComponent.newMapObject || canvas.newSymbolObject;
+      
       // Handle map object updates when settings change
-      if (setting === 'xHeight') {
-        // Update the map with new xHeight if needed
-      } else if (setting === 'messageColor') {
-        // Update the map with new color if needed
+      if (setting === 'xHeight' && targetObject.xHeight !== undefined) {
+        targetObject.xHeight = value;
+        
+        // Recreate or update the object as needed
+        if (targetObject.functionalType === 'MainRoad' || targetObject.functionalType === 'SideRoad') {
+          // Update existing parent object
+          if (targetObject.mainRoad) {
+            targetObject.mainRoad.receiveNewRoute();
+          } else {
+            // This is a main road - recreate vertex list
+            const vertexList = calcVertexType[targetObject.roadType](value, targetObject.routeList);
+            targetObject.replaceBasePolygon && targetObject.replaceBasePolygon(vertexList);
+          }
+        }
+        
+        canvas.renderAll();
+      } else if (setting === 'messageColor' && targetObject.color !== undefined) {
+        targetObject.color = value.toLowerCase();
+        
+        // Update the object's color
+        if (targetObject.basePolygon) {
+          targetObject.basePolygon.set('fill', value.toLowerCase());
+        }
+        
+        canvas.renderAll();
       }
     }
   })

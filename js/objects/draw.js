@@ -187,17 +187,6 @@ class BaseGroup extends fabric.Group {
       canvas.renderAll();
     });
 
-    this.on('mousemove', function () {
-      if (this.__corner) {
-        if (this.controls[this.__corner].onHover) {
-          this.controls[this.__corner].onHover()
-        } else {
-          Object.values(this.controls).forEach(control => { if (control.onMouseOut) { control.onMouseOut() } })
-        }
-      } else {
-        Object.values(this.controls).forEach(control => { if (control.onMouseOut) { control.onMouseOut() } })
-      }
-    });
 
     this.on('mouseout', function () {
       this.set({
@@ -372,6 +361,17 @@ class BaseGroup extends fabric.Group {
         // Create new control for vertices that don't have one
         this.controls[vertexLabel] = new VertexControl(v, this);
         this.controls[vertexLabel].visible = shouldDisplay;
+      }
+      
+      // For SideRoad objects, set the control location to match the basePolygon location
+      if (this.functionalType=== 'SideRoad') {
+        // Update control position to match the vertex position
+        this.controls[vertexLabel].x = (v.x - this.left) / this.width - 0.5;
+        this.controls[vertexLabel].y = (v.y - this.top) / this.height - 0.5;
+        
+        // Ensure the offsets are reset
+        this.controls[vertexLabel].offsetX = 0;
+        this.controls[vertexLabel].offsetY = 0;
       }
     });
 
@@ -1140,6 +1140,9 @@ class LockIcon {
       }]);
     }
 
+    // Reshow the vertexes and dimensions
+    this.baseGroup.focusMode = false;
+
     canvas.renderAll();
   }
 }
@@ -1317,6 +1320,9 @@ class VertexControl extends fabric.Control {
   }
 
   checkForSnapTargets(pointer) {
+    // Clear any existing snap highlight
+    this.clearSnapHighlight();
+    
     this.snapTarget = null;
 
     // Check all canvas objects for potential snap targets
@@ -1348,13 +1354,41 @@ class VertexControl extends fabric.Control {
         object: closestObject,
         vertex: closestVertex
       };
-
+      
+      // Match the circle size with the vertex control size
+      const size = this.cornerSize;
+      const radius = size / 2;
+      
+      // Create a hollow circle to indicate snap target, centered at the vertex position
+      this.snapHighlight = new fabric.Circle({
+        left: closestVertex.x,
+        top: closestVertex.y,
+        radius: radius,
+        fill: 'transparent',
+        stroke: '#00FF00',
+        strokeWidth: 2,
+        selectable: false,
+        evented: false,
+        originX: 'center',
+        originY: 'center'
+      });
+      
+      // Add the highlight to the canvas
+      canvas.add(this.snapHighlight);
       
       // Force a render to update vertex appearance
       canvas.renderAll();
     }
   }
-
+  
+  // New method to clear snap highlight
+  clearSnapHighlight() {
+    if (this.snapHighlight) {
+      canvas.remove(this.snapHighlight);
+      this.snapHighlight = null;
+      canvas.renderAll();
+    }
+  }
 
   handleMouseDown(event) {
     if (!this.isDown) return;
@@ -1382,6 +1416,9 @@ class VertexControl extends fabric.Control {
       const savedVertex = this.vertex;
       const savedBaseGroup = this.baseGroup;
 
+      // Clear the snap highlight before finishing the drag
+      this.clearSnapHighlight();
+      
       this.finishDrag();
 
       // Start the anchor process with the saved snap target
@@ -1477,10 +1514,7 @@ class VertexControl extends fabric.Control {
     const baseGroup = this.baseGroup;
 
     // Clear snap highlight immediately
-    if (this.snapHighlight) {
-      canvas.remove(this.snapHighlight);
-      this.snapHighlight = null;
-    }
+    this.clearSnapHighlight();
 
     // Clean up the drag state with proper callbacks
     setTimeout(() => {
@@ -1514,6 +1548,9 @@ class VertexControl extends fabric.Control {
     canvas.off('mouse:up', this.handleMouseUpRef);
     document.removeEventListener('keydown', this.cancelDragRef);
 
+    // Clear any snap highlight before removing events
+    this.clearSnapHighlight();
+
     // Restore default behavior
     document.addEventListener('keydown', ShowHideSideBarEvent);
     canvas.defaultCursor = 'default';
@@ -1524,6 +1561,7 @@ class VertexControl extends fabric.Control {
   }
 
   finishDrag() {
+    this.clearSnapHighlight();
     this.cleanupDrag();
     this.baseGroup.updateAllCoord(null, []);
 
@@ -1548,6 +1586,9 @@ class VertexControl extends fabric.Control {
   }
 
   restoreOriginalPosition() {
+    // Clear any snap highlight
+    this.clearSnapHighlight();
+    
     // Restore original position
     this.baseGroup.set(this.originalPosition);
     this.baseGroup.setCoords();
@@ -1565,6 +1606,9 @@ class VertexControl extends fabric.Control {
   }
 
   cleanupDrag() {
+    // Clear any snap highlight
+    this.clearSnapHighlight();
+    
     // First reset object properties
     this.isDown = false;
     this.isDragging = false; // Reset dragging flag
