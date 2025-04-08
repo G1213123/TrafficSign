@@ -544,10 +544,10 @@ class BaseGroup extends fabric.Group {
     }
 
     sourceList.includes(this) ? sourceList : sourceList.push(this);
-    if (!selfOnly) {
+    if (!selfOnly && (deltaX !== 0 || deltaY !== 0)) {
       this.emitDelta(deltaX, deltaY, sourceList);
     }
-    if (this.functionalType !== 'HDivider' && this.functionalType !== 'VDivider' && this.functionalType !== 'HLine' && this.functionalType !== 'VLane') {
+    if (sourceList[0] == this && this.functionalType !== 'HDivider' && this.functionalType !== 'VDivider' && this.functionalType !== 'HLine' && this.functionalType !== 'VLane') {
       this.borderResize(sourceList);
     }
 

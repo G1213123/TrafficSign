@@ -1051,7 +1051,7 @@ const RouteTest = {
     // Create and initialize the MainRoadSymbol
     const mainRoad = new MainRoadSymbol(routeOptions);
     await mainRoad.initialize(calcMainRoadVertices(params.xHeight, routeOptions.routeList));
-    
+
     TestTracker.register("mainRoad", mainRoad);
 
     // Test assertions using TestTracker
@@ -1677,6 +1677,26 @@ const ComplexSignTest = {
     });
     TestTracker.register("leftArrow");
 
+    // Create Airport on left
+    await drawLabeledSymbol('Airport', {
+      x: -2700,
+      y: 2500,
+      xHeight: 200,
+      angle: 0,
+      color: 'white'
+    });
+    TestTracker.register("Airport");
+
+    // Create WHC on left
+    await drawLabeledSymbol('WHC', {
+      x: 2700,
+      y: 2500,
+      xHeight: 200,
+      angle: 0,
+      color: 'white'
+    });
+    TestTracker.register("WHC");
+
     // ===== RIGHT SIDE OF SIGN =====
     // Create first line of 2-liner on right
     const rightTopText = new TextObject({
@@ -1715,6 +1735,8 @@ const ComplexSignTest = {
     const leftBottomObj = TestTracker.get("leftBottomText");
     const leftDestObj = TestTracker.get("leftDestination");
     const leftArrowObj = TestTracker.get("leftArrow");
+    const airportObj = TestTracker.get("Airport");
+    const whcObj = TestTracker.get("WHC");
 
     const rightTopObj = TestTracker.get("rightTopText");
     const rightDestObj = TestTracker.get("rightDestination");
@@ -1722,7 +1744,7 @@ const ComplexSignTest = {
 
     // Create a vertical gantry divider between left and right sides
     await VDividerCreate(
-      [leftDestObj],
+      [whcObj],
       [rightTopObj],
       null,
       null,
@@ -1750,65 +1772,78 @@ const ComplexSignTest = {
     TestTracker.register("rightHDivider");
 
     // Anchor the objects in place
-    anchorShape(leftDestObj,leftBottomObj,{
-      vertexIndex1: 'E7',
+    anchorShape(whcObj, leftTopObj, {
+      vertexIndex1: 'E3',
       vertexIndex2: 'E1',
-      spacingX: 0,
-      spacingY: 0
-    }
-    )
-
-    anchorShape(leftBottomObj, leftTopObj, {
-      vertexIndex1: 'E7',
-      vertexIndex2: 'E1',
-      spacingX: -0,
+      spacingX: -100,
       spacingY: 0
     });
 
-    anchorShape(rightTopObj,rightDestObj,{
-      vertexIndex1: 'E2',
-      vertexIndex2: 'E6',
+    anchorShape(leftTopObj, airportObj, {
+      vertexIndex1: 'E3',
+      vertexIndex2: 'E1',
+      spacingX: -100,
+      spacingY: 0
+    });
+
+    anchorShape(leftTopObj, leftBottomObj, {
+      vertexIndex1: 'E1',
+      vertexIndex2: 'E7',
       spacingX: 0,
       spacingY: 0
-    }    );
+    });
 
-    anchorShape(leftDestObj,rightDestObj,{
+    anchorShape(leftBottomObj, leftDestObj, {
+      vertexIndex1: 'E1',
+      vertexIndex2: 'E7',
+      spacingX: 0,
+      spacingY: 0
+    });
+
+    anchorShape(leftBottomObj, rightTopObj, {
       vertexIndex1: 'E1',
       vertexIndex2: 'E3',
       spacingX: '',
       spacingY: 0
-    }    );
+    });
+    
+    anchorShape(rightTopObj, rightDestObj, {
+      vertexIndex1: 'E2',
+      vertexIndex2: 'E6',
+      spacingX: 0,
+      spacingY: 0
+    });
 
     // Create an overall border containing both sides and the dividers
     const vDivider = TestTracker.get("vDivider");
     const leftHDivider = TestTracker.get("leftHDivider");
     const rightHDivider = TestTracker.get("rightHDivider");
 
-    const overallObject = [leftTopObj, leftBottomObj, leftArrowObj, leftDestObj, rightTopObj, rightArrowObj, rightDestObj, vDivider, leftHDivider, rightHDivider]
+    const overallObject = [leftTopObj, leftBottomObj, leftArrowObj, leftDestObj, airportObj, whcObj, rightTopObj, rightArrowObj, rightDestObj, vDivider, leftHDivider, rightHDivider]
 
     const overallBorderGroup = await BorderUtilities.BorderGroupCreate(
       'stack',
       overallObject,
       overallObject,
-      null,
+      14600,
       null,
       { xHeight: 200, borderType: 'stack', colorType: 'Blue Background' }
     );
     TestTracker.register("overallBorderGroup", overallBorderGroup);
 
-    anchorShape(overallBorderGroup,leftArrowObj,{
+    anchorShape(overallBorderGroup, leftArrowObj, {
       vertexIndex1: 'E2',
       vertexIndex2: 'E7',
       spacingX: 1825,
       spacingY: ''
-    }    );
+    });
 
-    anchorShape(leftArrowObj,rightArrowObj,{
+    anchorShape(leftArrowObj, rightArrowObj, {
       vertexIndex1: 'E2',
       vertexIndex2: 'E2',
       spacingX: 3650,
       spacingY: ''
-    }    );
+    });
 
     // Test assertions
     let passed = true;
@@ -1828,8 +1863,8 @@ const ComplexSignTest = {
     // Verify vertical divider top and bottom are within the overall border
     const overallBounds = overallBorderGroup.getBoundingRect();
     passed = passed && TestTracker.assertTrue(
-      vDividerBounds.top >= overallBounds.top &&
-      vDividerBounds.top + vDividerBounds.height <= overallBounds.top + overallBounds.height,
+      vDivider.top >= overallBounds.top &&
+      vDivider.top + vDivider.height <= overallBounds.top + overallBounds.height,
       "Vertical divider should not extend beyond overall border"
     );
 
@@ -1865,13 +1900,13 @@ const ComplexSignTest = {
     // Test 5: Verify that moving the overall border moves all contained elements
     // Record initial positions
     const initialVDividerLeft = vDivider.left;
-    const initialLeftTextLeft = leftDestObj.left;
+    const initialLeftTextLeft = whcObj.left;
     const initialRightTextLeft = rightTopObj.left;
 
     // Move the overall border by left top object
-    leftDestObj.set({ left: leftDestObj.left + 100 });
-    leftDestObj.setCoords();
-    leftDestObj.updateAllCoord();
+    whcObj.set({ left: whcObj.left + 100 });
+    whcObj.setCoords();
+    whcObj.updateAllCoord();
 
     // Check that contained elements moved with the border
     passed = passed && TestTracker.assertTrue(
@@ -1880,7 +1915,7 @@ const ComplexSignTest = {
     );
 
     passed = passed && TestTracker.assertTrue(
-      Math.abs((leftDestObj.left - initialLeftTextLeft) - 100) < 5,
+      Math.abs((whcObj.left - initialLeftTextLeft) - 100) < 5,
       "Left text should move with overall border"
     );
 

@@ -351,19 +351,17 @@ const BorderUtilities = {
     let coords = BorderUtilities.getBorderObjectCoords(fheightObjects, fwidthObjects)
 
     // handle roundings on borders and dividers
-    const rounding = BorderUtilities.calcBorderRounding(borderType, xHeight, coords)
-    BorderUtilities.RoundingToDivider(HDivider, VDivider, rounding)
-    coords = BorderUtilities.getBorderObjectCoords(fheightObjects, fwidthObjects)
+    let rounding = BorderUtilities.calcBorderRounding(borderType, xHeight, coords)
     if (!isNaN(parseInt(widthText))) {
       const padding = parseInt(widthText) - coords.right + coords.left
-      coords.left -= padding / 2
-      coords.right += padding / 2
+      rounding.x += padding
     }
     if (!isNaN(parseInt(heightText))) {
       const padding = parseInt(heightText) - coords.bottom + coords.top
-      coords.top -= padding / 2
-      coords.bottom += padding / 2
+      rounding.y += padding
     }
+    BorderUtilities.RoundingToDivider(HDivider, VDivider, rounding)
+    coords = BorderUtilities.getBorderObjectCoords(fheightObjects, fwidthObjects)
 
     try {
       const BaseBorder = await drawLabeledBorder(borderType, xHeight, coords, colorType)
@@ -715,7 +713,7 @@ class BorderGroup extends BaseGroup {
           }
 
           // Update positions without triggering further updates
-          this.updateDividerCoords(d);
+          this.updateAllCoord();
         }
       } else if (needsUpdate) {
         // Regular object-anchored divider
@@ -728,7 +726,7 @@ class BorderGroup extends BaseGroup {
         });
         
         // Update positions without triggering further updates
-        this.updateDividerCoords(d);
+        this.updateAllCoord();
 
       }
     }
