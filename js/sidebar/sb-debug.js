@@ -74,6 +74,8 @@ let FormDebugComponent = {
         const properties = [
           { label: 'Top', value: Math.round(object.top) },
           { label: 'Left', value: Math.round(object.left) },
+          { label: 'Right', value: Math.round(object.left+object.width) },
+          { label: 'Bottom', value: Math.round(object.top+object.height) },
           { label: 'Width', value: Math.round(object.width) },
           { label: 'Height', value: Math.round(object.height) },
           { label: 'Effective Position', value: `x: ${Math.round(point[0].x)}, y: ${Math.round(point[0].y)}` },

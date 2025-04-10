@@ -584,30 +584,6 @@ let FormTextAddComponent = {
     }
 
     // Legacy options handling - should rarely be used now
-    if (options) {
-      textValue = options.text;
-      xHeight = options.xHeight;
-      color = options.color;
-      font = options.font;
-      eventButton = 0;
-    } else {
-      textValue = document.getElementById("input-text").value;
-      xHeight = parseInt(document.getElementById('input-xHeight').value);
-      color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
-      font = document.getElementById('Text Font-container').selected.getAttribute('data-value');
-      eventButton = event.e.button;
-    }
-
-    // For new text creation (legacy path, should be replaced by the new approach)
-    if (textValue !== '' && eventButton === 0 && !FormTextAddComponent.newTextObject) {
-      // Call the new method that creates a direct TextObject
-      FormTextAddComponent.TextInputHandler(null, {
-        text: textValue,
-        xHeight: xHeight,
-        font: font,
-        color: color
-      });
-    }
   },
 
   EditOnMouseClick: function (event) {

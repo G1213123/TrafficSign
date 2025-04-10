@@ -425,7 +425,7 @@ async function drawSymbolDirectly(symbolType, options) {
   const symbolOptions = {
     left: options.x || 0,
     top: options.y || 0,
-    fill: options.color || 'white',
+    fill: options.color.toLowerCase() === 'white' ? '#ffffff' : '#000000',
     angle: 0,
     objectCaching: false,
     strokeWidth: 0

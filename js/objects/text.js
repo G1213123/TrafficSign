@@ -22,18 +22,18 @@ class TextObject extends BaseGroup {
       top: options.top || 0
     });
 
-    // Add special handling for text bounding box calculation
+    // Legacy special handling for text bounding box calculation
     group.getCombinedBoundingBoxOfRects = TextObject.getCombinedBoundingBoxOfRects;
 
     // Add vertex and text information to the group
     group.setCoords();
-    group.vertex = group.getCombinedBoundingBoxOfRects();
+    //group.vertex = group.getCombinedBoundingBoxOfRects();
     group.text = options.text;
     group.xHeight = options.xHeight;
 
 
     // Call the BaseGroup constructor with our prepared group
-    super(group, 'Text', { calcVertex: false });
+    super(group, 'Text', );
 
     // Store text properties
     this.text = options.text;

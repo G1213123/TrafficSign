@@ -375,7 +375,8 @@ const BorderUtilities = {
         VDivider: VDivider,
         HDivider: HDivider,
         xHeight: xHeight,
-        color: colorType
+        color: colorType,
+        frame: BorderFrameWdith[borderType],
       });
 
 
@@ -447,8 +448,7 @@ const BorderUtilities = {
 }
 
 // Define BorderGroup class that extends BaseGroup
-class BorderGroup extends BaseGroup {
-  constructor(baseBorder, borderType, options = {}) {
+class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, options = {}) {
     // Call the parent constructor with the base border and 'Border' functional type
     super(baseBorder, 'Border', options);
 
@@ -463,8 +463,12 @@ class BorderGroup extends BaseGroup {
     this.xHeight = options.xHeight || 100;
     this.color = options.color;
     this.dimensionAnnotations = [];
+    this.frame = options.frame || 0; // Frame width for the border
     this.bbox = null; // Main border bounding box
     this.compartmentBboxes = []; // Array of compartment bounding boxes
+    
+    // Add status flag to track border updates
+    this.isUpdating = false; // Flag to track if the border is currently being updated
 
     // Lock movement for border
     this.lockMovementX = true;
@@ -481,7 +485,7 @@ class BorderGroup extends BaseGroup {
 
     // Get border coordinates
     const borderRect = this.getBoundingRect();
-    const frame = 1.5 * this.xHeight / 4;
+    const frame = this.frame * this.xHeight / 4;
 
     // Find closest objects in each direction to show dimensions
     this.createDimensionAnnotations(borderRect);
@@ -650,9 +654,11 @@ class BorderGroup extends BaseGroup {
       }
     });
   }
-
   // Assign width to divider
   async assignWidthToDivider(sourceList = []) {
+    // Set the updating flag to indicate border is being updated
+    this.isUpdating = true;
+    
     // Update bboxes first to ensure we have current border and compartment information
     this.updateBboxes();
 
@@ -864,12 +870,14 @@ class BorderGroup extends BaseGroup {
     }
 
     // After all dividers are repositioned, update the bboxes again
-    this.updateBboxes();
-
-    // Update mid points
+    this.updateBboxes();    // Update mid points
     this.addMidPointToDivider();
 
-    this.drawVertex()
+    this.drawVertex();
+    
+    // Clear the updating flag to indicate border update is complete
+    this.isUpdating = false;
+    console.log(`Border ${this.canvasID} update completed`);
   }
   
   // Helper method to update divider coordinates without triggering recursive updates

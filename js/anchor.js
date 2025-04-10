@@ -191,12 +191,26 @@ document.getElementById('set-anchor').addEventListener('click', function () {
       //renumberVertexLabels(shape1); // Renumber vertex labels after selection
     }
   });
-  
-  async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = []) {
+    async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = []) {
   
     const shape1 = Array.isArray(inputShape1) ? inputShape1[0] : inputShape1
     const shape2 = Array.isArray(inputShape2) ? inputShape2[0] : inputShape2
     const xHeight = shape1.xHeight || shape2.xHeight || parseInt(document.getElementById("input-xHeight").value)
+      // Check if the target is a BorderGroup and if it's currently updating
+    if (shape1.functionalType === 'Border') {
+      // If border is currently being updated, wait and then try again
+      if (shape1.isUpdating) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        if (shape1.isUpdating) {
+          return; // Silently fail if still updating
+        }
+      }
+      
+      // Quick vertex and compartment check
+      if (!shape1.basePolygon?.vertex?.length || !shape1.compartmentBboxes?.length) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+    }
   
     const vertexIndex1 = options.vertexIndex1 ? options.vertexIndex1 : await showTextBox('Enter vertex index for First Polygon:', 'E1')
     if (!vertexIndex1) { setInterval(document.addEventListener('keydown', ShowHideSideBarEvent), 1000); return }

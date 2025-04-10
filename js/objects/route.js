@@ -884,9 +884,9 @@ async function drawSideRoadOnCursor(event, option = null) {
         } else {
             // Parameters for creating a route list
             pointer = { x: option.x, y: option.y };
-            angle = option.routeParams?.angle || 60;
-            shape = option.routeParams?.shape || 'Arrow';
-            width = option.routeParams?.width || 4;
+            angle = option.routeParams.angle ;
+            shape = option.routeParams.shape;
+            width = option.routeParams.width ;
 
             // Create route list with parameters
             if (pointer.x < mainRoad.left + mainRoad.width / 2) {
@@ -1005,8 +1005,8 @@ async function drawSideRoadOnCursor(event, option = null) {
         await GeneralHandler.createObjectWithSnapping(
             {
                 position: { 
-                    x: pointer?.x || canvas.width/2, 
-                    y: pointer?.y || canvas.height/2 
+                    x: pointer.x , 
+                    y: pointer.y 
                 },
                 angle: currentAngle,
                 shape: currentShape,

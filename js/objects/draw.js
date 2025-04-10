@@ -606,7 +606,6 @@ class BaseGroup extends fabric.Group {
     }
     return this.basePolygon.getCoords();
   }
-
   // Method to delete the object
   deleteObject(_eventData, transform) {
     const deleteObj = transform?.target || transform || this
@@ -624,6 +623,14 @@ class BaseGroup extends fabric.Group {
       for (let i = index; i < canvasObject.length; i++) {
         canvasObject[i].canvasID -= 1;
       }
+    }
+
+    // Remove the object from the anchor tree - this ensures all anchor relationships are properly cleaned up
+    if (typeof globalAnchorTree !== 'undefined') {
+      // Remove from X tree
+      globalAnchorTree.removeNode('x', deleteObj.canvasID);
+      // Remove from Y tree
+      globalAnchorTree.removeNode('y', deleteObj.canvasID);
     }
 
     //delete route branch

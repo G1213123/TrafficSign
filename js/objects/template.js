@@ -1934,6 +1934,16 @@ const BorderTypeScheme = {
     'rectangle': RectTemplate,
 }
 
+const BorderFrameWdith = {
+    'stack': 1.5,
+    'flagLeft': 1.5,
+    'flagRight': 1.5,
+    'exit': 1,
+    'panel': 0,
+    'greenPanel': 0.5,
+    'rectangle': 0,
+}
+
 
 function applyLengthAndRounding(path, length) {
     path.vertex.forEach(vertex => {
