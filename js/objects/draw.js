@@ -1270,29 +1270,60 @@ class VertexControl extends fabric.Control {
       this.baseGroup.enterFocusMode()
     }
   }
-
   handleMouseMove(event) {
     if (!this.isDown) return;
 
     const pointer = canvas.getPointer(event.e);
 
     // Find nearest vertex for snapping
-    this.checkForSnapTargets(pointer);
-
-    // Calculate new position of group based on vertex position
+    this.checkForSnapTargets(pointer);    // Calculate new position of group based on vertex position
     let newLeft, newTop;
 
     if (this.snapTarget) {
       // Snap to the target vertex
       const snapPoint = this.snapTarget.vertex;
 
-      // Calculate the position adjustment needed to align the vertex with snap target
-      newLeft = snapPoint.x - this.vertexOffset.x;
-      newTop = snapPoint.y - this.vertexOffset.y;
+      // Special handling for text objects during snapping
+      if (this.baseGroup.functionalType === 'Text') {
+        // Calculate the offset from the current vertex to the object's center
+        const currentVertex = this.baseGroup.getBasePolygonVertex(this.vertex.label);
+        if (currentVertex) {
+          // Calculate position by maintaining the same offset between vertex and object center
+          const offsetX = this.baseGroup.left - currentVertex.x;
+          const offsetY = this.baseGroup.top - currentVertex.y;
+          newLeft = snapPoint.x + offsetX;
+          newTop = snapPoint.y + offsetY;
+        } else {
+          // Fall back to standard calculation if vertex not found
+          newLeft = snapPoint.x - this.vertexOffset.x;
+          newTop = snapPoint.y - this.vertexOffset.y;
+        }
+      } else {
+        // Standard calculation for non-text objects
+        newLeft = snapPoint.x - this.vertexOffset.x;
+        newTop = snapPoint.y - this.vertexOffset.y;
+      }
     } else {
-      // Regular movement
-      newLeft = pointer.x - this.vertexOffset.x;
-      newTop = pointer.y - this.vertexOffset.y;
+      // Regular movement (no snapping target)
+      if (this.baseGroup.functionalType === 'Text') {
+        // For text objects, adjust movement to prevent shifting
+        const currentVertex = this.baseGroup.getBasePolygonVertex(this.vertex.label);
+        if (currentVertex) {
+          // Move based on cursor position relative to vertex
+          const dx = pointer.x - currentVertex.x;
+          const dy = pointer.y - currentVertex.y;
+          newLeft = this.baseGroup.left + dx;
+          newTop = this.baseGroup.top + dy;
+        } else {
+          // Fall back to standard calculation if vertex not found
+          newLeft = pointer.x - this.vertexOffset.x;
+          newTop = pointer.y - this.vertexOffset.y;
+        }
+      } else {
+        // Standard calculation for non-text objects
+        newLeft = pointer.x - this.vertexOffset.x;
+        newTop = pointer.y - this.vertexOffset.y;
+      }
     }
 
     // Move the group
