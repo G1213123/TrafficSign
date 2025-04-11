@@ -29,6 +29,7 @@ const SidebarModuleSystem = {
 
   // Module definitions with their corresponding file paths
   modules: {
+    'GeneralSettings': 'js/sidebar/sbGeneral.js',
     'FormTextAddComponent': 'js/sidebar/sb-text.js',
     'FormDrawAddComponent': 'js/sidebar/sb-draw.js',
     'FormBorderWrapComponent': 'js/sidebar/sb-border.js',
@@ -95,14 +96,13 @@ const SidebarModuleSystem = {
  * Initialize the sidebar when the document is loaded
  */
 document.addEventListener('DOMContentLoaded', function () {
-  // Load the GeneralHandler module first as it's required by all other modules
-  SidebarModuleSystem.loadModule('js/sidebar/sbGeneral.js').then(() => {
-    // Set up the sidebar state
-    GeneralSettings.ShowHideSideBar(null, 'on');
-
-    // Add event listeners to sidebar buttons that will load their modules on first click
-    // Load all sidebar modules on startup
+  // Load all required modules, including sbGeneral.js
+    const generalSettingsPromise = SidebarModuleSystem.loadModule('GeneralSettings');
+  
     const modulePromises = [
+      generalSettingsPromise,
+      
+      // Load all sidebar modules on startup
       SidebarModuleSystem.loadModule('FormSettingsComponent'),
       SidebarModuleSystem.loadModule('CanvasTrackerUI'),
       SidebarModuleSystem.loadModule('FormTextAddComponent'),
@@ -114,65 +114,69 @@ document.addEventListener('DOMContentLoaded', function () {
       SidebarModuleSystem.loadModule('FormTemplateComponent')
     ];
 
+
     Promise.all(modulePromises).then(() => {
-      // Initialize the settings panel
-      FormSettingsComponent.settingsPanelInit();
-      document.getElementById('btn_settings').onclick = FormSettingsComponent.settingsPanelInit || function () { };
-
-      // Initialize the tracker UI
-      window.CanvasTrackerComponent = new CanvasTrackerUI();
-
-      document.getElementById('btn_tracker').addEventListener('click', function () {
-        if (CanvasTrackerComponent.initialized) {
-          CanvasTrackerComponent.restoreUI();
-        } else {
-          CanvasTrackerComponent.initialize();
+     // Set up the sidebar state
+      GeneralSettings.ShowHideSideBar(null, 'on');
+        // Initialize the settings panel
+        FormSettingsComponent.settingsPanelInit();
+        document.getElementById('btn_settings').onclick = FormSettingsComponent.settingsPanelInit || function () { };
+  
+        // Initialize the tracker UI
+        window.CanvasTrackerComponent = new CanvasTrackerUI();
+  
+        document.getElementById('btn_tracker').addEventListener('click', function () {
+          if (CanvasTrackerComponent.initialized) {
+            CanvasTrackerComponent.restoreUI();
+          } else {
+            CanvasTrackerComponent.initialize();
+          }
+        });
+  
+        // Initialize the text panel
+        document.getElementById('btn_text').addEventListener('click', function (e) {
+          // After first load, subsequent clicks can directly call the handler
+          document.getElementById('btn_text').onclick = FormTextAddComponent.textPanelInit || function () { };
+        });
+  
+        // Initialize the draw panel
+        document.getElementById('btn_draw').onclick = FormDrawAddComponent.drawPanelInit || function () { };
+  
+        // Initialize the border panel
+        document.getElementById('btn_border').addEventListener('click', function (e) {
+          document.getElementById('btn_border').onclick = FormBorderWrapComponent.BorderPanelInit || function () { };
+        });
+  
+        // Initialize the map panel
+        document.getElementById('btn_map').addEventListener('click', function (e) {
+          document.getElementById('btn_map').onclick = FormDrawMapComponent.drawMapPanelInit || function () { };
+        });
+  
+        // Initialize the export panel
+        document.getElementById('btn_export').addEventListener('click', function (e) {
+          document.getElementById('btn_export').onclick = FormExportComponent.exportPanelInit || function () { };
+        });
+  
+        // Initialize the debug panel
+        const debugBtn = document.getElementById('btn_debug');
+        if (debugBtn) {
+          debugBtn.addEventListener('click', function (e) {
+            debugBtn.onclick = FormDebugComponent.DebugPanelInit || function () { };
+          });
         }
-      });
-
-      // Initialize the text panel
-      document.getElementById('btn_text').addEventListener('click', function (e) {
-        // After first load, subsequent clicks can directly call the handler
-        document.getElementById('btn_text').onclick = FormTextAddComponent.textPanelInit || function () { };
-      });
-
-      // Initialize the draw panel
-      document.getElementById('btn_draw').onclick = FormDrawAddComponent.drawPanelInit || function () { };
-
-      // Initialize the border panel
-      document.getElementById('btn_border').addEventListener('click', function (e) {
-        document.getElementById('btn_border').onclick = FormBorderWrapComponent.BorderPanelInit || function () { };
-      });
-
-      // Initialize the map panel
-      document.getElementById('btn_map').addEventListener('click', function (e) {
-        document.getElementById('btn_map').onclick = FormDrawMapComponent.drawMapPanelInit || function () { };
-      });
-
-      // Initialize the export panel
-      document.getElementById('btn_export').addEventListener('click', function (e) {
-        document.getElementById('btn_export').onclick = FormExportComponent.exportPanelInit || function () { };
-      });
-
-      // Initialize the debug panel
-      const debugBtn = document.getElementById('btn_debug');
-      if (debugBtn) {
-        debugBtn.addEventListener('click', function (e) {
-          debugBtn.onclick = FormDebugComponent.DebugPanelInit || function () { };
-        });
-      }
-
-      // Initialize the template panel
-      const templateBtn = document.getElementById('btn_template');
-      if (templateBtn) {
-        templateBtn.addEventListener('click', function (e) {
-          templateBtn.onclick = FormTemplateComponent.templatePanelInit || function () { };
-        });
-      }
-
-      canvas.renderAll();
+  
+        // Initialize the template panel
+        const templateBtn = document.getElementById('btn_template');
+        if (templateBtn) {
+          templateBtn.addEventListener('click', function (e) {
+            templateBtn.onclick = FormTemplateComponent.templatePanelInit || function () { };
+          });
+        }
+  
+        canvas.renderAll();
     });
   });
     //Add listener to the keyboard
-    document.addEventListener('keydown', ShowHideSideBarEvent);
+    document.addEventListener('keydown', ShowHideSideBarEvent)
+});
 });
