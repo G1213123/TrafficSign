@@ -1,5 +1,8 @@
 /* General Sidebar Panel */
-let GeneralHandler = {
+import { debounce, getCenterCoordinates, CenterCoord } from '../utils.js';
+import { createNode, createButton, createSVGButton, createInput, createSelect, createToggle } from './domHelpers.js';
+
+export const GeneralHandler = {
   panelOpened: true,
   ShowHideSideBar: function (event, force = null) {
     if (force === null) {
@@ -50,133 +53,6 @@ let GeneralHandler = {
     CanvasObjectInspector.createObjectListPanelInit()
     return parent
   },
-  createNode: function (type, attribute, parent, callback, event) {
-    var node = document.createElement(type);
-    for (const [key, value] of Object.entries(attribute)) {
-      node.setAttribute(key, value)
-    }
-    parent.appendChild(node);
-    if (callback) {
-      node.addEventListener(event, callback)
-    }
-    return node
-  },
-  createButton: function (name, labelTxt, parent, container = 'input', callback = null, event = null) {
-    if (container) {
-      var inputContainer = GeneralHandler.createNode("div", { 'class': `${container}-container` }, parent)
-    }
-    var input = GeneralHandler.createNode("button", { 'type': 'button', 'class': `${container ? container : name}-button`, 'id': name, 'placeholder': ' ' }, inputContainer ? inputContainer : parent, callback, event)
-    input.innerHTML = labelTxt
-    return input
-  },
-
-  createSVGButton: function (name, svg, parent, container = 'input', callback = null, event = null) {
-    if (container) {
-      var inputContainer = GeneralHandler.createNode("div", { 'class': `${container}-container` }, parent)
-    }
-    var input = GeneralHandler.createNode("button", { 'type': 'button', 'class': `${container ? container : name}-button`, 'id': name, 'placeholder': ' ' }, inputContainer ? inputContainer : parent, callback, event)
-
-    // Add the SVG
-    input.innerHTML = svg;
-
-    // Add a separator line
-    const separator = document.createElement('hr');
-    separator.className = 'symbol-separator';
-    input.appendChild(separator);
-
-    // Add text label
-    const textLabel = document.createElement('div');
-    textLabel.className = 'symbol-label';
-    textLabel.innerText = name.replace('button-', '');
-    input.appendChild(textLabel);
-
-    return input
-  },
-
-  createInput: function (name, labelTxt, parent, defaultV = null, callback = null, event = null) {
-    var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent)
-    //var labelEdge = GeneralHandler.createNode("div", { 'class': 'cut' }, inputContainer)
-    var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, inputContainer)
-    var input = GeneralHandler.createNode("input", { 'type': 'text', 'class': 'input', 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
-    label.innerHTML = labelTxt
-    defaultV ? input.value = defaultV : input.value = ''
-    return input
-  },
-
-  createSelect: function (name, labelTxt, options, parent, defaultV = null, callback = null, event = 'change') {
-    var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent)
-    var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, inputContainer)
-    var input = GeneralHandler.createNode("select", { 'class': 'input', 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
-    label.innerHTML = labelTxt
-    for (var i = 0; i < options.length; i++) {
-      var option = document.createElement("option");
-      option.value = options[i];
-      option.text = options[i];
-      input.appendChild(option);
-    }
-    if (defaultV !== null) {
-      input.value = defaultV;
-    }
-    return input
-  },
-
-  createToggle: function (name, options, parent, defaultSelected = null, callback = null,) {
-    // Create a container for the toggle including its label
-    var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent);
-
-    // Create the label
-    var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, inputContainer);
-    label.innerHTML = name;
-
-    // Create a container for the toggle buttons
-    var toggleContainer = GeneralHandler.createNode("div", { 'class': 'toggle-container', 'id': name + '-container' }, inputContainer);
-
-    // Keep track of the buttons to manage their state
-    let toggleButtons = [];
-
-    // Create a button for each option
-    options.forEach((option, index) => {
-      let buttonId = `${name}-${index}`;
-      let button = GeneralHandler.createNode("button", {
-        'type': 'button',
-        'class': 'toggle-button',
-        'id': buttonId,
-        'data-value': option
-      }, toggleContainer);
-
-      button.innerHTML = option;
-      toggleButtons.push(button);
-
-      // Add click event to handle toggle behavior
-      button.addEventListener('click', function () {
-        // Remove active class from all buttons
-        toggleButtons.forEach(btn => {
-          btn.classList.remove('active');
-        });
-
-        // Add active class to clicked button
-        this.classList.add('active');
-        toggleContainer.selected = this;
-
-        // Call callback if provided
-        if (callback) {
-          callback(this);
-        }
-      });
-
-      // Set default selected button
-      if (defaultSelected !== null && option === defaultSelected) {
-        button.classList.add('active');
-        toggleContainer.selected = button;
-      } else if (defaultSelected === null && index === 0) {
-        // If no default is specified, select the first option
-        button.classList.add('active');
-        toggleContainer.selected = button;
-      }
-    });
-
-    return toggleContainer;
-  },
 
   /**
    * Gets the value of the active button in a toggle container
@@ -207,7 +83,7 @@ let GeneralHandler = {
    */
   createBasicParamsContainer: function(parent, componentContext, defaultXHeight = null, defaultColor = null) {
     // Create a container for basic parameters
-    const basicParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+    const basicParamsContainer = createNode("div", { 'class': 'input-group-container' }, parent);
     
     // Use provided defaults or fall back to GeneralSettings
     const xHeight = defaultXHeight !== null ? defaultXHeight : GeneralSettings.xHeight;
@@ -215,11 +91,11 @@ let GeneralHandler = {
     
     // Create xHeight input with universal handler
     const xHeightInput = GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 
-      xHeight, GeneralHandler.handleXHeightChange, 'input');
+      xHeight, GeneralHandler.handleXHeightChange);
       
     // Create color toggle with universal handler
-    GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, color, 
-      GeneralHandler.handleColorChange);
+    createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, color, 
+      GeneralHandler.handleColorChange)
       
     return basicParamsContainer;
   },
@@ -308,7 +184,7 @@ let GeneralHandler = {
     if (!objectKey || !component[objectKey] || !activeVertex) return;
     
     const pointer = canvas.getPointer(event.e);
-    
+    const center = getCenterCoordinates();
     // If we have an active vertex, let it handle the movement
     if (activeVertex.handleMouseMoveRef) {
       // Simulate a mouse move event with the current pointer
@@ -320,8 +196,8 @@ let GeneralHandler = {
     } else {
       // Fallback direct positioning if vertex control isn't active
       component[objectKey].set({
-        left: pointer.x,
-        top: pointer.y
+        left: pointer.x + center.x - canvas.width /2 ,
+        top: pointer.y + center.y - canvas.height /2
       });
       component[objectKey].setCoords();
       canvas.renderAll();
@@ -426,7 +302,7 @@ let GeneralHandler = {
     document.addEventListener('keydown', cancelHandler);
     
     // Get the center of the canvas viewport
-    const vpt = CenterCoord();
+    const vpt = CenterCoord(canvas);
     const centerX = vpt.x;
     const centerY = vpt.y;
     
@@ -516,41 +392,7 @@ let GeneralHandler = {
     canvas.off('mouse:move', component[mouseMoveHandlerName]);
     canvas.off('mouse:down', component[mouseClickHandlerName]);
     document.removeEventListener('keydown', component[cancelHandlerName]);
-    document.addEventListener('keydown', ShowHideSideBarEvent);
-
-    canvas.renderAll();
-  },
-  
-  /**
-   * Utility debounce function to limit rapid successive updates
-   * @param {Function} func - Function to debounce
-   * @param {number} wait - Wait time in milliseconds
-   * @return {Function} Debounced function
-   */
-  debounce: function(func, wait) {
-    let timeout;
-    return function(...args) {
-      const context = this;
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(context, args), wait);
-    };
-  },
-  
-  /**
-   * Gets center coordinates accounting for canvas pan/zoom
-   * @return {Object} Center coordinates {x, y}
-   */
-  getCenterCoordinates: function() {
-    // Center the object on the canvas viewport
-    const centerX = canvas.width / 2 / canvas.getZoom();
-    const centerY = canvas.height / 2 / canvas.getZoom();
-
-    // Account for any panning that has been done
-    const vpt = canvas.viewportTransform;
-    const actualCenterX = (centerX - vpt[4]) / vpt[0];
-    const actualCenterY = (centerY - vpt[5]) / vpt[3];
-    
-    return { x: actualCenterX, y: actualCenterY };
+    document.addEventListener('keydown', ShowHideSideBarEvent);canvas.renderAll();
   }
 }
 
