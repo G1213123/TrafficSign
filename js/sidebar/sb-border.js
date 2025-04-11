@@ -1,29 +1,37 @@
 /* Border Panel */
+import { createNode, createButton, createSVGButton, createInput, createSelect, createToggle } from './domHelpers.js';
+import { CenterCoord } from '../utils.js';
+
 let FormBorderWrapComponent = {
   BorderPanelInit: function () {
-    tabNum = 3
-    var parent = GeneralHandler.PanelInit()
+    tabNum = 3;
+    var parent = GeneralHandler.PanelInit();
     if (parent) {
       // Create a container for border parameters
-      var borderParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      GeneralHandler.createInput('input-xHeight', 'x Height', borderParamsContainer, GeneralSettings.xHeight, FormBorderWrapComponent.handleXHeightChange, 'input')
+      var borderParamsContainer = createNode("div", { 'class': 'input-group-container' }, parent);
+      createInput('input-xHeight', 'x Height', borderParamsContainer, GeneralSettings.xHeight, GeneralHandler.handleXHeightChange, 'input');
       
       // Color scheme selection
-      GeneralHandler.createSelect('input-color', 'Select Color Scheme', Object.keys(BorderColorScheme), borderParamsContainer, null, FormBorderWrapComponent.handleColorChange, 'change')
+      createSelect('input-color', 'Select Color Scheme', Object.keys(BorderColorScheme), borderParamsContainer, null, FormBorderWrapComponent.handleColorChange, 'change');
 
       // Create a container for border actions
-      var borderActionsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      //GeneralHandler.createButton('input-border', 'Select Objects for border', borderActionsContainer, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
-      GeneralHandler.createButton('input-HDivider', 'Add stack border divider', borderActionsContainer, 'input', FormBorderWrapComponent.StackDividerHandler, 'click')
-      GeneralHandler.createButton('input-VDivider', 'Add gantry border divider', borderActionsContainer, 'input', FormBorderWrapComponent.GantryDividerHandler, 'click')
-      GeneralHandler.createButton('input-HLine', 'Add gantry destination line', borderActionsContainer, 'input', FormBorderWrapComponent.GantryLineHandler, 'click')
-      GeneralHandler.createButton('input-VLane', 'Add lane separation line', borderActionsContainer, 'input', FormBorderWrapComponent.LaneLineHandler, 'click')
+      var borderActionsContainer = createNode("div", { 'class': 'input-group-container' }, parent);
+      //createButton('input-border', 'Select Objects for border', borderActionsContainer, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click');
+      createButton('input-HDivider', 'Add stack border divider', borderActionsContainer, 'input', FormBorderWrapComponent.StackDividerHandler, 'click');
+      createButton('input-VDivider', 'Add gantry border divider', borderActionsContainer, 'input', FormBorderWrapComponent.GantryDividerHandler, 'click');
+      createButton('input-HLine', 'Add gantry destination line', borderActionsContainer, 'input', FormBorderWrapComponent.GantryLineHandler, 'click');
+      createButton('input-VLane', 'Add lane separation line', borderActionsContainer, 'input', FormBorderWrapComponent.LaneLineHandler, 'click');
 
       // Create a container for border type selection with SVG buttons
-      var borderTypeContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container', 'id': 'border-select-container' }, parent);
-      const borderTypeHeader = GeneralHandler.createNode("div", { 'class': 'placeholder' }, borderTypeContainer);
-      borderTypeHeader.innerHTML = "Select Border Type";
-      FormBorderWrapComponent.createBorderButtons()
+      var borderTypeContainer = createNode("div", { 'class': 'input-group-container', 'id': 'border-select-container' }, parent);
+      const borderTypeHeader = createNode("div", { 'class': 'placeholder' }, borderTypeContainer);
+      borderTypeHeader.innerHTML = "Select Border Type"; // Set header text
+      FormBorderWrapComponent.createBorderButtons();
+      // add Listener for color change
+      GeneralSettings.addListener(function(setting, value) {
+          // Update UI if we are on this panel
+          FormBorderWrapComponent.updateSettingsUI(setting, value);
+        })
     }
   },
 
@@ -73,8 +81,8 @@ let FormBorderWrapComponent = {
     // Create SVG buttons for each border type
     Object.keys(BorderTypeScheme).forEach(async (borderType) => {
       const shapeMeta = BorderTypeScheme[borderType](xHeight, borderType=='exit'?bboxExit:bbox,);
-      const svg = await FormBorderWrapComponent.createBorderSVG(shapeMeta,)
-      GeneralHandler.createSVGButton(`button-${borderType}`, svg, parent, 'border', FormBorderWrapComponent.BorderCreateHandler, 'click')
+      const svg = await FormBorderWrapComponent.createBorderSVG(shapeMeta);
+      createSVGButton(`button-${borderType}`, svg, parent, 'border', FormBorderWrapComponent.BorderCreateHandler, 'click');
     });
   },
 
@@ -158,8 +166,7 @@ let FormBorderWrapComponent = {
   },
 }
 
-// Add listener for GeneralSettings changes
-GeneralSettings.addListener(function(setting, value) {
+FormBorderWrapComponent.updateSettingsUI = function(setting, value) {
   // Only update UI if we're in the Border panel
   if (tabNum === 3) {
     if (setting === 'xHeight') {
@@ -170,7 +177,7 @@ GeneralSettings.addListener(function(setting, value) {
         // Redraw border buttons with new xHeight
         FormBorderWrapComponent.createBorderButtons();
       }
-    }
+    } else if (setting === 'messageColor') {
     // Note: We don't need to handle messageColor changes here as border uses its own color scheme
   }
 });
@@ -187,18 +194,18 @@ let FormDrawBorderAddComponent = {
    */
   drawBorderPanelInit: function (event) {
     tabNum = 3
-    var parent = GeneralHandler.PanelInit()
+    var parent = GeneralHandler.PanelInit();
     if (parent) {
       // Create a container for basic parameters using the shared function
       GeneralHandler.createBasicParamsContainer(parent, FormDrawBorderAddComponent);
 
       // Create a container for border type selection
-      const borderTypeContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      const borderTypeContainer = createNode("div", { 'class': 'input-group-container' }, parent);
       
       // Create border type toggle
-      GeneralHandler.createToggle('Border Type', FormDrawBorderAddComponent.borderTypes, borderTypeContainer, 
+      createToggle('Border Type', FormDrawBorderAddComponent.borderTypes, borderTypeContainer, 
         FormDrawBorderAddComponent.borderTypes[0], FormDrawBorderAddComponent.handleBorderTypeChange);
-      
+
       // Create a container for border-specific parameters
       const borderParamsContainer = GeneralHandler.createNode("div", { 'class': 'border-params-container' }, parent);
       FormDrawBorderAddComponent.updateBorderParamsUI('Rectangle', borderParamsContainer);
@@ -218,29 +225,29 @@ let FormDrawBorderAddComponent = {
     if (borderType === 'Rectangle' || borderType === 'Circle' || borderType === 'Ellipse') {
       // Width and Height inputs for Rectangle and Ellipse
       if (borderType === 'Rectangle' || borderType === 'Ellipse') {
-        GeneralHandler.createInput('border-width', 'Width', container, '100', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
-        GeneralHandler.createInput('border-height', 'Height', container, '60', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
+        createInput('border-width', 'Width', container, '100', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
+        createInput('border-height', 'Height', container, '60', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
       } 
       // Radius input for Circle
       else if (borderType === 'Circle') {
-        GeneralHandler.createInput('border-radius', 'Radius', container, '50', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
+        createInput('border-radius', 'Radius', container, '50', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
       }
       
       // Common parameters
-      GeneralHandler.createInput('border-stroke-width', 'Stroke Width', container, '2', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
+      createInput('border-stroke-width', 'Stroke Width', container, '2', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
       
       // Create Draw button
-      GeneralHandler.createButton('draw-border', `Draw ${borderType}`, container, 'action', 
+      createButton('draw-border', `Draw ${borderType}`, container, 'action', 
         FormDrawBorderAddComponent.createBorderObject, 'click');
     } 
     // Polygon requires vertex count
     else if (borderType === 'Polygon') {
-      GeneralHandler.createInput('polygon-sides', 'Number of Sides', container, '6', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
-      GeneralHandler.createInput('polygon-radius', 'Radius', container, '50', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
-      GeneralHandler.createInput('border-stroke-width', 'Stroke Width', container, '2', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
+      createInput('polygon-sides', 'Number of Sides', container, '6', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
+      createInput('polygon-radius', 'Radius', container, '50', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
+      createInput('border-stroke-width', 'Stroke Width', container, '2', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
       
       // Create Draw button
-      GeneralHandler.createButton('draw-polygon', 'Draw Polygon', container, 'action', 
+      createButton('draw-polygon', 'Draw Polygon', container, 'action', 
         FormDrawBorderAddComponent.createBorderObject, 'click');
     }
     // Triangle is a special case
@@ -248,7 +255,7 @@ let FormDrawBorderAddComponent = {
       GeneralHandler.createInput('triangle-size', 'Size', container, '80', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
       GeneralHandler.createInput('border-stroke-width', 'Stroke Width', container, '2', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
       
-      // Create Draw button
+      // Create Draw button      
       GeneralHandler.createButton('draw-triangle', 'Draw Triangle', container, 'action', 
         FormDrawBorderAddComponent.createBorderObject, 'click');
     }
@@ -286,7 +293,7 @@ let FormDrawBorderAddComponent = {
     }
 
     // Get border parameters
-    const borderType = GeneralHandler.getToggleValue('Border Type-container');
+    const borderType = document.getElementById('Border Type-container').selected.getAttribute('data-value')
     const xHeight = parseInt(document.getElementById('input-xHeight').value);
     const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value').toLowerCase();
     const strokeWidth = parseInt(document.getElementById('border-stroke-width')?.value || '2');
@@ -487,7 +494,7 @@ let FormDrawBorderAddComponent = {
   }
 };
 
-// Use the shared settings listener implementation
+// Use the shared settings listener implementation, this module will manage the ui by itself
 GeneralSettings.addListener(
   GeneralHandler.createSettingsListener(3, function(setting, value) {
     // Border-specific updates when settings change

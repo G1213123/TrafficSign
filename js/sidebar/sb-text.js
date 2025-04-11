@@ -1,5 +1,6 @@
 /* Text panel component */
-let FormTextAddComponent = {
+import { createNode, createInput, createToggle } from './domHelpers.js';
+const FormTextAddComponent = {
   textFont: ['TransportMedium', 'TransportHeavy'],
   newTextObject: null,
   textLineInput: 1,
@@ -36,41 +37,48 @@ let FormTextAddComponent = {
 
   textPanelInit: function (event, editingTextObject = null) {
     tabNum = 2;
-    FormTextAddComponent.textLineInput = 1;
-    var parent = GeneralHandler.PanelInit();
+    FormTextAddComponent.textLineInput = 1;   
+    var parent = document.getElementById('input-form');
     if (parent) {
-      // Create the basic parameters container using the shared function
-      GeneralHandler.createBasicParamsContainer(parent, FormTextAddComponent);
-
+      
       // Create a container for text content and font
-      const textContentContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      const textInput = GeneralHandler.createInput('input-text', 'Add Text', textContentContainer, '', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler, 'input');
-      const fontToggle = GeneralHandler.createToggle('Text Font', FormTextAddComponent.textFont, textContentContainer, 'TransportMedium', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler);
+      const textContentContainer = createNode("div", { 'class': 'input-group-container' }, parent);
+      const textInput = createInput('input-text', 'Add Text', textContentContainer, '', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler, 'input');
+      createToggle('Text Font', FormTextAddComponent.textFont, textContentContainer, 'TransportMedium', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler);
 
+      // Create xHeight input using the standard handler
+      const xHeightInput = createInput('input-xHeight', 'x Height', parent, GeneralSettings.xHeight, () => {
+        GeneralSettings.updateSetting('xHeight', parseInt(xHeightInput.value));
+      }, 'input');
+
+      // Create color toggle with our CUSTOM color change handler
+      createToggle('Message Colour', ['Black', 'White'], parent, GeneralSettings.messageColor, (e) => {
+        GeneralSettings.updateSetting('messageColor', e.target.getAttribute('data-value'));
+      });
+      
       // Create a container for location selection
-      const locationContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      const regionLabel = GeneralHandler.createNode("div", { 'class': 'placeholder' }, locationContainer);
+      const locationContainer = createNode("div", { 'class': 'input-group-container' }, parent);
+      const regionLabel = createNode("div", { 'class': 'placeholder' }, locationContainer);
       regionLabel.innerHTML = "Add New Destination";
 
       // Extract region names from destinations array
       const regionNames = EngDestinations.map(region => Object.keys(region)[0]);
 
       // Create language toggle
-      const languageToggle = GeneralHandler.createToggle('Language', ['2Liner', 'English', 'Chinese'], locationContainer, 'English', FormTextAddComponent.updateLocationDropdown);
+      createToggle('Language', ['2Liner', 'English', 'Chinese'], locationContainer, 'English', FormTextAddComponent.updateLocationDropdown);
 
       // Create Justification toggle - only visible when 2Liner is selected
-      const justificationToggle = GeneralHandler.createToggle('Justification', ['Left', 'Middle', 'Right'], locationContainer, 'Left', FormTextAddComponent.handleJustification);
+      createToggle('Justification', ['Left', 'Middle', 'Right'], locationContainer, 'Left', FormTextAddComponent.handleJustification);
       const justificationContainer = document.getElementById('Justification-container').parentElement;
       justificationContainer.style.display = FormTextAddComponent.textLineInput == 2 ? 'block' : 'none';
 
       // Create region toggle
-      const regionToggle = GeneralHandler.createToggle('Region', regionNames, locationContainer, regionNames[0], FormTextAddComponent.updateLocationDropdown);
+      createToggle('Region', regionNames, locationContainer, regionNames[0], FormTextAddComponent.updateLocationDropdown);
 
       // Create location dropdown
-      const locationDropdownContainer = GeneralHandler.createNode("div", { 'class': 'location-dropdown-container' }, locationContainer);
-
-      // Create the select element for locations
-      const locationSelect = GeneralHandler.createNode("select", { 'class': 'input', 'id': 'location-select' }, locationDropdownContainer, FormTextAddComponent.locationSelected, 'change');
+      const locationDropdownContainer = createNode("div", { 'class': 'location-dropdown-container' }, locationContainer);      
+      const locationSelect = createNode("select", { 'class': 'input', 'id': 'location-select' }, locationDropdownContainer);
+      locationSelect.addEventListener('change', FormTextAddComponent.locationSelected);
 
       // Initialize the location dropdown with locations from the first region
       FormTextAddComponent.populateLocationDropdown(regionNames[0], "English");
@@ -81,8 +89,8 @@ let FormTextAddComponent = {
    * Updates the location dropdown when a region is selected
    */
   updateLocationDropdown: function (selectedButton) {
-    const regionName = GeneralHandler.getToggleValue('Region-container')
-    const languageInput = GeneralHandler.getToggleValue('Language-container')
+    const regionName = document.getElementById('Region-container').selected.getAttribute('data-value')
+    const languageInput = document.getElementById('Language-container').selected.getAttribute('data-value');
     let language = languageInput == '2Liner' ? 'English' : languageInput
     if (languageInput == '2Liner') {
       FormTextAddComponent.textLineInput = 2
@@ -366,14 +374,13 @@ let FormTextAddComponent = {
   },
 
   TextHandlerOff: function () {
-    // Use shared handler to clean up events and state
-    GeneralHandler.genericHandlerOff(
-      FormTextAddComponent,
-      'newTextObject',
-      'TextOnMouseMove',
-      'TextOnMouseClick',
-      'cancelInput'
-    );
+    canvas.off('mouse:move', FormTextAddComponent.TextOnMouseMove);
+    canvas.off('mouse:down', FormTextAddComponent.TextOnMouseClick);
+    document.removeEventListener('keydown', FormTextAddComponent.cancelInput);
+    if (FormTextAddComponent.newTextObject) canvas.remove(FormTextAddComponent.newTextObject);
+
+
+
     
     // Additional text-specific cleanup
     const textInput = document.getElementById('input-text');
@@ -422,16 +429,14 @@ let FormTextAddComponent = {
         }
         
         // Then continue with the normal escape handling which will remove the English text
-      }
+      }      
     }
-    
-    // Use shared escape key handler for standard cleanup
-    GeneralHandler.handleCancelWithEscape(
-      FormTextAddComponent, 
-      event, 
-      'newTextObject', 
-      'TextOnMouseMove', 
-      'TextOnMouseClick'
+    if (event.key === 'Escape'){
+      canvas.off('mouse:move', FormTextAddComponent.TextOnMouseMove);
+      canvas.off('mouse:down', FormTextAddComponent.TextOnMouseClick);
+      document.removeEventListener('keydown', FormTextAddComponent.cancelInput);
+      if (FormTextAddComponent.newTextObject) canvas.remove(FormTextAddComponent.newTextObject);
+    }
     );
     
     // Additional text-specific cleanup
@@ -504,7 +509,7 @@ let FormTextAddComponent = {
         };
         
         // Use the general object creation function for two-liner text
-        await GeneralHandler.createObjectWithSnapping(
+        await FormTextAddComponent.createObjectWithSnapping(
           {
             text: txt,
             translatedText: chtText,
@@ -536,7 +541,7 @@ let FormTextAddComponent = {
         };
         
         // Use the general object creation function
-        await GeneralHandler.createObjectWithSnapping(
+        await FormTextAddComponent.createObjectWithSnapping(
           {
             text: txt,
             xHeight: xHeight,
@@ -560,8 +565,157 @@ let FormTextAddComponent = {
   },
 
   TextOnMouseMove: function (event) {
-    // Use shared mouse move handler
-    GeneralHandler.handleObjectOnMouseMove(FormTextAddComponent, event);
+    // Get the current position of the mouse
+    const pointer = GeneralSettings.canvas.getPointer(event.e);
+    const activeObj = FormTextAddComponent.newTextObject;
+    if (!activeObj) return;
+    // Move the object to the mouse position
+    activeObj.set({
+      left: pointer.x,
+      top: pointer.y,
+    });
+
+    // Render the canvas to show the updated position
+    GeneralSettings.canvas.renderAll();
+  },
+
+  createObjectWithSnapping: async function (options, createObjectFunc, caller, objName, vertexIndex, onMouseMove, onMouseClick, onCancel) {
+    // Set up event listeners if not already set
+    if (GeneralSettings.canvas) {
+      GeneralSettings.canvas.on('mouse:move', caller[onMouseMove]);
+      GeneralSettings.canvas.on('mouse:down', caller[onMouseClick]);
+      document.addEventListener('keydown', caller[onCancel]);
+    } else {
+      throw new Error('Canvas is not initialized in GeneralSettings.');
+    }
+    // Create the object using the provided function
+    caller[objName] = await createObjectFunc(
+      options
+    );
+    caller[objName].functionalType = caller.constructor.name.replace('Form', '');
+    
+    // Set the snap origin to the specified vertex
+    const snapOrigin = caller[objName].getBasePolygonVertex(vertexIndex);
+    
+    // Attach the snap origin to the object
+    caller[objName].snapOrigin = snapOrigin;
+    caller[objName].isTemporary = true
+    
+    // Calculate and store the object's center
+    const center = caller[objName].getCenterPoint();
+    caller[objName].objectCenter = center;
+
+    // Add the object to the canvas
+    GeneralSettings.canvas.add(caller[objName]);
+    
+    // Set the object as active
+    GeneralSettings.canvas.setActiveObject(caller[objName]);
+    
+    // Render the canvas to show the object
+    GeneralSettings.canvas.renderAll();
+  
+    // Set flag to indicate object is being moved
+    caller.isDragging = true;
+    return caller[objName]
+  },
+
+  debounce: (func, wait, immediate) => {
+    let timeout;
+  
+    return function executedFunction(...args) {
+      const context = this;
+  
+      const later = function () {
+        timeout = null;
+        if (!immediate) func.apply(context, args);
+      };
+  
+      const callNow = immediate && !timeout;
+  
+      clearTimeout(timeout);
+  
+      timeout = setTimeout(later, wait);
+  
+      if (callNow) func.apply(context, args);
+    };
+  },
+
+  handleObjectOnMouseMove: (caller, event) => {
+    // Get the current position of the mouse
+    const pointer = GeneralSettings.canvas.getPointer(event.e);
+    const activeObj = caller.newTextObject;
+  
+    if (!activeObj) return;
+  
+    // Move the object to the mouse position
+    activeObj.set({
+      left: pointer.x,
+      top: pointer.y,
+    });
+
+    // Render the canvas to show the updated position
+    GeneralSettings.canvas.renderAll();
+    if (!caller.isDragging) return;
+
+    const objects = GeneralSettings.canvas.getObjects().filter(obj => obj !== activeObj);
+  
+    // Iterate through all objects on the canvas to check for proximity
+    objects.forEach(obj => {
+      if (!obj.snapPoints) return;
+  
+      // Check all snap points of the target object
+      obj.snapPoints.forEach(targetPoint => {
+        // Check proximity between the active object's snap origin and the target point
+        const distance = Math.sqrt(
+          Math.pow(activeObj.snapOrigin.x - targetPoint.x, 2) +
+          Math.pow(activeObj.snapOrigin.y - targetPoint.y, 2)
+        );
+        
+        // If the distance is less than the snap tolerance, snap
+        if (distance < 100) {
+          activeObj.set({
+            left: targetPoint.x - (activeObj.snapOrigin.x - activeObj.left),
+            top: targetPoint.y - (activeObj.snapOrigin.y - activeObj.top),
+          });
+          
+          // Render the canvas to show the snapped position
+          GeneralSettings.canvas.renderAll();
+        }
+      });
+    });
+  },
+
+  handleObjectOnMouseClick: (caller, event, objName, onMouseMove, onMouseClick, onCancel) => {
+    if (!caller[objName]) return;
+    const currentObject = caller[objName];
+    // Remove temporary styling/behavior
+    currentObject.isTemporary = false;
+    currentObject.setCoords();
+    // Remove the object from the temp list
+    caller[objName] = null;
+    caller.isDragging = false;
+    // Remove event listener
+    GeneralSettings.canvas.off('mouse:move', caller[onMouseMove]);
+    GeneralSettings.canvas.off('mouse:down', caller[onMouseClick]);
+    document.removeEventListener('keydown', caller[onCancel]);
+    // Set the object as selected
+    GeneralSettings.canvas.setActiveObject(currentObject);
+    currentObject.enterFocusMode();
+  },
+
+  handleCancelWithEscape: (caller, event, objName, onMouseMove, onMouseClick) => {
+    if (event.key === 'Escape') {
+      // Remove the object from the canvas
+      if (caller[objName]) GeneralSettings.canvas.remove(caller[objName]);
+
+      // Clear the object reference
+      caller[objName] = null;
+
+      // Remove event listener
+      GeneralSettings.canvas.off('mouse:move', caller[onMouseMove]);
+      GeneralSettings.canvas.off('mouse:down', caller[onMouseClick]);
+      document.removeEventListener('keydown', caller.cancelInput);
+    }
   },
 
   TextOnMouseClick: function (event, options = null) {
@@ -569,14 +723,8 @@ let FormTextAddComponent = {
     
     // Use shared mouse click handler for new text objects
     if (FormTextAddComponent.newTextObject) {
-      GeneralHandler.handleObjectOnMouseClick(
-        FormTextAddComponent,
-        event,
-        'newTextObject',
-        'TextOnMouseMove',
-        'TextOnMouseClick',
-        'cancelInput'
-      );
+      FormTextAddComponent.handleObjectOnMouseClick(FormTextAddComponent, event, 'newTextObject', 'TextOnMouseMove', 'TextOnMouseClick', 'cancelInput');
+
       
       // Text-specific cleanup
       document.getElementById('input-text').value = '';
@@ -594,10 +742,10 @@ let FormTextAddComponent = {
 
 // Replace the settings listener with the shared implementation
 GeneralSettings.addListener(
-  GeneralHandler.createSettingsListener(2, function(setting, value) {
+  function(setting, value) {
     // Text-specific updates when settings change
     if (FormTextAddComponent.newTextObject || canvas.getActiveObject()?.functionalType === 'Text') {
       FormTextAddComponent.liveUpdateText();
     }
-  })
+  }
 );

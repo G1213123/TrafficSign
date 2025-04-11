@@ -1,18 +1,19 @@
 /* Draw Symbol Panel */
+import { createNode, createButton, createSVGButton, createInput, createToggle } from './domHelpers.js';
+
 let FormDrawAddComponent = {
   symbolAngle: 0,
   newSymbolObject: null,
   editingExistingSymbol: null, // Track when we're editing an existing symbol
 
-  // Add a custom handler for color change to update SVG buttons immediately
   handleColorChange: function(event) {
-    const color = event.getAttribute('data-value');
+    const color = event.target.getAttribute('data-value');
     if (!color) return;
     
-    // Update GeneralSettings using the built-in function
-    GeneralHandler.handleColorChange(event);
+    // Update GeneralSettings
+    GeneralSettings.updateSetting('messageColor', color);
     
-    // Update buttons immediately
+    // Redraw buttons immediately
     FormDrawAddComponent.addAllSymbolsButton();
     
     // Update the symbol with new color if one exists
@@ -25,7 +26,7 @@ let FormDrawAddComponent = {
 
   drawPanelInit: async function (e, existingSymbol = null) {
     tabNum = 1
-    var parent = GeneralHandler.PanelInit()
+    var parent = document.getElementById('input-form');
     
     // If an existing symbol was passed, set it as the editing symbol
     if (existingSymbol) {
@@ -39,7 +40,7 @@ let FormDrawAddComponent = {
     if (parent) {
       // Create basic parameters container manually (don't use the shared function)
       // so we can attach our custom color change handler
-      var basicParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      var basicParamsContainer = createNode("div", { 'class': 'input-group-container' }, parent);
       
       // Use provided defaults or fall back to GeneralSettings
       const xHeight = FormDrawAddComponent.editingExistingSymbol ? 
@@ -51,20 +52,20 @@ let FormDrawAddComponent = {
         GeneralSettings.messageColor;
       
       // Create xHeight input using the standard handler
-      const xHeightInput = GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 
-        xHeight, GeneralHandler.handleXHeightChange, 'input');
+      const xHeightInput = createInput('input-xHeight', 'x Height', basicParamsContainer, 
+        xHeight, FormDrawAddComponent.handleXHeightChange, 'input');
         
       // Create color toggle with our CUSTOM color change handler
-      GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, color, 
+      createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, color, 
         FormDrawAddComponent.handleColorChange);
       
       // Add debounced event listener for real-time updates on xHeight input
-      xHeightInput.addEventListener('input', GeneralHandler.debounce(function(e) {
-        // The handleXHeightChange function will update GeneralSettings
-      }, 300));
+      xHeightInput.addEventListener('input', () => {
+        GeneralSettings.updateSetting('xHeight', parseInt(xHeightInput.value));
+      });
 
       // Create a placeholder container for angle controls
-      var angleControlContainer = GeneralHandler.createNode("div", { 'id': 'angle-control-container', 'class': 'input-group-container', 'style': 'display: none;' }, parent);
+      var angleControlContainer = createNode("div", { 'id': 'angle-control-container', 'class': 'input-group-container', 'style': 'display: none;' }, parent);
       
       // If we're editing an existing symbol, toggle the angle controls based on its type
       if (FormDrawAddComponent.editingExistingSymbol) {
@@ -78,12 +79,11 @@ let FormDrawAddComponent = {
   // Function to update only angle and xHeight of an existing symbol
   updateExistingSymbol: function() {
     if (FormDrawAddComponent.editingExistingSymbol) {
-      const xHeight = parseInt(document.getElementById('input-xHeight').value) ;
-      const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
+      const xHeight = GeneralSettings.xHeight ;
       const angle = FormDrawAddComponent.symbolAngle;
 
       // Update the symbol with new properties, but keep the same symbol type
-      FormDrawAddComponent.editingExistingSymbol.updateSymbol(
+      FormDrawAddComponent.updateSymbol(
         FormDrawAddComponent.editingExistingSymbol.symbol, 
         xHeight, 
         color, 
@@ -97,7 +97,7 @@ let FormDrawAddComponent = {
 
   addAllSymbolsButton: function () {
     const parent = document.getElementById("input-form");
-    const color = document.getElementById('Message Colour-container').selected?document.getElementById('Message Colour-container').selected.getAttribute('data-value') : 'white';
+    const color = GeneralSettings.messageColor.toLowerCase()
     
     // Clear any existing symbol containers
     const existingSymbolContainers = parent.querySelectorAll('.symbols-grid');
@@ -108,10 +108,10 @@ let FormDrawAddComponent = {
     }
     
     // Create a container for all symbols with the proper grid layout
-    const symbolsContainer = GeneralHandler.createNode("div", { 'class': 'symbols-grid' }, parent);
+    const symbolsContainer = createNode("div", { 'class': 'symbols-grid' }, parent);
 
     // Add symbols to the grid - two in each row
-    Object.keys(symbolsTemplate).forEach(async (symbol) => {
+    Object.keys(symbolsTemplate).forEach(async (symbol) => {  
       const svg = await FormDrawAddComponent.createButtonSVG(symbol, 5, color);
       const symbolBtn = GeneralHandler.createSVGButton(
         `button-${symbol}`, 
@@ -208,15 +208,11 @@ let FormDrawAddComponent = {
   },
 
   DrawHandlerOff: function (event) {
-    // Use the shared handler for cleanup
-    GeneralHandler.genericHandlerOff(
-      FormDrawAddComponent,
-      'newSymbolObject',
-      'SymbolOnMouseMove',
-      'SymbolOnMouseClick',
-      'cancelDraw'
-    );
-    
+    canvas.off('mouse:move', FormDrawAddComponent.SymbolOnMouseMove);
+    canvas.off('mouse:down', FormDrawAddComponent.SymbolOnMouseClick);
+    document.removeEventListener('keydown', FormDrawAddComponent.cancelDraw);
+    if (FormDrawAddComponent.newSymbolObject) canvas.remove(FormDrawAddComponent.newSymbolObject);
+
     // Additional draw-specific cleanup
     FormDrawAddComponent.hideAngleControls();
   },
@@ -225,7 +221,7 @@ let FormDrawAddComponent = {
   createSymbolObject: async function (event) {
     // Get symbol type and parameters from the button or defaults
     const symbolType = event.currentTarget.id.replace('button-', '');
-    const xHeight = parseInt(document.getElementById('input-xHeight').value);
+    const xHeight = GeneralSettings.xHeight;
     const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
 
     // Toggle angle controls based on symbol type
@@ -237,14 +233,17 @@ let FormDrawAddComponent = {
     // Create a function that returns a symbol object
     const createSymbol = async (options) => {
       // Account for any panning that has been done
-      return await drawSymbolDirectly(options.type, {
+      return await drawSymbolDirectly({
+        type: options.type,
         x: options.position.x,
         y: options.position.y,
         xHeight: options.xHeight,
         angle: options.angle,
-        color: options.color
+        color: options.color,
+        canvas: GeneralSettings.canvas,
+        GeneralSettings: GeneralSettings,
       });
-    };
+    };  
 
     try {
       // Use the general object creation with snapping function
@@ -330,14 +329,17 @@ let FormDrawAddComponent = {
     }
 
     // Create new symbol with updated properties
-    const newSymbolObject = await drawSymbolDirectly(symbolType, {
+    const newSymbolObject = await drawSymbolDirectly({
+      type: symbolType,
       x: position.x,
       y: position.y,
       xHeight: xHeight,
       angle: FormDrawAddComponent.symbolAngle,
-      color: color
+      color: color,
+      canvas: GeneralSettings.canvas,
+      GeneralSettings: GeneralSettings,
     });
-
+    
     // clear active vertex
     if (activeVertex) {
       //activeVertex.clearSnapHighlight();
@@ -382,7 +384,7 @@ let FormDrawAddComponent = {
   },
 
   SymbolOnMouseMove: function (event) {
-    // Use shared mouse move handler
+        // Use shared mouse move handler
     GeneralHandler.handleObjectOnMouseMove(FormDrawAddComponent, event);
   },
 
@@ -412,18 +414,16 @@ let FormDrawAddComponent = {
     if (event.key === 'Escape') {
       GeneralHandler.handleCancelWithEscape(
         FormDrawAddComponent, 
-        event, 
+        event,
         'newSymbolObject', 
         'SymbolOnMouseMove', 
         'SymbolOnMouseClick'
       );
-      
-      // Symbol-specific cleanup
-      FormDrawAddComponent.hideAngleControls();
     }
   },
+  
+  createButtonSVG: async (symbolType, length, color = 'white') => {  
 
-  createButtonSVG: async (symbolType, length, color = 'white') => {
     const symbolData = calcSymbol(symbolType, length, color);
 
     let pathData = await vertexToPath(symbolData, color);
@@ -468,13 +468,12 @@ let FormDrawAddComponent = {
       
       if (hasPermittedAngles) {
         // Clear any existing angle controls
-        angleControlContainer.innerHTML = '';
-        
+        angleControlContainer.innerHTML = '';        
         // Create a container for angle controls
-        var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, angleControlContainer);
+        var angleContainer = createNode("div", { 'class': 'angle-picker-container' }, angleControlContainer);
 
-        var btnRotateLeft = GeneralHandler.createButton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawAddComponent.setAngle, 'click');
-        var btnRotateRight = GeneralHandler.createButton(`rotate-right`, '<i class="fa-solid fa-rotate-right"></i>', angleContainer, null, FormDrawAddComponent.setAngle, 'click');
+        var btnRotateLeft = createButton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawAddComponent.setAngle, 'click');
+        var btnRotateRight = createButton(`rotate-right`, '<i class="fa-solid fa-rotate-right"></i>', angleContainer, null, FormDrawAddComponent.setAngle, 'click');
 
         var angleDisplay = GeneralHandler.createNode("div", { 'id': 'angle-display', 'class': 'angle-display' }, angleContainer);
         angleDisplay.innerText = FormDrawAddComponent.symbolAngle + '°';

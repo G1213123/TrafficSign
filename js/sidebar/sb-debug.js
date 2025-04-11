@@ -1,4 +1,6 @@
 /* Debug Panel */
+import { createNode } from './domHelpers.js';
+
 let FormDebugComponent = {
   // Adding General settings : e.g. turn off text borders, change background color, show grid, etc.
 
@@ -7,15 +9,15 @@ let FormDebugComponent = {
     var parent = GeneralHandler.PanelInit()
     if (parent) {
 
-      // Create a container for debug info
-      var debugInfoContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      FormDebugComponent.createDebugInfoPanel(debugInfoContainer);
-      const sponsorDiv = GeneralHandler.createNode("div", { 'class': `coffee-link-container` }, parent)
-      sponsorDiv.innerHTML = '<a href="https://www.buymeacoffee.com/G1213123" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee" height="41" width="174" style="max-width:100%;"></a>'
+        // Create a container for debug info
+        var debugInfoContainer = createNode("div", { 'class': 'input-group-container' }, parent);
+        FormDebugComponent.createDebugInfoPanel(debugInfoContainer);
+        const sponsorDiv = createNode("div", { 'class': `coffee-link-container` }, parent);
+        sponsorDiv.innerHTML = '<a href="https://www.buymeacoffee.com/G1213123" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee" height="41" width="174" style="max-width:100%;"></a>';
 
-      // Add GitHub repository link
-      const githubLink = GeneralHandler.createNode("div", { 'class': 'github-link-container' }, sponsorDiv);
-      githubLink.innerHTML = '<a href="https://github.com/G1213123/TrafficSign" target="_blank"><i class="fa-brands fa-github"></i><span>Visit GitHub Repository</span></a>';
+        // Add GitHub repository link
+        const githubLink = createNode("div", { 'class': 'github-link-container' }, sponsorDiv);
+        githubLink.innerHTML = '<a href="https://github.com/G1213123/TrafficSign" target="_blank"><i class="fa-brands fa-github"></i><span>Visit GitHub Repository</span></a>';
 
 
       // Update the sidebar when an object is selected
@@ -26,7 +28,12 @@ let FormDebugComponent = {
       canvas.on('selection:cleared', FormDebugComponent.clearSelectionListener);
       if (canvas.getActiveObject()) {
         FormDebugComponent.updateDebugInfo(canvas.getActiveObjects());
-      }
+      } 
+    }
+    FormDebugComponent.selectionListenerRef = FormDebugComponent.selectionListener.bind(FormDebugComponent)
+    FormDebugComponent.clearSelectionListenerRef = FormDebugComponent.clearSelectionListener.bind(FormDebugComponent)
+    if (tabNum == 6) {
+      FormDebugComponent.DebugHandlerOn();
     }
   },
   selectionListener: function (event) {
@@ -93,11 +100,20 @@ let FormDebugComponent = {
     }
   },
 
-  DebugHandlerOff: function (event) {
-    canvas.off('selection:created', this.selectionListener)
-    canvas.off('selection:updated', this.selectionListener)
-    canvas.off('selection:cleared', this.clearSelectionListener)
+  DebugHandlerOn: function(event){
+      // Update the sidebar when an object is selected
+      canvas.on('selection:created', FormDebugComponent.selectionListenerRef);
+      canvas.on('selection:updated', FormDebugComponent.selectionListenerRef);
+      canvas.on('object:modified', FormDebugComponent.selectionListenerRef);
+      // Clear the sidebar when no object is selected
+      canvas.on('selection:cleared', FormDebugComponent.clearSelectionListenerRef);
   },
-};
+
+  DebugHandlerOff: function (event) {
+      canvas.off('selection:created', FormDebugComponent.selectionListenerRef)
+      canvas.off('selection:updated', FormDebugComponent.selectionListenerRef)
+      canvas.off('selection:cleared', FormDebugComponent.clearSelectionListenerRef)
+  }
+}
 
 // Export the FormDebugComponent for use in other files
