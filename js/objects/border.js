@@ -1239,13 +1239,18 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
     });
 
     const pathData = vertexToPath({ path: [p] });
+    // Extract the d attribute if pathData is a full SVG string
+    const dValue = pathData.includes('<path') 
+      ? pathData.match(/d="([^"]+)"/)?.[1] || pathData
+      : pathData;
+      
     baseGroup.push(
-      new fabric.Path(pathData, {
-        left: bbox.left - vertexleft,
-        top: bbox.top - vertextop,
-        fill: (p['fill'] == 'background') || (p['fill'] == 'symbol') || (p['fill'] == 'border') ? BorderColorScheme[color][p['fill']] : p['fill'],
-        objectCaching: false,
-        strokeWidth: 0,
+      new fabric.Path(dValue, {
+      left: bbox.left - vertexleft,
+      top: bbox.top - vertextop,
+      fill: (p['fill'] == 'background') || (p['fill'] == 'symbol') || (p['fill'] == 'border') ? BorderColorScheme[color][p['fill']] : p['fill'],
+      objectCaching: false,
+      strokeWidth: 0,
       })
     );
   });

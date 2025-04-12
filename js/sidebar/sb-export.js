@@ -4,7 +4,20 @@ let FormExportComponent = {
   exportSettings: {
     filename: 'traffic-sign-export',
     quality: 1.0,
-    multiplier: 1.0
+    multiplier: 1.0,
+    paperSize: 'A3', // Default paper size
+    // Paper sizes in mm (width, height)
+    paperSizes: {
+      'A0': [841, 1189],
+      'A1': [594, 841],
+      'A2': [420, 594],
+      'A3': [297, 420],
+      'A4': [210, 297],
+      'A5': [148, 210],
+      'Letter': [216, 279],
+      'Legal': [216, 356],
+      'Tabloid': [279, 432]
+    }
   },
 
   exportPanelInit: function (parent) {
@@ -26,8 +39,16 @@ let FormExportComponent = {
         FormExportComponent.exportSettings.quality = parseFloat(e.target.value);
       });
 
-    // Create scale multiplier
-    const scaleInput = GeneralHandler.createInput('export-scale', 'Scale Multiplier', exportContainer,
+    // Create paper size selector for PDF export
+    const paperSizeOptions = Object.keys(FormExportComponent.exportSettings.paperSizes);
+    const paperSizeSelect = GeneralHandler.createSelect('export-paper-size', 'PDF Paper Size',
+      paperSizeOptions, exportContainer, FormExportComponent.exportSettings.paperSize,
+      (e) => {
+        FormExportComponent.exportSettings.paperSize = e.target.value;
+      });
+
+    // Keep scale multiplier for PNG/SVG exports (hidden from UI for PDF export)
+    const scaleInput = GeneralHandler.createInput('export-scale', 'Scale Multiplier (PNG/SVG)', exportContainer,
       FormExportComponent.exportSettings.multiplier, (e) => {
         FormExportComponent.exportSettings.multiplier = parseFloat(e.target.value);
       }, 'input');
@@ -43,19 +64,19 @@ let FormExportComponent = {
 
     // PNG Export
     GeneralHandler.createButton('export-png', 'Export as PNG', buttonContainer, 'input',
-      FormExportComponent.exportToPNG, 'click');
+      async () => await FormExportComponent.exportToPNG(), 'click');
 
     // SVG Export
     GeneralHandler.createButton('export-svg', 'Export as SVG', buttonContainer, 'input',
-      FormExportComponent.exportToSVG, 'click');
+      async () => await FormExportComponent.exportToSVG(), 'click');
 
     // PDF Export
     GeneralHandler.createButton('export-pdf', 'Export as PDF', buttonContainer, 'input',
-      FormExportComponent.exportToPDF, 'click');
+      async () => await FormExportComponent.exportToPDF(), 'click');
 
     // DXF Export
     GeneralHandler.createButton('export-dxf', 'Export as DXF (Outline Only)', buttonContainer, 'input',
-      FormExportComponent.exportToDXF, 'click');
+      async () => await FormExportComponent.exportToDXF(), 'click');
   },
 
   // Helper function to prepare canvas for export
@@ -164,6 +185,29 @@ let FormExportComponent = {
     });
 
     canvas.renderAll();
+  },
+
+  // Helper function to show loading overlay during export
+  showLoadingOverlay: function(exportType) {
+    const overlay = document.getElementById('loading-overlay');
+    const loadingText = overlay.querySelector('.loading-text');
+    loadingText.textContent = `Exporting ${exportType}...`;
+    overlay.style.display = 'flex';
+    
+    // Force browser to render the overlay before continuing
+    return new Promise(resolve => {
+      // Use requestAnimationFrame to ensure DOM updates before continuing
+      requestAnimationFrame(() => {
+        // Add a small delay to ensure the overlay is visible
+        setTimeout(resolve, 50);
+      });
+    });
+  },
+
+  // Helper function to hide loading overlay after export
+  hideLoadingOverlay: function() {
+    const overlay = document.getElementById('loading-overlay');
+    overlay.style.display = 'none';
   },
 
   combineSvgPaths: function (svgString) {
@@ -394,93 +438,112 @@ let FormExportComponent = {
     return combinedPathData.trim();
   },
 
-  exportToPNG: function () {
-    const options = {
-      format: 'png',
-      quality: FormExportComponent.exportSettings.quality,
-      multiplier: FormExportComponent.exportSettings.multiplier
-    };
+  exportToPNG: async function () {
+    // Show loading overlay and wait for it to render
+    await FormExportComponent.showLoadingOverlay('PNG');
+    
+    try {
+      const options = {
+        format: 'png',
+        quality: FormExportComponent.exportSettings.quality,
+        multiplier: FormExportComponent.exportSettings.multiplier
+      };
 
-    // Prepare canvas for export
-    const originalState = FormExportComponent.prepareCanvasForExport();
+      // Prepare canvas for export
+      const originalState = FormExportComponent.prepareCanvasForExport();
 
-    // Generate the export
-    const dataURL = canvas.toDataURL(options);
+      // Generate the export
+      const dataURL = canvas.toDataURL(options);
 
-    // Restore canvas
-    FormExportComponent.restoreCanvasAfterExport(originalState);
+      // Restore canvas
+      FormExportComponent.restoreCanvasAfterExport(originalState);
 
-    // Create the download link
-    const link = document.createElement('a');
-    link.download = `${FormExportComponent.exportSettings.filename}.png`;
-    link.href = dataURL;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      // Create the download link
+      const link = document.createElement('a');
+      link.download = `${FormExportComponent.exportSettings.filename}.png`;
+      link.href = dataURL;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } finally {
+      // Hide loading overlay
+      FormExportComponent.hideLoadingOverlay();
+    }
   },
 
-  exportToSVG: function () {
-    // Prepare canvas for export
-    const originalState = FormExportComponent.prepareCanvasForExport();
+  exportToSVG: async function () {
+    // Show loading overlay and wait for it to render
+    await FormExportComponent.showLoadingOverlay('SVG');
+    
+    try {
+      // Prepare canvas for export
+      const originalState = FormExportComponent.prepareCanvasForExport();
 
-    const includeBackground = GeneralHandler.getToggleValue('Include Background-container') === 'Yes';
+      const includeBackground = GeneralHandler.getToggleValue('Include Background-container') === 'Yes';
 
-    // Add a temporary background rectangle if background should be included
-    if (includeBackground && originalState.exportBounds) {
-      // Add a temporary background rectangle that matches the export bounds
-      const bgColor = canvas.backgroundColor || '#ffffff';
-      const bgRect = new fabric.Rect({
-        left: originalState.exportBounds.left,
-        top: originalState.exportBounds.top,
-        width: originalState.exportBounds.width,
-        height: originalState.exportBounds.height,
-        fill: bgColor,
-        selectable: false,
-        evented: false,
-        id: 'temp-export-bg'
+      // Add a temporary background rectangle if background should be included
+      if (includeBackground && originalState.exportBounds) {
+        // Add a temporary background rectangle that matches the export bounds
+        const bgColor = canvas.backgroundColor || '#ffffff';
+        const bgRect = new fabric.Rect({
+          left: originalState.exportBounds.left,
+          top: originalState.exportBounds.top,
+          width: originalState.exportBounds.width,
+          height: originalState.exportBounds.height,
+          fill: bgColor,
+          selectable: false,
+          evented: false,
+          id: 'temp-export-bg'
+        });
+
+        // Insert at the bottom of the stack
+        canvas.insertAt(0, bgRect);
+        originalState.tempBackgroundRect = bgRect;
+      }
+
+      // Generate the SVG data
+      const svgData = canvas.toSVG({
+        // SVG-specific options
+        viewBox: {
+          x: originalState.exportBounds ? originalState.exportBounds.left : 0,
+          y: originalState.exportBounds ? originalState.exportBounds.top : 0,
+          width: originalState.exportBounds ? originalState.exportBounds.width : canvas.width,
+          height: originalState.exportBounds ? originalState.exportBounds.height : canvas.height
+        }
       });
 
-      // Insert at the bottom of the stack
-      canvas.insertAt(0, bgRect);
-      originalState.tempBackgroundRect = bgRect;
-    }
-
-    // Generate the SVG data
-    const svgData = canvas.toSVG({
-      // SVG-specific options
-      viewBox: {
-        x: originalState.exportBounds ? originalState.exportBounds.left : 0,
-        y: originalState.exportBounds ? originalState.exportBounds.top : 0,
-        width: originalState.exportBounds ? originalState.exportBounds.width : canvas.width,
-        height: originalState.exportBounds ? originalState.exportBounds.height : canvas.height
+      // Remove temporary background rectangle if it was added
+      if (originalState.tempBackgroundRect) {
+        canvas.remove(originalState.tempBackgroundRect);
       }
-    });
 
-    // Remove temporary background rectangle if it was added
-    if (originalState.tempBackgroundRect) {
-      canvas.remove(originalState.tempBackgroundRect);
+      // Restore canvas
+      FormExportComponent.restoreCanvasAfterExport(originalState);
+
+      // Create the download
+      const blob = new Blob([svgData], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = `${FormExportComponent.exportSettings.filename}.svg`;
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } finally {
+      // Hide loading overlay
+      FormExportComponent.hideLoadingOverlay();
     }
-
-    // Restore canvas
-    FormExportComponent.restoreCanvasAfterExport(originalState);
-
-    // Create the download
-    const blob = new Blob([svgData], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.download = `${FormExportComponent.exportSettings.filename}.svg`;
-    link.href = url;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
   },
 
-  exportToDXF: function () {
-    // Prepare canvas for export
-    const originalState = FormExportComponent.prepareCanvasForExport();
-
+  exportToDXF: async function () {
+    // Show loading overlay and wait for it to render
+    await FormExportComponent.showLoadingOverlay('DXF');
+    
     try {
+      // Prepare canvas for export
+      const originalState = FormExportComponent.prepareCanvasForExport();
+
       // Create a new DXF document using our npm module
       const dxf = new DxfWriter();
 
@@ -520,15 +583,126 @@ let FormExportComponent = {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-
     } catch (error) {
       console.error("DXF export failed:", error);
       alert("DXF export failed: " + error.message);
     } finally {
       // Ensure canvas is restored even on error
       FormExportComponent.restoreCanvasAfterExport(originalState);
+      
+      // Hide loading overlay
+      FormExportComponent.hideLoadingOverlay();
     }
   },
+
+  exportToPDF: async function () {
+    // Show loading overlay and wait for it to render
+    await FormExportComponent.showLoadingOverlay('PDF');
+    
+    try {
+      // Prepare canvas for export first
+      const originalState = FormExportComponent.prepareCanvasForExport();
+      
+      const includeBackground = GeneralHandler.getToggleValue('Include Background-container') === 'Yes';
+
+      // Add a temporary background rectangle if background should be included
+      if (includeBackground && originalState.exportBounds) {
+        // Add a temporary background rectangle that matches the export bounds
+        const bgColor = canvas.backgroundColor || '#ffffff';
+        const bgRect = new fabric.Rect({
+          left: originalState.exportBounds.left,
+          top: originalState.exportBounds.top,
+          width: originalState.exportBounds.width,
+          height: originalState.exportBounds.height,
+          fill: bgColor,
+          selectable: false,
+          evented: false,
+          id: 'temp-export-bg'
+        });
+
+        // Insert at the bottom of the stack
+        canvas.insertAt(0, bgRect);
+        originalState.tempBackgroundRect = bgRect;
+      }
+      
+      // Use the calculated bounds for content dimensions
+      const contentWidth = originalState.exportBounds ? originalState.exportBounds.width : canvas.width;
+      const contentHeight = originalState.exportBounds ? originalState.exportBounds.height : canvas.height;
+      
+      // Get the selected paper size dimensions from settings
+      const selectedPaperSize = FormExportComponent.exportSettings.paperSize;
+      const [paperWidthMM, paperHeightMM] = FormExportComponent.exportSettings.paperSizes[selectedPaperSize];
+      
+      // Convert paper dimensions from mm to pixels
+      const MM_TO_PX = 2.83; // Approximate conversion from mm to px at 72 dpi
+      const paperWidthPx = paperWidthMM * MM_TO_PX;
+      const paperHeightPx = paperHeightMM * MM_TO_PX;
+      
+      // Determine orientation based on content aspect ratio
+      const contentAspectRatio = contentWidth / contentHeight;
+      const paperAspectRatio = paperWidthPx / paperHeightPx;
+      
+      // Choose orientation that best fits the content
+      const isLandscape = contentAspectRatio > paperAspectRatio;
+      
+      // Set PDF dimensions based on orientation
+      const pdfWidth = isLandscape ? paperHeightPx : paperWidthPx;
+      const pdfHeight = isLandscape ? paperWidthPx : paperHeightPx;
+      
+      // Calculate scale to fit content within the paper size while preserving aspect ratio
+      const scaleX = pdfWidth / contentWidth;
+      const scaleY = pdfHeight / contentHeight;
+      const scale = Math.min(scaleX, scaleY) * 0.95; // Use 95% of available space to add margin
+      
+      // Calculate dimensions of the scaled content
+      const scaledWidth = contentWidth * scale;
+      const scaledHeight = contentHeight * scale;
+      
+      // Calculate position to center the content on the page
+      const xOffset = (pdfWidth - scaledWidth) / 2;
+      const yOffset = (pdfHeight - scaledHeight) / 2;
+      
+      // Create a new jsPDF instance with appropriate orientation
+      const pdf = new jsPDF({
+        orientation: isLandscape ? 'landscape' : 'portrait',
+        unit: 'px',
+        format: isLandscape ? [paperHeightPx, paperWidthPx] : [paperWidthPx, paperHeightPx],
+        compress: true
+      });
+
+      // Get PNG data URL from canvas
+      const dataURL = canvas.toDataURL({
+        format: 'png',
+        quality: FormExportComponent.exportSettings.quality,
+        multiplier: FormExportComponent.exportSettings.multiplier
+      });
+
+      // Remove temporary background rectangle if it was added
+      if (originalState.tempBackgroundRect) {
+        canvas.remove(originalState.tempBackgroundRect);
+      }
+
+      // Add the image to the PDF, centered and scaled to fit the selected paper size
+      pdf.addImage(
+        dataURL,
+        'PNG',
+        xOffset,
+        yOffset,
+        scaledWidth,
+        scaledHeight
+      );
+
+      // Save the PDF
+      pdf.save(`${FormExportComponent.exportSettings.filename}.pdf`);
+      
+      // Restore the canvas after PDF creation
+      FormExportComponent.restoreCanvasAfterExport(originalState);
+    } finally {
+      // Hide loading overlay
+      FormExportComponent.hideLoadingOverlay();
+    }
+  },
+
 
   // First, recursively collect all path objects
   collectPathObjects: function (obj, pathObjects) {
