@@ -877,7 +877,6 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
     
     // Clear the updating flag to indicate border update is complete
     this.isUpdating = false;
-    console.log(`Border ${this.canvasID} update completed`);
   }
   
   // Helper method to update divider coordinates without triggering recursive updates

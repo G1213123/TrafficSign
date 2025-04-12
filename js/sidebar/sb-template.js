@@ -86,6 +86,26 @@ let FormTemplateComponent = {
           <polygon points="100,57.5 90,50 110,50" stroke="${color}" fill="none" stroke-width="1"/>
         </svg>`;
       }
+    },
+    'Spiral Roundabout Sign': {
+      description: 'Sign showing directions at a spiral roundabout with multiple destinations',
+      thumbnail: function (color) {
+        return `<svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+          <rect x="5" y="5" width="110" height="70" stroke="${color}" fill="none" stroke-width="2"/>
+          <ellipse cx="60" cy="40" rx="18" ry="15" stroke="${color}" fill="none" stroke-width="1.5"/>
+          <path d="M 60,40 m -8,-8 q 8,-4 16,0 q -8,4 -16,0" stroke="${color}" fill="none" stroke-width="1"/>
+          <line x1="30" y1="20" x2="50" y2="30" stroke="${color}" stroke-width="1"/>
+          <line x1="70" y1="30" x2="90" y2="20" stroke="${color}" stroke-width="1"/>
+          <line x1="30" y1="50" x2="45" y2="43" stroke="${color}" stroke-width="1"/>
+          <line x1="75" y1="43" x2="90" y2="50" stroke="${color}" stroke-width="1"/>
+          <rect x="10" y="10" width="30" height="8" stroke="${color}" fill="none" stroke-width="1"/>
+          <rect x="80" y="10" width="30" height="8" stroke="${color}" fill="none" stroke-width="1"/>
+          <rect x="10" y="60" width="30" height="8" stroke="${color}" fill="none" stroke-width="1"/>
+          <rect x="80" y="60" width="30" height="8" stroke="${color}" fill="none" stroke-width="1"/>
+          <circle cx="20" cy="50" r="4" stroke="${color}" fill="none" stroke-width="1"/>
+          <circle cx="100" cy="50" r="4" stroke="${color}" fill="none" stroke-width="1"/>
+        </svg>`;
+      }
     }
   },
 
@@ -192,8 +212,7 @@ let FormTemplateComponent = {
   },
   /**
    * Create a template sign based on the selected template
-   */
-  createTemplateSign: async function (templateName, xHeight, color) {
+   */  createTemplateSign: async function (templateName, xHeight, color) {
     console.log(`Creating template: ${templateName}, xHeight: ${xHeight}, color: ${color}`);
 
     const vpt = CenterCoord();
@@ -215,6 +234,9 @@ let FormTemplateComponent = {
         break;
       case 'Multi-Lane Exit':
         await this.createMultiLaneExit(centerX, centerY, xHeight, color);
+        break;
+      case 'Spiral Roundabout Sign':
+        await this.createSpiralRoundaboutSign(centerX, centerY, xHeight, color);
         break;
       default:
         console.log(`Template ${templateName} not implemented`);
@@ -915,7 +937,7 @@ let FormTemplateComponent = {
 
       const topBorderObjects = [
         topDestinationText1, topDestinationText2, topChineseText,
-        topSymbol,        
+        topSymbol,
       ];
 
       const whiteBorder = await BorderUtilities.BorderGroupCreate(
@@ -995,7 +1017,7 @@ let FormTemplateComponent = {
       const leftBorderObjects = [
         leftDestinationText1, leftChineseText1,
         leftDestinationText2, leftChineseText2,
-        leftSymbol1, leftSymbol2,   
+        leftSymbol1, leftSymbol2,
       ];
 
       const greenBorder1 = await BorderUtilities.BorderGroupCreate(
@@ -1063,7 +1085,7 @@ let FormTemplateComponent = {
       const rightBorderObjects = [
         rightChineseText1, rightDestinationText1,
         rightChineseText2, rightDestinationText2,
-        rightSymbol1, rightSymbol2, rightSymbol3 
+        rightSymbol1, rightSymbol2, rightSymbol3
       ];
 
       const greenBorder2 = await BorderUtilities.BorderGroupCreate(
@@ -1080,7 +1102,7 @@ let FormTemplateComponent = {
       // Create an overall border containing all components
       const allObjects = [
         roundabout,
-        whiteBorder, greenBorder1, greenBorder2,       
+        whiteBorder, greenBorder1, greenBorder2,
       ];
 
       const borderGroup = await BorderUtilities.BorderGroupCreate(
@@ -1099,180 +1121,253 @@ let FormTemplateComponent = {
       console.error('Error creating Roundabout Directions template:', error);
     }
   },
-
   /**
    * Create an interchange direction sign
    */
   createInterchangeDirections: async function (centerX, centerY, xHeight, color) {
     try {
-      // Create left side text objects
-      const leftTopDestinationText = new TextObject({
-        text: 'Kowloon Tong',
-        xHeight: xHeight,
-        font: 'TransportHeavy',
-        color: color,
-        left: centerX - 400,
-        top: centerY - 200
-      });
+      // Set up test parameters
+      const params = {
+        xHeight: 100,
+        rootLength: 7,
+        tipLength: 12,
+        posx: 250,
+        posy: 300,
+        width: 6,
+        shape: 'Arrow',
+        color: 'white',
+        roadType: 'Main Line'
+      };
 
-      const leftTopChineseText = new TextObject({
-        text: '九龍塘',
-        xHeight: xHeight,
-        font: 'TransportHeavy',
-        color: color,
-        left: centerX - 400,
-        top: centerY - 120
-      });
+      // Create a MainRoute directly using the updated construction method
+      // Create the route list with the main road points
+      const routeList = [
+        { x: params.posx, y: params.posy + (params.rootLength + params.tipLength) * params.xHeight / 4, angle: 180, width: params.width, shape: 'Stub' },
+        { x: params.posx, y: params.posy, angle: 0, width: params.width, shape: params.shape }
+      ];
 
-      const leftBottomDestinationText = new TextObject({
-        text: 'Shatin',
-        xHeight: xHeight,
-        font: 'TransportHeavy',
-        color: color,
-        left: centerX - 400,
-        top: centerY + 100
-      });
+      // Create route options for the MainRoadSymbol
+      const routeOptions = {
+        routeList: routeList,
+        xHeight: params.xHeight,
+        rootLength: params.rootLength,
+        tipLength: params.tipLength,
+        color: params.color,
+        roadType: params.roadType
+      };
+      const mainRoad = new MainRoadSymbol(routeOptions);
+      await mainRoad.initialize(calcMainRoadVertices(xHeight, routeOptions.routeList));
 
-      const leftBottomChineseText = new TextObject({
-        text: '沙田',
-        xHeight: xHeight,
-        font: 'TransportHeavy',
-        color: color,
-        left: centerX - 400,
-        top: centerY + 180
-      });
-
-      // Create interchange symbol
-      await drawLabeledSymbol('InterchangeSymbol', {
-        x: centerX,
-        y: centerY,
-        xHeight: xHeight * 1.5,
-        angle: 0,
-        color: color
-      });
-      const interchangeSymbol = canvasObject[canvasObject.length - 1];
-
-      // Create right side text objects
-      const rightTopDestinationText = new TextObject({
-        text: 'Yuen Long',
-        xHeight: xHeight,
-        font: 'TransportHeavy',
-        color: color,
-        left: centerX + 400,
-        top: centerY - 200
-      });
-
-      const rightTopChineseText = new TextObject({
-        text: '元朗',
-        xHeight: xHeight,
-        font: 'TransportHeavy',
-        color: color,
-        left: centerX + 400,
-        top: centerY - 120
-      });
-
-      const rightBottomDestinationText = new TextObject({
-        text: 'Tuen Mun',
-        xHeight: xHeight,
-        font: 'TransportHeavy',
-        color: color,
-        left: centerX + 400,
-        top: centerY + 100
-      });
-
-      const rightBottomChineseText = new TextObject({
-        text: '屯門',
-        xHeight: xHeight,
-        font: 'TransportHeavy',
-        color: color,
-        left: centerX + 400,
-        top: centerY + 180
-      });
-
-      // Create highway symbols
-      await drawLabeledSymbol('Highway1', {
+      // Create side road at 60 degrees angle pointing to lower destination
+      canvas.setActiveObject(mainRoad);
+      await drawSideRoadOnCursor(null, {
         x: centerX - 200,
-        y: centerY - 160,
-        xHeight: xHeight * 0.8,
+        y: centerY + 100,
+        routeParams: {
+          angle: 60,
+          shape: 'Arrow',
+          width: 4
+        }
+      });
+      await finishDrawSideRoad({ e: { button: 0 } });
+      const sideRoad = canvasObject[canvas.getActiveObject().canvasID];
+
+      // Create upper destination text (Sheung Shui)
+      const upperDestEng1 = new TextObject({
+        text: 'Sheung',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX - 300,
+        top: centerY - 150
+      });
+
+      const upperDestEng2 = new TextObject({
+        text: 'Shui',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX - 300,
+        top: centerY - 70
+      });
+
+      const upperDestChi = new TextObject({
+        text: '上水',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX - 300,
+        top: centerY + 10
+      });
+
+      // Create lower destination text (Mai Po)
+      const lowerDestEng = new TextObject({
+        text: 'Mai Po',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX - 300,
+        top: centerY + 300
+      });
+
+      const lowerDestChi = new TextObject({
+        text: '米埔',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX - 300,
+        top: centerY + 380
+      });
+
+      // Create expressway symbol in red
+      await drawLabeledSymbol('ExpresswayRed', {
+        x: centerX - 50,
+        y: centerY - 150,
+        xHeight: xHeight,
         angle: 0,
         color: color
       });
-      const leftHighwaySymbol = canvasObject[canvasObject.length - 1];
+      const expressway = canvasObject[canvasObject.length - 1];
 
-      await drawLabeledSymbol('Highway3', {
-        x: centerX + 200,
-        y: centerY - 160,
-        xHeight: xHeight * 0.8,
+      // Create route 9 symbol
+      await drawLabeledSymbol('Route9', {
+        x: centerX - 50,
+        y: centerY - 70,
+        xHeight: xHeight,
         angle: 0,
         color: color
       });
-      const rightHighwaySymbol = canvasObject[canvasObject.length - 1];
+      const route9 = canvasObject[canvasObject.length - 1];
 
-      // Create dividers
-      await VDividerCreate(
-        [leftTopDestinationText],
-        [rightTopDestinationText],
+      // Create exit number text for exit panel
+      const exitText = new TextObject({
+        text: '10A',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: 'White',
+        left: centerX + 150,
+        top: centerY + 50
+      });
+
+      // Create airport symbol at 45 degrees
+      await drawLabeledSymbol('Airport', {
+        x: centerX + 150,
+        y: centerY + 150,
+        xHeight: xHeight,
+        angle: -45,
+        color: color
+      });
+      const airport = canvasObject[canvasObject.length - 1];
+
+      // Create airport symbol at 45 degrees
+      await drawLabeledSymbol('Exit', {
+        x: centerX + 150,
+        y: centerY + 150,
+        xHeight: xHeight,
+        angle: 0,
+        color: color
+      });
+      const exitSymbol = canvasObject[canvasObject.length - 1];
+
+      // Anchor text objects
+      // Upper destination text
+      anchorShape(expressway, upperDestEng1, {
+        vertexIndex1: 'E3',
+        vertexIndex2: 'E1',
+        spacingX: -100,
+        spacingY: 0
+      });
+
+      anchorShape(upperDestEng1, upperDestEng2, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      anchorShape(upperDestEng2, upperDestChi, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+
+      // Position lower destination text 300mm below upper text
+      anchorShape(upperDestChi, lowerDestEng, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 0,
+        spacingY: 300
+      });
+
+      // Lower destination text
+      anchorShape(lowerDestEng, lowerDestChi, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      // Anchor symbols
+      anchorShape(expressway, route9, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 0,
+        spacingY: 50
+      });
+
+      anchorShape(route9, mainRoad, {
+        vertexIndex1: 'V1',
+        vertexIndex2: 'E6',
+        spacingX: 0,
+        spacingY: 100
+      });
+
+      anchorShape(lowerDestChi, exitSymbol, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 15,
+        spacingY: 25
+      });
+
+      anchorShape(exitSymbol, exitText, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E3',
+        spacingX: 12.5,
+        spacingY: -12.5
+      });
+
+      // Create exit panel border
+      const exitPanel = await BorderUtilities.BorderGroupCreate(
+        'exit',
+        [exitText, exitSymbol],
+        [exitText, exitSymbol],
         null,
         null,
-        { xHeight: xHeight, colorType: 'Blue Background' }
+        { xHeight: xHeight, borderType: 'exitPanel', colorType: 'White Background' }
       );
-      const vDivider = canvasObject[canvasObject.length - 1];
 
-      await HDividerCreate(
-        [leftTopChineseText],
-        [leftBottomDestinationText],
-        null,
-        null,
-        { xHeight: xHeight, colorType: 'Blue Background' }
-      );
-      const leftHDivider = canvasObject[canvasObject.length - 1];
-
-      await HDividerCreate(
-        [rightTopChineseText],
-        [rightBottomDestinationText],
-        null,
-        null,
-        { xHeight: xHeight, colorType: 'Blue Background' }
-      );
-      const rightHDivider = canvasObject[canvasObject.length - 1];
-
-      // Anchor text objects in pairs
-      anchorShape(leftTopDestinationText, leftTopChineseText, {
+      // Position airport symbol below exit panel
+      anchorShape(exitPanel, airport, {
         vertexIndex1: 'E1',
         vertexIndex2: 'E7',
         spacingX: 0,
-        spacingY: 0
+        spacingY: 68
       });
 
-      anchorShape(leftBottomDestinationText, leftBottomChineseText, {
-        vertexIndex1: 'E1',
-        vertexIndex2: 'E7',
-        spacingX: 0,
-        spacingY: 0
+      anchorShape(exitPanel, sideRoad, {
+        vertexIndex1: 'V1',
+        vertexIndex2: 'E5',
+        spacingX: '',
+        spacingY: 100
       });
-
-      anchorShape(rightTopDestinationText, rightTopChineseText, {
-        vertexIndex1: 'E1',
-        vertexIndex2: 'E7',
-        spacingX: 0,
-        spacingY: 0
-      });
-
-      anchorShape(rightBottomDestinationText, rightBottomChineseText, {
-        vertexIndex1: 'E1',
-        vertexIndex2: 'E7',
-        spacingX: 0,
-        spacingY: 0
-      });
-
       // Create an overall border containing all components
       const allObjects = [
-        leftTopDestinationText, leftTopChineseText,
-        leftBottomDestinationText, leftBottomChineseText,
-        rightTopDestinationText, rightTopChineseText,
-        rightBottomDestinationText, rightBottomChineseText,
-        interchangeSymbol, leftHighwaySymbol, rightHighwaySymbol,
-        vDivider, leftHDivider, rightHDivider
+        mainRoad, sideRoad,
+        upperDestEng1, upperDestEng2, upperDestChi,
+        lowerDestEng, lowerDestChi,
+        expressway, route9,
       ];
 
       const borderGroup = await BorderUtilities.BorderGroupCreate(
@@ -1281,7 +1376,7 @@ let FormTemplateComponent = {
         allObjects,
         null,
         null,
-        { xHeight: xHeight, borderType: 'stack', colorType: 'Blue Background' }
+        { xHeight: xHeight, borderType: 'stack', colorType: 'Green Background' }
       );
 
       canvas.renderAll();
@@ -1454,7 +1549,450 @@ let FormTemplateComponent = {
     } catch (error) {
       console.error('Error creating Multi-Lane Exit template:', error);
     }
-  }
+  },
+
+  /**
+   * Create a spiral roundabout sign
+   */
+  createSpiralRoundaboutSign: async function (centerX, centerY, xHeight, color) {
+    try {
+      // Create spiral roundabout symbol at center with four side roads
+      const routeOptions = {
+        routeList: [
+          { x: centerX, y: centerY + 5 * xHeight, angle: 180, width: 6, shape: 'Auxiliary' },
+          { x: centerX, y: centerY, angle: 0, width: 6, shape: 'Stub' }
+        ],
+        xHeight: xHeight,
+        rootLength: 7,
+        tipLength: 12,
+        roadType: 'Spiral Roundabout',
+        color: color
+      };
+
+      const roundabout = new MainRoadSymbol(routeOptions);
+      await roundabout.initialize(calcRoundaboutVertices('Spiral', xHeight, routeOptions.routeList));
+
+      // Create side roads at top-left, top-right, left and right positions
+      canvas.setActiveObject(roundabout);
+
+
+      // Left side road
+      await drawSideRoadOnCursor(null, {
+        x: centerX,
+        y: centerY - 600,
+        routeParams: {
+          angle: 0,
+          shape: 'Spiral Arrow',
+          width: 4
+        }
+      });
+      await finishDrawSideRoad({ e: { button: 0 } });
+      const topRoad = canvasObject[canvas.getActiveObject().canvasID];
+
+      // Set the roundabout as active object to add a side road
+      canvas.setActiveObject(roundabout);
+
+      // Right side road
+      await drawSideRoadOnCursor(null, {
+        x: centerX + 600,
+        y: centerY,
+        routeParams: {
+          angle: 0,
+          shape: 'Spiral Arrow',
+          width: 4
+        }
+      });
+      await finishDrawSideRoad({ e: { button: 0 } });
+      const rightRoad = canvasObject[canvas.getActiveObject().canvasID];
+
+      // Create top text objects
+      const topTextEng1 = new TextObject({
+        text: 'Sheung Tak',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX,
+        top: centerY - 400
+      });
+
+      const topTextChi1 = new TextObject({
+        text: '尚德',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX,
+        top: centerY - 320
+      });
+
+      const topTextEng2 = new TextObject({
+        text: 'Tsueng Kwan O Sports Ground',
+        xHeight: xHeight,
+        font: 'TransportHeavy',
+        color: 'black',
+        left: centerX,
+        top: centerY - 240
+      });
+
+      const topTextChi2 = new TextObject({
+        text: '將軍澳運動場',
+        xHeight: xHeight,
+        font: 'TransportHeavy',
+        color: 'black',
+        left: centerX,
+        top: centerY - 160
+      });
+
+      // Create left side text objects
+      const leftTextEng1 = new TextObject({
+        text: 'Sai Kung',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX - 350,
+        top: centerY - 80
+      });
+
+      const leftTextChi1 = new TextObject({
+        text: '西貢',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX - 350,
+        top: centerY
+      });
+
+      const leftTextEng2 = new TextObject({
+        text: 'Kowloon',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX - 350,
+        top: centerY + 80
+      });
+
+      const leftTextChi2 = new TextObject({
+        text: '九龍',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX - 350,
+        top: centerY + 160
+      });
+
+      const leftTextEng3 = new TextObject({
+        text: '(via TKO Tunnel)',
+        xHeight: xHeight * 0.75,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX - 350,
+        top: centerY + 240
+      });
+
+      const leftTextChi3 = new TextObject({
+        text: '(經將軍澳隧道)',
+        xHeight: xHeight * 0.75,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX - 350,
+        top: centerY + 320
+      });
+
+      // Create right side text objects
+      const rightTextEng1 = new TextObject({
+        text: 'Kowloon',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX + 350,
+        top: centerY - 80
+      });
+
+      const rightTextChi1 = new TextObject({
+        text: '九龍',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX + 350,
+        top: centerY
+      });
+
+      const rightTextEng2 = new TextObject({
+        text: '(via TKO-',
+        xHeight: xHeight * 0.75,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX + 350,
+        top: centerY + 80
+      });
+
+      const rightTextChi2 = new TextObject({
+        text: '(經將軍澳-',
+        xHeight: xHeight * 0.75,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX + 350,
+        top: centerY + 160
+      });
+
+      const rightTextEng3 = new TextObject({
+        text: 'Lam Tin Tunnel)',
+        xHeight: xHeight * 0.75,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX + 350,
+        top: centerY + 240
+      });
+
+      const rightTextChi3 = new TextObject({
+        text: '藍田隧道)',
+        xHeight: xHeight * 0.75,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX + 350,
+        top: centerY + 320
+      });
+
+      // Create route symbols
+      // Route 7 on left side
+      await drawLabeledSymbol('Route7', {
+        x: centerX - 500,
+        y: centerY,
+        xHeight: xHeight,
+        angle: 0,
+        color: color
+      });
+      const leftRouteSymbol = canvasObject[canvasObject.length - 1];
+
+      // Route 6 on right side
+      await drawLabeledSymbol('Route6', {
+        x: centerX + 500,
+        y: centerY,
+        xHeight: xHeight,
+        angle: 0,
+        color: color
+      });
+      const rightRouteSymbol = canvasObject[canvasObject.length - 1];
+
+      // Tunnel on right side
+      await drawLabeledSymbol('Tunnel', {
+        x: centerX + 500,
+        y: centerY,
+        xHeight: xHeight,
+        angle: 0,
+        color: color
+      });
+      const tunnelSymbol = canvasObject[canvasObject.length - 1];
+
+      // Anchor text objects vertically
+      // Top text anchoring
+      // X-axis
+      anchorShape(topRoad, topTextEng2, {
+        vertexIndex1: 'E2',
+        vertexIndex2: 'V1',
+        spacingX: 0,
+        spacingY: ''
+      });
+      anchorShape(topTextEng2, topTextChi1, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E1',
+        spacingX: -62.5,
+        spacingY: ''
+      });
+      anchorShape(topTextEng2, topTextEng1, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E1',
+        spacingX: -62.5,
+        spacingY: ''
+      });
+      anchorShape(topTextEng2, topTextChi2, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E1',
+        spacingX: 0,
+        spacingY: ''
+      });
+
+      // Y-axis
+      anchorShape(topRoad, topTextChi2, {
+        vertexIndex1: 'E6',
+        vertexIndex2: 'V1',
+        spacingX: '',
+        spacingY: -37.5
+      });
+
+      anchorShape(topTextChi2, topTextEng2, {
+        vertexIndex1: 'E7',
+        vertexIndex2: 'E1',
+        spacingX: '',
+        spacingY: 0
+      });
+
+      anchorShape(topTextEng2, topTextChi1, {
+        vertexIndex1: 'E7',
+        vertexIndex2: 'E1',
+        spacingX: '',
+        spacingY: -62.5
+      });
+      anchorShape(topTextChi1, topTextEng1, {
+        vertexIndex1: 'E7',
+        vertexIndex2: 'E1',
+        spacingX: '',
+        spacingY: 0
+      });
+
+      // Left text anchoring
+      anchorShape(roundabout, leftTextEng1, {
+        vertexIndex1: 'E3',
+        vertexIndex2: 'V1',
+        spacingX: -731,
+        spacingY: ''
+      });
+      anchorShape(roundabout, leftTextEng1, {
+        vertexIndex1: 'E3',
+        vertexIndex2: 'V4',
+        spacingX: '',
+        spacingY: 37.5
+      });
+
+      anchorShape(leftTextEng1, leftTextChi1, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      anchorShape(leftTextChi1, leftTextEng2, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      anchorShape(leftTextEng2, leftTextEng3, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      anchorShape(leftTextEng3, leftTextChi2, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      anchorShape(leftTextChi2, leftTextChi3, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      // Right text anchoring
+      anchorShape(rightRoad, rightTextEng1, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'V3',
+        spacingX: 50,
+        spacingY: ''
+      });
+
+      anchorShape(rightRoad, rightTextEng1, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'V2',
+        spacingX: '',
+        spacingY: 37.5
+      });
+
+      anchorShape(rightTextEng1, rightTextEng2, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      anchorShape(rightTextEng2, rightTextEng3, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      anchorShape(rightTextEng3, rightTextChi1, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      anchorShape(rightTextChi1, rightTextChi2, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      anchorShape(rightTextChi2, rightTextChi3, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      // Anchor text to route symbols
+      anchorShape(leftTextEng3, leftRouteSymbol, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E3',
+        spacingX: 50,
+        spacingY: 0
+      });
+
+      anchorShape(rightTextEng1, tunnelSymbol, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E3',
+        spacingX: 337,
+        spacingY: 0
+      });
+
+      anchorShape(tunnelSymbol, rightRouteSymbol, {
+        vertexIndex1: 'E2',
+        vertexIndex2: 'E6',
+        spacingX: 0,
+        spacingY: 50
+      });
+
+      const topPanel = await BorderUtilities.BorderGroupCreate(
+        'panel',
+        [topTextEng2, topTextChi2],
+        [topTextEng2, topTextChi2],
+        null,
+        null,
+        { xHeight: xHeight, borderType: 'panel', colorType: 'White Background' }
+      );
+
+      // Create an overall border containing all components
+      const allObjects = [
+        roundabout,
+        topTextEng1, topTextChi1, topPanel,
+        leftTextEng1, leftTextChi1, leftTextEng2, leftTextChi2, leftTextEng3, leftTextChi3, leftRouteSymbol,
+        rightTextEng1, rightTextChi1, rightTextEng2, rightTextChi2, rightTextEng3, rightTextChi3, rightRouteSymbol, tunnelSymbol,
+      ];
+
+      const borderGroup = await BorderUtilities.BorderGroupCreate(
+        'stack',
+        allObjects,
+        allObjects,
+        null,
+        null,
+        { xHeight: xHeight, borderType: 'stack', colorType: 'Blue Background' }
+      );
+
+      canvas.renderAll();
+      console.log('Spiral Roundabout Sign template created successfully');
+
+    } catch (error) {
+      console.error('Error creating Spiral Roundabout Sign template:', error);
+    }
+  },
 };
 
 // Use the shared settings listener implementation

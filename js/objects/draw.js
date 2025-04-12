@@ -373,6 +373,8 @@ class BaseGroup extends fabric.Group {
         this.controls[vertexLabel].offsetX = 0;
         this.controls[vertexLabel].offsetY = 0;
       }
+
+      this.controls[vertexLabel].visible = shouldDisplay;
     });
 
 
@@ -547,7 +549,7 @@ class BaseGroup extends fabric.Group {
     if (!selfOnly && (deltaX !== 0 || deltaY !== 0)) {
       this.emitDelta(deltaX, deltaY, sourceList);
     }
-    if (sourceList[0] == this && this.functionalType !== 'HDivider' && this.functionalType !== 'VDivider' && this.functionalType !== 'HLine' && this.functionalType !== 'VLane') {
+    if ((sourceList[0].borderGroup !== this.borderGroup || sourceList[0] == this) && this.functionalType !== 'HDivider' && this.functionalType !== 'VDivider' && this.functionalType !== 'HLine' && this.functionalType !== 'VLane') {
       this.borderResize(sourceList);
     }
 
