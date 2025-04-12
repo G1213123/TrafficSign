@@ -509,6 +509,30 @@ class BaseGroup extends fabric.Group {
   // Method to update coordinates and emit delta
   updateAllCoord(event, sourceList = [], selfOnly = false) {
     // Check for basePolygon before calculating deltas
+    
+    if(Object.keys(this.lockXToPolygon).length > 0) {
+      // if lockXToPolygon is defined, do not use old logic, use global anchor tree instead
+      // start a new cycle
+      globalAnchorTree.startUpdateCycle();
+
+      // update x
+      globalAnchorTree.propagateUpdate('x',this.canvasID,{
+        x: this.basePolygon.getCoords()[0].x - this.refTopLeft.left,
+      });
+      globalAnchorTree.endUpdateCycle();
+    }
+    if(Object.keys(this.lockYToPolygon).length > 0) {
+      // if lockYToPolygon is defined, do not use old logic, use global anchor tree instead
+      // start a new cycle
+      globalAnchorTree.startUpdateCycle();
+      // update x
+      globalAnchorTree.propagateUpdate('y',this.canvasID,{
+        y: this.basePolygon.getCoords()[0].y - this.refTopLeft.top,
+      });
+      globalAnchorTree.endUpdateCycle();
+    }
+
+
     if (!this.basePolygon || !this.basePolygon.getCoords) {
       // If basePolygon doesn't exist yet, just return
       return;

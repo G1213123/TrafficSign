@@ -906,6 +906,19 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
     if (globalAnchorTree.updateInProgress) {
       globalAnchorTree.updatedObjects.add(divider.canvasID);
     }
+      top: divider.top,
+      left: divider.left
+    };
+    
+    divider.bbox = {
+      width: divider.width,
+      height: divider.height
+    };
+    
+    // Mark as updated in the anchor tree if it's active
+    if (globalAnchorTree.updateInProgress) {
+      globalAnchorTree.updatedObjects.add(divider.canvasID);
+    }
   }
 
   // Update the bbox property and compartmentBboxes array
@@ -1200,16 +1213,11 @@ class BorderUpdateQueue {
     // then there are active anchor updates for this border
     for (const obj of borderObjects) {
       const objID = obj.canvasID;
-      
-      // Check if any pending x-axis updates involve this object
-      const pendingXUpdates = globalAnchorTree.getPendingUpdates('x', objID);
-      if (pendingXUpdates && pendingXUpdates.length > 0) return true;
-      
-      // Check if any pending y-axis updates involve this object
-      const pendingYUpdates = globalAnchorTree.getPendingUpdates('y', objID);
-      if (pendingYUpdates && pendingYUpdates.length > 0) return true;
+      // Check if object or his parent is currently updating
+      if (obj.isUpdating || globalAnchorTree.updatedObjects.has(objID)) {
+        return true;
+      }
     }
-    
     // If we get here, no objects in the border have pending anchor updates
     return false;
   }
