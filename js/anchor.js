@@ -74,6 +74,39 @@ class AnchorTree {
     // Delete the node
     delete tree[objId];
   }
+
+  propagateUpdate(axis, targetId, updateData) {
+    const tree = axis === 'x' ? this.xTree : this.yTree;
+    // if object is already updated, skip
+    if (this.updatedObjects.has(targetId)) return;
+    // add to updated objects
+    this.updatedObjects.add(targetId)
+    // check if leaf node, return if no child
+    if (tree[targetId].children.length == 0) return;
+    // iterate through the children
+    tree[targetId].children.forEach(childId => {
+      // if already updated skip
+      if (this.updatedObjects.has(childId)) return;
+      // add to updated objects
+      this.updatedObjects.add(childId)
+
+      const child = tree[childId].object;
+
+      // update the objects
+      if (axis === 'x') {
+        child.set({ left: child.left + updateData.x });
+      } else if (axis === 'y') {
+        child.set({ top: child.top + updateData.y });
+      }
+
+      // check if has children
+      if (tree[childId].children.length > 0){
+        //propagate recursively
+        this.propagateUpdate(axis,childId,updateData)
+      }
+    })
+  }
+
   
   // Get all affected objects (in proper update order) when an object is moved
   getUpdateOrder(direction, startObjId) {
