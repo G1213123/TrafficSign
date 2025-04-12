@@ -609,8 +609,7 @@ class BaseGroup extends fabric.Group {
     return this.basePolygon.getCoords();
   }
   // Method to delete the object
-  deleteObject(_eventData, transform) {
-    const deleteObj = transform?.target || transform || this
+  deleteObject(_eventData, transform) {    const deleteObj = transform?.target || transform || this
 
     // Track object deletion before actually deleting it
     canvasTracker.track('deleteObject', [{
@@ -619,20 +618,28 @@ class BaseGroup extends fabric.Group {
       functionalType: deleteObj.functionalType
     }]);
 
+    // Store the original canvasID before removing the object
+    const originalCanvasID = deleteObj.canvasID;
+
+    // Now remove from the canvasObject array and create ID mapping
     const index = canvasObject.indexOf(deleteObj)
     if (index > -1) {
       canvasObject.splice(index, 1);
+      
+      // Create a mapping of old IDs to new IDs for anchor tree update
+      const idMapping = {};
+      
+      // Update IDs for remaining objects
       for (let i = index; i < canvasObject.length; i++) {
+        const oldID = canvasObject[i].canvasID;
         canvasObject[i].canvasID -= 1;
+        idMapping[oldID] = canvasObject[i].canvasID;
       }
-    }
-
-    // Remove the object from the anchor tree - this ensures all anchor relationships are properly cleaned up
-    if (typeof globalAnchorTree !== 'undefined') {
-      // Remove from X tree
-      globalAnchorTree.removeNode('x', deleteObj.canvasID);
-      // Remove from Y tree
-      globalAnchorTree.removeNode('y', deleteObj.canvasID);
+      
+      // Update the anchor tree with the new ID mapping
+      if (typeof globalAnchorTree !== 'undefined') {
+        globalAnchorTree.updateOnDelete(originalCanvasID, idMapping);
+      }
     }
 
     //delete route branch
@@ -1320,15 +1327,12 @@ class VertexControl extends fabric.Control {
           // Fall back to standard calculation if vertex not found
           newLeft = pointer.x - this.vertexOffset.x;
           newTop = pointer.y - this.vertexOffset.y;
-        }
-      } else {
+        }      } else {
         // Standard calculation for non-text objects
         newLeft = pointer.x - this.vertexOffset.x;
         newTop = pointer.y - this.vertexOffset.y;
       }
-    }
-
-    // Move the group
+    }    // Move the group
     if (this.baseGroup.functionalType !== 'MainRoad' && this.baseGroup.functionalType !== 'SideRoad') {
       if (!this.baseGroup.lockMovementX) {
         this.baseGroup.set({
@@ -1344,13 +1348,49 @@ class VertexControl extends fabric.Control {
       }
 
     } else {
-      this.baseGroup.routeList.forEach(route => {
-        route.x = newLeft + this.vertexOffset.x
-        if (this.vertex.label === 'V1') {
-          route.y = newTop + this.vertexOffset.y
+      // Special handling for MainRoad and SideRoad
+      // If we have a snap target, use its position instead of pointer
+      const finalPointer = this.snapTarget ? 
+        { x: this.snapTarget.vertex.x, y: this.snapTarget.vertex.y } : 
+        pointer;
+      
+      if (this.baseGroup.functionalType === 'SideRoad') {
+        // For SideRoad, calculate the appropriate offset based on active vertex
+        if (activeVertex && activeVertex.vertex) {
+          // Find the V1 vertex which corresponds to routeList[0]
+          let v1Vertex = this.baseGroup.basePolygon.vertex.find(v => v.label === 'V1');
+          
+          // Calculate offset between active vertex and V1
+          let offsetX = 0;
+          let offsetY = 0;
+          
+          if (activeVertex.vertex.label !== 'V1' && v1Vertex) {
+            // Calculate offset
+            const activeVertexObj = this.baseGroup.basePolygon.vertex.find(v => v.label === activeVertex.vertex.label);
+            if (activeVertexObj) {
+              offsetX = v1Vertex.x - activeVertexObj.x;
+              offsetY = v1Vertex.y - activeVertexObj.y;
+            }
+          }
+          
+          // Apply the position update with the calculated offset
+          this.baseGroup.routeList[0].x = finalPointer.x + offsetX;
+          this.baseGroup.routeList[0].y = finalPointer.y + offsetY;
+        } else {
+          // Fallback to old behavior if active vertex information is not available
+          this.baseGroup.routeList.forEach(route => {
+            route.x = newLeft + this.vertexOffset.x;
+            route.y = newTop + this.vertexOffset.y;
+          });
         }
-      })
-      this.baseGroup.onMove()
+      } else {
+        // For MainRoad, use original behavior
+        this.baseGroup.routeList.forEach(route => {
+          route.x = newLeft + this.vertexOffset.x;
+          route.y = newTop + this.vertexOffset.y;
+        });
+      }
+      this.baseGroup.onMove();
     }
     
     this.baseGroup.setCoords();

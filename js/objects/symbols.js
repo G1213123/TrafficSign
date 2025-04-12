@@ -451,6 +451,7 @@ async function drawSymbolDirectly(symbolType, options) {
 
   symbolGroup.set({
     symbolAngle: options.angle || 0,
+    strokeWidth: 0,
   })
 
   return symbolGroup;

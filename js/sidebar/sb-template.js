@@ -1,112 +1,54 @@
 /* Template Signs Panel */
 let FormTemplateComponent = {
   // Template gallery with predefined complex sign layouts
-  templates: {
-    'Basic Gantry': {
-      description: 'Standard overhead gantry sign with destinations and arrows',
-      thumbnail: function (color) {
-        // Simple SVG representation of a gantry sign
-        return `<svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
-          <rect x="5" y="5" width="110" height="70" stroke="${color}" fill="none" stroke-width="2"/>
-          <line x1="60" y1="5" x2="60" y2="75" stroke="${color}" stroke-width="2"/>
-          <rect x="15" y="15" width="30" height="10" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="15" y="35" width="30" height="10" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="15" y="55" width="30" height="10" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="75" y="15" width="30" height="10" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="75" y="35" width="30" height="10" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="75" y="55" width="30" height="10" stroke="${color}" fill="none" stroke-width="1"/>
-        </svg>`;
+  templates: {    'Flag Sign': {
+      description: 'Standard flag type sign with destinations and chevron',
+      thumbnail: function () {
+        // Load SVG image from images folder in a standardized thumbnail container
+        return `<div class="template-thumbnail"><img src="images/flag.svg" alt="Flag Sign" /></div>`;
       }
     },
     'Stack Sign': {
       description: 'Stacked road sign with multiple destinations',
-      thumbnail: function (color) {
-        return `<svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
-          <rect x="10" y="5" width="100" height="70" stroke="${color}" fill="none" stroke-width="2"/>
-          <line x1="10" y1="25" x2="110" y2="25" stroke="${color}" stroke-width="2"/>
-          <line x1="10" y1="50" x2="110" y2="50" stroke="${color}" stroke-width="2"/>
-          <rect x="20" y="10" width="50" height="8" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="20" y="32" width="50" height="8" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="20" y="57" width="50" height="8" stroke="${color}" fill="none" stroke-width="1"/>
-          <polygon points="80,15 95,15 87.5,22" stroke="${color}" fill="none" stroke-width="1"/>
-          <polygon points="80,38 95,38 87.5,45" stroke="${color}" fill="none" stroke-width="1"/>
-          <polygon points="80,61 95,61 87.5,68" stroke="${color}" fill="none" stroke-width="1"/>
-        </svg>`;
+      thumbnail: function () {
+        // Load SVG image from images folder in a standardized thumbnail container
+        return `<div class="template-thumbnail"><img src="images/stack.svg" alt="Stack Sign" /></div>`;
       }
     },
-    'Roundabout Directions': {
+    'Roundabout Sign': {
       description: 'Sign showing directions at a roundabout',
-      thumbnail: function (color) {
-        return `<svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
-          <rect x="5" y="5" width="110" height="70" stroke="${color}" fill="none" stroke-width="2"/>
-          <circle cx="60" cy="40" r="15" stroke="${color}" fill="none" stroke-width="1.5"/>
-          <line x1="5" y1="28" x2="110" y2="28" stroke="${color}" stroke-width="1"/>
-          <line x1="5" y1="52" x2="110" y2="52" stroke="${color}" stroke-width="1"/>
-          <rect x="15" y="10" width="30" height="8" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="75" y="10" width="30" height="8" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="15" y="62" width="30" height="8" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="75" y="62" width="30" height="8" stroke="${color}" fill="none" stroke-width="1"/>
-          <path d="M 40,40 Q 48,15 60,25" stroke="${color}" fill="none" stroke-width="1.5"/>
-          <path d="M 60,55 Q 80,45 75,62" stroke="${color}" fill="none" stroke-width="1.5"/>
-        </svg>`;
+      thumbnail: function () {
+        // Load SVG image from images folder in a standardized thumbnail container
+        return `<div class="template-thumbnail"><img src="images/roundabout.svg" alt="Roundabout Sign" /></div>`;
       }
-    },
-    'Interchange Directions': {
-      description: 'Complex interchange direction sign with multiple destinations',
-      thumbnail: function (color) {
-        return `<svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
-          <rect x="5" y="5" width="110" height="70" stroke="${color}" fill="none" stroke-width="2"/>
-          <line x1="60" y1="5" x2="60" y2="75" stroke="${color}" stroke-width="2"/>
-          <line x1="5" y1="30" x2="60" y2="30" stroke="${color}" stroke-width="1"/>
-          <line x1="60" y1="45" x2="115" y2="45" stroke="${color}" stroke-width="1"/>
-          <rect x="10" y="10" width="40" height="8" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="10" y="35" width="40" height="8" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="10" y="60" width="40" height="8" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="70" y="10" width="40" height="8" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="70" y="30" width="40" height="8" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="70" y="55" width="40" height="8" stroke="${color}" fill="none" stroke-width="1"/>
-          <circle cx="23" cy="20" r="3" stroke="${color}" fill="none" stroke-width="1"/>
-          <circle cx="85" cy="20" r="3" stroke="${color}" fill="none" stroke-width="1"/>
-        </svg>`;
-      }
-    },
-    'Multi-Lane Exit': {
-      description: 'Exit sign showing multiple lanes with directions',
-      thumbnail: function (color) {
-        return `<svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
-          <rect x="5" y="5" width="110" height="70" stroke="${color}" fill="none" stroke-width="2"/>
-          <line x1="40" y1="5" x2="40" y2="75" stroke="${color}" stroke-width="1"/>
-          <line x1="80" y1="5" x2="80" y2="75" stroke="${color}" stroke-width="1"/>
-          <line x1="5" y1="40" x2="115" y2="40" stroke="${color}" stroke-width="1"/>
-          <rect x="10" y="15" width="20" height="7" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="45" y="15" width="30" height="7" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="85" y="15" width="20" height="7" stroke="${color}" fill="none" stroke-width="1"/>
-          <polygon points="20,50 20,65 30,57.5" stroke="${color}" fill="none" stroke-width="1"/>
-          <polygon points="60,50 60,65 70,57.5" stroke="${color}" fill="none" stroke-width="1"/>
-          <polygon points="100,57.5 90,50 110,50" stroke="${color}" fill="none" stroke-width="1"/>
-        </svg>`;
-      }
-    },
-    'Spiral Roundabout Sign': {
+    }, 'Spiral Roundabout Sign': {
       description: 'Sign showing directions at a spiral roundabout with multiple destinations',
-      thumbnail: function (color) {
-        return `<svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
-          <rect x="5" y="5" width="110" height="70" stroke="${color}" fill="none" stroke-width="2"/>
-          <ellipse cx="60" cy="40" rx="18" ry="15" stroke="${color}" fill="none" stroke-width="1.5"/>
-          <path d="M 60,40 m -8,-8 q 8,-4 16,0 q -8,4 -16,0" stroke="${color}" fill="none" stroke-width="1"/>
-          <line x1="30" y1="20" x2="50" y2="30" stroke="${color}" stroke-width="1"/>
-          <line x1="70" y1="30" x2="90" y2="20" stroke="${color}" stroke-width="1"/>
-          <line x1="30" y1="50" x2="45" y2="43" stroke="${color}" stroke-width="1"/>
-          <line x1="75" y1="43" x2="90" y2="50" stroke="${color}" stroke-width="1"/>
-          <rect x="10" y="10" width="30" height="8" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="80" y="10" width="30" height="8" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="10" y="60" width="30" height="8" stroke="${color}" fill="none" stroke-width="1"/>
-          <rect x="80" y="60" width="30" height="8" stroke="${color}" fill="none" stroke-width="1"/>
-          <circle cx="20" cy="50" r="4" stroke="${color}" fill="none" stroke-width="1"/>
-          <circle cx="100" cy="50" r="4" stroke="${color}" fill="none" stroke-width="1"/>
-        </svg>`;
+      thumbnail: function () {
+        // Load SVG image from images folder in a standardized thumbnail container
+        return `<div class="template-thumbnail"><img src="images/spiral.svg" alt="Spiral Roundabout Sign" /></div>`;
       }
-    }
+    },    'Gantry Sign': {
+      description: 'Overhead gantry sign with destinations in separate compartments',
+      thumbnail: function () {
+        // Load SVG image from images folder in a standardized thumbnail container
+        return `<div class="template-thumbnail"><img src="images/gentry.svg" alt="Gantry Sign" /></div>`;
+      }
+    },
+    'Diverge Sign ': {
+      description: 'Complex interchange direction sign with multiple destinations',
+      thumbnail: function () {
+        // Load SVG image from images folder in a standardized thumbnail container
+        return `<div class="template-thumbnail"><img src="images/diverge.svg" alt="Diverge Sign" /></div>`;
+      }
+    },
+    'Lane Drop Sign': {
+      description: 'Exit sign showing multiple lanes with directions',
+      thumbnail: function () {
+        // Load SVG image from images folder in a standardized thumbnail container
+        return `<div class="template-thumbnail"><img src="images/lane.svg" alt="Lane Drop Sign" /></div>`;
+      }
+    },
+
   },
 
   // Currently selected template
@@ -118,9 +60,6 @@ let FormTemplateComponent = {
     var parent = GeneralHandler.PanelInit();
 
     if (parent) {
-      // Create basic parameters container
-      GeneralHandler.createBasicParamsContainer(parent, FormTemplateComponent);
-
       // Create heading for templates
       const templateHeader = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
       const heading = GeneralHandler.createNode("div", { 'class': 'placeholder' }, templateHeader);
@@ -133,10 +72,6 @@ let FormTemplateComponent = {
   /**
    * Create a grid of template thumbnails
    */  createTemplatesGrid: function (parent) {
-    const color = document.getElementById('Message Colour-container').selected ?
-      document.getElementById('Message Colour-container').selected.getAttribute('data-value').toLowerCase() :
-      'white';
-
     // Create a container for the templates using the symbols-grid class for consistency
     const templatesContainer = GeneralHandler.createNode("div", { 'class': 'symbols-grid' }, parent);
 
@@ -145,29 +80,23 @@ let FormTemplateComponent = {
       const template = this.templates[templateName];
 
       // Create the SVG content
-      const svgContent = template.thumbnail(color);
+      const svgContent = template.thumbnail();
 
-      // Create a container for the button using border-container class like in border buttons
-      const buttonContainer = GeneralHandler.createNode("div", { 'class': 'border-container' }, templatesContainer);
-
+      // Create a container for the button
+      const buttonContainer = GeneralHandler.createNode("div", { 'class': 'template-container' }, templatesContainer);
+      
       // Create the button using GeneralHandler's SVG button creator for consistency
       const templateBtn = GeneralHandler.createSVGButton(
         templateName,
         svgContent,
         buttonContainer,
-        'border', // Use 'border' style instead of 'template'
+        'template', // Use 'template' style instead of 'border'
         // Direct deployment on click - no selection step needed
         function () {
-          const xHeight = parseInt(document.getElementById('input-xHeight').value);
-          const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
-          FormTemplateComponent.createTemplateSign(templateName, xHeight, color);
+          FormTemplateComponent.createTemplateSign(templateName);
         },
         'click'
       );
-
-      // Apply border-button class to match border button styling
-      templateBtn.classList.remove('template-button');
-      templateBtn.classList.add('border-button');
 
       // Add description tooltip
       templateBtn.title = template.description;
@@ -212,31 +141,33 @@ let FormTemplateComponent = {
   },
   /**
    * Create a template sign based on the selected template
-   */  createTemplateSign: async function (templateName, xHeight, color) {
-    console.log(`Creating template: ${templateName}, xHeight: ${xHeight}, color: ${color}`);
+   */  createTemplateSign: async function (templateName) {
+    // Each template will specify its own xHeight and color
+    console.log(`Creating template: ${templateName}`);
 
     const vpt = CenterCoord();
     const centerX = vpt.x;
-    const centerY = vpt.y;
-
-    switch (templateName) {
-      case 'Basic Gantry':
-        await this.createBasicGantry(centerX, centerY, xHeight, color);
+    const centerY = vpt.y; switch (templateName) {
+      case 'Flag Sign':
+        await this.createBasicGantry(centerX, centerY, 100, 'white');
         break;
       case 'Stack Sign':
-        await this.createStackSign(centerX, centerY, xHeight, color);
+        await this.createStackSign(centerX, centerY, 100, 'white');
         break;
-      case 'Roundabout Directions':
-        await this.createRoundaboutDirections(centerX, centerY, xHeight, color);
+      case 'Roundabout Sign':
+        await this.createRoundaboutDirections(centerX, centerY, 100, 'white');
         break;
-      case 'Interchange Directions':
-        await this.createInterchangeDirections(centerX, centerY, xHeight, color);
+      case 'Diverge Sign ':
+        await this.createInterchangeDirections(centerX, centerY, 250, 'white');
         break;
-      case 'Multi-Lane Exit':
-        await this.createMultiLaneExit(centerX, centerY, xHeight, color);
+      case 'Lane Drop Sign':
+        await this.createMultiLaneExit(centerX, centerY, 100, 'white');
         break;
       case 'Spiral Roundabout Sign':
-        await this.createSpiralRoundaboutSign(centerX, centerY, xHeight, color);
+        await this.createSpiralRoundaboutSign(centerX, centerY, 100, 'white');
+        break;
+      case 'Gantry Sign':
+        await this.createGantrySign(centerX, centerY, 250, 'white');
         break;
       default:
         console.log(`Template ${templateName} not implemented`);
@@ -402,6 +333,224 @@ let FormTemplateComponent = {
 
     } catch (error) {
       console.error('Error creating Basic Gantry template:', error);
+    }
+  },
+
+  /**
+   * Create a gantry sign with separate compartments
+   */
+  createGantrySign: async function (centerX, centerY, xHeight, color) {
+    try {
+      // Create text objects for the left compartment (Mong Kok)
+      const leftEngText = new TextObject({
+        text: 'Mong Kok',
+        xHeight: xHeight,
+        font: 'TransportHeavy',
+        color: 'black',
+        left: centerX - 500,
+        top: centerY - 200
+      });
+
+      const leftChiText = new TextObject({
+        text: '旺角',
+        xHeight: xHeight,
+        font: 'TransportHeavy',
+        color: 'black',
+        left: centerX - 500,
+        top: centerY - 50
+      });
+
+      // Create gantry arrow for left compartment
+      await drawLabeledSymbol('GantryArrow', {
+        x: centerX - 500,
+        y: centerY + 200,
+        xHeight: xHeight,
+        angle: 0,
+        color: 'white'
+      });
+      const leftArrow = canvasObject[canvasObject.length - 1];
+
+      // Create text objects for the right compartment (Tai Kok Tsui and Sha Tin)
+      const rightEngText1 = new TextObject({
+        text: 'Tai Kok Tsui',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: 'white',
+        left: centerX + 500,
+        top: centerY - 300
+      });
+
+      const rightEngText2 = new TextObject({
+        text: 'Sha Tin',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: 'white',
+        left: centerX + 500,
+        top: centerY
+      });
+
+      const rightChiText2 = new TextObject({
+        text: '大角咀及沙田',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: 'white',
+        left: centerX + 500,
+        top: centerY + 150
+      });
+
+      // Create stack arrow for right compartment
+      await drawLabeledSymbol('GantryArrow', {
+        x: centerX + 500,
+        y: centerY + 300,
+        xHeight: xHeight,
+        angle: 0,
+        color: 'white'
+      });
+      const rightArrow = canvasObject[canvasObject.length - 1];
+
+      await drawLabeledSymbol('Exit', {
+        x: centerX + 500,
+        y: centerY + 300,
+        xHeight: xHeight,
+        angle: 0,
+        color: 'white'
+      });
+      const exitSymmbol = canvasObject[canvasObject.length - 1];
+
+      const exitText = new TextObject({
+        text: '2',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: 'white',
+        left: centerX + 500,
+        top: centerY + 150
+      });
+
+      // Anchor left side objects vertically
+      anchorShape(leftEngText, leftChiText, {
+        vertexIndex1: 'E2',
+        vertexIndex2: 'E6',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      // Create yellow border for left compartment
+      const leftCompartmentObjects = [leftEngText, leftChiText];
+      const leftBorder = await BorderUtilities.BorderGroupCreate(
+        'stack',
+        leftCompartmentObjects,
+        leftCompartmentObjects,
+        null,
+        null,
+        { xHeight: xHeight, borderType: 'stack', colorType: 'Yellow Background' }
+      );
+
+      anchorShape(leftBorder, leftArrow, {
+        vertexIndex1: 'E2',
+        vertexIndex2: 'E6',
+        spacingX: '',
+        spacingY: xHeight * 2 / 4
+      });
+
+      anchorShape(leftArrow, rightArrow, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E1',
+        spacingX: '',
+        spacingY: 0
+      });
+
+      anchorShape(rightArrow, rightChiText2, {
+        vertexIndex1: 'E6',
+        vertexIndex2: 'E2',
+        spacingX: '',
+        spacingY: -xHeight * 2 / 4
+      });
+
+
+      // Create vertical divider between compartments
+      await VDividerCreate(
+        [leftBorder],
+        [rightChiText2],
+        null,
+        null,
+        { xHeight: xHeight, colorType: 'Green Background' }
+      );
+      const verticalDivider = canvasObject[canvasObject.length - 1];
+
+      anchorShape(rightChiText2, rightEngText2, {
+        vertexIndex1: 'E6',
+        vertexIndex2: 'E2',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      anchorShape(rightEngText2, rightEngText1, {
+        vertexIndex1: 'E6',
+        vertexIndex2: 'E2',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      // Create an overall green border containing all components
+      const allObjects = [
+        leftBorder,
+        rightEngText1, rightEngText2, rightChiText2, rightArrow,
+        verticalDivider
+      ];
+
+      const borderGroup = await BorderUtilities.BorderGroupCreate(
+        'stack',
+        allObjects,
+        allObjects,
+        null,
+        null,
+        { xHeight: xHeight, borderType: 'stack', colorType: 'Green Background' }
+      );
+
+      anchorShape(borderGroup, leftArrow, {
+        vertexIndex1: 'E2',
+        vertexIndex2: 'C2',
+        spacingX: 0,
+        spacingY: ''
+      });
+
+      anchorShape(borderGroup, rightArrow, {
+        vertexIndex1: 'E2',
+        vertexIndex2: 'C6',
+        spacingX: 0,
+        spacingY: ''
+      });
+
+      // Anchor exit objects 
+      anchorShape(borderGroup, exitSymmbol, {
+        vertexIndex1: 'E7',
+        vertexIndex2: 'E1',
+        spacingX: xHeight * 1 / 4,
+        spacingY: -xHeight * 1 / 4
+      });
+
+      anchorShape(exitSymmbol, exitText, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E3',
+        spacingX: xHeight * 0.5 / 4,
+        spacingY: -xHeight * 0.2 / 4
+      });
+
+      const exitBorder = await BorderUtilities.BorderGroupCreate(
+        'exit',
+        [exitText, exitSymmbol],
+        [exitText, exitSymmbol],
+        null,
+        null,
+        { xHeight: xHeight, borderType: 'exit', colorType: 'Green Background' }
+      );
+
+      //
+      canvas.renderAll();
+      console.log('Gantry Sign template created successfully');
+
+    } catch (error) {
+      console.error('Error creating Gantry Sign template:', error);
     }
   },
 
@@ -1128,14 +1277,14 @@ let FormTemplateComponent = {
     try {
       // Set up test parameters
       const params = {
-        xHeight: 100,
+        xHeight: xHeight,
         rootLength: 7,
         tipLength: 12,
         posx: 250,
         posy: 300,
         width: 6,
         shape: 'Arrow',
-        color: 'white',
+        color: color,
         roadType: 'Main Line'
       };
 
@@ -1157,20 +1306,6 @@ let FormTemplateComponent = {
       };
       const mainRoad = new MainRoadSymbol(routeOptions);
       await mainRoad.initialize(calcMainRoadVertices(xHeight, routeOptions.routeList));
-
-      // Create side road at 60 degrees angle pointing to lower destination
-      canvas.setActiveObject(mainRoad);
-      await drawSideRoadOnCursor(null, {
-        x: centerX - 200,
-        y: centerY + 100,
-        routeParams: {
-          angle: 60,
-          shape: 'Arrow',
-          width: 4
-        }
-      });
-      await finishDrawSideRoad({ e: { button: 0 } });
-      const sideRoad = canvasObject[canvas.getActiveObject().canvasID];
 
       // Create upper destination text (Sheung Shui)
       const upperDestEng1 = new TextObject({
@@ -1274,7 +1409,7 @@ let FormTemplateComponent = {
       anchorShape(expressway, upperDestEng1, {
         vertexIndex1: 'E3',
         vertexIndex2: 'E1',
-        spacingX: -100,
+        spacingX: -xHeight * 2 / 4,
         spacingY: 0
       });
 
@@ -1298,7 +1433,7 @@ let FormTemplateComponent = {
         vertexIndex1: 'E1',
         vertexIndex2: 'E7',
         spacingX: 0,
-        spacingY: 300
+        spacingY: xHeight * 12 / 4
       });
 
       // Lower destination text
@@ -1314,28 +1449,28 @@ let FormTemplateComponent = {
         vertexIndex1: 'E1',
         vertexIndex2: 'E7',
         spacingX: 0,
-        spacingY: 50
+        spacingY: xHeight * 2 / 4
       });
 
       anchorShape(route9, mainRoad, {
         vertexIndex1: 'V1',
         vertexIndex2: 'E6',
         spacingX: 0,
-        spacingY: 100
+        spacingY: xHeight * 4 / 4
       });
 
       anchorShape(lowerDestChi, exitSymbol, {
         vertexIndex1: 'E1',
         vertexIndex2: 'E7',
-        spacingX: 15,
-        spacingY: 25
+        spacingX: xHeight * 1 / 4,
+        spacingY: xHeight * 1 / 4
       });
 
       anchorShape(exitSymbol, exitText, {
         vertexIndex1: 'E1',
         vertexIndex2: 'E3',
-        spacingX: 12.5,
-        spacingY: -12.5
+        spacingX: xHeight * 0.5 / 4,
+        spacingY: xHeight * -0.2 / 4
       });
 
       // Create exit panel border
@@ -1353,21 +1488,35 @@ let FormTemplateComponent = {
         vertexIndex1: 'E1',
         vertexIndex2: 'E7',
         spacingX: 0,
-        spacingY: 68
+        spacingY: xHeight * 2 / 4
       });
 
+      // Create side road at 60 degrees angle pointing to lower destination
+      canvas.setActiveObject(mainRoad);
+      await drawSideRoadOnCursor(null, {
+        x: centerX - 300,
+        y: centerY,
+        routeParams: {
+          angle: 60,
+          shape: 'Arrow',
+          width: 4
+        }
+      });
+      await finishDrawSideRoad({ e: { button: 0 } });
+      const sideRoad = canvasObject[canvas.getActiveObject().canvasID];
+
       anchorShape(exitPanel, sideRoad, {
-        vertexIndex1: 'V1',
+        vertexIndex1: 'V2',
         vertexIndex2: 'E5',
-        spacingX: '',
-        spacingY: 100
+        spacingX: 0,
+        spacingY: xHeight * 2 / 4
       });
       // Create an overall border containing all components
       const allObjects = [
         mainRoad, sideRoad,
         upperDestEng1, upperDestEng2, upperDestChi,
         lowerDestEng, lowerDestChi,
-        expressway, route9,
+        expressway, route9, airport
       ];
 
       const borderGroup = await BorderUtilities.BorderGroupCreate(
@@ -1393,53 +1542,71 @@ let FormTemplateComponent = {
   createMultiLaneExit: async function (centerX, centerY, xHeight, color) {
     try {
       // Create lane text objects
-      const leftLaneText = new TextObject({
-        text: 'Sheung Wan',
+      const leftLaneText1 = new TextObject({
+        text: 'Wan Chai(N)',
         xHeight: xHeight,
-        font: 'TransportHeavy',
+        font: 'TransportMedium',
         color: color,
         left: centerX - 300,
         top: centerY - 200
       });
 
-      const leftChineseText = new TextObject({
-        text: '上環',
+      const leftChineseText1 = new TextObject({
+        text: '灣仔(北)',
         xHeight: xHeight,
-        font: 'TransportHeavy',
+        font: 'TransportMedium',
         color: color,
         left: centerX - 300,
         top: centerY - 120
       });
 
-      const middleLaneText = new TextObject({
-        text: 'Central',
+      const leftLaneText2 = new TextObject({
+        text: 'Kowloon',
         xHeight: xHeight,
-        font: 'TransportHeavy',
+        font: 'TransportMedium',
         color: color,
         left: centerX,
         top: centerY - 200
       });
 
-      const middleChineseText = new TextObject({
-        text: '中環',
+      const leftChineseText2 = new TextObject({
+        text: '九龍',
         xHeight: xHeight,
-        font: 'TransportHeavy',
+        font: 'TransportMedium',
         color: color,
         left: centerX,
         top: centerY - 120
       });
 
-      const rightLaneText = new TextObject({
-        text: 'Wan Chai',
+      const rightLaneText1 = new TextObject({
+        text: 'North Point',
         xHeight: xHeight,
-        font: 'TransportHeavy',
+        font: 'TransportMedium',
         color: color,
         left: centerX + 300,
         top: centerY - 200
       });
 
-      const rightChineseText = new TextObject({
-        text: '灣仔',
+      const rightChineseText1 = new TextObject({
+        text: '北角',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX + 300,
+        top: centerY - 120
+      });
+
+      const rightLaneText2 = new TextObject({
+        text: 'Kowloon(E)',
+        xHeight: xHeight,
+        font: 'TransportMedium',
+        color: color,
+        left: centerX + 300,
+        top: centerY - 200
+      });
+
+      const rightChineseText2 = new TextObject({
+        text: '九龍(東)',
         xHeight: xHeight,
         font: 'TransportHeavy',
         color: color,
@@ -1452,7 +1619,7 @@ let FormTemplateComponent = {
         x: centerX - 300,
         y: centerY + 100,
         xHeight: xHeight,
-        angle: -45,
+        angle: 0,
         color: color
       });
       const leftArrow = canvasObject[canvasObject.length - 1];
@@ -1464,74 +1631,138 @@ let FormTemplateComponent = {
         angle: 0,
         color: color
       });
-      const middleArrow = canvasObject[canvasObject.length - 1];
+      const rightArrow = canvasObject[canvasObject.length - 1];
 
-      await drawLabeledSymbol('StackArrow', {
+      await drawLabeledSymbol('CHT', {
         x: centerX + 300,
         y: centerY + 100,
         xHeight: xHeight,
-        angle: 45,
+        angle: 0,
         color: color
       });
-      const rightArrow = canvasObject[canvasObject.length - 1];
+      const chtSymbol = canvasObject[canvasObject.length - 1];
+
+      await drawLabeledSymbol('EHC', {
+        x: centerX + 300,
+        y: centerY + 100,
+        xHeight: xHeight,
+        angle: 0,
+        color: color
+      });
+      const ehcSymbol = canvasObject[canvasObject.length - 1];
+
+      await drawLabeledSymbol('Route4', {
+        x: centerX + 300,
+        y: centerY + 100,
+        xHeight: xHeight,
+        angle: 0,
+        color: color
+      });
+      const routeSymbol = canvasObject[canvasObject.length - 1];
+
+      anchorShape(chtSymbol, rightLaneText1, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E3',
+        spacingX: '',
+        spacingY: 0
+      });
 
       // Create lane dividers
       await VLaneCreate(
-        [leftLaneText],
-        [middleLaneText],
+        [chtSymbol],
+        [rightLaneText1],
         null,
         null,
         { xHeight: xHeight, colorType: 'Blue Background' }
       );
       const leftLaneDivider = canvasObject[canvasObject.length - 1];
 
-      await VLaneCreate(
-        [middleLaneText],
-        [rightLaneText],
-        null,
-        null,
-        { xHeight: xHeight, colorType: 'Blue Background' }
-      );
-      const rightLaneDivider = canvasObject[canvasObject.length - 1];
-
-      // Create horizontal divider
-      await HDividerCreate(
-        [leftChineseText, middleChineseText, rightChineseText],
-        [leftArrow, middleArrow, rightArrow],
-        null,
-        null,
-        { xHeight: xHeight, colorType: 'Blue Background' }
-      );
-      const hDivider = canvasObject[canvasObject.length - 1];
-
       // Anchor text objects in pairs
-      anchorShape(leftLaneText, leftChineseText, {
+      anchorShape(chtSymbol, leftLaneText1, {
+        vertexIndex1: 'E3',
+        vertexIndex2: 'E1',
+        spacingX: -50,
+        spacingY: 0
+      });
+
+      anchorShape(leftLaneText1, leftChineseText1, {
         vertexIndex1: 'E1',
         vertexIndex2: 'E7',
         spacingX: 0,
         spacingY: 0
       });
 
-      anchorShape(middleLaneText, middleChineseText, {
+      anchorShape(leftChineseText1, leftLaneText2, {
         vertexIndex1: 'E1',
         vertexIndex2: 'E7',
         spacingX: 0,
         spacingY: 0
       });
 
-      anchorShape(rightLaneText, rightChineseText, {
+      anchorShape(leftLaneText2, leftChineseText2, {
         vertexIndex1: 'E1',
         vertexIndex2: 'E7',
         spacingX: 0,
         spacingY: 0
+      });
+
+      anchorShape(leftChineseText2, leftArrow, {
+        vertexIndex1: 'E2',
+        vertexIndex2: 'E6',
+        spacingX: '',
+        spacingY: 50
+      });
+
+
+      anchorShape(rightLaneText1, ehcSymbol, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E3',
+        spacingX: 50,
+        spacingY: 0
+      });
+
+      anchorShape(ehcSymbol, routeSymbol, {
+        vertexIndex1: 'E2',
+        vertexIndex2: 'E6',
+        spacingX: 0,
+        spacingY: 50
+      });
+
+      anchorShape(rightLaneText1, rightChineseText1, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      anchorShape(rightChineseText1, rightLaneText2, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      anchorShape(rightLaneText2, rightChineseText2, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E7',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      anchorShape(rightChineseText2, rightArrow, {
+        vertexIndex1: 'E2',
+        vertexIndex2: 'E6',
+        spacingX: '',
+        spacingY: 50
       });
 
       // Create an overall border containing all components
       const allObjects = [
-        leftLaneText, leftChineseText, leftArrow,
-        middleLaneText, middleChineseText, middleArrow,
-        rightLaneText, rightChineseText, rightArrow,
-        leftLaneDivider, rightLaneDivider, hDivider
+        leftLaneText1, leftChineseText1, leftLaneText2, leftChineseText2,
+        rightLaneText1, rightChineseText1, rightLaneText2, rightChineseText2,
+        leftArrow, rightArrow,
+        chtSymbol, ehcSymbol, routeSymbol,
+        leftLaneDivider
       ];
 
       const borderGroup = await BorderUtilities.BorderGroupCreate(
@@ -1542,6 +1773,21 @@ let FormTemplateComponent = {
         null,
         { xHeight: xHeight, borderType: 'stack', colorType: 'Blue Background' }
       );
+
+      anchorShape(borderGroup, leftArrow, {
+        vertexIndex1: 'E2',
+        vertexIndex2: 'C2',
+        spacingX: 0,
+        spacingY: ''
+      });
+
+      anchorShape(borderGroup, rightArrow, {
+        vertexIndex1: 'E2',
+        vertexIndex2: 'C6',
+        spacingX: 0,
+        spacingY: ''
+      });
+
 
       canvas.renderAll();
       console.log('Multi-Lane Exit template created successfully');

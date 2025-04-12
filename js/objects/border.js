@@ -694,7 +694,7 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
           d.replaceBasePolygon(res);
 
           // Position divider vertically same as before
-          d.set({ top: this.bbox.top });
+          d.set({ top: this.bbox.bottom - d.height - DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4, });
 
           // For fixed values, anchor to the border instead of objects
           // Priority: use the right value if both are specified
@@ -727,7 +727,7 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
         d.replaceBasePolygon(res);
         
         d.set({
-          top: this.bbox.top,
+          top: this.bbox.bottom - d.height - DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4,
           left: initialLeft
         });
         

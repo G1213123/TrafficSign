@@ -651,6 +651,61 @@ div.side-panel.close {
   color: white;
 }
 
+/* Template button styles */
+.symbols-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px;
+  width: 100%;
+}
+
+.template-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 350px;
+}
+
+.template-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 350px;
+  height: 250px;
+  padding: 10px;
+  margin: 0;
+  background-color: #555555;
+  color: white;
+  transition-duration: 0.4s;
+  border-radius: 10px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.template-button:hover {
+  background-color: #3498db;
+  color: white;
+  border: 2px solid #3498db;
+}
+
+.template-thumbnail {
+  width: 100%;
+  height: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.template-thumbnail img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+}
+
 .secondary-button {
   background-color: #404042;
 }
@@ -971,6 +1026,7 @@ div.side-panel.close {
   
   .symbol-label {
     font-size: 12px;
+    overflow: visible;
   }
 }
 

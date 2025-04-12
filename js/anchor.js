@@ -175,6 +175,56 @@ class AnchorTree {
       .filter(([_, node]) => node.parents.length === 0)
       .map(([_, node]) => node.object);
   }
+
+  // Handle updates to the tree structure when an object is deleted
+  updateOnDelete(objectId, newIdMapping) {
+    // Remove the object from both X and Y trees
+    this.removeNode('x', objectId);
+    this.removeNode('y', objectId);
+    
+    // Update canvas IDs in both trees
+    ['x', 'y'].forEach(direction => {
+      const tree = direction === 'x' ? this.xTree : this.yTree;
+      
+      // Create a new tree with updated IDs
+      const updatedTree = {};
+      
+      // Process each node in the tree
+      Object.keys(tree).forEach(id => {
+        const numId = parseInt(id);
+        
+        // If the ID needs to be updated (it's greater than the deleted object's ID)
+        if (newIdMapping[numId] !== undefined) {
+          const newId = newIdMapping[numId];
+          
+          // Copy the node with the new ID
+          updatedTree[newId] = tree[numId];
+          updatedTree[newId].object = tree[numId].object;
+          
+          // Update parent references
+          updatedTree[newId].parents = tree[numId].parents.map(parentId => 
+            newIdMapping[parentId] !== undefined ? newIdMapping[parentId] : parentId
+          );
+          
+          // Update child references
+          updatedTree[newId].children = tree[numId].children.map(childId => 
+            newIdMapping[childId] !== undefined ? newIdMapping[childId] : childId
+          );
+        } 
+        // If the ID is not affected by deletion, just copy it as-is
+        else if (numId < objectId) {
+          updatedTree[numId] = tree[numId];
+        }
+      });
+      
+      // Replace the old tree with the updated one
+      if (direction === 'x') {
+        this.xTree = updatedTree;
+      } else {
+        this.yTree = updatedTree;
+      }
+    });
+  }
 }
 
 // Create a global instance of the AnchorTree

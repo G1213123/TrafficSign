@@ -11,9 +11,9 @@ const roadMapTemplate = {
     'Stub': {
         path: [{
             'vertex': [
-                { x: -1, y: 0, label: 'V1', start: 0, display: 0 },
+                { x: -1, y: 0, label: 'V1', start: 0, display: 1 },
                 { x: 0, y: 0, label: 'V2', start: 1, display: 1 },
-                { x: 1, y: 0, label: 'V3', start: 0, display: 0 },
+                { x: 1, y: 0, label: 'V3', start: 0, display: 1 },
             ], 'arcs': []
         }],
     },
@@ -1358,41 +1358,40 @@ const symbolsTemplate = {
                     { x: 1.7, y: 2.2, label: 'V1', start: 0, display: 0 },
                     { x: 1.3667, y: 2.2, label: 'V1', start: 0, display: 0 },
                     { x: 1.3667, y: 0.5333, label: 'V1', start: 0, display: 0 },
-                    { x: 1.0667, y: 0.5333, label: 'V1', start: 0, display: 0 },
-                ], 'arcs': [
+                    { x: 1.0667, y: 0.5333, label: 'V1', start: 0, display: 0 },                ], 'arcs': [
                 ], 'fill': '#ffffff'
             },
             {
                 'vertex': [
-                    { x: 0.4, y: 2.6, label: 'V1', start: 1, display: 1 },
-                    { x: 0.4, y: 3.5333, label: 'V1', start: 0, display: 0 },
-                    { x: 1.3333, y: 3.5333, label: 'V1', start: 0, display: 0 },
-                    { x: 1.3333, y: 3, label: 'V1', start: 0, display: 0 },
-                    { x: 1.8667, y: 3, label: 'V1', start: 0, display: 0 },
-                    { x: 1.8667, y: 4.0667, label: 'V1', start: 0, display: 0 },
-                    { x: 0.4, y: 4.0667, label: 'V1', start: 0, display: 0 },
-                    { x: 0.4, y: 5, label: 'V1', start: 0, display: 0 },
-                    { x: 1.4667, y: 5, label: 'V1', start: 0, display: 0 },
-                    { x: 1.4667, y: 4.4667, label: 'V1', start: 0, display: 0 },
-                    { x: 2, y: 4.4667, label: 'V1', start: 0, display: 0 },
-                    { x: 2, y: 5.8, label: 'V1', start: 0, display: 0 },
-                    { x: 1.4667, y: 5.8, label: 'V1', start: 0, display: 0 },
-                    { x: 1.4667, y: 5.5333, label: 'V1', start: 0, display: 0 },
+                    { x: 0.4, y: 3.0, label: 'V1', start: 1, display: 1 },
+                    { x: 0.4, y: 3.9333, label: 'V1', start: 0, display: 0 },
+                    { x: 1.3333, y: 3.9333, label: 'V1', start: 0, display: 0 },
+                    { x: 1.3333, y: 3.4, label: 'V1', start: 0, display: 0 },
+                    { x: 1.8667, y: 3.4, label: 'V1', start: 0, display: 0 },
+                    { x: 1.8667, y: 4.4667, label: 'V1', start: 0, display: 0 },
+                    { x: 0.4, y: 4.4667, label: 'V1', start: 0, display: 0 },
+                    { x: 0.4, y: 5.4, label: 'V1', start: 0, display: 0 },
+                    { x: 1.4667, y: 5.4, label: 'V1', start: 0, display: 0 },
+                    { x: 1.4667, y: 4.8667, label: 'V1', start: 0, display: 0 },
+                    { x: 2, y: 4.8667, label: 'V1', start: 0, display: 0 },
+                    { x: 2, y: 6.2, label: 'V1', start: 0, display: 0 },
+                    { x: 1.4667, y: 6.2, label: 'V1', start: 0, display: 0 },
+                    { x: 1.4667, y: 5.9333, label: 'V1', start: 0, display: 0 },
                     /////
-                    { x: -1.4667, y: 5.5333, label: 'V1', start: 0, display: 0 },
-                    { x: -1.4667, y: 5.8, label: 'V1', start: 0, display: 0 },
-                    { x: -2, y: 5.8, label: 'V1', start: 0, display: 0 },
-                    { x: -2, y: 4.4667, label: 'V1', start: 0, display: 0 },
-                    { x: -1.4667, y: 4.4667, label: 'V1', start: 0, display: 0 },
-                    { x: -1.4667, y: 5, label: 'V1', start: 0, display: 0 },
-                    { x: -0.4, y: 5, label: 'V1', start: 0, display: 0 },
-                    { x: -0.4, y: 4.0667, label: 'V1', start: 0, display: 0 },
-                    { x: -1.8667, y: 4.0667, label: 'V1', start: 0, display: 0 },
-                    { x: -1.8667, y: 3, label: 'V1', start: 0, display: 0 },
-                    { x: -1.3333, y: 3, label: 'V1', start: 0, display: 0 },
-                    { x: -1.3333, y: 3.5333, label: 'V1', start: 0, display: 0 },
-                    { x: -0.4, y: 3.5333, label: 'V1', start: 0, display: 0 },
-                    { x: -0.4, y: 2.6, label: 'V1', start: 0, display: 0 },
+                    { x: -1.4667, y: 5.9333, label: 'V1', start: 0, display: 0 },
+                    { x: -1.4667, y: 6.2, label: 'V1', start: 0, display: 0 },
+                    { x: -2, y: 6.2, label: 'V1', start: 0, display: 0 },
+                    { x: -2, y: 4.8667, label: 'V1', start: 0, display: 0 },
+                    { x: -1.4667, y: 4.8667, label: 'V1', start: 0, display: 0 },
+                    { x: -1.4667, y: 5.4, label: 'V1', start: 0, display: 0 },
+                    { x: -0.4, y: 5.4, label: 'V1', start: 0, display: 0 },
+                    { x: -0.4, y: 4.4667, label: 'V1', start: 0, display: 0 },
+                    { x: -1.8667, y: 4.4667, label: 'V1', start: 0, display: 0 },
+                    { x: -1.8667, y: 3.4, label: 'V1', start: 0, display: 0 },
+                    { x: -1.3333, y: 3.4, label: 'V1', start: 0, display: 0 },
+                    { x: -1.3333, y: 3.9333, label: 'V1', start: 0, display: 0 },
+                    { x: -0.4, y: 3.9333, label: 'V1', start: 0, display: 0 },
+                    { x: -0.4, y: 3.0, label: 'V1', start: 0, display: 0 },
 
                 ], 'arcs': [
                 ], 'fill': '#ffffff'
@@ -1885,9 +1884,9 @@ const EngDestinations = [{ "Hong Kong Island": ["Hong Kong", "Hong Kong(E)", "Ho
 { "New Terriitories": ["Lantau", "Airport", "Au Tau", "Clear Water Bay", "Discovery Bay", "Fairview Park", "Fanling", "Fo Tan", "Ha Tsuen", "Hin Tin", "Heung Yuen Wai", "Hong Lok Yuen", "Hung Shui Kiu", "Kam Tin", "Kwai Chung", "Kwai Fong", "Kwai Hing", "Kwu Tung", "Lai King", "Lam Tei", "Lantau(S)", "Lau Fau Shan", "Lei Muk Shue", "Lok Ma Chau", "Long Ping", "Luen Wo Hui", "Luk Keng", "Lung Kwu Tan", "Ma On Shan", "Ma On Shan Town Centre", "Ma Liu Sui", "Ma Wan", "Man Kam To", "Mui Wo", "Ngong Ping", "On Lok Tsuen", "Pak Shek Kok", "Pak Tam Chung", "Pat Heung", "Ping Che", "Ping Shan", "Pui O", "River Trade Terminal", "Sai Sha", "Sai Kung", "Sam Shing Hui", "San Tin", "San Hui", "Science Park", "Sha Tau Kok", "Sha Tin", "Sha Tin Central", "Sham Tseng", "Shek Kong", "Shek Lei", "Shek Pik", "Shek Wu Hui", "Shek Yam", "Shenzhen Bay", "Sheung Shui", "Sheung Tak", "Siu Lam", "Siu Lek Yuen", "So Kwun Wat", "Tai Hing", "Tai Mei Tuk", "Tai O", "Tai Po", "Tai Po Industrial Estate", "Tai Po Kau", "Tai Po Market", "Tai Po Town Centre", "Tai Po(N)", "Tai Po(S)", "Tai Shui Hang", "Tai Wai", "Tin Shui Wai", "Tai Lin Pai", "Tai Wo Hau", "Tin Sam", "Tin Shui Wai(N)", "Tin Shui Wai(S)", "Tin Shui Wai(C)", "Tin Shui Wai(W)", "Ting Kau", "Tiu Keng Leng", "Tseung Kwan O", "Tseung Kwan O(E)", "Tseung Kwan O Industrial Estate", "Tseung Kwan O Town Centre", "Tsing Lung Tau", "Tsing Yi", "Tsing Yi Town Centre", "Tsing Yi(N)", "Tsing Yi(S)", "Tsing Yi(E)", "Tsuen Wan", "Tsuen Wan Central", "Tsuen Wan(N)", "Tsuen Wan(S)", "Tsui Lam", "Tuen Mun", "Tuen Mun Town Centre", "Tuen Mun(W)", "Tung Chung", "Tung Chung Town Centre", "Tung Chung(W)", "Tung Chung(N)", "Tung Tau Industrial Area", "Wo Hop Shek", "Wu kai sha", "Yuen Chau Kok", "Yuen Long", "Yuen Long(C)", "Yuen Long(S)", "Yuen Long Industrial Estate"] },
 ]
 
-const ChtDestinations = [{ "Hong Kong Island": ["香港", "香港(東)", "香港(南)", "香港(西)", "香港仔", "鴨脷洲", "銅鑼灣", "中環", "柴灣", "舂坎角", "數碼港", "杏花邨", "跑馬地", "堅尼地城", "康怡", "半山", "北角", "薄扶林", "鰂魚涌", "淺水灣", "西灣", "西灣河", "西營盤", "筲箕灣", "石澳", "石塘咀", "上環", "壽臣山", "赤柱", "小西灣", "大坑", "太古城", "山頂", "華富", "灣仔", "灣仔(北)", "黃竹坑"] },
-{ "Kowloon": ["九龍", "九龍(中)", "九龍(東)", "九龍(西)", "筆架山", "荼果嶺", "長沙灣", "長沙灣(西)", "彩虹", "竹園", "郵輪碼頭", "鑽石山", "坑口", "何文田", "紅磡", "紅磡灣", "啟德", "京士柏", "九龍灣", "九龍城區", "九龍塘", "觀塘", "觀塘商貿區", "荔枝角", "荔枝角(南)", "藍田", "樂富", "馬頭圍", "美孚", "旺角", "牛池灣", "牛頭角", "昂船洲", "坪石", "寶琳", "新蒲崗", "深水埗", "深水埗(西)", "石硤尾", "秀茂坪", "大角咀", "大角咀(西)", "調景嶺", "土瓜灣", "尖沙咀", "尖沙咀東", "慈雲山", "橫頭磡", "西九文化區", "西九龍總站", "黃大仙", "油馬地", "油馬地(西)", "油塘", "又一村",] },
-{ "New Terriitories": ["大嶼山", "機場", "凹頭", "清水灣", "愉景灣", "錦綉花園", "粉嶺", "火炭", "廈村", "顯田", "香園圍", "康樂園", "洪水橋", "錦田", "葵涌", "葵芳", "葵興", "古洞", "麗景", "藍地", "大嶼山", "流浮山", "梨木樹", "落馬洲", "朗屏", "聯和墟", "鹿頸", "龍鼓灘", "馬鞍山", "馬鞍山市中心", "馬料水", "馬灣", "文錦渡", "梅窩", "昂坪", "安樂村", "白石角", "北潭涌", "八鄉", "坪輋", "坪山", "貝澳", "內河碼頭", "西沙", "西貢", "三聖墟", "新田", "新墟", "科學園", "沙頭角", "沙田", "沙田巿中心", "深井", "石崗", "石籬", "石壁", "石湖墟", "石蔭", "深圳灣", "上水", "尚德", "小欖", "小瀝源", "掃管笏", "太興", "大美督", "大澳", "大埔", "大埔工業邨", "大埔滘", "大埔墟", "大埔市中心", "大埔(北)", "大埔(南)", "大水坑", "大圍", "天水圍", "大連排", "大窩口", "田心", "天水圍(北)", "天水圍(南)", "天水圍(中)", "天水圍(西)", "汀九", "調景嶺", "將軍澳", "將軍澳(東)", "將軍澳工業邨", "將軍澳市中心", "青龍頭", "青衣", "青衣市中心", "青衣(北)", "青衣(南)", "青衣(東)", "荃灣", "荃灣(中)", "荃灣(北)", "荃灣(南)", "翠林", "屯門", "屯門市中心", "屯門(西)", "東涌", "東涌市中心", "東涌(西)", "東涌(北)", "東頭工業區", "和合石", "烏溪沙", "圓洲角", "元朗", "元朗(中)", "元朗(南)", "元朗(南)", "元朗工業邨"] }
+const ChtDestinations = [{ "Hong Kong Island": ["香港", "香港(東)", "香港(南)", "香港(西)", "香港仔", "鴨脷洲", "銅鑼灣", "中區", "柴灣", "舂坎角", "數碼港", "杏花邨", "跑馬地", "堅尼地城", "康怡", "半山", "北角", "薄扶林", "鰂魚涌", "淺水灣", "西灣", "西灣河", "西營盤", "筲箕灣", "石澳", "石塘咀", "上環", "壽臣山", "赤柱", "小西灣", "大坑", "太古城", "山頂", "華富", "灣仔", "灣仔(北)", "黃竹坑"] },
+{ "Kowloon": ["九龍", "九龍(中)", "九龍(東)", "九龍(西)", "筆架山", "荼果嶺", "長沙灣", "長沙灣(西)", "彩虹", "竹園", "郵輪碼頭", "鑽石山", "坑口", "何文田", "紅磡", "紅磡灣", "啟德", "京士柏", "九龍灣", "九龍城區", "九龍塘", "觀塘", "觀塘商貿區", "荔枝角", "荔枝角(南)", "藍田", "樂富", "馬頭圍", "美孚", "旺角", "牛池灣", "牛頭角", "昂船洲", "坪石", "寶琳", "新蒲崗", "深水埗", "深水埗(西)", "石硤尾", "秀茂坪", "大角咀", "大角咀(西)", "調景嶺", "土瓜灣", "尖沙咀", "尖沙咀東", "慈雲山", "橫頭磡", "西九文化區", "西九龍總站", "黃大仙", "油麻地", "油麻地(西)", "油塘", "又一村",] },
+{ "New Terriitories": ["大嶼山", "機場", "凹頭", "清水灣", "愉景灣", "錦綉花園", "粉嶺", "火炭", "廈村", "顯田", "香園圍", "康樂園", "洪水橋", "錦田", "葵涌", "葵芳", "葵興", "古洞", "荔景", "藍地", "大嶼山", "流浮山", "梨木樹", "落馬洲", "朗屏", "聯和墟", "鹿頸", "龍鼓灘", "馬鞍山", "馬鞍山市中心", "馬料水", "馬灣", "文錦渡", "梅窩", "昂坪", "安樂村", "白石角", "北潭涌", "八鄉", "坪輋", "坪山", "貝澳", "內河碼頭", "西沙", "西貢", "三聖墟", "新田", "新墟", "科學園", "沙頭角", "沙田", "沙田巿中心", "深井", "石崗", "石籬", "石壁", "石湖墟", "石蔭", "深圳灣", "上水", "尚德", "小欖", "小瀝源", "掃管笏", "大興", "大美督", "大澳", "大埔", "大埔工業邨", "大埔滘", "大埔墟", "大埔市中心", "大埔(北)", "大埔(南)", "大水坑", "大圍", "天水圍", "大連排", "大窩口", "田心", "天水圍(北)", "天水圍(南)", "天水圍(中)", "天水圍(西)", "汀九", "調景嶺", "將軍澳", "將軍澳(東)", "將軍澳工業邨", "將軍澳市中心", "青龍頭", "青衣", "青衣市中心", "青衣(北)", "青衣(南)", "青衣(東)", "荃灣", "荃灣(中)", "荃灣(北)", "荃灣(南)", "翠林", "屯門", "屯門市中心", "屯門(西)", "東涌", "東涌市中心", "東涌(西)", "東涌(北)", "東頭工業區", "和合石", "烏溪沙", "圓洲角", "元朗", "元朗(中)", "元朗(南)", "元朗(南)", "元朗工業邨"] }
 ]
 
 

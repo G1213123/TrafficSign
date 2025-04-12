@@ -1033,8 +1033,7 @@ async function drawSideRoadOnCursor(event, option = null) {
  * Handle mouse movement for side road placement
  * @param {Event} event - Mouse event
  */
-async function sideRoadOnMouseMove(event) {
-    if (!canvas.newSymbolObject || !activeVertex) return;
+async function sideRoadOnMouseMove(event) {  
 
     const sideRoad = canvas.newSymbolObject;
     if (sideRoad.functionalType !== 'SideRoad') return;
@@ -1053,10 +1052,26 @@ async function sideRoadOnMouseMove(event) {
         };
         activeVertex.handleMouseMoveRef(simulatedEvent);
         
-        // Instead of applying incremental changes to the routeList, 
-        // set it directly to the current pointer position
-        sideRoad.routeList[0].x = pointer.x;
-        sideRoad.routeList[0].y = pointer.y;
+        // Find the V1 vertex which corresponds to routeList[0]
+        let v1Vertex = sideRoad.basePolygon.vertex.find(v => v.label === 'V1');
+        
+        // Calculate offset between active vertex and V1
+        // If the active vertex is V1, then no offset is needed
+        let offsetX = 0;
+        let offsetY = 0;
+        
+        if (activeVertex.label !== 'V1' && v1Vertex) {
+            // Calculate where V1 should be based on the active vertex movement
+            const activeVertexObj = sideRoad.basePolygon.vertex.find(v => v.label === activeVertex.label);
+            if (activeVertexObj) {
+                offsetX = v1Vertex.x - activeVertexObj.x;
+                offsetY = v1Vertex.y - activeVertexObj.y;
+            }
+        }
+        
+        // Apply the calculated offset to get the correct position for routeList[0]
+        sideRoad.routeList[0].x = pointer.x + offsetX;
+        sideRoad.routeList[0].y = pointer.y + offsetY;
         
         // Check which side of the main road we're on now and update side property
         const isSideLeft = pointer.x < mainRoad.left + mainRoad.width / 2;

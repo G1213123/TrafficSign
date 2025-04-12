@@ -1,0 +1,68 @@
+/* Template button styles */
+.symbols-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 10px;
+  padding: 10px;
+  width: 100%;
+}
+
+.template-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 140px;
+  margin: 5px;
+}
+
+.template-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 140px;
+  height: 100px;
+  padding: 5px;
+  margin: 0;
+  background-color: #555555;
+  color: white;
+  transition-duration: 0.4s;
+  border-radius: 10px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.template-button:hover {
+  background-color: #3498db;
+  color: white;
+  border: 2px solid #3498db;
+}
+
+.template-label {
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  margin-top: 5px;
+  text-align: center;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.template-thumbnail {
+  width: 120px;
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.template-thumbnail img {
+  max-width: 70%;
+  max-height: 70%;
+  object-fit: contain;
+  margin: 5px;
+}
