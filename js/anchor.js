@@ -143,7 +143,6 @@ class AnchorTree {
     // Delete the node
     delete tree[objId];
   }
-
   // Get all affected objects (in proper update order) when an object is moved
   getUpdateOrder(direction, startObjId) {
     const tree = direction === 'x' ? this.xTree : this.yTree;
@@ -153,24 +152,31 @@ class AnchorTree {
     // Skip if object isn't in the tree
     if (!tree[startObjId]) return updateOrder;
 
+    // Special case: If this is the starting object of the movement, 
+    // put it at the beginning of the update order
+    updateOrder.push(startObjId);
+    visited.add(startObjId);
+
     // Helper function for depth-first traversal
     const visit = (nodeId) => {
       if (visited.has(nodeId)) return;
       visited.add(nodeId);
 
-      // First process all children (dependencies)
+      // Add this node to the update order
+      updateOrder.push(nodeId);
+
+      // Then process all children (dependencies)
       for (const childId of (tree[nodeId]?.children || [])) {
         visit(childId);
       }
-
-      // Add this node to the update order
-      updateOrder.push(nodeId);
     };
 
-    // Start traversal from the given object
-    visit(startObjId);
+    // Process all direct children of the starting object
+    for (const childId of (tree[startObjId]?.children || [])) {
+      visit(childId);
+    }
 
-    // Return the objects in update order (children first, then parents)
+    // Return the objects in the correct update order (starter object first, then its dependencies)
     return updateOrder.map(id => tree[id].object);
   }
 
@@ -371,8 +377,8 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
     spacingY: spacingY
   };
 
-  const deltaX = targetPoint.x - movingPoint.x + parseInt(spacingX);
-  const deltaY = targetPoint.y - movingPoint.y + parseInt(spacingY);
+  const deltaX = targetPoint.x - movingPoint.x + (isNaN(parseInt(spacingX)) ? 0 : parseInt(spacingX));
+  const deltaY = targetPoint.y - movingPoint.y + (isNaN(parseInt(spacingY)) ? 0 : parseInt(spacingY));
 
   // Add X axis anchoring
   if (!isNaN(parseInt(spacingX))) {
@@ -422,54 +428,74 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
         }
       }
     }
-  }
-
-  // Use the AnchorTree to get the proper update order for anchors
+  }  // Use the AnchorTree to get the proper update order for anchors
   const updateOrderX = globalAnchorTree.getUpdateOrder('x', shape2.canvasID);
   const updateOrderY = globalAnchorTree.getUpdateOrder('y', shape2.canvasID);
-
   // Process X axis updates
   if (updateOrderX.length > 0) {
     // Start an X-axis update cycle with the shape2 as the starter
     globalAnchorTree.startUpdateCycle('x', shape2.canvasID);
 
-    // Update objects in the proper order for X axis
-    updateOrderX.forEach(obj => {
-      //if (obj.canvasID !== shape2.canvasID) {
-      //  obj.set({ left: obj.left + deltaX, });
-      //}
-      // Mark this object as updated in X axis
-      globalAnchorTree.updatedObjectsX.add(obj.canvasID);
-      // Update coordinates - this may involve both X and Y changes
-      obj.updateAllCoord(null, sourceList);
+    // First, explicitly update shape2 itself to ensure proper anchoring propagation
+    // This step is key to fixing the issue with one-axis movement not propagating
+    if (!globalAnchorTree.updatedObjectsX.has(shape2.canvasID)) {
+      globalAnchorTree.updatedObjectsX.add(shape2.canvasID);
+      shape2.updateAllCoord(null, sourceList);
+    }
 
+    // Update objects in the proper order for X axis (excluding shape2 which is already processed)
+    updateOrderX.forEach(obj => {
+      if (obj.canvasID !== shape2.canvasID && !globalAnchorTree.updatedObjectsX.has(obj.canvasID)) {
+        // Mark this object as updated in X axis
+        globalAnchorTree.updatedObjectsX.add(obj.canvasID);
+        
+        // Apply the X delta to each sub-anchored object first
+        // This ensures they have changes to propagate to their own sub-anchored objects
+        if (obj !== shape2 && deltaX !== 0) {
+          obj.set({ left: obj.left + deltaX });
+          obj.setCoords();
+        }
+        
+        // Update coordinates - this may involve both X and Y changes
+        obj.updateAllCoord(null, sourceList);
+      }
     });
 
     // End the X-axis update cycle
     globalAnchorTree.endUpdateCycle('x');
-
   }
-
   // Process Y axis updates
   if (updateOrderY.length > 0) {
     // Start a Y-axis update cycle with the shape2 as the starter
     globalAnchorTree.startUpdateCycle('y', shape2.canvasID);
 
-    // Update objects in the proper order for Y axis
-    updateOrderY.forEach(obj => {
-      //if (obj.canvasID !== shape2.canvasID) {
-      //  obj.set({ top: obj.top + deltaY, });
-      //}
-      // Mark this object as updated in Y axis
-      globalAnchorTree.updatedObjectsY.add(obj.canvasID);
-      // Update coordinates - this may involve both X and Y changes
-      obj.updateAllCoord(null, sourceList);
+    // First, explicitly update shape2 itself to ensure proper anchoring propagation
+    // This step is key to fixing the issue with one-axis movement not propagating
+    if (!globalAnchorTree.updatedObjectsY.has(shape2.canvasID)) {
+      globalAnchorTree.updatedObjectsY.add(shape2.canvasID);
+      shape2.updateAllCoord(null, sourceList);
+    }
 
+    // Update objects in the proper order for Y axis (excluding shape2 which is already processed)
+    updateOrderY.forEach(obj => {
+      if (obj.canvasID !== shape2.canvasID && !globalAnchorTree.updatedObjectsY.has(obj.canvasID)) {
+        // Mark this object as updated in Y axis
+        globalAnchorTree.updatedObjectsY.add(obj.canvasID);
+        
+        // Apply the Y delta to each sub-anchored object first
+        // This ensures they have changes to propagate to their own sub-anchored objects
+        if (obj !== shape2 && deltaY !== 0) {
+          obj.set({ top: obj.top + deltaY });
+          obj.setCoords();
+        }
+        
+        // Update coordinates - this may involve both X and Y changes
+        obj.updateAllCoord(null, sourceList);
+      }
     });
 
     // End the Y-axis update cycle
     globalAnchorTree.endUpdateCycle('y');
-
   }
 
   // If no updates from either axis, just update the object itself

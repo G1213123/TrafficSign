@@ -640,26 +640,33 @@ class BaseGroup extends fabric.Group {
     // Check for route-specific methods
     if (this.onMove) {
       this.onMove();
-    }
-
-    if (canvas.getActiveObject() === this) {
+    }    if (canvas.getActiveObject() === this) {
       this.drawAnchorLinkage();
       this.showLockHighlights();
       this.showDimensions();
-    }
-
-    // Check if this object is already being processed in the current update cycle
+    }    
+      // Check if this object is already being processed in the current update cycle
     const alreadyProcessedX = globalAnchorTree.updateInProgressX && globalAnchorTree.updatedObjectsX.has(this.canvasID);
     const alreadyProcessedY = globalAnchorTree.updateInProgressY && globalAnchorTree.updatedObjectsY.has(this.canvasID);
 
-    // Only propagate updates if this object hasn't been updated yet in the current cycle
-    if ((!alreadyProcessedX && deltaX !== 0) || (!alreadyProcessedY && deltaY !== 0)) {
+    // Check if this object has been directly moved through anchoring
+    // If either lockXToPolygon or lockYToPolygon has values, it's an anchored object
+    const isAnchoredObjectX = Object.keys(this.lockXToPolygon).length > 0;
+    const isAnchoredObjectY = Object.keys(this.lockYToPolygon).length > 0;
+
+    // Only propagate updates if:
+    // 1. The object hasn't been processed yet in the current cycle, AND
+    // 2. For anchored objects, only propagate if the object itself initiated the movement (not if it was moved by another object)
+    const needXPropagation = deltaX !== 0 && !alreadyProcessedX && (!isAnchoredObjectX || globalAnchorTree.starterObjectX === this.canvasID);
+    const needYPropagation = deltaY !== 0 && !alreadyProcessedY && (!isAnchoredObjectY || globalAnchorTree.starterObjectY === this.canvasID);
+    
+    if (needXPropagation || needYPropagation) {
       // Start update cycles if needed and record this object as the starter
-      if (deltaX !== 0 && !globalAnchorTree.updateInProgressX) {
+      if (needXPropagation && !globalAnchorTree.updateInProgressX) {
         globalAnchorTree.startUpdateCycle('x', this.canvasID);
       }
 
-      if (deltaY !== 0 && !globalAnchorTree.updateInProgressY) {
+      if (needYPropagation && !globalAnchorTree.updateInProgressY) {
         globalAnchorTree.startUpdateCycle('y', this.canvasID);
       }
 
