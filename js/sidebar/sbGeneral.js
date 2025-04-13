@@ -620,11 +620,16 @@ const GeneralSettings = {
       messageColor: 'White'
     };
 
+    // Apply all settings at once without triggering individual notifications
+    // We'll do a single notification at the end
     for (const key in defaultSetting) {
       if (defaultSetting.hasOwnProperty(key) && this.hasOwnProperty(key)) {
         this[key] = defaultSetting[key];
       }
     }
+    
+    // Notify listeners about a complete reset instead of individual properties
+    this.notifyListeners('settingsReset', null);
   }
 };
 

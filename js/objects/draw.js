@@ -152,8 +152,8 @@ class BaseGroup extends fabric.Group {
 
       // Show dimension lines when object is selected
 
-        this.showDimensions();
-      
+      this.showDimensions();
+
     });
 
     this.on('deselected', () => {
@@ -202,12 +202,12 @@ class BaseGroup extends fabric.Group {
 
     this.on('moving', () => {
 
-        this.showDimensions();
-      
+      this.showDimensions();
+
     });
     this.on('modified', () => {
 
-        this.showDimensions();
+      this.showDimensions();
 
     });
   }
@@ -221,7 +221,7 @@ class BaseGroup extends fabric.Group {
     const borderRect = this.getBoundingRect();
 
     // Find closest objects in each direction to show dimensions
-    if (!this.isTemporary && !this.focusMode){
+    if (!this.isTemporary && !this.focusMode) {
       this.createDimensionAnnotations(borderRect);
     }
   }
@@ -362,13 +362,13 @@ class BaseGroup extends fabric.Group {
         this.controls[vertexLabel] = new VertexControl(v, this);
         this.controls[vertexLabel].visible = shouldDisplay;
       }
-      
+
       // For SideRoad objects, set the control location to match the basePolygon location
-      if (this.functionalType=== 'SideRoad') {
+      if (this.functionalType === 'SideRoad') {
         // Update control position to match the vertex position
         this.controls[vertexLabel].x = (v.x - this.left) / this.width - 0.5;
         this.controls[vertexLabel].y = (v.y - this.top) / this.height - 0.5;
-        
+
         // Ensure the offsets are reset
         this.controls[vertexLabel].offsetX = 0;
         this.controls[vertexLabel].offsetY = 0;
@@ -381,92 +381,195 @@ class BaseGroup extends fabric.Group {
     this.setCoords();
   }
   // Method to emit deltaX and deltaY to anchored groups
-  emitDelta(deltaX, deltaY, sourceList = []) {
-    sourceList.includes(this) ? sourceList : sourceList.push(this)
-    this.anchoredPolygon.forEach(anchoredGroup => {
-      if (!sourceList.includes(anchoredGroup)) {
-        // check receive change object to avoid self reference in border resize{
-        anchoredGroup.receiveDelta(this, deltaX, deltaY, sourceList);
+  emitDelta(deltaX, deltaY, _sourceList = []) {
+    // For X axis changes
+    if (deltaX !== 0) {
+      // Get all objects that should be updated in X axis
+      const xUpdateOrder = globalAnchorTree.getUpdateOrder('x', this.canvasID);
+
+      // Start an X-axis update cycle if needed with this object as the starter
+      if (!globalAnchorTree.updateInProgressX) {
+        globalAnchorTree.startUpdateCycle('x', this.canvasID);
       }
 
-    });
-    // If all nodes are exhausted, call another function
-    if (this.canvasID == sourceList[0].canvasID) {
-      this.allNodesProcessed(sourceList);
+      // Mark this object as updated in X axis
+      globalAnchorTree.updatedObjectsX.add(this.canvasID);
+
+      // Update each object in X axis
+      xUpdateOrder.forEach(obj => {
+        if (!globalAnchorTree.updatedObjectsX.has(obj.canvasID)) {
+          globalAnchorTree.updatedObjectsX.add(obj.canvasID);
+          obj.set({ left: obj.left + deltaX });
+          obj.setCoords();
+          obj.updateAllCoord(null, [], true); // selfOnly=true to prevent recursion
+        }
+      });
+
+      // End the X-axis update cycle if this object started it
+      if (globalAnchorTree.isUpdateStarter('x', this.canvasID)) {
+        globalAnchorTree.endUpdateCycle('x');
+      }
     }
+
+    // For Y axis changes
+    if (deltaY !== 0) {
+      // Get all objects that should be updated in Y axis
+      const yUpdateOrder = globalAnchorTree.getUpdateOrder('y', this.canvasID);
+
+      // Start a Y-axis update cycle if needed with this object as the starter
+      if (!globalAnchorTree.updateInProgressY) {
+        globalAnchorTree.startUpdateCycle('y', this.canvasID);
+      }
+
+      // Mark this object as updated in Y axis
+      globalAnchorTree.updatedObjectsY.add(this.canvasID);
+
+      // Update each object in Y axis
+      yUpdateOrder.forEach(obj => {
+        if (!globalAnchorTree.updatedObjectsY.has(obj.canvasID)) {
+          globalAnchorTree.updatedObjectsY.add(obj.canvasID);
+          obj.set({ top: obj.top + deltaY });
+          obj.setCoords();
+          obj.updateAllCoord(null, [], true); // selfOnly=true to prevent recursion
+        }
+      });
+
+      // End the Y-axis update cycle if this object started it
+      if (globalAnchorTree.isUpdateStarter('y', this.canvasID)) {
+        globalAnchorTree.endUpdateCycle('y');
+      }
+    }
+
 
   }
 
   // Method to receive deltaX and deltaY and update position
-  receiveDelta(caller, deltaX, deltaY, sourceList) {
-    sourceList.includes(this) ? sourceList : sourceList.push(this)
-    const newDeltaX = this.lockXToPolygon.TargetObject == caller  ? deltaX : 0
-    const newDeltaY = this.lockYToPolygon.TargetObject == caller  ? deltaY : 0
+  receiveDelta(caller, deltaX, deltaY, _sourceList = []) {
+    // Only update axis if the caller is the target of our lock
+    const newDeltaX = this.lockXToPolygon.TargetObject == caller ? deltaX : 0;
+    const newDeltaY = this.lockYToPolygon.TargetObject == caller ? deltaY : 0;
+
+    // Update position
     this.set({
       left: this.left + newDeltaX,
       top: this.top + newDeltaY
     });
+
     this.setCoords();
-    this.updateAllCoord(null, sourceList);
+
+    // Track if we start update cycles that need to be closed
+    let startedXCycle = false;
+    let startedYCycle = false;
+
+    try {
+      // Use the AnchorTree to update coordinates properly
+      if (newDeltaX !== 0) {
+        // Start an X-axis update cycle if needed
+        if (!globalAnchorTree.updateInProgressX) {
+          globalAnchorTree.startUpdateCycle('x');
+          startedXCycle = true;
+        }
+        globalAnchorTree.updatedObjectsX.add(this.canvasID);
+      }
+
+      if (newDeltaY !== 0) {
+        // Start a Y-axis update cycle if needed
+        if (!globalAnchorTree.updateInProgressY) {
+          globalAnchorTree.startUpdateCycle('y');
+          startedYCycle = true;
+        }
+        globalAnchorTree.updatedObjectsY.add(this.canvasID);
+      }
+
+      // Update coordinates without using sourceList
+      this.updateAllCoord(null, [], false);
+    } finally {
+      // Always end update cycles if we started them, even if an error occurs
+      if (startedXCycle) {
+        globalAnchorTree.endUpdateCycle('x');
+      }
+
+      if (startedYCycle) {
+        globalAnchorTree.endUpdateCycle('y');
+      }
+    }
   }
 
-  // Method to call when all nodes are processed
-  allNodesProcessed(sourceList = []) {
-    canvasObject.map(o => o.lockXToPolygon).filter(o => o.secondSourceObject).forEach(o => { EQanchorShape('x', o, sourceList) })
-    canvasObject.map(o => o.lockYToPolygon).filter(o => o.secondSourceObject).forEach(o => { EQanchorShape('y', o, sourceList) })
-    //console.log('All nodes processed');
-    // Call another function here
-  }
+
 
   // Method to call for border resizing
-  borderResize(sourceList = []) {
-    sourceList.includes(this) ? sourceList : sourceList.push(this)
-    if (this.borderGroup && !sourceList.includes(this.borderGroup)) {
-      const BG = this.borderGroup
-      BG.removeAll()
+  borderResize(_sourceList = []) {
+    if (this.borderGroup && !globalAnchorTree.updatedObjectsX.has(this.borderGroup.canvasID) &&
+      !globalAnchorTree.updatedObjectsY.has(this.borderGroup.canvasID)) {
+
+      const BG = this.borderGroup;
+      BG.removeAll();
+
       // Get the bounding box of the active selection 
-      let coords = BorderUtilities.getBorderObjectCoords(BG.heightObjects, BG.widthObjects)
+      let coords = BorderUtilities.getBorderObjectCoords(BG.heightObjects, BG.widthObjects);
 
       if (!isNaN(parseInt(BG.fixedWidth))) {
-        const padding = parseInt(BG.fixedWidth) - coords.right + coords.left
-        coords.left -= padding / 2
-        coords.right += padding / 2
+        const padding = parseInt(BG.fixedWidth) - coords.right + coords.left;
+        coords.left -= padding / 2;
+        coords.right += padding / 2;
       }
+
       if (!isNaN(parseInt(BG.fixedHeight))) {
-        const padding = parseInt(BG.fixedHeight) - coords.bottom + coords.top
-        coords.top -= padding / 2
-        coords.bottom += padding / 2
+        const padding = parseInt(BG.fixedHeight) - coords.bottom + coords.top;
+        coords.top -= padding / 2;
+        coords.bottom += padding / 2;
       }
 
-      // handle roundings on borders and dividers
-      //const rounding = BorderUtilities.calcBorderRounding(BG.borderType, BG.xHeight, coords)
-      //BorderUtilities.RoundingToDivider(BG.HDivider, BG.VDivider, rounding, sourceList)
+      const borderObject = drawLabeledBorder(BG.borderType, BG.xHeight, coords, BG.color);
 
-      const borderObject = drawLabeledBorder(BG.borderType, BG.xHeight, coords, BG.color)
+      BG.add(borderObject);
+      BG.basePolygon = borderObject;
+      BG.assignWidthToDivider();
 
-      BG.add(borderObject)
-      BG.basePolygon = borderObject
-      BG.assignWidthToDivider(sourceList)
-      //BG.addMidPointToDivider()
-      BG.updateAllCoord(null, sourceList)
-      BG.drawVertex()
+      // Track if we started update cycles that need to be closed
+      let startedXCycle = false;
+      let startedYCycle = false;
 
-    
-    
-    // Update reference points and vertices
-    BG.refTopLeft = {
-      top: BG.basePolygon.getCoords()[0].y,
-      left: BG.basePolygon.getCoords()[0].x
-    };
-    
-    // Safely assign widths to dividers
-    BG.assignWidthToDivider();
-    
-    // Redraw vertices
-    BG.drawVertex();
-    
-    canvas.renderAll();
-  }
+      try {
+        // Start update cycles for the border group to be updated properly
+        if (!globalAnchorTree.updateInProgressX) {
+          globalAnchorTree.startUpdateCycle('x', BG.canvasID);
+          startedXCycle = true;
+        }
+
+        if (!globalAnchorTree.updateInProgressY) {
+          globalAnchorTree.startUpdateCycle('y', BG.canvasID);
+          startedYCycle = true;
+        }
+
+        // Mark the border group as already updated to prevent cycles
+        //globalAnchorTree.updatedObjectsX.add(BG.canvasID);
+        //globalAnchorTree.updatedObjectsY.add(BG.canvasID);
+
+        BG.updateAllCoord(null, [], false);
+        BG.drawVertex();
+      } finally {
+        // Always end update cycles if we started them, even if an error occurs
+        if (startedXCycle) {
+          globalAnchorTree.endUpdateCycle('x');
+        }
+
+        if (startedYCycle) {
+          globalAnchorTree.endUpdateCycle('y');
+        }
+      }
+
+      // Update reference points and vertices
+      BG.refTopLeft = {
+        top: BG.basePolygon.getCoords()[0].y,
+        left: BG.basePolygon.getCoords()[0].x
+      };
+
+      // Redraw vertices
+      BG.drawVertex();
+
+      canvas.renderAll();
+    }
   }
 
   getBasePolygonVertex(label) {
@@ -509,7 +612,7 @@ class BaseGroup extends fabric.Group {
 
   }
   // Method to update coordinates and emit delta
-  updateAllCoord(event, sourceList = [], selfOnly = false) {
+  updateAllCoord(event, _sourceList = [], _selfOnly = false) {
     // Check for basePolygon before calculating deltas
     if (!this.basePolygon || !this.basePolygon.getCoords) {
       // If basePolygon doesn't exist yet, just return
@@ -545,13 +648,108 @@ class BaseGroup extends fabric.Group {
       this.showDimensions();
     }
 
-    sourceList.includes(this) ? sourceList : sourceList.push(this);
-    if (!selfOnly && (deltaX !== 0 || deltaY !== 0)) {
-      this.emitDelta(deltaX, deltaY, sourceList);
+    // Check if this object is already being processed in the current update cycle
+    const alreadyProcessedX = globalAnchorTree.updateInProgressX && globalAnchorTree.updatedObjectsX.has(this.canvasID);
+    const alreadyProcessedY = globalAnchorTree.updateInProgressY && globalAnchorTree.updatedObjectsY.has(this.canvasID);
+
+    // Only propagate updates if this object hasn't been updated yet in the current cycle
+    if ((!alreadyProcessedX && deltaX !== 0) || (!alreadyProcessedY && deltaY !== 0)) {
+      // Start update cycles if needed and record this object as the starter
+      if (deltaX !== 0 && !globalAnchorTree.updateInProgressX) {
+        globalAnchorTree.startUpdateCycle('x', this.canvasID);
+      }
+
+      if (deltaY !== 0 && !globalAnchorTree.updateInProgressY) {
+        globalAnchorTree.startUpdateCycle('y', this.canvasID);
+      }
+
+      // Mark this object as updated in both axes if changed
+      if (deltaX !== 0) globalAnchorTree.updatedObjectsX.add(this.canvasID);
+      if (deltaY !== 0) globalAnchorTree.updatedObjectsY.add(this.canvasID);
+
+      // Get all objects that need to be updated (combine X and Y updates)
+      const xUpdateOrder = deltaX !== 0 ? globalAnchorTree.getUpdateOrder('x', this.canvasID) : [];
+      const yUpdateOrder = deltaY !== 0 ? globalAnchorTree.getUpdateOrder('y', this.canvasID) : [];
+
+      // Combine updates and remove duplicates while preserving order
+      const allObjectsToUpdate = new Map();
+
+      // First add X axis updates with their axis info
+      xUpdateOrder.forEach(obj => {
+        if (!globalAnchorTree.updatedObjectsX.has(obj.canvasID)) {
+          allObjectsToUpdate.set(obj.canvasID, {
+            object: obj,
+            updateX: true,
+            updateY: false
+          });
+        }
+      });
+
+      // Then add or update with Y axis info
+      yUpdateOrder.forEach(obj => {
+        if (!globalAnchorTree.updatedObjectsY.has(obj.canvasID)) {
+          if (allObjectsToUpdate.has(obj.canvasID)) {
+            // Object already needs X update, add Y update too
+            allObjectsToUpdate.get(obj.canvasID).updateY = true;
+          } else {
+            // New object that only needs Y update
+            allObjectsToUpdate.set(obj.canvasID, {
+              object: obj,
+              updateX: false,
+              updateY: true
+            });
+          }
+        }
+      });
+
+      // Process all objects in a single pass
+      allObjectsToUpdate.forEach(info => {
+        // Apply position changes based on which axes need updates
+        if (info.updateX) {
+          globalAnchorTree.updatedObjectsX.add(info.object.canvasID);
+          info.object.set({ left: info.object.left + deltaX });
+        }
+
+        if (info.updateY) {
+          globalAnchorTree.updatedObjectsY.add(info.object.canvasID);
+          info.object.set({ top: info.object.top + deltaY });
+        }
+
+        // Update coordinates in a single operation
+        info.object.setCoords();
+
+        // Recursive call but object will be skipped in next cycle due to being in updatedObjects set
+        info.object.updateAllCoord(null, []);
+      });
+
+      // For backward compatibility, still call emitDelta
+      this.emitDelta(deltaX, deltaY, []);
+
+      // Check if this object is the starter of any update chain and if so, end the cycle
+      if (globalAnchorTree.isUpdateStarter('x', this.canvasID)) {
+        globalAnchorTree.endUpdateCycle('x');
+      }
+
+      if (globalAnchorTree.isUpdateStarter('y', this.canvasID)) {
+        globalAnchorTree.endUpdateCycle('y');
+      }
     }
-    if ((sourceList[0].borderGroup !== this.borderGroup || sourceList[0] == this) && this.functionalType !== 'HDivider' && this.functionalType !== 'VDivider' && this.functionalType !== 'HLine' && this.functionalType !== 'VLane') {
-      this.borderResize(sourceList);
+
+    // Check if border resize is needed
+    const firstXBorder = globalAnchorTree.starterObjectX ? canvasObject[globalAnchorTree.starterObjectX].borderGroup : null;
+    const firstYBorder = globalAnchorTree.starterObjectY ? canvasObject[globalAnchorTree.starterObjectY].borderGroup : null;
+    if (this.functionalType !== 'HDivider' &&
+      this.functionalType !== 'VDivider' &&
+      this.functionalType !== 'HLine' &&
+      this.functionalType !== 'VLane' &&
+      (this.borderGroup !== firstXBorder ||
+        this.canvasID == globalAnchorTree.starterObjectX
+      ) &&
+      (this.borderGroup !== firstYBorder ||
+        this.canvasID == globalAnchorTree.starterObjectY)) {
+      this.borderResize();
     }
+
 
     if (document.getElementById('debug-info-panel')) {
       FormDebugComponent.updateDebugInfo(canvas.getActiveObjects())
@@ -609,7 +807,8 @@ class BaseGroup extends fabric.Group {
     return this.basePolygon.getCoords();
   }
   // Method to delete the object
-  deleteObject(_eventData, transform) {    const deleteObj = transform?.target || transform || this
+  deleteObject(_eventData, transform) {
+    const deleteObj = transform?.target || transform || this
 
     // Track object deletion before actually deleting it
     canvasTracker.track('deleteObject', [{
@@ -625,17 +824,17 @@ class BaseGroup extends fabric.Group {
     const index = canvasObject.indexOf(deleteObj)
     if (index > -1) {
       canvasObject.splice(index, 1);
-      
+
       // Create a mapping of old IDs to new IDs for anchor tree update
       const idMapping = {};
-      
+
       // Update IDs for remaining objects
       for (let i = index; i < canvasObject.length; i++) {
         const oldID = canvasObject[i].canvasID;
         canvasObject[i].canvasID -= 1;
         idMapping[oldID] = canvasObject[i].canvasID;
       }
-      
+
       // Update the anchor tree with the new ID mapping
       if (typeof globalAnchorTree !== 'undefined') {
         globalAnchorTree.updateOnDelete(originalCanvasID, idMapping);
@@ -1102,6 +1301,13 @@ class LockIcon {
     if (this.direction == 'x') {
       // Handle X direction unlock
       this.baseGroup.lockMovementX = false;
+
+      // Remove from globalAnchorTree x tree before clearing lockXToPolygon
+      if (anchorX) {
+        globalAnchorTree.removeNode('x', this.baseGroup.canvasID);
+      }
+
+      // Clear the lockXToPolygon object
       this.baseGroup.lockXToPolygon = {};
 
       // Only remove from anchoredPolygon if this object is not also Y-anchored to the same target
@@ -1114,6 +1320,13 @@ class LockIcon {
     } else {
       // Handle Y direction unlock
       this.baseGroup.lockMovementY = false;
+
+      // Remove from globalAnchorTree y tree before clearing lockYToPolygon
+      if (anchorY) {
+        globalAnchorTree.removeNode('y', this.baseGroup.canvasID);
+      }
+
+      // Clear the lockYToPolygon object
       this.baseGroup.lockYToPolygon = {};
 
       // Only remove from anchoredPolygon if this object is not also X-anchored to the same target
@@ -1195,7 +1408,7 @@ class VertexControl extends fabric.Control {
     // Draw the circle with different color based on state
     ctx.beginPath();
     ctx.arc(left, top, size / 2, 0, 2 * Math.PI, false);
-    
+
     // Different fill colors based on state
     if (this.isDragging) {
       // Active dragging state - bright yellow
@@ -1208,15 +1421,15 @@ class VertexControl extends fabric.Control {
       // Normal or hover state
       ctx.fillStyle = `rgba(255, 20, 20, ${this.hover ? 0.7 : 0.2})`;
     }
-    
+
     ctx.fill();
     ctx.lineWidth = 1;
-    ctx.strokeStyle = this.baseGroup.focusMode?'rgba(0, 0, 0, 0)':this.VertexColorPicker(this.vertex);
+    ctx.strokeStyle = this.baseGroup.focusMode ? 'rgba(0, 0, 0, 0)' : this.VertexColorPicker(this.vertex);
     ctx.stroke();
 
     // Draw the text
     ctx.font = '10px Arial, sans-serif';
-    ctx.fillStyle = this.baseGroup.focusMode?'rgba(0, 0, 0, 0)':this.VertexColorPicker(this.vertex);
+    ctx.fillStyle = this.baseGroup.focusMode ? 'rgba(0, 0, 0, 0)' : this.VertexColorPicker(this.vertex);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(this.vertex.label, left, this.vertex.label.includes('E') ? top - 15 : top + 15);
@@ -1285,7 +1498,9 @@ class VertexControl extends fabric.Control {
     const pointer = canvas.getPointer(event.e);
 
     // Find nearest vertex for snapping
-    this.checkForSnapTargets(pointer);    // Calculate new position of group based on vertex position
+    this.checkForSnapTargets(pointer);
+
+    // Calculate new position of group based on vertex position
     let newLeft, newTop;
 
     if (this.snapTarget) {
@@ -1327,43 +1542,71 @@ class VertexControl extends fabric.Control {
           // Fall back to standard calculation if vertex not found
           newLeft = pointer.x - this.vertexOffset.x;
           newTop = pointer.y - this.vertexOffset.y;
-        }      } else {
+        }
+      } else {
         // Standard calculation for non-text objects
         newLeft = pointer.x - this.vertexOffset.x;
         newTop = pointer.y - this.vertexOffset.y;
       }
-    }    // Move the group
+    }
+
+    // Move the group
     if (this.baseGroup.functionalType !== 'MainRoad' && this.baseGroup.functionalType !== 'SideRoad') {
+      // Cache the old position to calculate delta
+      const oldLeft = this.baseGroup.left;
+      const oldTop = this.baseGroup.top;
+
+      // Process both X and Y updates in a single atomic operation
+      let positionChanged = false;
+
       if (!this.baseGroup.lockMovementX) {
-        this.baseGroup.set({
-          left: newLeft,
-        });
-
+        this.baseGroup.set({ left: newLeft });
+        positionChanged = true;
       }
+
       if (!this.baseGroup.lockMovementY) {
-        this.baseGroup.set({
-          top: newTop,
-        });
-
+        this.baseGroup.set({ top: newTop });
+        positionChanged = true;
       }
 
+      if (positionChanged) {
+        // Start a single combined update cycle instead of separate X and Y cycles
+        if (!globalAnchorTree.updateInProgressX) {
+          globalAnchorTree.startUpdateCycle('x', this.baseGroup.canvasID);
+        }
+        if (!globalAnchorTree.updateInProgressY) {
+          globalAnchorTree.startUpdateCycle('y', this.baseGroup.canvasID);
+        }
+
+        // Update coordinates in one go
+        this.baseGroup.setCoords();
+        this.baseGroup.updateAllCoord();
+
+        // End update cycles if we started them
+        if (!globalAnchorTree.updateInProgressX) {
+          globalAnchorTree.endUpdateCycle('x');
+        }
+        if (!globalAnchorTree.updateInProgressY) {
+          globalAnchorTree.endUpdateCycle('y');
+        }
+      }
     } else {
       // Special handling for MainRoad and SideRoad
       // If we have a snap target, use its position instead of pointer
-      const finalPointer = this.snapTarget ? 
-        { x: this.snapTarget.vertex.x, y: this.snapTarget.vertex.y } : 
+      const finalPointer = this.snapTarget ?
+        { x: this.snapTarget.vertex.x, y: this.snapTarget.vertex.y } :
         pointer;
-      
+
       if (this.baseGroup.functionalType === 'SideRoad') {
         // For SideRoad, calculate the appropriate offset based on active vertex
         if (activeVertex && activeVertex.vertex) {
           // Find the V1 vertex which corresponds to routeList[0]
           let v1Vertex = this.baseGroup.basePolygon.vertex.find(v => v.label === 'V1');
-          
+
           // Calculate offset between active vertex and V1
           let offsetX = 0;
           let offsetY = 0;
-          
+
           if (activeVertex.vertex.label !== 'V1' && v1Vertex) {
             // Calculate offset
             const activeVertexObj = this.baseGroup.basePolygon.vertex.find(v => v.label === activeVertex.vertex.label);
@@ -1372,7 +1615,7 @@ class VertexControl extends fabric.Control {
               offsetY = v1Vertex.y - activeVertexObj.y;
             }
           }
-          
+
           // Apply the position update with the calculated offset
           this.baseGroup.routeList[0].x = finalPointer.x + offsetX;
           this.baseGroup.routeList[0].y = finalPointer.y + offsetY;
@@ -1390,11 +1633,26 @@ class VertexControl extends fabric.Control {
           route.y = newTop + this.vertexOffset.y;
         });
       }
+
+      // Process route changes in a single update cycle
+      if (!globalAnchorTree.updateInProgressX) {
+        globalAnchorTree.startUpdateCycle('x', this.baseGroup.canvasID);
+      }
+      if (!globalAnchorTree.updateInProgressY) {
+        globalAnchorTree.startUpdateCycle('y', this.baseGroup.canvasID);
+      }
+
       this.baseGroup.onMove();
+      this.baseGroup.setCoords();
+      this.baseGroup.updateAllCoord();
+
+      if (!globalAnchorTree.updateInProgressX) {
+        globalAnchorTree.endUpdateCycle('x');
+      }
+      if (!globalAnchorTree.updateInProgressY) {
+        globalAnchorTree.endUpdateCycle('y');
+      }
     }
-    
-    this.baseGroup.setCoords();
-    this.baseGroup.updateAllCoord();
 
     canvas.renderAll();
   }
@@ -1402,7 +1660,7 @@ class VertexControl extends fabric.Control {
   checkForSnapTargets(pointer) {
     // Clear any existing snap highlight
     this.clearSnapHighlight();
-    
+
     this.snapTarget = null;
 
     // Check all canvas objects for potential snap targets
@@ -1434,11 +1692,11 @@ class VertexControl extends fabric.Control {
         object: closestObject,
         vertex: closestVertex
       };
-      
+
       // Match the circle size with the vertex control size
       const size = this.cornerSize;
       const radius = size / 2;
-      
+
       // Create a hollow circle to indicate snap target, centered at the vertex position
       this.snapHighlight = new fabric.Circle({
         left: closestVertex.x,
@@ -1452,15 +1710,15 @@ class VertexControl extends fabric.Control {
         originX: 'center',
         originY: 'center'
       });
-      
+
       // Add the highlight to the canvas
       canvas.add(this.snapHighlight);
-      
+
       // Force a render to update vertex appearance
       canvas.renderAll();
     }
   }
-  
+
   // New method to clear snap highlight
   clearSnapHighlight() {
     if (this.snapHighlight) {
@@ -1498,7 +1756,7 @@ class VertexControl extends fabric.Control {
 
       // Clear the snap highlight before finishing the drag
       this.clearSnapHighlight();
-      
+
       this.finishDrag();
 
       // Start the anchor process with the saved snap target
@@ -1668,7 +1926,7 @@ class VertexControl extends fabric.Control {
   restoreOriginalPosition() {
     // Clear any snap highlight
     this.clearSnapHighlight();
-    
+
     // Restore original position
     this.baseGroup.set(this.originalPosition);
     this.baseGroup.setCoords();
@@ -1688,7 +1946,7 @@ class VertexControl extends fabric.Control {
   cleanupDrag() {
     // Clear any snap highlight
     this.clearSnapHighlight();
-    
+
     // First reset object properties
     this.isDown = false;
     this.isDragging = false; // Reset dragging flag

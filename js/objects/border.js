@@ -902,8 +902,12 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
     };
     
     // Mark as updated in the anchor tree if it's active
-    if (globalAnchorTree.updateInProgress) {
-      globalAnchorTree.updatedObjects.add(divider.canvasID);
+    if (globalAnchorTree.updateInProgressX) {
+      globalAnchorTree.updatedObjectsX.add(divider.canvasID);
+    }
+    
+    if (globalAnchorTree.updateInProgressY) {
+      globalAnchorTree.updatedObjectsY.add(divider.canvasID);
     }
   }
 
@@ -1022,23 +1026,29 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
     }
   }
 
-
-
   // Optimized method to process border resize without causing infinite loops
   processResize() {
     // Skip if already being updated in current tree cycle
-    if (globalAnchorTree.updateInProgress && globalAnchorTree.updatedObjects.has(this.canvasID)) {
+    if ((globalAnchorTree.updateInProgressX && globalAnchorTree.updatedObjectsX.has(this.canvasID)) && 
+        (globalAnchorTree.updateInProgressY && globalAnchorTree.updatedObjectsY.has(this.canvasID))) {
       return;
     }
 
-    // Start an update cycle if needed
-    const isRootUpdate = !globalAnchorTree.updateInProgress;
-    if (isRootUpdate) {
-      globalAnchorTree.startUpdateCycle();
+    // Start axis-specific update cycles if needed
+    const isXRootUpdate = !globalAnchorTree.updateInProgressX;
+    const isYRootUpdate = !globalAnchorTree.updateInProgressY;
+    
+    if (isXRootUpdate) {
+      globalAnchorTree.startUpdateCycle('x');
+    }
+    
+    if (isYRootUpdate) {
+      globalAnchorTree.startUpdateCycle('y');
     }
 
-    // Mark this border as updated in the current cycle
-    globalAnchorTree.updatedObjects.add(this.canvasID);
+    // Mark this border as updated in both axes
+    globalAnchorTree.updatedObjectsX.add(this.canvasID);
+    globalAnchorTree.updatedObjectsY.add(this.canvasID);
     
     // Remove all current elements
     this.removeAll();
@@ -1073,11 +1083,12 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
       left: this.basePolygon.getCoords()[0].x
     };
     
-    // Apply divider updates without triggering recursive updates
+    // Apply divider updates with axis-specific tracking
     if (this.HDivider && this.HDivider.length > 0) {
       this.HDivider.forEach(divider => {
-        // Mark as updated in the tree
-        globalAnchorTree.updatedObjects.add(divider.canvasID);
+        // Mark as updated in both axes since divider position affects both
+        globalAnchorTree.updatedObjectsX.add(divider.canvasID);
+        globalAnchorTree.updatedObjectsY.add(divider.canvasID);
         
         // Update width without triggering updateAllCoord
         if (divider.width !== rounding.width) {
@@ -1095,8 +1106,9 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
     
     if (this.VDivider && this.VDivider.length > 0) {
       this.VDivider.forEach(divider => {
-        // Mark as updated in the tree
-        globalAnchorTree.updatedObjects.add(divider.canvasID);
+        // Mark as updated in both axes since divider position affects both
+        globalAnchorTree.updatedObjectsX.add(divider.canvasID);
+        globalAnchorTree.updatedObjectsY.add(divider.canvasID);
         
         // Update height without triggering updateAllCoord
         if (divider.height !== rounding.height) {
@@ -1121,13 +1133,72 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
     // Redraw vertices
     this.drawVertex(false);
     
-    // End the update cycle if we started it
-    if (isRootUpdate) {
-      globalAnchorTree.endUpdateCycle();
+    // End the update cycles if we started them
+    if (isXRootUpdate) {
+      globalAnchorTree.endUpdateCycle('x');
     }
     
-    // Request a render
-    canvas.requestRenderAll();
+    if (isYRootUpdate) {
+      globalAnchorTree.endUpdateCycle('y');
+    }
+  }
+
+  // Override updateAllCoord - need to make sure trees are updated correctly
+  updateAllCoord(event, _sourceList = [], _selfOnly = false) {
+    // Call parent implementation first
+    super.updateAllCoord(event, _sourceList, _selfOnly);
+    
+    // Mark that a border update is in progress
+    this.isUpdating = true;
+    
+    try {
+      // Only process groups that we own (for multi-box borders)
+      if (this.compartmentBboxes && this.compartmentBboxes.length > 0) {
+        
+        // First handle horizontal dividers
+        if (this.HDivider && this.HDivider.length > 0) {
+          // Start an X update cycle for this object's ID
+          globalAnchorTree.startUpdateCycle('x', this.canvasID);
+          
+          // Update each divider
+          this.HDivider.forEach(divider => {
+            // Mark divider as updated in X axis to prevent cycles
+            globalAnchorTree.updatedObjectsX.add(divider.canvasID);
+            
+            // Update divider position and coordinates
+            divider.set('left', divider.left);
+            divider.setCoords();
+            divider.updateAllCoord(null, [this]);
+          });
+          
+          // End the X update cycle
+          globalAnchorTree.endUpdateCycle('x');
+        }
+        
+        // Then handle vertical dividers
+        if (this.VDivider && this.VDivider.length > 0) {
+          // Start a Y update cycle for this object's ID
+          globalAnchorTree.startUpdateCycle('y', this.canvasID);
+          
+          // Update each divider
+          this.VDivider.forEach(divider => {
+            // Mark divider as updated in Y axis to prevent cycles
+            globalAnchorTree.updatedObjectsY.add(divider.canvasID);
+            
+            // Update divider position and coordinates
+            divider.set('top', divider.top);
+            divider.setCoords();
+            divider.updateAllCoord(null, [this]);
+          });
+          
+          // End the Y update cycle
+          globalAnchorTree.endUpdateCycle('y');
+        }
+      }
+    } finally {
+      // Always mark that the update is complete
+      this.isUpdating = false;
+    }
   }
 }
 

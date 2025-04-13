@@ -4,20 +4,89 @@ class AnchorTree {
   constructor() {
     this.xTree = {}; // Object to store X-axis anchor relationships
     this.yTree = {}; // Object to store Y-axis anchor relationships
-    this.updateInProgress = false; // Flag to track if an update cycle is in progress
-    this.updatedObjects = new Set(); // Track objects that have been updated in the current cycle
+    this.updateInProgressX = false; // Flag to track if an X-axis update cycle is in progress
+    this.updateInProgressY = false; // Flag to track if a Y-axis update cycle is in progress
+    this.updatedObjectsX = new Set(); // Track objects that have been updated in X-axis
+    this.updatedObjectsY = new Set(); // Track objects that have been updated in Y-axis
+    this.starterObjectX = null; // Track which object started the X update chain
+    this.starterObjectY = null; // Track which object started the Y update chain
+    this.updateDepthX = 0; // Track nesting level of X updates
+    this.updateDepthY = 0; // Track nesting level of Y updates
   }
 
-  // Start a new update cycle
-  startUpdateCycle() {
-    this.updateInProgress = true;
-    this.updatedObjects.clear();
+  // Start a new update cycle for a specific direction
+  startUpdateCycle(direction, starterId) {
+    if (!starterId) {
+      console.warn("No starter ID provided to startUpdateCycle");
+    }
+    
+    if (direction === 'x') {
+      // Only set the starter object if this is the first level of the update
+      if (!this.updateInProgressX) {
+        this.starterObjectX = starterId;
+        this.updatedObjectsX.clear();
+      }
+      this.updateInProgressX = true;
+      this.updateDepthX++;
+    } else {
+      // Only set the starter object if this is the first level of the update
+      if (!this.updateInProgressY) {
+        this.starterObjectY = starterId;
+        this.updatedObjectsY.clear();
+      }
+      this.updateInProgressY = true;
+      this.updateDepthY++;
+    }
   }
 
-  // End the current update cycle
-  endUpdateCycle() {
-    this.updateInProgress = false;
-    this.updatedObjects.clear();
+  // Check if the object is the starter of the current update chain
+  isUpdateStarter(direction, objectId) {
+    if (direction === 'x') {
+      return this.starterObjectX === objectId;
+    } else {
+      return this.starterObjectY === objectId;
+    }
+  }
+
+  // End the current update cycle for a specific direction
+  endUpdateCycle(direction) {
+    if (direction === 'x') {
+      // Add safety check to prevent negative depth
+      if (this.updateDepthX <= 0) {
+        console.warn("Attempted to end X update cycle when none is in progress");
+        this.updateDepthX = 0;
+        this.updateInProgressX = false;
+        this.updatedObjectsX.clear();
+        this.starterObjectX = null;
+        return;
+      }
+      
+      this.updateDepthX--;
+      // Only fully end the cycle when we're back at the top level
+      if (this.updateDepthX === 0) {
+        this.updateInProgressX = false;
+        this.updatedObjectsX.clear();
+        this.starterObjectX = null;
+      }
+    } else {
+      // Add safety check to prevent negative depth
+      if (this.updateDepthY <= 0) {
+        console.warn("Attempted to end Y update cycle when none is in progress");
+        this.updateDepthY = 0;
+        this.updateInProgressY = false;
+        this.updatedObjectsY.clear();
+        this.starterObjectY = null;
+        return;
+      }
+      
+      this.updateDepthY--;
+      // Only fully end the cycle when we're back at the top level
+      if (this.updateDepthY === 0) {
+        this.updateInProgressY = false;
+        this.updatedObjectsY.clear();
+        this.starterObjectY = null;
+      }
+    }
   }
 
   // Add a node to the tree (either X or Y direction)
@@ -150,7 +219,8 @@ class AnchorTree {
       visited.add(nodeId);
       
       // If this node hasn't been updated yet in the current cycle, add it to pending updates
-      if (this.updateInProgress && !this.updatedObjects.has(nodeId)) {
+      if ((direction === 'x' && this.updateInProgressX && !this.updatedObjectsX.has(nodeId)) ||
+          (direction === 'y' && this.updateInProgressY && !this.updatedObjectsY.has(nodeId))) {
         // Get the actual object reference from the node
         const obj = tree[nodeId].object;
         pendingUpdates.push(obj);
@@ -444,13 +514,6 @@ document.getElementById('set-anchor').addEventListener('click', function () {
             canvasTracker.track('anchorObject', [eqAnchorTrackParams]);
           }
           
-          EQanchorShape('y', anchor)
-          shape2.lockYToPolygon = anchor
-          shape3.lockYToPolygon = anchor
-
-          // Add EQ relationships to the anchor tree
-          globalAnchorTree.addNode('y', shape2, shape1);
-          globalAnchorTree.addNode('y', shape3[0], shape4[0]);
         });
       });
     }
@@ -459,17 +522,48 @@ document.getElementById('set-anchor').addEventListener('click', function () {
     const updateOrderX = globalAnchorTree.getUpdateOrder('x', shape2.canvasID);
     const updateOrderY = globalAnchorTree.getUpdateOrder('y', shape2.canvasID);
     
-    // Combine and deduplicate the update orders
-    const combinedUpdateOrder = [...new Set([...updateOrderX, ...updateOrderY])];
-    
-    // Update coordinates in the proper order
-    if (combinedUpdateOrder.length > 0) {
-      combinedUpdateOrder.forEach(obj => {
+    // Process X axis updates
+    if (updateOrderX.length > 0) {
+      // Start an X-axis update cycle with the shape2 as the starter
+      globalAnchorTree.startUpdateCycle('x', shape2.canvasID);
+      
+      // Update objects in the proper order for X axis
+      updateOrderX.forEach(obj => {
         if (!sourceList.includes(obj)) {
+          // Mark this object as updated in X axis
+          globalAnchorTree.updatedObjectsX.add(obj.canvasID);
+          // Update coordinates - this may involve both X and Y changes
           obj.updateAllCoord(null, sourceList);
         }
       });
-    } else if (!sourceList.includes(shape2)) {
+
+      // End the X-axis update cycle
+      globalAnchorTree.endUpdateCycle('x');     
+
+    }
+    
+    // Process Y axis updates
+    if (updateOrderY.length > 0) {
+      // Start a Y-axis update cycle with the shape2 as the starter
+      globalAnchorTree.startUpdateCycle('y', shape2.canvasID);
+      
+      // Update objects in the proper order for Y axis
+      updateOrderY.forEach(obj => {
+        if (!sourceList.includes(obj)) {
+          // Mark this object as updated in Y axis
+          globalAnchorTree.updatedObjectsY.add(obj.canvasID);
+          // Update coordinates - this may involve both X and Y changes
+          obj.updateAllCoord(null, sourceList);
+        }
+      });
+      
+      // End the Y-axis update cycle
+      globalAnchorTree.endUpdateCycle('y');
+
+    }
+    
+    // If no updates from either axis, just update the object itself
+    if (updateOrderX.length === 0 && updateOrderY.length === 0 && !sourceList.includes(shape2)) {
       shape2.updateAllCoord(null, sourceList);
     }
   
@@ -498,58 +592,4 @@ document.getElementById('set-anchor').addEventListener('click', function () {
     
     // Return a resolved promise to allow for chaining
     return Promise.resolve();
-  }
-  
-  function EQanchorShape(direction, options, sourceList = []) {
-    const [shape1, shape2, shape3, shape4] = [options.TargetObject, options.sourceObject, options.secondSourceObject, options.secondTargetObject]
-    const [vertexIndex1, vertexIndex2, vertexIndex3, vertexIndex4] = [options.sourcePoint, options.targetPoint, options.secondSourcePoint, options.secondTargetPoint]
-    const movingPoint = shape2.getBasePolygonVertex(vertexIndex1.toUpperCase())
-    const targetPoint = shape1.getBasePolygonVertex(vertexIndex2.toUpperCase())
-    const secondMovingPoint = shape3.getBasePolygonVertex(vertexIndex3.toUpperCase())
-    const secondTargetPoint = shape4.getBasePolygonVertex(vertexIndex4.toUpperCase())
-  
-    if (direction == 'x') {
-      const totalFloat = (movingPoint.x - targetPoint.x) + (secondTargetPoint.x - secondMovingPoint.x)
-      anchorShape(shape1, shape2, {
-        vertexIndex1: vertexIndex1,
-        vertexIndex2: vertexIndex2,
-        spacingX: totalFloat / 2,
-        spacingY: ''
-      }, sourceList)
-      anchorShape(shape4, shape3, {
-        vertexIndex1: vertexIndex4,
-        vertexIndex2: vertexIndex3,
-        spacingX: -totalFloat / 2,
-        spacingY: ''
-      }, sourceList)
-      shape2.lockXToPolygon = options
-      shape3.lockXToPolygon = options
-    } else {
-      const totalFloat = (movingPoint.y - targetPoint.y) + (secondTargetPoint.y - secondMovingPoint.y)
-      anchorShape(shape1, shape2, {
-        vertexIndex1: vertexIndex1,
-        vertexIndex2: vertexIndex2,
-        spacingX: '',
-        spacingY: totalFloat / 2,
-      }, sourceList)
-      anchorShape(shape4, shape3, {
-        vertexIndex1: vertexIndex4,
-        vertexIndex2: vertexIndex3,
-        spacingX: '',
-        spacingY: -totalFloat / 2,
-      }, sourceList)
-      shape2.lockYToPolygon = options
-      shape3.lockYToPolygon = options
-  
-      // Use the AnchorTree to get the proper update order
-      const updateOrderY = globalAnchorTree.getUpdateOrder('y', shape2.canvasID)
-        .concat(globalAnchorTree.getUpdateOrder('y', shape3.canvasID));
-      
-      // Update in proper order
-      updateOrderY.forEach(obj => {
-        if (!sourceList.includes(obj)) {
-          obj.updateAllCoord(null, sourceList);
-        }
-      });
-    }
   }
