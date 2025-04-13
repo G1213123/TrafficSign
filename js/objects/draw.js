@@ -723,7 +723,7 @@ class BaseGroup extends fabric.Group {
       });
 
       // For backward compatibility, still call emitDelta
-      this.emitDelta(deltaX, deltaY, []);
+      //this.emitDelta(deltaX, deltaY, []);
 
       // Check if this object is the starter of any update chain and if so, end the cycle
       if (globalAnchorTree.isUpdateStarter('x', this.canvasID)) {
@@ -1840,43 +1840,20 @@ class VertexControl extends fabric.Control {
         }, 100);
         return;
       }
-    }
-
-    // If we click on empty space, set flag and finish the drag with delay
+    }    // If we click on empty space, set flag and finish the drag with a single operation
     vertexSnapInProgress = true;
-
-    // Remove all mouse events immediately to prevent further processing
-    this.removeAllMouseEvents();
-
-    // Store reference to the current drag state
-    const baseGroup = this.baseGroup;
-
-    // Clear snap highlight immediately
-    this.clearSnapHighlight();
-
-    // Clean up the drag state with proper callbacks
+    
+    // Store reference to the current baseGroup before calling finishDrag
+    const baseGroupRef = this.baseGroup;
+    
+    // Call finishDrag once to handle all cleanup consistently
+    this.finishDrag(true); // Pass true to indicate empty space click
+    
+    // Reset the flag after a delay to prevent new clicks
     setTimeout(() => {
-      // Update coordinates and call appropriate move method
-      baseGroup.updateAllCoord(null, []);
-
-      // Call the appropriate onMove method for special object types
-      if (baseGroup.functionalType === 'MainRoad' && typeof baseGroup.onMove === 'function') {
-        baseGroup.onMove();
-      } else if (baseGroup.functionalType === 'SideRoad' && typeof baseGroup.onMove === 'function') {
-        baseGroup.onMove();
-      }
-
-      baseGroup.exitFocusMode();
-
-      // Reset active vertex
-      activeVertex = null;
-
-      // Reset the flag after a delay to prevent new clicks
-      setTimeout(() => {
-        vertexSnapInProgress = false;
-        canvas.renderAll();
-      }, 300);
-    }, 50);
+      vertexSnapInProgress = false;
+      canvas.renderAll();
+    }, 300);
   }
 
   // New helper method to remove all mouse events immediately
@@ -1897,8 +1874,7 @@ class VertexControl extends fabric.Control {
     this.isDown = false;
     this.isDragging = false; // Reset dragging state
   }
-
-  finishDrag() {
+  finishDrag(isEmptySpaceClick = false) {
     this.clearSnapHighlight();
     this.cleanupDrag();
     this.baseGroup.updateAllCoord(null, []);
@@ -1908,6 +1884,14 @@ class VertexControl extends fabric.Control {
       this.baseGroup.onMove();
     } else if (this.baseGroup.functionalType === 'SideRoad' && typeof this.baseGroup.onMove === 'function') {
       this.baseGroup.onMove();
+    }
+
+    globalAnchorTree.endUpdateCycle('x');
+    globalAnchorTree.endUpdateCycle('y');
+
+    // If it's an empty space click, exit focus mode
+    if (isEmptySpaceClick) {
+      this.baseGroup.exitFocusMode();
     }
 
     activeVertex = null;
