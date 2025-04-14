@@ -417,7 +417,7 @@ class SymbolObject extends BaseGroup {
  * @param {Object} options - Configuration options: x, y, xHeight, angle, color
  * @return {Object} The created symbol object
  */
-async function drawSymbolDirectly(symbolType, options) {
+function drawSymbolDirectly(symbolType, options) {
   // Calculate symbol data
   const symbolData = calcSymbol(symbolType, options.xHeight / 4, options.color);
 
@@ -442,12 +442,12 @@ async function drawSymbolDirectly(symbolType, options) {
 
   // Create the GlyphPath for the symbol
   const symbolPath = new GlyphPath(symbolOptions);
-  await symbolPath.initialize(symbolData, symbolOptions);
+  symbolPath.initialize(symbolData, symbolOptions);
 
   // Create the SymbolObject with all original parameters, but the actual path
   // has pre-rotated vertices instead of a rotation transform
   const symbolGroup = new SymbolObject(symbolType, options);
-  await symbolGroup.initialize(symbolPath);
+  symbolGroup.initialize(symbolPath);
 
   symbolGroup.set({
     symbolAngle: options.angle || 0,

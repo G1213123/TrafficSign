@@ -81,7 +81,7 @@ let FormBorderWrapComponent = {
   createBorderSVG: async (shapeMeta,) => {
     const colorScheme = document.getElementById('input-color').value;
     const color = BorderColorScheme[colorScheme];
-    let pathData = await vertexToPath(shapeMeta, color);
+    let pathData = vertexToPath(shapeMeta, color);
     pathData = pathData.replace(/fill="border"/g, `fill="${color.border}"`);
     pathData = pathData.replace(/fill="symbol"/g, `fill="${color.symbol}"`);
     pathData = pathData.replace(/fill="background"/g, `fill="${color.background}"`);

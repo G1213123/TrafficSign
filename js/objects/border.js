@@ -655,7 +655,7 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
     });
   }
   // Assign width to divider
-  async assignWidthToDivider(sourceList = []) {
+  assignWidthToDivider(sourceList = []) {
     // Set the updating flag to indicate border is being updated
     this.isUpdating = true;
     
@@ -690,7 +690,7 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
 
         if (needsUpdate) {
           // Redraw the divider with the border's dimensions
-          const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, this.bbox, d.functionalType);
+          const res = drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, this.bbox, d.functionalType);
           d.replaceBasePolygon(res);
 
           // Position divider vertically same as before
@@ -723,7 +723,7 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
         }
       } else if (needsUpdate) {
         // Regular object-anchored divider
-        const res = await drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, this.bbox, d.functionalType);
+        const res = drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, this.bbox, d.functionalType);
         d.replaceBasePolygon(res);
         
         d.set({
@@ -753,7 +753,7 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
 
         if (needsUpdate) {
           // Redraw the divider with the border's dimensions
-          const res = await drawDivider(
+          const res = drawDivider(
             d.xHeight, 
             d.color, 
             { 
@@ -810,7 +810,7 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
             const cellBbox = matchingCompartments[0];
 
             // Draw the HLine with the cell-specific bbox
-            const res = await drawDivider(
+            const res = drawDivider(
               d.xHeight,
               d.color,
               { 
@@ -826,7 +826,7 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
           } else {
 
             // No matching compartment found, use the border's bbox
-            const res = await drawDivider(
+            const res =  drawDivider(
               d.xHeight, 
               d.color, 
               { 
@@ -846,7 +846,7 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
 
         } else {
           // Regular HDivider or HLine without VDividers
-          const res = await drawDivider(
+          const res =  drawDivider(
             d.xHeight, 
             d.color, 
             { 

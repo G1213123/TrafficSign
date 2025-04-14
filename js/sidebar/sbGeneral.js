@@ -409,7 +409,7 @@ let GeneralHandler = {
    * @param {Function} cancelHandler - Handler function for cancellation
    * @return {Promise<Object>} - A promise that resolves to the created object
    */
-  createObjectWithSnapping: async function(options, createObjectFn, component, objectKey, vertexId, mouseMoveHandler, mouseClickHandler, cancelHandler) {
+  createObjectWithSnapping: function(options, createObjectFn, component, objectKey, vertexId, mouseMoveHandler, mouseClickHandler, cancelHandler) {
     // Clear any existing object being placed
     if (component[objectKey]) {
       canvas.remove(component[objectKey]);
@@ -435,7 +435,7 @@ let GeneralHandler = {
     
     try {
       // Create the object - use await to handle both async and sync functions
-      const newObject = await Promise.resolve(createObjectFn(options));
+      const newObject = createObjectFn(options);
       
       // Store reference to the object
       component[objectKey] = newObject;
@@ -477,10 +477,6 @@ let GeneralHandler = {
             y: vertex.y - newObject.top
           };
           
-          // Create indicator for the active vertex if the method exists
-          if (activeVertex.createIndicator) {
-            activeVertex.createIndicator(vertex.x, vertex.y);
-          }
         }
       }
       

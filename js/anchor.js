@@ -337,6 +337,20 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
       await new Promise(resolve => setTimeout(resolve, 50));
     }
   }
+  if (shape2.functionalType === 'Border') {
+    // If border is currently being updated, wait and then try again
+    if (shape2.isUpdating) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      if (shape2.isUpdating) {
+        return; // Silently fail if still updating
+      }
+    }
+
+    // Quick vertex and compartment check
+    if (!shape2.basePolygon?.vertex?.length || !shape2.compartmentBboxes?.length) {
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+  }
 
   const vertexIndex1 = options.vertexIndex1 ? options.vertexIndex1 : await showTextBox('Enter vertex index for First Polygon:', 'E1')
   if (!vertexIndex1) { setInterval(document.addEventListener('keydown', ShowHideSideBarEvent), 1000); return }

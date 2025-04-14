@@ -222,7 +222,7 @@ let FormDrawAddComponent = {
   },
 
   // Create a new symbol object directly instead of using cursor
-  createSymbolObject: async function (event) {
+  createSymbolObject: function (event) {
     // Get symbol type and parameters from the button or defaults
     const symbolType = event.currentTarget.id.replace('button-', '');
     const xHeight = parseInt(document.getElementById('input-xHeight').value);
@@ -235,9 +235,9 @@ let FormDrawAddComponent = {
     FormDrawAddComponent.validateAndAdjustAngle(symbolType);
 
     // Create a function that returns a symbol object
-    const createSymbol = async (options) => {
+    const createSymbol = (options) => {
       // Account for any panning that has been done
-      return await drawSymbolDirectly(options.type, {
+      return drawSymbolDirectly(options.type, {
         x: options.position.x,
         y: options.position.y,
         xHeight: options.xHeight,
@@ -248,7 +248,7 @@ let FormDrawAddComponent = {
 
     try {
       // Use the general object creation with snapping function
-      await GeneralHandler.createObjectWithSnapping(
+      GeneralHandler.createObjectWithSnapping(
         {
           type: symbolType,
           xHeight: xHeight,
@@ -426,7 +426,7 @@ let FormDrawAddComponent = {
   createButtonSVG: async (symbolType, length, color = 'white') => {
     const symbolData = calcSymbol(symbolType, length, color);
 
-    let pathData = await vertexToPath(symbolData, color);
+    let pathData = vertexToPath(symbolData, color);
 
     const svgWidth = 100;
     const svgHeight = 100;

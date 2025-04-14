@@ -37,7 +37,7 @@ class GlyphPath extends fabric.Group {
     //this.initialize(shapeMeta, options);
   }
 
-  async initialize(shapeMeta, options) {
+  initialize(shapeMeta, options) {
     shapeMeta.path.map((p) => {
       let transformed = calculateTransformedPoints(p.vertex, {
         x: options.left,
@@ -65,18 +65,17 @@ class GlyphPath extends fabric.Group {
     options.left = vertexleft;
     options.top = vertextop;
     options.angle = 0;
+    options.strokeWidth = 0;
 
-    const pathData = await vertexToPath(shapeMeta, options.fill);
+    const pathData = vertexToPath(shapeMeta, options.fill);
 
     this.vertex = shapeMeta.path.map(p => p.vertex).flat(); // Store the shapeMeta.vertex points
     this.insertPoint = shapeMeta.path[0].vertex[0];
 
-    const result = await fabric.loadSVGFromString(pathData)
-    const obj = fabric.util.groupSVGElements(result.objects);
-    obj.set(options);
-    obj.set({ strokeWidth: 0 })
-    this.add(obj);
-    this.setCoords();
+    const t = fabric.loadSVGFromString(pathData).then((result) => {
+      this.add(...(result.objects.filter((obj) => !!obj)))
+      this.setCoords()
+    });
 
   }
 }
@@ -281,6 +280,26 @@ class BaseGroup extends fabric.Group {
       this.basePolygon.insertPoint = this.basePolygon.vertex ? this.basePolygon.vertex[0] : null;
       canvas.remove(this.basePolygon);
       this.add(this.basePolygon);
+
+      // Basepolygon async not loaded, make a temp dimension
+      if (this.width == 0 || this.height == 0){
+        let left = Infinity
+        let top = Infinity
+        let right = -Infinity
+        let bottom = -Infinity
+        this.basePolygon.vertex.forEach((v) =>
+        {
+          right = Math.max(right, v.x)
+          bottom = Math.max(bottom, v.y)
+          left = Math.min(left, v.x)
+          top = Math.min(top, v.y)
+        }
+      )
+        this.tempWidth =left -  right 
+        this.tempHeight = bottom - top
+        this.tempLeft = left
+        this.tempTop  = top
+      }
 
       this.drawVertex(calcVertex);
 
@@ -1386,9 +1405,13 @@ class LockIcon {
 
 class VertexControl extends fabric.Control {
   constructor(vertex, baseGroup) {
+    const width = baseGroup.width || baseGroup.tempWidth
+    const height = baseGroup.height || baseGroup.tempHeight
+    const left =   baseGroup.left
+    const top =   baseGroup.top
     super({
-      x: (vertex.x - baseGroup.left) / baseGroup.width - 0.5,
-      y: (vertex.y - baseGroup.top) / baseGroup.height - 0.5,
+      x: (vertex.x - left) / width - 0.5,
+      y: (vertex.y - top) / height - 0.5,
       offsetX: 0,
       offsetY: 0,
       cursorStyle: 'pointer',

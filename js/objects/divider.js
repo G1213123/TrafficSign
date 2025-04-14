@@ -1,4 +1,4 @@
-drawDivider = async function (xHeight, color, position, size, type) {
+drawDivider = function (xHeight, color, position, size, type) {
 
     // Choose the template based on the horizontal parameter
     let dividerTemplate = DividerScheme[type](xHeight, position, size, { x: 0, y: 0 }).path;
@@ -13,7 +13,7 @@ drawDivider = async function (xHeight, color, position, size, type) {
     };
 
     const dividerShape = new GlyphPath();
-    await dividerShape.initialize({ path: dividerTemplate }, arrowOptions1);
+    dividerShape.initialize({ path: dividerTemplate }, arrowOptions1);
     return dividerShape;
 }
 

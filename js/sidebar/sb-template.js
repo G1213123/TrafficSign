@@ -452,21 +452,6 @@ let FormTemplateComponent = {
         spacingY: xHeight * 2 / 4
       });
 
-      anchorShape(leftArrow, rightArrow, {
-        vertexIndex1: 'E1',
-        vertexIndex2: 'E1',
-        spacingX: '',
-        spacingY: 0
-      });
-
-      anchorShape(rightArrow, rightChiText2, {
-        vertexIndex1: 'E6',
-        vertexIndex2: 'E2',
-        spacingX: '',
-        spacingY: -xHeight * 2 / 4
-      });
-
-
       // Create vertical divider between compartments
       await VDividerCreate(
         [leftBorder],
@@ -476,20 +461,6 @@ let FormTemplateComponent = {
         { xHeight: xHeight, colorType: 'Green Background' }
       );
       const verticalDivider = canvasObject[canvasObject.length - 1];
-
-      anchorShape(rightChiText2, rightEngText2, {
-        vertexIndex1: 'E6',
-        vertexIndex2: 'E2',
-        spacingX: 0,
-        spacingY: 0
-      });
-
-      anchorShape(rightEngText2, rightEngText1, {
-        vertexIndex1: 'E6',
-        vertexIndex2: 'E2',
-        spacingX: 0,
-        spacingY: 0
-      });
 
       // Create an overall green border containing all components
       const allObjects = [
@@ -519,6 +490,34 @@ let FormTemplateComponent = {
         vertexIndex2: 'C6',
         spacingX: 0,
         spacingY: ''
+      });
+
+      anchorShape(leftArrow, rightArrow, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'E1',
+        spacingX: '',
+        spacingY: 0
+      });
+
+      anchorShape(rightArrow, rightChiText2, {
+        vertexIndex1: 'E6',
+        vertexIndex2: 'E2',
+        spacingX: 0,
+        spacingY: -xHeight * 1 / 4
+      });
+
+      anchorShape(rightChiText2, rightEngText2, {
+        vertexIndex1: 'E6',
+        vertexIndex2: 'E2',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      anchorShape(rightEngText2, rightEngText1, {
+        vertexIndex1: 'E6',
+        vertexIndex2: 'E2',
+        spacingX: 0,
+        spacingY: 0
       });
 
       // Anchor exit objects 
