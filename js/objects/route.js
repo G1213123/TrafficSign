@@ -248,9 +248,9 @@ class MainRoadSymbol extends BaseGroup {
      * @param {Object} vertexList - Vertex data for the route
      * @return {Promise<MainRoadSymbol>} - The initialized route
      */
-    async initialize(vertexList) {
+    initialize(vertexList) {
         const arrow = new GlyphPath();
-        await arrow.initialize(vertexList, {
+        arrow.initialize(vertexList, {
             left: 0,
             top: 0,
             angle: 0,
@@ -372,9 +372,9 @@ class SideRoadSymbol extends BaseGroup {
      * @param {Object} vertexList - Vertex data for the branch
      * @return {Promise<SideRoadSymbol>} - The initialized branch
      */
-    async initialize(vertexList) {
+    initialize(vertexList) {
         const branch = new GlyphPath();
-        await branch.initialize(vertexList, {
+        branch.initialize(vertexList, {
             left: 0,
             top: 0,
             angle: 0,
@@ -635,7 +635,7 @@ async function drawMainRoadOnCursor(event, params = null) {
 
         // Create and initialize the MainRoadSymbol
         const routeMap = new MainRoadSymbol(routeOptions);
-        await routeMap.initialize(calcVertexType[options.roadType](options.xHeight, routeList));
+        routeMap.initialize(calcVertexType[options.roadType](options.xHeight, routeList));
         
         // Add special features based on RAfeature
         if (options.RAfeature === 'U-turn') {
@@ -982,10 +982,10 @@ async function drawSideRoadOnCursor(event, option = null) {
         
         // Create and initialize the side road
         const sideRoad = new SideRoadSymbol(branchOptions);
-        await sideRoad.initialize(tempVertexList);
+        sideRoad.initialize(tempVertexList);
         
         // Update main road to show how it would look with the new side road
-        await mainRoad.receiveNewRoute(tempVertexList);
+        mainRoad.receiveNewRoute(tempVertexList);
         
         return sideRoad;
     };

@@ -1358,8 +1358,8 @@ const symbolsTemplate = {
                     { x: 1.7, y: 2.2, label: 'V1', start: 0, display: 0 },
                     { x: 1.3667, y: 2.2, label: 'V1', start: 0, display: 0 },
                     { x: 1.3667, y: 0.5333, label: 'V1', start: 0, display: 0 },
-                    { x: 1.0667, y: 0.5333, label: 'V1', start: 0, display: 0 },                ], 'arcs': [
-                ], 'fill': '#ffffff'
+                    { x: 1.0667, y: 0.5333, label: 'V1', start: 0, display: 0 },], 'arcs': [
+                    ], 'fill': '#ffffff'
             },
             {
                 'vertex': [

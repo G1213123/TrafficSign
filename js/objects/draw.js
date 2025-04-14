@@ -67,17 +67,47 @@ class GlyphPath extends fabric.Group {
     options.angle = 0;
     options.strokeWidth = 0;
 
-    const pathData = vertexToPath(shapeMeta, options.fill);
-
-    this.vertex = shapeMeta.path.map(p => p.vertex).flat(); // Store the shapeMeta.vertex points
+    // Store vertex data for reference
+    this.vertex = shapeMeta.path.map(p => p.vertex).flat();
     this.insertPoint = shapeMeta.path[0].vertex[0];
-
-    const t = fabric.loadSVGFromString(pathData).then((result) => {
-      this.add(...(result.objects.filter((obj) => !!obj)))
-      this.setCoords()
+    
+    // Create fabric.Path objects directly from vertex data
+    shapeMeta.path.forEach(path => {
+      const pathCommands = convertVertexToPathCommands(path);
+      const pathObj = new fabric.Path(pathCommands, {
+        fill: path.fill || options.fill || 'white',
+        stroke: options.stroke || 'none',
+        strokeWidth: options.strokeWidth || 0,
+        objectCaching: options.objectCaching,
+        originX: 'left',
+        originY: 'top'
+      });
+      this.add(pathObj);
     });
-
+    
+    // Add text elements if present
+    if (shapeMeta.text && shapeMeta.text.length > 0) {
+      shapeMeta.text.forEach(textElem => {
+        const charPath = getFontPath(textElem);
+        if (charPath && charPath.commands) {
+          // Convert font path commands to fabric.Path format
+          const pathCommands = convertFontPathToFabricPath(charPath.commands, textElem);
+          const textPathObj = new fabric.Path(pathCommands, {
+            fill: textElem.fill || options.fill || 'black',
+            stroke: 'none',
+            strokeWidth: 0,
+            objectCaching: options.objectCaching,
+            originX: 'left',
+            originY: 'top'
+          });
+          this.add(textPathObj);
+        }
+      });
+    }
+    
+    this.setCoords();
   }
+  
 }
 
 

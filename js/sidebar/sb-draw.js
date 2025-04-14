@@ -421,39 +421,110 @@ let FormDrawAddComponent = {
       // Symbol-specific cleanup
       FormDrawAddComponent.hideAngleControls();
     }
-  },
-
+  },  
+  
   createButtonSVG: async (symbolType, length, color = 'white') => {
     const symbolData = calcSymbol(symbolType, length, color);
-
-    let pathData = vertexToPath(symbolData, color);
-
+    
+    // Define SVG dimensions for the button
     const svgWidth = 100;
     const svgHeight = 100;
-
-    // Calculate the bounding box of the path
-    const tempPath = await fabric.loadSVGFromString(pathData);
-    const tempSymbol = fabric.util.groupSVGElements(tempPath.objects);
-    let symbolSize = { width: tempSymbol.width, height: tempSymbol.height, left: tempSymbol.left, top: tempSymbol.top };
-    // override the err width and height of symbol with circular border
+      // Create a temporary canvas to measure and render the symbol
+    const tempCanvas = new fabric.StaticCanvas(null, { 
+      width: svgWidth, 
+      height: svgHeight,
+      enableRetinaScaling: false
+    });
+    
+    // Create temporary path objects for each path in the symbol
+    const pathObjects = [];
+    
+    // Process each path in the symbol data
+    symbolData.path.forEach(path => {
+      // Convert vertex data to path commands
+      const pathCommands = convertVertexToPathCommands(path);
+      
+      // Create a fabric.Path object
+      const pathObj = new fabric.Path(pathCommands, {
+        fill: path.fill || color.toLowerCase(),
+        stroke: 'none',
+        strokeWidth: 0
+      });
+      
+      pathObjects.push(pathObj);
+    });
+    
+    // Process text elements if present
+    if (symbolData.text && symbolData.text.length > 0) {
+      symbolData.text.forEach(textElem => {
+        // Check for font path
+        const charPath = getFontPath(textElem);
+        if (charPath && charPath.commands) {
+          // Convert font path commands to fabric.Path format
+          const pathCommands = convertFontPathToFabricPath(charPath.commands, textElem);
+          const textPathObj = new fabric.Path(pathCommands, {
+            fill: textElem.fill || color.toLowerCase(),
+            stroke: 'none',
+            strokeWidth: 0
+          });
+          
+          pathObjects.push(textPathObj);
+        }
+      });
+    }
+    
+    // Create a group with all paths
+    const group = new fabric.Group(pathObjects, {
+      left: 0,
+      top: 0
+    });
+      // Calculate dimensions for scaling
+    const bounds = group.getBoundingRect();
+    
+    // Special case handling for specific symbols
+    let symbolWidth = bounds.width;
+    let symbolHeight = bounds.height;
+    
     if (symbolType === 'MTR') {
-      symbolSize.width = 130;
+      symbolWidth = 130;
     }
     if (symbolType === 'Hospital') {
-      symbolSize.width = color == 'White' ? 80 : 90;
+      symbolWidth = color == 'White' ? 80 : 90;
     }
-    const scaleX = svgWidth / symbolSize.width;
-    const scaleY = svgHeight / symbolSize.height;
+    
+    // Scale to fit within SVG dimensions
+    const scaleX = svgWidth / symbolWidth;
+    const scaleY = svgHeight / symbolHeight;
     const scale = Math.min(scaleX, scaleY);
-
-    // Calculate the translation to center the path
-    const translateX = (svgWidth - symbolSize.width * scale) / 2 - symbolSize.left * scale;
-    const translateY = (svgHeight - symbolSize.height * scale) / 2 - symbolSize.top * scale;
-
-    pathData = pathData.replace(/<svg>/g, '<svg style="width:100;height:100;">')
-    pathData = pathData.replace(/<path/g, `<path transform="translate(${translateX}, ${translateY}) scale(${scale})"`);
-
-    return pathData;
+    
+    // Set the group's properties for centering and scaling
+    group.set({
+      left: (svgWidth - symbolWidth * scale) / 2,
+      top: (svgHeight - symbolHeight * scale) / 2,
+      scaleX: scale,
+      scaleY: scale
+    });
+    
+    // Add the group to the canvas
+    tempCanvas.add(group);
+    tempCanvas.renderAll();
+    
+    // Export as SVG string
+    const svgString = tempCanvas.toSVG({
+      width: svgWidth,
+      height: svgHeight,
+      viewBox: {
+        x: 0,
+        y: 0,
+        width: svgWidth,
+        height: svgHeight
+      }
+    });
+    
+    // Cleanup
+    tempCanvas.dispose();
+    
+    return svgString;
   },
 
   // Toggle angle controls based on symbol type
