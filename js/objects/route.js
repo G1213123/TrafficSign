@@ -241,12 +241,10 @@ class MainRoadSymbol extends BaseGroup {
         this.on('moving', this.onMove.bind(this));
         this.on('moved', this.onMove.bind(this));
         this.on('modified', this.onMove.bind(this));
-    }
-
-    /**
+    }    /**
      * Initialize the route with a GlyphPath
      * @param {Object} vertexList - Vertex data for the route
-     * @return {Promise<MainRoadSymbol>} - The initialized route
+     * @return {MainRoadSymbol} - The initialized route
      */
     initialize(vertexList) {
         const arrow = new GlyphPath();
@@ -263,19 +261,16 @@ class MainRoadSymbol extends BaseGroup {
         // Set the basePolygon that was initially null in the constructor
         this.setBasePolygon(arrow, false)
 
-
         return this;
-    }
-
-    /**
+    }    /**
      * Updates base route object when receiving new route additions
      * @param {Object} branchRouteList - Optional route object to add
-     * @return {Promise<void>}
+     * @return {void}
      */
-    async receiveNewRoute(tempBranchRouteList = null) {
+    receiveNewRoute(tempBranchRouteList = null) {
         if (this.roadType !== 'Main Line') {
             const newPolygon = new GlyphPath();
-            await newPolygon.initialize(calcVertexType[this.roadType](this.xHeight, this.routeList), {
+            newPolygon.initialize(calcVertexType[this.roadType](this.xHeight, this.routeList), {
                 left: 0,
                 top: 0,
                 angle: 0,
@@ -312,11 +307,9 @@ class MainRoadSymbol extends BaseGroup {
             if (route.angle === 180) {
                 route.y = Math.max(...[newBottom, ...this.sideRoad.map(b => b.top + b.height)]) + this.rootLength * this.xHeight / 4;
             }
-        });
-
-        let newVertexList = calcVertexType[this.roadType](this.xHeight, this.routeList);
+        });        let newVertexList = calcVertexType[this.roadType](this.xHeight, this.routeList);
         const newPolygon = new GlyphPath();
-        await newPolygon.initialize(newVertexList, {
+        newPolygon.initialize(newVertexList, {
             left: 0,
             top: 0,
             angle: 0,
@@ -365,12 +358,10 @@ class SideRoadSymbol extends BaseGroup {
         this.on('moving', this.onMove.bind(this));
         this.on('moved', this.onMove.bind(this));
         this.on('modified', this.onMove.bind(this));
-    }
-
-    /**
+    }    /**
      * Initialize the branch with a GlyphPath
      * @param {Object} vertexList - Vertex data for the branch
-     * @return {Promise<SideRoadSymbol>} - The initialized branch
+     * @return {SideRoadSymbol} - The initialized branch
      */
     initialize(vertexList) {
         const branch = new GlyphPath();
@@ -415,15 +406,13 @@ class SideRoadSymbol extends BaseGroup {
         this.refTopLeft.top = this.top;
 
         return result.tempVertexList;
-    }
-
-    /**
+    }    /**
      * Updates route positions when branch is moved
      * @param {Event} event - Move event
      * @param {boolean} updateRoot - Whether to update the main road
-     * @return {Promise<void>}
+     * @return {void}
      */
-    async onMove(event, updateRoot = true) {
+    onMove(event, updateRoot = true) {
         if (!this.mainRoad) return;
 
         const mainRoad = this.mainRoad;
@@ -433,7 +422,7 @@ class SideRoadSymbol extends BaseGroup {
 
         // Create new polygon with constrained position
         const polygon1 = new GlyphPath();
-        await polygon1.initialize(tempVertexList, {
+        polygon1.initialize(tempVertexList, {
             left: 0,
             top: 0,
             angle: 0,
@@ -588,9 +577,9 @@ function applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList,
  * Draws new route cursor on canvas for initial placement
  * @param {Event} event - The triggering event object
  * @param {Object} params - Optional parameters for testing
- * @return {Promise<void>}
+ * @return {void}
  */
-async function drawMainRoadOnCursor(event, params = null) {
+function drawMainRoadOnCursor(event, params = null) {
     // Remove existing event listeners first to avoid duplicates
     drawRoadsHandlerOff();
 
@@ -612,10 +601,8 @@ async function drawMainRoadOnCursor(event, params = null) {
         RAfeature = params.RAfeature || 'Normal';
     } else {
         return;
-    }
-
-    // Create a function that returns a new MainRoadSymbol
-    const createMainRoadObject = async (options) => {
+    }    // Create a function that returns a new MainRoadSymbol
+    const createMainRoadObject = (options) => {
         // Create route list centered on the provided position
         const routeList = [
             { x: options.position.x, y: options.position.y + (options.rootLength + options.tipLength) * options.xHeight / 4, angle: 180, width: options.width, shape: options.roadType == 'Main Line' ? 'Stub' : options.RAfeature },
@@ -639,7 +626,7 @@ async function drawMainRoadOnCursor(event, params = null) {
         
         // Add special features based on RAfeature
         if (options.RAfeature === 'U-turn') {
-            await addUTurnRoute(routeMap);
+            addUTurnRoute(routeMap);
                 }
 
         return routeMap;
@@ -652,7 +639,7 @@ async function drawMainRoadOnCursor(event, params = null) {
         };
         
         // Use the general object creation with snapping function
-        await GeneralHandler.createObjectWithSnapping(
+        GeneralHandler.createObjectWithSnapping(
             {
                 position: { 
                     x: event ? canvas.getPointer(event.e).x : canvas.width/2, 
@@ -682,7 +669,7 @@ async function drawMainRoadOnCursor(event, params = null) {
     }
 }
 
-async function addUTurnRoute(mainRoad) {
+function addUTurnRoute(mainRoad) {
 
     // Create options for the arm
     const options = {
@@ -704,7 +691,7 @@ async function addUTurnRoute(mainRoad) {
 
     // Create and initialize the side road
     const sideRoad = new SideRoadSymbol(options);
-    await sideRoad.initialize(arrow);
+    sideRoad.initialize(arrow);
 
 
     // Update main road to show how it would look with the new side road
@@ -852,9 +839,9 @@ async function finishDrawMainRoad(event, options = null) {
  * Draws side road cursor for adding routes to existing root
  * @param {Event} event - Mouse event
  * @param {Object} option - Optional parameters for testing
- * @return {Promise<void>}
+ * @return {void}
  */
-async function drawSideRoadOnCursor(event, option = null) {
+function drawSideRoadOnCursor(event, option = null) {
     document.removeEventListener('keydown', ShowHideSideBarEvent);
     document.addEventListener('keydown', cancelDraw);
 
@@ -928,10 +915,8 @@ async function drawSideRoadOnCursor(event, option = null) {
         width = document.getElementById(`Side Road width`).value;
         routeList.push({ x: pointer.x, y: pointer.y, angle: angle, shape: shape, width: width, });
         mainRoad.tempRootList = JSON.parse(JSON.stringify(routeList));
-    }
-
-    // Create a function that returns a new SideRoadSymbol
-    const createSideRoadObject = async (options) => {
+    }    // Create a function that returns a new SideRoadSymbol
+    const createSideRoadObject = (options) => {
         const pointer = options.position;
         
         // Determine which side the branch is on
@@ -1002,7 +987,7 @@ async function drawSideRoadOnCursor(event, option = null) {
         const currentShape = shape;
         const currentWidth = width;
         
-        await GeneralHandler.createObjectWithSnapping(
+        GeneralHandler.createObjectWithSnapping(
             {
                 position: { 
                     x: pointer.x , 
@@ -1033,7 +1018,7 @@ async function drawSideRoadOnCursor(event, option = null) {
  * Handle mouse movement for side road placement
  * @param {Event} event - Mouse event
  */
-async function sideRoadOnMouseMove(event) {  
+function sideRoadOnMouseMove(event) {  
 
     const sideRoad = canvas.newSymbolObject;
     if (sideRoad.functionalType !== 'SideRoad') return;
@@ -1144,10 +1129,9 @@ async function sideRoadOnMouseMove(event) {
             sideRoad.basePolygon.path = constrainedResult.tempVertexList.path;
         }
     }
-    
-    // Important: Await the receiveNewRoute call to ensure it completes before continuing
+      // Update the main road with the side road
     try {
-        await mainRoad.receiveNewRoute(sideRoad.basePolygon);
+        mainRoad.receiveNewRoute(sideRoad.basePolygon);
     } catch (error) {
         console.error("Error updating main road:", error);
     }
@@ -1195,9 +1179,9 @@ function calculateBoundingBox(vertices) {
 /**
  * Completes side road drawing and anchors to root
  * @param {Event} event - Mouse event
- * @return {Promise<void>}
+ * @return {void}
  */
-async function finishDrawSideRoad(event) {
+function finishDrawSideRoad(event) {
     if (event.e.button !== 0) return;
 
     // Finalize side road placement on click
@@ -1233,7 +1217,7 @@ async function finishDrawSideRoad(event) {
 
     // Ensure main road is properly updated with the new side road
     try {
-        await mainRoad.receiveNewRoute();
+        mainRoad.receiveNewRoute();
     } catch (error) {
         console.error("Error finalizing main road update:", error);
     }

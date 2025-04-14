@@ -3,6 +3,10 @@ drawDivider = function (xHeight, color, position, size, type) {
     // Choose the template based on the horizontal parameter
     let dividerTemplate = DividerScheme[type](xHeight, position, size, { x: 0, y: 0 }).path;
 
+    dividerTemplate.map(path => {
+        path.fill = color;
+    });
+
     const arrowOptions1 = {
         left: 0,
         top: 0,
@@ -18,7 +22,7 @@ drawDivider = function (xHeight, color, position, size, type) {
 }
 
 
-async function VDividerCreate(leftObjects, rightObjects, leftValue, rightValue, options = null) {
+function VDividerCreate(leftObjects, rightObjects, leftValue, rightValue, options = null) {
     const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
     const colorType = options ? options.colorType : document.getElementById("input-color").value
     const color = BorderColorScheme[colorType]['border']
@@ -75,11 +79,9 @@ async function VDividerCreate(leftObjects, rightObjects, leftValue, rightValue, 
     // Get bounding boxes
     const leftObjectBBox = leftObject.getBoundingRect ?
         BorderUtilities.getBoundingBox([leftObject]) :
-        { left: leftObject.left - 10, top: leftObject.top - 50, right: leftObject.left + 10, bottom: leftObject.top + 50 };
+        { left: leftObject.left - 10, top: leftObject.top - 50, right: leftObject.left + 10, bottom: leftObject.top + 50 };    const leftObjectSize = { width: leftObjectBBox.right - leftObjectBBox.left, height: leftObjectBBox.bottom - leftObjectBBox.top }
 
-    const leftObjectSize = { width: leftObjectBBox.right - leftObjectBBox.left, height: leftObjectBBox.bottom - leftObjectBBox.top }
-
-    const BaseBorder = await drawDivider(xHeight, color, leftObjectBBox, leftObjectSize, 'VDivider')
+    const BaseBorder = drawDivider(xHeight, color, leftObjectBBox, leftObjectSize, 'VDivider')
     const borderGroup = new BaseGroup(BaseBorder, 'VDivider')
     borderGroup.shadowWidth = {x: 1.5, y: 0}
     borderGroup.xHeight = xHeight
@@ -127,7 +129,7 @@ async function VDividerCreate(leftObjects, rightObjects, leftValue, rightValue, 
     return borderGroup
 }
 
-async function HDividerCreate(aboveObjects, belowObjects, aboveValue, belowValue, options = null) {
+function HDividerCreate(aboveObjects, belowObjects, aboveValue, belowValue, options = null) {
     const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
     const colorType = options ? options.colorType : document.getElementById("input-color").value
     const color = BorderColorScheme[colorType]['border']
@@ -184,10 +186,8 @@ async function HDividerCreate(aboveObjects, belowObjects, aboveValue, belowValue
     // Get bounding boxes
     const aboveObjectBBox = aboveObject.getBoundingRect ?
         BorderUtilities.getBoundingBox([aboveObject]) :
-        { left: aboveObject.left - 50, top: aboveObject.top - 10, right: aboveObject.left + 50, bottom: aboveObject.top + 10 };
-
-    const aboveObjectSize = { width: aboveObjectBBox.right - aboveObjectBBox.left, height: aboveObjectBBox.bottom - aboveObjectBBox.top }
-    const BaseBorder = await drawDivider(xHeight, color, aboveObjectBBox, aboveObjectSize, 'HDivider')
+        { left: aboveObject.left - 50, top: aboveObject.top - 10, right: aboveObject.left + 50, bottom: aboveObject.top + 10 };    const aboveObjectSize = { width: aboveObjectBBox.right - aboveObjectBBox.left, height: aboveObjectBBox.bottom - aboveObjectBBox.top }
+    const BaseBorder = drawDivider(xHeight, color, aboveObjectBBox, aboveObjectSize, 'HDivider')
     const borderGroup = new BaseGroup(BaseBorder, 'HDivider')
     borderGroup.shadowWidth = {x: 0, y: 1.5}
     borderGroup.xHeight = xHeight
@@ -235,7 +235,7 @@ async function HDividerCreate(aboveObjects, belowObjects, aboveValue, belowValue
     return borderGroup
 }
 
-async function HLineCreate(aboveObjects, belowObjects, aboveValue, belowValue, options = null) {
+function HLineCreate(aboveObjects, belowObjects, aboveValue, belowValue, options = null) {
     const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
     const colorType = options ? options.colorType : document.getElementById("input-color").value
     const color = BorderColorScheme[colorType]['border']
@@ -245,11 +245,10 @@ async function HLineCreate(aboveObjects, belowObjects, aboveValue, belowValue, o
     if (Object.keys(belowObject.lockYToPolygon).length != 0) {
         showTextBox('Unlock the object below divider in Y axis', '')
         return
-    }
-    const aboveObjectBBox = BorderUtilities.getBoundingBox(aboveObjects)
+    }    const aboveObjectBBox = BorderUtilities.getBoundingBox(aboveObjects)
     const aboveObjectSize = { width: aboveObjectBBox.right - aboveObjectBBox.left, height: aboveObjectBBox.bottom - aboveObjectBBox.top }
 
-    const BaseBorder = await drawDivider(xHeight, color, aboveObjectBBox, aboveObjectSize, 'HLine') // Added true param to indicate horizontal divider
+    const BaseBorder = drawDivider(xHeight, color, aboveObjectBBox, aboveObjectSize, 'HLine') // Added true param to indicate horizontal divider
     const borderGroup = new BaseGroup(BaseBorder, 'HLine')
     borderGroup.shadowWidth = {x: 0, y: 0}
     borderGroup.xHeight = xHeight
@@ -273,7 +272,7 @@ async function HLineCreate(aboveObjects, belowObjects, aboveValue, belowValue, o
     borderGroup.updateAllCoord()
 }
 
-async function VLaneCreate(leftObjects, rightObjects, leftValue, rightValue, options = null) {
+function VLaneCreate(leftObjects, rightObjects, leftValue, rightValue, options = null) {
     const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
     const colorType = options ? options.colorType : document.getElementById("input-color").value
     const color = BorderColorScheme[colorType]['border']
@@ -330,11 +329,9 @@ async function VLaneCreate(leftObjects, rightObjects, leftValue, rightValue, opt
     // Get bounding boxes
     const leftObjectBBox = leftObject.getBoundingRect ?
         BorderUtilities.getBoundingBox([leftObject]) :
-        { left: leftObject.left - 10, top: leftObject.top - 50, right: leftObject.left + 10, bottom: leftObject.top + 50 };
+        { left: leftObject.left - 10, top: leftObject.top - 50, right: leftObject.left + 10, bottom: leftObject.top + 50 };    const leftObjectSize = { width: leftObjectBBox.right - leftObjectBBox.left, height: leftObjectBBox.bottom - leftObjectBBox.top }
 
-    const leftObjectSize = { width: leftObjectBBox.right - leftObjectBBox.left, height: leftObjectBBox.bottom - leftObjectBBox.top }
-
-    const BaseBorder = await drawDivider(xHeight, color, leftObjectBBox, leftObjectSize, 'VLane')
+    const BaseBorder = drawDivider(xHeight, color, leftObjectBBox, leftObjectSize, 'VLane')
     const borderGroup = new BaseGroup(BaseBorder, 'VLane')
     borderGroup.shadowWidth = {x: 0, y: 0}
     borderGroup.xHeight = xHeight
