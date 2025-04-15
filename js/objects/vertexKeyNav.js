@@ -72,14 +72,17 @@ class VertexControl extends fabric.Control {
             case 'C':
                 return 'blue'
         }
-    }
-
-    onClick(eventData, transform) {
+    }    onClick(eventData, transform) {
         // Check if it's a left-click (button 1)
         if (eventData.button !== 0) return;
 
         // Prevent clicks during ongoing snap operations
         if (vertexSnapInProgress) return;
+        
+        // Prevent vertex activation if measure mode is active
+        if (typeof FormMeasureComponent !== 'undefined' && FormMeasureComponent.activeMeasurement) {
+            return;
+        }
 
         const vertexX = this.vertex.x;
         const vertexY = this.vertex.y;

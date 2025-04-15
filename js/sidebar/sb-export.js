@@ -203,11 +203,88 @@ let FormExportComponent = {
       });
     });
   },
-
   // Helper function to hide loading overlay after export
   hideLoadingOverlay: function() {
     const overlay = document.getElementById('loading-overlay');
     overlay.style.display = 'none';
+  },
+  
+  // Helper function to show donation overlay after export
+  showDonationOverlay: function() {
+    // Check if overlay already exists
+    let overlay = document.getElementById('donation-overlay');
+    
+    if (!overlay) {      // Create the donation overlay if it doesn't exist
+      overlay = document.createElement('div');
+      overlay.id = 'donation-overlay';
+      
+      // Create the message container
+      const messageContainer = document.createElement('div');
+      messageContainer.className = 'donation-container';
+      
+      // Create the title
+      const title = document.createElement('h2');
+      title.textContent = 'Thank you for using Road Sign Factory!';
+      
+      // Create the message
+      const message = document.createElement('p');
+      message.textContent = 'If you find this tool helpful, please consider supporting its continued development and new features.';
+      
+      // Create button container
+      const buttonContainer = document.createElement('div');
+      buttonContainer.className = 'button-container';
+        // Create the donation link with Buy Me Coffee logo
+      const donateButton = document.createElement('a');
+      donateButton.href = 'https://www.buymeacoffee.com/g1213123';
+      donateButton.target = '_blank';
+      donateButton.className = 'donate-button';
+      
+      // Add event listener to close overlay when donation link is clicked
+      donateButton.addEventListener('click', function() {
+        FormExportComponent.hideDonationOverlay();
+      });
+      
+      // Add Buy Me Coffee logo
+      const bmcLogo = document.createElement('img');
+      bmcLogo.src = 'https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg';
+      bmcLogo.className = 'bmc-logo';
+      bmcLogo.alt = 'Buy me a coffee';
+      
+      // Add text after the logo
+      const donateText = document.createTextNode('Buy me a coffee');
+      
+      // Append logo and text to button
+      donateButton.appendChild(bmcLogo);
+      donateButton.appendChild(donateText);
+      
+      // Create the close button
+      const closeButton = document.createElement('button');
+      closeButton.textContent = 'No thanks';
+      closeButton.className = 'close-button';      closeButton.onclick = function() {
+        FormExportComponent.hideDonationOverlay();
+      };
+      
+      // Assemble the overlay with the new button container
+      messageContainer.appendChild(title);
+      messageContainer.appendChild(message);
+      buttonContainer.appendChild(donateButton);
+      buttonContainer.appendChild(closeButton);
+      messageContainer.appendChild(buttonContainer);
+      overlay.appendChild(messageContainer);
+      
+      // Add to document
+      document.body.appendChild(overlay);
+    } else {
+      overlay.style.display = 'flex';
+    }
+  },
+  
+  // Helper function to hide donation overlay
+  hideDonationOverlay: function() {
+    const overlay = document.getElementById('donation-overlay');
+    if (overlay) {
+      overlay.style.display = 'none';
+    }
   },
 
   combineSvgPaths: function (svgString) {
@@ -465,9 +542,9 @@ let FormExportComponent = {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } finally {
-      // Hide loading overlay
+    } finally {      // Hide loading overlay and show donation overlay
       FormExportComponent.hideLoadingOverlay();
+      FormExportComponent.showDonationOverlay();
     }
   },
 
@@ -530,9 +607,9 @@ let FormExportComponent = {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-    } finally {
-      // Hide loading overlay
+    } finally {      // Hide loading overlay and show donation overlay
       FormExportComponent.hideLoadingOverlay();
+      FormExportComponent.showDonationOverlay();
     }
   },
 
@@ -589,9 +666,9 @@ let FormExportComponent = {
     } finally {
       // Ensure canvas is restored even on error
       FormExportComponent.restoreCanvasAfterExport(originalState);
-      
-      // Hide loading overlay
+        // Hide loading overlay and show donation overlay
       FormExportComponent.hideLoadingOverlay();
+      FormExportComponent.showDonationOverlay();
     }
   },
 

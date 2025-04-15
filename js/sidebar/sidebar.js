@@ -25,7 +25,6 @@ function ShowHideSideBarEvent(e) {
  */
 const SidebarModuleSystem = {
   loadedModules: {},
-
   // Module definitions with their corresponding file paths
   modules: {
     'GeneralHandler': 'js/sidebar/sbGeneral.js',
@@ -37,6 +36,7 @@ const SidebarModuleSystem = {
     'FormDebugComponent': 'js/sidebar/sb-debug.js',
     'FormSettingsComponent': 'js/sidebar/sb-settings.js',
     'FormTemplateComponent': 'js/sidebar/sb-template.js',
+    'FormMeasureComponent': 'js/sidebar/sb-measure.js',
     'CanvasObjectInspector': 'js/sidebar/sb-inspector.js',
     'CanvasTrackerUI': 'js/sidebar/sb-tracker.js'
   },
@@ -168,13 +168,22 @@ document.addEventListener('DOMContentLoaded', function () {
         });
       });
     }
-    
-    // Template module button
+      // Template module button
     const templateBtn = document.getElementById('btn_template');
     if (templateBtn) {
       templateBtn.addEventListener('click', function (e) {
         SidebarHelpers.loadTemplateModule().then(module => {
           templateBtn.onclick = FormTemplateComponent.templatePanelInit || function () { };
+        });
+      });
+    }
+    
+    // Measure tool button
+    const measureBtn = document.getElementById('btn_measure');
+    if (measureBtn) {
+      measureBtn.addEventListener('click', function (e) {
+        SidebarHelpers.loadMeasureModule().then(module => {
+          measureBtn.onclick = FormMeasureComponent.measurePanelInit || function () { };
         });
       });
     }
@@ -220,11 +229,18 @@ const SidebarHelpers = {
         return module;
       });
   },
-
   loadExportModule: function () {
     return SidebarModuleSystem.loadModule('FormExportComponent')
       .then(module => {
         FormExportComponent.exportPanelInit();
+        return module;
+      });
+  },
+  
+  loadMeasureModule: function () {
+    return SidebarModuleSystem.loadModule('FormMeasureComponent')
+      .then(module => {
+        FormMeasureComponent.measurePanelInit();
         return module;
       });
   },

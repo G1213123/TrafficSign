@@ -26,8 +26,7 @@ let GeneralHandler = {
     document.getElementById('show_hide').childNodes[0].className = "fa fa-angle-double-right"
     GeneralHandler.panelOpened = false
     GeneralHandler.PanelHandlerOff()
-  },
-  PanelHandlerOff: () => {
+  },  PanelHandlerOff: () => {
     if (typeof FormTextAddComponent !== 'undefined') {
       FormTextAddComponent.TextHandlerOff()
     }
@@ -37,6 +36,12 @@ let GeneralHandler = {
     if (tabNum != 5) {
       if (typeof FormDebugComponent !== 'undefined') {
         FormDebugComponent.DebugHandlerOff()
+      }
+    }
+    // Stop the measure tool when switching panels
+    if (typeof FormMeasureComponent !== 'undefined') {
+      if (FormMeasureComponent.activeMeasurement && tabNum != 7) {
+        FormMeasureComponent.MeasureHandlerOff()
       }
     }
   },

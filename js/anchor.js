@@ -528,6 +528,8 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   // Set focus mode to anchored object if applicable
   if (shape2.lockMovementX && shape2.lockMovementY) {
     shape2.enterFocusMode();
+  } else {
+    shape2.exitFocusMode();
   }
 
   document.addEventListener('keydown', ShowHideSideBarEvent);
