@@ -1,0 +1,43 @@
+steps:
+# Step 1: Install dependencies if you have any
+- name: 'gcr.io/cloud-builders/npm'
+  args: ['install']
+  id: 'Install Dependencies'
+
+# Step 2: Copy all static files to the bucket
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['-m', 'cp', '-r', '.', 'gs://${_BUCKET_NAME}/']
+  id: 'Copy Files'
+
+# Step 3: Set public access on all files
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['-m', 'acl', 'ch', '-r', '-u', 'AllUsers:R', 'gs://${_BUCKET_NAME}/']
+  id: 'Set Public Access'
+
+# Step 4: Set content types properly for common web files
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['-m', 'setmeta', '-h', 'Content-Type:text/html', 'gs://${_BUCKET_NAME}/*.html']
+  id: 'Set HTML Content Type'
+
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['-m', 'setmeta', '-h', 'Content-Type:text/css', 'gs://${_BUCKET_NAME}/css/*.css']
+  id: 'Set CSS Content Type'
+
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['-m', 'setmeta', '-h', 'Content-Type:application/javascript', 'gs://${_BUCKET_NAME}/js/**/*.js']
+  id: 'Set JavaScript Content Type'
+
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['-m', 'setmeta', '-h', 'Content-Type:application/javascript', 'gs://${_BUCKET_NAME}/js/*.js']
+  id: 'Set Root JavaScript Content Type'
+
+# Step 5: Set index.html as the main page
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['web', 'set', '-m', 'index.html', '-e', '404.html', 'gs://${_BUCKET_NAME}/']
+  id: 'Set Website Configuration'
+
+substitutions:
+  _BUCKET_NAME: traffic-sign-webapp  # Replace with your actual bucket name
+
+options:
+  logging: CLOUD_LOGGING_ONLY
