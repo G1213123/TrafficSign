@@ -1,0 +1,38 @@
+runtime: python39
+service: default
+
+handlers:
+# Serve static files with appropriate MIME types and cache settings
+- url: /css
+  static_dir: css
+  secure: always
+
+- url: /js
+  static_dir: js
+  secure: always
+
+- url: /images
+  static_dir: images
+  secure: always
+
+- url: /(.+\.(ico|jpg|jpeg|png|gif|svg|js|css|woff|woff2|ttf))$
+  static_files: \1
+  upload: (.+\.(ico|jpg|jpeg|png|gif|svg|js|css|woff|woff2|ttf))$
+  secure: always
+  http_headers:
+    Cache-Control: "public, max-age=86400"
+
+# Serve index.html as the main entry point
+- url: /
+  static_files: index.html
+  upload: index.html
+  secure: always
+  http_headers:
+    X-Content-Type-Options: nosniff
+    Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+# Handle 404 errors
+- url: /.*
+  static_files: index.html
+  upload: index.html
+  secure: always
