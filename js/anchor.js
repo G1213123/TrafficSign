@@ -322,37 +322,9 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   const shape1 = Array.isArray(inputShape1) ? inputShape1[0] : inputShape1
   const shape2 = Array.isArray(inputShape2) ? inputShape2[0] : inputShape2
   const xHeight = shape1.xHeight || shape2.xHeight || parseInt(document.getElementById("input-xHeight").value)
-  // Check if the target is a BorderGroup and if it's currently updating
-  if (shape1.functionalType === 'Border') {
-    // If border is currently being updated, wait and then try again
-    if (shape1.isUpdating) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      if (shape1.isUpdating) {
-        return; // Silently fail if still updating
-      }
-    }
 
-    // Quick vertex and compartment check
-    if (!shape1.basePolygon?.vertex?.length || !shape1.compartmentBboxes?.length) {
-      await new Promise(resolve => setTimeout(resolve, 50));
-    }
-  }
-  if (shape2.functionalType === 'Border') {
-    // If border is currently being updated, wait and then try again
-    if (shape2.isUpdating) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      if (shape2.isUpdating) {
-        return; // Silently fail if still updating
-      }
-    }
 
-    // Quick vertex and compartment check
-    if (!shape2.basePolygon?.vertex?.length || !shape2.compartmentBboxes?.length) {
-      await new Promise(resolve => setTimeout(resolve, 50));
-    }
-  }
-
-  const vertexIndex1 = options.vertexIndex1 ? options.vertexIndex1 : await showTextBox('Enter vertex index for First Polygon:', 'E1')
+   const vertexIndex1 = options.vertexIndex1 ? options.vertexIndex1 : await showTextBox('Enter vertex index for First Polygon:', 'E1')
   if (!vertexIndex1) { setInterval(document.addEventListener('keydown', ShowHideSideBarEvent), 1000); return }
   const vertexIndex2 = options.vertexIndex2 ? options.vertexIndex2 : await showTextBox('Enter vertex index for Second Polygon:', 'E1')
   if (!vertexIndex2) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
@@ -446,7 +418,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   const updateOrderX = globalAnchorTree.getUpdateOrder('x', shape2.canvasID);
   const updateOrderY = globalAnchorTree.getUpdateOrder('y', shape2.canvasID);
   // Process X axis updates
-  if (updateOrderX.length > 0) {
+  if (updateOrderX.length > 0 && !isNaN(parseInt(spacingX))) {
     // Start an X-axis update cycle with the shape2 as the starter
     globalAnchorTree.startUpdateCycle('x', shape2.canvasID);
 
@@ -479,7 +451,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
     globalAnchorTree.endUpdateCycle('x');
   }
   // Process Y axis updates
-  if (updateOrderY.length > 0) {
+  if (updateOrderY.length > 0  && !isNaN(parseInt(spacingY))) {
     // Start a Y-axis update cycle with the shape2 as the starter
     globalAnchorTree.startUpdateCycle('y', shape2.canvasID);
 
