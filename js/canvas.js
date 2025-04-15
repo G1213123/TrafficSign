@@ -115,6 +115,12 @@ canvas.on('mouse:wheel', function(opt) {
     // Refresh dimension lines with new zoom level
     activeObj.showDimensions();
   }
+
+  // Update active vertex 
+  if (activeVertex){
+    activeVertex.clearSnapHighlight()
+    activeVertex.addSnapHighlight()
+  }
   
   canvas.getObjects().forEach(obj => {
     obj.setCoords();
