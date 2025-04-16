@@ -378,6 +378,30 @@ const symbolsTemplate = {
         }],
     },
 
+    'LeftArrow': {
+        path: [{
+            'vertex': [
+                { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                { x: 4, y: 0, label: 'V2', start: 0, display: 0 },
+                { x: 8, y: 4, label: 'V3', start: 0, display: 0 },
+                { x: 4, y: 8, label: 'V4', start: 0, display: 0 },
+                { x: 0, y: 8, label: 'V5', start: 0, display: 0 },
+                { x: 2.667, y: 5.333, label: 'V6', start: 0, display: 0 },
+                { x: 0.667, y: 5.333, label: 'V7', start: 0, display: 0 },
+                { x: -3.333, y: 9.333, label: 'V8', start: 0, display: 0 },
+                { x: -3.333, y: 18, label: 'V9', start: 0, display: 0 },
+                { x: -6, y: 18, label: 'V10', start: 0, display: 0 },
+                { x: -6, y: 9.333, label: 'V11', start: 0, display: 0 },
+                { x: 0, y: 2.667, label: 'V12', start: 0, display: 0 },
+                { x: 2.667, y: 2.667, label: 'V13', start: 0, display: 0 },
+
+            ], 'arcs': [
+                { start: 'V7', end: 'V8', radius: 4, direction: 0, sweep: 0 },
+                { start: 'V11', end: 'V12', radius: 6.667, direction: 1, sweep: 0 },
+            ]
+        }],
+    },
+
     'GantryArrow': {
         path: [{
             'vertex': [
