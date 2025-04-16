@@ -43,7 +43,7 @@ let FormDrawMapComponent = {
             addRouteButton.classList.add('deactive'); // Set initial state to deactive
             addRouteButton.disabled = true;
           }
-          GeneralHandler.createInput(`Side Road width`, `Side Road Width`, SideRoadParamsContainer, 4, null, 'input')
+          GeneralHandler.createInput(`Side Road width`, `Side Road Width`, SideRoadParamsContainer, 4, null, 'input', 'sw')
           GeneralHandler.createToggle(`Side Road Shape`, FormDrawMapComponent.EndShape, SideRoadParamsContainer, route.shape, null)
 
           var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, SideRoadParamsContainer);
@@ -68,9 +68,9 @@ let FormDrawMapComponent = {
     // Show settings based on road type
     if (roadType === 'Main Line') {
       // Main Line settings
-      GeneralHandler.createInput('root-length', 'Main Road Root Length', roadTypeSettingsContainer, 7, drawMainRoadOnCursor, 'input');
-      GeneralHandler.createInput('tip-length', 'Main Road Tip Length', roadTypeSettingsContainer, 12, drawMainRoadOnCursor, 'input');
-      GeneralHandler.createInput('main-width', 'Main Road Width', roadTypeSettingsContainer, 6, drawMainRoadOnCursor, 'input');
+      GeneralHandler.createInput('root-length', 'Main Road Root Length', roadTypeSettingsContainer, 7, drawMainRoadOnCursor, 'input', 'sw');
+      GeneralHandler.createInput('tip-length', 'Main Road Tip Length', roadTypeSettingsContainer, 12, drawMainRoadOnCursor, 'input', 'sw');
+      GeneralHandler.createInput('main-width', 'Main Road Width', roadTypeSettingsContainer, 6, drawMainRoadOnCursor, 'input', 'sw');
       GeneralHandler.createToggle(`Main Road Shape`, FormDrawMapComponent.EndShape, roadTypeSettingsContainer, 'Arrow', drawMainRoadOnCursor);
     } else if (roadType === 'Conventional Roundabout') {
       // Placeholder for Conventional Roundabout settings

@@ -489,6 +489,29 @@ div.side-panel.close {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Input fields with units styling */
+.input-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.with-unit {
+  padding-right: 35px; /* Make space for the unit */
+}
+
+.input-unit {
+  position: absolute;
+  right: 12px;
+  transform: translateY(-50%);
+  top: 60%;
+  color: #8a8a8a; /* Half-tone grey */
+  font-size: 16px; /* Two-thirds of input font size (18px * 2/3) */
+  pointer-events: none; /* Don't interfere with input interactions */
+  font-family: Arial, sans-serif;
+}
+
 /* Container for symbol buttons with improved layout */
 .symbol-buttons-container {
   display: flex;

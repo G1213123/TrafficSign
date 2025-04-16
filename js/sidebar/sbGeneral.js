@@ -97,12 +97,25 @@ let GeneralHandler = {
 
     return input
   },
-
-  createInput: function (name, labelTxt, parent, defaultV = null, callback = null, event = null) {
+  createInput: function (name, labelTxt, parent, defaultV = null, callback = null, event = null, unit = null) {
     var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent)
     //var labelEdge = GeneralHandler.createNode("div", { 'class': 'cut' }, inputContainer)
     var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, inputContainer)
-    var input = GeneralHandler.createNode("input", { 'type': 'text', 'class': 'input', 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
+    
+    // Create a wrapper div for input field with units if needed
+    var inputWrapperClass = unit ? 'input-wrapper' : '';
+    var inputWrapper = unit ? GeneralHandler.createNode("div", { 'class': inputWrapperClass }, inputContainer) : inputContainer;
+    
+    // Create the input element
+    var inputClass = unit ? 'input with-unit' : 'input';
+    var input = GeneralHandler.createNode("input", { 'type': 'text', 'class': inputClass, 'id': name, 'placeholder': ' ' }, inputWrapper, callback, event)
+    
+    // Add unit span if unit is specified
+    if (unit) {
+      var unitSpan = GeneralHandler.createNode("span", { 'class': 'input-unit' }, inputWrapper)
+      unitSpan.innerHTML = unit;
+    }
+    
     label.innerHTML = labelTxt
     defaultV ? input.value = defaultV : input.value = ''
     return input
@@ -209,18 +222,16 @@ let GeneralHandler = {
    * @param {number} defaultXHeight - Optional default xHeight to use (defaults to GeneralSettings)
    * @param {string} defaultColor - Optional default color to use (defaults to GeneralSettings)
    * @return {HTMLElement} The created container
-   */
-  createBasicParamsContainer: function(parent, componentContext, defaultXHeight = null, defaultColor = null) {
+   */  createBasicParamsContainer: function(parent, componentContext, defaultXHeight = null, defaultColor = null) {
     // Create a container for basic parameters
     const basicParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
     
     // Use provided defaults or fall back to GeneralSettings
     const xHeight = defaultXHeight !== null ? defaultXHeight : GeneralSettings.xHeight;
     const color = defaultColor !== null ? defaultColor : GeneralSettings.messageColor;
-    
-    // Create xHeight input with universal handler
+      // Create xHeight input with universal handler and unit (sw)
     const xHeightInput = GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 
-      xHeight, GeneralHandler.handleXHeightChange, 'input');
+      xHeight, GeneralHandler.handleXHeightChange, 'input', 'sw');
       
     // Create color toggle with universal handler
     GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, color, 

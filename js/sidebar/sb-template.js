@@ -41,11 +41,11 @@ let FormTemplateComponent = {
         return `<div class="template-thumbnail"><img src="images/diverge.svg" alt="Diverge Sign" /></div>`;
       }
     },
-    'Lane Drop Sign': {
+    'Lane Sign': {
       description: 'Exit sign showing multiple lanes with directions',
       thumbnail: function () {
         // Load SVG image from images folder in a standardized thumbnail container
-        return `<div class="template-thumbnail"><img src="images/lane.svg" alt="Lane Drop Sign" /></div>`;
+        return `<div class="template-thumbnail"><img src="images/lane.svg" alt="Lane Sign" /></div>`;
       }
     },
 
@@ -160,7 +160,7 @@ let FormTemplateComponent = {
       case 'Diverge Sign ':
         await this.createInterchangeDirections(centerX, centerY, 250, 'white');
         break;
-      case 'Lane Drop Sign':
+      case 'Lane Sign':
         await this.createMultiLaneExit(centerX, centerY, 100, 'white');
         break;
       case 'Spiral Roundabout Sign':
