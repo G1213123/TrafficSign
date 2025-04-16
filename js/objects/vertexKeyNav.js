@@ -227,9 +227,8 @@ class VertexControl extends fabric.Control {
             // If we have a snap target, use its position instead of pointer
             const finalPointer = this.snapTarget ?
                 { x: this.snapTarget.vertex.x, y: this.snapTarget.vertex.y } :
-                pointer;
-
-            if (this.baseGroup.functionalType === 'SideRoad') {
+                pointer;            
+                if (this.baseGroup.functionalType === 'SideRoad') {
                 // For SideRoad, calculate the appropriate offset based on active vertex
                 if (activeVertex && activeVertex.vertex) {
                     // Find the V1 vertex which corresponds to routeList[0]
@@ -248,29 +247,44 @@ class VertexControl extends fabric.Control {
                         }
                     }
 
-                    // Apply the position update with the calculated offset
-                    this.baseGroup.routeList[0].x = finalPointer.x + offsetX;
-                    this.baseGroup.routeList[0].y = finalPointer.y + offsetY;
+                    // Apply the position update with the calculated offset, respecting lock properties
+                    if (!this.baseGroup.lockMovementX) {
+                        this.baseGroup.routeList[0].x = finalPointer.x + offsetX;
+                    }
+                    if (!this.baseGroup.lockMovementY) {
+                        this.baseGroup.routeList[0].y = finalPointer.y + offsetY;
+                    }
                 } else {
                     // Fallback to old behavior if active vertex information is not available
                     this.baseGroup.routeList.forEach(route => {
-                        route.x = newLeft + this.vertexOffset.x;
-                        route.y = newTop + this.vertexOffset.y;
+                        if (!this.baseGroup.lockMovementX) {
+                            route.x = newLeft + this.vertexOffset.x;
+                        }
+                        if (!this.baseGroup.lockMovementY) {
+                            route.y = newTop + this.vertexOffset.y;
+                        }
                     });
                 }
             } else {
-                // For MainRoad, use original behavior
+                // For MainRoad, use original behavior but respect lock properties
                 this.baseGroup.routeList.forEach(route => {
-                    route.x = newLeft + this.vertexOffset.x;
-                    route.y = newTop + this.vertexOffset.y;
+                    if (!this.baseGroup.lockMovementX) {
+                        route.x = newLeft + this.vertexOffset.x;
+                    }
+                    if (!this.baseGroup.lockMovementY) {
+                        route.y = newTop + this.vertexOffset.y;
+                    }
                 });
             }
 
-            // Process route changes in a single update cycle
-            if (!globalAnchorTree.updateInProgressX) {
+            // Process route changes in a single update cycle, but only for directions that aren't locked
+            let updateX = !this.baseGroup.lockMovementX;
+            let updateY = !this.baseGroup.lockMovementY;
+            
+            if (updateX && !globalAnchorTree.updateInProgressX) {
                 globalAnchorTree.startUpdateCycle('x', this.baseGroup.canvasID);
             }
-            if (!globalAnchorTree.updateInProgressY) {
+            if (updateY && !globalAnchorTree.updateInProgressY) {
                 globalAnchorTree.startUpdateCycle('y', this.baseGroup.canvasID);
             }
 

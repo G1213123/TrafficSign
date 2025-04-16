@@ -134,14 +134,14 @@ class AnchorTree {
     }
 
     // Remove this node from all its children's parent lists
-    for (const childId of tree[objId].children) {
-      if (tree[childId]) {
-        tree[childId].parents = tree[childId].parents.filter(id => id !== objId);
-      }
-    }
+    //for (const childId of tree[objId].children) {
+    //  if (tree[childId]) {
+    //    tree[childId].parents = tree[childId].parents.filter(id => id !== objId);
+    //  }
+    //}
 
     // Delete the node
-    delete tree[objId];
+    //delete tree[objId];
   }
   // Get all affected objects (in proper update order) when an object is moved
   getUpdateOrder(direction, startObjId) {

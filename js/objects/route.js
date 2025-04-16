@@ -592,8 +592,8 @@ function drawMainRoadOnCursor(event, params = null) {
 
     if (params) {
         xHeight = params.xHeight || 100;
-        rootLength = params.rootLength || 7;
-        tipLength = params.tipLength || 12;
+        rootLength = params.rootLength ;
+        tipLength = params.tipLength;
         color = params.color || 'white';
         width = params.width || 6;
         shape = params.shape || 'Arrow';
@@ -631,12 +631,15 @@ function drawMainRoadOnCursor(event, params = null) {
 
         return routeMap;
     };
-    
-    try {
+      try {
         // Create a temporary component to store the new object
         const tempComponent = {
             newMapObject: null
         };
+        
+        // Determine which vertex to use as the active vertex for tracking
+        // For roundabouts, use C1 (center) vertex, otherwise use V1
+        const activeVertexLabel = (roadType === 'Conventional Roundabout' || roadType === 'Spiral Roundabout') ? 'C1' : 'V1';
         
         // Use the general object creation with snapping function
         GeneralHandler.createObjectWithSnapping(
@@ -657,7 +660,7 @@ function drawMainRoadOnCursor(event, params = null) {
             createMainRoadObject,
             tempComponent, // Pass the temp component to store the created object
             'newMapObject',
-            'V1',
+            activeVertexLabel,
             mainRoadOnMouseMove,
             finishDrawMainRoad,
             cancelDraw
@@ -762,13 +765,23 @@ function mainRoadOnMouseMove(event) {
         // Update the routeList coordinates to match the new position
         // For initial placement, we need to recreate routeList at the new position
         if (mainRoad.routeList && mainRoad.routeList.length >= 2) {
-            // For main road, position the top and bottom points based on cursor
-            mainRoad.routeList[1].x = pointer.x; // Top point (tip)
-            mainRoad.routeList[1].y = pointer.y;
-            
-            // Position the bottom point (root)
-            mainRoad.routeList[0].x = pointer.x;
-            mainRoad.routeList[0].y = pointer.y + (mainRoad.rootLength + mainRoad.tipLength) * mainRoad.xHeight / 4;
+            if (mainRoad.roadType === 'Conventional Roundabout' || mainRoad.roadType === 'Spiral Roundabout') {
+                // For roundabout, use the center point (routeList[1])
+                mainRoad.routeList[1].x = pointer.x;
+                mainRoad.routeList[1].y = pointer.y;
+                
+                // Position the root point relative to center
+                mainRoad.routeList[0].x = pointer.x;
+                mainRoad.routeList[0].y = pointer.y;
+            } else {
+                // For main line, position the top and bottom points based on cursor
+                mainRoad.routeList[1].x = pointer.x; // Top point (tip)
+                mainRoad.routeList[1].y = pointer.y;
+                
+                // Position the bottom point (root)
+                mainRoad.routeList[0].x = pointer.x;
+                mainRoad.routeList[0].y = pointer.y + (mainRoad.rootLength + mainRoad.tipLength) * mainRoad.xHeight / 4;
+            }
         }
         
         // Recalculate the vertices based on updated routeList
