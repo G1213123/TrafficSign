@@ -66,7 +66,7 @@ const roadMapTemplate = {
             ]
         },
         ],
-    }, 'Normal Conventional': {
+    },    'Normal Conventional': {
         path: [{
             'vertex': [
                 { x: -3, y: 30, label: 'V1', start: 1, display: 1 },
@@ -102,7 +102,7 @@ const roadMapTemplate = {
             ]
         },
         ],
-    }, 'U-turn Conventional': {
+    },    'U-turn Conventional': {
         path: [{
             'vertex': [
                 { x: -8, y: 45, label: 'V1', start: 1, display: 1 },
@@ -138,7 +138,7 @@ const roadMapTemplate = {
             ]
         },
         ],
-    }, 'Auxiliary Conventional': {
+    },    'Auxiliary Conventional': {
         path: [{
             'vertex': [
                 { x: -3, y: 30, label: 'V1', start: 1, display: 1 },
@@ -187,7 +187,7 @@ const roadMapTemplate = {
                 { start: 'V26', end: 'V21', radius: 12, direction: 1, sweep: 0 },
             ]
         },],
-    }, 'Normal Spiral': {
+    },    'Normal Spiral': {
         path: [{
             'vertex': [
                 { x: -2, y: 24, label: 'V1', start: 1, display: 1 },
@@ -222,7 +222,7 @@ const roadMapTemplate = {
                 { start: 'V16', end: 'V11', radius: 14, direction: 1, sweep: 0 },
             ]
         },],
-    }, 'U-turn Spiral': {
+    },    'U-turn Spiral': {
         path: [{
             'vertex': [
                 { x: -6, y: 45, label: 'V1', start: 1, display: 1 },
@@ -1410,6 +1410,283 @@ const symbolsTemplate = {
     },
 
     'LeftArrow': {
+        path: [{
+            'vertex': [
+                { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                { x: -4, y: 0, label: 'V2', start: 0, display: 0 },
+                { x: -8, y: 4, label: 'V3', start: 0, display: 0 },
+                { x: -4, y: 8, label: 'V4', start: 0, display: 0 },
+                { x: -0, y: 8, label: 'V5', start: 0, display: 0 },
+                { x: -2.667, y: 5.333, label: 'V6', start: 0, display: 0 },
+                { x: -0.667, y: 5.333, label: 'V7', start: 0, display: 0 },
+                { x: 3.333, y: 9.333, label: 'V8', start: 0, display: 0 },
+                { x: 3.333, y: 18, label: 'V9', start: 0, display: 0 },
+                { x: 6, y: 18, label: 'V10', start: 0, display: 0 },
+                { x: 6, y: 9.333, label: 'V11', start: 0, display: 0 },
+                { x: 0, y: 2.667, label: 'V12', start: 0, display: 0 },
+                { x: -2.667, y: 2.667, label: 'V13', start: 0, display: 0 },
+
+            ], 'arcs': [
+                { start: 'V7', end: 'V8', radius: 4, direction: 1, sweep: 0 },
+                { start: 'V11', end: 'V12', radius: 6.667, direction: 0, sweep: 0 },
+            ]
+        }],
+    },
+    'RightArrow': {
+        path: [{
+            'vertex': [
+                { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                { x: 4, y: 0, label: 'V2', start: 0, display: 0 },
+                { x: 8, y: 4, label: 'V3', start: 0, display: 0 },
+                { x: 4, y: 8, label: 'V4', start: 0, display: 0 },
+                { x: 0, y: 8, label: 'V5', start: 0, display: 0 },
+                { x: 2.667, y: 5.333, label: 'V6', start: 0, display: 0 },
+                { x: 0.667, y: 5.333, label: 'V7', start: 0, display: 0 },
+                { x: -3.333, y: 9.333, label: 'V8', start: 0, display: 0 },
+                { x: -3.333, y: 18, label: 'V9', start: 0, display: 0 },
+                { x: -6, y: 18, label: 'V10', start: 0, display: 0 },
+                { x: -6, y: 9.333, label: 'V11', start: 0, display: 0 },
+                { x: 0, y: 2.667, label: 'V12', start: 0, display: 0 },
+                { x: 2.667, y: 2.667, label: 'V13', start: 0, display: 0 },
+
+            ], 'arcs': [
+                { start: 'V7', end: 'V8', radius: 4, direction: 0, sweep: 0 },
+                { start: 'V11', end: 'V12', radius: 6.667, direction: 1, sweep: 0 },
+            ]
+        }],
+    },
+
+    'LeftStraightArrow': {
+        path: [{
+            'vertex': [
+                { x: -0, y: 0, label: 'V1', start: 1, display: 1 },
+                { x: -4, y: 4, label: 'V2', start: 0, display: 0 },
+                { x: -4, y: 8, label: 'V3', start: 0, display: 0 },
+                { x: -1.333, y: 5.333, label: 'V4', start: 0, display: 0 },
+                { x: -1.333, y: 14, label: 'V5', start: 0, display: 0 },
+                { x: -5.327, y: 12.667, label: 'V6', start: 0, display: 0 },
+                { x: -9.333, y: 12.668, label: 'V7', start: 0, display: 0 },
+                { x: -6.667, y: 10, label: 'V8', start: 0, display: 0 },
+                { x: -10.667, y: 10, label: 'V9', start: 0, display: 0 },
+                { x: -14.667, y: 14, label: 'V10', start: 0, display: 0 },
+                { x: -10.667, y: 18, label: 'V11', start: 0, display: 0 },
+                { x: -6.667, y: 18, label: 'V12', start: 0, display: 0 },
+                { x: -9.333, y: 15.333, label: 'V13', start: 0, display: 0 },
+                { x: -5.340, y: 15.333, label: 'V14', start: 0, display: 0 },
+                { x: -1.333, y: 19.333, label: 'V15', start: 0, display: 0 },
+                { x: -1.333, y: 28, label: 'V16', start: 0, display: 0 },
+                { x: 1.333, y: 28, label: 'V17', start: 0, display: 0 },
+                { x: 1.333, y: 5.333, label: 'V18', start: 0, display: 0 },
+                { x: 4, y: 8, label: 'V19', start: 0, display: 0 },
+                { x: 4, y: 4, label: 'V20', start: 0, display: 0 },
+
+            ], 'arcs': [
+                { start: 'V5', end: 'V6', radius: 6.667, direction: 0, sweep: 0 },
+                { start: 'V14', end: 'V15', radius: 4, direction: 1, sweep: 0 },
+            ]
+        }],
+    },
+
+    'RightStraightArrow': {
+        path: [{
+            'vertex': [
+                { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                { x: 4, y: 4, label: 'V2', start: 0, display: 0 },
+                { x: 4, y: 8, label: 'V3', start: 0, display: 0 },
+                { x: 1.333, y: 5.333, label: 'V4', start: 0, display: 0 },
+                { x: 1.333, y: 14, label: 'V5', start: 0, display: 0 },
+                { x: 5.327, y: 12.667, label: 'V6', start: 0, display: 0 },
+                { x: 9.333, y: 12.668, label: 'V7', start: 0, display: 0 },
+                { x: 6.667, y: 10, label: 'V8', start: 0, display: 0 },
+                { x: 10.667, y: 10, label: 'V9', start: 0, display: 0 },
+                { x: 14.667, y: 14, label: 'V10', start: 0, display: 0 },
+                { x: 10.667, y: 18, label: 'V11', start: 0, display: 0 },
+                { x: 6.667, y: 18, label: 'V12', start: 0, display: 0 },
+                { x: 9.333, y: 15.333, label: 'V13', start: 0, display: 0 },
+                { x: 5.340, y: 15.333, label: 'V14', start: 0, display: 0 },
+                { x: 1.333, y: 19.333, label: 'V15', start: 0, display: 0 },
+                { x: 1.333, y: 28, label: 'V16', start: 0, display: 0 },
+                { x: -1.333, y: 28, label: 'V17', start: 0, display: 0 },
+                { x: -1.333, y: 5.333, label: 'V18', start: 0, display: 0 },
+                { x: -4, y: 8, label: 'V19', start: 0, display: 0 },
+                { x: -4, y: 4, label: 'V20', start: 0, display: 0 },
+
+            ], 'arcs': [
+                { start: 'V5', end: 'V6', radius: 6.667, direction: 1, sweep: 0 },
+                { start: 'V14', end: 'V15', radius: 4, direction: 0, sweep: 0 },
+            ]
+        }],
+    },
+
+    'LeftPedestrian': {
+        path: [ // 3.5.7.22
+            {
+                'vertex': [
+                    { x: -0.384, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: -0.384, y: 2.565, label: 'V2', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 1.283, direction: 0, sweep: 0 },
+                    { start: 'V2', end: 'V1', radius: 1.283, direction: 0, sweep: 0 },
+
+                ], 
+            },
+            {
+                'vertex': [
+                    { x: 2.016, y: 4.248, label: 'V3', start: 1, display: 1 },
+                    { x: -2.378, y: 4.565, label: 'V4', start: 0, display: 0 },
+                    { x: -2.86, y: 6.006, label: 'V5', start: 0, display: 0 },
+                    { x: -4.498, y: 7.505, label: 'V6', start: 0, display: 0 },
+                    { x: -4.035, y: 8.254, label: 'V7', start: 0, display: 0 },
+                    { x: -2.136, y: 6.641, label: 'V8', start: 0, display: 0 },
+                    { x: -1.552, y: 6, label: 'V9', start: 0, display: 0 },
+                    { x: -1.343, y: 8.483, label: 'V10', start: 0, display: 0 },
+                    { x: -2.803, y: 12.470, label: 'V11', start: 0, display: 0 },
+                    { x: -3, y: 16, label: 'V12', start: 0, display: 0 },
+                    { x: -2.003, y: 16, label: 'V13', start: 0, display: 0 },
+                    { x: -1.343, y: 12.4, label: 'V14', start: 0, display: 0 },
+                    { x: 0.181, y: 9.683, label: 'V15', start: 0, display: 0 },
+                    { x: 0.181, y: 9.683, label: 'V16', start: 0, display: 0 },
+                    { x: 0.981, y: 11.606, label: 'V17', start: 0, display: 0 },
+                    { x: 3.73, y: 15.314, label: 'V18', start: 0, display: 0 },
+                    { x: 4.498, y: 14.502, label: 'V19', start: 0, display: 0 },
+                    { x: 4.498, y: 14.502, label: 'V20', start: 0, display: 0 },
+                    { x: 2.943, y: 12.019, label: 'V21', start: 0, display: 0 },
+                    { x: 1.171, y: 5.244, label: 'V22', start: 0, display: 0 },
+                    { x: 1.698, y: 5.765, label: 'V23', start: 0, display: 0 },
+                    { x: 2.498, y: 9.003, label: 'V24', start: 0, display: 0 },
+                    { x: 3.292, y: 8.679, label: 'V25', start: 0, display: 0 },
+                    { x: 2.702, y: 5.324, label: 'V26', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V3', end: 'V4', radius: 2.467, direction: 0, sweep: 0 },
+
+                ],
+            },
+        ],
+    },
+
+    'RightPedestrian': {
+        path: [ // 3.5.7.22
+            {
+                'vertex': [
+                    { x: 0.384, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0.384, y: 2.565, label: 'V2', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 1.283, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V1', radius: 1.283, direction: 1, sweep: 0 },
+
+                ], 
+            },
+            {
+                'vertex': [
+                    { x: -2.016, y: 4.248, label: 'V3', start: 1, display: 1 },
+                    { x: 2.378, y: 4.565, label: 'V4', start: 0, display: 0 },
+                    { x: 2.86, y: 6.006, label: 'V5', start: 0, display: 0 },
+                    { x: 4.498, y: 7.505, label: 'V6', start: 0, display: 0 },
+                    { x: 4.035, y: 8.254, label: 'V7', start: 0, display: 0 },
+                    { x: 2.136, y: 6.641, label: 'V8', start: 0, display: 0 },
+                    { x: 1.552, y: 6, label: 'V9', start: 0, display: 0 },
+                    { x: 1.343, y: 8.483, label: 'V10', start: 0, display: 0 },
+                    { x: 2.803, y: 12.470, label: 'V11', start: 0, display: 0 },
+                    { x: 3, y: 16, label: 'V12', start: 0, display: 0 },
+                    { x: 2.003, y: 16, label: 'V13', start: 0, display: 0 },
+                    { x: 1.343, y: 12.4, label: 'V14', start: 0, display: 0 },
+                    { x: -0.181, y: 9.683, label: 'V15', start: 0, display: 0 },
+                    { x: -0.181, y: 9.683, label: 'V16', start: 0, display: 0 },
+                    { x: -0.981, y: 11.606, label: 'V17', start: 0, display: 0 },
+                    { x: -3.73, y: 15.314, label: 'V18', start: 0, display: 0 },
+                    { x: -4.498, y: 14.502, label: 'V19', start: 0, display: 0 },
+                    { x: -4.498, y: 14.502, label: 'V20', start: 0, display: 0 },
+                    { x: -2.943, y: 12.019, label: 'V21', start: 0, display: 0 },
+                    { x: -1.171, y: 5.244, label: 'V22', start: 0, display: 0 },
+                    { x: -1.698, y: 5.765, label: 'V23', start: 0, display: 0 },
+                    { x: -2.498, y: 9.003, label: 'V24', start: 0, display: 0 },
+                    { x: -3.292, y: 8.679, label: 'V25', start: 0, display: 0 },
+                    { x: -2.702, y: 5.324, label: 'V26', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V3', end: 'V4', radius: 2.467, direction: 1, sweep: 0 },
+
+                ],
+            },
+        ],
+    },
+
+    'LeftDisabled': {
+        path: [ // 3.5.7.24
+            {
+                'vertex': [
+                    { x: 4.275, y: 2.032, label: 'V1', start: 1, display: 1 },
+                    { x: 2.844, y: 3.547, label: 'V2', start: 0, display: 0 },
+                    { x: 2.633, y: 6.637, label: 'V3', start: 0, display: 0 },
+                    { x: -1.566, y: 6.637, label: 'V4', start: 0, display: 0 },
+                    { x: -1.566, y: 7.992, label: 'V5', start: 0, display: 0 },
+                    { x: 2.531, y: 7.992, label: 'V6', start: 0, display: 0 },
+                    { x: 2.463, y: 9.075, label: 'V7', start: 0, display: 0 },
+                    { x: -3.031, y: 9.075, label: 'V8', start: 0, display: 0 },
+                    { x: -5.291, y: 14.002, label: 'V9', start: 0, display: 0 },
+                    { x: -5.291, y: 14.002, label: 'V10', start: 0, display: 0 },
+                    { x: -6.857, y: 13.350, label: 'V11', start: 0, display: 0 },
+                    { x: -7.213, y: 14.281, label: 'V12', start: 0, display: 0 },
+                    { x: -4.368, y: 15.458, label: 'V13', start: 0, display: 0 },
+                    { x: -2.108, y: 10.523, label: 'V14', start: 0, display: 0 },
+                    { x: 3.683, y: 10.523, label: 'V15', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 1.645, direction: 0, sweep: 1 },
+
+                ], 
+            },
+            {
+                'vertex': [
+                    { x: 4.605, y: 7.272, label: 'V16', start: 1, display: 1 },
+                    { x: 4.495, y: 8.880, label: 'V17', start: 0, display: 0 },
+                    { x: -1.998, y: 11.970, label: 'V18', start: 0, display: 0 },
+                    { x: -2.980, y: 14.104, label: 'V19', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V17', end: 'V18', radius: 4, direction: 1, sweep: 1 },
+                    { start: 'V19', end: 'V16', radius: 5.4, direction: 0, sweep: 1 },
+
+                ],
+            },
+        ],
+    },
+
+    'RightDisabled': {
+        path: [ // 3.5.7.24
+            {
+                'vertex': [
+                    { x: -4.275, y: 2.032, label: 'V1', start: 1, display: 1 },
+                    { x: -2.844, y: 3.547, label: 'V2', start: 0, display: 0 },
+                    { x: -2.633, y: 6.637, label: 'V3', start: 0, display: 0 },
+                    { x: 1.566, y: 6.637, label: 'V4', start: 0, display: 0 },
+                    { x: 1.566, y: 7.992, label: 'V5', start: 0, display: 0 },
+                    { x: -2.531, y: 7.992, label: 'V6', start: 0, display: 0 },
+                    { x: -2.463, y: 9.075, label: 'V7', start: 0, display: 0 },
+                    { x: 3.031, y: 9.075, label: 'V8', start: 0, display: 0 },
+                    { x: 5.291, y: 14.002, label: 'V9', start: 0, display: 0 },
+                    { x: 5.291, y: 14.002, label: 'V10', start: 0, display: 0 },
+                    { x: 6.857, y: 13.350, label: 'V11', start: 0, display: 0 },
+                    { x: 7.213, y: 14.281, label: 'V12', start: 0, display: 0 },
+                    { x: 4.368, y: 15.458, label: 'V13', start: 0, display: 0 },
+                    { x: 2.108, y: 10.523, label: 'V14', start: 0, display: 0 },
+                    { x: -3.683, y: 10.523, label: 'V15', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 1.645, direction: 1, sweep: 1 },
+
+                ], 
+            },
+            {
+                'vertex': [
+                    { x: -4.605, y: 7.272, label: 'V16', start: 1, display: 1 },
+                    { x: -4.495, y: 8.880, label: 'V17', start: 0, display: 0 },
+                    { x: 1.998, y: 11.970, label: 'V18', start: 0, display: 0 },
+                    { x: 2.980, y: 14.104, label: 'V19', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V17', end: 'V18', radius: 4, direction: 0, sweep: 1 },
+                    { start: 'V19', end: 'V16', radius: 5.4, direction: 1, sweep: 1 },
+
+                ],
+            },
+        ],
+    },    'LeftArrow': {
         path: [{
             'vertex': [
                 { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
