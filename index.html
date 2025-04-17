@@ -2,7 +2,8 @@
 <html lang="en-US">
 
 <head>
-    <meta charset="UTF-8">    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Road Sign Factory</title>
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" href="css/style.css">
@@ -59,21 +60,25 @@
         <ul>
             <li id="set-anchor">Set Anchor</li>
         </ul>
-    </div>    <div id="cursorBoxContainer" class="cursor-box-contained">
+    </div>
+    <div id="cursorBoxContainer" class="cursor-box-contained">
         <div id="cursorTextBox" class="cursor-box">Follow the cursor</div>
         <input type="text" id="cursorAnswerBox" class="cursor-box" value=0 />
     </div>
-      <!-- AdSense ads container -->
-    <div id="ads-container" style="position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 900; padding: 10px;">
+    <!-- AdSense ads container -->
+    <div id="ads-container"
+        style="position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 900; padding: 10px;">
         <!-- AdSense placeholder for local development -->
-        <div id="adsense-placeholder" style="display: none; background-color: #f0f0f0; border: 2px dashed #aaa; text-align: center; padding: 10px; width: 728px; height: 90px;">
-            <span style="line-height: 90px; color: #555; font-family: Arial, sans-serif;">AdSense Ad Placeholder (728×90)</span>
+        <div id="adsense-placeholder"
+            style="display: none; background-color: #f0f0f0; border: 2px dashed #aaa; text-align: center; padding: 10px; width: 728px; height: 90px;">
+            <span style="line-height: 90px; color: #555; font-family: Arial, sans-serif;">AdSense Ad Placeholder
+                (728×90)</span>
         </div>
-        
+
         <!-- Actual AdSense code -->
         <div id="adsense-actual">
-            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9252664921109550" data-ad-slot="4538395249"
-                data-ad-format="auto" data-full-width-responsive="true"></ins>
+            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9252664921109550"
+                data-ad-slot="4538395249" data-ad-format="auto" data-full-width-responsive="true"></ins>
             <script>
                 // Check if we're in local development
                 if (window.location.origin === 'file://') {
@@ -84,12 +89,14 @@
                 } else {
                     // In production - hide placeholder, load AdSense
                     document.getElementById('adsense-placeholder').style.display = 'none';
-                    (adsbygoogle = window.adsbygoogle || []).push({});
+                    window.onload = function () {
+                        (adsbygoogle = window.adsbygoogle || []).push({});
+                    }
                 }
             </script>
         </div>
     </div>
-    
+
     <!-- Load AdSense script only in production -->
     <script>
         // Only load AdSense script in production environment
