@@ -612,14 +612,16 @@ let FormExportComponent = {
       FormExportComponent.showDonationOverlay();
     }
   },
-
   exportToDXF: async function () {
     // Show loading overlay and wait for it to render
     await FormExportComponent.showLoadingOverlay('DXF');
     
+    // Declare originalState outside the try block so it's accessible in finally
+    let originalState;
+    
     try {
       // Prepare canvas for export
-      const originalState = FormExportComponent.prepareCanvasForExport();
+      originalState = FormExportComponent.prepareCanvasForExport();
 
       // Create a new DXF document using our npm module
       const dxf = new DxfWriter();
@@ -664,9 +666,11 @@ let FormExportComponent = {
       console.error("DXF export failed:", error);
       alert("DXF export failed: " + error.message);
     } finally {
-      // Ensure canvas is restored even on error
-      FormExportComponent.restoreCanvasAfterExport(originalState);
-        // Hide loading overlay and show donation overlay
+      // Ensure canvas is restored even on error (only if originalState was created)
+      if (originalState) {
+        FormExportComponent.restoreCanvasAfterExport(originalState);
+      }
+      // Hide loading overlay and show donation overlay
       FormExportComponent.hideLoadingOverlay();
       FormExportComponent.showDonationOverlay();
     }
