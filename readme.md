@@ -15,7 +15,7 @@ You can access the test site [here](https://g1213123.github.io/TrafficSign/).
 
 ## Getting Started
 
-1. Visit the [test site](https://g1213123.github.io/TrafficSign/).
+1. Visit the [site](https://road-sign-factory.g1213123.info/).
 2. Follow the on-screen instructions to create your directional signs.
 
 ## Contact
