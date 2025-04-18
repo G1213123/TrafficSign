@@ -205,3 +205,5 @@ CanvasGlobals.canvas.on('object:modified', function () {
   // When an object is modified (e.g., after resizing or rotation is complete), signal the end of any drag
   canvasTracker.endDrag();
 });
+
+export { canvasTracker };

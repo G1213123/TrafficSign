@@ -1,5 +1,6 @@
 /* Canvas Tracker UI Component */
 import {CanvasGlobals} from '../canvas.js';
+import { canvasTracker } from '../canvasTracker.js';
 
 class CanvasTrackerUI {
     constructor() {

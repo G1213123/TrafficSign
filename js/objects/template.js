@@ -2787,8 +2787,8 @@ function HLineTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
 function VLaneTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
     const length = xHeight / 4;
     const BHeight = block.height / length;
-    strokeHeight = 8
-    strokeSpacing = 4
+    const strokeHeight = 8
+    const strokeSpacing = 4
     rounding.x /= length;
     rounding.y /= length;
 
@@ -2798,7 +2798,7 @@ function VLaneTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
         'vertex': [], 'arcs': [], 'fill': 'border'
     },];
 
-    for (i = 0; i < strokeCount; i++) {
+    for (let i = 0; i < strokeCount; i++) {
         returnBorder[0].vertex.push(...[
             { x: 0, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V1', start: 1 },
             { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V2', start: 0 },
@@ -2833,4 +2833,9 @@ export {
     symbolsTemplate,
     symbolsTemplateAlt,
     symbolsPermittedAngle,
+    textWidthHeavy,
+    textWidthMedium,
+    roadMapTemplate,
+    EngDestinations,
+    ChtDestinations,
 }

@@ -75,6 +75,7 @@ let FormDebugComponent = {
 
   updateDebugInfo: function (objects) {
     const debugInfoPanel = document.getElementById('debug-info-panel');
+    let object = null
     if (debugInfoPanel) {
       objects.length ? object = objects[0] : object = objects
       debugInfoPanel.innerHTML = ''; // Clear previous info
@@ -87,7 +88,7 @@ let FormDebugComponent = {
         div.innerText = `${object._showName}`;
         debugInfoPanel.appendChild(div);
 
-        point = object.getEffectiveCoords()
+        const point = object.getEffectiveCoords()
         const properties = [
           { label: 'Top', value: Math.round(object.top) },
           { label: 'Left', value: Math.round(object.left) },

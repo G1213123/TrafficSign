@@ -12,7 +12,7 @@ import '../js/objects/route.js';
 import '../js/objects/border.js';
 import '../js/objects/divider.js';
 // Import anchor and tracker logic if needed
-import '../js/anchor.js';
+import '../js/objects/anchor.js';
 import '../js/canvasTracker.js';
 // Import sidebar logic (UI, event handlers)
 import '../js/sidebar/sidebar.js';

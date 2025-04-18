@@ -1,14 +1,6 @@
 /* General Sidebar Panel */
 import { CanvasGlobals } from '../canvas.js';
-
-// Keyboard shortcut for showing/hiding sidebar
-function ShowHideSideBarEvent(e) {
-  switch (e.keyCode) {
-    case 27: // esc
-      GeneralHandler.ShowHideSideBar(e);
-      break;
-  }
-}
+import { CanvasObjectInspector } from './sb-inspector.js';
 
 let GeneralHandler = {
   tabNum: 0,
@@ -333,18 +325,18 @@ let GeneralHandler = {
                      component.newSymbolObject ? 'newSymbolObject' : 
                      component.newMapObject ? 'newMapObject' : null;
     
-    if (!objectKey || !component[objectKey] || !activeVertex) return;
+    if (!objectKey || !component[objectKey] || !CanvasGlobals.activeVertex) return;
     
     const pointer = CanvasGlobals.canvas.getPointer(event.e);
     
     // If we have an active vertex, let it handle the movement
-    if (activeVertex.handleMouseMoveRef) {
+    if (CanvasGlobals.activeVertex.handleMouseMoveRef) {
       // Simulate a mouse move event with the current pointer
       const simulatedEvent = {
         e: event.e,
         pointer: pointer
       };
-      activeVertex.handleMouseMoveRef(simulatedEvent);
+      CanvasGlobals.activeVertex.handleMouseMoveRef(simulatedEvent);
     } else {
       // Fallback direct positioning if vertex control isn't active
       component[objectKey].set({
@@ -371,8 +363,8 @@ let GeneralHandler = {
     // Complete the placement if we have an active object
     if (component[objectKey]) {
       // Complete the placement
-      if (activeVertex) {
-        activeVertex.handleMouseDownRef(event);
+      if (CanvasGlobals.activeVertex) {
+        CanvasGlobals.activeVertex.handleMouseDownRef(event);
       }
 
       // Clean up
@@ -383,11 +375,11 @@ let GeneralHandler = {
       // Reset state
       component[objectKey].isTemporary = false;
       component[objectKey] = null;
-      activeVertex = null;
+      CanvasGlobals.activeVertex = null;
 
       // Reattach default keyboard event listener
       document.removeEventListener('keydown', component[cancelHandlerName]);
-      document.addEventListener('keydown', ShowHideSideBarEvent);
+      document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
 
       CanvasGlobals.canvas.renderAll();
     }
@@ -410,16 +402,16 @@ let GeneralHandler = {
       }
 
       // Clean up active vertex if there is one
-      if (activeVertex) {
-        activeVertex.cleanupDrag();
-        activeVertex = null;
+      if (CanvasGlobals.activeVertex) {
+        CanvasGlobals.activeVertex.cleanupDrag();
+        CanvasGlobals.activeVertex = null;
       }
 
       // Restore event listeners
       CanvasGlobals.canvas.off('mouse:move', component[mouseMoveHandlerName]);
       CanvasGlobals.canvas.off('mouse:down', component[mouseClickHandlerName]);
       document.removeEventListener('keydown', component.cancelInput || component.cancelDraw);
-      document.addEventListener('keydown', ShowHideSideBarEvent);
+      document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
 
       CanvasGlobals.canvas.renderAll();
     }
@@ -443,18 +435,18 @@ let GeneralHandler = {
       CanvasGlobals.canvas.remove(component[objectKey]);
       component[objectKey] = null;
       
-      if (activeVertex) {
-        activeVertex.cleanupDrag();
-        activeVertex = null;
+      if (CanvasGlobals.activeVertex) {
+        CanvasGlobals.activeVertex.cleanupDrag();
+        CanvasGlobals.activeVertex = null;
       }
     }
     
     // Remove standard event listeners and add component-specific ones
-    document.removeEventListener('keydown', ShowHideSideBarEvent);
+    document.removeEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
     document.addEventListener('keydown', cancelHandler);
     
     // Get the center of the canvas viewport
-    const vpt = CenterCoord();
+    const vpt = CanvasGlobals.CenterCoord();
     const centerX = vpt.x;
     const centerY = vpt.y;
     
@@ -480,12 +472,12 @@ let GeneralHandler = {
       // Activate the vertex control for snapping
       if (newObject.controls && newObject.controls[vertexId]) {
         // Get the vertex control
-        activeVertex = newObject.controls[vertexId];
-        activeVertex.isDown = true;
-        activeVertex.isDragging = true;
+        CanvasGlobals.activeVertex = newObject.controls[vertexId];
+        CanvasGlobals.activeVertex.isDown = true;
+        CanvasGlobals.activeVertex.isDragging = true;
         
         // Store original position info
-        activeVertex.originalPosition = {
+        CanvasGlobals.activeVertex.originalPosition = {
           left: newObject.left,
           top: newObject.top
         };
@@ -494,13 +486,13 @@ let GeneralHandler = {
         const vertex = newObject.getBasePolygonVertex(vertexId);
         if (vertex) {
           // Store vertex positions for snapping
-          activeVertex.vertexOriginalPosition = {
+          CanvasGlobals.activeVertex.vertexOriginalPosition = {
             x: vertex.x,
             y: vertex.y
           };
           
           // Calculate offset from object center to vertex
-          activeVertex.vertexOffset = {
+          CanvasGlobals.activeVertex.vertexOffset = {
             x: vertex.x - newObject.left,
             y: vertex.y - newObject.top
           };
@@ -514,7 +506,7 @@ let GeneralHandler = {
       console.error('Error creating object with snapping:', error);
       // Clean up event listeners in case of error
       document.removeEventListener('keydown', cancelHandler);
-      document.addEventListener('keydown', ShowHideSideBarEvent);
+      document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
       throw error; // Re-throw to allow caller to handle the error
     }
   },
@@ -530,8 +522,8 @@ let GeneralHandler = {
   genericHandlerOff: function(component, objectKey, mouseMoveHandlerName, mouseClickHandlerName, cancelHandlerName) {
     // If there's a new object being placed, finalize its placement
     if (component[objectKey]) {
-      if (activeVertex) {
-        activeVertex.finishDrag();
+      if (CanvasGlobals.activeVertex) {
+        CanvasGlobals.activeVertex.finishDrag();
       }
       component[objectKey] = null;
     }
@@ -540,7 +532,7 @@ let GeneralHandler = {
     CanvasGlobals.canvas.off('mouse:move', component[mouseMoveHandlerName]);
     CanvasGlobals.canvas.off('mouse:down', component[mouseClickHandlerName]);
     document.removeEventListener('keydown', component[cancelHandlerName]);
-    document.addEventListener('keydown', ShowHideSideBarEvent);
+    document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
 
     CanvasGlobals.canvas.renderAll();
   },
@@ -658,4 +650,4 @@ const GeneralSettings = {
 };
 
 // Export GeneralHandler and GeneralSettings for ES module usage
-export { GeneralHandler, GeneralSettings, ShowHideSideBarEvent };
+export { GeneralHandler, GeneralSettings };

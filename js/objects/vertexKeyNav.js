@@ -1,6 +1,13 @@
 // This file handles VertexControl class and keyboard navigation for vertices
 // Implements Tab key cycling through vertices
 
+import { CanvasGlobals } from "../canvas.js"
+import { globalAnchorTree,anchorShape } from './anchor.js';
+
+const canvas = CanvasGlobals.canvas; // Fabric.js canvas instance
+const canvasObject = CanvasGlobals.canvasObject; // All objects on the canvas
+let vertexSnapInProgress = false; // Flag to indicate if a snap operation is in progress
+
 class VertexControl extends fabric.Control {
     constructor(vertex, baseGroup) {
         const width = baseGroup.width || baseGroup.tempWidth
@@ -87,8 +94,8 @@ class VertexControl extends fabric.Control {
         const vertexX = this.vertex.x;
         const vertexY = this.vertex.y;
 
-        if (!activeVertex) {
-            activeVertex = this;
+        if (!CanvasGlobals.activeVertex) {
+            CanvasGlobals.activeVertex = this;
             this.isDown = true;
             this.isDragging = true; // Set dragging flag
 
@@ -112,7 +119,7 @@ class VertexControl extends fabric.Control {
             canvas.defaultCursor = 'move';
 
             // Add mouse move and click handlers for drag behavior
-            document.removeEventListener('keydown', ShowHideSideBarEvent);
+            document.removeEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
             document.addEventListener('keydown', this.cancelDragRef);
             canvas.on('mouse:move', this.handleMouseMoveRef);
             canvas.on('mouse:down', this.handleMouseDownRef);
@@ -230,7 +237,7 @@ class VertexControl extends fabric.Control {
                 pointer;            
                 if (this.baseGroup.functionalType === 'SideRoad') {
                 // For SideRoad, calculate the appropriate offset based on active vertex
-                if (activeVertex && activeVertex.vertex) {
+                if (CanvasGlobals.activeVertex && CanvasGlobals.activeVertex.vertex) {
                     // Find the V1 vertex which corresponds to routeList[0]
                     let v1Vertex = this.baseGroup.basePolygon.vertex.find(v => v.label === 'V1');
 
@@ -238,9 +245,9 @@ class VertexControl extends fabric.Control {
                     let offsetX = 0;
                     let offsetY = 0;
 
-                    if (activeVertex.vertex.label !== 'V1' && v1Vertex) {
+                    if (CanvasGlobals.activeVertex.vertex.label !== 'V1' && v1Vertex) {
                         // Calculate offset
-                        const activeVertexObj = this.baseGroup.basePolygon.vertex.find(v => v.label === activeVertex.vertex.label);
+                        const activeVertexObj = this.baseGroup.basePolygon.vertex.find(v => v.label === CanvasGlobals.activeVertex.vertex.label);
                         if (activeVertexObj) {
                             offsetX = v1Vertex.x - activeVertexObj.x;
                             offsetY = v1Vertex.y - activeVertexObj.y;
@@ -521,7 +528,7 @@ class VertexControl extends fabric.Control {
         this.clearSnapHighlight();
 
         // Restore default behavior
-        document.addEventListener('keydown', ShowHideSideBarEvent);
+        document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
         canvas.defaultCursor = 'default';
 
         // Reset internal state
@@ -549,7 +556,7 @@ class VertexControl extends fabric.Control {
             this.baseGroup.exitFocusMode();
         }
 
-        activeVertex = null;
+        CanvasGlobals.activeVertex = null;
         canvas.renderAll();
     }
 
@@ -572,7 +579,7 @@ class VertexControl extends fabric.Control {
         this.baseGroup.updateAllCoord();
 
         this.cleanupDrag();
-        activeVertex = null;
+        CanvasGlobals.activeVertex = null;
         canvas.renderAll();
     }
 
@@ -597,12 +604,12 @@ class VertexControl extends fabric.Control {
         document.removeEventListener('keydown', this.cancelDragRef);
 
         // Restore default behavior
-        document.addEventListener('keydown', ShowHideSideBarEvent);
+        document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
         canvas.defaultCursor = 'default';
 
         // Make sure we're no longer active
-        if (activeVertex === this) {
-            activeVertex = null;
+        if (CanvasGlobals.activeVertex === this) {
+            CanvasGlobals.activeVertex = null;
         }
     }
 
@@ -620,7 +627,7 @@ class VertexControl extends fabric.Control {
 // Register the Tab key handler for vertex cycling
 document.addEventListener('keydown', function (event) {
     // Only handle Tab key when a vertex is active and we're not in a text input
-    if (event.key === 'Tab' && activeVertex &&
+    if (event.key === 'Tab' && CanvasGlobals.activeVertex &&
         document.activeElement.tagName !== 'INPUT' &&
         document.activeElement.tagName !== 'TEXTAREA') {
 
@@ -628,8 +635,8 @@ document.addEventListener('keydown', function (event) {
         event.preventDefault();
 
         // Get reference to current baseGroup and the active vertex
-        const currentBaseGroup = activeVertex.baseGroup;
-        const currentVertex = activeVertex.vertex;        // Handle both V and E vertices
+        const currentBaseGroup = CanvasGlobals.activeVertex.baseGroup;
+        const currentVertex = CanvasGlobals.activeVertex.vertex;        // Handle both V and E vertices
         // Get all E vertices in the group
         const eVertices = currentBaseGroup.basePolygon.vertex.filter(v => v.label.startsWith('E'));
 
@@ -672,29 +679,29 @@ document.addEventListener('keydown', function (event) {
                 typeof currentVertexPosition.y === 'number' && !isNaN(currentVertexPosition.y)) {
 
                 // Clean up the current active vertex
-                activeVertex.cleanupDrag();
+                CanvasGlobals.activeVertex.cleanupDrag();
 
                 // Activate the next vertex control
                 const nextVertexControl = currentBaseGroup.controls[nextVertex.label];
                 if (nextVertexControl) {
 
                     // Make it the active vertex
-                    activeVertex = nextVertexControl;
-                    activeVertex.isDown = true;
-                    activeVertex.isDragging = true;
+                    CanvasGlobals.activeVertex = nextVertexControl;
+                    CanvasGlobals.activeVertex.isDown = true;
+                    CanvasGlobals.activeVertex.isDragging = true;
 
                     // Store original position for possible cancellation
-                    activeVertex.originalPosition = {
+                    CanvasGlobals.activeVertex.originalPosition = {
                         left: currentBaseGroup.left,
                         top: currentBaseGroup.top
                     };
 
-                    activeVertex.vertexOriginalPosition = {
+                    CanvasGlobals.activeVertex.vertexOriginalPosition = {
                         x: nextVertex.x,
                         y: nextVertex.y
                     };
                     // Store the vertex's original position
-                    activeVertex.vertexOriginalPosition = {
+                    CanvasGlobals.activeVertex.vertexOriginalPosition = {
                         x: nextVertex.x,
                         y: nextVertex.y
                     };
@@ -703,7 +710,7 @@ document.addEventListener('keydown', function (event) {
                     const offsetX = nextVertex.x - currentBaseGroup.left;
                     const offsetY = nextVertex.y - currentBaseGroup.top;
 
-                    activeVertex.vertexOffset = {
+                    CanvasGlobals.activeVertex.vertexOffset = {
                         x: isNaN(offsetX) ? 0 : offsetX,
                         y: isNaN(offsetY) ? 0 : offsetY
                     };
@@ -730,11 +737,11 @@ document.addEventListener('keydown', function (event) {
                         currentBaseGroup.updateAllCoord();
 
                         // Set up event listeners for the new active vertex
-                        document.removeEventListener('keydown', ShowHideSideBarEvent);
-                        document.addEventListener('keydown', activeVertex.cancelDragRef);
-                        canvas.on('mouse:move', activeVertex.handleMouseMoveRef);
-                        canvas.on('mouse:down', activeVertex.handleMouseDownRef);
-                        canvas.on('mouse:up', activeVertex.handleMouseUpRef);
+                        document.removeEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
+                        document.addEventListener('keydown', CanvasGlobals.activeVertex.cancelDragRef);
+                        canvas.on('mouse:move', CanvasGlobals.activeVertex.handleMouseMoveRef);
+                        canvas.on('mouse:down', CanvasGlobals.activeVertex.handleMouseDownRef);
+                        canvas.on('mouse:up', CanvasGlobals.activeVertex.handleMouseUpRef);
 
                         // Keep the group in focus mode
                         currentBaseGroup.enterFocusMode();
@@ -748,13 +755,13 @@ document.addEventListener('keydown', function (event) {
                         console.error("Error during vertex cycling:", err);
 
                         // Clean up if there was an error
-                        if (activeVertex) {
-                            activeVertex.cleanupDrag();
-                            activeVertex = null;
+                        if (CanvasGlobals.activeVertex) {
+                            CanvasGlobals.activeVertex.cleanupDrag();
+                            CanvasGlobals.activeVertex = null;
                         }
 
                         // Restore default behavior
-                        document.addEventListener('keydown', ShowHideSideBarEvent);
+                        document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
                         canvas.defaultCursor = 'default';
                         canvas.renderAll();
                     }
@@ -763,3 +770,5 @@ document.addEventListener('keydown', function (event) {
         }
     }
 });
+
+export { VertexControl };

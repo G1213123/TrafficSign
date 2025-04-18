@@ -1,6 +1,7 @@
 /* Settings Panel */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
-import { CanvasGlobals } from '../canvas.js';
+import { CanvasGlobals, DrawGrid } from '../canvas.js';
+import { runTests, testToRun } from '../test.js'; 
 
 let FormSettingsComponent = {
 
@@ -406,7 +407,7 @@ let FormSettingsComponent = {
 
     // Also update all BaseGroup objects on the canvas to ensure 
     // they respect the setting when selected later
-    canvasObject.forEach(obj => {
+    CanvasGlobals.canvasObject.forEach(obj => {
       if (obj instanceof fabric.BaseGroup && obj.basePolygon) {
         obj.drawVertex(false);
       }

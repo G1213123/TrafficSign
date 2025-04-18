@@ -1,6 +1,7 @@
 /* Draw Map Panel */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas.js';
+import { drawMainRoadOnCursor, drawSideRoadOnCursor, cancelDraw } from '../objects/route.js';
 
 let FormDrawMapComponent = {
   MapType: ['Main Line', 'Conventional Roundabout', 'Spiral Roundabout',],
@@ -176,10 +177,10 @@ let FormDrawMapComponent = {
         CanvasGlobals.canvas.newSymbolObject.routeList[0].angle = side ? -Math.abs(newAngle) : Math.abs(newAngle);
         
         // Force an update
-        if (window.activeVertex && window.activeVertex.handleMouseMoveRef) {
+        if (CanvasGlobals.activeVertex && CanvasGlobals.activeVertex.handleMouseMoveRef) {
           // Get current pointer
           const pointer = CanvasGlobals.canvas.getPointer({ e: window.event });
-          window.activeVertex.handleMouseMoveRef({
+          CanvasGlobals.activeVertex.handleMouseMoveRef({
             e: window.event,
             pointer: pointer
           });

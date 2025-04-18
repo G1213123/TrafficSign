@@ -7,6 +7,9 @@
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas.js';
 
+const canvas = CanvasGlobals.canvas; // Reference to the main canvas
+const canvasObject = CanvasGlobals.canvasObject; // Reference to the canvas objects
+
 const FormMeasureComponent = {
   // State tracking
   activeMeasurement: false,
@@ -84,7 +87,7 @@ const FormMeasureComponent = {
     canvas.on('mouse:down', FormMeasureComponent.MeasureOnMouseClick);
     
     // Escape key to cancel measuring
-    document.removeEventListener('keydown', ShowHideSideBarEvent);
+    document.removeEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
     document.addEventListener('keydown', FormMeasureComponent.cancelMeasure);
     
     // Change cursor to indicate measure mode
@@ -99,7 +102,7 @@ const FormMeasureComponent = {
     canvas.off('mouse:move', FormMeasureComponent.MeasureOnMouseMove);
     canvas.off('mouse:down', FormMeasureComponent.MeasureOnMouseClick);
     document.removeEventListener('keydown', FormMeasureComponent.cancelMeasure);
-    document.addEventListener('keydown', ShowHideSideBarEvent);
+    document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
     
     // Reset cursor
     canvas.defaultCursor = 'default';
@@ -242,7 +245,7 @@ const FormMeasureComponent = {
           
           (Press Enter to continue)
         `;        // Show measurement result and wait for Enter key
-        showTextBox(measurementText, ' ', 'keydown', function handleKeyPress(event) {
+        CanvasGlobals.showTextBox(measurementText, ' ', 'keydown', function handleKeyPress(event) {
           if (event.key === 'Enter') {
             hideTextBox();
             

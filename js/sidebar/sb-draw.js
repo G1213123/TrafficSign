@@ -2,8 +2,8 @@
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas.js';
 import { symbolsTemplate, symbolsTemplateAlt, symbolsPermittedAngle } from '../objects/template.js';
-import { calcSymbol, drawSymbolDirectly, getFontPath } from '../objects/symbols.js';
-import { convertVertexToPathCommands, convertFontPathToFabricPath } from '../objects/path.js';
+import { calcSymbol, drawSymbolDirectly } from '../objects/symbols.js';
+import { convertVertexToPathCommands, convertFontPathToFabricPath, getFontPath } from '../objects/path.js';
 
 let FormDrawAddComponent = {
   symbolAngle: 0,
@@ -343,10 +343,10 @@ let FormDrawAddComponent = {
     });
 
     // clear active vertex
-    if (window.activeVertex) {
-      //window.activeVertex.clearSnapHighlight();
-      window.activeVertex.cleanupDrag();
-      window.activeVertex = null;
+    if (CanvasGlobals.activeVertex) {
+      //CanvasGlobals.activeVertex.clearSnapHighlight();
+      CanvasGlobals.activeVertex.cleanupDrag();
+      CanvasGlobals.activeVertex = null;
     }
 
     // Replace on canvas
@@ -357,10 +357,10 @@ let FormDrawAddComponent = {
 
     // Re-activate vertex control
     if (newSymbolObject.controls && newSymbolObject.controls.V1) {
-      window.activeVertex = newSymbolObject.controls.V1;
-      window.activeVertex.isDown = true;
-      window.activeVertex.isDragging = true;
-      window.activeVertex.originalPosition = {
+      CanvasGlobals.activeVertex = newSymbolObject.controls.V1;
+      CanvasGlobals.activeVertex.isDown = true;
+      CanvasGlobals.activeVertex.isDragging = true;
+      CanvasGlobals.activeVertex.originalPosition = {
         left: newSymbolObject.left,
         top: newSymbolObject.top
       };
@@ -368,11 +368,11 @@ let FormDrawAddComponent = {
       // Store vertex information
       const v1 = newSymbolObject.getBasePolygonVertex('V1');
       if (v1) {
-        window.activeVertex.vertexOriginalPosition = {
+        CanvasGlobals.activeVertex.vertexOriginalPosition = {
           x: v1.x,
           y: v1.y
         };
-        window.activeVertex.vertexOffset = {
+        CanvasGlobals.activeVertex.vertexOffset = {
           x: v1.x - newSymbolObject.left,
           y: v1.y - newSymbolObject.top
         };

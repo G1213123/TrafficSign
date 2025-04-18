@@ -5,7 +5,7 @@
  * It loads component modules on demand when they are first needed.
  */
 
-import { GeneralHandler , GeneralSettings, ShowHideSideBarEvent} from './sbGeneral.js';
+import { GeneralHandler , GeneralSettings} from './sbGeneral.js';
 import { FormTextAddComponent } from './sb-text.js';
 import { FormDrawAddComponent } from './sb-draw.js';
 import { FormBorderWrapComponent } from './sb-border.js';
@@ -20,10 +20,9 @@ import { CanvasTrackerUI } from './sb-tracker.js';
 import {CanvasObjectInspector} from './sb-inspector.js';
 import { CanvasGlobals } from '../canvas.js';
 
-window.CanvasObjectInspector = CanvasObjectInspector; // Make it globally accessible if needed
+
 window.GeneralSettings = GeneralSettings; // Make GeneralSettings globally accessible
 window.GeneralHandler = GeneralHandler; // Make GeneralHandler globally accessible
-window.ShowHideSideBarEvent = ShowHideSideBarEvent; // Make ShowHideSideBarEvent globally accessible
 
 document.addEventListener('DOMContentLoaded', function () {
   // Initialize GeneralHandler first if needed (assuming it has an init function)

@@ -1,4 +1,11 @@
-import { BaseGroup } from './draw.js';
+import { BaseGroup, GlyphPath } from './draw.js';
+import { calculateTransformedPoints, getInsertOffset } from './path.js';
+import { roadMapTemplate } from './template.js';
+import { calcSymbol } from './symbols.js';
+import { CanvasGlobals } from '../canvas.js';
+
+const canvas = CanvasGlobals.canvas;
+const canvasObject = CanvasGlobals.canvasObject;
 
 const calcVertexType = {
     'Main Line': calcMainRoadVertices,
@@ -100,7 +107,7 @@ function getSideRoadCoords(route, length, left, right) {
         });
         p.vertex = transformed
     });
-    arrowTipVertex = arrowTipPath.path[0].vertex
+    let arrowTipVertex = arrowTipPath.path[0].vertex
     if (route.angle != 0 && route.angle != 180) {
         if (route.x < left) {
             const i1 = { x: left, y: arrowTipVertex[0].y - (left - arrowTipVertex[0].x) / Math.tan(route.angle / 180 * Math.PI), radius: length, display: 0 }
@@ -138,7 +145,7 @@ function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle, center)
     if (route.shape !== 'UArrow Conventional') {
         const width = route.width
         arrowTipPath.path[0].vertex.map((v) => { v.x *= width / 2; v.y *= width / 2 })
-        arrowTipVertex = arrowTipPath.path[0].vertex
+        let arrowTipVertex = arrowTipPath.path[0].vertex
     
         // for Stub
         //const ic = { x: width / 2, y: Math.sqrt(radius ** 2 - (width / 2) ** 2) }
@@ -188,7 +195,7 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
     let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]))
     //const width = route.width
     //arrowTipPath.path[0].vertex.map((v) => { v.x *= width / 2; v.y *= width / 2 })
-    arrowTipVertex = arrowTipPath.path[0].vertex
+    //arrowTipVertex = arrowTipPath.path[0].vertex
 
 
     arrowTipPath = calcSymbol(arrowTipPath, length)
@@ -586,7 +593,7 @@ function drawMainRoadOnCursor(event, params = null) {
     drawRoadsHandlerOff();
 
     canvas.discardActiveObject();
-    document.removeEventListener('keydown', ShowHideSideBarEvent);
+    document.removeEventListener('keydown', CanvasGlobals.Show);
     document.addEventListener('keydown', cancelDraw);
 
     // Get parameters either from DOM elements or provided params
@@ -721,7 +728,7 @@ function mainRoadOnMouseMove(event) {
     const pointer = canvas.getPointer(event.e);
     
     // If we have an active vertex, handle the vertex-based movement
-    if (activeVertex && activeVertex.handleMouseMoveRef) {
+    if (CanvasGlobals.activeVertex && CanvasGlobals.activeVertex.handleMouseMoveRef) {
         // Store the original position of the object for delta calculation
         const originalLeft = mainRoad.left;
         const originalTop = mainRoad.top;
@@ -731,7 +738,7 @@ function mainRoadOnMouseMove(event) {
             e: event.e,
             pointer: pointer
         };
-        activeVertex.handleMouseMoveRef(simulatedEvent);
+        CanvasGlobals.activeVertex.handleMouseMoveRef(simulatedEvent);
         
         // Calculate the delta movement
         const deltaX = mainRoad.left - originalLeft;
@@ -823,8 +830,8 @@ async function finishDrawMainRoad(event, options = null) {
     if (mainRoad.functionalType !== 'MainRoad') return;
     
     // Complete the placement
-    if (activeVertex) {
-        activeVertex.handleMouseDownRef(event);
+    if (CanvasGlobals.activeVertex) {
+        CanvasGlobals.activeVertex.handleMouseDownRef(event);
     }
     
     // Add the main road to the canvas object list if not already added
@@ -839,7 +846,7 @@ async function finishDrawMainRoad(event, options = null) {
     // Reset state
     const placedRoad = canvas.newSymbolObject;
     canvas.newSymbolObject = null;
-    activeVertex = null;
+    CanvasGlobals.activeVertex = null;
     
     // Clean up event handlers
     drawRoadsHandlerOff();
@@ -857,7 +864,7 @@ async function finishDrawMainRoad(event, options = null) {
  * @return {void}
  */
 function drawSideRoadOnCursor(event, option = null) {
-    document.removeEventListener('keydown', ShowHideSideBarEvent);
+    document.removeEventListener('keydown', CanvasGlobals.Show);
     document.addEventListener('keydown', cancelDraw);
 
     const mainRoad = canvas.getActiveObject();
@@ -1044,13 +1051,13 @@ function sideRoadOnMouseMove(event) {
     const pointer = canvas.getPointer(event.e);
     
     // If we have an active vertex, handle the vertex-based movement
-    if (activeVertex.handleMouseMoveRef) {
+    if (CanvasGlobals.activeVertex.handleMouseMoveRef) {
         // Let the vertex handle its movement first
         const simulatedEvent = {
             e: event.e,
             pointer: pointer
         };
-        activeVertex.handleMouseMoveRef(simulatedEvent);
+        CanvasGlobals.activeVertex.handleMouseMoveRef(simulatedEvent);
         
         // Find the V1 vertex which corresponds to routeList[0]
         let v1Vertex = sideRoad.basePolygon.vertex.find(v => v.label === 'V1');
@@ -1060,9 +1067,9 @@ function sideRoadOnMouseMove(event) {
         let offsetX = 0;
         let offsetY = 0;
         
-        if (activeVertex.label !== 'V1' && v1Vertex) {
+        if (CanvasGlobals.activeVertex.label !== 'V1' && v1Vertex) {
             // Calculate where V1 should be based on the active vertex movement
-            const activeVertexObj = sideRoad.basePolygon.vertex.find(v => v.label === activeVertex.label);
+            const activeVertexObj = sideRoad.basePolygon.vertex.find(v => v.label === CanvasGlobals.activeVertex.label);
             if (activeVertexObj) {
                 offsetX = v1Vertex.x - activeVertexObj.x;
                 offsetY = v1Vertex.y - activeVertexObj.y;
@@ -1209,8 +1216,8 @@ function finishDrawSideRoad(event) {
     if (!mainRoad) return;
 
     // Complete the placement
-    if (activeVertex) {
-        activeVertex.handleMouseDownRef(event);
+    if (CanvasGlobals.activeVertex) {
+        CanvasGlobals.activeVertex.handleMouseDownRef(event);
     }
 
     // Make sure the side road isn't already in the main road's collection
@@ -1246,7 +1253,7 @@ function finishDrawSideRoad(event) {
     
     // Clear the newSymbolObject so a new side road can be drawn immediately
     canvas.newSymbolObject = null;
-    activeVertex = null;
+    CanvasGlobals.activeVertex = null;
 
     // Clean up
     drawRoadsHandlerOff();
@@ -1294,12 +1301,12 @@ function drawRoadsHandlerOff(event) {
     }
 
     // Clean up active vertex if there is one
-    if (activeVertex) {
-        if (activeVertex.indicator) {
-            canvas.remove(activeVertex.indicator);
+    if (CanvasGlobals.activeVertex) {
+        if (CanvasGlobals.activeVertex.indicator) {
+            canvas.remove(CanvasGlobals.activeVertex.indicator);
         }
-        activeVertex.cleanupDrag && activeVertex.cleanupDrag();
-        activeVertex = null;
+        CanvasGlobals.activeVertex.cleanupDrag && CanvasGlobals.activeVertex.cleanupDrag();
+        CanvasGlobals.activeVertex = null;
     }
 
     canvas.off('mouse:move', mainRoadOnMouseMove);
@@ -1308,7 +1315,7 @@ function drawRoadsHandlerOff(event) {
     canvas.off('mouse:down', finishDrawMainRoad);
     canvas.off('mouse:move', drawSideRoadOnCursor);
     document.removeEventListener('keydown', cancelDraw);
-    document.addEventListener('keydown', ShowHideSideBarEvent);
+    document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
 
     // Force a final render to clean up any visual artifacts
     canvas.renderAll();
@@ -1324,7 +1331,7 @@ function cancelDraw(event, force = false) {
     if (event.key === 'Escape' || force) {
         drawRoadsHandlerOff();
         setTimeout(() => {
-            document.addEventListener('keydown', ShowHideSideBarEvent);
+            document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
         }, 1000);
     }
 }
@@ -1380,3 +1387,18 @@ function toggleButtonState(buttonId, isActive) {
         button.disabled = true;
     }
 }
+
+export { 
+    MainRoadSymbol,
+    SideRoadSymbol, 
+    drawMainRoadOnCursor, 
+    drawSideRoadOnCursor,
+    calcMainRoadVertices, 
+    finishDrawMainRoad, 
+    finishDrawSideRoad, 
+    calcRoundaboutVertices,
+    roadMapOnSelect, 
+    roadMapOnDeselect,
+    drawRoadsHandlerOff,
+    cancelDraw
+};

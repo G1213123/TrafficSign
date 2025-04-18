@@ -1,4 +1,12 @@
-import { BaseGroup } from './draw.js';
+import { BaseGroup, BorderDimensionDisplay } from './draw.js';
+import { globalAnchorTree,anchorShape } from './anchor.js';
+import { BorderTypeScheme, BorderColorScheme, BorderFrameWdith, DividerMargin } from './template.js';
+import { vertexToPath } from './path.js';
+import { CanvasGlobals } from '../canvas.js';
+import { drawDivider } from './divider.js';
+
+const canvas = CanvasGlobals.canvas; // Access the global canvas object
+const canvasObject = CanvasGlobals.canvasObject // Get all objects on the canvas
 
 // Add function to remove anchor between objects
 function removeAnchor(sourceObject, targetObject) {
@@ -84,7 +92,7 @@ const BorderUtilities = {
     // Loop through each object and its basePolygon
     let combinedBBox = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
     objects.forEach(obj => {
-      coord = obj.getEffectiveCoords()
+      const coord = obj.getEffectiveCoords()
       // Update the combined bounding box
       combinedBBox.left = Math.min(combinedBBox.left, coord[0].x,);
       combinedBBox.top = Math.min(combinedBBox.top, coord[0].y,);
@@ -156,6 +164,7 @@ const BorderUtilities = {
     const block = { width: bbox.right - bbox.left, height: bbox.bottom - bbox.top }
     const rounding = { x: 0, y: 0 }
     const shapeMeta = BorderTypeScheme[borderType](xHeight, block, rounding)
+    let roundingX = 0, roundingY = 0
 
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     // Create polygon with labeled vertices
@@ -342,7 +351,7 @@ const BorderUtilities = {
     return { left: coordsWidth.left, top: coordsHeight.top, right: coordsWidth.right, bottom: coordsHeight.bottom }
   },
 
-  BorderGroupCreate: async function (borderType, heightObjects, widthObjects, widthText, heightText, options = null) {
+  BorderGroupCreate: function (borderType, heightObjects, widthObjects, widthText, heightText, options = null) {
     const xHeight = options ? options.xHeight : parseInt(document.getElementById("input-xHeight").value)
     //const borderType = options ? options.borderType : document.getElementById("input-type").value
     const colorType = options ? options.colorType : document.getElementById("input-color").value
@@ -366,7 +375,7 @@ const BorderUtilities = {
     coords = BorderUtilities.getBorderObjectCoords(fheightObjects, fwidthObjects)
 
     try {
-      const BaseBorder = await drawLabeledBorder(borderType, xHeight, coords, colorType)
+      const BaseBorder = drawLabeledBorder(borderType, xHeight, coords, colorType)
 
       // Use the new BorderGroup class instead of BaseGroup
       const borderGroup = new BorderGroup(BaseBorder, borderType, {
@@ -383,7 +392,7 @@ const BorderUtilities = {
 
 
       // Add mid points and assign widths to dividers
-      await borderGroup.assignWidthToDivider(); // Ensure this await is always present
+      borderGroup.assignWidthToDivider(); // Ensure this await is always present
       //borderGroup.addMidPointToDivider();
 
 
@@ -1030,119 +1039,74 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
 
   // Optimized method to process border resize without causing infinite loops
   processResize() {
-    // Skip if already being updated in current tree cycle
-    if ((globalAnchorTree.updateInProgressX && globalAnchorTree.updatedObjectsX.has(this.canvasID)) && 
-        (globalAnchorTree.updateInProgressY && globalAnchorTree.updatedObjectsY.has(this.canvasID))) {
-      return;
-    }
+      const BG = this
+      BG.removeAll();
 
-    // Start axis-specific update cycles if needed
-    const isXRootUpdate = !globalAnchorTree.updateInProgressX;
-    const isYRootUpdate = !globalAnchorTree.updateInProgressY;
-    
-    if (isXRootUpdate) {
-      globalAnchorTree.startUpdateCycle('x');
-    }
-    
-    if (isYRootUpdate) {
-      globalAnchorTree.startUpdateCycle('y');
-    }
+      // Get the bounding box of the active selection 
+      let coords = BorderUtilities.getBorderObjectCoords(BG.heightObjects, BG.widthObjects);
 
-    // Mark this border as updated in both axes
-    globalAnchorTree.updatedObjectsX.add(this.canvasID);
-    globalAnchorTree.updatedObjectsY.add(this.canvasID);
-    
-    // Remove all current elements
-    this.removeAll();
-    
-    // Get the bounding box of the active selection 
-    let coords = BorderUtilities.getBorderObjectCoords(this.heightObjects, this.widthObjects);
+      if (!isNaN(parseInt(BG.fixedWidth))) {
+        const padding = parseInt(BG.fixedWidth) - coords.right + coords.left;
+        coords.left -= padding / 2;
+        coords.right += padding / 2;
+      }
 
-    // Apply fixed width/height if specified
-    if (!isNaN(parseInt(this.fixedWidth))) {
-      const padding = parseInt(this.fixedWidth) - coords.right + coords.left;
-      coords.left -= padding / 2;
-      coords.right += padding / 2;
-    }
-    
-    if (!isNaN(parseInt(this.fixedHeight))) {
-      const padding = parseInt(this.fixedHeight) - coords.bottom + coords.top;
-      coords.top -= padding / 2;
-      coords.bottom += padding / 2;
-    }
+      if (!isNaN(parseInt(BG.fixedHeight))) {
+        const padding = parseInt(BG.fixedHeight) - coords.bottom + coords.top;
+        coords.top -= padding / 2;
+        coords.bottom += padding / 2;
+      }
 
-    // Handle roundings on borders and dividers
-    const rounding = BorderUtilities.calcBorderRounding(this.borderType, this.xHeight, coords);
-    
-    // Create a new border object
-    const borderObject = drawLabeledBorder(this.borderType, this.xHeight, coords, this.color);
-    this.add(borderObject);
-    this.basePolygon = borderObject;
-    
-    // Set reference point for this border before handling dividers
-    this.refTopLeft = {
-      top: this.basePolygon.getCoords()[0].y,
-      left: this.basePolygon.getCoords()[0].x
-    };
-    
-    // Apply divider updates with axis-specific tracking
-    if (this.HDivider && this.HDivider.length > 0) {
-      this.HDivider.forEach(divider => {
-        // Mark as updated in both axes since divider position affects both
-        globalAnchorTree.updatedObjectsX.add(divider.canvasID);
-        globalAnchorTree.updatedObjectsY.add(divider.canvasID);
-        
-        // Update width without triggering updateAllCoord
-        if (divider.width !== rounding.width) {
-          divider.width = rounding.width;
-          if (divider.onResize) {
-            // Call onResize but don't allow it to trigger further border updates
-            const origBorderGroup = divider.borderGroup;
-            divider.borderGroup = null;
-            divider.onResize();
-            divider.borderGroup = origBorderGroup;
-          }
+      const borderObject = drawLabeledBorder(BG.borderType, BG.xHeight, coords, BG.color);
+
+      BG.add(borderObject);
+      BG.basePolygon = borderObject;
+      BG.assignWidthToDivider();
+
+      // Track if we started update cycles that need to be closed
+      let startedXCycle = false;
+      let startedYCycle = false;
+
+      try {
+        // Start update cycles for the border group to be updated properly
+        if (!globalAnchorTree.updateInProgressX) {
+          globalAnchorTree.startUpdateCycle('x', BG.canvasID);
+          startedXCycle = true;
         }
-      });
-    }
-    
-    if (this.VDivider && this.VDivider.length > 0) {
-      this.VDivider.forEach(divider => {
-        // Mark as updated in both axes since divider position affects both
-        globalAnchorTree.updatedObjectsX.add(divider.canvasID);
-        globalAnchorTree.updatedObjectsY.add(divider.canvasID);
-        
-        // Update height without triggering updateAllCoord
-        if (divider.height !== rounding.height) {
-          divider.height = rounding.height;
-          if (divider.onResize) {
-            // Call onResize but don't allow it to trigger further border updates
-            const origBorderGroup = divider.borderGroup;
-            divider.borderGroup = null;
-            divider.onResize();
-            divider.borderGroup = origBorderGroup;
-          }
+
+        if (!globalAnchorTree.updateInProgressY) {
+          globalAnchorTree.startUpdateCycle('y', BG.canvasID);
+          startedYCycle = true;
         }
-      });
-    }
+
+        // Mark the border group as already updated to prevent cycles
+        //globalAnchorTree.updatedObjectsX.add(BG.canvasID);
+        //globalAnchorTree.updatedObjectsY.add(BG.canvasID);
+
+        BG.updateAllCoord(null, [], false);
+        BG.drawVertex();
+      } finally {
+        // Always end update cycles if we started them, even if an error occurs
+        if (startedXCycle) {
+          globalAnchorTree.endUpdateCycle('x');
+        }
+
+        if (startedYCycle) {
+          globalAnchorTree.endUpdateCycle('y');
+        }
+      }
+
+      // Update reference points and vertices
+      BG.refTopLeft = {
+        top: BG.basePolygon.getCoords()[0].y,
+        left: BG.basePolygon.getCoords()[0].x
+      };
+
+      // Redraw vertices
+      BG.drawVertex();
+
+      canvas.renderAll();
     
-    // Update the bounding boxes
-    this.updateBboxes();
-    
-    // Update divider positions and compartments without triggering recursive updates
-    this.assignWidthToDivider();
-    
-    // Redraw vertices
-    this.drawVertex(false);
-    
-    // End the update cycles if we started them
-    if (isXRootUpdate) {
-      globalAnchorTree.endUpdateCycle('x');
-    }
-    
-    if (isYRootUpdate) {
-      globalAnchorTree.endUpdateCycle('y');
-    }
   }
 
   // Override updateAllCoord - need to make sure trees are updated correctly
@@ -1336,6 +1300,6 @@ function drawLabeledBorder(borderType, xHeight, bbox, color) {
 }
 
 
-
+export {BorderUtilities}
 
 

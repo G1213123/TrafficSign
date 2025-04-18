@@ -1,6 +1,10 @@
 /* Border Panel */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas.js';
+import { BorderUtilities} from '../objects/border.js';
+import { HDividerCreate, VDividerCreate, HLineCreate, VLaneCreate } from '../objects/divider.js';
+import { BorderColorScheme, BorderFrameWdith, BorderTypeScheme } from '../objects/template.js';
+import { vertexToPath } from '../objects/path.js';
 
 let FormBorderWrapComponent = {
   BorderPanelInit: function () {
@@ -114,8 +118,8 @@ let FormBorderWrapComponent = {
   BorderCreateHandler: async function (event) {
     const borderType = event.currentTarget.id.replace('button-', '');
     const xHeight = parseInt(document.getElementById("input-xHeight").value);
-    selectObjectHandler('Select shape to calculate border width', function (widthObjects, options, widthText) {
-      selectObjectHandler('Select shape to calculate border height', function (heightObjects, options, heightText) {
+    CanvasGlobals.selectObjectHandler('Select shape to calculate border width', function (widthObjects, options, widthText) {
+      CanvasGlobals.selectObjectHandler('Select shape to calculate border height', function (heightObjects, options, heightText) {
         BorderUtilities.BorderGroupCreate(borderType, heightObjects, widthObjects, widthText, heightText, {
           xHeight: xHeight,
           colorType: document.getElementById('input-color').value
@@ -125,8 +129,8 @@ let FormBorderWrapComponent = {
   },
 
   StackDividerHandler: function () {
-    selectObjectHandler('Select object above divider or type in fixed distance to border top', function (aboveObject, options, aboveValue) {
-      selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
+    CanvasGlobals.selectObjectHandler('Select object above divider or type in fixed distance to border top', function (aboveObject, options, aboveValue) {
+      CanvasGlobals.selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
         // Pass both objects and entered values to allow for fixed distance options
         HDividerCreate(aboveObject, belowObject, aboveValue, belowValue)
       })
@@ -134,8 +138,8 @@ let FormBorderWrapComponent = {
   },
 
   GantryDividerHandler: function () {
-    selectObjectHandler('Select object left to divider or type in fixed distance to border left', function (leftObject, options, leftValue) {
-      selectObjectHandler('Select object right to divider or type in fixed distance to border right', function (rightObject, options, rightValue) {
+    CanvasGlobals.selectObjectHandler('Select object left to divider or type in fixed distance to border left', function (leftObject, options, leftValue) {
+      CanvasGlobals.selectObjectHandler('Select object right to divider or type in fixed distance to border right', function (rightObject, options, rightValue) {
         // Pass both objects and entered values to allow for fixed distance options
         VDividerCreate(leftObject, rightObject, leftValue, rightValue)
       })
@@ -143,8 +147,8 @@ let FormBorderWrapComponent = {
   },
 
   GantryLineHandler: function () {
-    selectObjectHandler('Select object above divider or type in fixed distance to border top', function (aboveObject, options, aboveValue) {
-      selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
+    CanvasGlobals.selectObjectHandler('Select object above divider or type in fixed distance to border top', function (aboveObject, options, aboveValue) {
+      CanvasGlobals.selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
         // Pass both objects and entered values to allow for fixed distance options
         HLineCreate(aboveObject, belowObject, aboveValue, belowValue)
       })
@@ -152,8 +156,8 @@ let FormBorderWrapComponent = {
   },
 
   LaneLineHandler: function () {
-    selectObjectHandler('Select object left to lane or type in fixed distance to border left', function (leftObject, options, leftValue) {
-      selectObjectHandler('Select object right to lane or type in fixed distance to border right', function (rightObject, options, rightValue) {
+    CanvasGlobals.selectObjectHandler('Select object left to lane or type in fixed distance to border left', function (leftObject, options, leftValue) {
+      CanvasGlobals.selectObjectHandler('Select object right to lane or type in fixed distance to border right', function (rightObject, options, rightValue) {
         // Pass both objects and entered values to allow for fixed distance options
         VLaneCreate(leftObject, rightObject, leftValue, rightValue)
       })
@@ -202,244 +206,12 @@ let FormDrawBorderAddComponent = {
       GeneralHandler.createToggle('Border Type', FormDrawBorderAddComponent.borderTypes, borderTypeContainer, 
         FormDrawBorderAddComponent.borderTypes[0], FormDrawBorderAddComponent.handleBorderTypeChange);
       
-      // Create a container for border-specific parameters
-      const borderParamsContainer = GeneralHandler.createNode("div", { 'class': 'border-params-container' }, parent);
-      FormDrawBorderAddComponent.updateBorderParamsUI('Rectangle', borderParamsContainer);
+      // Create a containe  r for border-specific parameters
+      //const borderParamsContainer = GeneralHandler.createNode("div", { 'class': 'border-params-container' }, parent);
+      //FormDrawBorderAddComponent.updateBorderParamsUI('Rectangle', borderParamsContainer);
     }
   },
 
-  /**
-   * Updates the UI for border parameters based on selected border type
-   * @param {string} borderType - The selected border type
-   * @param {HTMLElement} container - The container for border parameters
-   */
-  updateBorderParamsUI: function(borderType, container) {
-    // Clear existing content
-    container.innerHTML = '';
-    
-    // Show parameters based on border type
-    if (borderType === 'Rectangle' || borderType === 'Circle' || borderType === 'Ellipse') {
-      // Width and Height inputs for Rectangle and Ellipse
-      if (borderType === 'Rectangle' || borderType === 'Ellipse') {
-        GeneralHandler.createInput('border-width', 'Width', container, '100', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
-        GeneralHandler.createInput('border-height', 'Height', container, '60', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
-      } 
-      // Radius input for Circle
-      else if (borderType === 'Circle') {
-        GeneralHandler.createInput('border-radius', 'Radius', container, '50', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
-      }
-      
-      // Common parameters
-      GeneralHandler.createInput('border-stroke-width', 'Stroke Width', container, '2', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
-      
-      // Create Draw button
-      GeneralHandler.createButton('draw-border', `Draw ${borderType}`, container, 'action', 
-        FormDrawBorderAddComponent.createBorderObject, 'click');
-    } 
-    // Polygon requires vertex count
-    else if (borderType === 'Polygon') {
-      GeneralHandler.createInput('polygon-sides', 'Number of Sides', container, '6', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
-      GeneralHandler.createInput('polygon-radius', 'Radius', container, '50', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
-      GeneralHandler.createInput('border-stroke-width', 'Stroke Width', container, '2', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
-      
-      // Create Draw button
-      GeneralHandler.createButton('draw-polygon', 'Draw Polygon', container, 'action', 
-        FormDrawBorderAddComponent.createBorderObject, 'click');
-    }
-    // Triangle is a special case
-    else if (borderType === 'Triangle') {
-      GeneralHandler.createInput('triangle-size', 'Size', container, '80', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
-      GeneralHandler.createInput('border-stroke-width', 'Stroke Width', container, '2', FormDrawBorderAddComponent.handleBorderParamsChange, 'input');
-      
-      // Create Draw button
-      GeneralHandler.createButton('draw-triangle', 'Draw Triangle', container, 'action', 
-        FormDrawBorderAddComponent.createBorderObject, 'click');
-    }
-  },
-
-  /**
-   * Handles border type change
-   * @param {Event} event - The change event
-   */
-  handleBorderTypeChange: function(event) {
-    const selectedType = event.getAttribute('data-value');
-    const container = document.querySelector('.border-params-container');
-    if (container) {
-      FormDrawBorderAddComponent.updateBorderParamsUI(selectedType, container);
-    }
-  },
-
-  /**
-   * Handles border parameter changes
-   * @param {Event} event - The input event
-   */
-  handleBorderParamsChange: function(event) {
-    // Handle parameter changes if needed
-    // For example, update preview or real-time feedback
-  },
-
-  /**
-   * Creates a border object based on selected type and parameters
-   */
-  createBorderObject: function() {
-    // Clean up any existing temporary object
-    if (FormDrawBorderAddComponent.newBorderObject) {
-      CanvasGlobals.canvas.remove(FormDrawBorderAddComponent.newBorderObject);
-      FormDrawBorderAddComponent.newBorderObject = null;
-    }
-
-    // Get border parameters
-    const borderType = GeneralHandler.getToggleValue('Border Type-container');
-    const xHeight = parseInt(document.getElementById('input-xHeight').value);
-    const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value').toLowerCase();
-    const strokeWidth = parseInt(document.getElementById('border-stroke-width')?.value || '2');
-    
-    // Get border dimensions based on type
-    let width, height, radius, sides;
-    
-    if (borderType === 'Rectangle' || borderType === 'Ellipse') {
-      width = parseInt(document.getElementById('border-width').value);
-      height = parseInt(document.getElementById('border-height').value);
-    } else if (borderType === 'Circle') {
-      radius = parseInt(document.getElementById('border-radius').value);
-    } else if (borderType === 'Polygon') {
-      sides = parseInt(document.getElementById('polygon-sides').value);
-      radius = parseInt(document.getElementById('polygon-radius').value);
-    } else if (borderType === 'Triangle') {
-      width = parseInt(document.getElementById('triangle-size').value);
-      height = width * 0.866; // Equilateral triangle height
-    }
-    
-    // Create object based on type
-    let borderObject;
-    
-    // Account for any panning that has been done
-    const vpt = CenterCoord();
-    const actualCenterX = vpt.x;
-    const actualCenterY = vpt.y;
-    
-    // Create the border object based on type
-    switch (borderType) {
-      case 'Rectangle':
-        borderObject = new BorderObject({
-          type: 'rect',
-          width: width,
-          height: height,
-          stroke: color,
-          strokeWidth: strokeWidth,
-          fill: 'transparent',
-          left: actualCenterX,
-          top: actualCenterY
-        });
-        break;
-        
-      case 'Circle':
-        borderObject = new BorderObject({
-          type: 'circle',
-          radius: radius,
-          stroke: color,
-          strokeWidth: strokeWidth,
-          fill: 'transparent',
-          left: actualCenterX,
-          top: actualCenterY
-        });
-        break;
-        
-      case 'Ellipse':
-        borderObject = new BorderObject({
-          type: 'ellipse',
-          rx: width / 2,
-          ry: height / 2,
-          stroke: color,
-          strokeWidth: strokeWidth,
-          fill: 'transparent',
-          left: actualCenterX,
-          top: actualCenterY
-        });
-        break;
-        
-      case 'Polygon':
-        const points = [];
-        for (let i = 0; i < sides; i++) {
-          const angle = (i * 2 * Math.PI) / sides;
-          points.push({
-            x: radius * Math.cos(angle),
-            y: radius * Math.sin(angle)
-          });
-        }
-        
-        borderObject = new BorderObject({
-          type: 'polygon',
-          points: points,
-          stroke: color,
-          strokeWidth: strokeWidth,
-          fill: 'transparent',
-          left: actualCenterX,
-          top: actualCenterY
-        });
-        break;
-        
-      case 'Triangle':
-        const trianglePoints = [
-          { x: 0, y: -height / 2 },
-          { x: width / 2, y: height / 2 },
-          { x: -width / 2, y: height / 2 }
-        ];
-        
-        borderObject = new BorderObject({
-          type: 'polygon', // Triangle is just a special polygon
-          points: trianglePoints,
-          stroke: color,
-          strokeWidth: strokeWidth,
-          fill: 'transparent',
-          left: actualCenterX,
-          top: actualCenterY
-        });
-        break;
-    }
-    
-    // Store reference and set as temporary
-    if (borderObject) {
-      FormDrawBorderAddComponent.newBorderObject = borderObject;
-      borderObject.isTemporary = true;
-      
-      // Add mouse event handlers for placement
-      CanvasGlobals.canvas.on('mouse:move', FormDrawBorderAddComponent.BorderOnMouseMove);
-      CanvasGlobals.canvas.on('mouse:down', FormDrawBorderAddComponent.BorderOnMouseClick);
-      
-      // Set up escape key handler
-      document.removeEventListener('keydown', ShowHideSideBarEvent);
-      document.addEventListener('keydown', FormDrawBorderAddComponent.cancelBorderDraw);
-      
-      // Activate the vertex control immediately to enable dragging and snapping
-      if (borderObject.controls && borderObject.controls.V1) {
-        window.activeVertex = borderObject.controls.V1;
-        window.activeVertex.isDown = true;
-        window.activeVertex.originalPosition = {
-          left: borderObject.left,
-          top: borderObject.top
-        };
-        
-        // Store vertex information if available
-        const v1 = borderObject.getBasePolygonVertex ? borderObject.getBasePolygonVertex('V1') : null;
-        if (v1) {
-          window.activeVertex.vertexOriginalPosition = {
-            x: v1.x,
-            y: v1.y
-          };
-          window.activeVertex.vertexOffset = {
-            x: v1.x - borderObject.left,
-            y: v1.y - borderObject.top
-          };
-          
-          // Create indicator for the active vertex
-          if (window.activeVertex.createIndicator) {
-            window.activeVertex.createIndicator(v1.x, v1.y);
-          }
-        }
-      }
-    }
-  },
 
   BorderOnMouseMove: function (event) {
     // Use shared mouse move handler

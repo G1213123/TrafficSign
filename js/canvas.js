@@ -219,7 +219,7 @@ function handleGroupMoving(event) {
     });
   } else {
     // Single object is selected, call its onMoving function if it exists
-    if (typeof activeObject.onMoving === 'function') {
+    if (typeof activeObject.onMoving === 'function') {  
       activeObject.onMoving();
     }
   }
@@ -451,6 +451,15 @@ document.addEventListener('mouseup', answerBoxFocus);
 
 let resolveAnswer;
 
+// Keyboard shortcut for showing/hiding sidebar
+function ShowHideSideBarEvent(e) {
+  switch (e.keyCode) {
+    case 27: // esc
+      GeneralHandler.ShowHideSideBar(e);
+      break;
+  }
+}
+
 function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = null, xHeight = null) {
   const promptBox = document.getElementById('cursorTextBox');
   const answerBox = document.getElementById('cursorAnswerBox');
@@ -570,7 +579,7 @@ async function selectObjectHandler(text, callback, options = null, xHeight = nul
       cursorClickMode = 'normal'
       clearInterval(checkShapeInterval)
       hideTextBox()
-      successSelected = canvas.getActiveObjects()
+      const successSelected = canvas.getActiveObjects()
       // Clear the selected object from active
       canvas.discardActiveObject();
       canvas.renderAll();
@@ -593,8 +602,9 @@ const CanvasGlobals = {
   updatePosition: updatePosition,
   showTextBox: showTextBox,
   hideTextBox: hideTextBox,
-  selectObjectHandler: selectObjectHandler
+  selectObjectHandler: selectObjectHandler,
+  ShowHideSideBarEvent: ShowHideSideBarEvent,
 }
 
-export { CanvasGlobals }
+export { CanvasGlobals, DrawGrid }
 
