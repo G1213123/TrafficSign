@@ -549,39 +549,19 @@ function combinePaths(pathsArray) {
 }
 
 // Export the functions so they can be imported elsewhere
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    calculateTransformedPoints,
-    calculateAngle,
-    calculateTangentPoint,
-    getArcDirection,
-    calculateArcCenter,
-    offsetPoint,
-    intersectLines,
-    drawSegment,
-    vertexToPath,
-    getInsertOffset,
-    convertVertexToPathCommands,
-    convertFontPathToFabricPath,
-    assignVertexLabel,
-    combinePaths
-  };
-} else {
-  // Browser environment
-  window.PathUtilities = {
-    calculateTransformedPoints,
-    calculateAngle,
-    calculateTangentPoint,
-    getArcDirection,
-    calculateArcCenter,
-    offsetPoint,
-    intersectLines,
-    drawSegment,
-    vertexToPath,
-    getInsertOffset,
-    convertVertexToPathCommands,
-    convertFontPathToFabricPath,
-    assignVertexLabel,
-    combinePaths
-  };
-}
+export {
+  calculateTransformedPoints,
+  calculateAngle,
+  calculateTangentPoint,
+  getArcDirection,
+  calculateArcCenter,
+  offsetPoint,
+  intersectLines,
+  drawSegment,
+  vertexToPath,
+  getInsertOffset,
+  convertVertexToPathCommands,
+  convertFontPathToFabricPath,
+  assignVertexLabel,
+  combinePaths
+};

@@ -2830,4 +2830,7 @@ export {
     VDividerTemplate,
     HLineTemplate,
     VLaneTemplate,
+    symbolsTemplate,
+    symbolsTemplateAlt,
+    symbolsPermittedAngle,
 }

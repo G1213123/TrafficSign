@@ -4,6 +4,7 @@
  */
 
 import { BaseGroup } from './draw.js';
+import  {symbolsTemplate, symbolsTemplateAlt} from './template.js';
 
 function getFontPath(t) {
   // Use pre-parsed font objects instead of parsing the buffer each time
@@ -197,3 +198,11 @@ function drawSymbolDirectly(symbolType, options) {
 function drawLabeledSymbol(symbolType, options) {
   return drawSymbolDirectly(symbolType, options);
 }
+
+export {
+  SymbolObject,
+  drawSymbolDirectly,
+  drawLabeledSymbol,
+  getFontPath,
+  calcSymbol
+};

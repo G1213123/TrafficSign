@@ -3,6 +3,7 @@ const ctx = canvas.getContext("2d")
 let activeObject = null
 let selectedArrow = null
 let canvasObject = []
+let activeVertex = null
 canvas.isDragging = false;
 canvas.lastPosX = 0;
 canvas.lastPosY = 0;
@@ -584,6 +585,7 @@ const CanvasGlobals = {
   canvas: canvas,
   ctx: ctx,
   activeObject: activeObject,
+  activeVertex: activeVertex,
   selectedArrow: selectedArrow,
   canvasObject: canvasObject,
   cursorClickMode: cursorClickMode,
