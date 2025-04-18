@@ -1,3 +1,5 @@
+import { BaseGroup } from './draw.js';
+
 // Add function to remove anchor between objects
 function removeAnchor(sourceObject, targetObject) {
   // Save the source and target objects before delinking

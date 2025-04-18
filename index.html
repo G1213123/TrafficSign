@@ -111,81 +111,8 @@
             console.log('AdSense script loaded in production environment');
         }
     </script>
-    <script type="text/javascript">
-        // Track resources loading
-        let resourcesLoaded = 0;
-        const requiredResources = 4; // Update this if you add more resources
-
-        // Store parsed fonts
-        window.parsedFontMedium = null;
-        window.parsedFontHeavy = null;
-        window.parsedFontChinese = null;
-        window.parsedFontKai = null;
-
-        function checkAllResourcesLoaded() {
-            resourcesLoaded++;
-            if (resourcesLoaded === requiredResources) {
-                // All resources are loaded, now parse the fonts
-                console.log('All resources loaded, parsing fonts...');
-                window.parsedFontMedium = opentype.parse(window.buffer1);
-                window.parsedFontHeavy = opentype.parse(window.buffer2);
-                window.parsedFontChinese = opentype.parse(window.buffer3);
-                window.parsedFontKai = opentype.parse(window.buffer4);
-                console.log('Fonts parsed and ready');
-            }
-        }
-
-        window.jsPDF = window.jspdf.jsPDF;
-
-        fetch('./css/font/TransportMedium.woff')
-            .then(res => res.arrayBuffer())
-            .then(buffer => {
-                window.buffer1 = buffer;
-                checkAllResourcesLoaded();
-            });
-
-        fetch('./css/font/TransportHeavy.woff')
-            .then(res => res.arrayBuffer())
-            .then(buffer => {
-                window.buffer2 = buffer;
-                checkAllResourcesLoaded();
-            });
-
-        fetch('./css/font/NotoSansHK-Medium.ttf')
-            .then(res => res.arrayBuffer())
-            .then(buffer => {
-                window.buffer3 = buffer;
-                checkAllResourcesLoaded();
-            });
-
-        fetch('./css/font/edukai-5.0.ttf')
-            .then(res => res.arrayBuffer())
-            .then(buffer => {
-                window.buffer4 = buffer;
-                checkAllResourcesLoaded();
-            });
-
-
-    </script>
-    <script type="text/javascript" src="js/canvas.js"></script>
-    <script type="text/javascript" src="js/canvasTracker.js"></script>
-    <script type="text/javascript" src="js/anchor.js"></script> <!-- Drawing components -->
-    <script type="text/javascript" src="js/objects/path.js"></script>
-    <script type="text/javascript" src="js/objects/vertexKeyNav.js"></script>
-    <script type="text/javascript" src="js/objects/draw.js"></script>
-    <script type="text/javascript" src="js/objects/template.js"></script>
-    <script type="text/javascript" src="js/objects/symbols.js"></script>
-    <script type="text/javascript" src="js/objects/text.js"></script>
-    <script type="text/javascript" src="js/objects/route.js"></script>
-    <script type="text/javascript" src="js/objects/border.js"></script>
-    <script type="text/javascript" src="js/objects/divider.js"></script>
-
-    <!-- Sidebar components (modularized) -->
-    <script type="text/javascript" src="js/sidebar/sidebar.js"></script>
-    <script type="text/javascript" src="js/sidebar/sb-inspector.js"></script>
-
-    <script type="text/javascript" src="js/test.js"></script>
-    <script type="text/javascript" src="js/tooltip.js"></script>
+    <!-- Modular development: load only the main entry point as a module -->
+    <script type="module" src="js/main.js"></script>
 </body>
 
 </html>

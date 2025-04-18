@@ -1,8 +1,11 @@
 /* Debug Panel */
+import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
+import { CanvasGlobals } from '../canvas.js';
+
 let FormDebugComponent = {
   // Adding General settings : e.g. turn off text borders, change background color, show grid, etc.
   DebugPanelInit: function () {
-    tabNum = 6
+    GeneralHandler.tabNum = 9
     var parent = GeneralHandler.PanelInit()
     if (parent) {
 
@@ -33,13 +36,13 @@ let FormDebugComponent = {
       `;
 
       // Update the sidebar when an object is selected
-      canvas.on('selection:created', FormDebugComponent.selectionListener);
-      canvas.on('selection:updated', FormDebugComponent.selectionListener);
-      canvas.on('object:modified', FormDebugComponent.selectionListener);
+      CanvasGlobals.canvas.on('selection:created', FormDebugComponent.selectionListener);
+      CanvasGlobals.canvas.on('selection:updated', FormDebugComponent.selectionListener);
+      CanvasGlobals.canvas.on('object:modified', FormDebugComponent.selectionListener);
       // Clear the sidebar when no object is selected
-      canvas.on('selection:cleared', FormDebugComponent.clearSelectionListener);
-      if (canvas.getActiveObject()) {
-        FormDebugComponent.updateDebugInfo(canvas.getActiveObjects());
+      CanvasGlobals.canvas.on('selection:cleared', FormDebugComponent.clearSelectionListener);
+      if (CanvasGlobals.canvas.getActiveObject()) {
+        FormDebugComponent.updateDebugInfo(CanvasGlobals.canvas.getActiveObjects());
       }
     }
   },
@@ -108,10 +111,11 @@ let FormDebugComponent = {
   },
 
   DebugHandlerOff: function (event) {
-    canvas.off('selection:created', this.selectionListener)
-    canvas.off('selection:updated', this.selectionListener)
-    canvas.off('selection:cleared', this.clearSelectionListener)
+    CanvasGlobals.canvas.off('selection:created', this.selectionListener)
+    CanvasGlobals.canvas.off('selection:updated', this.selectionListener)
+    CanvasGlobals.canvas.off('selection:cleared', this.clearSelectionListener)
   },
 };
 
 // Export the FormDebugComponent for use in other files
+export { FormDebugComponent };

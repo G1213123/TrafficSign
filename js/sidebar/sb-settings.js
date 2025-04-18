@@ -1,9 +1,12 @@
 /* Settings Panel */
+import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
+import { CanvasGlobals } from '../canvas.js';
+
 let FormSettingsComponent = {
 
   // Initialize the settings panel
   settingsPanelInit: function () {
-    tabNum = 7
+    GeneralHandler.tabNum = 10;
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       // Load saved settings if they exist
@@ -131,7 +134,7 @@ let FormSettingsComponent = {
     const value = button.getAttribute('data-value') === 'Yes';
     GeneralSettings.snapToGrid = value;
     // Apply snap to grid setting to canvas
-    canvas.snap_pts = value ? FormSettingsComponent.generateSnapPoints() : [];
+    CanvasGlobals.canvas.snap_pts = value ? FormSettingsComponent.generateSnapPoints() : [];
     FormSettingsComponent.saveSettings(); // Auto-save settings
   },
 
@@ -153,8 +156,8 @@ let FormSettingsComponent = {
   // Canvas settings change handlers
   changeBackgroundColor: function (event) {
     GeneralSettings.backgroundColor = event.target.value;
-    canvas.backgroundColor = event.target.value;
-    canvas.renderAll();
+    CanvasGlobals.canvas.backgroundColor = event.target.value;
+    CanvasGlobals.canvas.renderAll();
     FormSettingsComponent.saveSettings(); // Auto-save settings
   },
 
@@ -168,7 +171,7 @@ let FormSettingsComponent = {
     GeneralSettings.gridSize = parseInt(event.target.value) || 20;
     FormSettingsComponent.applyGridSettings();
     if (GeneralSettings.snapToGrid) {
-      canvas.snap_pts = FormSettingsComponent.generateSnapPoints();
+      CanvasGlobals.canvas.snap_pts = FormSettingsComponent.generateSnapPoints();
     }
     FormSettingsComponent.saveSettings(); // Auto-save settings
   },
@@ -241,11 +244,11 @@ let FormSettingsComponent = {
     // Save the current canvas state to localStorage
     try {
       // Save canvas properties (background color, etc.)
-      const canvasJSON = FormSettingsComponent.simpleStringify(canvas);
+      const canvasJSON = FormSettingsComponent.simpleStringify(CanvasGlobals.canvas);
       localStorage.setItem('canvasState', canvasJSON);
 
       // Save canvas objects (shapes, texts, etc.)
-      const canvasObjects = JSON.stringify(canvas.toJSON(['functionalType', 'txtFrameList', 'basePolygon']));
+      const canvasObjects = JSON.stringify(CanvasGlobals.canvas.toJSON(['functionalType', 'txtFrameList', 'basePolygon']));
       localStorage.setItem('canvasObjects', canvasObjects);
 
       console.log('Canvas state and objects auto-saved', new Date());
@@ -277,8 +280,8 @@ let FormSettingsComponent = {
 
         // Apply saved canvas properties
         //for (const prop in parsedCanvas) {
-        //  if (canvas.hasOwnProperty(prop) && typeof canvas[prop] !== 'function' && canvas[prop] !== 'width' && canvas[prop] !== 'height' ) {
-        //    canvas[prop] = parsedCanvas[prop];
+        //  if (CanvasGlobals.canvas.hasOwnProperty(prop) && typeof CanvasGlobals.canvas[prop] !== 'function' && CanvasGlobals.canvas[prop] !== 'width' && CanvasGlobals.canvas[prop] !== 'height' ) {
+        //    CanvasGlobals.canvas[prop] = parsedCanvas[prop];
         //  }
         //}
 
@@ -288,7 +291,7 @@ let FormSettingsComponent = {
             const savedObjects = JSON.parse(localStorage.getItem('canvasObjects'));
             if (Array.isArray(savedObjects)) {
               // Clear existing objects and load saved ones
-              canvas.clear();
+              CanvasGlobals.canvas.clear();
               loadCanvasFromJSON(savedObjects);
             }
           } catch (e) {
@@ -296,7 +299,7 @@ let FormSettingsComponent = {
           }
         }
 
-        canvas.renderAll();
+        CanvasGlobals.canvas.renderAll();
         console.log('Canvas state loaded from localStorage');
         return true;
       }
@@ -361,10 +364,10 @@ let FormSettingsComponent = {
     FormSettingsComponent.applyVertexDisplaySettings();
 
     // Apply background color
-    canvas.backgroundColor = GeneralSettings.backgroundColor;
+    CanvasGlobals.canvas.backgroundColor = GeneralSettings.backgroundColor;
 
     // Apply snap to grid
-    canvas.snap_pts = GeneralSettings.snapToGrid ?
+    CanvasGlobals.canvas.snap_pts = GeneralSettings.snapToGrid ?
       FormSettingsComponent.generateSnapPoints() : [];
 
     // Handle auto-save
@@ -374,18 +377,18 @@ let FormSettingsComponent = {
       FormSettingsComponent.stopAutoSaveTimer();
     }
 
-    canvas.renderAll();
+    CanvasGlobals.canvas.renderAll();
   },
 
   applyTextBorderSettings: function () {
-    canvas.getObjects().forEach(obj => {
+    CanvasGlobals.canvas.getObjects().forEach(obj => {
       if (obj.functionalType === 'Text') {
         obj.txtFrameList.forEach(frame => {
           frame.set('stroke', GeneralSettings.showTextBorders ? obj.color : 'rgba(0,0,0,0)');
         })
       }
     });
-    canvas.renderAll();
+    CanvasGlobals.canvas.renderAll();
   },
 
 
@@ -396,7 +399,7 @@ let FormSettingsComponent = {
 
   applyVertexDisplaySettings: function () {
     // Update the active object if there is one
-    const activeObject = canvas.getActiveObject();
+    const activeObject = CanvasGlobals.canvas.getActiveObject();
     if (activeObject && activeObject instanceof fabric.BaseGroup) {
       activeObject.drawVertex(false);
     }
@@ -409,7 +412,7 @@ let FormSettingsComponent = {
       }
     });
 
-    canvas.renderAll();
+    CanvasGlobals.canvas.renderAll();
   },
 
   generateSnapPoints: function () {
@@ -418,7 +421,7 @@ let FormSettingsComponent = {
     const points = [];
 
     // Generate grid snap points within the current viewport
-    const bounds = canvas.calcViewportBoundaries();
+    const bounds = CanvasGlobals.canvas.calcViewportBoundaries();
     const xMin = Math.floor(bounds.tl.x / gridSize) * gridSize;
     const xMax = Math.ceil(bounds.br.x / gridSize) * gridSize;
     const yMin = Math.floor(bounds.tl.y / gridSize) * gridSize;
@@ -493,9 +496,10 @@ window.addEventListener('load', async function () {
 
   setTimeout(function () {
     document.getElementById('loading-overlay').style.display = 'none';
-    canvas.renderAll();
+    CanvasGlobals.canvas.renderAll();
   }, 1000); // 3 second backup timeout
 
 });
 
 // Export the FormSettingsComponent for use in other files
+export { FormSettingsComponent };

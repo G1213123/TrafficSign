@@ -2,7 +2,7 @@
  * TextObject extends BaseGroup to create text with proper vertex handling
  */
 
-
+import { BaseGroup } from './draw.js';
 
 class TextObject extends BaseGroup {
   constructor(options = {}) {

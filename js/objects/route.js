@@ -1,3 +1,5 @@
+import { BaseGroup } from './draw.js';
+
 const calcVertexType = {
     'Main Line': calcMainRoadVertices,
     'Conventional Roundabout': (xHeight, routeList) => calcRoundaboutVertices('Conventional', xHeight, routeList),

@@ -1,4 +1,7 @@
 /* Draw Map Panel */
+import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
+import { CanvasGlobals } from '../canvas.js';
+
 let FormDrawMapComponent = {
   MapType: ['Main Line', 'Conventional Roundabout', 'Spiral Roundabout',],
   EndShape: ['Arrow', 'Stub'],
@@ -12,7 +15,7 @@ let FormDrawMapComponent = {
    * @return {void}
    */
   drawMapPanelInit: function () {
-    tabNum = 4
+    GeneralHandler.tabNum = 4
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       parent.routeCount = 0
@@ -32,14 +35,14 @@ let FormDrawMapComponent = {
       // Create the Draw Map button
       const drawMapButton = GeneralHandler.createButton('button-DrawMap', 'Draw Main Road Symbol', MainRoadParamsContainer, 'input', FormDrawMapComponent.gatherMainRoadParams, 'click');
 
-      const existingRoute = canvas.getActiveObjects().length == 1 && canvas.getActiveObject.functionalType == 'MainRoute' ? canvas.getActiveObjects()[0] : null
+      const existingRoute = CanvasGlobals.canvas.getActiveObjects().length == 1 && CanvasGlobals.canvas.getActiveObject.functionalType == 'MainRoute' ? CanvasGlobals.canvas.getActiveObjects()[0] : null
       const routeList = existingRoute ? existingRoute.routeList : FormDrawMapComponent.defaultRoute
 
       if (routeList) {
         routeList.forEach((route, index) => {
           var SideRoadParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
           const addRouteButton = GeneralHandler.createButton('button-addRoute', '+ Another Route Destination', SideRoadParamsContainer, 'input', FormDrawMapComponent.addRouteInput, 'click');
-          if (canvas.getActiveObjects().length == 1 && canvas.getActiveObject.functionalType === 'MainRoad') {
+          if (CanvasGlobals.canvas.getActiveObjects().length == 1 && CanvasGlobals.canvas.getActiveObject.functionalType === 'MainRoad') {
             addRouteButton.classList.add('deactive'); // Set initial state to deactive
             addRouteButton.disabled = true;
           }
@@ -120,7 +123,7 @@ let FormDrawMapComponent = {
    * @return {void} 
    */
   addRouteInput: function (event) {
-    const existingRoute = canvas.getActiveObject();
+    const existingRoute = CanvasGlobals.canvas.getActiveObject();
     if (existingRoute && existingRoute.functionalType === 'MainRoad') {
       // Get parameters from DOM
       const xHeight = parseInt(document.getElementById('input-xHeight').value);
@@ -130,7 +133,7 @@ let FormDrawMapComponent = {
       const shape = GeneralHandler.getToggleValue('Side Road Shape-container');
       
       // Call the updated function that uses the general snapping functionality
-      const pointer = canvas.getPointer({ e: { clientX: canvas.width/2, clientY: canvas.height/2 } });
+      const pointer = CanvasGlobals.canvas.getPointer({ e: { clientX: CanvasGlobals.canvas.width/2, clientY: CanvasGlobals.canvas.height/2 } });
       
       // Create option object with necessary parameters
       const option = {
@@ -164,19 +167,19 @@ let FormDrawMapComponent = {
     angleDisplay.innerText = FormDrawMapComponent.permitAngle[(angleIndex + 1) % FormDrawMapComponent.permitAngle.length] + '°';
 
     // If we have a side road object being placed, update its angle
-    if (canvas.newSymbolObject && canvas.newSymbolObject.functionalType === 'SideRoad') {
+    if (CanvasGlobals.canvas.newSymbolObject && CanvasGlobals.canvas.newSymbolObject.functionalType === 'SideRoad') {
       const newAngle = FormDrawMapComponent.permitAngle[(angleIndex + 1) % FormDrawMapComponent.permitAngle.length];
       
       // Update the object's angle - will be applied during mouse move
-      if (canvas.newSymbolObject.routeList && canvas.newSymbolObject.routeList.length > 0) {
-        const side = canvas.newSymbolObject.side;
-        canvas.newSymbolObject.routeList[0].angle = side ? -Math.abs(newAngle) : Math.abs(newAngle);
+      if (CanvasGlobals.canvas.newSymbolObject.routeList && CanvasGlobals.canvas.newSymbolObject.routeList.length > 0) {
+        const side = CanvasGlobals.canvas.newSymbolObject.side;
+        CanvasGlobals.canvas.newSymbolObject.routeList[0].angle = side ? -Math.abs(newAngle) : Math.abs(newAngle);
         
         // Force an update
-        if (activeVertex && activeVertex.handleMouseMoveRef) {
+        if (window.activeVertex && window.activeVertex.handleMouseMoveRef) {
           // Get current pointer
-          const pointer = canvas.getPointer({ e: window.event });
-          activeVertex.handleMouseMoveRef({
+          const pointer = CanvasGlobals.canvas.getPointer({ e: window.event });
+          window.activeVertex.handleMouseMoveRef({
             e: window.event,
             pointer: pointer
           });
@@ -199,13 +202,13 @@ let FormDrawMapComponent = {
     );
     
     // Also clean up any canvas references to map objects
-    if (canvas.newSymbolObject) {
-      if (canvas.newSymbolObject.deleteObject) {
-        canvas.newSymbolObject.deleteObject();
+    if (CanvasGlobals.canvas.newSymbolObject) {
+      if (CanvasGlobals.canvas.newSymbolObject.deleteObject) {
+        CanvasGlobals.canvas.newSymbolObject.deleteObject();
       } else {
-        canvas.remove(canvas.newSymbolObject);
+        CanvasGlobals.canvas.remove(CanvasGlobals.canvas.newSymbolObject);
       }
-      canvas.newSymbolObject = null;
+      CanvasGlobals.canvas.newSymbolObject = null;
     }
     
     // Make sure route-specific handlers are also cleaned up
@@ -245,7 +248,7 @@ let FormDrawMapComponent = {
    * Handles cancellation of map drawing
    */
   cancelMap: function (event) {
-    // Handle both the FormDrawMapComponent object and canvas.newSymbolObject
+    // Handle both the FormDrawMapComponent object and CanvasGlobals.canvas.newSymbolObject
     if (event.key === 'Escape') {
       // First handle FormDrawMapComponent's object
       GeneralHandler.handleCancelWithEscape(
@@ -256,7 +259,7 @@ let FormDrawMapComponent = {
         'MapOnMouseClick'
       );
       
-      // Then also call the route-specific cancelDraw to handle canvas.newSymbolObject
+      // Then also call the route-specific cancelDraw to handle CanvasGlobals.canvas.newSymbolObject
       cancelDraw(event);
     }
   }
@@ -266,8 +269,8 @@ let FormDrawMapComponent = {
 GeneralSettings.addListener(
   GeneralHandler.createSettingsListener(4, function(setting, value) {
     // Map-specific updates when settings change
-    if (FormDrawMapComponent.newMapObject || canvas.newSymbolObject) {
-      const targetObject = FormDrawMapComponent.newMapObject || canvas.newSymbolObject;
+    if (FormDrawMapComponent.newMapObject || CanvasGlobals.canvas.newSymbolObject) {
+      const targetObject = FormDrawMapComponent.newMapObject || CanvasGlobals.canvas.newSymbolObject;
       
       // Handle map object updates when settings change
       if (setting === 'xHeight' && targetObject.xHeight !== undefined) {
@@ -285,7 +288,7 @@ GeneralSettings.addListener(
           }
         }
         
-        canvas.renderAll();
+        CanvasGlobals.canvas.renderAll();
       } else if (setting === 'messageColor' && targetObject.color !== undefined) {
         targetObject.color = value.toLowerCase();
         
@@ -294,8 +297,10 @@ GeneralSettings.addListener(
           targetObject.basePolygon.set('fill', value.toLowerCase());
         }
         
-        canvas.renderAll();
+        CanvasGlobals.canvas.renderAll();
       }
     }
   })
 );
+
+export { FormDrawMapComponent };

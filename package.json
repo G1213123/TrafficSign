@@ -3,6 +3,13 @@
     "dxf-writer": "^1.18.4"
   },
   "devDependencies": {
-    "browserify": "^17.0.1"
+    "browserify": "^17.0.1",
+    "terser-webpack-plugin": "^5.3.14",
+    "webpack": "^5.99.5",
+    "webpack-cli": "^6.0.1"
+  },
+  "scripts": {
+    "build": "webpack --mode production",
+    "start": "npx http-server . -p 8080"
   }
 }

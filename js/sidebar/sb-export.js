@@ -1,4 +1,7 @@
 /* Export Panel */
+import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
+import { CanvasGlobals } from '../canvas.js';
+
 let FormExportComponent = {
   // Export settings for canvas objects
   exportSettings: {
@@ -21,7 +24,7 @@ let FormExportComponent = {
   },
 
   exportPanelInit: function (parent) {
-    tabNum = 5
+    GeneralHandler.tabNum = 7;
     var parent = GeneralHandler.PanelInit()
     // Create container for export options
     const exportContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
@@ -86,19 +89,19 @@ let FormExportComponent = {
 
     // Store original canvas state
     const originalState = {
-      backgroundColor: canvas.backgroundColor,
-      width: canvas.width,
-      height: canvas.height,
-      viewportTransform: [...canvas.viewportTransform],
-      zoom: canvas.getZoom(),
-      objects: canvas.getObjects().map(obj => ({
+      backgroundColor: CanvasGlobals.canvas.backgroundColor,
+      width: CanvasGlobals.canvas.width,
+      height: CanvasGlobals.canvas.height,
+      viewportTransform: [...CanvasGlobals.canvas.viewportTransform],
+      zoom: CanvasGlobals.canvas.getZoom(),
+      objects: CanvasGlobals.canvas.getObjects().map(obj => ({
         obj: obj,
         visible: obj.visible
       }))
     };
 
     // Calculate the bounding box that contains all visible objects (excluding grid)
-    const visibleObjects = canvas.getObjects().filter(obj =>
+    const visibleObjects = CanvasGlobals.canvas.getObjects().filter(obj =>
       obj.visible && (includeGrid || obj.id !== 'grid')
     );
 
@@ -135,56 +138,56 @@ let FormExportComponent = {
       };
 
       // Temporarily resize canvas to fit all objects and center view
-      canvas.setDimensions({
+      CanvasGlobals.canvas.setDimensions({
         width: width,
         height: height
       });
 
       // Reset the zoom to 1 (100%)
-      canvas.setZoom(1);
+      CanvasGlobals.canvas.setZoom(1);
 
       // Center the view on the objects
-      canvas.setViewportTransform([1, 0, 0, 1, -minX, -minY]);
+      CanvasGlobals.canvas.setViewportTransform([1, 0, 0, 1, -minX, -minY]);
     }
 
     // Set background to transparent if not including it
     if (!includeBackground) {
-      canvas.backgroundColor = 'rgba(0,0,0,0)'; // Transparent background
+      CanvasGlobals.canvas.backgroundColor = 'rgba(0,0,0,0)'; // Transparent background
     }
 
     if (!includeGrid) {
       // Hide grid and grid-related objects
-      canvas.getObjects().forEach(obj => {
+      CanvasGlobals.canvas.getObjects().forEach(obj => {
         if (obj.id === 'grid') {
           obj.visible = false;
         }
       });
     }
 
-    canvas.renderAll();
+    CanvasGlobals.canvas.renderAll();
     return originalState;
   },
 
   // Helper function to restore canvas after export
   restoreCanvasAfterExport: function (originalState) {
     // Restore original canvas dimensions
-    canvas.setDimensions({
+    CanvasGlobals.canvas.setDimensions({
       width: originalState.width,
       height: originalState.height
     });
 
     // Restore original zoom and viewport transform
-    canvas.setViewportTransform(originalState.viewportTransform);
+    CanvasGlobals.canvas.setViewportTransform(originalState.viewportTransform);
 
     // Restore background
-    canvas.backgroundColor = originalState.backgroundColor;
+    CanvasGlobals.canvas.backgroundColor = originalState.backgroundColor;
 
     // Restore object visibility
     originalState.objects.forEach(item => {
       item.obj.visible = item.visible;
     });
 
-    canvas.renderAll();
+    CanvasGlobals.canvas.renderAll();
   },
 
   // Helper function to show loading overlay during export
@@ -530,7 +533,7 @@ let FormExportComponent = {
       const originalState = FormExportComponent.prepareCanvasForExport();
 
       // Generate the export
-      const dataURL = canvas.toDataURL(options);
+      const dataURL = CanvasGlobals.canvas.toDataURL(options);
 
       // Restore canvas
       FormExportComponent.restoreCanvasAfterExport(originalState);
@@ -561,7 +564,7 @@ let FormExportComponent = {
       // Add a temporary background rectangle if background should be included
       if (includeBackground && originalState.exportBounds) {
         // Add a temporary background rectangle that matches the export bounds
-        const bgColor = canvas.backgroundColor || '#ffffff';
+        const bgColor = CanvasGlobals.canvas.backgroundColor || '#ffffff';
         const bgRect = new fabric.Rect({
           left: originalState.exportBounds.left,
           top: originalState.exportBounds.top,
@@ -574,24 +577,24 @@ let FormExportComponent = {
         });
 
         // Insert at the bottom of the stack
-        canvas.insertAt(0, bgRect);
+        CanvasGlobals.canvas.insertAt(0, bgRect);
         originalState.tempBackgroundRect = bgRect;
       }
 
       // Generate the SVG data
-      const svgData = canvas.toSVG({
+      const svgData = CanvasGlobals.canvas.toSVG({
         // SVG-specific options
         viewBox: {
           x: originalState.exportBounds ? originalState.exportBounds.left : 0,
           y: originalState.exportBounds ? originalState.exportBounds.top : 0,
-          width: originalState.exportBounds ? originalState.exportBounds.width : canvas.width,
-          height: originalState.exportBounds ? originalState.exportBounds.height : canvas.height
+          width: originalState.exportBounds ? originalState.exportBounds.width : CanvasGlobals.canvas.width,
+          height: originalState.exportBounds ? originalState.exportBounds.height : CanvasGlobals.canvas.height
         }
       });
 
       // Remove temporary background rectangle if it was added
       if (originalState.tempBackgroundRect) {
-        canvas.remove(originalState.tempBackgroundRect);
+        CanvasGlobals.canvas.remove(originalState.tempBackgroundRect);
       }
 
       // Restore canvas
@@ -689,7 +692,7 @@ let FormExportComponent = {
       // Add a temporary background rectangle if background should be included
       if (includeBackground && originalState.exportBounds) {
         // Add a temporary background rectangle that matches the export bounds
-        const bgColor = canvas.backgroundColor || '#ffffff';
+        const bgColor = CanvasGlobals.canvas.backgroundColor || '#ffffff';
         const bgRect = new fabric.Rect({
           left: originalState.exportBounds.left,
           top: originalState.exportBounds.top,
@@ -702,13 +705,13 @@ let FormExportComponent = {
         });
 
         // Insert at the bottom of the stack
-        canvas.insertAt(0, bgRect);
+        CanvasGlobals.canvas.insertAt(0, bgRect);
         originalState.tempBackgroundRect = bgRect;
       }
       
       // Use the calculated bounds for content dimensions
-      const contentWidth = originalState.exportBounds ? originalState.exportBounds.width : canvas.width;
-      const contentHeight = originalState.exportBounds ? originalState.exportBounds.height : canvas.height;
+      const contentWidth = originalState.exportBounds ? originalState.exportBounds.width : CanvasGlobals.canvas.width;
+      const contentHeight = originalState.exportBounds ? originalState.exportBounds.height : CanvasGlobals.canvas.height;
       
       // Get the selected paper size dimensions from settings
       const selectedPaperSize = FormExportComponent.exportSettings.paperSize;
@@ -752,7 +755,7 @@ let FormExportComponent = {
       });
 
       // Get PNG data URL from canvas
-      const dataURL = canvas.toDataURL({
+      const dataURL = CanvasGlobals.canvas.toDataURL({
         format: 'png',
         quality: FormExportComponent.exportSettings.quality,
         multiplier: FormExportComponent.exportSettings.multiplier
@@ -760,7 +763,7 @@ let FormExportComponent = {
 
       // Remove temporary background rectangle if it was added
       if (originalState.tempBackgroundRect) {
-        canvas.remove(originalState.tempBackgroundRect);
+        CanvasGlobals.canvas.remove(originalState.tempBackgroundRect);
       }
 
       // Add the image to the PDF, centered and scaled to fit the selected paper size
@@ -1269,3 +1272,4 @@ let FormExportComponent = {
 }
 
 // Export the FormExportComponent for use in other files
+export { FormExportComponent };

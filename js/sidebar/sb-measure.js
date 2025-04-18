@@ -4,6 +4,8 @@
  * This module provides a measurement tool to measure distances between vertices
  * It detects snapping points and displays deltaX and deltaY measurements
  */
+import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
+import { CanvasGlobals } from '../canvas.js';
 
 const FormMeasureComponent = {
   // State tracking
@@ -17,7 +19,7 @@ const FormMeasureComponent = {
    * Initialize the Measure panel UI
    */
   measurePanelInit: function (event) {
-    tabNum = 7; // Use a unique tab number for the measure tool
+    GeneralHandler.tabNum = 5; // Use a unique tab number for the measure tool
     var parent = GeneralHandler.PanelInit();
     if (!parent) return;
     
@@ -624,3 +626,5 @@ const FormMeasureComponent = {
     FormMeasureComponent.stopMeasuring();
   }
 };
+
+export { FormMeasureComponent };

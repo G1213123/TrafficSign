@@ -1,4 +1,6 @@
 /* Object Inspector Panel */
+import { CanvasGlobals } from '../canvas.js';
+
 let CanvasObjectInspector = {
   createObjectListPanelInit: function () {
     const objectListPanel = document.getElementById('objectListPanel');
@@ -7,7 +9,7 @@ let CanvasObjectInspector = {
     objectListPanel.innerHTML = '';
 
     // Loop through the CanvasObject array and append object names to the list
-    canvasObject.forEach((obj, index) => {
+    CanvasGlobals.canvasObject.forEach((obj, index) => {
       const div = document.createElement('div');
       div.className = 'object-list-item';
       div.innerText = obj._showName;
@@ -17,8 +19,8 @@ let CanvasObjectInspector = {
         document.querySelectorAll('.object-list-item').forEach(item => item.classList.remove('selected'));
         // Add 'selected' class to the clicked item
         div.classList.add('selected');
-        canvas.setActiveObject(obj);
-        canvas.renderAll();
+        CanvasGlobals.canvas.setActiveObject(obj);
+        CanvasGlobals.canvas.renderAll();
         // Scroll the parent container to the clicked item
         div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       });
@@ -27,7 +29,7 @@ let CanvasObjectInspector = {
   },
 
   SetActiveObjectList: function (setActive) {
-    const index = canvasObject.indexOf(setActive);
+    const index = CanvasGlobals.canvasObject.indexOf(setActive);
     // Remove 'selected' class from all items
     document.querySelectorAll('.object-list-item').forEach(item => {
       if (item.id == `Group (${index})`) {
@@ -68,3 +70,4 @@ let CanvasObjectInspector = {
 CanvasObjectInspector.initPanelToggle();
 
 // Export the CanvasObjectInspector for use in other files
+export { CanvasObjectInspector };

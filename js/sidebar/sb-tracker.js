@@ -1,4 +1,6 @@
 /* Canvas Tracker UI Component */
+import {CanvasGlobals} from '../canvas.js';
+
 class CanvasTrackerUI {
     constructor() {
       this.initialized = false;
@@ -61,6 +63,7 @@ class CanvasTrackerUI {
     // Initialize the tracker UI panel
     initialize() {
       GeneralHandler.PanelInit();
+      GeneralHandler.tabNum = 8;
       
       // Create UI elements
       const form = document.getElementById('input-form');
@@ -277,7 +280,7 @@ class CanvasTrackerUI {
         chainedEntries.forEach(chainEntry => {
           if (chainEntry.action === 'modifyObject' && chainEntry.params && chainEntry.params[0]) {
             const modifyParams = chainEntry.params[0];
-            const modifyObj = canvasObject.find(obj => obj.canvasID === modifyParams.id);
+            const modifyObj = CanvasGlobals.canvasObject.find(obj => obj.canvasID === modifyParams.id);
             
             if (modifyObj) {
               // Apply the reverse delta movement
@@ -295,7 +298,7 @@ class CanvasTrackerUI {
         chainedEntries.forEach(chainEntry => {
           if (chainEntry.action === 'modifyObject' && chainEntry.params && chainEntry.params[0]) {
             const modifyParams = chainEntry.params[0];
-            const modifyObj = canvasObject.find(obj => obj.canvasID === modifyParams.id);
+            const modifyObj = CanvasGlobals.canvasObject.find(obj => obj.canvasID === modifyParams.id);
             if (modifyObj) {
               modifyObj.updateAllCoord(null, [], true); // selfOnly=true to avoid triggering a new chain
             }
@@ -307,7 +310,7 @@ class CanvasTrackerUI {
         
         if (anchorParams.type === 'Anchor') {
           // Find source object (the one that's anchored to something else)
-          const sourceObj = canvasObject.find(obj => obj.canvasID === anchorParams.source.id);
+          const sourceObj = CanvasGlobals.canvasObject.find(obj => obj.canvasID === anchorParams.source.id);
           
           if (sourceObj) {
             // Determine which axes to unlock (X, Y, or both)
@@ -343,9 +346,9 @@ class CanvasTrackerUI {
         } else if (anchorParams.type === 'EqualAnchor') {
           // Handle equal-distance anchors (more complex)
           // First find the source objects
-          const source1 = canvasObject.find(obj => obj.canvasID === anchorParams.source1.id);
+          const source1 = CanvasGlobals.canvasObject.find(obj => obj.canvasID === anchorParams.source1.id);
           const source2 = anchorParams.source2 ? 
-            canvasObject.find(obj => obj.canvasID === anchorParams.source2.id) : null;
+            CanvasGlobals.canvasObject.find(obj => obj.canvasID === anchorParams.source2.id) : null;
           
           // Determine which axis to unlock
           const axis = anchorParams.axis || 'x';
@@ -386,7 +389,7 @@ class CanvasTrackerUI {
           case 'createObject':
             // Find and delete the created object
             const createParams = entry.params[0];
-            const createObj = canvasObject.find(obj => obj.canvasID === createParams.id);
+            const createObj = CanvasGlobals.canvasObject.find(obj => obj.canvasID === createParams.id);
             if (createObj) {
               createObj.deleteObject();
             }
@@ -400,7 +403,7 @@ class CanvasTrackerUI {
           case 'modifyObject':
             // Reverse the movement
             const modifyParams = entry.params[0];
-            const modifyObj = canvasObject.find(obj => obj.canvasID === modifyParams.id);
+            const modifyObj = CanvasGlobals.canvasObject.find(obj => obj.canvasID === modifyParams.id);
             if (modifyObj) {
               // Apply the reverse delta movement
               modifyObj.set({
@@ -417,7 +420,7 @@ class CanvasTrackerUI {
       // Remove this entry and all newer entries
       canvasTracker.history = canvasTracker.history.slice(0, lowestIndexToRemove);
       this.updateHistoryList();
-      canvas.renderAll();
+      CanvasGlobals.canvas.renderAll();
     }
 }
 
@@ -426,3 +429,4 @@ class CanvasTrackerUI {
 
 
 // Export the CanvasTrackerUI for use in other files
+export { CanvasTrackerUI };

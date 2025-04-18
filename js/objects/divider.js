@@ -1,4 +1,6 @@
-drawDivider = function (xHeight, color, position, size, type) {
+import { BaseGroup } from './draw.js';
+
+function drawDivider (xHeight, color, position, size, type) {
 
     // Choose the template based on the horizontal parameter
     let dividerTemplate = DividerScheme[type](xHeight, position, size, { x: 0, y: 0 }).path;

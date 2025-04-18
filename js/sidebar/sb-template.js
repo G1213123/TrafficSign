@@ -1,4 +1,7 @@
 /* Template Signs Panel */
+import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
+import { CanvasGlobals } from '../canvas.js';
+
 let FormTemplateComponent = {
   // Template gallery with predefined complex sign layouts
   templates: {    'Flag Sign': {
@@ -56,7 +59,7 @@ let FormTemplateComponent = {
     /**
    * Initialize the template panel
    */  templatePanelInit: function () {
-    tabNum = 8;
+    GeneralHandler.tabNum = 6;
     var parent = GeneralHandler.PanelInit();
 
     if (parent) {
@@ -134,7 +137,7 @@ let FormTemplateComponent = {
     const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
 
     // Clear any active selection
-    canvas.discardActiveObject();
+    CanvasGlobals.canvas.discardActiveObject();
 
     // Call the appropriate template creation function
     FormTemplateComponent.createTemplateSign(templateName, xHeight, color);
@@ -328,7 +331,7 @@ let FormTemplateComponent = {
         { xHeight: xHeight, borderType: 'flag', colorType: 'Blue Background' }
       );
 
-      canvas.renderAll();
+      CanvasGlobals.canvas.renderAll();
       console.log('Basic Gantry template created successfully');
 
     } catch (error) {
@@ -2257,3 +2260,5 @@ GeneralSettings.addListener(
     }
   })
 );
+
+export { FormTemplateComponent };

@@ -1,7 +1,10 @@
 /* Border Panel */
+import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
+import { CanvasGlobals } from '../canvas.js';
+
 let FormBorderWrapComponent = {
   BorderPanelInit: function () {
-    tabNum = 3
+    GeneralHandler.tabNum = 3
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       // Create a container for border parameters
@@ -281,7 +284,7 @@ let FormDrawBorderAddComponent = {
   createBorderObject: function() {
     // Clean up any existing temporary object
     if (FormDrawBorderAddComponent.newBorderObject) {
-      canvas.remove(FormDrawBorderAddComponent.newBorderObject);
+      CanvasGlobals.canvas.remove(FormDrawBorderAddComponent.newBorderObject);
       FormDrawBorderAddComponent.newBorderObject = null;
     }
 
@@ -401,8 +404,8 @@ let FormDrawBorderAddComponent = {
       borderObject.isTemporary = true;
       
       // Add mouse event handlers for placement
-      canvas.on('mouse:move', FormDrawBorderAddComponent.BorderOnMouseMove);
-      canvas.on('mouse:down', FormDrawBorderAddComponent.BorderOnMouseClick);
+      CanvasGlobals.canvas.on('mouse:move', FormDrawBorderAddComponent.BorderOnMouseMove);
+      CanvasGlobals.canvas.on('mouse:down', FormDrawBorderAddComponent.BorderOnMouseClick);
       
       // Set up escape key handler
       document.removeEventListener('keydown', ShowHideSideBarEvent);
@@ -410,9 +413,9 @@ let FormDrawBorderAddComponent = {
       
       // Activate the vertex control immediately to enable dragging and snapping
       if (borderObject.controls && borderObject.controls.V1) {
-        activeVertex = borderObject.controls.V1;
-        activeVertex.isDown = true;
-        activeVertex.originalPosition = {
+        window.activeVertex = borderObject.controls.V1;
+        window.activeVertex.isDown = true;
+        window.activeVertex.originalPosition = {
           left: borderObject.left,
           top: borderObject.top
         };
@@ -420,18 +423,18 @@ let FormDrawBorderAddComponent = {
         // Store vertex information if available
         const v1 = borderObject.getBasePolygonVertex ? borderObject.getBasePolygonVertex('V1') : null;
         if (v1) {
-          activeVertex.vertexOriginalPosition = {
+          window.activeVertex.vertexOriginalPosition = {
             x: v1.x,
             y: v1.y
           };
-          activeVertex.vertexOffset = {
+          window.activeVertex.vertexOffset = {
             x: v1.x - borderObject.left,
             y: v1.y - borderObject.top
           };
           
           // Create indicator for the active vertex
-          if (activeVertex.createIndicator) {
-            activeVertex.createIndicator(v1.x, v1.y);
+          if (window.activeVertex.createIndicator) {
+            window.activeVertex.createIndicator(v1.x, v1.y);
           }
         }
       }
@@ -494,8 +497,10 @@ GeneralSettings.addListener(
     if (FormDrawBorderAddComponent.newBorderObject) {
       if (setting === 'messageColor') {
         FormDrawBorderAddComponent.newBorderObject.set('stroke', value.toLowerCase());
-        canvas.renderAll();
+        CanvasGlobals.canvas.renderAll();
       }
     }
   })
 );
+
+export { FormBorderWrapComponent };

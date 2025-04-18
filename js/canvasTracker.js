@@ -1,4 +1,5 @@
 // CanvasTracker utility for tracking canvas operations
+import { CanvasGlobals } from "./canvas.js";
 
 class CanvasTracker {
   constructor() {
@@ -195,12 +196,12 @@ window.CanvasTracker = CanvasTracker;
 const canvasTracker = new CanvasTracker();
 
 // Add event listeners to detect the end of drag operations
-canvas.on('mouse:up', function () {
+CanvasGlobals.canvas.on('mouse:up', function () {
   // When mouse is released, signal the end of any ongoing drag
   canvasTracker.endDrag();
 });
 
-canvas.on('object:modified', function () {
+CanvasGlobals.canvas.on('object:modified', function () {
   // When an object is modified (e.g., after resizing or rotation is complete), signal the end of any drag
   canvasTracker.endDrag();
 });

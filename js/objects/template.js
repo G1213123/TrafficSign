@@ -2819,3 +2819,15 @@ function VLaneTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
     });
     return { path: returnBorder };
 }
+
+export {
+    BorderColorScheme,
+    BorderTypeScheme,
+    BorderFrameWdith,
+    DividerScheme,
+    DividerMargin,
+    HDividerTemplate,
+    VDividerTemplate,
+    HLineTemplate,
+    VLaneTemplate,
+}

@@ -1,4 +1,7 @@
 /* Draw Symbol Panel */
+import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
+import { CanvasGlobals } from '../canvas.js';
+
 let FormDrawAddComponent = {
   symbolAngle: 0,
   newSymbolObject: null,
@@ -24,7 +27,7 @@ let FormDrawAddComponent = {
   },
 
   drawPanelInit: async function (e, existingSymbol = null) {
-    tabNum = 1
+    GeneralHandler.tabNum = 1
     var parent = GeneralHandler.PanelInit()
     
     // If an existing symbol was passed, set it as the editing symbol
@@ -204,7 +207,7 @@ let FormDrawAddComponent = {
       FormDrawAddComponent.updateSymbol(currentSymbol, { angle: FormDrawAddComponent.symbolAngle });
     }
 
-    canvas.renderAll();
+    CanvasGlobals.canvas.renderAll();
   },
 
   DrawHandlerOff: function (event) {
@@ -246,7 +249,7 @@ let FormDrawAddComponent = {
       });
     };
 
-    try {
+
       // Use the general object creation with snapping function
       GeneralHandler.createObjectWithSnapping(
         {
@@ -263,9 +266,7 @@ let FormDrawAddComponent = {
         FormDrawAddComponent.SymbolOnMouseClick,
         FormDrawAddComponent.cancelDraw
       );
-    } catch (error) {
-      console.error('Error creating symbol object:', error);
-    }
+
   },
 
   // New function to validate and adjust angle based on permitted angles for the symbol
@@ -339,24 +340,24 @@ let FormDrawAddComponent = {
     });
 
     // clear active vertex
-    if (activeVertex) {
-      //activeVertex.clearSnapHighlight();
-      activeVertex.cleanupDrag();
-      activeVertex = null;
+    if (window.activeVertex) {
+      //window.activeVertex.clearSnapHighlight();
+      window.activeVertex.cleanupDrag();
+      window.activeVertex = null;
     }
     
     // Replace on canvas
     symbolObject.deleteObject();
     FormDrawAddComponent.newSymbolObject = newSymbolObject;
-    canvas.setActiveObject(newSymbolObject)
+    CanvasGlobals.canvas.setActiveObject(newSymbolObject)
     newSymbolObject.enterFocusMode()
 
     // Re-activate vertex control
     if (newSymbolObject.controls && newSymbolObject.controls.V1) {
-      activeVertex = newSymbolObject.controls.V1;
-      activeVertex.isDown = true;
-      activeVertex.isDragging = true;
-      activeVertex.originalPosition = {
+      window.activeVertex = newSymbolObject.controls.V1;
+      window.activeVertex.isDown = true;
+      window.activeVertex.isDragging = true;
+      window.activeVertex.originalPosition = {
         left: newSymbolObject.left,
         top: newSymbolObject.top
       };
@@ -364,11 +365,11 @@ let FormDrawAddComponent = {
       // Store vertex information
       const v1 = newSymbolObject.getBasePolygonVertex('V1');
       if (v1) {
-        activeVertex.vertexOriginalPosition = {
+        window.activeVertex.vertexOriginalPosition = {
           x: v1.x,
           y: v1.y
         };
-        activeVertex.vertexOffset = {
+        window.activeVertex.vertexOffset = {
           x: v1.x - newSymbolObject.left,
           y: v1.y - newSymbolObject.top
         };
@@ -376,7 +377,7 @@ let FormDrawAddComponent = {
       }
     }
 
-    canvas.renderAll()
+    CanvasGlobals.canvas.renderAll()
     
     return newSymbolObject;
   },
@@ -595,3 +596,5 @@ GeneralSettings.addListener(
     }
   })
 );
+
+export { FormDrawAddComponent };

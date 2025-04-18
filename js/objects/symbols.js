@@ -3,6 +3,8 @@
  * Uses path.js for all path-related functionality
  */
 
+import { BaseGroup } from './draw.js';
+
 function getFontPath(t) {
   // Use pre-parsed font objects instead of parsing the buffer each time
   let fontGlyphs;
