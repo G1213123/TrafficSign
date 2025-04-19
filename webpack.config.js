@@ -1,8 +1,10 @@
 const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  entry: './js/sidebar/sidebar.js', // Your main entry JS file
+  entry: './js/main.js', // Your main entry JS file
   output: {
     filename: 'bundle.min.js',
     path: path.resolve(__dirname, 'dist'),
@@ -13,6 +15,21 @@ module.exports = {
     minimize: true,
     minimizer: [new TerserPlugin()],
   },
-  // If you need to support older browsers, you might configure target or babel-loader here
-  // target: ['web', 'es5'], 
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './index.html', // Use your root index.html as a template
+      inject: 'body',
+      minify: {
+        collapseWhitespace: true,
+        removeComments: true,
+      },
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: 'css', to: 'css' }, // Copy css/ and all subfolders (fonts)
+        { from: 'images', to: 'images' }, // Copy images/
+        { from: 'js/dxf-bundle.js', to: 'js/dxf-bundle.js' }, // Copy dxf-bundle.js
+      ],
+    }),
+  ],
 };

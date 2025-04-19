@@ -634,7 +634,7 @@ let FormExportComponent = {
       dxf.addLayer('Outlines', 1, 'continuous', 'red');
 
       // Check if we have any objects to export
-      if (!canvasObject || canvasObject.length === 0) {
+      if (!CanvasGlobals.canvasObject || CanvasGlobals.canvasObject.length === 0) {
         throw new Error('No objects available for export');
       }
 
@@ -643,7 +643,7 @@ let FormExportComponent = {
       const pathObjects = [];
 
       // Collect all path objects from canvasObject
-      canvasObject.forEach(obj => {
+      CanvasGlobals.canvasObject.forEach(obj => {
         FormExportComponent.collectPathObjects(obj, pathObjects);
       });
 
