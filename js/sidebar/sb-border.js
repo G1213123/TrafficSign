@@ -168,7 +168,7 @@ let FormBorderWrapComponent = {
 // Add listener for GeneralSettings changes
 GeneralSettings.addListener(function(setting, value) {
   // Only update UI if we're in the Border panel
-  if (tabNum === 3) {
+  if (GeneralHandler.tabNum === 3) {
     if (setting === 'xHeight') {
       const xHeightInput = document.getElementById('input-xHeight');
       if (xHeightInput && xHeightInput.value !== value.toString()) {
@@ -193,7 +193,7 @@ let FormDrawBorderAddComponent = {
    * @return {void}
    */
   drawBorderPanelInit: function (event) {
-    tabNum = 3
+    GeneralHandler.tabNum = 3
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       // Create a container for basic parameters using the shared function

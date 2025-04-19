@@ -281,7 +281,7 @@ let GeneralHandler = {
   createSettingsListener: function(tabNumber, updateCallback = null) {
     return function(setting, value) {
       // Only update UI if we're in the correct panel
-      if (tabNum === tabNumber) {
+      if (GeneralHandler.tabNum === tabNumber) {
         if (setting === 'xHeight') {
           const xHeightInput = document.getElementById('input-xHeight');
           if (xHeightInput && xHeightInput.value !== value.toString()) {

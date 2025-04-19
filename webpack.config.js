@@ -29,6 +29,9 @@ module.exports = {
         { from: 'css', to: 'css' }, // Copy css/ and all subfolders (fonts)
         { from: 'images', to: 'images' }, // Copy images/
         { from: 'js/dxf-bundle.js', to: 'js/dxf-bundle.js' }, // Copy dxf-bundle.js
+        { from: '.gcloudignore', to: '.gcloudignore' },  
+        { from: '.gitignore', to: '.gitignore' },  
+        { from: 'app.yaml', to: 'app.yaml' },  
       ],
     }),
   ],
