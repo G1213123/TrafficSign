@@ -5,7 +5,7 @@
  * It loads component modules on demand when they are first needed.
  */
 
-import { GeneralHandler , GeneralSettings} from './sbGeneral.js';
+import { GeneralHandler, GeneralSettings } from './sbGeneral.js';
 import { FormTextAddComponent } from './sb-text.js';
 import { FormDrawAddComponent } from './sb-draw.js';
 import { FormBorderWrapComponent } from './sb-border.js';
@@ -17,7 +17,7 @@ import { FormTemplateComponent } from './sb-template.js';
 import { FormMeasureComponent } from './sb-measure.js';
 import { CanvasTrackerUI } from './sb-tracker.js';
 // Assuming CanvasObjectInspector might be needed, import if necessary
-import {CanvasObjectInspector} from './sb-inspector.js';
+import { CanvasObjectInspector } from './sb-inspector.js';
 import { CanvasGlobals } from '../canvas.js';
 
 
@@ -53,7 +53,6 @@ document.addEventListener('DOMContentLoaded', function () {
   btnText.onclick = FormTextAddComponent.textPanelInit; // Keep the onclick assignment if you still want to replace the listener after first click
 
   // Draw module button (# Default module)
-  FormDrawAddComponent.drawPanelInit(); // Initialize Draw panel by default
   document.getElementById('btn_draw').onclick = FormDrawAddComponent.drawPanelInit;
 
   // Border module button
