@@ -2,7 +2,9 @@
  * TextObject extends BaseGroup to create text with proper vertex handling
  */
 
-
+import { BaseGroup } from './draw.js';
+import {textWidthMedium, textWidthHeavy,} from './template.js';
+import { getFontPath } from './path.js';
 
 class TextObject extends BaseGroup {
   constructor(options = {}) {
@@ -340,7 +342,4 @@ class TextObject extends BaseGroup {
   }
 }
 
-// Export the class for use in other files
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = TextObject;
-}
+export { TextObject };

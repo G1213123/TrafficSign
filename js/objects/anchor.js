@@ -1,5 +1,10 @@
 //TODO: check updateAllCoord for anchor object inside border / divider not working
 // AnchorTree class to manage anchoring relationships between objects
+import {CanvasGlobals} from '../canvas.js';
+import {canvasTracker} from '../canvasTracker.js'; // Import canvasTracker for tracking changes
+
+const canvas = CanvasGlobals.canvas; // Get the global canvas instance
+
 class AnchorTree {
   constructor() {
     this.xTree = {}; // Object to store X-axis anchor relationships
@@ -53,7 +58,7 @@ class AnchorTree {
     if (direction === 'x') {
       // Add safety check to prevent negative depth
       if (this.updateDepthX <= 0) {
-        console.warn("Attempted to end X update cycle when none is in progress");
+        //console.warn("Attempted to end X update cycle when none is in progress");
         this.updateDepthX = 0;
         this.updateInProgressX = false;
         this.updatedObjectsX.clear();
@@ -71,7 +76,7 @@ class AnchorTree {
     } else {
       // Add safety check to prevent negative depth
       if (this.updateDepthY <= 0) {
-        console.warn("Attempted to end Y update cycle when none is in progress");
+        //console.warn("Attempted to end Y update cycle when none is in progress");
         this.updateDepthY = 0;
         this.updateInProgressY = false;
         this.updatedObjectsY.clear();
@@ -312,7 +317,7 @@ document.getElementById('set-anchor').addEventListener('click', function () {
     // Implement vertex selection logic here
     const shape1 = selectedArrow
     selectedArrow = null
-    document.removeEventListener('keydown', ShowHideSideBarEvent);
+    document.removeEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
     selectObjectHandler('Select shape to anchor to', anchorShape, shape1)
     //renumberVertexLabels(shape1); // Renumber vertex labels after selection
   }
@@ -324,24 +329,24 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   const xHeight = shape1.xHeight || shape2.xHeight || parseInt(document.getElementById("input-xHeight").value)
 
 
-   const vertexIndex1 = options.vertexIndex1 ? options.vertexIndex1 : await showTextBox('Enter vertex index for First Polygon:', 'E1')
-  if (!vertexIndex1) { setInterval(document.addEventListener('keydown', ShowHideSideBarEvent), 1000); return }
-  const vertexIndex2 = options.vertexIndex2 ? options.vertexIndex2 : await showTextBox('Enter vertex index for Second Polygon:', 'E1')
-  if (!vertexIndex2) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
+   const vertexIndex1 = options.vertexIndex1 ? options.vertexIndex1 : await CanvasGlobals.showTextBox('Enter vertex index for First Polygon:', 'E1')
+  if (!vertexIndex1) { setInterval(document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent), 1000); return }
+  const vertexIndex2 = options.vertexIndex2 ? options.vertexIndex2 : await CanvasGlobals.showTextBox('Enter vertex index for Second Polygon:', 'E1')
+  if (!vertexIndex2) { document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent); return }
 
   // Check if object is already anchored in X axis
   const isAlreadyAnchoredInX = Object.keys(shape2.lockXToPolygon || {}).length > 0;
   const spacingX = options.spacingX != null ? options.spacingX :
     isAlreadyAnchoredInX ? '' :
-      await showTextBox('Enter spacing in X \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight)
-  if (spacingX == null) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
+      await CanvasGlobals.showTextBox('Enter spacing in X \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight)
+  if (spacingX == null) { document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent); return }
 
   // Check if object is already anchored in Y axis
   const isAlreadyAnchoredInY = Object.keys(shape2.lockYToPolygon || {}).length > 0;
   const spacingY = options.spacingY != null ? options.spacingY :
     isAlreadyAnchoredInY ? '' :
-      await showTextBox('Enter spacing in Y \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight)
-  if (spacingY == null) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
+      await CanvasGlobals.showTextBox('Enter spacing in Y \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight)
+  if (spacingY == null) { document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent); return }
 
   const movingPoint = shape2.getBasePolygonVertex(vertexIndex1.toUpperCase())
   const targetPoint = shape1.getBasePolygonVertex(vertexIndex2.toUpperCase())
@@ -377,7 +382,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
         left: shape2.left + deltaX,
         lockMovementX: true,
       });
-      anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1, spacing: parseInt(spacingX) }
+      const anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1, spacing: parseInt(spacingX) }
       shape2.lockXToPolygon = anchor
 
       // Add to the anchor tree
@@ -504,7 +509,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
     shape2.exitFocusMode();
   }
 
-  document.addEventListener('keydown', ShowHideSideBarEvent);
+  document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
 
   canvas.renderAll();
 
@@ -517,3 +522,5 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   // Return a resolved promise to allow for chaining
   return Promise.resolve();
 }
+
+export { globalAnchorTree, anchorShape };

@@ -11,6 +11,13 @@
             "name": "Open index.html",
             "file": "${workspaceFolder}/index.html",
             "runtimeArgs": ["--disable-web-security"]
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Open dist",
+            "file": "${workspaceFolder}/dist/index.html",
+            "runtimeArgs": ["--disable-web-security"]
         }
     ]
 }

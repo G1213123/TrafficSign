@@ -1,4 +1,10 @@
 /* Text panel component */
+import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
+import { CanvasGlobals } from '../canvas.js';
+import { TextObject } from '../objects/text.js';
+import { anchorShape } from '../objects/anchor.js';
+import { EngDestinations, ChtDestinations } from '../objects/template.js';
+
 let FormTextAddComponent = {
   textFont: ['TransportMedium', 'TransportHeavy'],
   newTextObject: null,
@@ -35,7 +41,7 @@ let FormTextAddComponent = {
   },
 
   textPanelInit: function (event, editingTextObject = null) {
-    tabNum = 2;
+    GeneralHandler.tabNum = 2;
     FormTextAddComponent.textLineInput = 1;
     var parent = GeneralHandler.PanelInit();
     if (parent) {
@@ -100,9 +106,9 @@ let FormTextAddComponent = {
       document.getElementById('input-text').disabled = false;
     }
     FormTextAddComponent.populateLocationDropdown(regionName, language);
-    if (FormTextAddComponent.newTextObject && canvas.contains(FormTextAddComponent.newTextObject)) {
+    if (FormTextAddComponent.newTextObject && CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
       FormTextAddComponent.liveUpdateText();
-      canvas.renderAll();
+      CanvasGlobals.canvas.renderAll();
     }
   },
 
@@ -112,7 +118,7 @@ let FormTextAddComponent = {
   handleJustification: function (selectedButton) {
     FormTextAddComponent.justification = selectedButton.getAttribute('data-value');
     // If we already have a text object, update its justification
-    if (FormTextAddComponent.newTextObject || canvas.getActiveObject()?.functionalType === 'Text') {
+    if (FormTextAddComponent.newTextObject || CanvasGlobals.canvas.getActiveObject()?.functionalType === 'Text') {
       FormTextAddComponent.liveUpdateText();
     }
   },
@@ -163,12 +169,12 @@ let FormTextAddComponent = {
       textInput.value = selectedLocation;
 
       // Determine if we're editing or creating
-      const activeObject = canvas.getActiveObject();
+      const activeObject = CanvasGlobals.canvas.getActiveObject();
 
       // If we already have a new text object being placed, update it
-      if (FormTextAddComponent.newTextObject && canvas.contains(FormTextAddComponent.newTextObject)) {
+      if (FormTextAddComponent.newTextObject && CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
         FormTextAddComponent.liveUpdateText();
-        canvas.renderAll();
+        CanvasGlobals.canvas.renderAll();
       }
       // If we're editing an existing text object
       else if (activeObject && activeObject.functionalType === 'Text') {
@@ -259,7 +265,7 @@ let FormTextAddComponent = {
                 spacingX: 0,
                 spacingY: 0
               });
-              canvas.renderAll();
+              CanvasGlobals.canvas.renderAll();
             }, 100);
           }
         } else {
@@ -302,7 +308,7 @@ let FormTextAddComponent = {
                 spacingX: 0,
                 spacingY: 0
               });
-              canvas.renderAll();
+              CanvasGlobals.canvas.renderAll();
             }, 100);
           }
         }
@@ -338,11 +344,11 @@ let FormTextAddComponent = {
     }
 
     // Otherwise update the selected object
-    canvas.off('mouse:move', FormTextAddComponent.TextOnMouseMove);
-    canvas.off('mouse:down', FormTextAddComponent.TextOnMouseClick);
-    canvas.on('mouse:down', FormTextAddComponent.EditOnMouseClick);
+    CanvasGlobals.canvas.off('mouse:move', FormTextAddComponent.TextOnMouseMove);
+    CanvasGlobals.canvas.off('mouse:down', FormTextAddComponent.TextOnMouseClick);
+    CanvasGlobals.canvas.on('mouse:down', FormTextAddComponent.EditOnMouseClick);
 
-    const textObj = canvas.getActiveObject();
+    const textObj = CanvasGlobals.canvas.getActiveObject();
     if (!textObj || textObj.functionalType !== 'Text') return;
     let newText = document.getElementById('input-text').value;
     if (!newText || newText.trim() === '') newText = textObj.text; // Don't create empty text
@@ -396,7 +402,7 @@ let FormTextAddComponent = {
       button.removeEventListener('click', FormTextAddComponent.liveUpdateText);
     });
 
-    canvas.off('mouse:down', FormTextAddComponent.EditOnMouseClick);
+    CanvasGlobals.canvas.off('mouse:down', FormTextAddComponent.EditOnMouseClick);
   },
 
   cancelInput: function (event) {
@@ -404,7 +410,7 @@ let FormTextAddComponent = {
       // For 2-liner text, we need special handling to remove both English and Chinese texts
       if (FormTextAddComponent.textLineInput === 2 && 
           FormTextAddComponent.newTextObject && 
-          canvas.contains(FormTextAddComponent.newTextObject)) {
+          CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
         
         // First, check if the English text has anchored Chinese text
         if (FormTextAddComponent.newTextObject.anchoredPolygon && 
@@ -454,9 +460,9 @@ let FormTextAddComponent = {
     const justification = FormTextAddComponent.justification || 'Left';
 
     // If we already have a new text object being placed, just update it instead of creating another
-    if (FormTextAddComponent.newTextObject && canvas.contains(FormTextAddComponent.newTextObject)) {
+    if (FormTextAddComponent.newTextObject && CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
       FormTextAddComponent.newTextObject.updateText(txt, xHeight, font, color);
-      canvas.renderAll();
+      CanvasGlobals.canvas.renderAll();
       return;
     }
 
@@ -556,7 +562,7 @@ let FormTextAddComponent = {
       console.error('Error creating text object:', error);
     }
     
-    canvas.renderAll();
+    CanvasGlobals.canvas.renderAll();
   },
 
   TextOnMouseMove: function (event) {
@@ -596,8 +602,10 @@ let FormTextAddComponent = {
 GeneralSettings.addListener(
   GeneralHandler.createSettingsListener(2, function(setting, value) {
     // Text-specific updates when settings change
-    if (FormTextAddComponent.newTextObject || canvas.getActiveObject()?.functionalType === 'Text') {
+    if (FormTextAddComponent.newTextObject || CanvasGlobals.canvas.getActiveObject()?.functionalType === 'Text') {
       FormTextAddComponent.liveUpdateText();
     }
   })
 );
+
+export { FormTextAddComponent };

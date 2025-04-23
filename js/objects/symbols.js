@@ -3,20 +3,10 @@
  * Uses path.js for all path-related functionality
  */
 
-function getFontPath(t) {
-  // Use pre-parsed font objects instead of parsing the buffer each time
-  let fontGlyphs;
-  if (t.fontFamily === 'TransportMedium') {
-    fontGlyphs = window.parsedFontMedium || opentype.parse(buffer1);
-  } else if (t.fontFamily === 'TransportHeavy') {
-    fontGlyphs = window.parsedFontHeavy || opentype.parse(buffer2);
-  } else if (t.fontFamily === 'TW-MOE-Std-Kai') {
-    fontGlyphs = window.parsedFontKai || opentype.parse(buffer4);
-  } else {
-    fontGlyphs = window.parsedFontChinese || opentype.parse(buffer3);
-  }
-  return fontGlyphs.getPath(t.character, t.x, t.y, t.fontSize);
-}
+import { BaseGroup, GlyphPath } from './draw.js';
+import  {symbolsTemplate, symbolsTemplateAlt} from './template.js';
+import { calculateTransformedPoints } from './path.js';
+
 
 function calcSymbol(type, length, color = 'white') {
   let symbol;
@@ -195,3 +185,10 @@ function drawSymbolDirectly(symbolType, options) {
 function drawLabeledSymbol(symbolType, options) {
   return drawSymbolDirectly(symbolType, options);
 }
+
+export {
+  SymbolObject,
+  drawSymbolDirectly,
+  drawLabeledSymbol,
+  calcSymbol
+};

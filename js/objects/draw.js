@@ -1,6 +1,15 @@
+import { CanvasGlobals } from "../canvas.js";
+import { calculateTransformedPoints, convertVertexToPathCommands, getFontPath, convertFontPathToFabricPath } from "./path.js";
+import {canvasTracker} from "../canvasTracker.js";
+import { VertexControl } from "./vertexKeyNav.js";
+import { globalAnchorTree,anchorShape } from './anchor.js';
+import { CanvasObjectInspector } from "../sidebar/sb-inspector.js";
+
+const canvas = CanvasGlobals.canvas; // Assuming canvas is a global variable in canvas.js
+const canvasObject = CanvasGlobals.canvasObject; // Assuming canvasObject is a global variable in canvas.js
+
 const deleteIcon =
   "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
-let activeVertex = null
 let vertexSnapInProgress = false; // New flag to prevent multiple clicks during snapping
 
 
@@ -393,8 +402,8 @@ class BaseGroup extends fabric.Group {
         shouldDisplay = false;
       }
       // Rule 3: Focus mode - only show active vertex
-      else if (this.focusMode && activeVertex) {
-        shouldDisplay = (activeVertex.vertex.label === vertexLabel);
+      else if (this.focusMode && CanvasGlobals.activeVertex) {
+        shouldDisplay = (CanvasGlobals.activeVertex.vertex.label === vertexLabel);
       }
       // Rule 4: ShowAllVertices setting overrides other display logic
       else if (showAllVertices) {
@@ -551,73 +560,7 @@ class BaseGroup extends fabric.Group {
     if (this.borderGroup && !globalAnchorTree.updatedObjectsX.has(this.borderGroup.canvasID) &&
       !globalAnchorTree.updatedObjectsY.has(this.borderGroup.canvasID)) {
 
-      const BG = this.borderGroup;
-      BG.removeAll();
-
-      // Get the bounding box of the active selection 
-      let coords = BorderUtilities.getBorderObjectCoords(BG.heightObjects, BG.widthObjects);
-
-      if (!isNaN(parseInt(BG.fixedWidth))) {
-        const padding = parseInt(BG.fixedWidth) - coords.right + coords.left;
-        coords.left -= padding / 2;
-        coords.right += padding / 2;
-      }
-
-      if (!isNaN(parseInt(BG.fixedHeight))) {
-        const padding = parseInt(BG.fixedHeight) - coords.bottom + coords.top;
-        coords.top -= padding / 2;
-        coords.bottom += padding / 2;
-      }
-
-      const borderObject = drawLabeledBorder(BG.borderType, BG.xHeight, coords, BG.color);
-
-      BG.add(borderObject);
-      BG.basePolygon = borderObject;
-      BG.assignWidthToDivider();
-
-      // Track if we started update cycles that need to be closed
-      let startedXCycle = false;
-      let startedYCycle = false;
-
-      try {
-        // Start update cycles for the border group to be updated properly
-        if (!globalAnchorTree.updateInProgressX) {
-          globalAnchorTree.startUpdateCycle('x', BG.canvasID);
-          startedXCycle = true;
-        }
-
-        if (!globalAnchorTree.updateInProgressY) {
-          globalAnchorTree.startUpdateCycle('y', BG.canvasID);
-          startedYCycle = true;
-        }
-
-        // Mark the border group as already updated to prevent cycles
-        //globalAnchorTree.updatedObjectsX.add(BG.canvasID);
-        //globalAnchorTree.updatedObjectsY.add(BG.canvasID);
-
-        BG.updateAllCoord(null, [], false);
-        BG.drawVertex();
-      } finally {
-        // Always end update cycles if we started them, even if an error occurs
-        if (startedXCycle) {
-          globalAnchorTree.endUpdateCycle('x');
-        }
-
-        if (startedYCycle) {
-          globalAnchorTree.endUpdateCycle('y');
-        }
-      }
-
-      // Update reference points and vertices
-      BG.refTopLeft = {
-        top: BG.basePolygon.getCoords()[0].y,
-        left: BG.basePolygon.getCoords()[0].x
-      };
-
-      // Redraw vertices
-      BG.drawVertex();
-
-      canvas.renderAll();
+      this.borderGroup.processResize()
     }
   }
 
@@ -1640,3 +1583,5 @@ class BorderDimensionDisplay {
     this.objects.push(arrow);
   }
 }
+
+export { BaseGroup, GlyphPath, LockIcon, BorderDimensionDisplay };

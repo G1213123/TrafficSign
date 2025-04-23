@@ -1,8 +1,9 @@
-var canvas = this.__canvas = new fabric.Canvas('canvas', { fireMiddleClick: true, fireRightClick: true, preserveObjectStacking: true, enableRetinaScaling: true });
+var canvas = new fabric.Canvas('canvas', { fireMiddleClick: true, fireRightClick: true, preserveObjectStacking: true, enableRetinaScaling: true });
 const ctx = canvas.getContext("2d")
 let activeObject = null
 let selectedArrow = null
 let canvasObject = []
+let activeVertex = null
 canvas.isDragging = false;
 canvas.lastPosX = 0;
 canvas.lastPosY = 0;
@@ -14,8 +15,8 @@ canvas.setZoom(0.2);
 window.addEventListener('resize', resizeCanvas, false);
 
 function resizeCanvas() {
-  canvasContainer = document.getElementById('canvas-container')
-  canvas.setDimensions({width:canvasContainer.clientWidth, height:canvasContainer.clientHeight})
+  const canvasContainer = document.getElementById('canvas-container')
+  canvas.setDimensions({ width: canvasContainer.clientWidth, height: canvasContainer.clientHeight })
   canvas.absolutePan({ x: -canvas.width / 2, y: -canvas.height / 2 })
   canvas.renderAll();
   DrawGrid()
@@ -92,7 +93,7 @@ canvas.on('mouse:up', function (opt) {
 });
 
 // Handle zoom events
-canvas.on('mouse:wheel', function(opt) {
+canvas.on('mouse:wheel', function (opt) {
   var delta = opt.e.deltaY;
   var zoom = canvas.getZoom();
   zoom *= 0.999 ** delta;
@@ -102,14 +103,14 @@ canvas.on('mouse:wheel', function(opt) {
   opt.e.preventDefault();
   opt.e.stopPropagation();
   DrawGrid()
-  
+
   // Check if active object exists and has lock indicators that need to be redrawn
   const activeObj = canvas.getActiveObject();
   if (activeObj && activeObj.anchorageLink && activeObj.anchorageLink.length > 0) {
     // Redraw anchor linkages to update with new zoom level
     activeObj.drawAnchorLinkage();
   }
-  
+
   // Update dimension lines on zoom if they exist
   if (activeObj && activeObj.showDimensions) {
     // Refresh dimension lines with new zoom level
@@ -117,11 +118,11 @@ canvas.on('mouse:wheel', function(opt) {
   }
 
   // Update active vertex 
-  if (activeVertex){
+  if (activeVertex) {
     activeVertex.clearSnapHighlight()
     activeVertex.addSnapHighlight()
   }
-  
+
   canvas.getObjects().forEach(obj => {
     obj.setCoords();
   });
@@ -138,12 +139,12 @@ function lockGroupSelection(event) {
 
   if (activeObjects.type === 'activeselection') {
     activeObjects.lockMovementX = true;
-    activeObjects.lockMovementY = true; 
+    activeObjects.lockMovementY = true;
     activeObjects.lockScalingX = true;
     activeObjects.lockScalingY = true;
     activeObjects.lockRotation = true;
     activeObjects.lockUniScaling = true;
-    activeObjects.hasControls = false;   
+    activeObjects.hasControls = false;
   }
 }
 
@@ -218,7 +219,7 @@ function handleGroupMoving(event) {
     });
   } else {
     // Single object is selected, call its onMoving function if it exists
-    if (typeof activeObject.onMoving === 'function') {
+    if (typeof activeObject.onMoving === 'function') {  
       activeObject.onMoving();
     }
   }
@@ -229,7 +230,7 @@ function handleGroupMoving(event) {
 
 function DrawGrid() {
   // Check if grid should be visible
-  if (typeof GeneralSettings === 'undefined' || GeneralSettings === null) {return;}
+  if (typeof GeneralSettings === 'undefined' || GeneralSettings === null) { return; }
   if (GeneralSettings && GeneralSettings.showGrid === false) {
     // Remove the existing grid if it exists
     const obj = canvas.getObjects().find(obj => obj.id === 'grid');
@@ -250,7 +251,7 @@ function DrawGrid() {
 
   // Get grid color from settings, default to '#ffffff' if not available
   const gridColor = GeneralSettings.gridColor || '#ffffff';
-                    
+
   // Get grid size from settings, default to 20 if not available
   const gridSize = GeneralSettings.gridSize || 20;
 
@@ -397,43 +398,43 @@ document.addEventListener('contextmenu', function (event) {
 });
 
 
-function CenterCoord(){
-  var zoom=canvas.getZoom()
-   return{
-      x:fabric.util.invertTransform(canvas.viewportTransform)[4]+(canvas.width/zoom)/2,
-      y:fabric.util.invertTransform(canvas.viewportTransform)[5]+(canvas.height/zoom)/2
-   }
+function CenterCoord() {
+  var zoom = canvas.getZoom()
+  return {
+    x: fabric.util.invertTransform(canvas.viewportTransform)[4] + (canvas.width / zoom) / 2,
+    y: fabric.util.invertTransform(canvas.viewportTransform)[5] + (canvas.height / zoom) / 2
+  }
 }
 
 function updatePosition(event) {
   const promptBox = document.getElementById('cursorBoxContainer');
   const promptText = document.getElementById('cursorTextBox');
   const answerBox = document.getElementById('cursorAnswerBox');
-  
+
   // Get viewport dimensions
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
-  
+
   // Get cursor box dimensions
   const boxWidth = promptBox.offsetWidth;
   const boxHeight = promptBox.offsetHeight;
-  
+
   // Default offset
   let xOffset = 10;
   let yOffset = 10;
-  
+
   // Check if box would overflow right edge
   if (event.clientX + xOffset + boxWidth > viewportWidth) {
     // Position to the left of cursor instead
     xOffset = -boxWidth - 10;
   }
-  
+
   // Check if box would overflow bottom edge
   if (event.clientY + yOffset + boxHeight > viewportHeight) {
     // Position above cursor instead
     yOffset = -boxHeight - 10;
   }
-  
+
   // Apply the position
   promptBox.style.left = `${event.clientX + xOffset}px`;
   promptBox.style.top = `${event.clientY + yOffset}px`;
@@ -449,6 +450,15 @@ function answerBoxFocus(event) {
 document.addEventListener('mouseup', answerBoxFocus);
 
 let resolveAnswer;
+
+// Keyboard shortcut for showing/hiding sidebar
+function ShowHideSideBarEvent(e) {
+  switch (e.keyCode) {
+    case 27: // esc
+      GeneralHandler.ShowHideSideBar(e);
+      break;
+  }
+}
 
 function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = null, xHeight = null) {
   const promptBox = document.getElementById('cursorTextBox');
@@ -479,11 +489,11 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
         unitDisplay.className = 'unit-display'; // Use the class from CSS
         answerBox.parentElement.appendChild(unitDisplay);
       }
-      
+
       // Set the unit display text and make it visible
       unitDisplay.innerText = currentUnit;
       unitDisplay.style.display = 'block';
-      
+
       // Initial setup
       inputValue = withAnswerBox;
     }
@@ -493,7 +503,7 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
       answerBox.addEventListener('keydown', function handleKeyDown(event) {
         if (event.key === 'Enter' || event.key === ' ') {
           let result = answerBox.value;
-          
+
           // Convert units if in unit mode
           if (xHeight !== null && unitDisplay && !isNaN(parseFloat(result))) {
             if (currentUnit === 'sw') {
@@ -501,11 +511,11 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
               result = String(parseFloat(result) * xHeight / 4);
             }
           }
-          
+
           if (unitDisplay) {
             unitDisplay.style.display = 'none';
           }
-          
+
           resolve(result);
           hideTextBox();
           answerBox.removeEventListener('keydown', handleKeyDown);
@@ -520,7 +530,7 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
           // Switch between mm and sw units on Tab key press
           event.preventDefault();
           currentUnit = currentUnit === 'mm' ? 'sw' : 'mm';
-          
+
           // Convert the current value between units
           if (!isNaN(parseFloat(answerBox.value))) {
             if (currentUnit === 'sw') {
@@ -531,7 +541,7 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
               answerBox.value = String(parseFloat(answerBox.value) * xHeight / 4);
             }
           }
-          
+
           unitDisplay.innerText = currentUnit;
         }
       });
@@ -569,7 +579,7 @@ async function selectObjectHandler(text, callback, options = null, xHeight = nul
       cursorClickMode = 'normal'
       clearInterval(checkShapeInterval)
       hideTextBox()
-      successSelected = canvas.getActiveObjects()
+      const successSelected = canvas.getActiveObjects()
       // Clear the selected object from active
       canvas.discardActiveObject();
       canvas.renderAll();
@@ -579,4 +589,22 @@ async function selectObjectHandler(text, callback, options = null, xHeight = nul
 }
 
 resizeCanvas();
+
+const CanvasGlobals = {
+  canvas: canvas,
+  ctx: ctx,
+  activeObject: activeObject,
+  activeVertex: activeVertex,
+  selectedArrow: selectedArrow,
+  canvasObject: canvasObject,
+  cursorClickMode: cursorClickMode,
+  CenterCoord: CenterCoord,
+  updatePosition: updatePosition,
+  showTextBox: showTextBox,
+  hideTextBox: hideTextBox,
+  selectObjectHandler: selectObjectHandler,
+  ShowHideSideBarEvent: ShowHideSideBarEvent,
+}
+
+export { CanvasGlobals, DrawGrid }
 

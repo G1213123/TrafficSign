@@ -416,6 +416,22 @@ function convertVertexToPathCommands(path) {
   return pathCommands;
 }
 
+
+function getFontPath(t) {
+  // Use pre-parsed font objects instead of parsing the buffer each time
+  let fontGlyphs;
+  if (t.fontFamily === 'TransportMedium') {
+    fontGlyphs = window.parsedFontMedium || opentype.parse(buffer1);
+  } else if (t.fontFamily === 'TransportHeavy') {
+    fontGlyphs = window.parsedFontHeavy || opentype.parse(buffer2);
+  } else if (t.fontFamily === 'TW-MOE-Std-Kai') {
+    fontGlyphs = window.parsedFontKai || opentype.parse(buffer4);
+  } else {
+    fontGlyphs = window.parsedFontChinese || opentype.parse(buffer3);
+  }
+  return fontGlyphs.getPath(t.character, t.x, t.y, t.fontSize);
+}
+
 /**
  * Convert font path commands to Fabric.js path command string
  * @param {Array} commands - Array of font path commands
@@ -548,40 +564,22 @@ function combinePaths(pathsArray) {
   return result;
 }
 
+
 // Export the functions so they can be imported elsewhere
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    calculateTransformedPoints,
-    calculateAngle,
-    calculateTangentPoint,
-    getArcDirection,
-    calculateArcCenter,
-    offsetPoint,
-    intersectLines,
-    drawSegment,
-    vertexToPath,
-    getInsertOffset,
-    convertVertexToPathCommands,
-    convertFontPathToFabricPath,
-    assignVertexLabel,
-    combinePaths
-  };
-} else {
-  // Browser environment
-  window.PathUtilities = {
-    calculateTransformedPoints,
-    calculateAngle,
-    calculateTangentPoint,
-    getArcDirection,
-    calculateArcCenter,
-    offsetPoint,
-    intersectLines,
-    drawSegment,
-    vertexToPath,
-    getInsertOffset,
-    convertVertexToPathCommands,
-    convertFontPathToFabricPath,
-    assignVertexLabel,
-    combinePaths
-  };
-}
+export {
+  calculateTransformedPoints,
+  calculateAngle,
+  calculateTangentPoint,
+  getArcDirection,
+  calculateArcCenter,
+  offsetPoint,
+  intersectLines,
+  drawSegment,
+  vertexToPath,
+  getInsertOffset,
+  convertVertexToPathCommands,
+  convertFontPathToFabricPath,
+  assignVertexLabel,
+  combinePaths,
+  getFontPath
+};

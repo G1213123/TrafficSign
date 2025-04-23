@@ -1,11 +1,13 @@
-let equalAnchorTest = function () {
-  const anchor = {
-    sourcePoint: 'E1', targetPoint: 'E1', sourceObject: canvasObject[4], TargetObject: canvasObject[5],
-    secondSourcePoint: 'E3', secondTargetPoint: 'E3', secondSourceObject: canvasObject[4], secondTargetObject: canvasObject[5]
-  }
-  EQanchorShape('x', anchor)
-}
+import { TextObject } from './objects/text.js';
+import { drawLabeledSymbol } from './objects/symbols.js';
+import { anchorShape } from './objects/anchor.js';
+import { CanvasGlobals } from './canvas.js';
+import { HDividerCreate, VDividerCreate, HLineCreate } from './objects/divider.js';
+import { BorderUtilities } from './objects/border.js';
+import { MainRoadSymbol, finishDrawSideRoad, drawSideRoadOnCursor, calcMainRoadVertices, calcRoundaboutVertices} from './objects/route.js';
 
+const canvasObject = CanvasGlobals.canvasObject; // Assuming canvasObject is defined in canvas.js
+const canvas = CanvasGlobals.canvas; // Assuming canvas is defined in canvas.js
 
 
 // MIT http://rem.mit-license.org
@@ -1359,7 +1361,7 @@ const RoundaboutTest = {
     };
 
     const roundabout = new MainRoadSymbol(routeOptions);
-    await roundabout.initialize(calcRoundaboutVertices('Conventional', params.xHeight, routeOptions.routeList));
+    roundabout.initialize(calcRoundaboutVertices('Conventional', params.xHeight, routeOptions.routeList));
     TestTracker.register("conventionalRoundabout", roundabout);
 
     // Test assertions
@@ -1399,8 +1401,8 @@ const RoundaboutTest = {
     };
 
     // Draw and finalize the side road
-    await drawSideRoadOnCursor(null, sideRoadParams);
-    await finishDrawSideRoad({ e: { button: 0 } });
+    drawSideRoadOnCursor(null, sideRoadParams);
+    finishDrawSideRoad({ e: { button: 0 } });
 
     // Create a second side road on the roundabout
     const sideRoadParams2 = {
@@ -1417,8 +1419,8 @@ const RoundaboutTest = {
     canvas.setActiveObject(roundabout);
 
     // Draw and finalize the second side road
-    await drawSideRoadOnCursor(null, sideRoadParams2);
-    await finishDrawSideRoad({ e: { button: 0 } });
+    drawSideRoadOnCursor(null, sideRoadParams2);
+    finishDrawSideRoad({ e: { button: 0 } });
 
     // Find the created Side Road route and register it
     const sideRoad = roundabout.sideRoad[roundabout.sideRoad.length - 1];
@@ -1514,10 +1516,10 @@ const RoundaboutTest = {
     canvas.setActiveObject(spiralRoundabout);
 
     // Add arm in first quadrant (top-right)
-    await this.addArmAtAngle(center, 300, -90, "arm1");
+    this.addArmAtAngle(center, 300, -90, "arm1");
 
     // Add arm in second quadrant (top-left)
-    await this.addArmAtAngle(center, 300, 0, "arm2");
+    this.addArmAtAngle(center, 300, 0, "arm2");
 
 
     // Verify arms were added
@@ -1579,7 +1581,7 @@ const RoundaboutTest = {
    * @param {number} angleDegrees - Angle in degrees
    * @param {string} name - Name to register the arm with in TestTracker
    */
-  async addArmAtAngle(center, radius, angleDegrees, name) {
+  addArmAtAngle(center, radius, angleDegrees, name) {
     const angleRadians = angleDegrees * Math.PI / 180;
     const x = center.x + radius * Math.cos(angleRadians);
     const y = center.y + radius * Math.sin(angleRadians);
@@ -1599,10 +1601,10 @@ const RoundaboutTest = {
     };
 
     // Add the arm
-    await drawSideRoadOnCursor(null, options);
+    drawSideRoadOnCursor(null, options);
 
     // Finish adding the arm
-    await finishDrawSideRoad({
+    finishDrawSideRoad({
       e: { button: 0 }
     });
 
@@ -1743,7 +1745,7 @@ const ComplexSignTest = {
     const rightArrowObj = TestTracker.get("rightArrow");
 
     // Create a vertical gantry divider between left and right sides
-    await VDividerCreate(
+    VDividerCreate(
       [whcObj],
       [rightTopObj],
       null,
@@ -1753,7 +1755,7 @@ const ComplexSignTest = {
     TestTracker.register("vDivider");
 
     // Create horizontal dividers between the 2-liner and destination on both sides
-    await HLineCreate(
+    HLineCreate(
       [leftDestObj],
       [leftArrowObj],
       null,
@@ -1762,7 +1764,7 @@ const ComplexSignTest = {
     );
     TestTracker.register("leftHDivider");
 
-    await HLineCreate(
+    HLineCreate(
       [rightDestObj],
       [rightArrowObj],
       null,
@@ -1821,7 +1823,7 @@ const ComplexSignTest = {
 
     const overallObject = [leftTopObj, leftBottomObj, leftArrowObj, leftDestObj, airportObj, whcObj, rightTopObj, rightArrowObj, rightDestObj, vDivider, leftHDivider, rightHDivider]
 
-    const overallBorderGroup = await BorderUtilities.BorderGroupCreate(
+    const overallBorderGroup = BorderUtilities.BorderGroupCreate(
       'stack',
       overallObject,
       overallObject,
@@ -2065,3 +2067,5 @@ function verifyTextPositionInDXF(dxfContent, originalPosition) {
     }
   }
 }
+
+export { runTests, testToRun };

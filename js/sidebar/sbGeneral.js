@@ -1,5 +1,9 @@
 /* General Sidebar Panel */
+import { CanvasGlobals } from '../canvas.js';
+import { CanvasObjectInspector } from './sb-inspector.js';
+
 let GeneralHandler = {
+  tabNum: 0,
   panelOpened: true,
   ShowHideSideBar: function (event, force = null) {
     if (force === null) {
@@ -33,7 +37,7 @@ let GeneralHandler = {
     if (typeof FormBorderAddComponent !== 'undefined') {
       FormDrawAddComponent.DrawHandlerOff()
     }
-    if (tabNum != 5) {
+    if (GeneralHandler.tabNum != 5) {
       if (typeof FormDebugComponent !== 'undefined') {
         FormDebugComponent.DebugHandlerOff()
       }
@@ -277,7 +281,7 @@ let GeneralHandler = {
   createSettingsListener: function(tabNumber, updateCallback = null) {
     return function(setting, value) {
       // Only update UI if we're in the correct panel
-      if (tabNum === tabNumber) {
+      if (GeneralHandler.tabNum === tabNumber) {
         if (setting === 'xHeight') {
           const xHeightInput = document.getElementById('input-xHeight');
           if (xHeightInput && xHeightInput.value !== value.toString()) {
@@ -321,18 +325,18 @@ let GeneralHandler = {
                      component.newSymbolObject ? 'newSymbolObject' : 
                      component.newMapObject ? 'newMapObject' : null;
     
-    if (!objectKey || !component[objectKey] || !activeVertex) return;
+    if (!objectKey || !component[objectKey] || !CanvasGlobals.activeVertex) return;
     
-    const pointer = canvas.getPointer(event.e);
+    const pointer = CanvasGlobals.canvas.getPointer(event.e);
     
     // If we have an active vertex, let it handle the movement
-    if (activeVertex.handleMouseMoveRef) {
+    if (CanvasGlobals.activeVertex.handleMouseMoveRef) {
       // Simulate a mouse move event with the current pointer
       const simulatedEvent = {
         e: event.e,
         pointer: pointer
       };
-      activeVertex.handleMouseMoveRef(simulatedEvent);
+      CanvasGlobals.activeVertex.handleMouseMoveRef(simulatedEvent);
     } else {
       // Fallback direct positioning if vertex control isn't active
       component[objectKey].set({
@@ -340,7 +344,7 @@ let GeneralHandler = {
         top: pointer.y
       });
       component[objectKey].setCoords();
-      canvas.renderAll();
+      CanvasGlobals.canvas.renderAll();
     }
   },
   
@@ -359,25 +363,25 @@ let GeneralHandler = {
     // Complete the placement if we have an active object
     if (component[objectKey]) {
       // Complete the placement
-      if (activeVertex) {
-        activeVertex.handleMouseDownRef(event);
+      if (CanvasGlobals.activeVertex) {
+        CanvasGlobals.activeVertex.handleMouseDownRef(event);
       }
 
       // Clean up
-      canvas.off('mouse:move', component[mouseMoveHandlerName]);
-      canvas.off('mouse:down', component[mouseClickHandlerName]);
-      canvas.discardActiveObject();
+      CanvasGlobals.canvas.off('mouse:move', component[mouseMoveHandlerName]);
+      CanvasGlobals.canvas.off('mouse:down', component[mouseClickHandlerName]);
+      CanvasGlobals.canvas.discardActiveObject();
 
       // Reset state
       component[objectKey].isTemporary = false;
       component[objectKey] = null;
-      activeVertex = null;
+      CanvasGlobals.activeVertex = null;
 
       // Reattach default keyboard event listener
       document.removeEventListener('keydown', component[cancelHandlerName]);
-      document.addEventListener('keydown', ShowHideSideBarEvent);
+      document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
 
-      canvas.renderAll();
+      CanvasGlobals.canvas.renderAll();
     }
   },
   
@@ -392,24 +396,24 @@ let GeneralHandler = {
   handleCancelWithEscape: function(component, event, objectKey, mouseMoveHandlerName, mouseClickHandlerName) {
     if (event.key === 'Escape') {
       // If there's a newly created object being placed, delete it
-      if (component[objectKey] && canvas.contains(component[objectKey])) {
+      if (component[objectKey] && CanvasGlobals.canvas.contains(component[objectKey])) {
         component[objectKey].deleteObject();
         component[objectKey] = null;
       }
 
       // Clean up active vertex if there is one
-      if (activeVertex) {
-        activeVertex.cleanupDrag();
-        activeVertex = null;
+      if (CanvasGlobals.activeVertex) {
+        CanvasGlobals.activeVertex.cleanupDrag();
+        CanvasGlobals.activeVertex = null;
       }
 
       // Restore event listeners
-      canvas.off('mouse:move', component[mouseMoveHandlerName]);
-      canvas.off('mouse:down', component[mouseClickHandlerName]);
+      CanvasGlobals.canvas.off('mouse:move', component[mouseMoveHandlerName]);
+      CanvasGlobals.canvas.off('mouse:down', component[mouseClickHandlerName]);
       document.removeEventListener('keydown', component.cancelInput || component.cancelDraw);
-      document.addEventListener('keydown', ShowHideSideBarEvent);
+      document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
 
-      canvas.renderAll();
+      CanvasGlobals.canvas.renderAll();
     }
   },
   
@@ -428,21 +432,21 @@ let GeneralHandler = {
   createObjectWithSnapping: function(options, createObjectFn, component, objectKey, vertexId, mouseMoveHandler, mouseClickHandler, cancelHandler) {
     // Clear any existing object being placed
     if (component[objectKey]) {
-      canvas.remove(component[objectKey]);
+      CanvasGlobals.canvas.remove(component[objectKey]);
       component[objectKey] = null;
       
-      if (activeVertex) {
-        activeVertex.cleanupDrag();
-        activeVertex = null;
+      if (CanvasGlobals.activeVertex) {
+        CanvasGlobals.activeVertex.cleanupDrag();
+        CanvasGlobals.activeVertex = null;
       }
     }
     
     // Remove standard event listeners and add component-specific ones
-    document.removeEventListener('keydown', ShowHideSideBarEvent);
+    document.removeEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
     document.addEventListener('keydown', cancelHandler);
     
     // Get the center of the canvas viewport
-    const vpt = CenterCoord();
+    const vpt = CanvasGlobals.CenterCoord();
     const centerX = vpt.x;
     const centerY = vpt.y;
     
@@ -457,23 +461,23 @@ let GeneralHandler = {
       component[objectKey] = newObject;
       
       // Add mouse event handlers
-      canvas.on('mouse:move', mouseMoveHandler);
-      canvas.on('mouse:down', mouseClickHandler);
+      CanvasGlobals.canvas.on('mouse:move', mouseMoveHandler);
+      CanvasGlobals.canvas.on('mouse:down', mouseClickHandler);
       
       // Set up the object for snapping
-      canvas.setActiveObject(newObject);
+      CanvasGlobals.canvas.setActiveObject(newObject);
       newObject.enterFocusMode();
       newObject.isTemporary = true;
       
       // Activate the vertex control for snapping
       if (newObject.controls && newObject.controls[vertexId]) {
         // Get the vertex control
-        activeVertex = newObject.controls[vertexId];
-        activeVertex.isDown = true;
-        activeVertex.isDragging = true;
+        CanvasGlobals.activeVertex = newObject.controls[vertexId];
+        CanvasGlobals.activeVertex.isDown = true;
+        CanvasGlobals.activeVertex.isDragging = true;
         
         // Store original position info
-        activeVertex.originalPosition = {
+        CanvasGlobals.activeVertex.originalPosition = {
           left: newObject.left,
           top: newObject.top
         };
@@ -482,13 +486,13 @@ let GeneralHandler = {
         const vertex = newObject.getBasePolygonVertex(vertexId);
         if (vertex) {
           // Store vertex positions for snapping
-          activeVertex.vertexOriginalPosition = {
+          CanvasGlobals.activeVertex.vertexOriginalPosition = {
             x: vertex.x,
             y: vertex.y
           };
           
           // Calculate offset from object center to vertex
-          activeVertex.vertexOffset = {
+          CanvasGlobals.activeVertex.vertexOffset = {
             x: vertex.x - newObject.left,
             y: vertex.y - newObject.top
           };
@@ -496,13 +500,13 @@ let GeneralHandler = {
         }
       }
       
-      canvas.renderAll();
+      CanvasGlobals.canvas.renderAll();
       return newObject;
     } catch (error) {
       console.error('Error creating object with snapping:', error);
       // Clean up event listeners in case of error
       document.removeEventListener('keydown', cancelHandler);
-      document.addEventListener('keydown', ShowHideSideBarEvent);
+      document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
       throw error; // Re-throw to allow caller to handle the error
     }
   },
@@ -518,19 +522,19 @@ let GeneralHandler = {
   genericHandlerOff: function(component, objectKey, mouseMoveHandlerName, mouseClickHandlerName, cancelHandlerName) {
     // If there's a new object being placed, finalize its placement
     if (component[objectKey]) {
-      if (activeVertex) {
-        activeVertex.finishDrag();
+      if (CanvasGlobals.activeVertex) {
+        CanvasGlobals.activeVertex.finishDrag();
       }
       component[objectKey] = null;
     }
 
     // Remove event listeners
-    canvas.off('mouse:move', component[mouseMoveHandlerName]);
-    canvas.off('mouse:down', component[mouseClickHandlerName]);
+    CanvasGlobals.canvas.off('mouse:move', component[mouseMoveHandlerName]);
+    CanvasGlobals.canvas.off('mouse:down', component[mouseClickHandlerName]);
     document.removeEventListener('keydown', component[cancelHandlerName]);
-    document.addEventListener('keydown', ShowHideSideBarEvent);
+    document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
 
-    canvas.renderAll();
+    CanvasGlobals.canvas.renderAll();
   },
   
   /**
@@ -554,11 +558,11 @@ let GeneralHandler = {
    */
   getCenterCoordinates: function() {
     // Center the object on the canvas viewport
-    const centerX = canvas.width / 2 / canvas.getZoom();
-    const centerY = canvas.height / 2 / canvas.getZoom();
+    const centerX = CanvasGlobals.canvas.width / 2 / CanvasGlobals.canvas.getZoom();
+    const centerY = CanvasGlobals.canvas.height / 2 / CanvasGlobals.canvas.getZoom();
 
     // Account for any panning that has been done
-    const vpt = canvas.viewportTransform;
+    const vpt = CanvasGlobals.canvas.viewportTransform;
     const actualCenterX = (centerX - vpt[4]) / vpt[0];
     const actualCenterY = (centerY - vpt[5]) / vpt[3];
     
@@ -645,4 +649,5 @@ const GeneralSettings = {
   }
 };
 
-// Export the GeneralHandler for use in other files
+// Export GeneralHandler and GeneralSettings for ES module usage
+export { GeneralHandler, GeneralSettings };

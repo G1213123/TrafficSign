@@ -1,4 +1,17 @@
 /* Template Signs Panel */
+import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
+import { CanvasGlobals } from '../canvas.js';
+import { TextObject } from '../objects/text.js';
+import { drawLabeledSymbol } from '../objects/symbols.js';
+import { BorderUtilities } from '../objects/border.js';
+import { VDividerCreate, HDividerCreate, VLaneCreate, HLineCreate } from '../objects/divider.js';
+import { drawSideRoadOnCursor, finishDrawSideRoad, calcMainRoadVertices, MainRoadSymbol, SideRoadSymbol, calcRoundaboutVertices } from '../objects/route.js';
+import { anchorShape } from '../objects/anchor.js';
+
+const canvas = CanvasGlobals.canvas;
+const canvasObject = CanvasGlobals.canvasObject;
+
+
 let FormTemplateComponent = {
   // Template gallery with predefined complex sign layouts
   templates: {    'Flag Sign': {
@@ -56,7 +69,7 @@ let FormTemplateComponent = {
     /**
    * Initialize the template panel
    */  templatePanelInit: function () {
-    tabNum = 8;
+    GeneralHandler.tabNum = 6;
     var parent = GeneralHandler.PanelInit();
 
     if (parent) {
@@ -134,7 +147,7 @@ let FormTemplateComponent = {
     const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
 
     // Clear any active selection
-    canvas.discardActiveObject();
+    CanvasGlobals.canvas.discardActiveObject();
 
     // Call the appropriate template creation function
     FormTemplateComponent.createTemplateSign(templateName, xHeight, color);
@@ -145,7 +158,7 @@ let FormTemplateComponent = {
     // Each template will specify its own xHeight and color
     console.log(`Creating template: ${templateName}`);
 
-    const vpt = CenterCoord();
+    const vpt = CanvasGlobals.CenterCoord();
     const centerX = vpt.x;
     const centerY = vpt.y; switch (templateName) {
       case 'Flag Sign':
@@ -328,7 +341,7 @@ let FormTemplateComponent = {
         { xHeight: xHeight, borderType: 'flag', colorType: 'Blue Background' }
       );
 
-      canvas.renderAll();
+      CanvasGlobals.canvas.renderAll();
       console.log('Basic Gantry template created successfully');
 
     } catch (error) {
@@ -2257,3 +2270,5 @@ GeneralSettings.addListener(
     }
   })
 );
+
+export { FormTemplateComponent };

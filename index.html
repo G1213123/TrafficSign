@@ -13,8 +13,6 @@
     <script src="https://opentype.js.org/dist/opentype.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.1/jspdf.umd.min.js"></script>
     <script src="js/dxf-bundle.js"></script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9252664921109550"
-     crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
@@ -111,7 +109,8 @@
             console.log('AdSense script loaded in production environment');
         }
     </script>
-    <script type="text/javascript">
+
+     <script type="text/javascript">
         // Track resources loading
         let resourcesLoaded = 0;
         const requiredResources = 4; // Update this if you add more resources
@@ -167,25 +166,9 @@
 
 
     </script>
-    <script type="text/javascript" src="js/canvas.js"></script>
-    <script type="text/javascript" src="js/canvasTracker.js"></script>
-    <script type="text/javascript" src="js/anchor.js"></script> <!-- Drawing components -->
-    <script type="text/javascript" src="js/objects/path.js"></script>
-    <script type="text/javascript" src="js/objects/vertexKeyNav.js"></script>
-    <script type="text/javascript" src="js/objects/draw.js"></script>
-    <script type="text/javascript" src="js/objects/template.js"></script>
-    <script type="text/javascript" src="js/objects/symbols.js"></script>
-    <script type="text/javascript" src="js/objects/text.js"></script>
-    <script type="text/javascript" src="js/objects/route.js"></script>
-    <script type="text/javascript" src="js/objects/border.js"></script>
-    <script type="text/javascript" src="js/objects/divider.js"></script>
-
-    <!-- Sidebar components (modularized) -->
-    <script type="text/javascript" src="js/sidebar/sidebar.js"></script>
-    <script type="text/javascript" src="js/sidebar/sb-inspector.js"></script>
-
-    <script type="text/javascript" src="js/test.js"></script>
-    <script type="text/javascript" src="js/tooltip.js"></script>
+    
+    <!-- Modular development: load only the main entry point as a module -->
+    <script type="module" src="js/main.js"></script>
 </body>
 
 </html>
