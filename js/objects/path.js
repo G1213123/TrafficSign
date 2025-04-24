@@ -420,16 +420,23 @@ function convertVertexToPathCommands(path) {
 function getFontPath(t) {
   // Use pre-parsed font objects instead of parsing the buffer each time
   let fontGlyphs;
-  if (t.fontFamily === 'TransportMedium') {
-    fontGlyphs = window.parsedFontMedium || opentype.parse(buffer1);
-  } else if (t.fontFamily === 'TransportHeavy') {
-    fontGlyphs = window.parsedFontHeavy || opentype.parse(buffer2);
-  } else if (t.fontFamily === 'TW-MOE-Std-Kai') {
-    fontGlyphs = window.parsedFontKai || opentype.parse(buffer4);
-  } else {
-    fontGlyphs = window.parsedFontChinese || opentype.parse(buffer3);
+  let path;
+  try{
+    if (t.fontFamily === 'TransportMedium') {
+      fontGlyphs = window.parsedFontMedium;
+    } else if (t.fontFamily === 'TransportHeavy') {
+      fontGlyphs = window.parsedFontHeavy ;
+    } else if (t.fontFamily === 'TW-MOE-Std-Kai') {
+      fontGlyphs = window.parsedFontKai ;
+    } else {
+      fontGlyphs = window.parsedFontChinese ;
+    }
+    return fontGlyphs.getPath(t.character, t.x, t.y, t.fontSize);
+  } catch (error) {
+    setTimeout((t) => {
+      getFontPath(t)
+    }, 1000);
   }
-  return fontGlyphs.getPath(t.character, t.x, t.y, t.fontSize);
 }
 
 /**

@@ -460,7 +460,7 @@ function ShowHideSideBarEvent(e) {
   }
 }
 
-function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = null, xHeight = null) {
+function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = null, xHeight = null, unit = 'sw') {
   const promptBox = document.getElementById('cursorTextBox');
   const answerBox = document.getElementById('cursorAnswerBox');
 
@@ -469,7 +469,7 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
   document.removeEventListener('keydown', ShowHideSideBarEvent);
 
   // Unit handling variables
-  let currentUnit = 'sw';
+  let currentUnit = unit;
   let unitDisplay = null;
   let inputValue = '';
 
@@ -480,7 +480,7 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
     answerBox.select();
 
     // Set up unit display if xHeight is provided
-    if (xHeight !== null && !isNaN(parseFloat(withAnswerBox))) {
+    if (xHeight !== null) {
       // Create or get unit display element
       unitDisplay = document.getElementById('unit-display');
       if (!unitDisplay) {
@@ -562,9 +562,9 @@ function hideTextBox() {
   }, 1000); // Delay in milliseconds (e.g., 1000ms = 1 second)
 }
 
-async function selectObjectHandler(text, callback, options = null, xHeight = null) {
+async function selectObjectHandler(text, callback, options = null, xHeight = null, unit = 'mm') {
   // prompt for user to select shape
-  const response = await showTextBox(text, ' ', 'keydown', null, xHeight)
+  const response = await showTextBox(text, ' ', 'keydown', null, xHeight, unit)
   // Check if the response is null (user pressed 'Esc')
   if (response === null) {
     hideTextBox();
