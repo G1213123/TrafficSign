@@ -1,7 +1,7 @@
 /* Border Panel */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas.js';
-import { BorderUtilities} from '../objects/border.js';
+import { BorderUtilities } from '../objects/border.js';
 import { HDividerCreate, VDividerCreate, HLineCreate, VLaneCreate } from '../objects/divider.js';
 import { BorderColorScheme, BorderFrameWdith, BorderTypeScheme } from '../objects/template.js';
 import { vertexToPath } from '../objects/path.js';
@@ -14,7 +14,7 @@ let FormBorderWrapComponent = {
       // Create a container for border parameters
       var borderParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
       GeneralHandler.createInput('input-xHeight', 'x Height', borderParamsContainer, GeneralSettings.xHeight, FormBorderWrapComponent.handleXHeightChange, 'input')
-      
+
       // Color scheme selection
       GeneralHandler.createSelect('input-color', 'Select Color Scheme', Object.keys(BorderColorScheme), borderParamsContainer, null, FormBorderWrapComponent.handleColorChange, 'change')
 
@@ -35,19 +35,19 @@ let FormBorderWrapComponent = {
   },
 
   // Handle xHeight change and update GeneralSettings
-  handleXHeightChange: function(event) {
+  handleXHeightChange: function (event) {
     const xHeight = parseInt(event.target.value);
     if (!isNaN(xHeight) && xHeight > 0) {
       // Update GeneralSettings
       GeneralSettings.updateSetting('xHeight', xHeight);
-      
+
       // Redraw the border buttons with the new xHeight
       FormBorderWrapComponent.createBorderButtons();
     }
   },
-  
+
   // Handle color scheme change
-  handleColorChange: function(event) {
+  handleColorChange: function (event) {
     // Redraw the border buttons with the new color scheme
     FormBorderWrapComponent.createBorderButtons();
   },
@@ -79,7 +79,7 @@ let FormBorderWrapComponent = {
 
     // Create SVG buttons for each border type
     Object.keys(BorderTypeScheme).forEach(async (borderType) => {
-      const shapeMeta = BorderTypeScheme[borderType](xHeight, borderType=='exit'?bboxExit:bbox,);
+      const shapeMeta = BorderTypeScheme[borderType](xHeight, borderType == 'exit' ? bboxExit : bbox,);
       const svg = await FormBorderWrapComponent.createBorderSVG(shapeMeta,)
       GeneralHandler.createSVGButton(`button-${borderType}`, svg, parent, 'border', FormBorderWrapComponent.BorderCreateHandler, 'click')
     });
@@ -129,6 +129,7 @@ let FormBorderWrapComponent = {
   },
 
   StackDividerHandler: function () {
+    const xHeight = parseInt(document.getElementById("input-xHeight").value);
     CanvasGlobals.selectObjectHandler('Select object above divider or type in fixed distance to border top', function (aboveObject, options, aboveValue) {
       CanvasGlobals.selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
         // Pass both objects and entered values to allow for fixed distance options
@@ -138,6 +139,7 @@ let FormBorderWrapComponent = {
   },
 
   GantryDividerHandler: function () {
+    const xHeight = parseInt(document.getElementById("input-xHeight").value);
     CanvasGlobals.selectObjectHandler('Select object left to divider or type in fixed distance to border left', function (leftObject, options, leftValue) {
       CanvasGlobals.selectObjectHandler('Select object right to divider or type in fixed distance to border right', function (rightObject, options, rightValue) {
         // Pass both objects and entered values to allow for fixed distance options
@@ -147,6 +149,7 @@ let FormBorderWrapComponent = {
   },
 
   GantryLineHandler: function () {
+    const xHeight = parseInt(document.getElementById("input-xHeight").value);
     CanvasGlobals.selectObjectHandler('Select object above divider or type in fixed distance to border top', function (aboveObject, options, aboveValue) {
       CanvasGlobals.selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
         // Pass both objects and entered values to allow for fixed distance options
@@ -156,6 +159,7 @@ let FormBorderWrapComponent = {
   },
 
   LaneLineHandler: function () {
+    const xHeight = parseInt(document.getElementById("input-xHeight").value);
     CanvasGlobals.selectObjectHandler('Select object left to lane or type in fixed distance to border left', function (leftObject, options, leftValue) {
       CanvasGlobals.selectObjectHandler('Select object right to lane or type in fixed distance to border right', function (rightObject, options, rightValue) {
         // Pass both objects and entered values to allow for fixed distance options
@@ -166,14 +170,14 @@ let FormBorderWrapComponent = {
 }
 
 // Add listener for GeneralSettings changes
-GeneralSettings.addListener(function(setting, value) {
+GeneralSettings.addListener(function (setting, value) {
   // Only update UI if we're in the Border panel
   if (GeneralHandler.tabNum === 3) {
     if (setting === 'xHeight') {
       const xHeightInput = document.getElementById('input-xHeight');
       if (xHeightInput && xHeightInput.value !== value.toString()) {
         xHeightInput.value = value;
-        
+
         // Redraw border buttons with new xHeight
         FormBorderWrapComponent.createBorderButtons();
       }
@@ -201,11 +205,11 @@ let FormDrawBorderAddComponent = {
 
       // Create a container for border type selection
       const borderTypeContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      
+
       // Create border type toggle
-      GeneralHandler.createToggle('Border Type', FormDrawBorderAddComponent.borderTypes, borderTypeContainer, 
+      GeneralHandler.createToggle('Border Type', FormDrawBorderAddComponent.borderTypes, borderTypeContainer,
         FormDrawBorderAddComponent.borderTypes[0], FormDrawBorderAddComponent.handleBorderTypeChange);
-      
+
       // Create a containe  r for border-specific parameters
       //const borderParamsContainer = GeneralHandler.createNode("div", { 'class': 'border-params-container' }, parent);
       //FormDrawBorderAddComponent.updateBorderParamsUI('Rectangle', borderParamsContainer);
@@ -220,7 +224,7 @@ let FormDrawBorderAddComponent = {
 
   BorderOnMouseClick: function (event) {
     if (event.e.button !== 0) return;
-    
+
     // Use shared mouse click handler
     if (FormDrawBorderAddComponent.newBorderObject) {
       GeneralHandler.handleObjectOnMouseClick(
@@ -231,7 +235,7 @@ let FormDrawBorderAddComponent = {
         'BorderOnMouseClick',
         'cancelBorderDraw'
       );
-      
+
       return;
     }
   },
@@ -239,10 +243,10 @@ let FormDrawBorderAddComponent = {
   cancelBorderDraw: function (event) {
     // Use shared escape key handler
     GeneralHandler.handleCancelWithEscape(
-      FormDrawBorderAddComponent, 
-      event, 
-      'newBorderObject', 
-      'BorderOnMouseMove', 
+      FormDrawBorderAddComponent,
+      event,
+      'newBorderObject',
+      'BorderOnMouseMove',
       'BorderOnMouseClick'
     );
   },
@@ -250,7 +254,7 @@ let FormDrawBorderAddComponent = {
   /**
    * Clean up resources when switching away from the border panel
    */
-  BorderHandlerOff: function() {
+  BorderHandlerOff: function () {
     // Use shared handler for cleanup
     GeneralHandler.genericHandlerOff(
       FormDrawBorderAddComponent,
@@ -264,7 +268,7 @@ let FormDrawBorderAddComponent = {
 
 // Use the shared settings listener implementation
 GeneralSettings.addListener(
-  GeneralHandler.createSettingsListener(3, function(setting, value) {
+  GeneralHandler.createSettingsListener(3, function (setting, value) {
     // Border-specific updates when settings change
     if (FormDrawBorderAddComponent.newBorderObject) {
       if (setting === 'messageColor') {

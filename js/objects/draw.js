@@ -1,25 +1,26 @@
 import { CanvasGlobals } from "../canvas.js";
 import { calculateTransformedPoints, convertVertexToPathCommands, getFontPath, convertFontPathToFabricPath } from "./path.js";
-import {canvasTracker} from "../canvasTracker.js";
-import { VertexControl } from "./vertexKeyNav.js";
-import { globalAnchorTree,anchorShape } from './anchor.js';
+import { canvasTracker } from "../canvasTracker.js";
+import { VertexControl } from "./vertex.js";
+import { BorderDimensionDisplay } from "./dimension.js";
+import { LockIcon } from "./lock.js";
+import { globalAnchorTree, anchorShape } from './anchor.js';
 import { CanvasObjectInspector } from "../sidebar/sb-inspector.js";
+import { FormDebugComponent } from "../sidebar/sb-debug.js";
 
 const canvas = CanvasGlobals.canvas; // Assuming canvas is a global variable in canvas.js
 const canvasObject = CanvasGlobals.canvasObject; // Assuming canvasObject is a global variable in canvas.js
 
 const deleteIcon =
   "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
-let vertexSnapInProgress = false; // New flag to prevent multiple clicks during snapping
-
 
 
 // additional property for fabric object
-const originalToObject = fabric.Object.prototype.toObject;
-const myAdditional = ['functionalType'];
-fabric.Object.prototype.toObject = function (additionalProperties) {
-  return originalToObject.call(this, myAdditional.concat(additionalProperties));
-}
+//const originalToObject = fabric.Object.prototype.toObject;
+//const myAdditional = ['functionalType'];
+//fabric.Object.prototype.toObject = function (additionalProperties) {
+//  return originalToObject.call(this, myAdditional.concat(additionalProperties));
+//}
 
 // Enable double-click detection on canvas
 canvas.on('mouse:down', function (options) {
@@ -79,7 +80,7 @@ class GlyphPath extends fabric.Group {
     // Store vertex data for reference
     this.vertex = shapeMeta.path.map(p => p.vertex).flat();
     this.insertPoint = shapeMeta.path[0].vertex[0];
-    
+
     // Create fabric.Path objects directly from vertex data
     shapeMeta.path.forEach(path => {
       const pathCommands = convertVertexToPathCommands(path);
@@ -93,7 +94,7 @@ class GlyphPath extends fabric.Group {
       });
       this.add(pathObj);
     });
-    
+
     // Add text elements if present
     if (shapeMeta.text && shapeMeta.text.length > 0) {
       shapeMeta.text.forEach(textElem => {
@@ -113,10 +114,10 @@ class GlyphPath extends fabric.Group {
         }
       });
     }
-    
+
     this.setCoords();
   }
-  
+
 }
 
 
@@ -321,23 +322,22 @@ class BaseGroup extends fabric.Group {
       this.add(this.basePolygon);
 
       // Basepolygon async not loaded, make a temp dimension
-      if (this.width == 0 || this.height == 0){
+      if (this.width == 0 || this.height == 0) {
         let left = Infinity
         let top = Infinity
         let right = -Infinity
         let bottom = -Infinity
-        this.basePolygon.vertex.forEach((v) =>
-        {
+        this.basePolygon.vertex.forEach((v) => {
           right = Math.max(right, v.x)
           bottom = Math.max(bottom, v.y)
           left = Math.min(left, v.x)
           top = Math.min(top, v.y)
         }
-      )
-        this.tempWidth =left -  right 
+        )
+        this.tempWidth = left - right
         this.tempHeight = bottom - top
         this.tempLeft = left
-        this.tempTop  = top
+        this.tempTop = top
       }
 
       this.drawVertex(calcVertex);
@@ -632,12 +632,12 @@ class BaseGroup extends fabric.Group {
     // Check for route-specific methods
     if (this.onMove) {
       this.onMove();
-    }    if (canvas.getActiveObject() === this) {
+    } if (canvas.getActiveObject() === this) {
       this.drawAnchorLinkage();
       this.showLockHighlights();
       this.showDimensions();
-    }    
-      // Check if this object is already being processed in the current update cycle
+    }
+    // Check if this object is already being processed in the current update cycle
     const alreadyProcessedX = globalAnchorTree.updateInProgressX && globalAnchorTree.updatedObjectsX.has(this.canvasID);
     const alreadyProcessedY = globalAnchorTree.updateInProgressY && globalAnchorTree.updatedObjectsY.has(this.canvasID);
 
@@ -651,7 +651,7 @@ class BaseGroup extends fabric.Group {
     // 2. For anchored objects, only propagate if the object itself initiated the movement (not if it was moved by another object)
     const needXPropagation = deltaX !== 0 && !alreadyProcessedX && (!isAnchoredObjectX || globalAnchorTree.starterObjectX === this.canvasID);
     const needYPropagation = deltaY !== 0 && !alreadyProcessedY && (!isAnchoredObjectY || globalAnchorTree.starterObjectY === this.canvasID);
-    
+
     if (needXPropagation || needYPropagation) {
       // Start update cycles if needed and record this object as the starter
       if (needXPropagation && !globalAnchorTree.updateInProgressX) {
@@ -735,8 +735,8 @@ class BaseGroup extends fabric.Group {
     }
 
     // Check if border resize is needed
-    const firstXBorder = globalAnchorTree.starterObjectX ? canvasObject[globalAnchorTree.starterObjectX].borderGroup : null;
-    const firstYBorder = globalAnchorTree.starterObjectY ? canvasObject[globalAnchorTree.starterObjectY].borderGroup : null;
+    const firstXBorder = globalAnchorTree.starterObjectX !==null ? canvasObject[globalAnchorTree.starterObjectX].borderGroup : null;
+    const firstYBorder = globalAnchorTree.starterObjectY !==null ? canvasObject[globalAnchorTree.starterObjectY].borderGroup : null;
     if (this.functionalType !== 'HDivider' &&
       this.functionalType !== 'VDivider' &&
       this.functionalType !== 'HLine' &&
@@ -876,6 +876,7 @@ class BaseGroup extends fabric.Group {
           anchoredGroup.lockYToPolygon = {}
           anchoredGroup.set({ lockMovementY: false });
         }
+        anchoredGroup.focusMode = false;
         anchoredGroup.drawAnchorLinkage()
       })
     }
@@ -1014,574 +1015,6 @@ class BaseGroup extends fabric.Group {
 // Register the custom class with Fabric.js
 fabric.BaseGroup = BaseGroup;
 
-class LockIcon {
-  constructor(baseGroup, lockParam, direction) {
-    this.baseGroup = baseGroup;
-    this.direction = direction
-    this.lines = []
-    this.dimensionTexts = []
-    this.icons = []
 
-    let sourcePoint = lockParam.sourceObject.getBasePolygonVertex(lockParam.sourcePoint)
-    let targetPoint = lockParam.TargetObject.getBasePolygonVertex(lockParam.targetPoint)
-    this.createLock(sourcePoint, targetPoint)
 
-    if (lockParam.secondSourceObject) {
-      let sourcePoint = lockParam.secondSourceObject.getBasePolygonVertex(
-        lockParam.secondSourcePoint)
-      let targetPoint = lockParam.secondTargetObject.getBasePolygonVertex(lockParam.secondTargetPoint)
-      this.createLock(sourcePoint, targetPoint)
-    }
-
-    this.icons.forEach(i => {
-      // Add hover and click event listeners
-      i.on('mouseover', this.onHover.bind(this));
-      i.on('mouseout', this.onMouseOut.bind(this));
-      i.on('mousedown', this.onClick.bind(this));
-    })
-
-    // Add lock lines and lock icon to the canvas
-    this.objects = [...this.lines, ...this.dimensionTexts, ...this.icons,]
-  }
-
-  createLock(sourcePoint, targetPoint) {
-    // Fixed offset distances for engineering dimension style
-    const offsetDistance = 30; // Fixed pixel offset for dimension line
-    const iconOffset = 15;     // Fixed pixel offset for lock icon
-
-    // Scale adjustments based on zoom
-    const zoom = canvas.getZoom();
-    const lineWidth = 1 / zoom;        // Thinner lines for engineering style
-    const fontSize = 15 / zoom;        // Fixed 15px font size
-    const arrowSize = 12 / zoom;        // Size of dimension arrows
-    const extensionLineLength = 8 / zoom; // Length of extension lines
-
-    // Create dimension lines and position lock icon based on direction
-    if (this.direction == 'x') {
-      // Position of dimension line, offset from source and target points
-      const dimLineY = sourcePoint.y - offsetDistance / zoom;
-
-      // Extension lines (vertical lines from source and target points to dimension line)
-      this.lines.push(new fabric.Line(
-        [sourcePoint.x, sourcePoint.y, sourcePoint.x, dimLineY - extensionLineLength],
-        {
-          stroke: 'green',
-          strokeWidth: lineWidth,
-          selectable: false,
-          functionalType: 'anchorLine'
-        }
-      ));
-
-      this.lines.push(new fabric.Line(
-        [targetPoint.x, targetPoint.y, targetPoint.x, dimLineY - extensionLineLength],
-        {
-          stroke: 'green',
-          strokeWidth: lineWidth,
-          selectable: false,
-          functionalType: 'anchorLine'
-        }
-      ));
-
-      // Main dimension line
-      this.lines.push(new fabric.Line(
-        [sourcePoint.x, dimLineY, targetPoint.x, dimLineY],
-        {
-          stroke: 'green',
-          strokeWidth: lineWidth,
-          selectable: false,
-          functionalType: 'anchorLine',
-        }
-      ));
-
-      // Add arrow endpoints
-      this.addArrow(sourcePoint.x, dimLineY, 'right', 'green', arrowSize);
-      this.addArrow(targetPoint.x, dimLineY, 'left', 'green', arrowSize);
-
-      // Calculate the midpoint for dimension text and icon
-      const midX = (sourcePoint.x + targetPoint.x) / 2;
-      const midY = dimLineY - (iconOffset / zoom);
-
-      // Dimension text
-      this.dimensionTexts.push(new fabric.Text(
-        (targetPoint.x - sourcePoint.x).toFixed() + 'mm',
-        {
-          left: midX,
-          top: dimLineY - (25 / canvas.getZoom()),
-          fontSize: fontSize,
-          fill: 'green',
-          fontFamily: 'Arial',
-          textAlign: 'center',
-          originX: 'center',
-          originY: 'bottom',
-          selectable: false,
-          evented: false,
-          stroke: '#fff',
-          strokeWidth: 3 / canvas.getZoom(),
-          paintFirst: 'stroke'
-        }
-      ));
-
-      // Lock icon at fixed position relative to dimension line
-      this.icons.push(new fabric.Text('\uf023', {
-        fontFamily: 'Font Awesome 5 Free',
-        fontWeight: 900,
-        left: midX,
-        top: midY,
-        fontSize: fontSize,
-        fill: 'gold',
-        stroke: 'black',
-        strokeWidth: 0.5 / zoom,
-        originX: 'center',
-        originY: 'center',
-        selectable: false,
-        functionalType: 'lockIcon',
-      }));
-
-    } else { // Y direction
-      // Position of dimension line, offset from source and target points
-      const dimLineX = sourcePoint.x - offsetDistance / zoom;
-
-      // Extension lines (horizontal lines from source and target points to dimension line)
-      this.lines.push(new fabric.Line(
-        [sourcePoint.x, sourcePoint.y, dimLineX - extensionLineLength, sourcePoint.y],
-        {
-          stroke: 'red',
-          strokeWidth: lineWidth,
-          selectable: false,
-          functionalType: 'anchorLine'
-        }
-      ));
-
-      this.lines.push(new fabric.Line(
-        [targetPoint.x, targetPoint.y, dimLineX - extensionLineLength, targetPoint.y],
-        {
-          stroke: 'red',
-          strokeWidth: lineWidth,
-          selectable: false,
-          functionalType: 'anchorLine'
-        }
-      ));
-
-      // Main dimension line
-      this.lines.push(new fabric.Line(
-        [dimLineX, sourcePoint.y, dimLineX, targetPoint.y],
-        {
-          stroke: 'red',
-          strokeWidth: lineWidth,
-          selectable: false,
-          functionalType: 'anchorLine',
-        }
-      ));
-
-      // Add arrow endpoints
-      this.addArrow(dimLineX, sourcePoint.y, 'down', 'red', arrowSize);
-      this.addArrow(dimLineX, targetPoint.y, 'up', 'red', arrowSize);
-
-      // Calculate the midpoint for dimension text and icon
-      const midX = dimLineX - (iconOffset / zoom);
-      const midY = (sourcePoint.y + targetPoint.y) / 2;
-
-      // Dimension text
-      this.dimensionTexts.push(new fabric.Text(
-        (targetPoint.y - sourcePoint.y).toFixed() + 'mm',
-        {
-          left: midX,
-          top: midY - 15 / canvas.getZoom(),
-          fontSize: fontSize,
-          fill: 'red',
-          fontFamily: 'Arial',
-          textAlign: 'center',
-          originX: 'center',
-          originY: 'bottom',
-          selectable: false,
-          evented: false,
-          stroke: '#fff',
-          strokeWidth: 3 / canvas.getZoom(),
-          paintFirst: 'stroke'
-        }
-      ));
-
-      // Lock icon at fixed position relative to dimension line
-      this.icons.push(new fabric.Text('\uf023', {
-        fontFamily: 'Font Awesome 5 Free',
-        fontWeight: 900,
-        left: midX,
-        top: midY,
-        fontSize: fontSize,
-        fill: 'gold',
-        stroke: 'black',
-        strokeWidth: 0.5 / zoom,
-        originX: 'center',
-        originY: 'center',
-        selectable: false,
-        functionalType: 'lockIcon',
-      }));
-    }
-  }
-
-  // Helper method to add arrow endpoints to the dimension lines
-  addArrow(x, y, direction, color, size) {
-    let points;
-
-    switch (direction) {
-      case 'right':
-        points = [
-          { x: x, y: y },
-          { x: x + size, y: y - size / 4 },
-          { x: x + size, y: y + size / 4 }
-        ];
-        break;
-      case 'left':
-        points = [
-          { x: x, y: y },
-          { x: x - size, y: y - size / 4 },
-          { x: x - size, y: y + size / 4 }
-        ];
-        break;
-      case 'up':
-        points = [
-          { x: x, y: y },
-          { x: x - size / 4, y: y - size },
-          { x: x + size / 4, y: y - size }
-        ];
-        break;
-      case 'down':
-        points = [
-          { x: x, y: y },
-          { x: x - size / 4, y: y + size },
-          { x: x + size / 4, y: y + size }
-        ];
-        break;
-    }
-
-    const arrow = new fabric.Polygon(points, {
-      fill: color,
-      stroke: color,
-      strokeWidth: 0,
-      selectable: false,
-      functionalType: 'anchorArrow'
-    });
-
-    this.lines.push(arrow);
-  }
-
-  onHover(event) {
-    const i = this.icons.indexOf(event.target)
-    this.icons[i].set('text', '\uf3c1');
-    this.icons[i].set('fill', 'brown');
-    this.dimensionTexts[i].set('fill', 'brown');
-    this.icons[i].set('hoverCursor', 'pointer')
-    canvas.renderAll();
-  }
-
-  onMouseOut(event) {
-    const i = this.icons.indexOf(event.target)
-    this.icons[i].set('text', '\uf023');
-    this.icons[i].set('fill', 'gold');
-    this.dimensionTexts[i].set('fill', this.direction === 'x' ? 'green' : 'red');
-    this.icons[i].set('hoverCursor', 'default')
-    canvas.renderAll();
-  }
-
-  onClick() {
-    // Remove lock lines and lock icon from the canvas and baseGroup
-    canvas.remove(...this.objects);
-
-    // Remove this lock icon from the baseGroup's anchorageLink list
-    const anchorageIndex = this.baseGroup.anchorageLink.indexOf(this);
-    if (anchorageIndex !== -1) {
-      this.baseGroup.anchorageLink.splice(anchorageIndex, 1);
-    }
-
-    // Get references to both target objects (if they exist)
-    const anchorX = this.baseGroup.lockXToPolygon.TargetObject;
-    const anchorY = this.baseGroup.lockYToPolygon.TargetObject;
-
-    if (this.direction == 'x') {
-      // Handle X direction unlock
-      this.baseGroup.lockMovementX = false;
-
-      // Remove from globalAnchorTree x tree before clearing lockXToPolygon
-      if (anchorX) {
-        globalAnchorTree.removeNode('x', this.baseGroup.canvasID);
-      }
-
-      // Clear the lockXToPolygon object
-      this.baseGroup.lockXToPolygon = {};
-
-      // Only remove from anchoredPolygon if this object is not also Y-anchored to the same target
-      if (anchorX && (anchorY !== anchorX)) {
-        const anchoredIndex = anchorX.anchoredPolygon.indexOf(this.baseGroup);
-        if (anchoredIndex !== -1) {
-          anchorX.anchoredPolygon.splice(anchoredIndex, 1);
-        }
-      }
-    } else {
-      // Handle Y direction unlock
-      this.baseGroup.lockMovementY = false;
-
-      // Remove from globalAnchorTree y tree before clearing lockYToPolygon
-      if (anchorY) {
-        globalAnchorTree.removeNode('y', this.baseGroup.canvasID);
-      }
-
-      // Clear the lockYToPolygon object
-      this.baseGroup.lockYToPolygon = {};
-
-      // Only remove from anchoredPolygon if this object is not also X-anchored to the same target
-      if (anchorY && (anchorX !== anchorY)) {
-        const anchoredIndex = anchorY.anchoredPolygon.indexOf(this.baseGroup);
-        if (anchoredIndex !== -1) {
-          anchorY.anchoredPolygon.splice(anchoredIndex, 1);
-        }
-      }
-    }
-
-    // If the object is no longer anchored to anything, ensure it's removed from all anchoredPolygon lists
-    if (Object.keys(this.baseGroup.lockXToPolygon).length === 0 &&
-      Object.keys(this.baseGroup.lockYToPolygon).length === 0) {
-
-      // Check if we need to remove from anchorX's list
-      if (anchorX) {
-        const anchoredIndex = anchorX.anchoredPolygon.indexOf(this.baseGroup);
-        if (anchoredIndex !== -1) {
-          anchorX.anchoredPolygon.splice(anchoredIndex, 1);
-        }
-      }
-
-      // Check if we need to remove from anchorY's list (if different from anchorX)
-      if (anchorY && anchorY !== anchorX) {
-        const anchoredIndex = anchorY.anchoredPolygon.indexOf(this.baseGroup);
-        if (anchoredIndex !== -1) {
-          anchorY.anchoredPolygon.splice(anchoredIndex, 1);
-        }
-      }
-    }
-
-    // Record this unlock operation in history (if canvasTracker exists)
-    if (canvasTracker) {
-      canvasTracker.track('unlockObject', [{
-        type: 'Unlock',
-        objectId: this.baseGroup.canvasID,
-        functionalType: this.baseGroup.functionalType,
-        direction: this.direction
-      }]);
-    }
-
-    // Reshow the vertexes and dimensions
-    this.baseGroup.focusMode = false;
-
-    canvas.renderAll();
-  }
-}
-
-
-// Class to handle engineering style dimension displays for border objects
-class BorderDimensionDisplay {
-  constructor(options = {}) {
-    this.direction = options.direction || 'horizontal'; // 'horizontal' or 'vertical'
-    this.startX = options.startX;
-    this.startY = options.startY;
-    this.endX = options.endX !== undefined ? options.endX : this.startX;
-    this.endY = options.endY !== undefined ? options.endY : this.startY;
-    this.color = options.color || 'blue';
-    this.offset = options.offset || 30;
-    this.objects = [];
-
-    this.createDimension();
-  }
-
-  createDimension() {
-    // Scale adjustments based on zoom
-    const zoom = canvas.getZoom();
-    const lineWidth = 1 / zoom;
-    const fontSize = 12 / zoom;
-    const arrowSize = 8 / zoom;
-    const extensionLength = 6 / zoom;
-
-    // Create dimension lines based on direction
-    if (this.direction === 'horizontal') {
-      this.createHorizontalDimension(lineWidth, fontSize, arrowSize, extensionLength);
-    } else {
-      this.createVerticalDimension(lineWidth, fontSize, arrowSize, extensionLength);
-    }
-
-    // Add all objects to the canvas
-    canvas.add(...this.objects);
-  }
-
-  createHorizontalDimension(lineWidth, fontSize, arrowSize, extensionLength) {
-    // Position of the dimension line
-    const dimLineY = this.startY - this.offset;
-    const distance = Math.abs(this.endX - this.startX);
-
-    // Extension lines
-    this.objects.push(new fabric.Line(
-      [this.startX, this.startY, this.startX, dimLineY + extensionLength],
-      {
-        stroke: this.color,
-        strokeWidth: lineWidth,
-        selectable: false,
-        evented: false
-      }
-    ));
-
-    this.objects.push(new fabric.Line(
-      [this.endX, this.startY, this.endX, dimLineY + extensionLength],
-      {
-        stroke: this.color,
-        strokeWidth: lineWidth,
-        selectable: false,
-        evented: false
-      }
-    ));
-
-    // Main dimension line
-    this.objects.push(new fabric.Line(
-      [this.startX, dimLineY, this.endX, dimLineY],
-      {
-        stroke: this.color,
-        strokeWidth: lineWidth,
-        selectable: false,
-        evented: false
-      }
-    ));
-
-    // Add arrows
-    this.addArrow(this.startX, dimLineY, this.endX > this.startX ? 'right' : 'left', arrowSize);
-    this.addArrow(this.endX, dimLineY, this.endX > this.startX ? 'left' : 'right', arrowSize);
-
-    // Add dimension text
-    const midX = (this.startX + this.endX) / 2;
-    this.objects.push(new fabric.Text(
-      `${Math.round(distance)}mm`,
-      {
-        left: midX,
-        top: dimLineY - (15 / canvas.getZoom()),
-        fontSize: fontSize,
-        fill: this.color,
-        fontFamily: 'Arial',
-        textAlign: 'center',
-        originX: 'center',
-        originY: 'bottom',
-        selectable: false,
-        evented: false,
-        stroke: '#fff',
-        strokeWidth: 3 / canvas.getZoom(),
-        paintFirst: 'stroke'
-      }
-    ));
-  }
-
-  createVerticalDimension(lineWidth, fontSize, arrowSize, extensionLength) {
-    // Position of the dimension line
-    const dimLineX = this.startX - this.offset;
-    const distance = Math.abs(this.endY - this.startY);
-
-    // Extension lines
-    this.objects.push(new fabric.Line(
-      [this.startX, this.startY, dimLineX + extensionLength, this.startY],
-      {
-        stroke: this.color,
-        strokeWidth: lineWidth,
-        selectable: false,
-        evented: false
-      }
-    ));
-
-    this.objects.push(new fabric.Line(
-      [this.startX, this.endY, dimLineX + extensionLength, this.endY],
-      {
-        stroke: this.color,
-        strokeWidth: lineWidth,
-        selectable: false,
-        evented: false
-      }
-    ));
-
-    // Main dimension line
-    this.objects.push(new fabric.Line(
-      [dimLineX, this.startY, dimLineX, this.endY],
-      {
-        stroke: this.color,
-        strokeWidth: lineWidth,
-        selectable: false,
-        evented: false
-      }
-    ));
-
-    // Add arrows
-    this.addArrow(dimLineX, this.startY, this.endY > this.startY ? 'down' : 'up', arrowSize);
-    this.addArrow(dimLineX, this.endY, this.endY > this.startY ? 'up' : 'down', arrowSize);
-
-    // Add dimension text
-    const midY = (this.startY + this.endY) / 2;
-
-    // Create text with rotation for vertical dimension
-    this.objects.push(new fabric.Text(
-      `${Math.round(distance)}mm`,
-      {
-        left: dimLineX - (15 / canvas.getZoom()),
-        top: midY,
-        fontSize: fontSize,
-        fill: this.color,
-        fontFamily: 'Arial',
-        angle: -90, // Rotate for vertical text
-        originX: 'center',
-        originY: 'center',
-        selectable: false,
-        evented: false,
-        stroke: '#fff',
-        strokeWidth: 3 / canvas.getZoom(),
-        paintFirst: 'stroke'
-      }
-    ));
-  }
-
-  addArrow(x, y, direction, size) {
-    let points;
-
-    switch (direction) {
-      case 'right':
-        points = [
-          { x: x, y: y },
-          { x: x + size, y: y - size / 4 },
-          { x: x + size, y: y + size / 4 }
-        ];
-        break;
-      case 'left':
-        points = [
-          { x: x, y: y },
-          { x: x - size, y: y - size / 4 },
-          { x: x - size, y: y + size / 4 }
-        ];
-        break;
-      case 'up':
-        points = [
-          { x: x, y: y },
-          { x: x - size / 4, y: y - size },
-          { x: x + size / 4, y: y - size }
-        ];
-        break;
-      case 'down':
-        points = [
-          { x: x, y: y },
-          { x: x - size / 4, y: y + size },
-          { x: x + size / 4, y: y + size }
-        ];
-        break;
-    }
-
-    const arrow = new fabric.Polygon(points, {
-      fill: this.color,
-      stroke: this.color,
-      strokeWidth: 0,
-      selectable: false,
-      evented: false
-    });
-
-    this.objects.push(arrow);
-  }
-}
-
-export { BaseGroup, GlyphPath, LockIcon, BorderDimensionDisplay };
+export { BaseGroup, GlyphPath };

@@ -491,16 +491,6 @@ let FormSettingsComponent = {
   }
 };
 
-window.addEventListener('load', async function () {
-  await FormSettingsComponent.loadSettings();
-
-
-  setTimeout(function () {
-    document.getElementById('loading-overlay').style.display = 'none';
-    CanvasGlobals.canvas.renderAll();
-  }, 1000); // 3 second backup timeout
-
-});
 
 // Export the FormSettingsComponent for use in other files
 export { FormSettingsComponent };

@@ -1,49 +1,29 @@
 // Main entry point for modular loading in development/production
 // Import canvas.js as a classic script to ensure global variables are set up
-import './canvas.js'; // Corrected path
-
-// Import necessary functions and modules
-import { parseFont } from './objects/path.js'; // Import parseFont specifically
-import { FormDrawAddComponent } from './sidebar/sb-draw.js'; // Import FormDrawAddComponent specifically
+import './canvas.js'; 
 
 // Import other objects modules (these will use the global canvas)
 // import './objects/path.js'; // Removed generic import, using specific above
-import './objects/vertexKeyNav.js'; // Corrected path
-import './objects/draw.js'; // Corrected path
-import './objects/template.js'; // Corrected path
-import './objects/symbols.js'; // Corrected path
-import './objects/text.js'; // Corrected path
-import './objects/route.js'; // Corrected path
-import './objects/border.js'; // Corrected path
-import './objects/divider.js'; // Corrected path
+import './objects/vertex.js'; 
+import './objects/draw.js'; 
+import './objects/template.js'; 
+import './objects/symbols.js'; 
+import './objects/text.js'; 
+import './objects/route.js'; 
+import './objects/border.js'; 
+import './objects/divider.js'; 
 // Import anchor and tracker logic if needed
-import './objects/anchor.js'; // Corrected path
-import './canvasTracker.js'; // Corrected path
+import './objects/anchor.js'; 
+import './canvasTracker.js'; 
 // Import sidebar logic (UI, event handlers)
-import './sidebar/sidebar.js'; // Corrected path
+import './sidebar/sidebar.js'; 
 // Import any additional utilities or test logic
-import './test.js'; // Corrected path
-import './tooltip.js'; // Corrected path
+import './test.js'; 
+import './tooltip.js'; 
+import {preload} from './preload.js'; 
 
 // If you need to ensure globals are available for legacy code, you can re-export them here
 // (for example, for use in modules that import main.js)
-// export * from './canvas.js'; // Corrected path, uncomment if needed
+// export * from './canvas.js'; , uncomment if needed
 
-// --- Initialization ---
-// Use an async IIFE to handle the font loading promise
-(async () => {
-    try {
-        console.log("Initializing application, parsing fonts...");
-        // Show a loading indicator here if desired
-        await parseFont(); // Call parseFont and wait for it to complete
-        FormDrawAddComponent.drawPanelInit(); // Initialize Draw panel by default
-        console.log("Fonts parsed successfully. Application ready.");
-        // Hide loading indicator here
-        // Any initialization code that depends on fonts being loaded can go here.
-        // For example, trigger initial drawing or enable UI elements.
-
-    } catch (error) {
-        console.error("Failed to initialize application due to font loading error:", error);
-        // Handle the error appropriately, e.g., show an error message to the user.
-    }
-})(); // Immediately invoke the async function
+preload(); // Call the preload function to start the initialization process

@@ -1,4 +1,5 @@
-import { BaseGroup, BorderDimensionDisplay } from './draw.js';
+import { BaseGroup } from './draw.js';
+import { BorderDimensionDisplay } from './dimension.js';
 import { globalAnchorTree,anchorShape } from './anchor.js';
 import { BorderTypeScheme, BorderColorScheme, BorderFrameWdith, DividerMargin } from './template.js';
 import { vertexToPath } from './path.js';
@@ -735,7 +736,7 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
           }
 
           // Update positions without triggering further updates
-          this.updateAllCoord();
+          this.updateDividerCoords(d);
         }
       } else if (needsUpdate) {
         // Regular object-anchored divider
@@ -748,9 +749,12 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
         });
         
         // Update positions without triggering further updates
-        this.updateAllCoord();
+        this.updateDividerCoords(d);
 
       }
+      d.lockMovementX = true;
+      d.lockMovementY = true;
+      d.enterFocusMode();
     }
 
     // Handle HDividers
@@ -883,6 +887,9 @@ class BorderGroup extends BaseGroup {  constructor(baseBorder, borderType, optio
         // Update positions without triggering further updates
         this.updateDividerCoords(d);
       }
+      d.lockMovementX = true;
+      d.lockMovementY = true;
+      d.enterFocusMode();
     }
 
     // After all dividers are repositioned, update the bboxes again

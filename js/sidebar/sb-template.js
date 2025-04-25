@@ -515,7 +515,7 @@ let FormTemplateComponent = {
       anchorShape(rightArrow, rightChiText2, {
         vertexIndex1: 'E6',
         vertexIndex2: 'E2',
-        spacingX: 0,
+        spacingX: '',
         spacingY: -xHeight * 1 / 4
       });
 
@@ -1492,7 +1492,7 @@ let FormTemplateComponent = {
         [exitText, exitSymbol],
         null,
         null,
-        { xHeight: xHeight, borderType: 'exitPanel', colorType: 'White Background' }
+        { xHeight: xHeight, borderType: 'exitPanel', colorType: 'Green Background' }
       );
 
       // Position airport symbol below exit panel
