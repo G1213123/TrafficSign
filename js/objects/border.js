@@ -360,19 +360,24 @@ const BorderUtilities = {
 
     // Get the bounding box of the active selection 
     let coords = BorderUtilities.getBorderObjectCoords(fheightObjects, fwidthObjects)
+    let padding = {x:0, y:0}
 
     // handle roundings on borders and dividers
     let rounding = BorderUtilities.calcBorderRounding(borderType, xHeight, coords)
     if (!isNaN(parseInt(widthText))) {
-      const padding = parseInt(widthText) - coords.right + coords.left
-      rounding.x += padding
+      padding.x = parseInt(widthText) - coords.right + coords.left +  xHeight / 2
+      rounding.x += padding.x
     }
     if (!isNaN(parseInt(heightText))) {
-      const padding = parseInt(heightText) - coords.bottom + coords.top
-      rounding.y += padding
+      padding.y = parseInt(heightText) - coords.bottom + coords.top +  xHeight / 2
+      rounding.y += padding.y
     }
     BorderUtilities.RoundingToDivider(HDivider, VDivider, rounding)
     coords = BorderUtilities.getBorderObjectCoords(fheightObjects, fwidthObjects)
+    coords. left -= padding.x / 2 
+    coords.right += padding.x /2 
+    coords.top -= padding.y/2 
+    coords.bottom += padding.y/2 
 
     try {
       const BaseBorder = drawLabeledBorder(borderType, xHeight, coords, colorType)

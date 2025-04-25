@@ -577,6 +577,7 @@ class VertexControl extends fabric.Control {
         this.baseGroup.set(this.originalPosition);
         this.baseGroup.setCoords();
         this.baseGroup.updateAllCoord();
+        this.baseGroup.exitFocusMode()
 
         this.cleanupDrag();
         CanvasGlobals.activeVertex = null;

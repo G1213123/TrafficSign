@@ -497,6 +497,7 @@ function parseFont() {
  * @returns {Object|null} The font path object (from opentype.js) or null if the font is not available or parsing failed.
  */
 function getFontPath(t) {
+
   let font = null;
 
   // Select the appropriate pre-parsed font object
@@ -536,6 +537,7 @@ function getFontPath(t) {
   } catch (error) {
     console.error(`Error getting path for character "${t.character}" with font ${t.fontFamily}:`, error);
     return null; // Return null on error
+
   }
 }
 
