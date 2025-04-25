@@ -4,6 +4,13 @@
  * draw.js and symbols.js files.
  */
 
+  // Store parsed fonts (assuming opentype.js objects)
+  let parsedFontMedium = null;
+  let parsedFontHeavy = null;
+  let parsedFontChinese = null;
+  let parsedFontKai = null;
+  let fontParsingPromise = null; // To store the promise
+
 /**
  * Calculate transformed points based on position and rotation
  * @param {Array|Object} pointsList - Array of points or object with path property
@@ -42,12 +49,12 @@ function calculateTransformedPoints(pointsList, options) {
  * @returns {number} - Angle in radians
  */
 function calculateAngle(prev, current, next) {
-    const v1 = { x: current.x - prev.x, y: current.y - prev.y };
-    const v2 = { x: next.x - current.x, y: next.y - current.y };
-    const dotProduct = v1.x * v2.x + v1.y * v2.y;
-    const magnitude1 = Math.sqrt(v1.x * v1.x + v1.y * v1.y);
-    const magnitude2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y);
-    return Math.acos(dotProduct / (magnitude1 * magnitude2));
+  const v1 = { x: current.x - prev.x, y: current.y - prev.y };
+  const v2 = { x: next.x - current.x, y: next.y - current.y };
+  const dotProduct = v1.x * v2.x + v1.y * v2.y;
+  const magnitude1 = Math.sqrt(v1.x * v1.x + v1.y * v1.y);
+  const magnitude2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y);
+  return Math.acos(dotProduct / (magnitude1 * magnitude2));
 }
 
 /**
@@ -58,14 +65,14 @@ function calculateAngle(prev, current, next) {
  * @returns {Object} - Tangent point coordinates
  */
 function calculateTangentPoint(point, center, offsetDistance) {
-    const angle = Math.atan2(point.y - center.y, point.x - center.x);
-    const offsetX = Math.round(offsetDistance * Math.cos(angle) * 100) / 100;
-    const offsetY = Math.round(offsetDistance * Math.sin(angle) * 100) / 100;
-    return {
-      x: center.x + offsetX,
-      y: center.y + offsetY
-    };
-  }
+  const angle = Math.atan2(point.y - center.y, point.x - center.x);
+  const offsetX = Math.round(offsetDistance * Math.cos(angle) * 100) / 100;
+  const offsetY = Math.round(offsetDistance * Math.sin(angle) * 100) / 100;
+  return {
+    x: center.x + offsetX,
+    y: center.y + offsetY
+  };
+}
 
 /**
  * Determine the arc direction (clockwise or counterclockwise)
@@ -92,7 +99,7 @@ function calculateArcCenter(prev, current, next, radius) {
   // Calculate the perpendicular vectors
   const v1 = offsetPoint(prev, current, radius);
   const v2 = offsetPoint(next, current, radius);
-  
+
   // Calculate the intersection
   return intersectLines(
     v1.p1.x, v1.p1.y, v1.p2.x, v1.p2.y,
@@ -113,11 +120,11 @@ function offsetPoint(point, center, radius) {
   const distance = Math.sqrt(dx * dx + dy * dy);
   const unitX = dx / distance;
   const unitY = dy / distance;
-  
+
   // Rotate 90 degrees for perpendicular
   const perpX = -unitY;
   const perpY = unitX;
-  
+
   return {
     p1: {
       x: center.x + perpX * radius,
@@ -146,12 +153,12 @@ function intersectLines(x1, y1, x2, y2, x3, y3, x4, y4) {
   // Check if either of the lines are vertical
   const isLine1Vertical = Math.abs(x1 - x2) < 0.001;
   const isLine2Vertical = Math.abs(x3 - x4) < 0.001;
-  
+
   // Handle vertical lines
   if (isLine1Vertical && isLine2Vertical) {
     return null; // Parallel vertical lines
   }
-  
+
   if (isLine1Vertical) {
     const m2 = (y4 - y3) / (x4 - x3);
     const b2 = y3 - m2 * x3;
@@ -160,7 +167,7 @@ function intersectLines(x1, y1, x2, y2, x3, y3, x4, y4) {
       y: m2 * x1 + b2
     };
   }
-  
+
   if (isLine2Vertical) {
     const m1 = (y2 - y1) / (x2 - x1);
     const b1 = y1 - m1 * x1;
@@ -169,23 +176,23 @@ function intersectLines(x1, y1, x2, y2, x3, y3, x4, y4) {
       y: m1 * x3 + b1
     };
   }
-  
+
   // Calculate the slopes and y-intercepts
   const m1 = (y2 - y1) / (x2 - x1);
   const b1 = y1 - m1 * x1;
-  
+
   const m2 = (y4 - y3) / (x4 - x3);
   const b2 = y3 - m2 * x3;
-  
+
   // Check if the lines are parallel (same slope)
   if (Math.abs(m1 - m2) < 0.001) {
     return null; // Parallel lines
   }
-  
+
   // Calculate the intersection point
   const x = (b2 - b1) / (m1 - m2);
   const y = m1 * x + b1;
-  
+
   return { x, y };
 }
 
@@ -243,7 +250,7 @@ function vertexToPath(shapeMeta, color) {
     let fillColor = path.fill || color || 'white';
     let pathStart = path.vertex[0];
     let pathNext = path.vertex[1];
-    
+
     for (let i = 0; i < path.vertex.length; i++) {
       const current = path.vertex[i];
       const next = path.vertex[(i + 1) % path.vertex.length];
@@ -256,8 +263,8 @@ function vertexToPath(shapeMeta, color) {
       if (next.start == 1) {
         // Handle the last corner (which is also the first corner)
         const finalArc = path.arcs && path.arcs.find(arc => (arc.start == current.label));
-        
-        if (finalArc){
+
+        if (finalArc) {
           pathString += drawSegment(pathStart, pathNext, current, finalArc, true);
         }
         pathString += ' Z';
@@ -279,14 +286,14 @@ function vertexToPath(shapeMeta, color) {
       t.y = 0;
       let charPath = getFontPath(t);
       const minTop = Math.min(...charPath.commands.map(c => c.y));
-      
+
       charPath.commands.forEach((command) => {
         command.y = command.y - origY - minTop;
         if (command.y1 !== undefined) {
           command.y1 = command.y1 - origY - minTop;
         }
       });
-      
+
       const charSVG = charPath.toPathData({ flipY: false });
       svgContent += `<path d="${charSVG}" fill="${fillColor}" />`;
     });
@@ -316,75 +323,75 @@ function getInsertOffset(shapeMeta, angle = 0) {
 function convertVertexToPathCommands(path) {
   let pathCommands = '';
   const vertices = path.vertex || [];
-  
+
   if (vertices.length === 0) return '';
-  
+
   // Start with the first vertex
   let pathStart = vertices[0];
   pathCommands += `M ${pathStart.x} ${pathStart.y} `;
-  
+
   // Process each vertex and its connections
   for (let i = 0; i < vertices.length; i++) {
     const current = vertices[i];
     const next = vertices[(i + 1) % vertices.length];
     const previous = i > 0 ? vertices[i - 1] : vertices[vertices.length - 1];
-    
+
     // Find if there's an arc that ends at the current vertex
     const prevArc = path.arcs ? path.arcs.find(arc => arc.end === current.label) : null;
-    
+
     // If this is a start point (other than the first vertex), move to it
     if (current.start && i > 0) {
       pathCommands += `M ${current.x} ${current.y} `;
-    } 
+    }
     // If there's a previous arc, draw an arc
     else if (prevArc && (!current.start || i === vertices.length - 1)) {
       // Find the vertices referenced by the arc
       const startVertex = vertices.find(v => v.label === prevArc.start);
       const endVertex = vertices.find(v => v.label === prevArc.end);
-      
+
       if (startVertex && endVertex) {
         // Calculate arc parameters for fabric.Path
         const radius = prevArc.radius2 ? prevArc.radius2 : prevArc.radius;
         const largeArcFlag = prevArc.sweep ? 1 : 0;
         const sweepFlag = prevArc.direction ? 1 : 0;
-        
+
         pathCommands += `A ${prevArc.radius} ${radius} 0 ${largeArcFlag} ${sweepFlag} ${current.x} ${current.y} `;
       } else {
         // Fallback to line if vertices not found
         pathCommands += `L ${current.x} ${current.y} `;
       }
-    } 
+    }
     // If this vertex has a radius property, create rounded corner
     else if (current.radius) {
       // Calculate the angle between previous-current and current-next
       const angle = calculateAngle(previous, current, next);
-      
+
       // Calculate offset distance based on radius and angle
       const offsetDistance = Math.abs(current.radius * Math.tan(angle / 2));
-      
+
       // Calculate tangent points for the arc
       const prevTangent = calculateTangentPoint(previous, current, offsetDistance);
       const nextTangent = calculateTangentPoint(next, current, offsetDistance);
-      
+
       // Determine arc direction (0 = counterclockwise, 1 = clockwise)
       const arcDirection = getArcDirection(previous, current, next);
-      
+
       // Line to start of arc
       pathCommands += `L ${prevTangent.x} ${prevTangent.y} `;
-      
+
       // Arc to end of arc
       pathCommands += `A ${current.radius} ${current.radius} 0 0 ${1 - arcDirection} ${nextTangent.x} ${nextTangent.y} `;
-    } 
+    }
     // Otherwise, draw a line to the next point
     else {
       pathCommands += `L ${current.x} ${current.y} `;
     }
-    
+
     // If we've reached a vertex that starts a new subpath
     if (next.start) {
       // Find if there's an arc that starts at the current vertex
       const finalArc = path.arcs ? path.arcs.find(arc => arc.start === current.label) : null;
-      
+
       if (finalArc) {
         // Similar arc calculation as above
         const endVertex = vertices.find(v => v.label === finalArc.end);
@@ -392,14 +399,14 @@ function convertVertexToPathCommands(path) {
           const radius = finalArc.radius2 ? finalArc.radius2 : finalArc.radius;
           const largeArcFlag = finalArc.sweep ? 1 : 0;
           const sweepFlag = finalArc.direction ? 1 : 0;
-          
+
           pathCommands += `A ${finalArc.radius} ${radius} 0 ${largeArcFlag} ${sweepFlag} ${pathStart.x} ${pathStart.y} `;
         }
       }
-      
+
       // Close the path
       pathCommands += 'Z ';
-      
+
       // Reset path start for next subpath
       if (i < vertices.length - 1) {
         pathStart = next;
@@ -407,35 +414,130 @@ function convertVertexToPathCommands(path) {
       }
     }
   }
-  
+
   // Close the final subpath if needed
   if (!pathCommands.endsWith('Z ')) {
     pathCommands += 'Z';
   }
-  
+
   return pathCommands;
 }
 
+/**
+ * Fetches and parses font files using opentype.js.
+ * Returns a promise that resolves when all fonts are loaded and parsed.
+ * Should be called once during application initialization.
+ * @returns {Promise<void>} A promise that resolves when all fonts are fetched and parsed.
+ */
+function parseFont() {
+  // If already parsing or parsed, return the existing promise
+  if (fontParsingPromise) {
+    return fontParsingPromise;
+  }
 
+  // Start parsing and store the promise
+  fontParsingPromise = Promise.all([
+    fetch('./css/font/TransportMedium.woff')
+      .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
+      .then(buffer => {
+        // Ensure opentype is available before calling parse
+        if (typeof opentype !== 'undefined') {
+          parsedFontMedium = opentype.parse(buffer);
+        } else {
+          throw new Error("opentype.js not loaded. Cannot parse TransportMedium font.");
+        }
+      }).catch(e => { console.error("Error fetching/parsing TransportMedium:", e); throw e; }), // Re-throw to reject Promise.all
+
+    fetch('./css/font/TransportHeavy.woff')
+      .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
+      .then(buffer => {
+        if (typeof opentype !== 'undefined') {
+          parsedFontHeavy = opentype.parse(buffer);
+        } else {
+          throw new Error("opentype.js not loaded. Cannot parse TransportHeavy font.");
+        }
+      }).catch(e => { console.error("Error fetching/parsing TransportHeavy:", e); throw e; }),
+
+    fetch('./css/font/NotoSansHK-Medium.ttf')
+      .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
+      .then(buffer => {
+        if (typeof opentype !== 'undefined') {
+          parsedFontChinese = opentype.parse(buffer);
+        } else {
+          throw new Error("opentype.js not loaded. Cannot parse NotoSansHK-Medium font.");
+        }
+      }).catch(e => { console.error("Error fetching/parsing NotoSansHK-Medium:", e); throw e; }),
+
+    fetch('./css/font/edukai-5.0.ttf')
+      .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
+      .then(buffer => {
+        if (typeof opentype !== 'undefined') {
+          parsedFontKai = opentype.parse(buffer);
+        } else {
+          throw new Error("opentype.js not loaded. Cannot parse edukai-5.0 font.");
+        }
+      }).catch(e => { console.error("Error fetching/parsing edukai-5.0:", e); throw e; })
+  ]).then(() => {
+    console.log("All fonts parsed successfully.");
+    // Promise resolves with no value (void) upon success
+  }).catch(error => {
+    console.error("One or more fonts failed to load:", error);
+    fontParsingPromise = null; // Reset promise if parsing failed
+    throw error; // Re-throw so the caller knows about the failure
+  });
+
+  return fontParsingPromise;
+}
+
+/**
+ * Gets the pre-parsed font path object for a given text character.
+ * Assumes parseFont() has been called and resolved successfully beforehand.
+ * Requires opentype.js for font parsing and path generation.
+ * @param {Object} t - Text object containing character, position, fontSize, and fontFamily.
+ * @returns {Object|null} The font path object (from opentype.js) or null if the font is not available or parsing failed.
+ */
 function getFontPath(t) {
-  // Use pre-parsed font objects instead of parsing the buffer each time
-  let fontGlyphs;
-  let path;
-  try{
-    if (t.fontFamily === 'TransportMedium') {
-      fontGlyphs = window.parsedFontMedium;
-    } else if (t.fontFamily === 'TransportHeavy') {
-      fontGlyphs = window.parsedFontHeavy ;
-    } else if (t.fontFamily === 'TW-MOE-Std-Kai') {
-      fontGlyphs = window.parsedFontKai ;
-    } else {
-      fontGlyphs = window.parsedFontChinese ;
-    }
-    return fontGlyphs.getPath(t.character, t.x, t.y, t.fontSize);
+
+  let font = null;
+
+  // Select the appropriate pre-parsed font object
+  switch (t.fontFamily) {
+    case 'TransportMedium':
+      font = parsedFontMedium;
+      break;
+    case 'TransportHeavy':
+      font = parsedFontHeavy;
+      break;
+    case 'TW-MOE-Std-Kai':
+      font = parsedFontKai;
+      break;
+    default: // Default to NotoSansHK-Medium or whatever your intended default is
+      font = parsedFontChinese;
+      break;
+  }
+
+  // Check if the selected font is actually loaded/parsed
+  if (!font) {
+    console.error(`Font "${t.fontFamily || 'Default'}" not loaded or parsed. Make sure parseFont() was called and completed successfully.`);
+    return null; // Return null if the font isn't available
+  }
+
+  // Check if opentype.js is available and the font object has getPath
+  if (typeof opentype === 'undefined' || typeof font.getPath !== 'function') {
+      console.error("opentype.js not loaded or font object is invalid.");
+      return null;
+  }
+
+  // Generate and return the path object using opentype.js getPath method
+  try {
+    // Note: opentype.js getPath usually takes (text, x, y, fontSize, options)
+    // Adjust parameters as needed based on your opentype.js version and usage.
+    // The x, y here are baseline coordinates.
+    return font.getPath(t.character, t.x, t.y, t.fontSize);
   } catch (error) {
-    setTimeout((t) => {
-      getFontPath(t)
-    }, 1000);
+    console.error(`Error getting path for character "${t.character}" with font ${t.fontFamily}:`, error);
+    return null; // Return null on error
+
   }
 }
 
@@ -448,12 +550,12 @@ function getFontPath(t) {
 function convertFontPathToFabricPath(commands, textElem) {
   let pathCommands = '';
   const offsetY = textElem.y;
-  
+
   // Find minimum Y value for proper positioning
   const minY = Math.min(...commands
     .filter(cmd => cmd.y !== undefined)
     .map(cmd => cmd.y));
-  
+
   commands.forEach(cmd => {
     switch (cmd.type) {
       case 'M':
@@ -473,7 +575,7 @@ function convertFontPathToFabricPath(commands, textElem) {
         break;
     }
   });
-  
+
   return pathCommands;
 }
 
@@ -571,7 +673,6 @@ function combinePaths(pathsArray) {
   return result;
 }
 
-
 // Export the functions so they can be imported elsewhere
 export {
   calculateTransformedPoints,
@@ -582,11 +683,16 @@ export {
   offsetPoint,
   intersectLines,
   drawSegment,
-  vertexToPath,
+  vertexToPath, // Remains synchronous, but relies on pre-loaded fonts
   getInsertOffset,
   convertVertexToPathCommands,
   convertFontPathToFabricPath,
   assignVertexLabel,
   combinePaths,
-  getFontPath
+  getFontPath,
+  parseFont,
+  parsedFontMedium,
+  parsedFontHeavy,
+  parsedFontChinese,
+  parsedFontKai,
 };

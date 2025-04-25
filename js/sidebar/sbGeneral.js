@@ -586,7 +586,7 @@ const GeneralSettings = {
   gridColor: '#ffffff',
   gridSize: 20,
   showAllVertices: false,
-  autoSave: true,
+  autoSave: false,
   autoSaveInterval: 60,
   defaultExportScale: 2,
   runTestsOnStart: false,

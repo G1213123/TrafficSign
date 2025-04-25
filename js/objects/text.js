@@ -4,7 +4,7 @@
 
 import { BaseGroup } from './draw.js';
 import {textWidthMedium, textWidthHeavy,} from './template.js';
-import { getFontPath } from './path.js';
+import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontKai } from './path.js';
 
 class TextObject extends BaseGroup {
   constructor(options = {}) {
@@ -171,13 +171,13 @@ class TextObject extends BaseGroup {
       // Get the appropriate font - use pre-parsed fonts instead of parsing each time
       let fontGlyphs;
       if (fontFamily === 'TransportMedium' && !containsNonAlphabetic) {
-        fontGlyphs = window.parsedFontMedium || opentype.parse(buffer1);
+        fontGlyphs = parsedFontMedium;
       } else if (fontFamily === 'TransportHeavy' && !containsNonAlphabetic) {
-        fontGlyphs = window.parsedFontHeavy || opentype.parse(buffer2);
+        fontGlyphs = parsedFontHeavy;
       } else if (textChar === '、') {
-        fontGlyphs = window.parsedFontKai || opentype.parse(buffer4);
+        fontGlyphs = parsedFontKai;
       } else {
-        fontGlyphs = window.parsedFontChinese || opentype.parse(buffer3);
+        fontGlyphs = parsedFontChinese ;
       }
 
       // Access font metrics

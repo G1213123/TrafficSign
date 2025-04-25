@@ -590,6 +590,8 @@ async function selectObjectHandler(text, callback, options = null, xHeight = nul
 
 resizeCanvas();
 
+window.canvas = canvas; // Expose canvas to the global scope for debugging
+
 const CanvasGlobals = {
   canvas: canvas,
   ctx: ctx,
