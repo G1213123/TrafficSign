@@ -13,6 +13,7 @@
   "scripts": {
     "build": "webpack --mode production",
     "start": "npx http-server . -p 8080",
-    "preview": "npx http-server dist -p 8080"
+    "preview": "npx http-server dist -p 8080",
+    "deploy": "cd dist && gcloud app deploy --bucket=gs://road-sign-factory-static --no-cache --promote"
   }
 }
