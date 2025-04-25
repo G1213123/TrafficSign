@@ -118,14 +118,14 @@ let FormBorderWrapComponent = {
   BorderCreateHandler: async function (event) {
     const borderType = event.currentTarget.id.replace('button-', '');
     const xHeight = parseInt(document.getElementById("input-xHeight").value);
-    CanvasGlobals.selectObjectHandler('Select shape to calculate border width', function (widthObjects, options, widthText) {
-      CanvasGlobals.selectObjectHandler('Select shape to calculate border height', function (heightObjects, options, heightText) {
+    CanvasGlobals.selectObjectHandler('Select shape to calculate border width,\nor input fix width and then press Enter', function (widthObjects, options, widthText) {
+      CanvasGlobals.selectObjectHandler('Select shape to calculate border height,\nor input fix height and then press Enter', function (heightObjects, options, heightText) {
         BorderUtilities.BorderGroupCreate(borderType, heightObjects, widthObjects, widthText, heightText, {
           xHeight: xHeight,
           colorType: document.getElementById('input-color').value
         })
-      }, null, xHeight);
-    }, null, xHeight);
+      }, null, xHeight, 'mm');
+    }, null, xHeight, 'mm');
   },
 
   StackDividerHandler: function () {
@@ -133,8 +133,8 @@ let FormBorderWrapComponent = {
       CanvasGlobals.selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
         // Pass both objects and entered values to allow for fixed distance options
         HDividerCreate(aboveObject, belowObject, aboveValue, belowValue)
-      })
-    })
+      }, null, xHeight, 'mm');
+    }, null, xHeight, 'mm');
   },
 
   GantryDividerHandler: function () {
@@ -142,8 +142,8 @@ let FormBorderWrapComponent = {
       CanvasGlobals.selectObjectHandler('Select object right to divider or type in fixed distance to border right', function (rightObject, options, rightValue) {
         // Pass both objects and entered values to allow for fixed distance options
         VDividerCreate(leftObject, rightObject, leftValue, rightValue)
-      })
-    })
+      }, null, xHeight, 'mm');
+    }, null, xHeight, 'mm');
   },
 
   GantryLineHandler: function () {
@@ -151,8 +151,8 @@ let FormBorderWrapComponent = {
       CanvasGlobals.selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
         // Pass both objects and entered values to allow for fixed distance options
         HLineCreate(aboveObject, belowObject, aboveValue, belowValue)
-      })
-    })
+      }, null, xHeight, 'mm');
+    }, null, xHeight, 'mm');
   },
 
   LaneLineHandler: function () {
@@ -160,8 +160,8 @@ let FormBorderWrapComponent = {
       CanvasGlobals.selectObjectHandler('Select object right to lane or type in fixed distance to border right', function (rightObject, options, rightValue) {
         // Pass both objects and entered values to allow for fixed distance options
         VLaneCreate(leftObject, rightObject, leftValue, rightValue)
-      })
-    })
+      }, null, xHeight, 'mm');
+    }, null, xHeight, 'mm');
   },
 }
 
