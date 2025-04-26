@@ -1,8 +1,10 @@
 /* General Sidebar Panel */
 import { CanvasGlobals } from '../canvas.js';
 import { CanvasObjectInspector } from './sb-inspector.js';
-
+// Handler registry for active sidebar component off-function
 let GeneralHandler = {
+  // Currently registered teardown handler for the active sidebar component
+  activeComponentOff: null,
   tabNum: 0,
   panelOpened: true,
   ShowHideSideBar: function (event, force = null) {
@@ -30,24 +32,26 @@ let GeneralHandler = {
     document.getElementById('show_hide').childNodes[0].className = "fa fa-angle-double-right"
     GeneralHandler.panelOpened = false
     GeneralHandler.PanelHandlerOff()
-  },  PanelHandlerOff: () => {
-    if (typeof FormTextAddComponent !== 'undefined') {
-      FormTextAddComponent.TextHandlerOff()
-    }
-    if (typeof FormBorderAddComponent !== 'undefined') {
-      FormDrawAddComponent.DrawHandlerOff()
-    }
-    if (GeneralHandler.tabNum != 5) {
-      if (typeof FormDebugComponent !== 'undefined') {
-        FormDebugComponent.DebugHandlerOff()
+  },  
+  /**
+   * Invoke and clear the registered component off handler when closing the panel
+   */
+  PanelHandlerOff: function() {
+    if (typeof this.activeComponentOff === 'function') {
+      try {
+        this.activeComponentOff();
+      } catch (err) {
+        console.error('Error in activeComponentOff:', err);
       }
+      this.activeComponentOff = null;
     }
-    // Stop the measure tool when switching panels
-    if (typeof FormMeasureComponent !== 'undefined') {
-      if (FormMeasureComponent.activeMeasurement && tabNum != 7) {
-        FormMeasureComponent.MeasureHandlerOff()
-      }
-    }
+  },
+    /**
+   * Register the active component off handler
+   * @param {Function} handler
+   */
+  setActiveComponentOff: function(handler) {
+    this.activeComponentOff = handler;
   },
   PanelInit: () => {
     GeneralHandler.ShowHideSideBar(null, "on")
@@ -225,8 +229,10 @@ let GeneralHandler = {
    * @param {Object} componentContext - The sidebar component context (this)
    * @param {number} defaultXHeight - Optional default xHeight to use (defaults to GeneralSettings)
    * @param {string} defaultColor - Optional default color to use (defaults to GeneralSettings)
+   * @param {Function} xHeightCallback - Optional callback for xHeight changes
+   * @param {Function} colorCallback - Optional callback for color changes
    * @return {HTMLElement} The created container
-   */  createBasicParamsContainer: function(parent, componentContext, defaultXHeight = null, defaultColor = null) {
+   */  createBasicParamsContainer: function(parent, componentContext, defaultXHeight = null, defaultColor = null, xHeightCallback = null, colorCallback = null) {
     // Create a container for basic parameters
     const basicParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
     
@@ -235,11 +241,16 @@ let GeneralHandler = {
     const color = defaultColor !== null ? defaultColor : GeneralSettings.messageColor;
       // Create xHeight input with universal handler and unit (sw)
     const xHeightInput = GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 
-      xHeight, GeneralHandler.handleXHeightChange, 'input', 'sw');
+      xHeight, xHeightCallback || GeneralHandler.handleXHeightChange, 'input', 'sw');
       
     // Create color toggle with universal handler
     GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, color, 
-      GeneralHandler.handleColorChange);
+      colorCallback || GeneralHandler.handleColorChange);
+
+            // Add debounced event listener for real-time updates on xHeight input
+      xHeightInput.addEventListener('input', GeneralHandler.debounce(function (e) {
+        // The handleXHeightChange function will update GeneralSettings
+      }, 300));
       
     return basicParamsContainer;
   },

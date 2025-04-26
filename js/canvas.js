@@ -371,7 +371,7 @@ function clickModelHandler(event) {
         contextMenu.style.top = `${event.e.clientY}px`;
         contextMenu.style.left = `${event.e.clientX}px`;
         contextMenu.style.display = 'block';
-        selectedArrow = event.target;
+        contextMenu.selectedArrow = event.target;
       } else {
         contextMenu.style.display = 'none';
       }
@@ -379,7 +379,7 @@ function clickModelHandler(event) {
       break;
     case 'select': {
       if (event.e.button === 0 && event.target) {
-        selectedArrow = event.target;
+        contextMenu.selectedArrow = event.target;
         cursorClickMode = 'normal';
         contextMenu.style.display = 'none'; // Ensure context menu is hidden
       }
@@ -396,6 +396,7 @@ canvas.on('mouse:down', function (event) {
 document.addEventListener('contextmenu', function (event) {
   event.preventDefault();
 });
+
 
 
 function CenterCoord() {
@@ -588,6 +589,27 @@ async function selectObjectHandler(text, callback, options = null, xHeight = nul
   }, 100); // Check every 100ms
 }
 
+// Add handlers for context-menu actions
+const deleteMenuItem = document.getElementById('delete-object');
+deleteMenuItem.addEventListener('click', function (e) {
+  e.preventDefault();
+  contextMenu.style.display = 'none';
+  const obj = contextMenu.selectedArrow;
+  if (obj && typeof obj.deleteObject === 'function') {
+    obj.deleteObject(null, { target: obj });
+  }
+});
+
+const editMenuItem = document.getElementById('edit-object');
+editMenuItem.addEventListener('click', function (e) {
+  e.preventDefault();
+  contextMenu.style.display = 'none';
+  const obj = contextMenu.selectedArrow;
+  if (obj && typeof obj.onDoubleClick === 'function') {
+    obj.onDoubleClick();
+  }
+});
+
 resizeCanvas();
 
 window.canvas = canvas; // Expose canvas to the global scope for debugging
@@ -597,7 +619,6 @@ const CanvasGlobals = {
   ctx: ctx,
   activeObject: activeObject,
   activeVertex: activeVertex,
-  selectedArrow: selectedArrow,
   canvasObject: canvasObject,
   cursorClickMode: cursorClickMode,
   CenterCoord: CenterCoord,

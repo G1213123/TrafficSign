@@ -311,17 +311,17 @@ class AnchorTree {
 // Create a global instance of the AnchorTree
 const globalAnchorTree = new AnchorTree();
 
-document.getElementById('set-anchor').addEventListener('click', function () {
+document.getElementById('set-anchor').addEventListener('click', function (event) {
+  const selectedArrow = event.target.parentElement.parentElement.selectedArrow;
   if (selectedArrow) {
     this.parentElement.parentElement.style.display = 'none';
     // Implement vertex selection logic here
-    const shape1 = selectedArrow
-    selectedArrow = null
     document.removeEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
-    selectObjectHandler('Select shape to anchor to', anchorShape, shape1)
+    CanvasGlobals.selectObjectHandler('Select shape to anchor to', anchorShape, selectedArrow)
     //renumberVertexLabels(shape1); // Renumber vertex labels after selection
   }
 });
+
 async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = []) {
 
   const shape1 = Array.isArray(inputShape1) ? inputShape1[0] : inputShape1

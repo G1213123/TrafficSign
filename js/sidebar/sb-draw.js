@@ -10,28 +10,10 @@ let FormDrawAddComponent = {
   newSymbolObject: null,
   editingExistingSymbol: null, // Track when we're editing an existing symbol
 
-  // Add a custom handler for color change to update SVG buttons immediately
-  handleColorChange: function (event) {
-    const color = event.getAttribute('data-value');
-    if (!color) return;
-
-    // Update GeneralSettings using the built-in function
-    GeneralHandler.handleColorChange(event);
-
-    // Update buttons immediately
-    FormDrawAddComponent.addAllSymbolsButton();
-
-    // Update the symbol with new color if one exists
-    if (FormDrawAddComponent.newSymbolObject) {
-      FormDrawAddComponent.updateSymbol(FormDrawAddComponent.newSymbolObject, { color: color.toLowerCase() });
-    } else if (FormDrawAddComponent.editingExistingSymbol) {
-      FormDrawAddComponent.updateSymbol(FormDrawAddComponent.editingExistingSymbol, { color: color.toLowerCase() });
-    }
-  },
-
   drawPanelInit: async function (e, existingSymbol = null) {
     GeneralHandler.tabNum = 1
     var parent = GeneralHandler.PanelInit()
+    GeneralHandler.setActiveComponentOff(FormDrawAddComponent.DrawHandlerOff);
 
     // If an existing symbol was passed, set it as the editing symbol
     if (existingSymbol) {
@@ -43,9 +25,8 @@ let FormDrawAddComponent = {
     }
 
     if (parent) {
-      // Create basic parameters container manually (don't use the shared function)
-      // so we can attach our custom color change handler
-      var basicParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      // Create the basic parameters container using the shared function
+      GeneralHandler.createBasicParamsContainer(parent, FormDrawAddComponent, null, null, this.handleXHeightChange, this.handleColorChange);
 
       // Use provided defaults or fall back to GeneralSettings
       const xHeight = FormDrawAddComponent.editingExistingSymbol ?
@@ -56,18 +37,6 @@ let FormDrawAddComponent = {
         FormDrawAddComponent.editingExistingSymbol.color.charAt(0).toUpperCase() + FormDrawAddComponent.editingExistingSymbol.color.slice(1) :
         GeneralSettings.messageColor;
 
-      // Create xHeight input using the standard handler
-      const xHeightInput = GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer,
-        xHeight, GeneralHandler.handleXHeightChange, 'input');
-
-      // Create color toggle with our CUSTOM color change handler
-      GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, color,
-        FormDrawAddComponent.handleColorChange);
-
-      // Add debounced event listener for real-time updates on xHeight input
-      xHeightInput.addEventListener('input', GeneralHandler.debounce(function (e) {
-        // The handleXHeightChange function will update GeneralSettings
-      }, 300));
 
       // Create a placeholder container for angle controls
       var angleControlContainer = GeneralHandler.createNode("div", { 'id': 'angle-control-container', 'class': 'input-group-container', 'style': 'display: none;' }, parent);
@@ -142,6 +111,39 @@ let FormDrawAddComponent = {
 
     // Add selection to clicked button
     event.currentTarget.classList.add('selected');
+  },
+
+  // Add a custom handler for color change to update SVG buttons immediately
+  handleColorChange: function (event) {
+    const color = event.getAttribute('data-value');
+
+    // Update GeneralSettings using the built-in function
+    GeneralHandler.handleColorChange(event);
+
+    // Update buttons immediately
+    FormDrawAddComponent.addAllSymbolsButton();
+
+    // Update the symbol with new color if one exists
+    if (FormDrawAddComponent.newSymbolObject) {
+      FormDrawAddComponent.updateSymbol(FormDrawAddComponent.newSymbolObject, { color: color.toLowerCase(), });
+    } else if (FormDrawAddComponent.editingExistingSymbol) {
+      FormDrawAddComponent.updateSymbol(FormDrawAddComponent.editingExistingSymbol, { color: color.toLowerCase(), });
+    }
+  },
+
+  // Add a custom handler for color change to update SVG buttons immediately
+  handleXHeightChange: function (event) {
+    const xHeight = parseInt(event.target.value);
+
+    // Update GeneralSettings using the built-in function
+    GeneralHandler.handleXHeightChange(event);
+
+    // Update the symbol with new color if one exists
+    if (FormDrawAddComponent.newSymbolObject) {
+      FormDrawAddComponent.updateSymbol(FormDrawAddComponent.newSymbolObject, { xHeight: xHeight });
+    } else if (FormDrawAddComponent.editingExistingSymbol) {
+      FormDrawAddComponent.updateSymbol(FormDrawAddComponent.editingExistingSymbol, { xHeight: xHeight });
+    }
   },
 
   setAngle: function (event) {
@@ -319,6 +321,7 @@ let FormDrawAddComponent = {
   updateSymbol: async function (symbolObject, options = {}) {
     if (!symbolObject) return;
 
+    const updateExisting = FormDrawAddComponent.editingExistingSymbol === symbolObject;
     const symbolType = symbolObject.symbol;
     const xHeight = options.xHeight !== undefined ? options.xHeight : symbolObject.xHeight;
     const color = options.color !== undefined ? options.color : symbolObject.color;
@@ -351,9 +354,14 @@ let FormDrawAddComponent = {
 
     // Replace on canvas
     symbolObject.deleteObject();
-    FormDrawAddComponent.newSymbolObject = newSymbolObject;
+    // Update the appropriate FormDrawAddComponent reference
+    if (updateExisting) {
+      FormDrawAddComponent.editingExistingSymbol = newSymbolObject;
+    } else {
+      FormDrawAddComponent.newSymbolObject = newSymbolObject;
+      newSymbolObject.enterFocusMode()
+    }
     CanvasGlobals.canvas.setActiveObject(newSymbolObject)
-    newSymbolObject.enterFocusMode()
 
     // Re-activate vertex control
     if (newSymbolObject.controls && newSymbolObject.controls.V1) {

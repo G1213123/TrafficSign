@@ -44,9 +44,10 @@ let FormTextAddComponent = {
     GeneralHandler.tabNum = 2;
     FormTextAddComponent.textLineInput = 1;
     var parent = GeneralHandler.PanelInit();
+    GeneralHandler.setActiveComponentOff(FormTextAddComponent.TextHandlerOff);
     if (parent) {
       // Create the basic parameters container using the shared function
-      GeneralHandler.createBasicParamsContainer(parent, FormTextAddComponent);
+      GeneralHandler.createBasicParamsContainer(parent, FormTextAddComponent, null, null, this.liveUpdateText, this.liveUpdateText);
 
       // Create a container for text content and font
       const textContentContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);

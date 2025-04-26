@@ -24,30 +24,31 @@ const FormMeasureComponent = {
   measurePanelInit: function (event) {
     GeneralHandler.tabNum = 5; // Use a unique tab number for the measure tool
     var parent = GeneralHandler.PanelInit();
+    GeneralHandler.setActiveComponentOff(FormMeasureComponent.MeasureHandlerOff);
     if (!parent) return;
-    
+
     // Create the title using consistent styling
     GeneralHandler.createNode("h2", { 'class': 'panel-heading' }, parent).innerHTML = "Measure Tool";
-    
+
     // Create a container for instructions with proper styling
     const instructionsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
     const instructionsLabel = GeneralHandler.createNode("div", { 'class': 'input-group-label' }, instructionsContainer);
     instructionsLabel.innerHTML = "Instructions";
-    
+
     const instructionsContent = GeneralHandler.createNode("div", { 'class': 'input-group-content' }, instructionsContainer);
-    GeneralHandler.createNode("p", { 'class': 'instruction-text' }, instructionsContent).innerHTML = 
-        "Click on vertices to measure distances. First click selects the starting vertex, second click measures to the end vertex.";
-    
+    GeneralHandler.createNode("p", { 'class': 'instruction-text' }, instructionsContent).innerHTML =
+      "Click on vertices to measure distances. First click selects the starting vertex, second click measures to the end vertex.";
+
     // Create a container for the measurement controls with proper styling
     const controlsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
     const controlsLabel = GeneralHandler.createNode("div", { 'class': 'input-group-label' }, controlsContainer);
     controlsLabel.innerHTML = "Measurement Control";
-    
+
     const controlsContent = GeneralHandler.createNode("div", { 'class': 'input-group-content' }, controlsContainer);
-    
+
     // Add the measurement toggle button with consistent styling
-    GeneralHandler.createButton('toggle-measure', 
-      FormMeasureComponent.activeMeasurement ? 'Stop Measuring' : 'Start Measuring', 
+    GeneralHandler.createButton('toggle-measure',
+      FormMeasureComponent.activeMeasurement ? 'Stop Measuring' : 'Start Measuring',
       controlsContent, 'input',
       FormMeasureComponent.toggleMeasurementMode, 'click');
   },
@@ -55,20 +56,20 @@ const FormMeasureComponent = {
   /**
    * Toggle measurement mode on/off
    */
-  toggleMeasurementMode: function() {
+  toggleMeasurementMode: function () {
     FormMeasureComponent.activeMeasurement = !FormMeasureComponent.activeMeasurement;
-    
+
     if (FormMeasureComponent.activeMeasurement) {
       // Enable measuring mode
       FormMeasureComponent.startMeasuring();
-      
+
       // Update button text
       const toggleButton = document.getElementById('toggle-measure');
       if (toggleButton) toggleButton.value = 'Stop Measuring';
     } else {
       // Disable measuring mode
       FormMeasureComponent.stopMeasuring();
-      
+
       // Update button text
       const toggleButton = document.getElementById('toggle-measure');
       if (toggleButton) toggleButton.value = 'Start Measuring';
@@ -78,18 +79,18 @@ const FormMeasureComponent = {
   /**
    * Start the measurement mode
    */
-  startMeasuring: function() {
+  startMeasuring: function () {
     // Clear any existing state
     FormMeasureComponent.clearState();
-    
+
     // Add mouse move listener to detect vertices
     canvas.on('mouse:move', FormMeasureComponent.MeasureOnMouseMove);
     canvas.on('mouse:down', FormMeasureComponent.MeasureOnMouseClick);
-    
+
     // Escape key to cancel measuring
     document.removeEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
     document.addEventListener('keydown', FormMeasureComponent.cancelMeasure);
-    
+
     // Change cursor to indicate measure mode
     canvas.defaultCursor = 'crosshair';
   },
@@ -97,51 +98,51 @@ const FormMeasureComponent = {
   /**
    * Stop the measurement mode
    */
-  stopMeasuring: function() {
+  stopMeasuring: function () {
     // Remove event listeners
     canvas.off('mouse:move', FormMeasureComponent.MeasureOnMouseMove);
     canvas.off('mouse:down', FormMeasureComponent.MeasureOnMouseClick);
     document.removeEventListener('keydown', FormMeasureComponent.cancelMeasure);
     document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
-    
+
     // Reset cursor
     canvas.defaultCursor = 'default';
-    
+
     // Clear measurement state
     FormMeasureComponent.clearState();
   },
   /**
    * Clear the measurement state
    */
-  clearState: function() {
+  clearState: function () {
     // Clear first vertex
     FormMeasureComponent.firstVertex = null;
-    
+
     // Clear any snap highlights
     FormMeasureComponent.clearSnapHighlight();
-    
+
     // Clear dynamic line
     FormMeasureComponent.clearDynamicLine();
-    
+
     // Clear dimension lines
     FormMeasureComponent.clearDimensionLines();
   },
-  
+
   /**
    * Clear the dynamic line between first vertex and cursor
    */
-  clearDynamicLine: function() {
+  clearDynamicLine: function () {
     if (FormMeasureComponent.dynamicLine) {
       canvas.remove(FormMeasureComponent.dynamicLine);
       FormMeasureComponent.dynamicLine = null;
       canvas.renderAll();
     }
   },
-  
+
   /**
    * Clear any dimension lines created for measurements
    */
-  clearDimensionLines: function() {
+  clearDimensionLines: function () {
     if (FormMeasureComponent.dimensionLines && FormMeasureComponent.dimensionLines.length > 0) {
       FormMeasureComponent.dimensionLines.forEach(obj => {
         canvas.remove(obj);
@@ -153,23 +154,23 @@ const FormMeasureComponent = {
   /**
    * Handle mouse move during measurement
    */
-  MeasureOnMouseMove: function(event) {
+  MeasureOnMouseMove: function (event) {
     const pointer = canvas.getPointer(event.e);
-    
+
     // Check for vertices near the pointer
     FormMeasureComponent.checkForSnapTargets(pointer);
-    
+
     // If we have a first vertex selected, draw a line to the current pointer
     if (FormMeasureComponent.firstVertex) {
       // Remove any existing dynamic line
       FormMeasureComponent.clearDynamicLine();
-      
+
       // Create a new dynamic line from first vertex to pointer
       FormMeasureComponent.dynamicLine = new fabric.Line(
         [
-          FormMeasureComponent.firstVertex.x, 
-          FormMeasureComponent.firstVertex.y, 
-          pointer.x, 
+          FormMeasureComponent.firstVertex.x,
+          FormMeasureComponent.firstVertex.y,
+          pointer.x,
           pointer.y
         ],
         {
@@ -180,7 +181,7 @@ const FormMeasureComponent = {
           evented: false
         }
       );
-      
+
       // Add the line to the canvas
       canvas.add(FormMeasureComponent.dynamicLine);
       canvas.renderAll();
@@ -189,9 +190,9 @@ const FormMeasureComponent = {
   /**
    * Handle mouse click during measurement
    */
-  MeasureOnMouseClick: function(event) {
+  MeasureOnMouseClick: function (event) {
     if (event.e.button !== 0) return; // Only handle left clicks
-    
+
     // If we have a snap target, use that vertex
     if (FormMeasureComponent.snapTarget) {
       // If this is the first click, store the vertex
@@ -202,7 +203,7 @@ const FormMeasureComponent = {
           label: FormMeasureComponent.snapTarget.vertex.label,
           objectId: FormMeasureComponent.snapTarget.object.canvasID
         };
-        
+
         // Keep the highlight for the first vertex
         // But create a new one with a different color
         FormMeasureComponent.clearSnapHighlight();
@@ -211,31 +212,31 @@ const FormMeasureComponent = {
       else {
         // Clear the dynamic line when second vertex is clicked
         FormMeasureComponent.clearDynamicLine();
-        
+
         const secondVertex = {
           x: FormMeasureComponent.snapTarget.vertex.x,
           y: FormMeasureComponent.snapTarget.vertex.y,
           label: FormMeasureComponent.snapTarget.vertex.label,
           objectId: FormMeasureComponent.snapTarget.object.canvasID
         };
-        
+
         // Calculate delta
         const deltaX = Math.round(secondVertex.x - FormMeasureComponent.firstVertex.x);
         const deltaY = Math.round(secondVertex.y - FormMeasureComponent.firstVertex.y);
         const distance = Math.round(Math.sqrt(deltaX * deltaX + deltaY * deltaY));
-        
+
         // Create dimension lines to visualize the measurement
         FormMeasureComponent.createDimensionLines(
-          FormMeasureComponent.firstVertex, 
-          secondVertex, 
-          deltaX, 
-          deltaY, 
+          FormMeasureComponent.firstVertex,
+          secondVertex,
+          deltaX,
+          deltaY,
           distance
         );
-        
+
         // Display measurement using the context menu text box
-        const measurementText = 
-        ` Measurement Results:
+        const measurementText =
+          ` Measurement Results:
           ΔX: ${deltaX}mm
           ΔY: ${deltaY}mm
           Distance: ${distance}mm
@@ -248,18 +249,18 @@ const FormMeasureComponent = {
         CanvasGlobals.showTextBox(measurementText, ' ', 'keydown', function handleKeyPress(event) {
           if (event.key === 'Enter') {
             hideTextBox();
-            
+
             // First clear all dimension lines
             FormMeasureComponent.clearDimensionLines();
-            
+
             // Then reset for the next measurement after user presses Enter
             FormMeasureComponent.clearState();
-            
+
             // Make sure dynamic line is fully cleared
             FormMeasureComponent.clearDynamicLine();
-            
+
             document.removeEventListener('keydown', handleKeyPress);
-            
+
             // Force a final render to ensure clean canvas
             canvas.renderAll();
           }
@@ -271,10 +272,10 @@ const FormMeasureComponent = {
   /**
    * Cancel measurement with Escape key
    */
-  cancelMeasure: function(event) {
+  cancelMeasure: function (event) {
     if (event.key === 'Escape') {
       FormMeasureComponent.clearState();
-      
+
       // If escape is pressed when the tool is active, deactivate it
       if (FormMeasureComponent.activeMeasurement) {
         FormMeasureComponent.toggleMeasurementMode();
@@ -284,7 +285,7 @@ const FormMeasureComponent = {
   /**
    * Check for vertices near the pointer position
    */
-  checkForSnapTargets: function(pointer) {
+  checkForSnapTargets: function (pointer) {
     // Clear any existing snap highlight
     FormMeasureComponent.clearSnapHighlight();
     FormMeasureComponent.snapTarget = null;
@@ -319,7 +320,7 @@ const FormMeasureComponent = {
         vertex: closestVertex
       };
       FormMeasureComponent.addSnapHighlight();
-      
+
       // Change cursor to indicate vertex snap
       canvas.defaultCursor = 'pointer';
     } else {
@@ -331,7 +332,7 @@ const FormMeasureComponent = {
   /**
    * Add highlight to the current snap target
    */
-  addSnapHighlight: function() {
+  addSnapHighlight: function () {
     if (FormMeasureComponent.snapTarget) {
       // Match the circle size with the vertex control size
       const size = 20 + 5; // Use standard vertex control size plus padding
@@ -361,7 +362,7 @@ const FormMeasureComponent = {
   /**
    * Add highlight for the first selected vertex
    */
-  addFirstVertexHighlight: function() {
+  addFirstVertexHighlight: function () {
     if (FormMeasureComponent.firstVertex) {
       // Match the circle size with the vertex control size
       const size = 20 + 5; // Use standard vertex control size plus padding
@@ -391,45 +392,45 @@ const FormMeasureComponent = {
   /**
    * Clear all snap highlights
    */
-  clearSnapHighlight: function() {
+  clearSnapHighlight: function () {
     if (FormMeasureComponent.snapHighlight) {
       canvas.remove(FormMeasureComponent.snapHighlight);
       FormMeasureComponent.snapHighlight = null;
     }
-    
+
     if (FormMeasureComponent.firstVertexHighlight) {
       canvas.remove(FormMeasureComponent.firstVertexHighlight);
       FormMeasureComponent.firstVertexHighlight = null;
     }
-    
+
     canvas.renderAll();
   },  /**
    * Create dimension lines to visualize the measurement
    */
-  createDimensionLines: function(point1, point2, deltaX, deltaY, distance) {
+  createDimensionLines: function (point1, point2, deltaX, deltaY, distance) {
     // Initialize the array if it doesn't exist
     if (!FormMeasureComponent.dimensionLines) {
       FormMeasureComponent.dimensionLines = [];
     }
-    
+
     // Clear any existing dimension lines
     FormMeasureComponent.clearDimensionLines();
-    
+
     // Fixed offset distances for engineering dimension style (matching draw.js)
     const offsetDistance = 30; // Fixed pixel offset for dimension line
-    
+
     // Scale adjustments based on zoom
     const zoom = canvas.getZoom() || 1;
     const lineWidth = 1 / zoom;         // Thinner lines for engineering style
     const fontSize = 15 / zoom;         // Fixed 15px font size
     const arrowSize = 12 / zoom;        // Size of dimension arrows
     const extensionLineLength = 8 / zoom; // Length of extension lines
-    
+
     // Add X dimension line if there's a horizontal difference
     if (Math.abs(deltaX) > 0) {
       // Position of dimension line, offset from point1
       const dimLineY = point1.y - offsetDistance / zoom;
-      
+
       // Extension lines (vertical lines from points to dimension line)
       FormMeasureComponent.dimensionLines.push(new fabric.Line(
         [point1.x, point1.y, point1.x, dimLineY - extensionLineLength],
@@ -440,7 +441,7 @@ const FormMeasureComponent = {
           evented: false
         }
       ));
-      
+
       FormMeasureComponent.dimensionLines.push(new fabric.Line(
         [point2.x, point2.y, point2.x, dimLineY - extensionLineLength],
         {
@@ -450,7 +451,7 @@ const FormMeasureComponent = {
           evented: false
         }
       ));
-      
+
       // Main dimension line
       FormMeasureComponent.dimensionLines.push(new fabric.Line(
         [point1.x, dimLineY, point2.x, dimLineY],
@@ -461,14 +462,14 @@ const FormMeasureComponent = {
           evented: false
         }
       ));
-      
+
       // Add arrow endpoints
       FormMeasureComponent.addArrow(point1.x, dimLineY, 'right', 'green', arrowSize);
       FormMeasureComponent.addArrow(point2.x, dimLineY, 'left', 'green', arrowSize);
-      
+
       // Calculate the midpoint for dimension text
       const midX = (point1.x + point2.x) / 2;
-      
+
       // Dimension text
       FormMeasureComponent.dimensionLines.push(new fabric.Text(
         `${deltaX}mm`,
@@ -489,12 +490,12 @@ const FormMeasureComponent = {
         }
       ));
     }
-    
+
     // Add Y dimension line if there's a vertical difference
     if (Math.abs(deltaY) > 0) {
       // Position of dimension line, offset from point1
       const dimLineX = point1.x - offsetDistance / zoom;
-      
+
       // Extension lines (horizontal lines from points to dimension line)
       FormMeasureComponent.dimensionLines.push(new fabric.Line(
         [point1.x, point1.y, dimLineX - extensionLineLength, point1.y],
@@ -505,7 +506,7 @@ const FormMeasureComponent = {
           evented: false
         }
       ));
-      
+
       FormMeasureComponent.dimensionLines.push(new fabric.Line(
         [point2.x, point2.y, dimLineX - extensionLineLength, point2.y],
         {
@@ -515,7 +516,7 @@ const FormMeasureComponent = {
           evented: false
         }
       ));
-      
+
       // Main dimension line
       FormMeasureComponent.dimensionLines.push(new fabric.Line(
         [dimLineX, point1.y, dimLineX, point2.y],
@@ -526,20 +527,20 @@ const FormMeasureComponent = {
           evented: false
         }
       ));
-      
+
       // Add arrow endpoints
       FormMeasureComponent.addArrow(dimLineX, point1.y, 'down', 'red', arrowSize);
       FormMeasureComponent.addArrow(dimLineX, point2.y, 'up', 'red', arrowSize);
-      
+
       // Calculate the midpoint for dimension text
       const midY = (point1.y + point2.y) / 2;
-      
+
       // Dimension text
       FormMeasureComponent.dimensionLines.push(new fabric.Text(
         `${deltaY}mm`,
         {
           left: dimLineX - 15 / zoom,
-          top: midY, 
+          top: midY,
           fontSize: fontSize,
           fill: 'red',
           fontFamily: 'Arial',
@@ -555,21 +556,21 @@ const FormMeasureComponent = {
         }
       ));
     }
-    
+
     // Add all dimension lines to canvas
     FormMeasureComponent.dimensionLines.forEach(obj => {
       canvas.add(obj);
     });
-    
+
     canvas.renderAll();
   },
-  
+
   /**
    * Helper method to add arrow endpoints to dimension lines
    */
-  addArrow: function(x, y, direction, color, size) {
+  addArrow: function (x, y, direction, color, size) {
     let points;
-    
+
     switch (direction) {
       case 'right':
         points = [
@@ -600,7 +601,7 @@ const FormMeasureComponent = {
         ];
         break;
     }
-    
+
     // Convert points to fabric.js polygon format
     const fabricPoints = [];
     points.forEach(point => {
@@ -609,7 +610,7 @@ const FormMeasureComponent = {
         y: point.y
       });
     });
-    
+
     // Create arrow polygon and add to dimension lines
     const arrow = new fabric.Polygon(fabricPoints, {
       fill: color,
@@ -618,14 +619,14 @@ const FormMeasureComponent = {
       selectable: false,
       evented: false
     });
-    
+
     FormMeasureComponent.dimensionLines.push(arrow);
   },
 
   /**
    * Clean up when panel is closed
    */
-  MeasureHandlerOff: function() {
+  MeasureHandlerOff: function () {
     FormMeasureComponent.stopMeasuring();
   }
 };

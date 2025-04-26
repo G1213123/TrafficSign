@@ -6,6 +6,7 @@
 import { BaseGroup, GlyphPath } from './draw.js';
 import  {symbolsTemplate, symbolsTemplateAlt} from './template.js';
 import { calculateTransformedPoints } from './path.js';
+import { FormDrawAddComponent } from '../sidebar/sb-draw.js';
 
 
 function calcSymbol(type, length, color = 'white') {
@@ -62,6 +63,12 @@ class SymbolObject extends BaseGroup {
 
     // Add double-click event handler
     this.on('mousedblclick', this.onDoubleClick.bind(this));
+    // When this symbol is deselected, clear it from FormDrawAddComponent if it was active
+    this.on('deselected', () => {
+      if (FormDrawAddComponent.editingExistingSymbol === this) {
+        FormDrawAddComponent.editingExistingSymbol = null;
+      }
+    });
   }
 
   initialize(symbolPath) {
@@ -75,21 +82,9 @@ class SymbolObject extends BaseGroup {
    * Handle double-click on the symbol object
    */
   onDoubleClick() {
-    // Check if FormDrawAddComponent is defined
-    if (typeof FormDrawAddComponent === 'undefined') {
-      // If not defined, load the draw module first
-      if (typeof SidebarHelpers !== 'undefined' && SidebarHelpers.loadDrawModule) {
-        SidebarHelpers.loadDrawModule().then(() => {
-          // Once the module is loaded, initialize the panel for editing this symbol
-          FormDrawAddComponent.drawPanelInit(null, this);
-        });
-      } else {
-        console.error('SidebarHelpers not defined or loadDrawModule not available');
-      }
-    } else {
       // If already defined, initialize directly
       FormDrawAddComponent.drawPanelInit(null, this);
-    }
+    
   }
   
   /**

@@ -5,6 +5,8 @@
 import { BaseGroup } from './draw.js';
 import {textWidthMedium, textWidthHeavy,} from './template.js';
 import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontKai } from './path.js';
+import { GeneralSettings } from '../sidebar/sbGeneral.js';
+import { FormTextAddComponent } from '../sidebar/sb-text.js';
 
 class TextObject extends BaseGroup {
   constructor(options = {}) {
@@ -54,23 +56,10 @@ class TextObject extends BaseGroup {
    * Handle double-click on the text object
   */
   onDoubleClick() {
-    // Check if FormTextAddComponent is defined
-    if (typeof FormTextAddComponent === 'undefined') {
-      // If not defined, load the text module first
-      if (typeof SidebarHelpers !== 'undefined' && SidebarHelpers.loadTextModule) {
-        SidebarHelpers.loadTextModule().then(() => {
-          // Once the module is loaded, initialize the panel with this text object
-          FormTextAddComponent.textPanelInit(null, this);
-          this.setupTextPanelInputs();
-        });
-      } else {
-        console.error('SidebarHelpers not defined or loadTextModule not available');
-      }
-    } else {
       // If already defined, initialize directly
       FormTextAddComponent.textPanelInit(null, this);
       this.setupTextPanelInputs();
-    }
+    
   }
 
   /**
@@ -98,7 +87,9 @@ class TextObject extends BaseGroup {
         const buttons = fontToggle.querySelectorAll('.toggle-button');
         buttons.forEach(button => {
           if (button.getAttribute('data-value') === this.font) {
-            button.click();
+            button.classList.add('active');
+          } else {
+            button.classList.remove('active');
           }
         });
       }
@@ -108,8 +99,13 @@ class TextObject extends BaseGroup {
       if (colorToggle) {
         const buttons = colorToggle.querySelectorAll('.toggle-button');
         buttons.forEach(button => {
-          if (button.getAttribute('data-value') === this.color) {
-            button.click();
+          if (button.getAttribute('data-value') === 'White' && this.color == '#ffffff' ) {
+            button.classList.add('active');
+          } else if 
+          (button.getAttribute('data-value') === 'Black' && this.color == '#000000') {
+            button.classList.add('active');
+          } else {
+            button.classList.remove('active');
           }
         });
       }
