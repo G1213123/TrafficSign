@@ -68,51 +68,29 @@
     <!-- AdSense ads container -->
     <div id="ads-container"
         style="position: fixed; bottom: 0; left: 60%; transform: translateX(-50%); z-index: 900; padding: 10px;">
-        <!-- AdSense placeholder for local development -->
-        <div id="adsense-placeholder"
-            style="display: none; background-color: #f0f0f0; border: 2px dashed #aaa; text-align: center; padding: 10px; width: 728px; height: 90px;">
-            <span style="line-height: 90px; color: #555; font-family: Arial, sans-serif;">AdSense Ad Placeholder
-                (728×90)</span>
-        </div>
 
         <!-- Actual AdSense code -->
-        <div id="adsense-actual" style="display: block;padding: 10px; width: 728px; height: 90px;">
-            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9252664921109550"
-                data-ad-slot="4538395249" data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <div id="adsense-actual" style="display: none;">
+            <script async
+                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9252664921109550"
+                crossorigin="anonymous"></script>
+            <ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px"
+                data-ad-client="ca-pub-9252664921109550" data-ad-slot="1234567890" data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
             <script>
                 // Check if we're in local development
-                if (window.location.origin === 'file://') {
-                    // In local development - show placeholder, hide actual AdSense
-                    document.getElementById('adsense-placeholder').style.display = 'block';
-                    document.getElementById('adsense-actual').style.display = 'none';
-                    console.log('Running in local development - AdSense disabled, showing placeholder');
-                } else {
+                if (window.location.origin !== 'file://') {
                     // In production - hide placeholder, load AdSense
-                    document.getElementById('adsense-placeholder').style.display = 'none';
                     window.onload = function () {
                         (adsbygoogle = window.adsbygoogle || []).push({});
                     }
                 }
             </script>
+
         </div>
-    </div>
 
-    <!-- Load AdSense script only in production -->
-    <script>
-        // Only load AdSense script in production environment
-        if (window.location.origin !== 'file://') {
-            const adsScript = document.createElement('script');
-            adsScript.async = true;
-            adsScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9252664921109550';
-            adsScript.crossOrigin = 'anonymous';
-            document.head.appendChild(adsScript);
-            console.log('AdSense script loaded in production environment');
-        }
-    </script>
-
-
-    <!-- Modular development: load only the main entry point as a module -->
-    <script type="module" src="js/main.js"></script>
+        <!-- Modular development: load only the main entry point as a module -->
+        <script type="module" src="js/main.js"></script>
 </body>
 
 </html>
