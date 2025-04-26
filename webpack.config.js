@@ -6,7 +6,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 module.exports = {
   entry: './js/main.js', // Your main entry JS file
   output: {
-    filename: 'bundle.min.js',
+    filename: './js/bundle.min.js',
     path: path.resolve(__dirname, 'dist'),
     clean: true, // Clean the output directory before emit
   },
