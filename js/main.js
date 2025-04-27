@@ -20,6 +20,7 @@ import './sidebar/sidebar.js';
 // Import any additional utilities or test logic
 import './test.js'; 
 import './tooltip.js'; 
+import './property.js';
 import {preload} from './preload.js'; 
 
 // If you need to ensure globals are available for legacy code, you can re-export them here
