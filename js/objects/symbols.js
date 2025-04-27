@@ -12,7 +12,7 @@ import { FormDrawAddComponent } from '../sidebar/sb-draw.js';
 function calcSymbol(type, length, color = 'white') {
   let symbol;
   if (typeof type === 'string') {
-    const symbolsT = JSON.parse(JSON.stringify((color == 'Black' && (type.includes('Hospital') || type.includes('Route'))) ? symbolsTemplateAlt : symbolsTemplate)); // Deep copy to avoid mutation
+    const symbolsT = JSON.parse(JSON.stringify((color.toLocaleLowerCase() == 'black' && Object.keys(symbolsTemplateAlt).includes(type)) ? symbolsTemplateAlt : symbolsTemplate)); // Deep copy to avoid mutation
     const backup = JSON.parse(JSON.stringify(symbolsTemplate));
     symbol = symbolsT[type] || backup[type];
   } else {
