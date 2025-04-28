@@ -1291,9 +1291,8 @@ div.side-panel.close {
 .panel-heading {
   color: #dadada;
   font-family: 'TransportMedium', sans-serif;
-  font-size: 24px;
-  margin: 10px 0;
-  padding-bottom: 5px;
+  font-size: 20px;
+  margin: 5px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   text-align: center;
 }
@@ -1489,4 +1488,34 @@ div.side-panel.close {
   color: #ddd;
   line-height: 1;
   font-family: Arial, sans-serif;
+}
+
+/* Info panel text (paragraphs and lists) */
+#debug-info-panel p {
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  margin: 8px 10px;
+  line-height: 1.5;
+}
+
+#debug-info-panel ul {
+  list-style-type: disc inside;
+  margin: 8px 10px;
+  padding-left: 20px;
+}
+
+#debug-info-panel li {
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  margin: 4px 0;
+}
+
+/* Info panel subheading */
+#debug-info-panel h3.panel-subheading {
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  margin: 8px 10px;
 }

@@ -6,7 +6,6 @@ import { BorderDimensionDisplay } from "./dimension.js";
 import { LockIcon } from "./lock.js";
 import { globalAnchorTree, anchorShape } from './anchor.js';
 import { CanvasObjectInspector } from "../sidebar/sb-inspector.js";
-import { FormDebugComponent } from "../sidebar/sb-debug.js";
 
 const canvas = CanvasGlobals.canvas; // Assuming canvas is a global variable in canvas.js
 const canvasObject = CanvasGlobals.canvasObject; // Assuming canvasObject is a global variable in canvas.js
@@ -749,10 +748,6 @@ class BaseGroup extends fabric.Group {
       this.borderResize();
     }
 
-
-    if (document.getElementById('debug-info-panel')) {
-      FormDebugComponent.updateDebugInfo(canvas.getActiveObjects())
-    }
   }
 
   // Method to update coordinates

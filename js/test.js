@@ -450,7 +450,7 @@ const ShapeTest = {
   /**
    * Create and test basic shapes (text and symbols)
    */
-  async testShapeCreation() {
+   testShapeCreation() {
     TestTracker.startTest("ShapeCreation");
 
     // Create text object - Hong Kong in English - Use direct TextObject creation instead
@@ -476,7 +476,7 @@ const ShapeTest = {
     TestTracker.register("chineseText", chineseText);
 
     // Create symbol (unchanged)
-    await drawLabeledSymbol('StackArrow', {
+     drawLabeledSymbol('StackArrow', {
       x: -1500,
       y: -900,
       xHeight: 100,
@@ -536,8 +536,8 @@ const ShapeTest = {
   /**
    * Run all shape tests
    */
-  runAll: async function () {
-    await this.testShapeCreation();
+  runAll:  function () {
+     this.testShapeCreation();
   }
 };
 
@@ -548,12 +548,12 @@ const AnchorTest = {
   /**
    * Create and test anchored objects
    */
-  async testAnchoringObjects() {
+   testAnchoringObjects() {
     TestTracker.startTest("AnchorTest");
 
     // Create three symbols to anchor together using direct object creation instead of FormText methods
     // First symbol (base)
-    await drawLabeledSymbol('Tunnel', {
+     drawLabeledSymbol('Tunnel', {
       x: 300,
       y: -1000,
       xHeight: 100,
@@ -562,7 +562,7 @@ const AnchorTest = {
     TestTracker.register("baseTunnel");
 
     // Second symbol (to right)
-    await drawLabeledSymbol('Airport', {
+     drawLabeledSymbol('Airport', {
       x: 400,
       y: -400,
       xHeight: 100,
@@ -572,7 +572,7 @@ const AnchorTest = {
     TestTracker.register("Airport");
 
     // Third symbol (below)
-    await drawLabeledSymbol('Hospital', {
+     drawLabeledSymbol('Hospital', {
       x: 300,
       y: -300,
       xHeight: 100,
@@ -649,12 +649,12 @@ const AnchorTest = {
   /**
    * Create and test delinking of anchored objects
    */
-  async testDelinkingAnchoredObjects() {
+   testDelinkingAnchoredObjects() {
     TestTracker.startTest("DelinkingAnchoredObjects");
 
     // Create four symbols to anchor together
     // First pair
-    await drawLabeledSymbol('EHC', {
+     drawLabeledSymbol('EHC', {
       x: 1500,
       y: -1000,
       xHeight: 100,
@@ -663,7 +663,7 @@ const AnchorTest = {
     });
     TestTracker.register("baseTunnel1");
 
-    await drawLabeledSymbol('WHC', {
+     drawLabeledSymbol('WHC', {
       x: 1500,
       y: -1000,
       xHeight: 100,
@@ -673,7 +673,7 @@ const AnchorTest = {
     TestTracker.register("airport1");
 
     // Second pair
-    await drawLabeledSymbol('Hospital', {
+     drawLabeledSymbol('Hospital', {
       x: 1575,
       y: -550,
       xHeight: 100,
@@ -681,7 +681,7 @@ const AnchorTest = {
     });
     TestTracker.register("baseHospital");
 
-    await drawLabeledSymbol('CHT', {
+     drawLabeledSymbol('CHT', {
       x: 1575,
       y: -550,
       xHeight: 100,
@@ -750,9 +750,9 @@ const AnchorTest = {
   /**
    * Run all anchor tests
    */
-  runAll: async function () {
-    await this.testAnchoringObjects();
-    await this.testDelinkingAnchoredObjects();
+  runAll:  function () {
+     this.testAnchoringObjects();
+     this.testDelinkingAnchoredObjects();
   }
 };
 
@@ -763,7 +763,7 @@ const BorderTest = {
   /**
    * Create and test border around objects
    */
-  async testBorderCreation() {
+   testBorderCreation() {
     TestTracker.startTest("BorderCreation");
 
     // Create text objects directly using TextObject constructor instead of FormTextAddComponent
@@ -800,7 +800,7 @@ const BorderTest = {
     const expectedHeight = maxY - minY;
 
     // Create border around the objects
-    const borderGroup = await BorderUtilities.BorderGroupCreate(
+    const borderGroup =  BorderUtilities.BorderGroupCreate(
       'stack',
       [object1, object2],
       [object1, object2],
@@ -875,7 +875,7 @@ const BorderTest = {
   /**
    * Create and test border around objects with divider
    */
-  async testBorderWithDivider() {
+   testBorderWithDivider() {
     TestTracker.startTest("BorderWithDivider");
 
     // Create text objects directly using TextObject constructor
@@ -903,7 +903,7 @@ const BorderTest = {
     const belowObject = TestTracker.get("belowText");
 
     // Create horizontal divider between objects
-    await HDividerCreate(
+     HDividerCreate(
       [aboveObject],
       [belowObject],
       null,
@@ -915,7 +915,7 @@ const BorderTest = {
     const divider = TestTracker.get("divider");
 
     // Create border around all three objects
-    const borderGroup = await BorderUtilities.BorderGroupCreate(
+    const borderGroup =  BorderUtilities.BorderGroupCreate(
       'stack',
       [aboveObject, belowObject, divider],
       [aboveObject, belowObject, divider],
@@ -1004,9 +1004,9 @@ const BorderTest = {
   /**
    * Run all border tests
    */
-  runAll: async function () {
-    await this.testBorderCreation();
-    await this.testBorderWithDivider(); // Replace testDividerCreation with combined test
+  runAll:  function () {
+     this.testBorderCreation();
+     this.testBorderWithDivider(); // Replace testDividerCreation with combined test
   }
 };
 
@@ -1017,7 +1017,7 @@ const RouteTest = {
   /**
    * Test creation of a Main Road using route.js drawing functions
    */
-  async testMainRoad() {
+   testMainRoad() {
     TestTracker.startTest("MainRoad");
 
     // Set up test parameters
@@ -1052,7 +1052,7 @@ const RouteTest = {
 
     // Create and initialize the MainRoadSymbol
     const mainRoad = new MainRoadSymbol(routeOptions);
-    await mainRoad.initialize(calcMainRoadVertices(params.xHeight, routeOptions.routeList));
+     mainRoad.initialize(calcMainRoadVertices(params.xHeight, routeOptions.routeList));
 
     TestTracker.register("mainRoad", mainRoad);
 
@@ -1086,7 +1086,7 @@ const RouteTest = {
   /**
    * Test creation of a Side Road route on the left side using route.js drawing functions
    */
-  async testLeftSideRoad() {
+   testLeftSideRoad() {
     TestTracker.startTest("LeftSideRoad");
 
     // Get Main Road from TestTracker instead of window global
@@ -1111,7 +1111,7 @@ const RouteTest = {
     canvas.setActiveObject(mainRoad);
 
     // Use actual drawing functions with parameters
-    await drawSideRoadOnCursor(null, {
+     drawSideRoadOnCursor(null, {
       x: posx,
       y: posy,
       routeParams: params
@@ -1120,7 +1120,7 @@ const RouteTest = {
 
 
     // Create the Side Road with a simulated mouse click
-    await finishDrawSideRoad({ e: { button: 0 } });
+     finishDrawSideRoad({ e: { button: 0 } });
 
     // Find the created Side Road route and register it
     const sideRoad = mainRoad.sideRoad[mainRoad.sideRoad.length - 1];
@@ -1164,7 +1164,7 @@ const RouteTest = {
   /**
    * Test creation of a Side Road route on the right side using route.js drawing functions
    */
-  async testRightSideRoad() {
+   testRightSideRoad() {
     TestTracker.startTest("RightSideRoad");
 
     // Get Main Road from TestTracker
@@ -1191,7 +1191,7 @@ const RouteTest = {
     canvas.setActiveObject(mainRoad);
 
     // Use actual drawing functions with parameters
-    await drawSideRoadOnCursor(null, {
+     drawSideRoadOnCursor(null, {
       x: posx,
       y: posy,
       routeParams: params
@@ -1199,7 +1199,7 @@ const RouteTest = {
 
 
     // Create the Side Road with a simulated mouse click
-    await finishDrawSideRoad({ e: { button: 0 } });
+     finishDrawSideRoad({ e: { button: 0 } });
 
     // Find the right Side Road using position - more reliable than using TestTracker.get("leftBranch")
     // A right Side Road will have its x position to the right of the Main Road center
@@ -1274,7 +1274,7 @@ const RouteTest = {
   /**
    * Test Side Road route movement constraints
    */
-  async testSideRoadMovement() {
+   testSideRoadMovement() {
     TestTracker.startTest("SideRoadMovement");
 
     // Get left Side Road from TestTracker
@@ -1291,7 +1291,7 @@ const RouteTest = {
     // Try to move Side Road too close to root
     leftSideRoad.left = mainRoad.left; // Too close
     leftSideRoad.updateAllCoord();
-    await leftSideRoad.onMove();
+     leftSideRoad.onMove();
 
     // Should have been constrained
     const minDistance = 4 * leftSideRoad.xHeight / 4;
@@ -1312,11 +1312,11 @@ const RouteTest = {
   /**
    * Run all route tests
    */
-  runAll: async function () {
-    await this.testMainRoad();
-    await this.testLeftSideRoad();
-    await this.testRightSideRoad();
-    await this.testSideRoadMovement();
+  runAll:  function () {
+     this.testMainRoad();
+     this.testLeftSideRoad();
+     this.testRightSideRoad();
+     this.testSideRoadMovement();
     // Roundabout tests moved to dedicated test suite
   }
 };
@@ -1328,7 +1328,7 @@ const RoundaboutTest = {
   /**
    * Test creation of a Conventional Roundabout and adding a side road to it
    */
-  async testConventionalRoundabout() {
+   testConventionalRoundabout() {
     TestTracker.startTest("ConventionalRoundabout");
 
     // Set up test parameters for roundabout
@@ -1461,7 +1461,7 @@ const RoundaboutTest = {
   /**
    * Create and test a spiral roundabout with multiple arms
    */
-  async testSpiralRoundabout() {
+   testSpiralRoundabout() {
     TestTracker.startTest("SpiralRoundabout");
 
     // Create a spiral roundabout
@@ -1494,7 +1494,7 @@ const RoundaboutTest = {
     };
 
     const spiralRoundabout = new MainRoadSymbol(routeOptions);
-    await spiralRoundabout.initialize(calcRoundaboutVertices('Spiral', params.xHeight, routeOptions.routeList));
+     spiralRoundabout.initialize(calcRoundaboutVertices('Spiral', params.xHeight, routeOptions.routeList));
     TestTracker.register("spiralRoundabout", spiralRoundabout);
 
     // Test assertions for the roundabout
@@ -1548,7 +1548,7 @@ const RoundaboutTest = {
     });
 
     // Trigger update
-    await firstArm.onMove();
+     firstArm.onMove();
 
     // Validate arm position after movement
     const armTip = firstArm.routeList[0];
@@ -1619,9 +1619,9 @@ const RoundaboutTest = {
   /**
    * Run all roundabout tests
    */
-  runAll: async function () {
-    await this.testConventionalRoundabout();
-    await this.testSpiralRoundabout();
+  runAll:  function () {
+     this.testConventionalRoundabout();
+     this.testSpiralRoundabout();
   }
 };
 
@@ -1632,7 +1632,7 @@ const ComplexSignTest = {
   /**
    * Create and test a complex sign with multiple borders and dividers
    */
-  async testComplexSignLayout() {
+   testComplexSignLayout() {
     TestTracker.startTest("ComplexSignLayout");
 
     // ===== LEFT SIDE OF SIGN =====
@@ -1670,7 +1670,7 @@ const ComplexSignTest = {
     TestTracker.register("leftDestination", leftDestination);
 
     // Create stack arrow below on left
-    await drawLabeledSymbol('GantryArrow', {
+     drawLabeledSymbol('GantryArrow', {
       x: -2400,
       y: 2500,
       xHeight: 200,
@@ -1680,7 +1680,7 @@ const ComplexSignTest = {
     TestTracker.register("leftArrow");
 
     // Create Airport on left
-    await drawLabeledSymbol('Airport', {
+     drawLabeledSymbol('Airport', {
       x: -2700,
       y: 2500,
       xHeight: 200,
@@ -1690,7 +1690,7 @@ const ComplexSignTest = {
     TestTracker.register("Airport");
 
     // Create WHC on left
-    await drawLabeledSymbol('WHC', {
+     drawLabeledSymbol('WHC', {
       x: 2700,
       y: 2500,
       xHeight: 200,
@@ -1723,7 +1723,7 @@ const ComplexSignTest = {
     TestTracker.register("rightDestination", rightDestination);
 
     // Create stack arrow below on right
-    await drawLabeledSymbol('GantryArrow', {
+     drawLabeledSymbol('GantryArrow', {
       x: 3000,
       y: 2500,
       xHeight: 200,
@@ -1933,8 +1933,8 @@ const ComplexSignTest = {
   /**
    * Run all complex sign tests
    */
-  runAll: async function () {
-    await this.testComplexSignLayout();
+  runAll:  function () {
+     this.testComplexSignLayout();
   }
 };
 
@@ -1950,24 +1950,19 @@ const testToRun = [
 
 
 
-async function runTests(tests) {
+ function runTests(tests) {
   console.log("======== RUNNING TESTS ========\n");
 
 
 
   for (const test of tests) {
-    await test();
+     test();
   }
 
   // Print just the final summary
   TestTracker.printSummary();
 }
-window.addEventListener("load", () => {
-  // Check if tests should run on start
-  if (typeof GeneralSettings !== 'undefined' && GeneralSettings.runTestsOnStart) {
-    runTests(testToRun);
-  }
-});
+
 
 /**
  * Test for TextObject to DXF export
@@ -1997,7 +1992,7 @@ function testTextObjectDXFExport() {
   canvas.renderAll();
 
   // Export to DXF using the existing FormExportComponent.exportToDXF function
-  // This is asynchronous since the exportToDXF function creates a blob and triggers a download
+  // This is hronous since the exportToDXF function creates a blob and triggers a download
 
   const pathObject = [];
   FormExportComponent.collectPathObjects(testText, pathObject);

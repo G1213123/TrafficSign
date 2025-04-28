@@ -11,7 +11,7 @@ import { FormDrawAddComponent } from './sb-draw.js';
 import { FormBorderWrapComponent } from './sb-border.js';
 import { FormDrawMapComponent } from './sb-map.js';
 import { FormExportComponent } from './sb-export.js';
-import { FormDebugComponent } from './sb-debug.js';
+import { FormInfoComponent } from './sb-info.js';
 import { FormSettingsComponent } from './sb-settings.js';
 import { FormTemplateComponent } from './sb-template.js';
 import { FormMeasureComponent } from './sb-measure.js';
@@ -64,10 +64,10 @@ document.addEventListener('DOMContentLoaded', function () {
   // Export module button
   document.getElementById('btn_export').onclick = FormExportComponent.exportPanelInit;
 
-  // Debug module button (if it exists)
-  const debugBtn = document.getElementById('btn_debug');
-  if (debugBtn) {
-    debugBtn.onclick = FormDebugComponent.DebugPanelInit;
+  // Info module button (if it exists)
+  const infoBtn = document.getElementById('btn_info');
+  if (infoBtn) {
+    infoBtn.onclick = FormInfoComponent.InfoPanelInit;
   }
 
   // Template module button

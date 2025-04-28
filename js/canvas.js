@@ -190,7 +190,9 @@ function handleArrowKeys(event) {
     if (moved) {
       obj.updateAllCoord();
       obj.setCoords();
-      obj.fire('moving')
+      obj.fire('moving');
+      // Notify listeners (e.g., property panel) that object was modified
+      canvas.fire('object:modified', { target: obj });
     }
   });
 

@@ -1,6 +1,20 @@
-# Web-Based CAD for Directional Signs
+# Road Sign Factory
 
-This project provides a web-based CAD tool for creating directional signs in accordance with the Hong Kong Transport Planning and Design Manual.
+## About
+
+Road Sign Factory is a web-based application for designing, customizing, and exporting professional traffic signs. Create your own symbols, add text, borders, and route maps, then export your design in multiple formats.
+
+Sign designs aim to follow the Hong Kong Transport Department’s [Traffic Signs and Road Markings (TPDM)](https://www.td.gov.hk/en/transport_in_hong_kong/public_transport/transport_standards/traffic_signs_and_road_markings/index.html) standards as closely as possible.
+
+**Features:**
+- Symbol drawing
+- Custom text insertion
+- Border creation
+- Route mapping
+- Measurement tools
+- Design export
+
+Learn more on [GitHub](https://github.com/G1213123/TrafficSign).
 
 ## Test Site
 

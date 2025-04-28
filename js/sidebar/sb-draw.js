@@ -25,8 +25,6 @@ let FormDrawAddComponent = {
     }
 
     if (parent) {
-      // Create the basic parameters container using the shared function
-      GeneralHandler.createBasicParamsContainer(parent, FormDrawAddComponent, null, null, this.handleXHeightChange, this.handleColorChange);
 
       // Use provided defaults or fall back to GeneralSettings
       const xHeight = FormDrawAddComponent.editingExistingSymbol ?
@@ -36,6 +34,12 @@ let FormDrawAddComponent = {
       const color = FormDrawAddComponent.editingExistingSymbol ?
         FormDrawAddComponent.editingExistingSymbol.color.charAt(0).toUpperCase() + FormDrawAddComponent.editingExistingSymbol.color.slice(1) :
         GeneralSettings.messageColor;
+
+      // Create the basic parameters container using the shared function
+      GeneralHandler.createBasicParamsContainer(parent, FormDrawAddComponent,
+        xHeight,
+        color,
+        this.handleXHeightChange, this.handleColorChange);
 
 
       // Create a placeholder container for angle controls
@@ -337,7 +341,7 @@ let FormDrawAddComponent = {
     }
 
     // Create new symbol with updated properties
-    const newSymbolObject = await drawSymbolDirectly(symbolType, {
+    const newSymbolObject = drawSymbolDirectly(symbolType, {
       x: position.x,
       y: position.y,
       xHeight: xHeight,
