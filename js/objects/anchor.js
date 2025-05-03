@@ -322,6 +322,55 @@ document.getElementById('set-anchor').addEventListener('click', function (event)
   }
 });
 
+// Helper function to process anchor updates for a specific axis
+function processUpdateCycle(direction, starterObj, updateOrder, delta, sourceList) {
+  if (updateOrder.length === 0 || isNaN(delta)) {
+    return; // No updates needed or invalid delta
+  }
+
+  const updatedObjectsSet = direction === 'x' ? globalAnchorTree.updatedObjectsX : globalAnchorTree.updatedObjectsY;
+  const axis = direction === 'x' ? 'left' : 'top';
+
+  // Start an update cycle with the starterObj as the starter
+  globalAnchorTree.startUpdateCycle(direction, starterObj.canvasID);
+
+  // First, explicitly update the starterObj itself to ensure proper anchoring propagation
+  // This step is key to fixing the issue with one-axis movement not propagating
+  if (!updatedObjectsSet.has(starterObj.canvasID)) {
+    updatedObjectsSet.add(starterObj.canvasID);
+    // Apply the delta directly to the starter object before calling updateAllCoord
+    // This ensures the initial movement is reflected before propagation
+    // No need to apply delta here as it was already applied before calling this function
+    // if (delta !== 0) {
+    //     starterObj.set({ [axis]: starterObj[axis] + delta });
+    //     starterObj.setCoords(); // Update coordinates after direct movement
+    // }
+    starterObj.updateAllCoord(null, sourceList); // Propagate changes
+  }
+
+  // Update objects in the proper order (excluding the starterObj which is already processed)
+  updateOrder.forEach(obj => {
+    if (obj.canvasID !== starterObj.canvasID && !updatedObjectsSet.has(obj.canvasID)) {
+      // Mark this object as updated
+      updatedObjectsSet.add(obj.canvasID);
+
+      // Apply the delta to each sub-anchored object first
+      // This ensures they have changes to propagate to their own sub-anchored objects
+      // No need to apply delta here as it was already applied before calling this function
+      if (delta !== 0) {
+        obj.set({ [axis]: obj[axis] + delta });
+        obj.setCoords(); // Update coordinates after direct movement
+      }
+
+      // Update coordinates - this may involve both X and Y changes if anchored in both axes
+      obj.updateAllCoord(null, sourceList);
+    }
+  });
+
+  // End the update cycle
+  globalAnchorTree.endUpdateCycle(direction);
+}
+
 async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = []) {
 
   const shape1 = Array.isArray(inputShape1) ? inputShape1[0] : inputShape1
@@ -368,20 +417,26 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
     spacingY: spacingY
   };
 
-  const deltaX = targetPoint.x - movingPoint.x + (isNaN(parseInt(spacingX)) ? 0 : parseInt(spacingX));
-  const deltaY = targetPoint.y - movingPoint.y + (isNaN(parseInt(spacingY)) ? 0 : parseInt(spacingY));
+  const parsedSpacingX = isNaN(parseInt(spacingX)) ? 0 : parseInt(spacingX);
+  const parsedSpacingY = isNaN(parseInt(spacingY)) ? 0 : parseInt(spacingY);
+
+  const deltaX = targetPoint.x - movingPoint.x + parsedSpacingX;
+  const deltaY = targetPoint.y - movingPoint.y + parsedSpacingY;
+
+  let appliedDeltaX = false;
+  let appliedDeltaY = false;
 
   // Add X axis anchoring
   if (!isNaN(parseInt(spacingX))) {
-    // Check for circular dependencies before adding to X tree
     if (globalAnchorTree.hasCircularDependency('x', shape2.canvasID, shape1.canvasID)) {
       alert("Cannot create anchor: would create a circular dependency in X axis");
     } else {
-      // Snap arrow 1 to arrow 2 with the specified spacing
+      // Snap shape2 to shape1 with the specified spacing
       shape2.set({
         left: shape2.left + deltaX,
         lockMovementX: true,
       });
+      appliedDeltaX = true; // Mark that deltaX was applied
       const anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1, spacing: parseInt(spacingX) }
       shape2.lockXToPolygon = anchor
 
@@ -398,15 +453,15 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
 
   // Add Y axis anchoring
   if (!isNaN(parseInt(spacingY))) {
-    // Check for circular dependencies before adding to Y tree
     if (globalAnchorTree.hasCircularDependency('y', shape2.canvasID, shape1.canvasID)) {
       alert("Cannot create anchor: would create a circular dependency in Y axis");
     } else {
-      // Snap arrow 1 to arrow 2 with the specified spacing
+      // Snap shape2 to shape1 with the specified spacing
       shape2.set({
         top: shape2.top + deltaY,
         lockMovementY: true,
       });
+      appliedDeltaY = true; // Mark that deltaY was applied
       const anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1, spacing: parseInt(spacingY) }
       shape2.lockYToPolygon = anchor
 
@@ -419,80 +474,36 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
         }
       }
     }
-  }  // Use the AnchorTree to get the proper update order for anchors
+  }
+
+  // Update coordinates after initial placement and adding to tree
+  shape2.setCoords();
+
+  // Use the AnchorTree to get the proper update order for anchors
   const updateOrderX = globalAnchorTree.getUpdateOrder('x', shape2.canvasID);
   const updateOrderY = globalAnchorTree.getUpdateOrder('y', shape2.canvasID);
-  // Process X axis updates
-  if (updateOrderX.length > 0 && !isNaN(parseInt(spacingX))) {
-    // Start an X-axis update cycle with the shape2 as the starter
-    globalAnchorTree.startUpdateCycle('x', shape2.canvasID);
 
-    // First, explicitly update shape2 itself to ensure proper anchoring propagation
-    // This step is key to fixing the issue with one-axis movement not propagating
-    if (!globalAnchorTree.updatedObjectsX.has(shape2.canvasID)) {
-      globalAnchorTree.updatedObjectsX.add(shape2.canvasID);
-      shape2.updateAllCoord(null, sourceList);
-    }
+  // Process X axis updates using the new helper function
+  // Pass the delta only if it was actually applied during anchoring setup
+  processUpdateCycle('x', shape2, updateOrderX, appliedDeltaX ? deltaX : NaN, sourceList);
 
-    // Update objects in the proper order for X axis (excluding shape2 which is already processed)
-    updateOrderX.forEach(obj => {
-      if (obj.canvasID !== shape2.canvasID && !globalAnchorTree.updatedObjectsX.has(obj.canvasID)) {
-        // Mark this object as updated in X axis
-        globalAnchorTree.updatedObjectsX.add(obj.canvasID);
-        
-        // Apply the X delta to each sub-anchored object first
-        // This ensures they have changes to propagate to their own sub-anchored objects
-        if (obj !== shape2 && deltaX !== 0) {
-          obj.set({ left: obj.left + deltaX });
-          obj.setCoords();
-        }
-        
-        // Update coordinates - this may involve both X and Y changes
-        obj.updateAllCoord(null, sourceList);
-      }
-    });
+  // Process Y axis updates using the new helper function
+  // Pass the delta only if it was actually applied during anchoring setup
+  processUpdateCycle('y', shape2, updateOrderY, appliedDeltaY ? deltaY : NaN, sourceList);
 
-    // End the X-axis update cycle
-    globalAnchorTree.endUpdateCycle('x');
-  }
-  // Process Y axis updates
-  if (updateOrderY.length > 0  && !isNaN(parseInt(spacingY))) {
-    // Start a Y-axis update cycle with the shape2 as the starter
-    globalAnchorTree.startUpdateCycle('y', shape2.canvasID);
-
-    // First, explicitly update shape2 itself to ensure proper anchoring propagation
-    // This step is key to fixing the issue with one-axis movement not propagating
-    if (!globalAnchorTree.updatedObjectsY.has(shape2.canvasID)) {
-      globalAnchorTree.updatedObjectsY.add(shape2.canvasID);
-      shape2.updateAllCoord(null, sourceList);
-    }
-
-    // Update objects in the proper order for Y axis (excluding shape2 which is already processed)
-    updateOrderY.forEach(obj => {
-      if (obj.canvasID !== shape2.canvasID && !globalAnchorTree.updatedObjectsY.has(obj.canvasID)) {
-        // Mark this object as updated in Y axis
-        globalAnchorTree.updatedObjectsY.add(obj.canvasID);
-        
-        // Apply the Y delta to each sub-anchored object first
-        // This ensures they have changes to propagate to their own sub-anchored objects
-        if (obj !== shape2 && deltaY !== 0) {
-          obj.set({ top: obj.top + deltaY });
-          obj.setCoords();
-        }
-        
-        // Update coordinates - this may involve both X and Y changes
-        obj.updateAllCoord(null, sourceList);
-      }
-    });
-
-    // End the Y-axis update cycle
-    globalAnchorTree.endUpdateCycle('y');
-  }
-
-  // If no updates from either axis, just update the object itself
-  if (updateOrderX.length === 0 && updateOrderY.length === 0 && !sourceList.includes(shape2)) {
-    shape2.updateAllCoord(null, sourceList);
-  }
+  // If no updates were triggered by anchoring (e.g., only one axis anchored, or no spacing),
+  // ensure the object itself is updated if it wasn't part of an ongoing cycle.
+  //if (!globalAnchorTree.isUpdating('x', shape2.canvasID) && !globalAnchorTree.isUpdating('y', shape2.canvasID)) {
+  //    // Check if the object is currently part of an update cycle started elsewhere
+  //    // This check might be redundant now with the processUpdateCycle logic, but kept for safety
+  //    const isUpdatingX = globalAnchorTree.updateInProgressX && globalAnchorTree.updatedObjectsX.has(shape2.canvasID);
+  //    const isUpdatingY = globalAnchorTree.updateInProgressY && globalAnchorTree.updatedObjectsY.has(shape2.canvasID);
+//
+  //    // Only call updateAllCoord if it hasn't been updated in an ongoing cycle initiated by this function
+  //    if (!isUpdatingX && !isUpdatingY) {
+  //        shape2.updateAllCoord(null, sourceList);
+  //    }
+  //}
 
   if (!shape1.anchoredPolygon.includes(shape2)) {
     shape1.anchoredPolygon.push(shape2)
@@ -523,4 +534,4 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   return Promise.resolve();
 }
 
-export { globalAnchorTree, anchorShape };
+export { globalAnchorTree, anchorShape, processUpdateCycle };
