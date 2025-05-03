@@ -1850,7 +1850,7 @@ const ComplexSignTest = {
       'stack',
       overallObject,
       overallObject,
-      14200,
+      13400,
       null,
       { xHeight: 200, borderType: 'stack', colorType: 'Blue Background' }
     );
@@ -1859,7 +1859,7 @@ const ComplexSignTest = {
     anchorShape(overallBorderGroup, leftArrowObj, {
       vertexIndex1: 'E1',
       vertexIndex2: 'E7',
-      spacingX: 2425,
+      spacingX: 1550,
       spacingY: ''
     });
 
@@ -1873,7 +1873,7 @@ const ComplexSignTest = {
     anchorShape(overallBorderGroup, rightArrowObj2, { // Anchor rightArrow -> rightArrow2
       vertexIndex1: 'E3',
       vertexIndex2: 'E3',
-      spacingX: -1250, // Add some spacing
+      spacingX: -800, // Add some spacing
       spacingY: ''
     });
 

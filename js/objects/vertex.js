@@ -635,6 +635,9 @@ document.addEventListener('keydown', function (event) {
         // Prevent default Tab behavior (focus change)
         event.preventDefault();
 
+        // Check if Shift key is also pressed
+        const shiftPressed = event.shiftKey;
+
         // Get reference to current baseGroup and the active vertex
         const currentBaseGroup = CanvasGlobals.activeVertex.baseGroup;
         const currentVertex = CanvasGlobals.activeVertex.vertex;        // Handle both V and E vertices
@@ -648,22 +651,34 @@ document.addEventListener('keydown', function (event) {
             return aNum - bNum;
         });
 
-        // Determine which vertex to activate next
+        // Determine which vertex to activate next/previous
         let nextVertex;
 
-        // Special handling for V vertices - move to E2 when Tab is pressed on a V vertex
+        // Special handling for V vertices
         if (currentVertex.label.startsWith('V')) {
-            // When on a V vertex, find E2 or default to the first E vertex
-            nextVertex = eVertices.find(v => v.label === 'E3') || eVertices[0];
+            if (shiftPressed) {
+                // When Shift+Tab on a V vertex, move to the last E vertex
+                nextVertex = eVertices[eVertices.length - 1];
+            } else {
+                // When Tab on a V vertex, find E3 or default to the first E vertex
+                nextVertex = eVertices.find(v => v.label === 'E3') || eVertices[0];
+            }
         } else if (currentVertex.label.startsWith('E')) {
             // Normal case for E vertices - cycle through them
             const currentIndex = eVertices.findIndex(v => v.label === currentVertex.label);
-            // Calculate the next index (cycle back to 0 if at the end)
-            const nextIndex = (currentIndex + 1) % eVertices.length;
-            nextVertex = eVertices[nextIndex];
+
+            if (shiftPressed) {
+                // Calculate the previous index (cycle back to end if at the beginning)
+                const prevIndex = (currentIndex - 1 + eVertices.length) % eVertices.length;
+                nextVertex = eVertices[prevIndex];
+            } else {
+                // Calculate the next index (cycle back to 0 if at the end)
+                const nextIndex = (currentIndex + 1) % eVertices.length;
+                nextVertex = eVertices[nextIndex];
+            }
         } else {
-            // For any other vertex type, default to the first E vertex
-            nextVertex = eVertices[0];
+            // For any other vertex type, default based on Shift key
+            nextVertex = shiftPressed ? eVertices[eVertices.length - 1] : eVertices[0];
         }
 
         // Only proceed if we have a valid next vertex

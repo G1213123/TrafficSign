@@ -139,15 +139,103 @@ class AnchorTree {
     }
 
     // Remove this node from all its children's parent lists
-    //for (const childId of tree[objId].children) {
-    //  if (tree[childId]) {
-    //    tree[childId].parents = tree[childId].parents.filter(id => id !== objId);
-    //  }
-    //}
+    for (const childId of tree[objId].children) {
+      if (tree[childId]) {
+        tree[childId].parents = tree[childId].parents.filter(id => id !== objId);
+      }
+    }
 
     // Delete the node
-    //delete tree[objId];
+    delete tree[objId];
   }
+
+  // Reverse the anchor dependency for a pivot object and its parents
+  reverseAnchorChain(direction, pivotId) {
+    const tree = direction === 'x' ? this.xTree : this.yTree;
+    const pivotNode = tree[pivotId];
+
+    // Ensure the pivot object exists in the tree
+    if (!pivotNode) {
+      console.warn(`Pivot object with ID ${pivotId} not found in ${direction} tree.`);
+      return;
+    }
+
+    // Store original parents to iterate over, as the list will be modified
+    const originalParents = [...pivotNode.parents];
+
+    // Process each original parent
+    originalParents.forEach(parentId => {
+      const parentNode = tree[parentId];
+      if (!parentNode) {
+        console.warn(`Parent object with ID ${parentId} not found while reversing chain for ${pivotId}.`);
+        return; // Skip if parent node doesn't exist
+      }
+
+      // --- Remove the old relationship (Parent -> Pivot) ---
+      parentNode.children = parentNode.children.filter(id => id !== pivotId);
+      pivotNode.parents = pivotNode.parents.filter(id => id !== parentId);
+
+      // --- Add the new relationship (Pivot -> Parent) ---
+      if (!pivotNode.children.includes(parentId)) {
+        pivotNode.children.push(parentId);
+      }
+      if (!parentNode.parents.includes(pivotId)) {
+        parentNode.parents.push(pivotId);
+      }
+
+      // --- Update lock properties on the actual objects ---
+      const pivotObject = pivotNode.object;
+      const parentObject = parentNode.object;
+
+      if (direction === 'x') {
+        // Check if the parent was actually locked to the pivot in this direction
+        if (pivotObject.lockXToPolygon?.TargetObject?.canvasID === parentId) {
+           const oldLock = pivotObject.lockXToPolygon;
+           // Clear parent's old lock in this direction
+           pivotObject.lockXToPolygon = {}; 
+
+           // Set the new lock on the PARENT object, making it dependent on the PIVOT
+           parentObject.lockXToPolygon = { 
+             sourcePoint: oldLock.targetPoint, // Basic reversal logic
+             targetPoint: oldLock.sourcePoint,
+             sourceObject: parentObject, // Source is the (former) parent
+             TargetObject: pivotObject, // Target is the new pivot
+             spacing: -oldLock.spacing 
+           };
+           // Lock the PARENT object's movement in X because it now depends on the pivot
+           parentObject.lockMovementX = true; 
+           pivotObject.lockMovementX = false; 
+
+        }
+      } else { // direction === 'y'
+        // Check if the parent was actually locked to the pivot in this direction
+        if (pivotObject.lockYToPolygon?.TargetObject?.canvasID === parentId) {
+          const oldLock = pivotObject.lockYToPolygon;
+          // Clear parent's old lock in this direction
+          pivotObject.lockYToPolygon = {};
+
+           // Set the new lock on the PARENT object, making it dependent on the PIVOT
+           parentObject.lockYToPolygon = {
+             sourcePoint: oldLock.targetPoint, // Basic reversal logic
+             targetPoint: oldLock.sourcePoint,
+             sourceObject: parentObject, // Source is the (former) parent
+             TargetObject: pivotObject, // Target is the new pivot
+             spacing: -oldLock.spacing
+           };
+           // Lock the PARENT object's movement in Y because it now depends on the pivot
+           parentObject.lockMovementY = true;
+           pivotObject.lockMovementY = false;
+         }
+      }
+      pivotObject.exitFocusMode(); // Exit focus mode for the pivot object
+      if (parentObject.lockMovementX && parentObject.lockMovementY) {
+        parentObject.enterFocusMode(); // Enter focus mode for the parent object
+      }
+    });
+    // The pivot node now has its original parents as children,
+    // and its original parent list is empty (handled in the loop).
+  }
+
   // Get all affected objects (in proper update order) when an object is moved
   getUpdateOrder(direction, startObjId) {
     const tree = direction === 'x' ? this.xTree : this.yTree;
@@ -321,6 +409,35 @@ document.getElementById('set-anchor').addEventListener('click', function (event)
     //renumberVertexLabels(shape1); // Renumber vertex labels after selection
   }
 });
+
+document.getElementById('pivot-anchor').addEventListener('click', function (e) {
+  const contextMenu = document.getElementById('context-menu');
+  contextMenu.style.display = 'none'; // Hide the context menu
+  const obj = contextMenu.selectedArrow;
+
+  // Check if the object and anchorTree exist
+  if (obj && obj.canvasID && typeof globalAnchorTree !== 'undefined') {
+    // Call the reverse function for both axes
+    globalAnchorTree.reverseAnchorChain('x', obj.canvasID);
+    globalAnchorTree.reverseAnchorChain('y', obj.canvasID);
+
+    // Update coordinates and render
+    if (typeof obj.updateAllCoord === 'function') {
+        obj.updateAllCoord(); // Update dependencies first
+    }
+    obj.setCoords(); // Update the object itself
+    canvas.renderAll();
+
+    // Optional: Fire a modified event if needed for other parts of your app
+    canvas.fire('object:modified', { target: obj });
+
+  } else {
+    if (!obj || !obj.canvasID) {
+        console.warn('Pivot Anchor: Target object or canvasID not found.');
+    } 
+  }
+});
+
 
 // Helper function to process anchor updates for a specific axis
 function processUpdateCycle(direction, starterObj, updateOrder, delta, sourceList) {
