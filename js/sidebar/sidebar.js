@@ -33,18 +33,16 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('btn_settings').onclick = FormSettingsComponent.settingsPanelInit;
 
   // Tracker module button
-  let canvasTrackerComponentInstance; // Keep instance reference
+  let canvasTrackerComponentInstance = new CanvasTrackerUI();
+  canvasTrackerComponentInstance.initialize();; // Keep instance reference
   document.getElementById('btn_tracker').addEventListener('click', function () {
-    if (!canvasTrackerComponentInstance) {
-      canvasTrackerComponentInstance = new CanvasTrackerUI();
-      canvasTrackerComponentInstance.initialize();
+
+    if (canvasTrackerComponentInstance.initialized) { // Check if already initialized
+      canvasTrackerComponentInstance.restoreUI();
     } else {
-      if (canvasTrackerComponentInstance.initialized) { // Check if already initialized
-        canvasTrackerComponentInstance.restoreUI();
-      } else {
-        canvasTrackerComponentInstance.initialize(); // Initialize if not yet done
-      }
+      canvasTrackerComponentInstance.initialize(); // Initialize if not yet done
     }
+
   });
 
   // Text module button

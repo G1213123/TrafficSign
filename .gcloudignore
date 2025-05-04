@@ -13,6 +13,9 @@
 .git
 .gitignore
 
+# Ensure ads.txt is deployed even if in .gitignore
+!ads.txt
+
 # Python pycache:
 __pycache__/
 # Ignored by the build system

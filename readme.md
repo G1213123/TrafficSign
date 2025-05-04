@@ -14,7 +14,7 @@ Sign designs aim to follow the Hong Kong Transport Department’s [Traffic Signs
 - Measurement tools
 - Design export
 
-Learn more on [GitHub](https://github.com/G1213123/TrafficSign).
+Learn more on [GitHub](http://road-sign.g1213123.info/).
 
 ## Test Site
 

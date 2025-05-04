@@ -9,6 +9,12 @@ canvas.lastPosX = 0;
 canvas.lastPosY = 0;
 let cursorClickMode = 'normal'; // Default click mode
 
+// Variables to track touch state
+let touchStartDistance = 0;
+let touchStartCenter = null;
+let isPinching = false;
+let isTwoFingerPanning = false;
+let lastPanPoint = null;
 
 canvas.setZoom(0.2);
 
@@ -90,6 +96,90 @@ canvas.on('mouse:up', function (opt) {
   canvas.isDragging = false;
   canvas.selection = true;
 
+  // Reset touch gesture flags if they were active
+  if (isPinching || isTwoFingerPanning) {
+      isPinching = false;
+      isTwoFingerPanning = false;
+      lastPanPoint = null;
+      touchStartDistance = 0;
+      touchStartCenter = null;
+      canvas.requestRenderAll(); // Ensure canvas updates after gesture ends
+  }
+});
+
+// Handle touch start for gestures (pinch/pan)
+canvas.on('touch:gesture', function(opt) {
+  if (opt.e.touches && opt.e.touches.length === 2) {
+    isPinching = true;
+    const touch1 = { x: opt.e.touches[0].clientX, y: opt.e.touches[0].clientY };
+    const touch2 = { x: opt.e.touches[1].clientX, y: opt.e.touches[1].clientY };
+    // Calculate initial distance between fingers
+    touchStartDistance = Math.sqrt(Math.pow(touch2.x - touch1.x, 2) + Math.pow(touch2.y - touch1.y, 2));
+    // Calculate initial center point
+    touchStartCenter = {
+      x: (touch1.x + touch2.x) / 2,
+      y: (touch1.y + touch2.y) / 2
+    };
+    lastPanPoint = touchStartCenter; // Initialize for panning
+    isTwoFingerPanning = true; // Start panning with two fingers
+    canvas.selection = false; // Disable selection during gesture
+    opt.e.preventDefault(); // Prevent default browser pinch zoom/pan
+  }
+});
+
+// Handle touch move for gestures
+canvas.on('touch:drag', function(opt) {
+  if (isPinching && opt.e.touches && opt.e.touches.length === 2) {
+    const touch1 = { x: opt.e.touches[0].clientX, y: opt.e.touches[0].clientY };
+    const touch2 = { x: opt.e.touches[1].clientX, y: opt.e.touches[1].clientY };
+    const currentDistance = Math.sqrt(Math.pow(touch2.x - touch1.x, 2) + Math.pow(touch2.y - touch1.y, 2));
+    const currentCenter = {
+      x: (touch1.x + touch2.x) / 2,
+      y: (touch1.y + touch2.y) / 2
+    };
+
+    // --- Zooming ---
+    let zoom = canvas.getZoom() * (currentDistance / touchStartDistance);
+    // Clamp zoom levels
+    if (zoom > 20) zoom = 20;
+    if (zoom < 0.01) zoom = 0.01;
+
+    // Calculate zoom point relative to canvas using the initial center
+    const point = new fabric.Point(touchStartCenter.x, touchStartCenter.y);
+    canvas.zoomToPoint(point, zoom);
+
+    // Update distance for the next frame, makes zoom continuous
+    touchStartDistance = currentDistance;
+
+    // --- Panning ---
+    if (lastPanPoint) {
+      const deltaX = currentCenter.x - lastPanPoint.x;
+      const deltaY = currentCenter.y - lastPanPoint.y;
+      canvas.relativePan(new fabric.Point(deltaX, deltaY));
+      DrawGrid(); // Redraw grid during pan
+      // Update the coordinates of all objects for controls
+      canvas.getObjects().forEach(obj => {
+        obj.setCoords();
+      });
+    }
+    lastPanPoint = currentCenter; // Update last pan point for next frame
+
+    // Redraw necessary elements after zoom/pan (similar to mouse:wheel)
+    const activeObj = canvas.getActiveObject();
+    if (activeObj && activeObj.anchorageLink && activeObj.anchorageLink.length > 0) {
+      activeObj.drawAnchorLinkage();
+    }
+    if (activeObj && activeObj.showDimensions) {
+      activeObj.showDimensions();
+    }
+    if (activeVertex) {
+      activeVertex.clearSnapHighlight();
+      activeVertex.addSnapHighlight();
+    }
+
+    canvas.requestRenderAll();
+    opt.e.preventDefault(); // Prevent default browser actions
+  }
 });
 
 // Handle zoom events

@@ -103,7 +103,7 @@ function showPropertyPanel(object) {
         { label: 'Road Type', value: object.roadType },
         { label: 'Root Length', value: object.rootLength },
         { label: 'Tip Length', value: object.tipLength },
-        { label: 'RA Feature', value: object.RAfeature },
+        //{ label: 'RA Feature', value: object.RAfeature },
         { label: 'Side Roads', value: object.sideRoad.length }
       ];
       break;

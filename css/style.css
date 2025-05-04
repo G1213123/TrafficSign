@@ -1601,3 +1601,83 @@ div.side-panel.close {
     /* Initially hidden */
   }
 }
+
+/* Static Info Content Panel */
+#info-content-static {
+  width: 100%; /* Make it fill the container width */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  padding: 10px; /* Add some padding */
+  overflow-y: auto; /* Allow vertical scrolling if content overflows */
+  height: calc(100% - 40px); /* Adjust height considering potential header/footer */
+}
+
+/* Style links within the static info panel */
+#debug-info-panel a,
+#debug-info-panel a:visited {
+  color: #87CEFA; /* Light Sky Blue */
+  text-decoration: none; /* Optional: remove underline */
+  transition: color 0.2s ease;
+}
+
+#debug-info-panel a:hover,
+#debug-info-panel a:active {
+  color: #ADD8E6; /* Lighter Blue on hover/active */
+  text-decoration: underline; /* Optional: add underline on hover */
+}
+
+/* Adjust padding/margins for elements inside the static info panel if needed */
+#info-content-static .input-group-container,
+#info-content-static .coffee-link-container,
+#info-content-static .legal-disclaimer {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+/* Shortcut List Styles */
+.shortcut-list-container {
+  margin-top: 15px;
+}
+
+.shortcut-list-container .panel-subheading {
+  color: #dadada;
+  font-family: 'TransportMedium', sans-serif;
+  font-size: 18px;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #444;
+  text-align: center;
+}
+
+.shortcut-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.shortcut-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 5px;
+  border-bottom: 1px solid #383838;
+  font-size: 14px;
+}
+
+.shortcut-item:last-child {
+  border-bottom: none;
+}
+
+.shortcut-key {
+  background-color: #4a4a4a;
+  color: #eee;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  margin-right: 10px;
+  white-space: nowrap;
+}
+
+.shortcut-description {
+  color: #ccc;
+  text-align: right;
+}

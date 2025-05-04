@@ -44,7 +44,7 @@ let FormTemplateComponent = {
       description: 'Overhead gantry sign with destinations in separate compartments',
       thumbnail: function () {
         // Load SVG image from images folder in a standardized thumbnail container
-        return `<div class="template-thumbnail"><img src="images/gentry.svg" alt="Gantry Sign" /></div>`;
+        return `<div class="template-thumbnail"><img src="images/gantry.svg" alt="Gantry Sign" /></div>`;
       }
     },
     'Diverge Sign ': {

@@ -3,6 +3,16 @@ import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals, DrawGrid } from '../canvas.js';
 import { runTests, testToRun } from '../test.js'; 
 
+// Define shortcuts in a constant object
+const KEYBOARD_SHORTCUTS = {
+  "Arrow Keys": "Nudge Selected Object",
+  "Delete": "Delete Selected Object",
+  "Escape": "Cancel Action / Toggle / Close Panel",
+  "Enter": "Confirm Measurement Input",
+  "Tab": "Switch Vertex / Unit",
+  "Ctrl + Z": "Undo",
+};
+
 let FormSettingsComponent = {
 
   // Initialize the settings panel
@@ -13,18 +23,34 @@ let FormSettingsComponent = {
       // Load saved settings if they exist
       //FormSettingsComponent.loadSettings();
 
-      // Create a container for testing
-      var testingContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      
+      // Create a container for shortcuts
+      var shortcutsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container shortcut-list-container' }, parent);
 
+      // Create heading for shortcuts
+      const heading = GeneralHandler.createNode("h3", { 'class': 'panel-subheading' }, shortcutsContainer);
+      heading.textContent = "Keyboard Shortcuts";
 
-      // Add Run Tests button
-      GeneralHandler.createButton('run-tests', 'Run Tests', testingContainer, 'input',
-        FormSettingsComponent.runTests, 'click');
+      // Create the list element
+      const list = GeneralHandler.createNode("ul", { 'class': 'shortcut-list' }, shortcutsContainer);
 
-      // Add Run Tests on Start toggle
-      GeneralHandler.createToggle('Run Tests on Start', ['Yes', 'No'], testingContainer,
-        GeneralSettings.runTestsOnStart ? 'Yes' : 'No',
-        FormSettingsComponent.toggleRunTestsOnStart);
+      // Loop through the shortcuts object and create list items
+      for (const key in KEYBOARD_SHORTCUTS) {
+        if (KEYBOARD_SHORTCUTS.hasOwnProperty(key)) {
+          const description = KEYBOARD_SHORTCUTS[key];
+
+          // Create list item
+          const listItem = GeneralHandler.createNode("li", { 'class': 'shortcut-item' }, list);
+
+          // Create key span
+          const keySpan = GeneralHandler.createNode("span", { 'class': 'shortcut-key' }, listItem);
+          keySpan.textContent = key;
+
+          // Create description span
+          const descriptionSpan = GeneralHandler.createNode("span", { 'class': 'shortcut-description' }, listItem);
+          descriptionSpan.textContent = description;
+        }
+      }
 
       // Create a container for visual settings
       var visualSettingsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
@@ -89,14 +115,22 @@ let FormSettingsComponent = {
       // Add save/reset buttons
       const buttonContainer = GeneralHandler.createNode("div", { 'class': 'settings-buttons-container' }, parent);
 
-      // Remove save settings button as it's no longer needed
-      // Or optionally repurpose it as a visual feedback button
-      // GeneralHandler.createButton('save-settings', 'Save Settings', buttonContainer, 'input',
-      //   FormSettingsComponent.saveSettings, 'click');
-
       // Reset settings button
       GeneralHandler.createButton('reset-settings', 'Reset Settings', buttonContainer, 'input',
         FormSettingsComponent.resetSettings, 'click');
+      
+      // Create a container for testing
+      var testingContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+
+
+      // Add Run Tests button
+      GeneralHandler.createButton('run-tests', 'Run Tests', testingContainer, 'input',
+        FormSettingsComponent.runTests, 'click');
+
+      // Add Run Tests on Start toggle
+      GeneralHandler.createToggle('Run Tests on Start', ['Yes', 'No'], testingContainer,
+        GeneralSettings.runTestsOnStart ? 'Yes' : 'No',
+        FormSettingsComponent.toggleRunTestsOnStart);
     }
   },
 
