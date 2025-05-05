@@ -302,7 +302,7 @@ const BorderUtilities = {
 
       // Check if the target object is already being updated in the X cycle
       const targetObj = v.lockXToPolygon.TargetObject;
-      if (targetObj && v.functionalType == 'VDivider') {
+      if (targetObj && (v.functionalType == 'VDivider' || v.functionalType == 'VLane')) {
         // Directly update anchor properties instead of removing and recreating
         if (v.lockXToPolygon && Object.keys(v.lockXToPolygon).length > 0) {
           // Update spacing value

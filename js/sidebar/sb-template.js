@@ -14,7 +14,8 @@ const canvasObject = CanvasGlobals.canvasObject;
 
 let FormTemplateComponent = {
   // Template gallery with predefined complex sign layouts
-  templates: {    'Flag Sign': {
+  templates: {
+    'Flag Sign': {
       description: 'Standard flag type sign with destinations and chevron',
       thumbnail: function () {
         // Load SVG image from images folder in a standardized thumbnail container
@@ -26,6 +27,13 @@ let FormTemplateComponent = {
       thumbnail: function () {
         // Load SVG image from images folder in a standardized thumbnail container
         return `<div class="template-thumbnail"><img src="images/stack.svg" alt="Stack Sign" /></div>`;
+      }
+    },
+    'Lane Sign': {
+      description: 'Exit sign showing multiple lanes with directions',
+      thumbnail: function () {
+        // Load SVG image from images folder in a standardized thumbnail container
+        return `<div class="template-thumbnail"><img src="images/lane.svg" alt="Lane Sign" /></div>`;
       }
     },
     'Roundabout Sign': {
@@ -40,7 +48,7 @@ let FormTemplateComponent = {
         // Load SVG image from images folder in a standardized thumbnail container
         return `<div class="template-thumbnail"><img src="images/spiral.svg" alt="Spiral Roundabout Sign" /></div>`;
       }
-    },    'Gantry Sign': {
+    }, 'Gantry Sign': {
       description: 'Overhead gantry sign with destinations in separate compartments',
       thumbnail: function () {
         // Load SVG image from images folder in a standardized thumbnail container
@@ -52,13 +60,6 @@ let FormTemplateComponent = {
       thumbnail: function () {
         // Load SVG image from images folder in a standardized thumbnail container
         return `<div class="template-thumbnail"><img src="images/diverge.svg" alt="Diverge Sign" /></div>`;
-      }
-    },
-    'Lane Sign': {
-      description: 'Exit sign showing multiple lanes with directions',
-      thumbnail: function () {
-        // Load SVG image from images folder in a standardized thumbnail container
-        return `<div class="template-thumbnail"><img src="images/lane.svg" alt="Lane Sign" /></div>`;
       }
     },
 
@@ -97,7 +98,7 @@ let FormTemplateComponent = {
 
       // Create a container for the button
       const buttonContainer = GeneralHandler.createNode("div", { 'class': 'template-container' }, templatesContainer);
-      
+
       // Create the button using GeneralHandler's SVG button creator for consistency
       const templateBtn = GeneralHandler.createSVGButton(
         templateName,
@@ -154,34 +155,35 @@ let FormTemplateComponent = {
   },
   /**
    * Create a template sign based on the selected template
-   */  createTemplateSign: async function (templateName) {
+   */
+  createTemplateSign: function (templateName, x = null, y = null) {
     // Each template will specify its own xHeight and color
     console.log(`Creating template: ${templateName}`);
 
     const vpt = CanvasGlobals.CenterCoord();
-    const centerX = vpt.x;
-    const centerY = vpt.y; switch (templateName) {
+    const centerX = x || vpt.x;
+    const centerY = y || vpt.y; switch (templateName) {
       case 'Flag Sign':
-        await this.createBasicGantry(centerX, centerY, 100, 'white');
-        break;
+        return this.createBasicGantry(centerX, centerY, 100, 'white');
+
       case 'Stack Sign':
-        await this.createStackSign(centerX, centerY, 100, 'white');
-        break;
+        return this.createStackSign(centerX, centerY, 100, 'white');
+
       case 'Roundabout Sign':
-        await this.createRoundaboutDirections(centerX, centerY, 100, 'white');
-        break;
+        return this.createRoundaboutDirections(centerX, centerY, 100, 'white');
+
       case 'Diverge Sign ':
-        await this.createInterchangeDirections(centerX, centerY, 250, 'white');
-        break;
+        return this.createInterchangeDirections(centerX, centerY, 250, 'white');
+
       case 'Lane Sign':
-        await this.createMultiLaneExit(centerX, centerY, 100, 'white');
-        break;
+        return this.createMultiLaneExit(centerX, centerY, 100, 'white');
+
       case 'Spiral Roundabout Sign':
-        await this.createSpiralRoundaboutSign(centerX, centerY, 100, 'white');
-        break;
+        return this.createSpiralRoundaboutSign(centerX, centerY, 100, 'white');
+
       case 'Gantry Sign':
-        await this.createGantrySign(centerX, centerY, 250, 'white');
-        break;
+        return this.createGantrySign(centerX, centerY, 250, 'white');
+
       default:
         console.log(`Template ${templateName} not implemented`);
     }
@@ -189,7 +191,7 @@ let FormTemplateComponent = {
   /**
    * Create a basic overhead gantry sign
    */
-  createBasicGantry: async function (centerX, centerY, xHeight, color) {
+  createBasicGantry: function (centerX, centerY, xHeight, color) {
     try {
       // Create first line text objects
       const Line1English = new TextObject({
@@ -211,7 +213,7 @@ let FormTemplateComponent = {
       });
 
       // Create WHC symbol for first line
-      await drawLabeledSymbol('WHC', {
+      drawLabeledSymbol('WHC', {
         x: centerX + 150,
         y: centerY - 100,
         xHeight: xHeight,
@@ -240,7 +242,7 @@ let FormTemplateComponent = {
       });
 
       // Create Airport symbol for second line
-      await drawLabeledSymbol('Airport', {
+      drawLabeledSymbol('Airport', {
         x: centerX + 150,
         y: centerY + 100,
         xHeight: xHeight,
@@ -332,7 +334,7 @@ let FormTemplateComponent = {
         Line3English, Line3Chinese,
       ];
 
-      const borderGroup = await BorderUtilities.BorderGroupCreate(
+      const borderGroup = BorderUtilities.BorderGroupCreate(
         'flagRight',  // Changed from 'stack' to 'flag' type border
         allObjects,
         allObjects,
@@ -344,15 +346,24 @@ let FormTemplateComponent = {
       CanvasGlobals.canvas.renderAll();
       console.log('Basic Gantry template created successfully');
 
+      // Return dimensions and position
+      return {
+        width: borderGroup.width,
+        height: borderGroup.height,
+        left: borderGroup.left,
+        top: borderGroup.top
+      };
+
     } catch (error) {
       console.error('Error creating Basic Gantry template:', error);
+      return null; // Return null on error
     }
   },
 
   /**
    * Create a gantry sign with separate compartments
    */
-  createGantrySign: async function (centerX, centerY, xHeight, color) {
+  createGantrySign: function (centerX, centerY, xHeight, color) {
     try {
       // Create text objects for the left compartment (Mong Kok)
       const leftEngText = new TextObject({
@@ -374,7 +385,7 @@ let FormTemplateComponent = {
       });
 
       // Create gantry arrow for left compartment
-      await drawLabeledSymbol('GantryArrow', {
+      drawLabeledSymbol('GantryArrow', {
         x: centerX - 500,
         y: centerY + 200,
         xHeight: xHeight,
@@ -412,7 +423,7 @@ let FormTemplateComponent = {
       });
 
       // Create stack arrow for right compartment
-      await drawLabeledSymbol('GantryArrow', {
+      drawLabeledSymbol('GantryArrow', {
         x: centerX + 500,
         y: centerY + 300,
         xHeight: xHeight,
@@ -421,7 +432,7 @@ let FormTemplateComponent = {
       });
       const rightArrow = canvasObject[canvasObject.length - 1];
 
-      await drawLabeledSymbol('Exit', {
+      drawLabeledSymbol('Exit', {
         x: centerX + 500,
         y: centerY + 300,
         xHeight: xHeight,
@@ -449,7 +460,7 @@ let FormTemplateComponent = {
 
       // Create yellow border for left compartment
       const leftCompartmentObjects = [leftEngText, leftChiText];
-      const leftBorder = await BorderUtilities.BorderGroupCreate(
+      const leftBorder = BorderUtilities.BorderGroupCreate(
         'stack',
         leftCompartmentObjects,
         leftCompartmentObjects,
@@ -466,7 +477,7 @@ let FormTemplateComponent = {
       });
 
       // Create vertical divider between compartments
-      await VDividerCreate(
+      VDividerCreate(
         [leftBorder],
         [rightChiText2],
         null,
@@ -482,7 +493,7 @@ let FormTemplateComponent = {
         verticalDivider
       ];
 
-      const borderGroup = await BorderUtilities.BorderGroupCreate(
+      const borderGroup = BorderUtilities.BorderGroupCreate(
         'stack',
         allObjects,
         allObjects,
@@ -548,7 +559,7 @@ let FormTemplateComponent = {
         spacingY: -xHeight * 0.2 / 4
       });
 
-      const exitBorder = await BorderUtilities.BorderGroupCreate(
+      const exitBorder = BorderUtilities.BorderGroupCreate(
         'exit',
         [exitText, exitSymmbol],
         [exitText, exitSymmbol],
@@ -561,15 +572,24 @@ let FormTemplateComponent = {
       canvas.renderAll();
       console.log('Gantry Sign template created successfully');
 
+      // Return dimensions and position of the main border group
+      return {
+        width: borderGroup.width,
+        height: borderGroup.height,
+        left: borderGroup.left,
+        top: borderGroup.top
+      };
+
     } catch (error) {
       console.error('Error creating Gantry Sign template:', error);
+      return null; // Return null on error
     }
   },
 
   /**
    * Create a stacked road sign with multiple destinations
    */
-  createStackSign: async function (centerX, centerY, xHeight, color) {
+  createStackSign: function (centerX, centerY, xHeight, color) {
     try {
       // Create destination texts
       const topEng1 = new TextObject({
@@ -645,7 +665,7 @@ let FormTemplateComponent = {
       });
 
       // Create arrows
-      await drawLabeledSymbol('StackArrow', {
+      drawLabeledSymbol('StackArrow', {
         x: centerX + 200,
         y: centerY - 750,
         xHeight: xHeight,
@@ -654,7 +674,7 @@ let FormTemplateComponent = {
       });
       const topArrow = canvasObject[canvasObject.length - 1];
 
-      await drawLabeledSymbol('StackArrow', {
+      drawLabeledSymbol('StackArrow', {
         x: centerX + 200,
         y: centerY + 50,
         xHeight: xHeight,
@@ -663,7 +683,7 @@ let FormTemplateComponent = {
       });
       const midArrow = canvasObject[canvasObject.length - 1];
 
-      await drawLabeledSymbol('StackArrow', {
+      drawLabeledSymbol('StackArrow', {
         x: centerX + 200,
         y: centerY + 350,
         xHeight: xHeight,
@@ -672,7 +692,7 @@ let FormTemplateComponent = {
       });
       const botArrow = canvasObject[canvasObject.length - 1];
 
-      await drawLabeledSymbol('Airport', {
+      drawLabeledSymbol('Airport', {
         x: centerX + 200,
         y: centerY - 664,
         xHeight: xHeight,
@@ -682,7 +702,7 @@ let FormTemplateComponent = {
       const airport = canvasObject[canvasObject.length - 1];
 
       // Create horizontal dividers
-      await HDividerCreate(
+      HDividerCreate(
         [midChineseText],
         [botDestinationText],
         null,
@@ -779,7 +799,7 @@ let FormTemplateComponent = {
         topDivider
       ];
 
-      const borderGroup1 = await BorderUtilities.BorderGroupCreate(
+      const borderGroup1 = BorderUtilities.BorderGroupCreate(
         'stack',
         topObjects,
         topObjects,
@@ -788,7 +808,7 @@ let FormTemplateComponent = {
         { xHeight: xHeight, borderType: 'stack', colorType: 'Blue Background' }
       );
 
-      const borderGroup2 = await BorderUtilities.BorderGroupCreate(
+      const borderGroup2 = BorderUtilities.BorderGroupCreate(
         'stack',
         botObjects,
         botObjects,
@@ -820,14 +840,29 @@ let FormTemplateComponent = {
       canvas.renderAll();
       console.log('Stack Sign template created successfully');
 
+      // Since there are two main border groups, we might return info about both,
+      // or perhaps the bounding box of both. Let's return the bounding box.
+      // Note: This assumes borderGroup1 and borderGroup2 are the final groups.
+      // A more robust approach might group them again or calculate the overall bounds.
+      const combinedBounds = BorderUtilities.getBoundingBox([borderGroup1, borderGroup2]);
+
+      return {
+        width: combinedBounds.right - combinedBounds.left,
+        height: combinedBounds.bottom - combinedBounds.top,
+        left: combinedBounds.left,
+        top: combinedBounds.top
+      };
+
+
     } catch (error) {
       console.error('Error creating Stack Sign template:', error);
+      return null; // Return null on error
     }
   },
   /**
    * Create a roundabout directions sign
    */
-  createRoundaboutDirections: async function (centerX, centerY, xHeight, color) {
+  createRoundaboutDirections: function (centerX, centerY, xHeight, color) {
     try {
       // Create roundabout symbol at center with three side roads
       // Using the same approach as in test.js for roundabout creation
@@ -844,13 +879,13 @@ let FormTemplateComponent = {
       };
 
       const roundabout = new MainRoadSymbol(routeOptions);
-      await roundabout.initialize(calcRoundaboutVertices('Conventional', xHeight, routeOptions.routeList));
+      roundabout.initialize(calcRoundaboutVertices('Conventional', xHeight, routeOptions.routeList));
 
       // Create side roads at top, left, and right positions
       canvas.setActiveObject(roundabout);
 
       // Top side road (Tsuen Wan West Station)
-      await drawSideRoadOnCursor(null, {
+      drawSideRoadOnCursor(null, {
         x: centerX,
         y: centerY - 600,
         routeParams: {
@@ -859,14 +894,14 @@ let FormTemplateComponent = {
           width: 6
         }
       });
-      await finishDrawSideRoad({ e: { button: 0 } });
+      finishDrawSideRoad({ e: { button: 0 } });
       const side1 = canvasObject[canvas.getActiveObject().canvasID];
 
       // Set the roundabout as active object to add a side road
       canvas.setActiveObject(roundabout);
 
       // Left side road (Sham Tseng and Tuen Mun)
-      await drawSideRoadOnCursor(null, {
+      drawSideRoadOnCursor(null, {
         x: centerX - 600,
         y: centerY,
         routeParams: {
@@ -875,14 +910,14 @@ let FormTemplateComponent = {
           width: 4
         }
       });
-      await finishDrawSideRoad({ e: { button: 0 } });
+      finishDrawSideRoad({ e: { button: 0 } });
       const side2 = canvasObject[canvas.getActiveObject().canvasID];
 
       // Set the roundabout as active object to add a side road
       canvas.setActiveObject(roundabout);
 
       // Right side road (Tsing Yi and Kowloon)
-      await drawSideRoadOnCursor(null, {
+      drawSideRoadOnCursor(null, {
         x: centerX + 600,
         y: centerY,
         routeParams: {
@@ -891,7 +926,7 @@ let FormTemplateComponent = {
           width: 4
         }
       });
-      await finishDrawSideRoad({ e: { button: 0 } });
+      finishDrawSideRoad({ e: { button: 0 } });
       const side3 = canvasObject[canvas.getActiveObject().canvasID];
 
       // Get all created side roads
@@ -946,7 +981,7 @@ let FormTemplateComponent = {
       });
 
       // Add MTR symbol for the top side road
-      await drawLabeledSymbol('MTR', {
+      drawLabeledSymbol('MTR', {
         x: centerX - 100,
         y: centerY - 200,
         xHeight: xHeight,
@@ -993,7 +1028,7 @@ let FormTemplateComponent = {
       });
 
       // Add symbol for the left side road
-      await drawLabeledSymbol('Expressway', {
+      drawLabeledSymbol('Expressway', {
         x: centerX - 450,
         y: centerY + 40,
         xHeight: xHeight,
@@ -1001,7 +1036,7 @@ let FormTemplateComponent = {
         color: color
       });
       const leftSymbol1 = canvasObject[canvasObject.length - 1];
-      await drawLabeledSymbol('Route4', {
+      drawLabeledSymbol('Route4', {
         x: centerX - 450,
         y: centerY + 40,
         xHeight: xHeight,
@@ -1048,7 +1083,7 @@ let FormTemplateComponent = {
       });
 
       // Add Airport symbol for the right side road
-      await drawLabeledSymbol('Airport', {
+      drawLabeledSymbol('Airport', {
         x: centerX + 450,
         y: centerY + 40,
         xHeight: xHeight,
@@ -1057,7 +1092,7 @@ let FormTemplateComponent = {
       });
       const rightSymbol1 = canvasObject[canvasObject.length - 1];
 
-      await drawLabeledSymbol('Expressway', {
+      drawLabeledSymbol('Expressway', {
         x: centerX - 450,
         y: centerY + 40,
         xHeight: xHeight,
@@ -1065,7 +1100,7 @@ let FormTemplateComponent = {
         color: color
       });
       const rightSymbol2 = canvasObject[canvasObject.length - 1];
-      await drawLabeledSymbol('Route4', {
+      drawLabeledSymbol('Route4', {
         x: centerX - 450,
         y: centerY + 40,
         xHeight: xHeight,
@@ -1101,7 +1136,7 @@ let FormTemplateComponent = {
         topSymbol,
       ];
 
-      const whiteBorder = await BorderUtilities.BorderGroupCreate(
+      const whiteBorder = BorderUtilities.BorderGroupCreate(
         'panel',
         topBorderObjects,
         topBorderObjects,
@@ -1181,7 +1216,7 @@ let FormTemplateComponent = {
         leftSymbol1, leftSymbol2,
       ];
 
-      const greenBorder1 = await BorderUtilities.BorderGroupCreate(
+      const greenBorder1 = BorderUtilities.BorderGroupCreate(
         'greenPanel',
         leftBorderObjects,
         leftBorderObjects,
@@ -1249,7 +1284,7 @@ let FormTemplateComponent = {
         rightSymbol1, rightSymbol2, rightSymbol3
       ];
 
-      const greenBorder2 = await BorderUtilities.BorderGroupCreate(
+      const greenBorder2 = BorderUtilities.BorderGroupCreate(
         'greenPanel',
         rightBorderObjects,
         rightBorderObjects,
@@ -1266,7 +1301,7 @@ let FormTemplateComponent = {
         whiteBorder, greenBorder1, greenBorder2,
       ];
 
-      const borderGroup = await BorderUtilities.BorderGroupCreate(
+      const borderGroup = BorderUtilities.BorderGroupCreate(
         'stack',
         allObjects,
         allObjects,
@@ -1278,14 +1313,23 @@ let FormTemplateComponent = {
       canvas.renderAll();
       console.log('Roundabout Directions template created successfully');
 
+      // Return dimensions and position of the final border group
+      return {
+        width: borderGroup.width,
+        height: borderGroup.height,
+        left: borderGroup.left,
+        top: borderGroup.top
+      };
+
     } catch (error) {
       console.error('Error creating Roundabout Directions template:', error);
+      return null; // Return null on error
     }
   },
   /**
    * Create an interchange direction sign
    */
-  createInterchangeDirections: async function (centerX, centerY, xHeight, color) {
+  createInterchangeDirections: function (centerX, centerY, xHeight, color) {
     try {
       // Set up test parameters
       const params = {
@@ -1317,7 +1361,7 @@ let FormTemplateComponent = {
         roadType: params.roadType
       };
       const mainRoad = new MainRoadSymbol(routeOptions);
-      await mainRoad.initialize(calcMainRoadVertices(xHeight, routeOptions.routeList));
+      mainRoad.initialize(calcMainRoadVertices(xHeight, routeOptions.routeList));
 
       // Create upper destination text (Sheung Shui)
       const upperDestEng1 = new TextObject({
@@ -1367,7 +1411,7 @@ let FormTemplateComponent = {
       });
 
       // Create expressway symbol in red
-      await drawLabeledSymbol('ExpresswayRed', {
+      drawLabeledSymbol('ExpresswayRed', {
         x: centerX - 50,
         y: centerY - 150,
         xHeight: xHeight,
@@ -1377,7 +1421,7 @@ let FormTemplateComponent = {
       const expressway = canvasObject[canvasObject.length - 1];
 
       // Create route 9 symbol
-      await drawLabeledSymbol('Route9', {
+      drawLabeledSymbol('Route9', {
         x: centerX - 50,
         y: centerY - 70,
         xHeight: xHeight,
@@ -1397,7 +1441,7 @@ let FormTemplateComponent = {
       });
 
       // Create airport symbol at 45 degrees
-      await drawLabeledSymbol('Airport', {
+      drawLabeledSymbol('Airport', {
         x: centerX + 150,
         y: centerY + 150,
         xHeight: xHeight,
@@ -1407,7 +1451,7 @@ let FormTemplateComponent = {
       const airport = canvasObject[canvasObject.length - 1];
 
       // Create airport symbol at 45 degrees
-      await drawLabeledSymbol('Exit', {
+      drawLabeledSymbol('Exit', {
         x: centerX + 150,
         y: centerY + 150,
         xHeight: xHeight,
@@ -1486,7 +1530,7 @@ let FormTemplateComponent = {
       });
 
       // Create exit panel border
-      const exitPanel = await BorderUtilities.BorderGroupCreate(
+      const exitPanel = BorderUtilities.BorderGroupCreate(
         'exit',
         [exitText, exitSymbol],
         [exitText, exitSymbol],
@@ -1505,7 +1549,7 @@ let FormTemplateComponent = {
 
       // Create side road at 60 degrees angle pointing to lower destination
       canvas.setActiveObject(mainRoad);
-      await drawSideRoadOnCursor(null, {
+      drawSideRoadOnCursor(null, {
         x: centerX - 300,
         y: centerY,
         routeParams: {
@@ -1514,7 +1558,7 @@ let FormTemplateComponent = {
           width: 4
         }
       });
-      await finishDrawSideRoad({ e: { button: 0 } });
+      finishDrawSideRoad({ e: { button: 0 } });
       const sideRoad = canvasObject[canvas.getActiveObject().canvasID];
 
       anchorShape(exitPanel, sideRoad, {
@@ -1531,7 +1575,7 @@ let FormTemplateComponent = {
         expressway, route9, airport
       ];
 
-      const borderGroup = await BorderUtilities.BorderGroupCreate(
+      const borderGroup = BorderUtilities.BorderGroupCreate(
         'stack',
         allObjects,
         allObjects,
@@ -1543,15 +1587,24 @@ let FormTemplateComponent = {
       canvas.renderAll();
       console.log('Interchange Directions template created successfully');
 
+      // Return dimensions and position of the final border group
+      return {
+        width: borderGroup.width,
+        height: borderGroup.height,
+        left: borderGroup.left,
+        top: borderGroup.top
+      };
+
     } catch (error) {
       console.error('Error creating Interchange Directions template:', error);
+      return null; // Return null on error
     }
   },
 
   /**
    * Create a multi-lane exit sign
    */
-  createMultiLaneExit: async function (centerX, centerY, xHeight, color) {
+  createMultiLaneExit: function (centerX, centerY, xHeight, color) {
     try {
       // Create lane text objects
       const leftLaneText1 = new TextObject({
@@ -1627,7 +1680,7 @@ let FormTemplateComponent = {
       });
 
       // Create arrows for each lane
-      await drawLabeledSymbol('StackArrow', {
+      drawLabeledSymbol('StackArrow', {
         x: centerX - 300,
         y: centerY + 100,
         xHeight: xHeight,
@@ -1636,7 +1689,7 @@ let FormTemplateComponent = {
       });
       const leftArrow = canvasObject[canvasObject.length - 1];
 
-      await drawLabeledSymbol('StackArrow', {
+      drawLabeledSymbol('StackArrow', {
         x: centerX,
         y: centerY + 100,
         xHeight: xHeight,
@@ -1645,7 +1698,7 @@ let FormTemplateComponent = {
       });
       const rightArrow = canvasObject[canvasObject.length - 1];
 
-      await drawLabeledSymbol('CHT', {
+      drawLabeledSymbol('CHT', {
         x: centerX + 300,
         y: centerY + 100,
         xHeight: xHeight,
@@ -1654,7 +1707,7 @@ let FormTemplateComponent = {
       });
       const chtSymbol = canvasObject[canvasObject.length - 1];
 
-      await drawLabeledSymbol('EHC', {
+      drawLabeledSymbol('EHC', {
         x: centerX + 300,
         y: centerY + 100,
         xHeight: xHeight,
@@ -1663,7 +1716,7 @@ let FormTemplateComponent = {
       });
       const ehcSymbol = canvasObject[canvasObject.length - 1];
 
-      await drawLabeledSymbol('Route4', {
+      drawLabeledSymbol('Route4', {
         x: centerX + 300,
         y: centerY + 100,
         xHeight: xHeight,
@@ -1680,7 +1733,7 @@ let FormTemplateComponent = {
       });
 
       // Create lane dividers
-      await VLaneCreate(
+      VLaneCreate(
         [chtSymbol],
         [rightLaneText1],
         null,
@@ -1777,7 +1830,7 @@ let FormTemplateComponent = {
         leftLaneDivider
       ];
 
-      const borderGroup = await BorderUtilities.BorderGroupCreate(
+      const borderGroup = BorderUtilities.BorderGroupCreate(
         'stack',
         allObjects,
         allObjects,
@@ -1804,15 +1857,25 @@ let FormTemplateComponent = {
       canvas.renderAll();
       console.log('Multi-Lane Exit template created successfully');
 
+      // Return dimensions and position of the final border group
+      return {
+        width: borderGroup.width,
+        height: borderGroup.height,
+        left: borderGroup.left,
+        top: borderGroup.top
+      };
+
+
     } catch (error) {
       console.error('Error creating Multi-Lane Exit template:', error);
+      return null; // Return null on error
     }
   },
 
   /**
    * Create a spiral roundabout sign
    */
-  createSpiralRoundaboutSign: async function (centerX, centerY, xHeight, color) {
+  createSpiralRoundaboutSign: function (centerX, centerY, xHeight, color) {
     try {
       // Create spiral roundabout symbol at center with four side roads
       const routeOptions = {
@@ -1828,14 +1891,14 @@ let FormTemplateComponent = {
       };
 
       const roundabout = new MainRoadSymbol(routeOptions);
-      await roundabout.initialize(calcRoundaboutVertices('Spiral', xHeight, routeOptions.routeList));
+      roundabout.initialize(calcRoundaboutVertices('Spiral', xHeight, routeOptions.routeList));
 
       // Create side roads at top-left, top-right, left and right positions
       canvas.setActiveObject(roundabout);
 
 
       // Left side road
-      await drawSideRoadOnCursor(null, {
+      drawSideRoadOnCursor(null, {
         x: centerX,
         y: centerY - 600,
         routeParams: {
@@ -1844,14 +1907,14 @@ let FormTemplateComponent = {
           width: 4
         }
       });
-      await finishDrawSideRoad({ e: { button: 0 } });
+      finishDrawSideRoad({ e: { button: 0 } });
       const topRoad = canvasObject[canvas.getActiveObject().canvasID];
 
       // Set the roundabout as active object to add a side road
       canvas.setActiveObject(roundabout);
 
       // Right side road
-      await drawSideRoadOnCursor(null, {
+      drawSideRoadOnCursor(null, {
         x: centerX + 600,
         y: centerY,
         routeParams: {
@@ -1860,7 +1923,7 @@ let FormTemplateComponent = {
           width: 4
         }
       });
-      await finishDrawSideRoad({ e: { button: 0 } });
+      finishDrawSideRoad({ e: { button: 0 } });
       const rightRoad = canvasObject[canvas.getActiveObject().canvasID];
 
       // Create top text objects
@@ -2012,7 +2075,7 @@ let FormTemplateComponent = {
 
       // Create route symbols
       // Route 7 on left side
-      await drawLabeledSymbol('Route7', {
+      drawLabeledSymbol('Route7', {
         x: centerX - 500,
         y: centerY,
         xHeight: xHeight,
@@ -2022,7 +2085,7 @@ let FormTemplateComponent = {
       const leftRouteSymbol = canvasObject[canvasObject.length - 1];
 
       // Route 6 on right side
-      await drawLabeledSymbol('Route6', {
+      drawLabeledSymbol('Route6', {
         x: centerX + 500,
         y: centerY,
         xHeight: xHeight,
@@ -2032,7 +2095,7 @@ let FormTemplateComponent = {
       const rightRouteSymbol = canvasObject[canvasObject.length - 1];
 
       // Tunnel on right side
-      await drawLabeledSymbol('Tunnel', {
+      drawLabeledSymbol('Tunnel', {
         x: centerX + 500,
         y: centerY,
         xHeight: xHeight,
@@ -2218,7 +2281,7 @@ let FormTemplateComponent = {
         spacingY: 50
       });
 
-      const topPanel = await BorderUtilities.BorderGroupCreate(
+      const topPanel = BorderUtilities.BorderGroupCreate(
         'panel',
         [topTextEng2, topTextChi2],
         [topTextEng2, topTextChi2],
@@ -2235,7 +2298,7 @@ let FormTemplateComponent = {
         rightTextEng1, rightTextChi1, rightTextEng2, rightTextChi2, rightTextEng3, rightTextChi3, rightRouteSymbol, tunnelSymbol,
       ];
 
-      const borderGroup = await BorderUtilities.BorderGroupCreate(
+      const borderGroup = BorderUtilities.BorderGroupCreate(
         'stack',
         allObjects,
         allObjects,
@@ -2247,8 +2310,16 @@ let FormTemplateComponent = {
       canvas.renderAll();
       console.log('Spiral Roundabout Sign template created successfully');
 
+      return {
+        width: borderGroup.width,
+        height: borderGroup.height,
+        left: borderGroup.left,
+        top: borderGroup.top
+      };
+
     } catch (error) {
       console.error('Error creating Spiral Roundabout Sign template:', error);
+      return null; // Return null on error
     }
   },
 };

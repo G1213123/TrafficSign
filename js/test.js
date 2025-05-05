@@ -1,10 +1,11 @@
 import { TextObject } from './objects/text.js';
 import { drawLabeledSymbol } from './objects/symbols.js';
-import { anchorShape } from './objects/anchor.js';
+import { anchorShape, globalAnchorTree } from './objects/anchor.js';
 import { CanvasGlobals } from './canvas.js';
 import { HDividerCreate, VDividerCreate, HLineCreate } from './objects/divider.js';
 import { BorderUtilities } from './objects/border.js';
 import { MainRoadSymbol, finishDrawSideRoad, drawSideRoadOnCursor, calcMainRoadVertices, calcRoundaboutVertices } from './objects/route.js';
+import { FormTemplateComponent } from './sidebar/sb-template.js';
 
 const canvasObject = CanvasGlobals.canvasObject; // Assuming canvasObject is defined in canvas.js
 const canvas = CanvasGlobals.canvas; // Assuming canvas is defined in canvas.js
@@ -748,11 +749,159 @@ const AnchorTest = {
   },
 
   /**
+   * Test the anchor pivoting functionality
+   */
+  testAnchorPivoting() {
+    TestTracker.startTest("AnchorPivoting");
+
+    // Create two text objects
+    const topText1 = new TextObject({
+      text: 'Line 1',
+      xHeight: 100,
+      font: 'TransportMedium',
+      color: 'White',
+      left: 2500,
+      top: -1000
+    });
+    TestTracker.register("pivotTopText", topText1);
+
+    // Create two text objects
+    const topText2 = new TextObject({
+      text: 'Line 2',
+      xHeight: 100,
+      font: 'TransportMedium',
+      color: 'White',
+      left: 2500,
+      top: -1000
+    });
+    TestTracker.register("pivotTopText", topText2);
+
+    const bottomText1 = new TextObject({
+      text: 'Line 3',
+      xHeight: 100,
+      font: 'TransportMedium',
+      color: 'White',
+      left: 2500,
+      top: -800 // Position it roughly below
+    });
+    TestTracker.register("pivotBottomText", bottomText1);
+
+    const bottomText2 = new TextObject({
+      text: 'Line 4',
+      xHeight: 100,
+      font: 'TransportMedium',
+      color: 'White',
+      left: 2500,
+      top: -800 // Position it roughly below
+    });
+    TestTracker.register("pivotBottomText", bottomText2);
+
+    // Anchor bottomText below topText
+    const initialSpacingY = 50;
+    anchorShape(topText1, topText2, {
+      vertexIndex1: 'E2', // Bottom center of topText
+      vertexIndex2: 'E6', // Top center of bottomText
+      spacingX: '', // No X anchor
+      spacingY: initialSpacingY
+    });
+    anchorShape(topText2, bottomText1, {
+      vertexIndex1: 'E2', // Bottom center of topText
+      vertexIndex2: 'E6', // Top center of bottomText
+      spacingX: '', // No X anchor
+      spacingY: initialSpacingY
+    });
+    anchorShape(bottomText1, bottomText2, {
+      vertexIndex1: 'E2', // Bottom center of topText
+      vertexIndex2: 'E6', // Top center of bottomText
+      spacingX: '', // No X anchor
+      spacingY: initialSpacingY
+    });
+
+    let passed = true;
+
+    // Verify initial anchor state
+    passed = passed && TestTracker.assertTrue(
+      bottomText1.lockYToPolygon && bottomText1.lockYToPolygon.TargetObject === topText2,
+      "Initial state: bottomText should be locked to topText in Y"
+    );
+    passed = passed && TestTracker.assert(
+      bottomText1.lockYToPolygon.spacing,
+      initialSpacingY,
+      "Initial state: bottomText Y spacing incorrect"
+    );
+    passed = passed && TestTracker.assertTrue(
+      bottomText1.lockMovementY,
+      "Initial state: bottomText should have lockMovementY=true"
+    );
+    passed = passed && TestTracker.assertTrue(
+      !topText1.lockYToPolygon || !topText1.lockYToPolygon.TargetObject,
+      "Initial state: topText should not be locked in Y"
+    );
+
+    // --- Perform the Pivot ---
+    // Simulate the pivot action on the bottomText
+    globalAnchorTree.reverseAnchorChain('y', bottomText1.canvasID);
+
+    // --- Verify the reversed anchor state ---
+    passed = passed && TestTracker.assertTrue(
+      !bottomText1.lockYToPolygon || !bottomText1.lockYToPolygon.TargetObject,
+      "Pivoted state: bottomText should NOT be locked to topText in Y"
+    );
+    passed = passed && TestTracker.assertTrue(
+      !bottomText1.lockMovementY, // Assuming no other locks
+      "Pivoted state: bottomText should have lockMovementY=false"
+    );
+
+    passed = passed && TestTracker.assertTrue(
+      topText2.lockYToPolygon && topText2.lockYToPolygon.TargetObject === bottomText1,
+      "Pivoted state: topText should NOW be locked to bottomText in Y"
+    );
+    passed = passed && TestTracker.assert(
+      topText2.lockYToPolygon.spacing,
+      -initialSpacingY,
+      "Pivoted state: topText Y spacing should be negative of original"
+    );
+    passed = passed && TestTracker.assertTrue(
+      topText2.lockMovementY,
+      "Pivoted state: topText should have lockMovementY=true"
+    );
+
+    passed = passed && TestTracker.assertTrue(
+      topText1.lockYToPolygon && topText1.lockYToPolygon.TargetObject === topText2,
+      "Pivoted state: topText should NOW be locked to bottomText in Y"
+    );
+    passed = passed && TestTracker.assert(
+      topText1.lockYToPolygon.spacing,
+      -initialSpacingY,
+      "Pivoted state: topText Y spacing should be negative of original"
+    );
+    passed = passed && TestTracker.assertTrue(
+      topText1.lockMovementY,
+      "Pivoted state: topText should have lockMovementY=true"
+    );
+
+    // Optional: Check relative position remains correct (within tolerance)
+    const topBottomEdge = topText2.top + topText2.height;
+    const bottomTopEdge = bottomText1.top;
+    passed = passed && TestTracker.assert(
+      bottomTopEdge - topBottomEdge,
+      initialSpacingY, // The visual spacing should remain the same
+      "Pivoted state: Visual spacing between objects changed",
+      2 // Allow small tolerance
+    );
+
+
+    TestTracker.endTest(passed);
+    return passed;
+  },
+
+  /**
    * Run all anchor tests
    */
   runAll: function () {
     this.testAnchoringObjects();
     this.testDelinkingAnchoredObjects();
+    this.testAnchorPivoting(); // Add the new test here
   }
 };
 
@@ -1978,6 +2127,115 @@ const ComplexSignTest = {
   }
 };
 
+
+/**
+ * Test suite for template sign creation
+ */
+const TemplateTest = {
+  /**
+ * Expected dimensions for each template.
+ * NOTE: These are placeholders and need to be filled with actual expected values.
+ */
+  expectedTemplateDimensions: {
+    'Flag Sign': { width: 2907, height: 1650, left: -15400, top: 7740 }, // Placeholder values
+    'Stack Sign': { width: 1925, height: 1150 + 1275, left: -10602, top: 6749 }, // Placeholder values
+    'Lane Sign': { width: 3950, height: 1600, left: -7882, top: 7998 }, // Placeholder values
+    'Roundabout Sign': { width: 3800, height: 3250, left: -3488, top: 6019 }, // Placeholder values
+    'Spiral Roundabout Sign': { width: 3800, height: 3250, left: 1794, top: 6230 }, // Placeholder values, may be null if not fully implemented
+    'Gantry Sign': { width: 7900, height: 2700, left: 7493, top: 7306 }, // Placeholder values
+    'Diverge Sign ': { width: 2950, height: 5900, left: 17039, top: 7600 }, // Placeholder values
+    // Add entries for any other templates
+  },
+
+  /**
+   * Test creation of all available template signs
+   */
+  testTemplateCreation() {
+    let overallPassed = true;
+    // Assuming templateList is globally available or imported from sb-template.js
+    const templateList = Object.keys(FormTemplateComponent.templates) || []; // Adjust this line based on your actual template list source
+
+    const initialObjectCount = canvasObject.length;
+    let createdCount = 0;
+    let gridX = -15000;
+    let gridY = 8000;
+
+    templateList.forEach((template, index) => {
+      const testName = `TemplateCreation_${template || 'UnnamedTemplate'}_${index}`;
+      TestTracker.startTest(testName);
+      let passed = true;
+      let createdSignResult = null;
+
+      try {
+        createdSignResult = FormTemplateComponent.createTemplateSign(template, gridX, gridY,);
+        gridX += template == 'Gantry Sign' ? 11000 : (template == 'Stack Sign' ? 3500 : 5000); // Adjust grid position for next template
+
+        // Get expected dimensions for this template
+        const expected = this.expectedTemplateDimensions[template];
+
+        if (createdSignResult && expected) {
+          const tolerance = 5; // Tolerance for dimension checks
+          passed = passed && TestTracker.assertTrue(createdSignResult != null, "Template sign object should be created");
+          // Add more specific assertions if needed, e.g., check functionalType or number of objects created
+          // Assert dimensions against expected values
+          passed = passed && TestTracker.assert(
+            createdSignResult.width,
+            expected.width,
+            `Template ${template}: Width mismatch`,
+            tolerance
+          );
+          passed = passed && TestTracker.assert(
+            createdSignResult.height,
+            expected.height,
+            `Template ${template}: Height mismatch`,
+            tolerance
+          );
+          // Assert that the returned top-left corner is consistent with the center point and dimensions
+          passed = passed && TestTracker.assert(
+            createdSignResult.left,
+            expected.left,
+            `Template ${template}: Left position mismatch (relative to center)`,
+            tolerance
+          );
+          passed = passed && TestTracker.assert(
+            createdSignResult.top,
+            expected.top,
+            `Template ${template}: Top position mismatch (relative to center)`,
+            tolerance
+          );
+          createdCount++;
+        } else {
+          passed = false;
+          TestTracker.recordFailure("Template sign creation returned null or undefined", "Fabric Object/Group", createdSign);
+        }
+      } catch (error) {
+        passed = false;
+        TestTracker.recordFailure(`Error creating template: ${error.message}`, "No error", error);
+        console.error(`Error details for template ${template.name || index}:`, error);
+      }
+
+      TestTracker.endTest(passed);
+      if (!passed) {
+        overallPassed = false;
+      }
+    });
+
+    // Final check
+    TestTracker.startTest("TemplateCreationSummary");
+    let summaryPassed = TestTracker.assert(createdCount, templateList.length, "Number of successfully created templates doesn't match list length");
+    TestTracker.endTest(summaryPassed);
+
+    return overallPassed && summaryPassed;
+  },
+
+  /**
+   * Run all template tests
+   */
+  runAll: function () {
+    this.testTemplateCreation();
+  }
+};
+
 // Update testToRun to use the new consolidated RoundaboutTest instead of SpiralRoundaboutTest
 const testToRun = [
   ShapeTest.runAll.bind(ShapeTest),
@@ -1986,6 +2244,7 @@ const testToRun = [
   BorderTest.runAll.bind(BorderTest),
   RoundaboutTest.runAll.bind(RoundaboutTest), // Replace SpiralRoundaboutTest with RoundaboutTest
   ComplexSignTest.runAll.bind(ComplexSignTest),
+  TemplateTest.runAll.bind(TemplateTest),
 ];
 
 

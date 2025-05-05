@@ -1,7 +1,7 @@
 //TODO: check updateAllCoord for anchor object inside border / divider not working
 // AnchorTree class to manage anchoring relationships between objects
-import {CanvasGlobals} from '../canvas.js';
-import {canvasTracker} from '../canvasTracker.js'; // Import canvasTracker for tracking changes
+import { CanvasGlobals } from '../canvas.js';
+import { canvasTracker } from '../canvasTracker.js'; // Import canvasTracker for tracking changes
 
 const canvas = CanvasGlobals.canvas; // Get the global canvas instance
 
@@ -138,102 +138,163 @@ class AnchorTree {
       }
     }
 
-    // Remove this node from all its children's parent lists
-    for (const childId of tree[objId].children) {
-      if (tree[childId]) {
-        tree[childId].parents = tree[childId].parents.filter(id => id !== objId);
-      }
-    }
-
-    // Delete the node
-    delete tree[objId];
   }
 
-  // Reverse the anchor dependency for a pivot object and its parents
-  reverseAnchorChain(direction, pivotId) {
+  // Helper function to find the upward chain based on current locks
+  // Returns an array of objects: [{id: currentId, parentId: foundParentId}, ...]
+  findUpwardChain(direction, startId) {
     const tree = direction === 'x' ? this.xTree : this.yTree;
-    const pivotNode = tree[pivotId];
+    const chain = [];
+    let currentId = startId;
+    const visited = new Set(); // Prevent infinite loops
 
-    // Ensure the pivot object exists in the tree
-    if (!pivotNode) {
-      console.warn(`Pivot object with ID ${pivotId} not found in ${direction} tree.`);
+    while (currentId !== -1 && tree[currentId] && !visited.has(currentId)) {
+      visited.add(currentId);
+      const currentNode = tree[currentId];
+      const currentObject = currentNode.object;
+      let foundParentId = -1; // The parent ID determined for this step
+      let lockinfo = null; // The lock information for this step
+
+      // Find the parent based on the current lock state and verify in tree
+      if (direction === 'x' && currentObject.lockXToPolygon?.TargetObject) {
+        const potentialParentId = currentObject.lockXToPolygon.TargetObject.canvasID;
+        if (currentNode.parents.includes(potentialParentId) && tree[potentialParentId]) {
+          foundParentId = potentialParentId;
+          lockinfo = currentObject.lockXToPolygon;
+        }
+      } else if (direction === 'y' && currentObject.lockYToPolygon?.TargetObject) {
+        const potentialParentId = currentObject.lockYToPolygon.TargetObject.canvasID;
+        if (currentNode.parents.includes(potentialParentId) && tree[potentialParentId]) {
+          foundParentId = potentialParentId;
+          lockinfo = currentObject.lockYToPolygon;
+        }
+      }
+
+      // Store the current ID and the parent ID found *in this step*
+      chain.push({ id: currentId, parentId: foundParentId, lockinfo: lockinfo });
+
+      // Move to the found parent for the next iteration
+      currentId = foundParentId;
+    }
+
+    if (currentId !== -1 && visited.has(currentId)) {
+      console.warn(`Cycle detected during chain identification starting from ${startId} in ${direction}. Chain may be incomplete.`);
+    }
+
+    return chain; // Returns [{id: startId, parentId: p1}, {id: p1, parentId: p2}, ...]
+  }
+
+  // Helper function to update lockMovement flags and focus mode based on current locks
+  updateLockAndFocus(obj) {
+    if (!obj) return;
+
+    obj.lockMovementX = !(Object.keys(obj.lockXToPolygon).length === 0);
+    obj.lockMovementY = !(Object.keys(obj.lockYToPolygon).length === 0);
+
+    if (obj.lockMovementX || obj.lockMovementY) {
+      obj.enterFocusMode();
+    } else {
+      // Only exit focus mode if it's not locked by other means (like group selection)
+      // Assuming exitFocusMode handles internal checks or is safe to call
+      obj.exitFocusMode();
+    }
+  }
+
+  // Reverse the anchor dependency chain starting from a pivot object
+  reverseAnchorChain(direction, startPivotId) {
+    const tree = direction === 'x' ? this.xTree : this.yTree;
+
+    if (!tree[startPivotId]) {
+      console.warn(`Start pivot object with ID ${startPivotId} not found in ${direction} tree.`);
       return;
     }
 
-    // Store original parents to iterate over, as the list will be modified
-    const originalParents = [...pivotNode.parents];
+    // 1. Identify the entire chain to be reversed first, capturing parent links
+    const chainInfo = this.findUpwardChain(direction, startPivotId);
 
-    // Process each original parent
-    originalParents.forEach(parentId => {
+    // If the chain only has the start node (no parents found in this direction), nothing to reverse
+    if (chainInfo.length === 0 || (chainInfo.length === 1 && chainInfo[0].parentId === -1)) {
+      return;
+    }
+
+    // 2. Iterate through the identified chain links and perform reversals
+    // The chainInfo array gives us pairs of (childId, parentId) for each link
+    for (const link of chainInfo) {
+      const childId = link.id;
+      const parentId = link.parentId;
+      const oldLock = link.lockinfo; // The lock information for this link
+
+      // Stop if we reach the end of a chain segment (no further parent)
+      if (parentId === -1) {
+        break;
+      }
+
+      // Double-check nodes exist
+      if (!tree[childId] || !tree[parentId]) {
+        console.warn(`Node missing during reversal (${childId} or ${parentId}). Stopping chain reversal.`);
+        break;
+      }
+
+      const childNode = tree[childId];
+      const childObject = childNode.object;
       const parentNode = tree[parentId];
-      if (!parentNode) {
-        console.warn(`Parent object with ID ${parentId} not found while reversing chain for ${pivotId}.`);
-        return; // Skip if parent node doesn't exist
-      }
-
-      // --- Remove the old relationship (Parent -> Pivot) ---
-      parentNode.children = parentNode.children.filter(id => id !== pivotId);
-      pivotNode.parents = pivotNode.parents.filter(id => id !== parentId);
-
-      // --- Add the new relationship (Pivot -> Parent) ---
-      if (!pivotNode.children.includes(parentId)) {
-        pivotNode.children.push(parentId);
-      }
-      if (!parentNode.parents.includes(pivotId)) {
-        parentNode.parents.push(pivotId);
-      }
-
-      // --- Update lock properties on the actual objects ---
-      const pivotObject = pivotNode.object;
       const parentObject = parentNode.object;
 
+
+      // If the expected lock for this specific link isn't found now, it might have been changed
+      // concurrently or there's an inconsistency. We rely on the chainInfo structure.
+      if (!oldLock) {
+        console.warn(`Could not find original lock information for link ${childId} -> ${parentId} in ${direction} during reversal. Attempting reversal based on identified chain.`);
+        // Construct a placeholder oldLock if needed, assuming standard points if missing
+        // This might be risky if lock points are critical and vary.
+        // Alternatively, skip this link if consistency is paramount.
+        // Let's try skipping for now:
+        console.warn(`Skipping reversal for link ${childId} -> ${parentId} due to missing lock info.`);
+        continue;
+      }
+
+      // --- Perform the reversal for this specific link ---
+
+      // Clear the old lock on the child object for this direction
+      if (direction === 'x' && childObject.canvasID === Object.values(chainInfo)[0].id) {
+        childObject.lockXToPolygon = {};
+      } else if (childObject.canvasID === Object.values(chainInfo)[0].id) 
+      { // direction === 'y'
+        childObject.lockYToPolygon = {};
+      }
+
+      // Remove the old relationship (Parent -> Child) from tree structure
+      parentNode.children = parentNode.children.filter(id => id !== childId);
+      childNode.parents = childNode.parents.filter(id => id !== parentId);
+
+      // Add the new relationship (Child -> Parent) to tree structure
+      if (!childNode.children.includes(parentId)) {
+        childNode.children.push(parentId);
+      }
+      if (!parentNode.parents.includes(childId)) {
+        parentNode.parents.push(childId);
+      }
+
+      // Set the new lock on the PARENT object, making it dependent on the CHILD
+      const newLock = {
+        sourcePoint: oldLock.targetPoint, // Use default if missing
+        targetPoint: oldLock.sourcePoint, // Use default if missing
+        sourceObject: parentObject,
+        TargetObject: childObject,
+        spacing: -oldLock.spacing // Use default if missing
+      };
+
       if (direction === 'x') {
-        // Check if the parent was actually locked to the pivot in this direction
-        if (pivotObject.lockXToPolygon?.TargetObject?.canvasID === parentId) {
-           const oldLock = pivotObject.lockXToPolygon;
-           // Clear parent's old lock in this direction
-           pivotObject.lockXToPolygon = {}; 
-
-           // Set the new lock on the PARENT object, making it dependent on the PIVOT
-           parentObject.lockXToPolygon = { 
-             sourcePoint: oldLock.targetPoint, // Basic reversal logic
-             targetPoint: oldLock.sourcePoint,
-             sourceObject: parentObject, // Source is the (former) parent
-             TargetObject: pivotObject, // Target is the new pivot
-             spacing: -oldLock.spacing 
-           };
-           // Lock the PARENT object's movement in X because it now depends on the pivot
-           parentObject.lockMovementX = true; 
-           pivotObject.lockMovementX = false; 
-
-        }
+        parentObject.lockXToPolygon = newLock;
       } else { // direction === 'y'
-        // Check if the parent was actually locked to the pivot in this direction
-        if (pivotObject.lockYToPolygon?.TargetObject?.canvasID === parentId) {
-          const oldLock = pivotObject.lockYToPolygon;
-          // Clear parent's old lock in this direction
-          pivotObject.lockYToPolygon = {};
+        parentObject.lockYToPolygon = newLock;
+      }
 
-           // Set the new lock on the PARENT object, making it dependent on the PIVOT
-           parentObject.lockYToPolygon = {
-             sourcePoint: oldLock.targetPoint, // Basic reversal logic
-             targetPoint: oldLock.sourcePoint,
-             sourceObject: parentObject, // Source is the (former) parent
-             TargetObject: pivotObject, // Target is the new pivot
-             spacing: -oldLock.spacing
-           };
-           // Lock the PARENT object's movement in Y because it now depends on the pivot
-           parentObject.lockMovementY = true;
-           pivotObject.lockMovementY = false;
-         }
-      }
-      pivotObject.exitFocusMode(); // Exit focus mode for the pivot object
-      if (parentObject.lockMovementX && parentObject.lockMovementY) {
-        parentObject.enterFocusMode(); // Enter focus mode for the parent object
-      }
-    });
-    // The pivot node now has its original parents as children,
-    // and its original parent list is empty (handled in the loop).
+      // Update lockMovement and focus mode for BOTH objects involved in this link
+      this.updateLockAndFocus(childObject);
+      this.updateLockAndFocus(parentObject);
+
+    } // End for loop through the chain links
   }
 
   // Get all affected objects (in proper update order) when an object is moved
@@ -423,7 +484,7 @@ document.getElementById('pivot-anchor').addEventListener('click', function (e) {
 
     // Update coordinates and render
     if (typeof obj.updateAllCoord === 'function') {
-        obj.updateAllCoord(); // Update dependencies first
+      obj.updateAllCoord(); // Update dependencies first
     }
     obj.setCoords(); // Update the object itself
     canvas.renderAll();
@@ -433,8 +494,8 @@ document.getElementById('pivot-anchor').addEventListener('click', function (e) {
 
   } else {
     if (!obj || !obj.canvasID) {
-        console.warn('Pivot Anchor: Target object or canvasID not found.');
-    } 
+      console.warn('Pivot Anchor: Target object or canvasID not found.');
+    }
   }
 });
 
@@ -495,7 +556,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   const xHeight = shape1.xHeight || shape2.xHeight || parseInt(document.getElementById("input-xHeight").value)
 
 
-   const vertexIndex1 = options.vertexIndex1 ? options.vertexIndex1 : await CanvasGlobals.showTextBox('Enter vertex index for First Polygon:', 'E1')
+  const vertexIndex1 = options.vertexIndex1 ? options.vertexIndex1 : await CanvasGlobals.showTextBox('Enter vertex index for First Polygon:', 'E1')
   if (!vertexIndex1) { setInterval(document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent), 1000); return }
   const vertexIndex2 = options.vertexIndex2 ? options.vertexIndex2 : await CanvasGlobals.showTextBox('Enter vertex index for Second Polygon:', 'E1')
   if (!vertexIndex2) { document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent); return }
@@ -615,7 +676,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   //    // This check might be redundant now with the processUpdateCycle logic, but kept for safety
   //    const isUpdatingX = globalAnchorTree.updateInProgressX && globalAnchorTree.updatedObjectsX.has(shape2.canvasID);
   //    const isUpdatingY = globalAnchorTree.updateInProgressY && globalAnchorTree.updatedObjectsY.has(shape2.canvasID);
-//
+  //
   //    // Only call updateAllCoord if it hasn't been updated in an ongoing cycle initiated by this function
   //    if (!isUpdatingX && !isUpdatingY) {
   //        shape2.updateAllCoord(null, sourceList);

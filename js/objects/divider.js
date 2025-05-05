@@ -85,7 +85,8 @@ function VDividerCreate(leftObjects, rightObjects, leftValue, rightValue, option
     // Get bounding boxes
     const leftObjectBBox = leftObject.getBoundingRect ?
         BorderUtilities.getBoundingBox([leftObject]) :
-        { left: leftObject.left - 10, top: leftObject.top - 50, right: leftObject.left + 10, bottom: leftObject.top + 50 };    const leftObjectSize = { width: leftObjectBBox.right - leftObjectBBox.left, height: leftObjectBBox.bottom - leftObjectBBox.top }
+        { left: leftObject.left - 10, top: leftObject.top - 50, right: leftObject.left + 10, bottom: leftObject.top + 50 };    
+    const leftObjectSize = { width: leftObjectBBox.right - leftObjectBBox.left, height: leftObjectBBox.bottom - leftObjectBBox.top }
 
     const BaseBorder = drawDivider(xHeight, color, leftObjectBBox, leftObjectSize, 'VDivider')
     const borderGroup = new BaseGroup(BaseBorder, 'VDivider')
@@ -335,7 +336,8 @@ function VLaneCreate(leftObjects, rightObjects, leftValue, rightValue, options =
     // Get bounding boxes
     const leftObjectBBox = leftObject.getBoundingRect ?
         BorderUtilities.getBoundingBox([leftObject]) :
-        { left: leftObject.left - 10, top: leftObject.top - 50, right: leftObject.left + 10, bottom: leftObject.top + 50 };    const leftObjectSize = { width: leftObjectBBox.right - leftObjectBBox.left, height: leftObjectBBox.bottom - leftObjectBBox.top }
+        { left: leftObject.left - 10, top: leftObject.top - 50, right: leftObject.left + 10, bottom: leftObject.top + 50 };    
+    const leftObjectSize = { width: leftObjectBBox.right - leftObjectBBox.left, height: leftObjectBBox.bottom - leftObjectBBox.top }
 
     const BaseBorder = drawDivider(xHeight, color, leftObjectBBox, leftObjectSize, 'VLane')
     const borderGroup = new BaseGroup(BaseBorder, 'VLane')

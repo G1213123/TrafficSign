@@ -2896,7 +2896,7 @@ function VLaneTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
     rounding.x /= length;
     rounding.y /= length;
 
-    const strokeCount = Math.floor((BHeight - rounding.y / 2 - DividerMargin['VLane'].top - DividerMargin['VLane'].bottom + strokeSpacing) / (strokeHeight + strokeSpacing));
+    const strokeCount = Math.max(2,Math.floor((BHeight - rounding.y / 2 - DividerMargin['VLane'].top - DividerMargin['VLane'].bottom + strokeSpacing) / (strokeHeight + strokeSpacing)));
 
     let returnBorder = [{
         'vertex': [], 'arcs': [], 'fill': 'border'
@@ -2915,7 +2915,7 @@ function VLaneTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
     returnBorder.forEach(p => {
         p.vertex.forEach(vertex => {
             vertex.x *= length;
-            vertex.x += position.left;
+            vertex.x += position.left + 1.5 * length;
             vertex.y *= length;
             vertex.y += position.top;
             if (vertex.radius) vertex.radius *= length;

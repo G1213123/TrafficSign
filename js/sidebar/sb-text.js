@@ -52,6 +52,9 @@ let FormTextAddComponent = {
       // Create a container for text content and font
       const textContentContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
       const textInput = GeneralHandler.createInput('input-text', 'Add Text', textContentContainer, '', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler, 'input');
+      // Add the info text div for 2Liner mode
+      const twoLinerInfo = GeneralHandler.createNode("div", { 'id': 'two-liner-info', 'class': 'info-text', 'style': 'display: none;' }, textContentContainer);
+      twoLinerInfo.textContent = "Text input is disabled in 2Liner mode. Select a destination below.";
       const fontToggle = GeneralHandler.createToggle('Text Font', FormTextAddComponent.textFont, textContentContainer, 'TransportMedium', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler);
 
       // Create a container for location selection
@@ -91,6 +94,7 @@ let FormTextAddComponent = {
     const regionName = GeneralHandler.getToggleValue('Region-container')
     const languageInput = GeneralHandler.getToggleValue('Language-container')
     let language = languageInput == '2Liner' ? 'English' : languageInput
+    const twoLinerInfo = document.getElementById('two-liner-info'); // Get the info text div
     if (languageInput == '2Liner') {
       FormTextAddComponent.textLineInput = 2
       // Show justification toggle when 2Liner is selected
@@ -98,6 +102,7 @@ let FormTextAddComponent = {
       justificationContainer.style.display = 'block';
       // Lock text input when in 2Liner mode
       document.getElementById('input-text').disabled = true;
+      twoLinerInfo.style.display = 'block'; // Show the info text
     } else {
       FormTextAddComponent.textLineInput = 1
       // Hide justification toggle for single line text
@@ -105,6 +110,7 @@ let FormTextAddComponent = {
       justificationContainer.style.display = 'none';
       // Enable text input for single line mode
       document.getElementById('input-text').disabled = false;
+      twoLinerInfo.style.display = 'none'; // Hide the info text
     }
     FormTextAddComponent.populateLocationDropdown(regionName, language);
     if (FormTextAddComponent.newTextObject && CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
