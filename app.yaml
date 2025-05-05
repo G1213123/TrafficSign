@@ -31,6 +31,13 @@ handlers:
   http_headers:
     Cache-Control: "public, max-age=86400"
 
+# Serve ads.txt from the root
+- url: /ads.txt
+  static_files: ads.txt
+  upload: ads.txt
+  mime_type: text/plain
+  secure: always
+
 # Serve index.html as the main entry point
 - url: /
   static_files: index.html
