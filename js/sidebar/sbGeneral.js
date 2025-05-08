@@ -1,6 +1,7 @@
 /* General Sidebar Panel */
-import { CanvasGlobals } from '../canvas.js';
+import { CanvasGlobals } from '../canvas/canvas.js';
 import { CanvasObjectInspector } from './sb-inspector.js';
+import { ShowHideSideBarEvent } from '../canvas/keyboardEvents.js'; // Import the event handler for keyboard events
 // Handler registry for active sidebar component off-function
 let GeneralHandler = {
   // Currently registered teardown handler for the active sidebar component
@@ -390,7 +391,7 @@ let GeneralHandler = {
 
       // Reattach default keyboard event listener
       document.removeEventListener('keydown', component[cancelHandlerName]);
-      document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
+      document.addEventListener('keydown', ShowHideSideBarEvent);
 
       CanvasGlobals.canvas.renderAll();
     }
@@ -422,7 +423,7 @@ let GeneralHandler = {
       CanvasGlobals.canvas.off('mouse:move', component[mouseMoveHandlerName]);
       CanvasGlobals.canvas.off('mouse:down', component[mouseClickHandlerName]);
       document.removeEventListener('keydown', component.cancelInput || component.cancelDraw);
-      document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
+      document.addEventListener('keydown', ShowHideSideBarEvent);
 
       CanvasGlobals.canvas.renderAll();
     }
@@ -453,7 +454,7 @@ let GeneralHandler = {
     }
     
     // Remove standard event listeners and add component-specific ones
-    document.removeEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
+    document.removeEventListener('keydown', ShowHideSideBarEvent);
     document.addEventListener('keydown', cancelHandler);
     
     // Get the center of the canvas viewport
@@ -517,7 +518,7 @@ let GeneralHandler = {
       console.error('Error creating object with snapping:', error);
       // Clean up event listeners in case of error
       document.removeEventListener('keydown', cancelHandler);
-      document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
+      document.addEventListener('keydown', ShowHideSideBarEvent);
       throw error; // Re-throw to allow caller to handle the error
     }
   },
@@ -543,7 +544,7 @@ let GeneralHandler = {
     CanvasGlobals.canvas.off('mouse:move', component[mouseMoveHandlerName]);
     CanvasGlobals.canvas.off('mouse:down', component[mouseClickHandlerName]);
     document.removeEventListener('keydown', component[cancelHandlerName]);
-    document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
+    document.addEventListener('keydown', ShowHideSideBarEvent);
 
     CanvasGlobals.canvas.renderAll();
   },

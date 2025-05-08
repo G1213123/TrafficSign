@@ -1,6 +1,6 @@
 /* Canvas Tracker UI Component */
-import {CanvasGlobals} from '../canvas.js';
-import { canvasTracker } from '../canvasTracker.js';
+import {CanvasGlobals} from '../canvas/canvas.js';
+import { canvasTracker } from '../canvas/Tracker.js';
 
 class CanvasTrackerUI {
     constructor() {
@@ -340,7 +340,7 @@ class CanvasTrackerUI {
               
               // Then click each one (this modifies the anchorageLink array safely)
               lockIconsToClick.forEach(lockIcon => {
-                setInterval(lockIcon.onClick(),100);
+                setInterval(() => lockIcon.onClick(), 100);
               });
             }
           }

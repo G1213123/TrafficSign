@@ -1,6 +1,6 @@
 /* Info Panel */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
-import { CanvasGlobals } from '../canvas.js';
+import { CanvasGlobals } from '../canvas/canvas.js';
 
 let FormInfoComponent = {
   // Adding General settings : e.g. turn off text borders, change background color, show grid, etc.

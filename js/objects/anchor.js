@@ -1,7 +1,9 @@
 //TODO: check updateAllCoord for anchor object inside border / divider not working
 // AnchorTree class to manage anchoring relationships between objects
-import { CanvasGlobals } from '../canvas.js';
-import { canvasTracker } from '../canvasTracker.js'; // Import canvasTracker for tracking changes
+import { CanvasGlobals } from '../canvas/canvas.js';
+import { canvasTracker } from '../canvas/Tracker.js'; // Import canvasTracker for tracking changes
+import { ShowHideSideBarEvent } from '../canvas/keyboardEvents.js';
+import { showTextBox, hideTextBox, selectObjectHandler } from '../canvas/promptBox.js'; // Import selectObjectHandler for object selection
 
 const canvas = CanvasGlobals.canvas; // Get the global canvas instance
 
@@ -465,8 +467,8 @@ document.getElementById('set-anchor').addEventListener('click', function (event)
   if (selectedArrow) {
     this.parentElement.parentElement.style.display = 'none';
     // Implement vertex selection logic here
-    document.removeEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
-    CanvasGlobals.selectObjectHandler('Select shape to anchor to', anchorShape, selectedArrow)
+    document.removeEventListener('keydown', ShowHideSideBarEvent);
+    selectObjectHandler('Select shape to anchor to', anchorShape, selectedArrow)
     //renumberVertexLabels(shape1); // Renumber vertex labels after selection
   }
 });
@@ -556,24 +558,24 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   const xHeight = shape1.xHeight || shape2.xHeight || parseInt(document.getElementById("input-xHeight").value)
 
 
-  const vertexIndex1 = options.vertexIndex1 ? options.vertexIndex1 : await CanvasGlobals.showTextBox('Enter vertex index for First Polygon:', 'E1')
-  if (!vertexIndex1) { setInterval(document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent), 1000); return }
-  const vertexIndex2 = options.vertexIndex2 ? options.vertexIndex2 : await CanvasGlobals.showTextBox('Enter vertex index for Second Polygon:', 'E1')
-  if (!vertexIndex2) { document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent); return }
+  const vertexIndex1 = options.vertexIndex1 ? options.vertexIndex1 : await showTextBox('Enter vertex index for First Polygon:', 'E1')
+  if (!vertexIndex1) { setInterval(document.addEventListener('keydown', ShowHideSideBarEvent), 1000); return }
+  const vertexIndex2 = options.vertexIndex2 ? options.vertexIndex2 : await showTextBox('Enter vertex index for Second Polygon:', 'E1')
+  if (!vertexIndex2) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
 
   // Check if object is already anchored in X axis
   const isAlreadyAnchoredInX = Object.keys(shape2.lockXToPolygon || {}).length > 0;
   const spacingX = options.spacingX != null ? options.spacingX :
     isAlreadyAnchoredInX ? '' :
-      await CanvasGlobals.showTextBox('Enter spacing in X \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight)
-  if (spacingX == null) { document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent); return }
+      await showTextBox('Enter spacing in X \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight)
+  if (spacingX == null) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
 
   // Check if object is already anchored in Y axis
   const isAlreadyAnchoredInY = Object.keys(shape2.lockYToPolygon || {}).length > 0;
   const spacingY = options.spacingY != null ? options.spacingY :
     isAlreadyAnchoredInY ? '' :
-      await CanvasGlobals.showTextBox('Enter spacing in Y \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight)
-  if (spacingY == null) { document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent); return }
+      await showTextBox('Enter spacing in Y \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight)
+  if (spacingY == null) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
 
   const movingPoint = shape2.getBasePolygonVertex(vertexIndex1.toUpperCase())
   const targetPoint = shape1.getBasePolygonVertex(vertexIndex2.toUpperCase())
@@ -698,7 +700,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
     shape2.exitFocusMode();
   }
 
-  document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
+  document.addEventListener('keydown', ShowHideSideBarEvent);
 
   canvas.renderAll();
 

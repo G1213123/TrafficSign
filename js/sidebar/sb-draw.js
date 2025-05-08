@@ -1,6 +1,6 @@
 /* Draw Symbol Panel */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
-import { CanvasGlobals } from '../canvas.js';
+import { CanvasGlobals } from '../canvas/canvas.js';
 import { symbolsTemplate, symbolsTemplateAlt, symbolsPermittedAngle } from '../objects/template.js';
 import { calcSymbol, drawSymbolDirectly } from '../objects/symbols.js';
 import { convertVertexToPathCommands, convertFontPathToFabricPath, getFontPath } from '../objects/path.js';

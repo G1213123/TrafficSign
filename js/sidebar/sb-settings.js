@@ -1,7 +1,7 @@
 /* Settings Panel */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
-import { CanvasGlobals, DrawGrid } from '../canvas.js';
-import { runTests, testToRun } from '../test.js'; 
+import { CanvasGlobals, DrawGrid } from '../canvas/canvas.js';
+import { runTests, testToRun } from '../tests/test.js'; 
 
 // Define shortcuts in a constant object
 const KEYBOARD_SHORTCUTS = {

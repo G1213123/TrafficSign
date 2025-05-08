@@ -1,6 +1,6 @@
 /* Export Panel */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
-import { CanvasGlobals } from '../canvas.js';
+import { CanvasGlobals } from '../canvas/canvas.js';
 
 let FormExportComponent = {
   // Export settings for canvas objects
@@ -244,6 +244,10 @@ let FormExportComponent = {
       
       // Add event listener to close overlay when donation link is clicked
       donateButton.addEventListener('click', function() {
+        FormExportComponent.hideDonationOverlay();
+      });
+
+      overlay.addEventListener('click', function(event) {
         FormExportComponent.hideDonationOverlay();
       });
       

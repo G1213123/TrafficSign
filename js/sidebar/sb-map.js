@@ -1,6 +1,6 @@
 /* Draw Map Panel */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
-import { CanvasGlobals } from '../canvas.js';
+import { CanvasGlobals } from '../canvas/canvas.js';
 import { drawMainRoadOnCursor, drawSideRoadOnCursor, cancelDraw } from '../objects/route.js';
 
 let FormDrawMapComponent = {

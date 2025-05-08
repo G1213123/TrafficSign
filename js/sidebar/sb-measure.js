@@ -5,7 +5,9 @@
  * It detects snapping points and displays deltaX and deltaY measurements
  */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
-import { CanvasGlobals } from '../canvas.js';
+import { CanvasGlobals } from '../canvas/canvas.js';
+import { ShowHideSideBarEvent } from '../canvas/keyboardEvents.js'; // Import the event handler for sidebar toggling
+import { showTextBox, hideTextBox } from '../canvas/promptBox.js'; // Import prompt box functions
 
 const canvas = CanvasGlobals.canvas; // Reference to the main canvas
 const canvasObject = CanvasGlobals.canvasObject; // Reference to the canvas objects
@@ -88,7 +90,7 @@ const FormMeasureComponent = {
     canvas.on('mouse:down', FormMeasureComponent.MeasureOnMouseClick);
 
     // Escape key to cancel measuring
-    document.removeEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
+    document.removeEventListener('keydown', ShowHideSideBarEvent);
     document.addEventListener('keydown', FormMeasureComponent.cancelMeasure);
 
     // Change cursor to indicate measure mode
@@ -103,7 +105,7 @@ const FormMeasureComponent = {
     canvas.off('mouse:move', FormMeasureComponent.MeasureOnMouseMove);
     canvas.off('mouse:down', FormMeasureComponent.MeasureOnMouseClick);
     document.removeEventListener('keydown', FormMeasureComponent.cancelMeasure);
-    document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
+    document.addEventListener('keydown', ShowHideSideBarEvent);
 
     // Reset cursor
     canvas.defaultCursor = 'default';
@@ -246,7 +248,7 @@ const FormMeasureComponent = {
           
           (Press Enter to continue)
         `;        // Show measurement result and wait for Enter key
-        CanvasGlobals.showTextBox(measurementText, ' ', 'keydown', function handleKeyPress(event) {
+        showTextBox(measurementText, ' ', 'keydown', function handleKeyPress(event) {
           if (event.key === 'Enter') {
             hideTextBox();
 

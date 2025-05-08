@@ -468,15 +468,15 @@ function parseFont() {
         }
       }).catch(e => { console.error("Error fetching/parsing NotoSansHK-Medium:", e); throw e; }),
 
-    fetch('./css/font/edukai-5.0.ttf')
+    fetch('./css/font/TW-MOE-Std-Kai-compact.ttf')
       .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
       .then(buffer => {
         if (typeof opentype !== 'undefined') {
           parsedFontKai = opentype.parse(buffer);
         } else {
-          throw new Error("opentype.js not loaded. Cannot parse edukai-5.0 font.");
+          throw new Error("opentype.js not loaded. Cannot parse TW-MOE-Std-Kai-compact font.");
         }
-      }).catch(e => { console.error("Error fetching/parsing edukai-5.0:", e); throw e; })
+      }).catch(e => { console.error("Error fetching/parsing TW-MOE-Std-Kai-compact:", e); throw e; })
   ]).then(() => {
     console.log("All fonts parsed successfully.");
     // Promise resolves with no value (void) upon success

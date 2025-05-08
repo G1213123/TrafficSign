@@ -1,8 +1,9 @@
 // This file handles VertexControl class and keyboard navigation for vertices
 // Implements Tab key cycling through vertices
 
-import { CanvasGlobals } from "../canvas.js"
+import { CanvasGlobals } from "../canvas/canvas.js"
 import { globalAnchorTree,anchorShape } from './anchor.js';
+import { ShowHideSideBarEvent } from '../canvas/keyboardEvents.js'; // Import the event handler for sidebar toggling
 
 const canvas = CanvasGlobals.canvas; // Fabric.js canvas instance
 const canvasObject = CanvasGlobals.canvasObject; // All objects on the canvas
@@ -77,7 +78,7 @@ class VertexControl extends fabric.Control {
             case 'V':
                 return 'violet'
             case 'C':
-                return 'blue'
+                return 'orange'
         }
     }    onClick(eventData, transform) {
         // Check if it's a left-click (button 1)
@@ -119,7 +120,7 @@ class VertexControl extends fabric.Control {
             canvas.defaultCursor = 'move';
 
             // Add mouse move and click handlers for drag behavior
-            document.removeEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
+            document.removeEventListener('keydown', ShowHideSideBarEvent);
             document.addEventListener('keydown', this.cancelDragRef);
             canvas.on('mouse:move', this.handleMouseMoveRef);
             canvas.on('mouse:down', this.handleMouseDownRef);
@@ -528,7 +529,7 @@ class VertexControl extends fabric.Control {
         this.clearSnapHighlight();
 
         // Restore default behavior
-        document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
+        document.addEventListener('keydown', ShowHideSideBarEvent);
         canvas.defaultCursor = 'default';
 
         // Reset internal state
@@ -605,7 +606,7 @@ class VertexControl extends fabric.Control {
         document.removeEventListener('keydown', this.cancelDragRef);
 
         // Restore default behavior
-        document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
+        document.addEventListener('keydown', ShowHideSideBarEvent);
         canvas.defaultCursor = 'default';
 
         // Make sure we're no longer active
@@ -753,7 +754,7 @@ document.addEventListener('keydown', function (event) {
                         currentBaseGroup.updateAllCoord();
 
                         // Set up event listeners for the new active vertex
-                        document.removeEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
+                        document.removeEventListener('keydown', ShowHideSideBarEvent);
                         document.addEventListener('keydown', CanvasGlobals.activeVertex.cancelDragRef);
                         canvas.on('mouse:move', CanvasGlobals.activeVertex.handleMouseMoveRef);
                         canvas.on('mouse:down', CanvasGlobals.activeVertex.handleMouseDownRef);
@@ -777,7 +778,7 @@ document.addEventListener('keydown', function (event) {
                         }
 
                         // Restore default behavior
-                        document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
+                        document.addEventListener('keydown', ShowHideSideBarEvent);
                         canvas.defaultCursor = 'default';
                         canvas.renderAll();
                     }

@@ -1,8 +1,9 @@
 import { BaseGroup, GlyphPath } from './draw.js';
-import { CanvasGlobals } from '../canvas.js';
+import { CanvasGlobals } from '../canvas/canvas.js';
 import { DividerScheme, BorderColorScheme, DividerMargin } from './template.js';
 import { BorderUtilities } from './border.js';
 import { anchorShape } from './anchor.js';
+import { showTextBox } from '../canvas/promptBox.js';
 
 function drawDivider (xHeight, color, position, size, type) {
 
@@ -72,13 +73,13 @@ function VDividerCreate(leftObjects, rightObjects, leftValue, rightValue, option
     }
 
     if (!leftObject || !rightObject) {
-        CanvasGlobals.showTextBox('Please provide valid objects or values for both left and right positions', '');
+        showTextBox('Please provide valid objects or values for both left and right positions', '');
         return;
     }
 
     // Check if left object has X lock - only if it's a real object
     if (!hasFixedLeft && leftObject.lockXToPolygon && Object.keys(leftObject.lockXToPolygon).length != 0) {
-        CanvasGlobals.showTextBox('Unlock the object left of divider in X axis', '')
+        showTextBox('Unlock the object left of divider in X axis', '')
         return
     }
 
@@ -180,13 +181,13 @@ function HDividerCreate(aboveObjects, belowObjects, aboveValue, belowValue, opti
     }
 
     if (!aboveObject || !belowObject) {
-        CanvasGlobals.showTextBox('Please provide valid objects or values for both above and below positions', '');
+        showTextBox('Please provide valid objects or values for both above and below positions', '');
         return;
     }
 
     // Check if bottom object has Y lock - only if it's a real object
     if (!hasFixedBottom && belowObject.lockYToPolygon && Object.keys(belowObject.lockYToPolygon).length != 0) {
-        CanvasGlobals.showTextBox('Unlock the object below divider in Y axis', '')
+        showTextBox('Unlock the object below divider in Y axis', '')
         return
     }
 
@@ -250,7 +251,7 @@ function HLineCreate(aboveObjects, belowObjects, aboveValue, belowValue, options
     const belowObject = BorderUtilities.getTopMostObject(belowObjects)
 
     if (Object.keys(belowObject.lockYToPolygon).length != 0) {
-        CanvasGlobals.showTextBox('Unlock the object below divider in Y axis', '')
+        showTextBox('Unlock the object below divider in Y axis', '')
         return
     }    const aboveObjectBBox = BorderUtilities.getBoundingBox(aboveObjects)
     const aboveObjectSize = { width: aboveObjectBBox.right - aboveObjectBBox.left, height: aboveObjectBBox.bottom - aboveObjectBBox.top }
@@ -323,13 +324,13 @@ function VLaneCreate(leftObjects, rightObjects, leftValue, rightValue, options =
     }
 
     if (!leftObject || !rightObject) {
-        CanvasGlobals.showTextBox('Please provide valid objects or values for both left and right positions', '');
+        showTextBox('Please provide valid objects or values for both left and right positions', '');
         return;
     }
 
     // Check if left object has X lock - only if it's a real object
     if (!hasFixedLeft && leftObject.lockXToPolygon && Object.keys(leftObject.lockXToPolygon).length != 0) {
-        CanvasGlobals.showTextBox('Unlock the object left of divider in X axis', '')
+        showTextBox('Unlock the object left of divider in X axis', '')
         return
     }
 

@@ -1,6 +1,6 @@
 /* Template Signs Panel */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
-import { CanvasGlobals } from '../canvas.js';
+import { CanvasGlobals } from '../canvas/canvas.js';
 import { TextObject } from '../objects/text.js';
 import { drawLabeledSymbol } from '../objects/symbols.js';
 import { BorderUtilities } from '../objects/border.js';
@@ -1564,9 +1564,17 @@ let FormTemplateComponent = {
       anchorShape(exitPanel, sideRoad, {
         vertexIndex1: 'V2',
         vertexIndex2: 'E5',
-        spacingX: 0,
+        spacingX: '',
         spacingY: xHeight * 2 / 4
       });
+      
+      anchorShape(airport, sideRoad, {
+        vertexIndex1: 'V1',
+        vertexIndex2: 'E4',
+        spacingX: xHeight * 2 / 4,
+        spacingY: ''
+      });
+
       // Create an overall border containing all components
       const allObjects = [
         mainRoad, sideRoad,

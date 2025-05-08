@@ -8,7 +8,7 @@ require('dotenv').config(); // Load .env file
 module.exports = {
   entry: './js/main.js',
   output: {
-    filename: 'bundle.js',
+    filename: './js/main.js',
     path: path.resolve(__dirname, 'dist'),
     clean: true, // Clean the output directory before emit.
   },
@@ -29,14 +29,13 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './index.html', // Path to your source index.html
       filename: 'index.html',   // Output filename
-      inject: 'body',           // Inject scripts into the body
+      inject: false,           // Inject scripts into the body
       appVersion: process.env.VERSION || 'dev' // Pass the version from .env, default to 'dev'
     }),
     new CopyWebpackPlugin({
       patterns: [
         { from: 'css', to: 'css' },
         { from: 'images', to: 'images' },
-        { from: 'js/dxf-bundle.js', to: 'js/dxf-bundle.js' }, // Keep specific JS files if needed
         { from: 'ads.txt', to: 'ads.txt' }, // Ensure ads.txt is copied
         { from: 'app.yaml', to: 'app.yaml' }, // Ensure app.yaml is copied
         { from: 'LICENSE', to: 'LICENSE' },

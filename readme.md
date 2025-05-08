@@ -23,9 +23,11 @@ You can access the test site [here](https://g1213123.github.io/TrafficSign/).
 ## Features
 
  #### TODO: 
-- [ ] Snap Range dependent to canvas zoom
-- [ ] Unify input value of xheight and color in all panel
-- [ ] Chinese Readme file and description
+- [x] Unify input value of xheight and color in all panel
+- [ ] Adding loading and save function to cookies
+- [ ] Hints for user inputs
+- [ ] support touch screen gesture
+- [ ] Chinese Readme file and description for site
 
 ## Getting Started
 

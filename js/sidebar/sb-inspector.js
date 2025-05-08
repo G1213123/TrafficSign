@@ -1,5 +1,5 @@
 /* Object Inspector Panel */
-import { CanvasGlobals } from '../canvas.js';
+import { CanvasGlobals } from '../canvas/canvas.js';
 
 let CanvasObjectInspector = {
   createObjectListPanelInit: function () {

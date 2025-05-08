@@ -2,7 +2,8 @@ import { BaseGroup, GlyphPath } from './draw.js';
 import { calculateTransformedPoints, getInsertOffset } from './path.js';
 import { roadMapTemplate } from './template.js';
 import { calcSymbol } from './symbols.js';
-import { CanvasGlobals } from '../canvas.js';
+import { CanvasGlobals } from '../canvas/canvas.js';
+import { ShowHideSideBarEvent } from '../canvas/keyboardEvents.js';
 
 const canvas = CanvasGlobals.canvas;
 const canvasObject = CanvasGlobals.canvasObject;
@@ -1315,7 +1316,7 @@ function drawRoadsHandlerOff(event) {
     canvas.off('mouse:down', finishDrawMainRoad);
     canvas.off('mouse:move', drawSideRoadOnCursor);
     document.removeEventListener('keydown', cancelDraw);
-    document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
+    document.addEventListener('keydown', ShowHideSideBarEvent);
 
     // Force a final render to clean up any visual artifacts
     canvas.renderAll();
@@ -1331,7 +1332,7 @@ function cancelDraw(event, force = false) {
     if (event.key === 'Escape' || force) {
         drawRoadsHandlerOff();
         setTimeout(() => {
-            document.addEventListener('keydown', CanvasGlobals.ShowHideSideBarEvent);
+            document.addEventListener('keydown', ShowHideSideBarEvent);
         }, 1000);
     }
 }

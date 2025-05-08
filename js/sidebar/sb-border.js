@@ -1,10 +1,11 @@
 /* Border Panel */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
-import { CanvasGlobals } from '../canvas.js';
+import { CanvasGlobals } from '../canvas/canvas.js';
 import { BorderUtilities } from '../objects/border.js';
 import { HDividerCreate, VDividerCreate, HLineCreate, VLaneCreate } from '../objects/divider.js';
 import { BorderColorScheme, BorderFrameWdith, BorderTypeScheme } from '../objects/template.js';
 import { vertexToPath } from '../objects/path.js';
+import { selectObjectHandler } from '../canvas/promptBox.js';
 
 let FormBorderWrapComponent = {
   BorderPanelInit: function () {
@@ -118,8 +119,8 @@ let FormBorderWrapComponent = {
   BorderCreateHandler: async function (event) {
     const borderType = event.currentTarget.id.replace('button-', '');
     const xHeight = parseInt(document.getElementById("input-xHeight").value);
-    CanvasGlobals.selectObjectHandler('Select shape to calculate border width,\nor input fix width and then press Enter', function (widthObjects, options, widthText) {
-      CanvasGlobals.selectObjectHandler('Select shape to calculate border height,\nor input fix height and then press Enter', function (heightObjects, options, heightText) {
+    selectObjectHandler('Select shape to calculate border width,\nor input fix width and then press Enter', function (widthObjects, options, widthText) {
+      selectObjectHandler('Select shape to calculate border height,\nor input fix height and then press Enter', function (heightObjects, options, heightText) {
         BorderUtilities.BorderGroupCreate(borderType, heightObjects, widthObjects, widthText, heightText, {
           xHeight: xHeight,
           colorType: document.getElementById('input-color').value
@@ -130,8 +131,8 @@ let FormBorderWrapComponent = {
 
   StackDividerHandler: function () {
     const xHeight = parseInt(document.getElementById("input-xHeight").value);
-    CanvasGlobals.selectObjectHandler('Select object above divider or type in fixed distance to border top', function (aboveObject, options, aboveValue) {
-      CanvasGlobals.selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
+    selectObjectHandler('Select object above divider or type in fixed distance to border top', function (aboveObject, options, aboveValue) {
+      selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
         // Pass both objects and entered values to allow for fixed distance options
         HDividerCreate(aboveObject, belowObject, aboveValue, belowValue)
       }, null, xHeight, 'mm');
@@ -140,8 +141,8 @@ let FormBorderWrapComponent = {
 
   GantryDividerHandler: function () {
     const xHeight = parseInt(document.getElementById("input-xHeight").value);
-    CanvasGlobals.selectObjectHandler('Select object left to divider or type in fixed distance to border left', function (leftObject, options, leftValue) {
-      CanvasGlobals.selectObjectHandler('Select object right to divider or type in fixed distance to border right', function (rightObject, options, rightValue) {
+    selectObjectHandler('Select object left to divider or type in fixed distance to border left', function (leftObject, options, leftValue) {
+      selectObjectHandler('Select object right to divider or type in fixed distance to border right', function (rightObject, options, rightValue) {
         // Pass both objects and entered values to allow for fixed distance options
         VDividerCreate(leftObject, rightObject, leftValue, rightValue)
       }, null, xHeight, 'mm');
@@ -150,8 +151,8 @@ let FormBorderWrapComponent = {
 
   GantryLineHandler: function () {
     const xHeight = parseInt(document.getElementById("input-xHeight").value);
-    CanvasGlobals.selectObjectHandler('Select object above divider or type in fixed distance to border top', function (aboveObject, options, aboveValue) {
-      CanvasGlobals.selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
+    selectObjectHandler('Select object above divider or type in fixed distance to border top', function (aboveObject, options, aboveValue) {
+      selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
         // Pass both objects and entered values to allow for fixed distance options
         HLineCreate(aboveObject, belowObject, aboveValue, belowValue)
       }, null, xHeight, 'mm');
@@ -160,8 +161,8 @@ let FormBorderWrapComponent = {
 
   LaneLineHandler: function () {
     const xHeight = parseInt(document.getElementById("input-xHeight").value);
-    CanvasGlobals.selectObjectHandler('Select object left to lane or type in fixed distance to border left', function (leftObject, options, leftValue) {
-      CanvasGlobals.selectObjectHandler('Select object right to lane or type in fixed distance to border right', function (rightObject, options, rightValue) {
+    selectObjectHandler('Select object left to lane or type in fixed distance to border left', function (leftObject, options, leftValue) {
+      selectObjectHandler('Select object right to lane or type in fixed distance to border right', function (rightObject, options, rightValue) {
         // Pass both objects and entered values to allow for fixed distance options
         VLaneCreate(leftObject, rightObject, leftValue, rightValue)
       }, null, xHeight, 'mm');

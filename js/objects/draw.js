@@ -1,6 +1,6 @@
-import { CanvasGlobals } from "../canvas.js";
+import { CanvasGlobals } from "../canvas/canvas.js";
 import { calculateTransformedPoints, convertVertexToPathCommands, getFontPath, convertFontPathToFabricPath } from "./path.js";
-import { canvasTracker } from "../canvasTracker.js";
+import { canvasTracker } from "../canvas/Tracker.js";
 import { VertexControl } from "./vertex.js";
 import { BorderDimensionDisplay } from "./dimension.js";
 import { LockIcon } from "./lock.js";

@@ -18,7 +18,7 @@ import { FormMeasureComponent } from './sb-measure.js';
 import { CanvasTrackerUI } from './sb-tracker.js';
 // Assuming CanvasObjectInspector might be needed, import if necessary
 import { CanvasObjectInspector } from './sb-inspector.js';
-import { CanvasGlobals } from '../canvas.js';
+import { CanvasGlobals } from '../canvas/canvas.js';
 
 
 window.GeneralSettings = GeneralSettings; // Make GeneralSettings globally accessible
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Tracker module button
   let canvasTrackerComponentInstance = new CanvasTrackerUI();
-  canvasTrackerComponentInstance.initialize();; // Keep instance reference
+  canvasTrackerComponentInstance.initialize(); // Keep instance reference
   document.getElementById('btn_tracker').addEventListener('click', function () {
 
     if (canvasTrackerComponentInstance.initialized) { // Check if already initialized

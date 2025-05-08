@@ -1,5 +1,5 @@
 import { globalAnchorTree } from "./anchor.js";
-import { canvasTracker } from "../canvasTracker.js";
+import { canvasTracker } from "../canvas/Tracker.js";
 
 class LockIcon {
   constructor(baseGroup, lockParam, direction) {
