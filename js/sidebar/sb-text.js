@@ -578,7 +578,7 @@ let FormTextAddComponent = {
   },
 
   TextOnMouseClick: function (event, options = null) {
-    if (event.e.button !== 0) return;
+    if (event.e.button !== 0 && event.e.type !== 'touchend') return;
     
     // Use shared mouse click handler for new text objects
     if (FormTextAddComponent.newTextObject) {

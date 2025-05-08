@@ -370,18 +370,18 @@ let GeneralHandler = {
    * @param {string} cancelHandlerName - Name of the cancel handler function
    */
   handleObjectOnMouseClick: function(component, event, objectKey, mouseMoveHandlerName, mouseClickHandlerName, cancelHandlerName) {
-    if (event.e.button !== 0) return;
+    if (event.e.button !== 0 && event.e.type !== 'touchend') return;
     
     // Complete the placement if we have an active object
     if (component[objectKey]) {
       // Complete the placement
       if (CanvasGlobals.activeVertex) {
-        CanvasGlobals.activeVertex.handleMouseDownRef(event);
+        CanvasGlobals.activeVertex.handleMouseUpRef(event);
       }
 
       // Clean up
       CanvasGlobals.canvas.off('mouse:move', component[mouseMoveHandlerName]);
-      CanvasGlobals.canvas.off('mouse:down', component[mouseClickHandlerName]);
+      CanvasGlobals.canvas.off('mouse:up', component[mouseClickHandlerName]);
       CanvasGlobals.canvas.discardActiveObject();
 
       // Reset state
@@ -421,7 +421,7 @@ let GeneralHandler = {
 
       // Restore event listeners
       CanvasGlobals.canvas.off('mouse:move', component[mouseMoveHandlerName]);
-      CanvasGlobals.canvas.off('mouse:down', component[mouseClickHandlerName]);
+      CanvasGlobals.canvas.off('mouse:up', component[mouseClickHandlerName]);
       document.removeEventListener('keydown', component.cancelInput || component.cancelDraw);
       document.addEventListener('keydown', ShowHideSideBarEvent);
 
@@ -474,7 +474,7 @@ let GeneralHandler = {
       
       // Add mouse event handlers
       CanvasGlobals.canvas.on('mouse:move', mouseMoveHandler);
-      CanvasGlobals.canvas.on('mouse:down', mouseClickHandler);
+      CanvasGlobals.canvas.on('mouse:up', mouseClickHandler);
       
       // Set up the object for snapping
       CanvasGlobals.canvas.setActiveObject(newObject);
@@ -542,7 +542,7 @@ let GeneralHandler = {
 
     // Remove event listeners
     CanvasGlobals.canvas.off('mouse:move', component[mouseMoveHandlerName]);
-    CanvasGlobals.canvas.off('mouse:down', component[mouseClickHandlerName]);
+    CanvasGlobals.canvas.off('mouse:up', component[mouseClickHandlerName]);
     document.removeEventListener('keydown', component[cancelHandlerName]);
     document.addEventListener('keydown', ShowHideSideBarEvent);
 

@@ -193,7 +193,7 @@ const FormMeasureComponent = {
    * Handle mouse click during measurement
    */
   MeasureOnMouseClick: function (event) {
-    if (event.e.button !== 0) return; // Only handle left clicks
+    if (event.e.button !== 0 && event.e.type !== 'touchend') return;
 
     // If we have a snap target, use that vertex
     if (FormMeasureComponent.snapTarget) {

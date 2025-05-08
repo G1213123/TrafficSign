@@ -1,4 +1,6 @@
-import { DrawGrid } from "./canvas.js";
+import { CanvasGlobals,DrawGrid } from './canvas.js';
+const canvas = CanvasGlobals.canvas; // Access the global canvas object
+const activeVertex = CanvasGlobals.activeVertex; // Access the global active vertex object
 // —————————————————————————————
 // native touch pinch-to-zoom & two-finger pan
 // using Fabric pointer events (no external libs)

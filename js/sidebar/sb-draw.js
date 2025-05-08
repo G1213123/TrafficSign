@@ -403,7 +403,7 @@ let FormDrawAddComponent = {
   },
 
   SymbolOnMouseClick: function (event) {
-    if (event.e.button !== 0) return;
+    if (event.e.button !== 0 && event.e.type !== 'touchend') return;
 
     // Use shared mouse click handler
     if (FormDrawAddComponent.newSymbolObject) {

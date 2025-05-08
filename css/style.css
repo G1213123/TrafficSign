@@ -762,6 +762,19 @@ div.side-panel.close {
   align-items: left;
 }
 
+.cursor-box-button {
+  background-color: lightyellow;
+  padding: 5px;
+  border: 1px solid black;
+  margin-bottom: 5px;
+  text-align: center; /* Center text in button */
+  cursor: pointer; /* Add pointer cursor */
+}
+
+.mobile-only {
+  display: none; /* Hidden by default */
+}
+
 /* Canvas Tracker UI Styles */
 .history-list {
   max-height: 100%;
@@ -1172,7 +1185,7 @@ div.side-panel.close {
 }
 
 /* Add left-pointing arrow for right-positioned tooltip */
-.tooltip.tooltip-right::before {
+.tooltip.tooltip-arrow-left::before { /* Renamed from tooltip-right */
   content: '';
   position: absolute;
   top: 50%;
@@ -1187,7 +1200,7 @@ div.side-panel.close {
 }
 
 /* Add a second arrow inside the first to create the border effect on the arrow */
-.tooltip.tooltip-right::after {
+.tooltip.tooltip-arrow-left::after { /* Renamed from tooltip-right */
   content: '';
   position: absolute;
   top: 50%;
@@ -1201,6 +1214,56 @@ div.side-panel.close {
   display: block;
   /* Override the previous display:none */
 }
+
+/* Add bottom-pointing arrow for top-positioned tooltip (mobile) */
+.tooltip.tooltip-arrow-bottom::before {
+  content: '';
+  position: absolute;
+  top: 100%; /* Arrow at the bottom of the tooltip */
+  left: 50%;
+  margin-left: -6px; /* Center the arrow */
+  border-width: 6px;
+  border-style: solid;
+  border-color: white transparent transparent transparent; /* White border on arrow */
+}
+
+.tooltip.tooltip-arrow-bottom::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px; /* Center the inner arrow */
+  margin-top: -2px; /* Adjust to sit inside the border arrow, depends on border thickness */
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent; /* Inner arrow matches tooltip background */
+  display: block;
+}
+
+/* Add right-pointing arrow for left-positioned tooltip (desktop fallback) */
+.tooltip.tooltip-arrow-right::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -12px; /* Arrow on the right side */
+  margin-top: -6px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent transparent transparent white; /* White border on arrow */
+}
+
+.tooltip.tooltip-arrow-right::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -9px; /* Inner arrow on the right side */
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent transparent #333; /* Inner arrow matches tooltip background */
+  display: block;
+}
+
 
 /* Unit display for text box in unit mode */
 .unit-display {
@@ -1576,12 +1639,12 @@ div.side-panel.close {
   /* Chevron rotation for panel state */
   /* Expanded: pointing down */
   .side-panel:not(.collapsed) #show_hide i {
-    transform: rotate(180deg) !important;
+    transform: rotate(-90deg) !important; /* Changed from 180deg to 90deg to point down */
   }
 
   /* Collapsed: pointing up */
   .side-panel.collapsed #show_hide i {
-    transform: rotate(0deg) !important;
+    transform: rotate(90deg) !important; /* Changed from 0deg to -90deg to point up */
   }
 
   /* Adjust body padding based on panel state */
@@ -1596,6 +1659,14 @@ div.side-panel.close {
     transition: padding-bottom 0.3s ease !important;
   }
 
+  div.heading, #sidepanel-heading {
+    font-size: 20px; /* Smaller font size for mobile */
+    height: 30px; /* Reduced height for mobile */
+    line-height: 30px; /* Adjust line-height to match new height */
+    padding: 5px 10px; /* Adjust padding as needed */
+    flex-basis: 30px; /* Adjust flex-basis to match new height */
+  }
+
   .cursor-box-contained{
     position: absolute !important;
     display: flex !important;
@@ -1603,7 +1674,7 @@ div.side-panel.close {
     align-items: left !important;
     justify-content: left !important;
     margin-bottom: 5px !important;
-    top: 0px !important; 
+    top: 45px !important; 
     left: 0px !important;
     width: 100% !important;
     /* Initially hidden */

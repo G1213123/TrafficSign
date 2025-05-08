@@ -822,7 +822,7 @@ function mainRoadOnMouseMove(event) {
  * @return {Promise<void>}
  */
 async function finishDrawMainRoad(event, options = null) {
-    if (event.e.button !== 0) return;
+    if (event.e.button !== 0 && event.e.type !== 'touchend') return;
 
     // Finalize main road placement on click
     if (!canvas.newSymbolObject) return;
@@ -832,7 +832,7 @@ async function finishDrawMainRoad(event, options = null) {
     
     // Complete the placement
     if (CanvasGlobals.activeVertex) {
-        CanvasGlobals.activeVertex.handleMouseDownRef(event);
+        CanvasGlobals.activeVertex.handleMouseUpRef(event);
     }
     
     // Add the main road to the canvas object list if not already added
@@ -1205,7 +1205,7 @@ function calculateBoundingBox(vertices) {
  * @return {void}
  */
 function finishDrawSideRoad(event) {
-    if (event.e.button !== 0) return;
+    if (event.e.button !== 0 && event.e.type !== 'touchend') return;
 
     // Finalize side road placement on click
     if (!canvas.newSymbolObject) return;
@@ -1218,7 +1218,7 @@ function finishDrawSideRoad(event) {
 
     // Complete the placement
     if (CanvasGlobals.activeVertex) {
-        CanvasGlobals.activeVertex.handleMouseDownRef(event);
+        CanvasGlobals.activeVertex.handleMouseUpRef(event);
     }
 
     // Make sure the side road isn't already in the main road's collection

@@ -2,7 +2,7 @@
 // Implements Tab key cycling through vertices
 
 import { CanvasGlobals } from "../canvas/canvas.js"
-import { globalAnchorTree,anchorShape } from './anchor.js';
+import { globalAnchorTree, anchorShape } from './anchor.js';
 import { ShowHideSideBarEvent } from '../canvas/keyboardEvents.js'; // Import the event handler for sidebar toggling
 
 const canvas = CanvasGlobals.canvas; // Fabric.js canvas instance
@@ -33,7 +33,6 @@ class VertexControl extends fabric.Control {
         this.snapTarget = null; // Current snap target
         this.snapHighlight = null; // Visual highlight of snap target
         this.handleMouseMoveRef = this.handleMouseMove.bind(this);
-        this.handleMouseDownRef = this.handleMouseDown.bind(this);
         this.handleMouseUpRef = this.handleMouseUp.bind(this);
         this.cancelDragRef = this.cancelDrag.bind(this);
     }
@@ -80,13 +79,13 @@ class VertexControl extends fabric.Control {
             case 'C':
                 return 'orange'
         }
-    }    onClick(eventData, transform) {
+    } onClick(eventData, transform) {
         // Check if it's a left-click (button 1)
-        if (eventData.button !== 0) return;
+        if (eventData.button !== 0 && eventData.type !== 'touchend') return;
 
         // Prevent clicks during ongoing snap operations
         if (vertexSnapInProgress) return;
-        
+
         // Prevent vertex activation if measure mode is active
         if (typeof FormMeasureComponent !== 'undefined' && FormMeasureComponent.activeMeasurement) {
             return;
@@ -123,12 +122,13 @@ class VertexControl extends fabric.Control {
             document.removeEventListener('keydown', ShowHideSideBarEvent);
             document.addEventListener('keydown', this.cancelDragRef);
             canvas.on('mouse:move', this.handleMouseMoveRef);
-            canvas.on('mouse:down', this.handleMouseDownRef);
-            canvas.on('mouse:up', this.handleMouseUpRef);
-
+            
             canvas.renderAll();
 
-            this.baseGroup.enterFocusMode()
+            this.baseGroup.enterFocusMode();
+            setTimeout(() => {
+                canvas.on('mouse:up', this.handleMouseUpRef);
+            }, 50); // Delay to ensure mouse move is registered first
         }
     }
 
@@ -235,8 +235,8 @@ class VertexControl extends fabric.Control {
             // If we have a snap target, use its position instead of pointer
             const finalPointer = this.snapTarget ?
                 { x: this.snapTarget.vertex.x, y: this.snapTarget.vertex.y } :
-                pointer;            
-                if (this.baseGroup.functionalType === 'SideRoad') {
+                pointer;
+            if (this.baseGroup.functionalType === 'SideRoad') {
                 // For SideRoad, calculate the appropriate offset based on active vertex
                 if (CanvasGlobals.activeVertex && CanvasGlobals.activeVertex.vertex) {
                     // Find the V1 vertex which corresponds to routeList[0]
@@ -288,7 +288,7 @@ class VertexControl extends fabric.Control {
             // Process route changes in a single update cycle, but only for directions that aren't locked
             let updateX = !this.baseGroup.lockMovementX;
             let updateY = !this.baseGroup.lockMovementY;
-            
+
             if (updateX && !globalAnchorTree.updateInProgressX) {
                 globalAnchorTree.startUpdateCycle('x', this.baseGroup.canvasID);
             }
@@ -390,7 +390,14 @@ class VertexControl extends fabric.Control {
         }
     }
 
-    handleMouseDown(event) {
+    handleMouseUp(event) {
+        // Check for right-click (button 2)
+        if (event.e.button === 2 && this.isDown) {
+            // Cancel drag on right-click
+            this.restoreOriginalPosition();
+            return;
+        }
+
         if (!this.isDown) return;
 
         // Check for right-click (button 2)
@@ -401,7 +408,7 @@ class VertexControl extends fabric.Control {
         }
 
         // Only process left clicks (button 1) for object selection
-        if (event.e.button !== 0) return;
+        if (event.e.button !== 0 && event.e.type !== 'touchend') return;
 
         // If we have a snap target, use that for anchoring
         if (this.snapTarget) {
@@ -521,7 +528,6 @@ class VertexControl extends fabric.Control {
     // New helper method to remove all mouse events immediately
     removeAllMouseEvents() {
         canvas.off('mouse:move', this.handleMouseMoveRef);
-        canvas.off('mouse:down', this.handleMouseDownRef);
         canvas.off('mouse:up', this.handleMouseUpRef);
         document.removeEventListener('keydown', this.cancelDragRef);
 
@@ -561,14 +567,6 @@ class VertexControl extends fabric.Control {
         canvas.renderAll();
     }
 
-    handleMouseUp(event) {
-        // Check for right-click (button 2)
-        if (event.e.button === 2 && this.isDown) {
-            // Cancel drag on right-click
-            this.restoreOriginalPosition();
-            return;
-        }
-    }
 
     restoreOriginalPosition() {
         // Clear any snap highlight
@@ -601,7 +599,6 @@ class VertexControl extends fabric.Control {
 
         // Remove event listeners using stored references
         canvas.off('mouse:move', this.handleMouseMoveRef);
-        canvas.off('mouse:down', this.handleMouseDownRef);
         canvas.off('mouse:up', this.handleMouseUpRef);
         document.removeEventListener('keydown', this.cancelDragRef);
 
@@ -757,7 +754,6 @@ document.addEventListener('keydown', function (event) {
                         document.removeEventListener('keydown', ShowHideSideBarEvent);
                         document.addEventListener('keydown', CanvasGlobals.activeVertex.cancelDragRef);
                         canvas.on('mouse:move', CanvasGlobals.activeVertex.handleMouseMoveRef);
-                        canvas.on('mouse:down', CanvasGlobals.activeVertex.handleMouseDownRef);
                         canvas.on('mouse:up', CanvasGlobals.activeVertex.handleMouseUpRef);
 
                         // Keep the group in focus mode

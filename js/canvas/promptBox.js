@@ -1,4 +1,3 @@
-
 import { CanvasGlobals } from "./canvas.js";
 import { ShowHideSideBarEvent } from "./keyboardEvents.js";
 import { cursorClickMode } from "./contexMenu.js";
@@ -54,6 +53,8 @@ document.addEventListener('mouseup', answerBoxFocus);
 function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = null, xHeight = null, unit = 'sw') {
   const promptBox = document.getElementById('cursorTextBox');
   const answerBox = document.getElementById('cursorAnswerBox');
+  const enterButton = document.getElementById('cursorEnterButton');
+  const cancelButton = document.getElementById('cursorCancelButton');
 
   promptBox.innerText = text;
   promptBox.style.display = 'block';
@@ -66,6 +67,15 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
 
   if (withAnswerBox !== null) {
     answerBox.style.display = 'block';
+    if (enterButton && cancelButton) {
+      if (window.innerWidth <= 600) { // Check for mobile screen width
+        enterButton.style.display = 'block';
+        cancelButton.style.display = 'block';
+      } else {
+        enterButton.style.display = 'none';
+        cancelButton.style.display = 'none';
+      }
+    }
     answerBox.value = withAnswerBox;
     answerBox.focus();
     answerBox.select();
@@ -91,10 +101,46 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
 
     // Handle user input and resolve the answer
     return new Promise((resolve) => {
-      answerBox.addEventListener('keydown', function handleKeyDown(event) {
+      const enterButton = document.getElementById('cursorEnterButton'); // Get buttons inside promise
+      const cancelButton = document.getElementById('cursorCancelButton');
+
+      const cleanupListeners = () => {
+        answerBox.removeEventListener('keydown', handleKeyDown);
+        if (enterButton) {
+          enterButton.removeEventListener('click', handleEnterClick);
+        }
+        if (cancelButton) {
+          cancelButton.removeEventListener('click', handleCancelClick);
+        }
+      };
+
+      const handleEnterClick = () => {
+        let result = answerBox.value;
+        if (xHeight !== null && unitDisplay && !isNaN(parseFloat(result))) {
+          if (currentUnit === 'sw') {
+            result = String(parseFloat(result) * xHeight / 4);
+          }
+        }
+        if (unitDisplay) {
+          unitDisplay.style.display = 'none';
+        }
+        resolve(result);
+        hideTextBox();
+        cleanupListeners();
+      };
+
+      const handleCancelClick = () => {
+        if (unitDisplay) {
+          unitDisplay.style.display = 'none';
+        }
+        resolve(null);
+        hideTextBox();
+        cleanupListeners();
+      };
+
+      const handleKeyDown = function(event) {
         if (event.key === 'Enter' || event.key === ' ') {
           let result = answerBox.value;
-
           // Convert units if in unit mode
           if (xHeight !== null && unitDisplay && !isNaN(parseFloat(result))) {
             if (currentUnit === 'sw') {
@@ -102,21 +148,19 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
               result = String(parseFloat(result) * xHeight / 4);
             }
           }
-
           if (unitDisplay) {
             unitDisplay.style.display = 'none';
           }
-
           resolve(result);
           hideTextBox();
-          answerBox.removeEventListener('keydown', handleKeyDown);
+          cleanupListeners();
         } else if (event.key === 'Escape') {
           if (unitDisplay) {
             unitDisplay.style.display = 'none';
           }
           resolve(null);
           hideTextBox();
-          answerBox.removeEventListener('keydown', handleKeyDown);
+          cleanupListeners();
         } else if (event.key === 'Tab' && xHeight !== null && unitDisplay) {
           // Switch between mm and sw units on Tab key press
           event.preventDefault();
@@ -135,10 +179,22 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
 
           unitDisplay.innerText = currentUnit;
         }
-      });
+      };
+
+      answerBox.addEventListener('keydown', handleKeyDown);
+      if (enterButton && window.innerWidth <= 600) { // Check for mobile here as well for adding listener
+        enterButton.addEventListener('click', handleEnterClick);
+      }
+      if (cancelButton && window.innerWidth <= 600) { // Check for mobile here as well for adding listener
+        cancelButton.addEventListener('click', handleCancelClick);
+      }
     });
   } else {
     answerBox.style.display = 'none';
+    if (enterButton && cancelButton) {
+      enterButton.style.display = 'none';
+      cancelButton.style.display = 'none';
+    }
     document.addEventListener(event, callback);
   }
 }
@@ -146,8 +202,15 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
 function hideTextBox() {
   const promptBox = document.getElementById('cursorTextBox');
   const answerBox = document.getElementById('cursorAnswerBox');
+  const enterButton = document.getElementById('cursorEnterButton');
+  const cancelButton = document.getElementById('cursorCancelButton');
+
   promptBox.style.display = 'none';
   answerBox.style.display = 'none';
+  if (enterButton && cancelButton) {
+    enterButton.style.display = 'none';
+    cancelButton.style.display = 'none';
+  }
   setTimeout(() => {
     document.addEventListener('keydown', ShowHideSideBarEvent);
   }, 1000); // Delay in milliseconds (e.g., 1000ms = 1 second)
