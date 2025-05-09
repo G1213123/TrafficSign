@@ -989,7 +989,7 @@ div.side-panel.close {
   border-radius: 12px 12px 0 0;
   border: 0;
   box-sizing: border-box;
-  padding: 10px 5px 0px 5px;
+  padding: 10px 5px 5px 5px;
   flex: 0 0 30px;
   font-family: TransportMedium;
   font-size: 20px;
@@ -1533,153 +1533,6 @@ div.side-panel.close {
   margin: 8px 10px;
 }
 
-/* MOBILE PHONE LAYOUT OVERRIDES - Bottom Half Panel */
-@media (max-width: 600px) {
-
-  /* Side Panel occupies bottom half */
-  .side-panel {
-    position: absolute !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 30vh !important;
-    /* Occupy bottom half */
-    background-color: #222 !important;
-    z-index: 9999 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    /* Ensure column direction */
-    min-height: auto !important;
-    min-width: auto !important;
-    /* Override desktop min-height */
-  }
-
-  /* Tool button bar inside the panel (at the top) */
-  .side-bar {
-    order: -1 !important;
-    /* Explicitly place at the top */
-    position: absolute !important;
-    bottom: auto !important;
-    left: auto !important;
-    top: -24px !important;
-    /* Space for the toolbar */
-    width: 100% !important;
-    height: 48px !important;
-    /* Fixed height for the toolbar */
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: space-around !important;
-    background-color: #333 !important;
-    flex-shrink: 0;
-    /* Prevent shrinking */
-    z-index: 10000 !important;
-    /* Above panel content */
-    min-height: auto !important;
-    /* Override desktop min-height */
-  }
-
-  /* Container for the actual form/info content */
-  #input-form {
-    width: auto !important;
-    order: 0 !important;
-    /* Ensure it comes after the toolbar */
-    flex-grow: 1;
-    /* Take remaining space */
-    overflow-y: auto;
-    /* Allow scrolling for content */
-    padding: 10px;
-    transition: opacity 0.3s ease, visibility 0.3s ease !important;
-  }
-
-  #content-frame {
-    width: 100%;
-  }
-
-  /* Style tool items for horizontal bar */
-  .side-bar .item {
-    flex: 1 !important;
-    width: auto !important;
-    height: 48px !important;
-    /* Explicitly set height */
-    line-height: 48px !important;
-    font-size: 16px !important;
-    /* Smaller icons/text */
-    background-color: #444 !important;
-    border-bottom: none !important;
-    /* Remove vertical border */
-    border-right: 1px solid #555;
-    /* Add horizontal separator */
-  }
-
-  .side-bar .item:last-child {
-    border-right: none;
-    width: 48px !important;
-  }
-
-  .side-bar .item.bottom {
-    position: relative !important;
-  }
-
-
-  /* --- Collapsed State --- */
-  .side-panel.close {
-    bottom: -30vh !important;
-    left: 0px !important;
-    animation-name: sidebar-mobile-close !important;
-    /* Height of the toolbar only */
-  }
-
-  .side-panel.open {
-    bottom: 0vh !important;
-    left: 0px !important;
-    animation-name: sidebar-mobile-open !important;
-    /* Height of the toolbar only */
-  }
-
-  /* Chevron rotation for panel state */
-  /* Expanded: pointing down */
-  .side-panel:not(.collapsed) #show_hide i {
-    transform: rotate(-90deg) !important; /* Changed from 180deg to 90deg to point down */
-  }
-
-  /* Collapsed: pointing up */
-  .side-panel.collapsed #show_hide i {
-    transform: rotate(90deg) !important; /* Changed from 0deg to -90deg to point up */
-  }
-
-  /* Adjust body padding based on panel state */
-  body.mobile-sidebar-expanded #canvas-container {
-    padding-bottom: 50vh !important;
-    transition: padding-bottom 0.3s ease !important;
-  }
-
-  body:not(.mobile-sidebar-expanded) #canvas-container {
-    padding-bottom: 48px !important;
-    /* Space for collapsed bar */
-    transition: padding-bottom 0.3s ease !important;
-  }
-
-  div.heading, #sidepanel-heading {
-    font-size: 20px; /* Smaller font size for mobile */
-    height: 30px; /* Reduced height for mobile */
-    line-height: 30px; /* Adjust line-height to match new height */
-    padding: 5px 10px; /* Adjust padding as needed */
-    flex-basis: 30px; /* Adjust flex-basis to match new height */
-  }
-
-  .cursor-box-contained{
-    position: absolute !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: left !important;
-    justify-content: left !important;
-    margin-bottom: 5px !important;
-    top: 45px !important; 
-    left: 0px !important;
-    width: 100% !important;
-    /* Initially hidden */
-  }
-}
 
 /* Static Info Content Panel */
 #info-content-static {
@@ -1759,4 +1612,148 @@ div.side-panel.close {
 .shortcut-description {
   color: #ccc;
   text-align: right;
-}
+  }
+
+  /* MOBILE PHONE LAYOUT OVERRIDES - Bottom Half Panel */
+  @media (max-width: 600px) {
+  
+    /* Side Panel occupies bottom half */
+    .side-panel {
+      position: absolute !important;
+      top: 70vh !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 30vh !important;
+      /* Occupy bottom half */
+      background-color: #222 !important;
+      z-index: 9999 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: flex-start !important;
+      /* Ensure column direction */
+      min-height: auto !important;
+      min-width: auto !important;
+      /* Override desktop min-height */
+    }
+  
+    /* Tool button bar inside the panel (at the top) */
+    .side-bar {
+      order: -1 !important;
+      /* Explicitly place at the top */
+      position: absolute !important;
+      bottom: auto !important;
+      left: auto !important;
+      top: -24px !important;
+      /* Space for the toolbar */
+      width: 100% !important;
+      height: 48px !important;
+      /* Fixed height for the toolbar */
+      display: flex !important;
+      flex-direction: row !important;
+      justify-content: space-around !important;
+      background-color: #333 !important;
+      flex-shrink: 0;
+      /* Prevent shrinking */
+      z-index: 10000 !important;
+      /* Above panel content */
+      min-height: auto !important;
+      /* Override desktop min-height */
+      justify-content: flex-end !important;
+    }
+  
+    /* Container for the actual form/info content */
+    #input-form {
+      width: auto !important;
+      height: 80% !important;
+      order: 0 !important;
+      /* Ensure it comes after the toolbar */
+      flex-grow: 1;
+      /* Take remaining space */
+      overflow-y: auto;
+      /* Allow scrolling for content */
+      padding: 10px;
+      transition: opacity 0.3s ease, visibility 0.3s ease !important;
+    }
+  
+    #content-frame {
+      width: 100%;
+      height: 100% !important;
+    }
+  
+    /* Style tool items for horizontal bar */
+    .side-bar .item {
+      flex: 1 !important;
+      width: auto !important;
+      height: 48px !important;
+      /* Explicitly set height */
+      line-height: 48px !important;
+      font-size: 16px !important;
+      /* Smaller icons/text */
+      background-color: #444 !important;
+      border-bottom: none !important;
+      /* Remove vertical border */
+      border-right: 1px solid #555;
+      /* Add horizontal separator */
+    }
+  
+    .side-bar .item:last-child {
+      border-right: none;
+      width: 48px !important;
+    }
+  
+    .side-bar .item.bottom {
+      position: relative !important;
+    }
+  
+  
+    /* --- Collapsed State --- */
+    .side-panel.close {
+      top: 100vh !important;
+      left: 0px !important;
+      /* Use shorthand to override all animation sub-properties */
+      animation: sidebar-mobile-close 0.25s ease-in-out forwards !important;
+    }
+  
+    .side-panel.open {
+      top: 70vh !important;
+      left: 0px !important;
+      /* Use shorthand to override all animation sub-properties */
+      animation: sidebar-mobile-open 0.25s ease-in-out forwards !important;
+    }
+  
+    /* Chevron rotation for panel state */
+    /* Expanded: pointing down */
+    .side-panel:not(.collapsed) #show_hide i {
+      transform: rotate(-90deg) !important; /* Changed from 180deg to 90deg to point down */
+    }
+  
+    /* Collapsed: pointing up */
+    .side-panel.collapsed #show_hide i {
+      transform: rotate(90deg) !important; /* Changed from 0deg to -90deg to point up */
+    }
+  
+    div.heading, #sidepanel-heading {
+      font-size: 20px; /* Smaller font size for mobile */
+      height: 30px; /* Reduced height for mobile */
+      line-height: 30px; /* Adjust line-height to match new height */
+      padding: 5px 10px; /* Adjust padding as needed */
+      flex-basis: 30px; /* Adjust flex-basis to match new height */
+    }
+  
+    .cursor-box-contained{
+      position: absolute !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: left !important;
+      justify-content: left !important;
+      margin-bottom: 5px !important;
+      top: 45px !important; 
+      left: 0px !important;
+      width: 100% !important;
+      /* Initially hidden */
+    }
+
+    body {
+      background-color: #222 !important;
+    }
+  }
