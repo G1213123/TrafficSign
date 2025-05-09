@@ -1670,8 +1670,8 @@ div.side-panel.close {
       flex-grow: 1;
       /* Take remaining space */
       overflow-y: auto;
+      padding-bottom: 10dvh !important;
       /* Allow scrolling for content */
-      padding: 10px;
       transition: opacity 0.3s ease, visibility 0.3s ease !important;
     }
   
