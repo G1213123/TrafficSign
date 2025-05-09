@@ -4,7 +4,9 @@ const activeVertex = CanvasGlobals.activeVertex; // Access the global active ver
 
 // Handle mousedown event
 canvas.on('mouse:down', function (opt) {
-  var e = opt.e;
+  const e = opt.e;
+  // skip multi-touch pan if pinch-to-zoom is active
+  if (e.touches && e.touches.length > 1) return;
   if (e.button === 1) { // Middle mouse button
     canvas.isDragging = true;
     canvas.selection = false;
@@ -13,9 +15,11 @@ canvas.on('mouse:down', function (opt) {
   }
 });
 canvas.on('mouse:move', function (opt) {
+  // skip if multi-touch gesture (pinch/rotate)
+  const e = opt.e;
+  if (e.touches && e.touches.length > 1) return;
   if (canvas.isDragging) {
-    var e = opt.e;
-    var vpt = this.viewportTransform;
+    const vpt = this.viewportTransform;
     vpt[4] += e.clientX - canvas.lastPosX;
     vpt[5] += e.clientY - canvas.lastPosY;
     canvas.requestRenderAll();
