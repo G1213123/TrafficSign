@@ -1710,7 +1710,6 @@ div.side-panel.close {
     .side-panel.close {
       top: 100dvh !important;
       left: 0px !important;
-      height: 48px !important;
       /* Use shorthand to override all animation sub-properties */
       animation: sidebar-mobile-close 0.25s ease-in-out forwards !important;
     }
@@ -1748,10 +1747,18 @@ div.side-panel.close {
       align-items: left !important;
       justify-content: left !important;
       margin-bottom: 5px !important;
-      top: 45px !important; 
+      top: calc(0dvh + 45px) !important;
       left: 0px !important;
       width: 100% !important;
       /* Initially hidden */
+    }
+
+    .object-list-heading {
+      display: none !important;
+    }
+
+    .object-list-panel {
+      display: none !important;
     }
 
     body {
