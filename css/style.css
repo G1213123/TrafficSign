@@ -132,19 +132,21 @@ div.side-panel.close {
 
 /* Sidebar mobile animations */
 @keyframes sidebar-mobile-open {
-  0% { 
+  0% {
     bottom: -30vh;
   }
-  100% { 
+
+  100% {
     bottom: 0;
   }
 }
 
 @keyframes sidebar-mobile-close {
-  0% { 
+  0% {
     bottom: 0;
   }
-  100% { 
+
+  100% {
     bottom: -30vh;
   }
 }
@@ -511,9 +513,11 @@ div.side-panel.close {
 
 /* Informational text styling */
 .info-text {
-  color: #dadada; /* Light grey for contrast against dark background */
+  color: #dadada;
+  /* Light grey for contrast against dark background */
   font-size: 14px;
-  margin-top: 8px; /* Space below the input field */
+  margin-top: 8px;
+  /* Space below the input field */
   font-style: italic;
 }
 
@@ -767,12 +771,15 @@ div.side-panel.close {
   padding: 5px;
   border: 1px solid black;
   margin-bottom: 5px;
-  text-align: center; /* Center text in button */
-  cursor: pointer; /* Add pointer cursor */
+  text-align: center;
+  /* Center text in button */
+  cursor: pointer;
+  /* Add pointer cursor */
 }
 
 .mobile-only {
-  display: none; /* Hidden by default */
+  display: none;
+  /* Hidden by default */
 }
 
 /* Canvas Tracker UI Styles */
@@ -816,6 +823,12 @@ div.side-panel.close {
 
 /* Template button styles */
 .symbols-grid {
+  width: 95%;
+  margin: 5px 10px 5px 10px;
+  padding: 10px;
+  border-radius: 12px;
+  background-color: rgba(60, 60, 65, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -1185,7 +1198,8 @@ div.side-panel.close {
 }
 
 /* Add left-pointing arrow for right-positioned tooltip */
-.tooltip.tooltip-arrow-left::before { /* Renamed from tooltip-right */
+.tooltip.tooltip-arrow-left::before {
+  /* Renamed from tooltip-right */
   content: '';
   position: absolute;
   top: 50%;
@@ -1200,7 +1214,8 @@ div.side-panel.close {
 }
 
 /* Add a second arrow inside the first to create the border effect on the arrow */
-.tooltip.tooltip-arrow-left::after { /* Renamed from tooltip-right */
+.tooltip.tooltip-arrow-left::after {
+  /* Renamed from tooltip-right */
   content: '';
   position: absolute;
   top: 50%;
@@ -1219,12 +1234,15 @@ div.side-panel.close {
 .tooltip.tooltip-arrow-bottom::before {
   content: '';
   position: absolute;
-  top: 100%; /* Arrow at the bottom of the tooltip */
+  top: 100%;
+  /* Arrow at the bottom of the tooltip */
   left: 50%;
-  margin-left: -6px; /* Center the arrow */
+  margin-left: -6px;
+  /* Center the arrow */
   border-width: 6px;
   border-style: solid;
-  border-color: white transparent transparent transparent; /* White border on arrow */
+  border-color: white transparent transparent transparent;
+  /* White border on arrow */
 }
 
 .tooltip.tooltip-arrow-bottom::after {
@@ -1232,11 +1250,14 @@ div.side-panel.close {
   position: absolute;
   top: 100%;
   left: 50%;
-  margin-left: -5px; /* Center the inner arrow */
-  margin-top: -2px; /* Adjust to sit inside the border arrow, depends on border thickness */
+  margin-left: -5px;
+  /* Center the inner arrow */
+  margin-top: -2px;
+  /* Adjust to sit inside the border arrow, depends on border thickness */
   border-width: 5px;
   border-style: solid;
-  border-color: #333 transparent transparent transparent; /* Inner arrow matches tooltip background */
+  border-color: #333 transparent transparent transparent;
+  /* Inner arrow matches tooltip background */
   display: block;
 }
 
@@ -1245,22 +1266,26 @@ div.side-panel.close {
   content: '';
   position: absolute;
   top: 50%;
-  right: -12px; /* Arrow on the right side */
+  right: -12px;
+  /* Arrow on the right side */
   margin-top: -6px;
   border-width: 6px;
   border-style: solid;
-  border-color: transparent transparent transparent white; /* White border on arrow */
+  border-color: transparent transparent transparent white;
+  /* White border on arrow */
 }
 
 .tooltip.tooltip-arrow-right::after {
   content: '';
   position: absolute;
   top: 50%;
-  right: -9px; /* Inner arrow on the right side */
+  right: -9px;
+  /* Inner arrow on the right side */
   margin-top: -5px;
   border-width: 5px;
   border-style: solid;
-  border-color: transparent transparent transparent #333; /* Inner arrow matches tooltip background */
+  border-color: transparent transparent transparent #333;
+  /* Inner arrow matches tooltip background */
   display: block;
 }
 
@@ -1358,17 +1383,6 @@ div.side-panel.close {
   }
 }
 
-/* Symbol grid layout for displaying symbol buttons in two columns */
-.symbols-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  padding: 5px;
-  overflow-y: visible;
-  max-height: 600px;
-}
 
 /* Reset symbol button to use original styling */
 .symbols-grid .symbol-button {
@@ -1536,25 +1550,34 @@ div.side-panel.close {
 
 /* Static Info Content Panel */
 #info-content-static {
-  width: 100%; /* Make it fill the container width */
-  box-sizing: border-box; /* Include padding and border in the element's total width and height */
-  padding: 10px; /* Add some padding */
-  overflow-y: auto; /* Allow vertical scrolling if content overflows */
-  height: calc(100% - 40px); /* Adjust height considering potential header/footer */
+  width: 100%;
+  /* Make it fill the container width */
+  box-sizing: border-box;
+  /* Include padding and border in the element's total width and height */
+  padding: 10px;
+  /* Add some padding */
+  overflow-y: auto;
+  /* Allow vertical scrolling if content overflows */
+  height: calc(100% - 40px);
+  /* Adjust height considering potential header/footer */
 }
 
 /* Style links within the static info panel */
 #debug-info-panel a,
 #debug-info-panel a:visited {
-  color: #87CEFA; /* Light Sky Blue */
-  text-decoration: none; /* Optional: remove underline */
+  color: #87CEFA;
+  /* Light Sky Blue */
+  text-decoration: none;
+  /* Optional: remove underline */
   transition: color 0.2s ease;
 }
 
 #debug-info-panel a:hover,
 #debug-info-panel a:active {
-  color: #ADD8E6; /* Lighter Blue on hover/active */
-  text-decoration: underline; /* Optional: add underline on hover */
+  color: #ADD8E6;
+  /* Lighter Blue on hover/active */
+  text-decoration: underline;
+  /* Optional: add underline on hover */
 }
 
 /* Adjust padding/margins for elements inside the static info panel if needed */
@@ -1612,156 +1635,162 @@ div.side-panel.close {
 .shortcut-description {
   color: #ccc;
   text-align: right;
+}
+
+/* MOBILE PHONE LAYOUT OVERRIDES - Bottom Half Panel */
+@media (max-width: 600px) {
+
+  /* Side Panel occupies bottom half */
+  .side-panel {
+    position: absolute !important;
+    top: 70dvh !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 30dvh !important;
+    /* Occupy bottom half */
+    background-color: #222 !important;
+    z-index: 9999 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    /* Ensure column direction */
+    min-height: auto !important;
+    min-width: auto !important;
+    /* Override desktop min-height */
   }
 
-  /* MOBILE PHONE LAYOUT OVERRIDES - Bottom Half Panel */
-  @media (max-width: 600px) {
-  
-    /* Side Panel occupies bottom half */
-    .side-panel {
-      position: absolute !important;
-      top: 70dvh !important;
-      left: 0 !important;
-      width: 100% !important;
-      height: 30dvh !important;
-      /* Occupy bottom half */
-      background-color: #222 !important;
-      z-index: 9999 !important;
-      display: flex !important;
-      flex-direction: column !important;
-      justify-content: flex-start !important;
-      /* Ensure column direction */
-      min-height: auto !important;
-      min-width: auto !important;
-      /* Override desktop min-height */
-    }
-  
-    /* Tool button bar inside the panel (at the top) */
-    .side-bar {
-      order: -1 !important;
-      /* Explicitly place at the top */
-      position: absolute !important;
-      bottom: auto !important;
-      left: auto !important;
-      top: -24px !important;
-      /* Space for the toolbar */
-      width: 100% !important;
-      height: 48px !important;
-      /* Fixed height for the toolbar */
-      display: flex !important;
-      flex-direction: row !important;
-      justify-content: space-around !important;
-      background-color: #333 !important;
-      flex-shrink: 0;
-      /* Prevent shrinking */
-      z-index: 10000 !important;
-      /* Above panel content */
-      min-height: auto !important;
-      /* Override desktop min-height */
-      justify-content: flex-end !important;
-    }
-  
-    /* Container for the actual form/info content */
-    #input-form {
-      width: auto !important;
-      height: 80% !important;
-      order: 0 !important;
-      /* Ensure it comes after the toolbar */
-      flex-grow: 1;
-      /* Take remaining space */
-      overflow-y: auto;
-      padding-bottom: 10dvh !important;
-      /* Allow scrolling for content */
-      transition: opacity 0.3s ease, visibility 0.3s ease !important;
-    }
-  
-    #content-frame {
-      width: 100%;
-      height: 100% !important;
-    }
-  
-    /* Style tool items for horizontal bar */
-    .side-bar .item {
-      flex: 1 !important;
-      width: auto !important;
-      height: 48px !important;
-      /* Explicitly set height */
-      line-height: 48px !important;
-      font-size: 16px !important;
-      /* Smaller icons/text */
-      background-color: #444 !important;
-      border-bottom: none !important;
-      /* Remove vertical border */
-      border-right: 1px solid #555;
-      /* Add horizontal separator */
-    }
-  
-    .side-bar .item:last-child {
-      border-right: none;
-      width: 48px !important;
-    }
-  
-    .side-bar .item.bottom {
-      position: relative !important;
-    }
-  
-  
-    /* --- Collapsed State --- */
-    .side-panel.close {
-      top: 100dvh !important;
-      left: 0px !important;
-      /* Use shorthand to override all animation sub-properties */
-      animation: sidebar-mobile-close 0.25s ease-in-out forwards !important;
-    }
-  
-    .side-panel.open {
-      top: 70dvh !important;
-      left: 0px !important;
-      /* Use shorthand to override all animation sub-properties */
-      animation: sidebar-mobile-open 0.25s ease-in-out forwards !important;
-    }
-  
-    /* Chevron rotation for panel state */
-    /* Expanded: pointing down */
-    .side-panel:not(.collapsed) #show_hide i {
-      transform: rotate(-90deg) !important; /* Changed from 180deg to 90deg to point down */
-    }
-  
-    /* Collapsed: pointing up */
-    .side-panel.collapsed #show_hide i {
-      transform: rotate(90deg) !important; /* Changed from 0deg to -90deg to point up */
-    }
-  
-    div.heading, #sidepanel-heading {
-      font-size: 20px; /* Smaller font size for mobile */
-      height: 30px; /* Reduced height for mobile */
-      line-height: 30px; /* Adjust line-height to match new height */
-      padding: 5px 10px; /* Adjust padding as needed */
-      flex-basis: 30px; /* Adjust flex-basis to match new height */
-    }
-  
-    .cursor-box-contained{
-      position: absolute !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: left !important;
-      justify-content: left !important;
-      margin-bottom: 5px !important;
-      top: calc(0dvh + 45px) !important;
-      left: 0px !important;
-      width: 100% !important;
-      /* Initially hidden */
-    }
-
-    .object-list-heading {
-      display: none !important;
-    }
-
-    .object-list-panel {
-      display: none !important;
-    }
-
-    body {
-      background-color: #222 !important;
-    }
+  /* Tool button bar inside the panel (at the top) */
+  .side-bar {
+    order: -1 !important;
+    /* Explicitly place at the top */
+    position: absolute !important;
+    bottom: auto !important;
+    left: auto !important;
+    top: -24px !important;
+    /* Space for the toolbar */
+    width: 100% !important;
+    height: 48px !important;
+    /* Fixed height for the toolbar */
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-around !important;
+    background-color: #333 !important;
+    flex-shrink: 0;
+    /* Prevent shrinking */
+    z-index: 10000 !important;
+    /* Above panel content */
+    min-height: auto !important;
+    /* Override desktop min-height */
+    justify-content: flex-end !important;
   }
+
+  /* Container for the actual form/info content */
+  #input-form {
+    width: auto !important;
+    order: 0 !important;
+    /* Flexibly fill available space */
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    /* Ensure content isn't hidden behind toolbar */
+    padding-bottom: 48px !important;
+    transition: opacity 0.3s ease, visibility 0.3s ease !important;
+  }
+
+  #content-frame {
+    width: 100%;
+    height: 100% !important;
+  }
+
+  /* Style tool items for horizontal bar */
+  .side-bar .item {
+    flex: 1 !important;
+    width: auto !important;
+    height: 48px !important;
+    /* Explicitly set height */
+    line-height: 48px !important;
+    font-size: 16px !important;
+    /* Smaller icons/text */
+    background-color: #444 !important;
+    border-bottom: none !important;
+    /* Remove vertical border */
+    border-right: 1px solid #555;
+    /* Add horizontal separator */
+  }
+
+  .side-bar .item:last-child {
+    border-right: none;
+    width: 48px !important;
+  }
+
+  .side-bar .item.bottom {
+    position: relative !important;
+  }
+
+
+  /* --- Collapsed State --- */
+  .side-panel.close {
+    top: 100dvh !important;
+    left: 0px !important;
+    /* Use shorthand to override all animation sub-properties */
+    animation: sidebar-mobile-close 0.25s ease-in-out forwards !important;
+  }
+
+  .side-panel.open {
+    top: 70dvh !important;
+    left: 0px !important;
+    /* Use shorthand to override all animation sub-properties */
+    animation: sidebar-mobile-open 0.25s ease-in-out forwards !important;
+  }
+
+  /* Chevron rotation for panel state */
+  /* Expanded: pointing down */
+  .side-panel:not(.collapsed) #show_hide i {
+    transform: rotate(-90deg) !important;
+    /* Changed from 180deg to 90deg to point down */
+  }
+
+  /* Collapsed: pointing up */
+  .side-panel.collapsed #show_hide i {
+    transform: rotate(90deg) !important;
+    /* Changed from 0deg to -90deg to point up */
+  }
+
+  div.heading,
+  #sidepanel-heading {
+    font-size: 20px;
+    /* Smaller font size for mobile */
+    height: 30px;
+    /* Reduced height for mobile */
+    line-height: 30px;
+    /* Adjust line-height to match new height */
+    padding: 5px 10px;
+    /* Adjust padding as needed */
+    flex-basis: 30px;
+    /* Adjust flex-basis to match new height */
+  }
+
+  .cursor-box-contained {
+    position: absolute !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: left !important;
+    justify-content: left !important;
+    margin-bottom: 5px !important;
+    top: 0dvh !important;
+    left: 0px !important;
+    width: 100% !important;
+    /* Initially hidden */
+  }
+
+  .object-list-heading {
+    display: none !important;
+  }
+
+  .object-list-panel {
+    display: none !important;
+  }
+
+  body {
+    background-color: #222 !important;
+  }
+}
