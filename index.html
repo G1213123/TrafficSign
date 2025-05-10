@@ -4,8 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="Create and customize road signs online with Road Sign Factory. Design traffic signs using template texts and symbols, export them in various formats. Sign designs are based on the Hong Kong's standards.">
-    <meta name="keywords" content="road sign, traffic sign, generator, creator, custom sign, Hong Kong Standard, online tool, vector, SVG, DXF, PDF">
+    <meta name="description"
+        content="Create and customize road signs online with Road Sign Factory. Design traffic signs using template texts and symbols, export them in various formats. Sign designs are based on the Hong Kong's standards.">
+    <meta name="keywords"
+        content="road sign, traffic sign, generator, creator, custom sign, Hong Kong Standard, online tool, vector, SVG, DXF, PDF">
     <meta name="google-adsense-account" content="ca-pub-9252664921109550">
     <title>Road Sign Factory - Online Sign Creator</title>
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
@@ -17,25 +19,29 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.1/jspdf.umd.min.js"></script>
     <script src="js/dxf/dxf-bundle.js"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9252664921109550"
-     crossorigin="anonymous"></script>
+        crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
 <body>
     <div class="side-panel" id="side-panel">
-        <div id="sidepanel-heading" class="heading">
+        <header id="sidepanel-heading" class="heading">
             <span id="content-heading">Road Sign Factory</span>
-        </div>
+        </header>
 
         <div id="content-frame">
-            <form id="input-form" class="input-form"></form>
             <!-- Static Info Panel Content -->
             <div id="info-content-static" style="display: none;">
                 <h2 class="panel-heading">About</h2>
                 <div class="input-group-container">
                     <div id="debug-info-panel">
-                        <p>Road Sign Factory is a web-based application for designing, customizing, and exporting professional traffic signs. Create your own symbols, add text, borders, and route maps, then export your design in multiple formats.</p>
-                        <p>Sign designs are referring the Hong Kong Transport Department’s <a href="https://www.td.gov.hk/en/publications_and_press_releases/publications/tpdm/index.html" target="_blank" rel="noopener noreferrer">Transport Planning and Design Manual (TPDM)</a> as closely as possible.</p>
+                        <p>Road Sign Factory is a web-based application for designing, customizing, and exporting
+                            professional traffic signs. Create your own symbols, add text, borders, and route maps, then
+                            export your design in multiple formats.</p>
+                        <p>Sign designs are referring the Hong Kong Transport Department’s <a
+                                href="https://www.td.gov.hk/en/publications_and_press_releases/publications/tpdm/index.html"
+                                target="_blank" rel="noopener noreferrer">Transport Planning and Design Manual
+                                (TPDM)</a> as closely as possible.</p>
                         <h3 class="panel-subheading">Features</h3>
                         <ul>
                             <li>Symbol drawing</li>
@@ -44,25 +50,42 @@
                             <li>Measurement tools</li>
                             <li>Design export</li>
                         </ul>
-                        <p id="app-version-display" style="margin-top: 15px; color: #ccc;">Version: <%= htmlWebpackPlugin.options.appVersion %></p>
+                        <p id="app-version-display" style="margin-top: 15px; color: #ccc;">Version: <%=
+                                htmlWebpackPlugin.options.appVersion %>
+                        </p>
+                    </div>
+                    <div id="debug-info-panel">
+                        <h3 class="panel-subheading">Contact</h3>
                     </div>
                 </div>
                 <div class="coffee-link-container">
-                    <a href="https://www.buymeacoffee.com/G1213123" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee" height="41" width="174" style="max-width:100%;"></a>
+                    <p class="coffee-quote" style="font-style:italic; color:#eee; text-align:center; margin:0 0 8px 0;">
+                        "That's the way it is."
+                    </p>
+                    <a href="https://www.buymeacoffee.com/G1213123" target="_blank"><img
+                            src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee"
+                            height="41" width="174" style="max-width:100%;"></a>
                     <div class="github-link-container">
-                        <a href="https://github.com/G1213123/TrafficSign" target="_blank"><i class="fa-brands fa-github"></i><span>Visit GitHub Repository</span></a>
+                        <a href="https://github.com/G1213123/TrafficSign" target="_blank"><i
+                                class="fa-brands fa-github"></i><span>Visit GitHub Repository</span></a>
                     </div>
                 </div>
-                <div class="legal-disclaimer" style="font-size: 12px; color: #aaa; padding: 10px; margin-top: 20px; border-top: 1px solid #444;">
+                <div class="legal-disclaimer"
+                    style="font-size: 12px; color: #aaa; padding: 10px; margin-top: 20px; border-top: 1px solid #444;">
                     <h4 style="margin: 5px 0; color: #ddd;">Disclaimer</h4>
-                    <p>Fonts used are subject to their respective licenses: Transport fonts (Crown Copyright), NotoSansHK (SIL OFL), and 教育部標準楷書字形檔(Version 5.00) (CC 「姓名標示-禁止改作」).</p>
+                    <p>Fonts used are subject to their respective licenses: Transport fonts (Crown Copyright),
+                        NotoSansHK (SIL OFL), and 教育部標準楷書字形檔(Version 5.00) (CC 「姓名標示-禁止改作」).</p>
                     <p>This application is for personal and non-commercial use only.</p>
-                    <p>This site is not affiliated with the authorities and makes no guarantee of 100% conformity to official standards.</p>
-                    <p>It is the user's responsibility to ensure that the designs comply with local regulations and standards.</p>
-                    <p>The creator assumes no liability for any damages resulting from the use of this application or its outputs.</p>
+                    <p>This site is not affiliated with the authorities and makes no guarantee of 100% conformity to
+                        official standards.</p>
+                    <p>It is the user's responsibility to ensure that the designs comply with local regulations and
+                        standards.</p>
+                    <p>The creator assumes no liability for any damages resulting from the use of this application or
+                        its outputs.</p>
                 </div>
             </div>
             <!-- End Static Info Panel Content -->
+            <form id="input-form" class="input-form"></form>
             <div class="object-list-heading">
                 Canvas Objects
                 <i id="toggle-object-list" class="fa fa-chevron-down rotated"></i>

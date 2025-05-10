@@ -68,7 +68,7 @@ div.item.bottom {
   bottom: 0;
 }
 
-div.heading {
+header.heading {
   font-size: 30px;
   font-family: 'Lato', TransportMedium;
   color: white;
@@ -1755,17 +1755,16 @@ div.side-panel.close {
     /* Changed from 0deg to -90deg to point up */
   }
 
-  div.heading,
-  #sidepanel-heading {
-    font-size: 20px;
+  header.heading {
+    font-size: 20px !important;
     /* Smaller font size for mobile */
-    height: 30px;
+    height: 30px !important;
     /* Reduced height for mobile */
-    line-height: 30px;
+    line-height: 30px !important;
     /* Adjust line-height to match new height */
-    padding: 5px 10px;
+    padding: 5px 10px !important;
     /* Adjust padding as needed */
-    flex-basis: 30px;
+    flex-basis: 30px !important;
     /* Adjust flex-basis to match new height */
   }
 

@@ -1,5 +1,6 @@
 # Road Sign Factory
-
+ > *"That's the way it is."*
+ 
 ## About
 
 Road Sign Factory is a web-based application for designing, customizing, and exporting professional traffic signs. Create your own symbols, add text, borders, and route maps, then export your design in multiple formats.

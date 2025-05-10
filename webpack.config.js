@@ -36,6 +36,8 @@ module.exports = {
       patterns: [
         { from: 'css', to: 'css' },
         { from: 'images', to: 'images' },
+        // Include DXF bundle for publishing
+        { from: 'js/dxf', to: 'js/dxf' },
         { from: 'ads.txt', to: 'ads.txt' }, // Ensure ads.txt is copied
         { from: 'app.yaml', to: 'app.yaml' }, // Ensure app.yaml is copied
         { from: 'LICENSE', to: 'LICENSE' },
