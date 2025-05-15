@@ -79,7 +79,9 @@ class VertexControl extends fabric.Control {
             case 'C':
                 return 'orange'
         }
-    } onClick(eventData, transform) {
+    }
+
+    onClick(eventData, transform) {
         // Check if it's a left-click (button 1)
         if (eventData.button !== 0 && eventData.type !== 'touchend') return;
 
@@ -122,7 +124,7 @@ class VertexControl extends fabric.Control {
             document.removeEventListener('keydown', ShowHideSideBarEvent);
             document.addEventListener('keydown', this.cancelDragRef);
             canvas.on('mouse:move', this.handleMouseMoveRef);
-            
+
             canvas.renderAll();
 
             this.baseGroup.enterFocusMode();
@@ -148,46 +150,37 @@ class VertexControl extends fabric.Control {
             const snapPoint = this.snapTarget.vertex;
 
             // Special handling for text objects during snapping
-            if (this.baseGroup.functionalType === 'Text') {
-                // Calculate the offset from the current vertex to the object's center
-                const currentVertex = this.baseGroup.getBasePolygonVertex(this.vertex.label);
-                if (currentVertex) {
-                    // Calculate position by maintaining the same offset between vertex and object center
-                    const offsetX = this.baseGroup.left - currentVertex.x;
-                    const offsetY = this.baseGroup.top - currentVertex.y;
-                    newLeft = snapPoint.x + offsetX;
-                    newTop = snapPoint.y + offsetY;
-                } else {
-                    // Fall back to standard calculation if vertex not found
-                    newLeft = snapPoint.x - this.vertexOffset.x;
-                    newTop = snapPoint.y - this.vertexOffset.y;
-                }
+
+            // Calculate the offset from the current vertex to the object's center
+            const currentVertex = this.baseGroup.getBasePolygonVertex(this.vertex.label);
+            if (currentVertex) {
+                // Calculate position by maintaining the same offset between vertex and object center
+                const offsetX = this.baseGroup.left - currentVertex.x;
+                const offsetY = this.baseGroup.top - currentVertex.y;
+                newLeft = snapPoint.x + offsetX;
+                newTop = snapPoint.y + offsetY;
             } else {
-                // Standard calculation for non-text objects
+                // Fall back to standard calculation if vertex not found
                 newLeft = snapPoint.x - this.vertexOffset.x;
                 newTop = snapPoint.y - this.vertexOffset.y;
             }
         } else {
             // Regular movement (no snapping target)
-            if (this.baseGroup.functionalType === 'Text') {
-                // For text objects, adjust movement to prevent shifting
-                const currentVertex = this.baseGroup.getBasePolygonVertex(this.vertex.label);
-                if (currentVertex) {
-                    // Move based on cursor position relative to vertex
-                    const dx = pointer.x - currentVertex.x;
-                    const dy = pointer.y - currentVertex.y;
-                    newLeft = this.baseGroup.left + dx;
-                    newTop = this.baseGroup.top + dy;
-                } else {
-                    // Fall back to standard calculation if vertex not found
-                    newLeft = pointer.x - this.vertexOffset.x;
-                    newTop = pointer.y - this.vertexOffset.y;
-                }
+
+            // For text objects, adjust movement to prevent shifting
+            const currentVertex = this.baseGroup.getBasePolygonVertex(this.vertex.label);
+            if (currentVertex) {
+                // Move based on cursor position relative to vertex
+                const dx = pointer.x - currentVertex.x;
+                const dy = pointer.y - currentVertex.y;
+                newLeft = this.baseGroup.left + dx;
+                newTop = this.baseGroup.top + dy;
             } else {
-                // Standard calculation for non-text objects
+                // Fall back to standard calculation if vertex not found
                 newLeft = pointer.x - this.vertexOffset.x;
                 newTop = pointer.y - this.vertexOffset.y;
             }
+
         }
 
         // Move the group

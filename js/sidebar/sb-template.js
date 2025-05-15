@@ -2,7 +2,7 @@
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { TextObject } from '../objects/text.js';
-import { drawLabeledSymbol } from '../objects/symbols.js';
+import { SymbolObject } from '../objects/symbols.js';
 import { BorderUtilities } from '../objects/border.js';
 import { VDividerCreate, HDividerCreate, VLaneCreate, HLineCreate } from '../objects/divider.js';
 import { drawSideRoadOnCursor, finishDrawSideRoad, calcMainRoadVertices, MainRoadSymbol, SideRoadSymbol, calcRoundaboutVertices } from '../objects/route.js';
@@ -213,7 +213,8 @@ let FormTemplateComponent = {
       });
 
       // Create WHC symbol for first line
-      drawLabeledSymbol('WHC', {
+      new SymbolObject({
+        symbolType: 'WHC',
         x: centerX + 150,
         y: centerY - 100,
         xHeight: xHeight,
@@ -242,7 +243,8 @@ let FormTemplateComponent = {
       });
 
       // Create Airport symbol for second line
-      drawLabeledSymbol('Airport', {
+      new SymbolObject({
+        symbolType: 'Airport',
         x: centerX + 150,
         y: centerY + 100,
         xHeight: xHeight,
@@ -385,7 +387,8 @@ let FormTemplateComponent = {
       });
 
       // Create gantry arrow for left compartment
-      drawLabeledSymbol('GantryArrow', {
+      new SymbolObject({
+        symbolType: 'GantryArrow',
         x: centerX - 500,
         y: centerY + 200,
         xHeight: xHeight,
@@ -423,7 +426,8 @@ let FormTemplateComponent = {
       });
 
       // Create stack arrow for right compartment
-      drawLabeledSymbol('GantryArrow', {
+      new SymbolObject({
+        symbolType: 'GantryArrow',
         x: centerX + 500,
         y: centerY + 300,
         xHeight: xHeight,
@@ -432,7 +436,8 @@ let FormTemplateComponent = {
       });
       const rightArrow = canvasObject[canvasObject.length - 1];
 
-      drawLabeledSymbol('Exit', {
+      new SymbolObject({
+        symbolType: 'Exit',
         x: centerX + 500,
         y: centerY + 300,
         xHeight: xHeight,
@@ -665,7 +670,8 @@ let FormTemplateComponent = {
       });
 
       // Create arrows
-      drawLabeledSymbol('StackArrow', {
+      new SymbolObject({
+        symbolType: 'StackArrow',
         x: centerX + 200,
         y: centerY - 750,
         xHeight: xHeight,
@@ -674,7 +680,8 @@ let FormTemplateComponent = {
       });
       const topArrow = canvasObject[canvasObject.length - 1];
 
-      drawLabeledSymbol('StackArrow', {
+      new SymbolObject({
+        symbolType: 'StackArrow',
         x: centerX + 200,
         y: centerY + 50,
         xHeight: xHeight,
@@ -683,7 +690,8 @@ let FormTemplateComponent = {
       });
       const midArrow = canvasObject[canvasObject.length - 1];
 
-      drawLabeledSymbol('StackArrow', {
+      new SymbolObject({
+        symbolType: 'StackArrow',
         x: centerX + 200,
         y: centerY + 350,
         xHeight: xHeight,
@@ -692,7 +700,8 @@ let FormTemplateComponent = {
       });
       const botArrow = canvasObject[canvasObject.length - 1];
 
-      drawLabeledSymbol('Airport', {
+      new SymbolObject({
+        symbolType: 'Airport',
         x: centerX + 200,
         y: centerY - 664,
         xHeight: xHeight,
@@ -981,7 +990,8 @@ let FormTemplateComponent = {
       });
 
       // Add MTR symbol for the top side road
-      drawLabeledSymbol('MTR', {
+      new SymbolObject({
+        symbolType: 'MTR',
         x: centerX - 100,
         y: centerY - 200,
         xHeight: xHeight,
@@ -1028,7 +1038,8 @@ let FormTemplateComponent = {
       });
 
       // Add symbol for the left side road
-      drawLabeledSymbol('Expressway', {
+      new SymbolObject({
+        symbolType: 'Expressway',
         x: centerX - 450,
         y: centerY + 40,
         xHeight: xHeight,
@@ -1036,7 +1047,8 @@ let FormTemplateComponent = {
         color: color
       });
       const leftSymbol1 = canvasObject[canvasObject.length - 1];
-      drawLabeledSymbol('Route4', {
+      new SymbolObject({
+        symbolType: 'Route4',
         x: centerX - 450,
         y: centerY + 40,
         xHeight: xHeight,
@@ -1083,7 +1095,8 @@ let FormTemplateComponent = {
       });
 
       // Add Airport symbol for the right side road
-      drawLabeledSymbol('Airport', {
+      new SymbolObject({
+        symbolType: 'Airport',
         x: centerX + 450,
         y: centerY + 40,
         xHeight: xHeight,
@@ -1092,7 +1105,8 @@ let FormTemplateComponent = {
       });
       const rightSymbol1 = canvasObject[canvasObject.length - 1];
 
-      drawLabeledSymbol('Expressway', {
+      new SymbolObject({
+        symbolType: 'Expressway',
         x: centerX - 450,
         y: centerY + 40,
         xHeight: xHeight,
@@ -1100,7 +1114,8 @@ let FormTemplateComponent = {
         color: color
       });
       const rightSymbol2 = canvasObject[canvasObject.length - 1];
-      drawLabeledSymbol('Route4', {
+      new SymbolObject({
+        symbolType: 'Route4',
         x: centerX - 450,
         y: centerY + 40,
         xHeight: xHeight,
@@ -1411,7 +1426,8 @@ let FormTemplateComponent = {
       });
 
       // Create expressway symbol in red
-      drawLabeledSymbol('ExpresswayRed', {
+      new SymbolObject({
+        symbolType: 'ExpresswayRed',
         x: centerX - 50,
         y: centerY - 150,
         xHeight: xHeight,
@@ -1421,7 +1437,8 @@ let FormTemplateComponent = {
       const expressway = canvasObject[canvasObject.length - 1];
 
       // Create route 9 symbol
-      drawLabeledSymbol('Route9', {
+      new SymbolObject({
+        symbolType: 'Route9',
         x: centerX - 50,
         y: centerY - 70,
         xHeight: xHeight,
@@ -1441,7 +1458,8 @@ let FormTemplateComponent = {
       });
 
       // Create airport symbol at 45 degrees
-      drawLabeledSymbol('Airport', {
+      new SymbolObject({
+        symbolType: 'Airport',
         x: centerX + 150,
         y: centerY + 150,
         xHeight: xHeight,
@@ -1451,7 +1469,8 @@ let FormTemplateComponent = {
       const airport = canvasObject[canvasObject.length - 1];
 
       // Create airport symbol at 45 degrees
-      drawLabeledSymbol('Exit', {
+      new SymbolObject({
+        symbolType: 'Exit',
         x: centerX + 150,
         y: centerY + 150,
         xHeight: xHeight,
@@ -1688,7 +1707,8 @@ let FormTemplateComponent = {
       });
 
       // Create arrows for each lane
-      drawLabeledSymbol('StackArrow', {
+      new SymbolObject({
+        symbolType: 'StackArrow',
         x: centerX - 300,
         y: centerY + 100,
         xHeight: xHeight,
@@ -1697,7 +1717,8 @@ let FormTemplateComponent = {
       });
       const leftArrow = canvasObject[canvasObject.length - 1];
 
-      drawLabeledSymbol('StackArrow', {
+      new SymbolObject({
+        symbolType: 'StackArrow',
         x: centerX,
         y: centerY + 100,
         xHeight: xHeight,
@@ -1706,7 +1727,8 @@ let FormTemplateComponent = {
       });
       const rightArrow = canvasObject[canvasObject.length - 1];
 
-      drawLabeledSymbol('CHT', {
+      new SymbolObject({
+        symbolType: 'CHT',
         x: centerX + 300,
         y: centerY + 100,
         xHeight: xHeight,
@@ -1715,7 +1737,8 @@ let FormTemplateComponent = {
       });
       const chtSymbol = canvasObject[canvasObject.length - 1];
 
-      drawLabeledSymbol('EHC', {
+      new SymbolObject({
+        symbolType: 'EHC',
         x: centerX + 300,
         y: centerY + 100,
         xHeight: xHeight,
@@ -1724,7 +1747,8 @@ let FormTemplateComponent = {
       });
       const ehcSymbol = canvasObject[canvasObject.length - 1];
 
-      drawLabeledSymbol('Route4', {
+      new SymbolObject({
+        symbolType: 'Route4',
         x: centerX + 300,
         y: centerY + 100,
         xHeight: xHeight,
@@ -2083,7 +2107,8 @@ let FormTemplateComponent = {
 
       // Create route symbols
       // Route 7 on left side
-      drawLabeledSymbol('Route7', {
+      new SymbolObject({
+        symbolType: 'Route7',
         x: centerX - 500,
         y: centerY,
         xHeight: xHeight,
@@ -2093,7 +2118,8 @@ let FormTemplateComponent = {
       const leftRouteSymbol = canvasObject[canvasObject.length - 1];
 
       // Route 6 on right side
-      drawLabeledSymbol('Route6', {
+      new SymbolObject({
+        symbolType: 'Route6',
         x: centerX + 500,
         y: centerY,
         xHeight: xHeight,
@@ -2103,7 +2129,8 @@ let FormTemplateComponent = {
       const rightRouteSymbol = canvasObject[canvasObject.length - 1];
 
       // Tunnel on right side
-      drawLabeledSymbol('Tunnel', {
+      new SymbolObject({
+        symbolType: 'Tunnel',
         x: centerX + 500,
         y: centerY,
         xHeight: xHeight,

@@ -2,7 +2,7 @@
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { symbolsTemplate, symbolsTemplateAlt, symbolsPermittedAngle } from '../objects/template.js';
-import { calcSymbol, drawSymbolDirectly } from '../objects/symbols.js';
+import { calcSymbol, SymbolObject } from '../objects/symbols.js';
 import { convertVertexToPathCommands, convertFontPathToFabricPath, getFontPath } from '../objects/path.js';
 
 let FormDrawAddComponent = {
@@ -47,7 +47,7 @@ let FormDrawAddComponent = {
 
       // If we're editing an existing symbol, toggle the angle controls based on its type
       if (FormDrawAddComponent.editingExistingSymbol) {
-        FormDrawAddComponent.toggleAngleControls(FormDrawAddComponent.editingExistingSymbol.symbol);
+        FormDrawAddComponent.toggleAngleControls(FormDrawAddComponent.editingExistingSymbol.symbolType);
       }
 
       FormDrawAddComponent.addAllSymbolsButton()
@@ -158,10 +158,10 @@ let FormDrawAddComponent = {
     let symbolType = null;
     let currentSymbol = null;
     if (FormDrawAddComponent.newSymbolObject) {
-      symbolType = FormDrawAddComponent.newSymbolObject.symbol;
+      symbolType = FormDrawAddComponent.newSymbolObject.symbolType;
       currentSymbol = FormDrawAddComponent.newSymbolObject;
     } else if (FormDrawAddComponent.editingExistingSymbol) {
-      symbolType = FormDrawAddComponent.editingExistingSymbol.symbol;
+      symbolType = FormDrawAddComponent.editingExistingSymbol.symbolType;
       currentSymbol = FormDrawAddComponent.editingExistingSymbol;
     }
 
@@ -249,9 +249,12 @@ let FormDrawAddComponent = {
     // Create a function that returns a symbol object
     const createSymbol = (options) => {
       // Account for any panning that has been done
-      return drawSymbolDirectly(options.type, {
-        x: options.position.x,
-        y: options.position.y,
+      return new SymbolObject({
+        symbolType: options.type,
+        position: {
+          x: options.position.x,
+          y: options.position.y
+        },
         xHeight: options.xHeight,
         angle: options.angle,
         color: options.color
@@ -326,7 +329,7 @@ let FormDrawAddComponent = {
     if (!symbolObject) return;
 
     const updateExisting = FormDrawAddComponent.editingExistingSymbol === symbolObject;
-    const symbolType = symbolObject.symbol;
+    const symbolType = symbolObject.symbolType;
     const xHeight = options.xHeight !== undefined ? options.xHeight : symbolObject.xHeight;
     const color = options.color !== undefined ? options.color : symbolObject.color;
     const position = {
@@ -341,13 +344,14 @@ let FormDrawAddComponent = {
     }
 
     // Create new symbol with updated properties
-    const newSymbolObject = drawSymbolDirectly(symbolType, {
+    const newOptions = {
       x: position.x,
       y: position.y,
       xHeight: xHeight,
       angle: FormDrawAddComponent.symbolAngle,
-      color: color
-    });
+      color: color,
+      symbolType: symbolType
+    };
 
     // clear active vertex
     if (CanvasGlobals.activeVertex) {
@@ -356,19 +360,14 @@ let FormDrawAddComponent = {
       CanvasGlobals.activeVertex = null;
     }
 
-    // Replace on canvas
-    symbolObject.deleteObject();
     // Update the appropriate FormDrawAddComponent reference
     if (updateExisting) {
-      FormDrawAddComponent.editingExistingSymbol = newSymbolObject;
+      FormDrawAddComponent.editingExistingSymbol.updateSymbol(newOptions);
     } else {
-      FormDrawAddComponent.newSymbolObject = newSymbolObject;
-      newSymbolObject.enterFocusMode()
-    }
-    CanvasGlobals.canvas.setActiveObject(newSymbolObject)
-
-    // Re-activate vertex control
-    if (newSymbolObject.controls && newSymbolObject.controls.V1) {
+      const newSymbolObject = FormDrawAddComponent.newSymbolObject;
+      newSymbolObject.updateSymbol(newOptions);
+      newSymbolObject.enterFocusMode();
+      CanvasGlobals.canvas.setActiveObject(newSymbolObject);
       CanvasGlobals.activeVertex = newSymbolObject.controls.V1;
       CanvasGlobals.activeVertex.isDown = true;
       CanvasGlobals.activeVertex.isDragging = true;
@@ -376,7 +375,7 @@ let FormDrawAddComponent = {
         left: newSymbolObject.left,
         top: newSymbolObject.top
       };
-
+  
       // Store vertex information
       const v1 = newSymbolObject.getBasePolygonVertex('V1');
       if (v1) {
@@ -388,13 +387,13 @@ let FormDrawAddComponent = {
           x: v1.x - newSymbolObject.left,
           y: v1.y - newSymbolObject.top
         };
-
+  
       }
     }
 
-    CanvasGlobals.canvas.renderAll()
+    CanvasGlobals.canvas.renderAll();
 
-    return newSymbolObject;
+    //return newSymbolObject;
   },
 
   SymbolOnMouseMove: function (event) {

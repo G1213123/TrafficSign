@@ -1,5 +1,5 @@
 import { TextObject } from '../objects/text.js';
-import { drawLabeledSymbol } from '../objects/symbols.js';
+import { SymbolObject } from '../objects/symbols.js';
 import { anchorShape, globalAnchorTree } from '../objects/anchor.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { HDividerCreate, VDividerCreate, HLineCreate } from '../objects/divider.js';
@@ -477,7 +477,8 @@ const ShapeTest = {
     TestTracker.register("chineseText", chineseText);
 
     // Create symbol (unchanged)
-    drawLabeledSymbol('StackArrow', {
+    new SymbolObject({
+      symbolType: 'StackArrow',
       x: -1500,
       y: -900,
       xHeight: 100,
@@ -554,7 +555,8 @@ const AnchorTest = {
 
     // Create three symbols to anchor together using direct object creation instead of FormText methods
     // First symbol (base)
-    drawLabeledSymbol('Tunnel', {
+    new SymbolObject({
+      symbolType: 'Tunnel',
       x: 300,
       y: -1000,
       xHeight: 100,
@@ -563,7 +565,8 @@ const AnchorTest = {
     TestTracker.register("baseTunnel");
 
     // Second symbol (to right)
-    drawLabeledSymbol('Airport', {
+    new SymbolObject({
+      symbolType: 'Airport',
       x: 400,
       y: -400,
       xHeight: 100,
@@ -573,7 +576,8 @@ const AnchorTest = {
     TestTracker.register("Airport");
 
     // Third symbol (below)
-    drawLabeledSymbol('Hospital', {
+    new SymbolObject({
+      symbolType: 'Hospital',
       x: 300,
       y: -300,
       xHeight: 100,
@@ -655,7 +659,8 @@ const AnchorTest = {
 
     // Create four symbols to anchor together
     // First pair
-    drawLabeledSymbol('EHC', {
+    new SymbolObject({
+      symbolType: 'Tunnel',
       x: 1500,
       y: -1000,
       xHeight: 100,
@@ -664,7 +669,8 @@ const AnchorTest = {
     });
     TestTracker.register("baseTunnel1");
 
-    drawLabeledSymbol('WHC', {
+    new SymbolObject({
+      symbolType: 'WHC',
       x: 1500,
       y: -1000,
       xHeight: 100,
@@ -674,7 +680,8 @@ const AnchorTest = {
     TestTracker.register("airport1");
 
     // Second pair
-    drawLabeledSymbol('Hospital', {
+    new SymbolObject({
+      symbolType: 'Hospital',
       x: 1575,
       y: -550,
       xHeight: 100,
@@ -682,7 +689,8 @@ const AnchorTest = {
     });
     TestTracker.register("baseHospital");
 
-    drawLabeledSymbol('CHT', {
+    new SymbolObject({
+      symbolType: 'CHT',
       x: 1575,
       y: -550,
       xHeight: 100,
@@ -1819,7 +1827,8 @@ const ComplexSignTest = {
     TestTracker.register("leftDestination", leftDestination);
 
     // Create stack arrow below on left
-    drawLabeledSymbol('GantryArrow', {
+    new SymbolObject({
+      symbolType: 'GantryArrow',
       x: -2400,
       y: 2500,
       xHeight: 200,
@@ -1829,7 +1838,8 @@ const ComplexSignTest = {
     TestTracker.register("leftArrow");
 
     // Create Airport on left
-    drawLabeledSymbol('Airport', {
+    new SymbolObject({
+      symbolType: 'Airport',
       x: -2700,
       y: 2500,
       xHeight: 200,
@@ -1839,7 +1849,8 @@ const ComplexSignTest = {
     TestTracker.register("Airport");
 
     // Create WHC on left
-    drawLabeledSymbol('WHC', {
+    new SymbolObject({
+      symbolType: 'WHC',
       x: 2700,
       y: 2500,
       xHeight: 200,
@@ -1872,7 +1883,8 @@ const ComplexSignTest = {
     TestTracker.register("rightDestination", rightDestination);
 
     // Create stack arrow below on right
-    drawLabeledSymbol('GantryArrow', {
+    new SymbolObject({
+      symbolType: 'GantryArrow',
       x: 3000,
       y: 2500,
       xHeight: 200,
@@ -1882,7 +1894,8 @@ const ComplexSignTest = {
     TestTracker.register("rightArrow");
 
     // Create second gantry arrow on right
-    drawLabeledSymbol('GantryArrow', {
+    new SymbolObject({
+      symbolType: 'GantryArrow',
       x: 3300, // Position roughly to the right
       y: 2500,
       xHeight: 200,
@@ -1892,7 +1905,8 @@ const ComplexSignTest = {
     TestTracker.register("rightArrow2");
 
     // Create third gantry arrow on right
-    drawLabeledSymbol('GantryArrow', {
+    new SymbolObject({
+      symbolType: 'GantryArrow',
       x: 3600, // Position roughly further right
       y: 2500,
       xHeight: 200,

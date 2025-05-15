@@ -122,21 +122,37 @@ class GlyphPath extends fabric.Group {
 
 // Define the BaseGroup class using ES6 class syntax
 class BaseGroup extends fabric.Group {
+  /**
+   * List of property names to include in metadata.
+   * @type {string[]}
+   */
+  _metadataKeys = [];
+
   constructor(basePolygon, functionalType, options = {}) {
-    super([], Object.assign({}, options, {
+    super([], {
       subTargetCheck: true,
       lockScalingX: true,// lock scaling
       lockScalingY: true
-    }));
+    });
+
+    // Initialize metadata keys with default properties
+    this._metadataKeys = ['functionalType', 'canvasID'];
+    Object.keys(options).forEach(key => {
+      if (!this._metadataKeys.includes(key)) {
+        this._metadataKeys.push(key);
+      }
+    });
 
     this.functionalType = functionalType;
     this.anchoredPolygon = [];
     this.anchorageLink = [];
-    this.subObjects = [];
     this.lockXToPolygon = {};
     this.lockYToPolygon = {};
+
     this.refTopLeft = { top: 0, left: 0 }; // Initialize even without basePolygon
+
     this.dimensionAnnotations = []; // Array to hold dimension line objects
+
     this.isTemporary = false;
     this.focusMode = false; // Add focus mode flag
 
@@ -248,6 +264,28 @@ class BaseGroup extends fabric.Group {
       this.showDimensions();
 
     });
+  }
+
+  
+  /**
+   * Registers property names to include in metadata.
+   * @param {...string} keys
+   */
+  registerMetadataKeys(...keys) {
+    this._metadataKeys.push(...keys);
+  }
+
+  /**
+   * Returns an object containing the registered metadata.
+   */
+  getMetadata() {
+    const meta = {};
+    this._metadataKeys.forEach(key => {
+      if (Object.prototype.hasOwnProperty.call(this, key)) {
+        meta[key] = this[key];
+      }
+    });
+    return meta;
   }
 
   // Show border dimensions when selected
