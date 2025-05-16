@@ -184,10 +184,7 @@ class VertexControl extends fabric.Control {
         }
 
         // Move the group
-        if (this.baseGroup.functionalType !== 'MainRoad' && this.baseGroup.functionalType !== 'SideRoad') {
-            // Cache the old position to calculate delta
-            const oldLeft = this.baseGroup.left;
-            const oldTop = this.baseGroup.top;
+        if (this.baseGroup.functionalType !== 'SideRoad') {
 
             // Process both X and Y updates in a single atomic operation
             let positionChanged = false;
@@ -268,14 +265,15 @@ class VertexControl extends fabric.Control {
                 }
             } else {
                 // For MainRoad, use original behavior but respect lock properties
-                this.baseGroup.routeList.forEach(route => {
-                    if (!this.baseGroup.lockMovementX) {
-                        route.x = newLeft + this.vertexOffset.x;
-                    }
-                    if (!this.baseGroup.lockMovementY) {
-                        route.y = newTop + this.vertexOffset.y;
-                    }
-                });
+                //this.baseGroup.routeList.forEach(route => {
+                //    if (!this.baseGroup.lockMovementX) {
+                //        route.x = newLeft + this.vertexOffset.x;
+                //    }
+                //    if (!this.baseGroup.lockMovementY) {
+                //        route.y = newTop + this.vertexOffset.y;
+                //    }
+                //});
+                
             }
 
             // Process route changes in a single update cycle, but only for directions that aren't locked
@@ -289,7 +287,7 @@ class VertexControl extends fabric.Control {
                 globalAnchorTree.startUpdateCycle('y', this.baseGroup.canvasID);
             }
 
-            this.baseGroup.onMove();
+            //this.baseGroup.onMove();
             this.baseGroup.setCoords();
             this.baseGroup.updateAllCoord();
 

@@ -888,7 +888,6 @@ let FormTemplateComponent = {
       };
 
       const roundabout = new MainRoadSymbol(routeOptions);
-      roundabout.initialize(calcRoundaboutVertices('Conventional', xHeight, routeOptions.routeList));
 
       // Create side roads at top, left, and right positions
       canvas.setActiveObject(roundabout);
@@ -1376,7 +1375,6 @@ let FormTemplateComponent = {
         roadType: params.roadType
       };
       const mainRoad = new MainRoadSymbol(routeOptions);
-      mainRoad.initialize(calcMainRoadVertices(xHeight, routeOptions.routeList));
 
       // Create upper destination text (Sheung Shui)
       const upperDestEng1 = new TextObject({
@@ -1923,7 +1921,6 @@ let FormTemplateComponent = {
       };
 
       const roundabout = new MainRoadSymbol(routeOptions);
-      roundabout.initialize(calcRoundaboutVertices('Spiral', xHeight, routeOptions.routeList));
 
       // Create side roads at top-left, top-right, left and right positions
       canvas.setActiveObject(roundabout);

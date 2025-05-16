@@ -1209,7 +1209,6 @@ const RouteTest = {
 
     // Create and initialize the MainRoadSymbol
     const mainRoad = new MainRoadSymbol(routeOptions);
-    mainRoad.initialize(calcMainRoadVertices(params.xHeight, routeOptions.routeList));
 
     TestTracker.register("mainRoad", mainRoad);
 
@@ -1518,7 +1517,6 @@ const RoundaboutTest = {
     };
 
     const roundabout = new MainRoadSymbol(routeOptions);
-    roundabout.initialize(calcRoundaboutVertices('Conventional', params.xHeight, routeOptions.routeList));
     TestTracker.register("conventionalRoundabout", roundabout);
 
     // Test assertions
@@ -1651,7 +1649,6 @@ const RoundaboutTest = {
     };
 
     const spiralRoundabout = new MainRoadSymbol(routeOptions);
-    spiralRoundabout.initialize(calcRoundaboutVertices('Spiral', params.xHeight, routeOptions.routeList));
     TestTracker.register("spiralRoundabout", spiralRoundabout);
 
     // Test assertions for the roundabout

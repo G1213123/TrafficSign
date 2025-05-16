@@ -75,6 +75,37 @@ function calculateTangentPoint(point, center, offsetDistance) {
 }
 
 /**
+ * Calculate bounding box for a set of vertices
+ * @param {Array} vertices - Array of vertex points
+ * @return {Object} - Bounding box {left, top, width, height}
+ */
+function calculateBoundingBox(vertices) {
+  if (!vertices || vertices.length === 0) {
+      return { left: 0, top: 0, width: 0, height: 0 };
+  }
+  
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  
+  // Find min and max coordinates
+  vertices.forEach(vertex => {
+      minX = Math.min(minX, vertex.x);
+      minY = Math.min(minY, vertex.y);
+      maxX = Math.max(maxX, vertex.x);
+      maxY = Math.max(maxY, vertex.y);
+  });
+  
+  return {
+      left: minX,
+      top: minY,
+      width: maxX - minX,
+      height: maxY - minY
+  };
+}
+
+/**
  * Determine the arc direction (clockwise or counterclockwise)
  * @param {Object} p1 - First point with x, y coordinates
  * @param {Object} p2 - Center point with x, y coordinates
@@ -677,6 +708,7 @@ function combinePaths(pathsArray) {
 export {
   calculateTransformedPoints,
   calculateAngle,
+  calculateBoundingBox,
   calculateTangentPoint,
   getArcDirection,
   calculateArcCenter,
