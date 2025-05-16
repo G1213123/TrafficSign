@@ -5,7 +5,7 @@ import { TextObject } from '../objects/text.js';
 import { SymbolObject } from '../objects/symbols.js';
 import { BorderUtilities } from '../objects/border.js';
 import { VDividerCreate, HDividerCreate, VLaneCreate, HLineCreate } from '../objects/divider.js';
-import { drawSideRoadOnCursor, finishDrawSideRoad, calcMainRoadVertices, MainRoadSymbol, SideRoadSymbol, calcRoundaboutVertices } from '../objects/route.js';
+import {   MainRoadSymbol, SideRoadSymbol } from '../objects/route.js';
 import { anchorShape } from '../objects/anchor.js';
 
 const canvas = CanvasGlobals.canvas;

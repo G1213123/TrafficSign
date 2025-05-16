@@ -4,7 +4,7 @@ import { anchorShape, globalAnchorTree } from '../objects/anchor.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { HDividerCreate, VDividerCreate, HLineCreate } from '../objects/divider.js';
 import { BorderUtilities } from '../objects/border.js';
-import { MainRoadSymbol, finishDrawSideRoad, drawSideRoadOnCursor, calcMainRoadVertices, calcRoundaboutVertices } from '../objects/route.js';
+import { MainRoadSymbol } from '../objects/route.js';
 import { FormTemplateComponent } from '../sidebar/sb-template.js';
 
 const canvasObject = CanvasGlobals.canvasObject; // Assuming canvasObject is defined in canvas.js

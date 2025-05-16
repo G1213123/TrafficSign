@@ -213,6 +213,39 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
     return arrowTipPath
 }
 
+function addUTurnToMainRoad (mainRoad) {
+    const center = mainRoad.routeList[1] // use tip location
+
+    // Create options for the arm
+    const options = {
+      x: center.x,
+      y: center.y,
+      routeList: [{
+        x: 6 + center.x, y: 33.4 + (mainRoad.roadType == 'Spiral Roundabout' ? 2 : 0) + center.y,
+        angle: 0,
+        shape: 'UArrow ' + mainRoad.roadType.split(' ')[0],
+        width: 4
+      }],
+      xHeight: mainRoad.xHeight,
+    };
+
+    // Declare variables outside the if-else blocks 
+    let routeList = options.routeList;
+    let arrow = JSON.parse(JSON.stringify(roadMapTemplate[routeList[0].shape]))
+    arrow = calcSymbol(arrow, mainRoad.xHeight / 4)
+
+    // Create and initialize the side road
+    const sideRoad = new SideRoadSymbol(options);
+    sideRoad.initialize(arrow);
+
+
+    // Update main road to show how it would look with the new side road
+    //mainRoad.receiveNewRoute(tempVertexList);
+    //mainRoad.setCoords();
+    mainRoad.sideRoad.push(sideRoad);
+    sideRoad.mainRoad = mainRoad;
+  }
+
 
 /**
  * Assigns labels to route vertices
@@ -273,6 +306,11 @@ class MainRoadSymbol extends BaseGroup {
 
         // Set the basePolygon that was initially null in the constructor
         this.setBasePolygon(arrow, false)
+
+    // Add special features based on RAfeature
+      if (this.RAfeature === 'U-turn') {
+        addUTurnToMainRoad(this);
+      }
 
         return this;
     }    /**
