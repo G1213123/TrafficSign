@@ -5,7 +5,7 @@ import { TextObject } from '../objects/text.js';
 import { SymbolObject } from '../objects/symbols.js';
 import { BorderUtilities } from '../objects/border.js';
 import { VDividerCreate, HDividerCreate, VLaneCreate, HLineCreate } from '../objects/divider.js';
-import {   MainRoadSymbol, SideRoadSymbol } from '../objects/route.js';
+import { MainRoadSymbol, SideRoadSymbol } from '../objects/route.js';
 import { anchorShape } from '../objects/anchor.js';
 
 const canvas = CanvasGlobals.canvas;
@@ -874,7 +874,6 @@ let FormTemplateComponent = {
   createRoundaboutDirections: function (centerX, centerY, xHeight, color) {
     try {
       // Create roundabout symbol at center with three side roads
-      // Using the same approach as in test.js for roundabout creation
       const routeOptions = {
         routeList: [
           { x: centerX, y: centerY + 5 * xHeight, angle: 180, width: 6, shape: 'Normal' },
@@ -884,63 +883,64 @@ let FormTemplateComponent = {
         rootLength: 7,
         tipLength: 12,
         roadType: 'Conventional Roundabout',
-        color: color
+        color: color,
       };
 
       const roundabout = new MainRoadSymbol(routeOptions);
-
-      // Create side roads at top, left, and right positions
-      canvas.setActiveObject(roundabout);
+      roundabout.updateAllCoord(); // Ensure coordinates are set
 
       // Top side road (Tsuen Wan West Station)
-      drawSideRoadOnCursor(null, {
-        x: centerX,
-        y: centerY - 600,
-        routeParams: {
+      const topSideRoadParams = {
+        xHeight: xHeight,
+        color: color,
+        roadType: 'Side Road',
+        mainRoad: roundabout,
+        side: null, // Constructor will determine based on angle and main road
+        // Approximate initial position, constructor will adjust
+        routeList: [{
+          x: centerX,
+          y: centerY - 10 * xHeight / 4, // Adjusted for typical side road length
           angle: 0,
-          shape: 'Arrow',
-          width: 6
-        }
-      });
-      finishDrawSideRoad({ e: { button: 0 } });
-      const side1 = canvasObject[canvas.getActiveObject().canvasID];
+          width: 4,
+          shape: 'Arrow'
+        }],
+      };
+      const side1 = new SideRoadSymbol(topSideRoadParams);
 
-      // Set the roundabout as active object to add a side road
-      canvas.setActiveObject(roundabout);
 
       // Left side road (Sham Tseng and Tuen Mun)
-      drawSideRoadOnCursor(null, {
-        x: centerX - 600,
-        y: centerY,
-        routeParams: {
+      const leftSideRoadParams = {
+        xHeight: xHeight,
+        color: color,
+        roadType: 'Side Road',
+        mainRoad: roundabout,
+        routeList: [{
+          x: centerX - 10 * xHeight / 4, // Adjusted for typical side road length
+          y: centerY,
           angle: 90,
-          shape: 'Arrow',
-          width: 4
-        }
-      });
-      finishDrawSideRoad({ e: { button: 0 } });
-      const side2 = canvasObject[canvas.getActiveObject().canvasID];
-
-      // Set the roundabout as active object to add a side road
-      canvas.setActiveObject(roundabout);
+          width: 4,
+          shape: 'Arrow'
+        }],
+        side: true, // Explicitly left
+      };
+      const side2 = new SideRoadSymbol(leftSideRoadParams);
 
       // Right side road (Tsing Yi and Kowloon)
-      drawSideRoadOnCursor(null, {
-        x: centerX + 600,
-        y: centerY,
-        routeParams: {
+      const rightSideRoadParams = {
+        xHeight: xHeight,
+        color: color,
+        roadType: 'Side Road',
+        mainRoad: roundabout,
+        side: false, // Explicitly right
+        routeList: [{
+          x: centerX + 10 * xHeight / 4, // Adjusted for typical side road length
+          y: centerY,
           angle: -90,
-          shape: 'Arrow',
-          width: 4
-        }
-      });
-      finishDrawSideRoad({ e: { button: 0 } });
-      const side3 = canvasObject[canvas.getActiveObject().canvasID];
-
-      // Get all created side roads
-      const topRoad = roundabout.sideRoad[0];
-      const leftRoad = roundabout.sideRoad[1];
-      const rightRoad = roundabout.sideRoad[2];
+          width: 4,
+          shape: 'Arrow'
+        }],
+      };
+      const side3 = new SideRoadSymbol(rightSideRoadParams);
 
       // Create destination texts for the top side road (Tsuen Wan West Station)
       const topDestinationText1 = new TextObject({
@@ -1566,17 +1566,23 @@ let FormTemplateComponent = {
 
       // Create side road at 60 degrees angle pointing to lower destination
       canvas.setActiveObject(mainRoad);
-      drawSideRoadOnCursor(null, {
-        x: centerX - 300,
-        y: centerY,
-        routeParams: {
-          angle: 60,
-          shape: 'Arrow',
-          width: 4
-        }
-      });
-      finishDrawSideRoad({ e: { button: 0 } });
-      const sideRoad = canvasObject[canvas.getActiveObject().canvasID];
+      const sideRoadParams = {
+        xHeight: xHeight,
+        color: color,
+        roadType: 'Side Road',
+        mainRoad: mainRoad,
+        side: true, 
+        // Approximate initial position, constructor will adjust
+        routeList: [{
+          x: centerX - 300,
+          y: centerY,
+          angle: -60,
+          width: 4,
+          shape: 'Arrow'
+        }],
+      };
+
+      const sideRoad = new SideRoadSymbol(sideRoadParams);
 
       anchorShape(exitPanel, sideRoad, {
         vertexIndex1: 'V2',
@@ -1584,7 +1590,7 @@ let FormTemplateComponent = {
         spacingX: '',
         spacingY: xHeight * 2 / 4
       });
-      
+
       anchorShape(airport, sideRoad, {
         vertexIndex1: 'V1',
         vertexIndex2: 'E4',
@@ -1925,35 +1931,45 @@ let FormTemplateComponent = {
       // Create side roads at top-left, top-right, left and right positions
       canvas.setActiveObject(roundabout);
 
-
       // Left side road
-      drawSideRoadOnCursor(null, {
-        x: centerX,
-        y: centerY - 600,
-        routeParams: {
+
+      const topSideRoadParams = {
+        xHeight: xHeight,
+        color: color,
+        roadType: 'Side Road',
+        mainRoad: roundabout,
+        side: null, // Constructor will determine based on angle and main road
+        // Approximate initial position, constructor will adjust
+        routeList: [{
+          x: centerX,
+          y: centerY - 600, // Adjusted for typical side road length
           angle: 0,
-          shape: 'Spiral Arrow',
-          width: 4
-        }
-      });
-      finishDrawSideRoad({ e: { button: 0 } });
-      const topRoad = canvasObject[canvas.getActiveObject().canvasID];
+          width: 4,
+          shape: 'Spiral Arrow'
+        }],
+      };
+      const topRoad = new SideRoadSymbol(topSideRoadParams);
 
       // Set the roundabout as active object to add a side road
       canvas.setActiveObject(roundabout);
 
       // Right side road
-      drawSideRoadOnCursor(null, {
-        x: centerX + 600,
-        y: centerY,
-        routeParams: {
+      const rightSideRoadParams = {
+        xHeight: xHeight,
+        color: color,
+        roadType: 'Side Road',
+        mainRoad: roundabout,
+        side: null, // Constructor will determine based on angle and main road
+        // Approximate initial position, constructor will adjust
+        routeList: [{
+          x: centerX + 600,
+          y: centerY,
           angle: 0,
-          shape: 'Spiral Arrow',
-          width: 4
-        }
-      });
-      finishDrawSideRoad({ e: { button: 0 } });
-      const rightRoad = canvasObject[canvas.getActiveObject().canvasID];
+          width: 4,
+          shape: 'Spiral Arrow'
+        }]
+      };
+      const rightRoad = new SideRoadSymbol(rightSideRoadParams);
 
       // Create top text objects
       const topTextEng1 = new TextObject({

@@ -147,7 +147,7 @@ function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle, center)
         const width = route.width
         arrowTipPath.path[0].vertex.map((v) => { v.x *= width / 2; v.y *= width / 2 })
         let arrowTipVertex = arrowTipPath.path[0].vertex
-    
+
         // for Stub
         //const ic = { x: width / 2, y: Math.sqrt(radius ** 2 - (width / 2) ** 2) }
         const trimCenter = { x: width / 2 + 1, y: Math.sqrt((radius + 1) ** 2 - (width / 2 + 1) ** 2) }
@@ -159,18 +159,18 @@ function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle, center)
         arrowTipVertex = [...arrowTipVertex, i2, i3, i0, i1,]
         arrowTipVertex.push(arrowTipVertex.shift())
         assignVertexLabel(arrowTipVertex)
-    
-    
+
+
         arrowTipPath.path[0].arcs.push(...[
             { start: 'V3', end: 'V4', radius: 1, direction: 0, sweep: 0 },
             { start: 'V4', end: 'V5', radius: 12, direction: 0, sweep: 0 },
             { start: 'V5', end: 'V6', radius: 1, direction: 0, sweep: 0 },
         ])
         arrowTipPath.path[0].vertex = arrowTipVertex
-    } 
+    }
 
     arrowTipPath = calcSymbol(arrowTipPath, length)
-    const transform = route.shape !== 'UArrow Conventional'?{
+    const transform = route.shape !== 'UArrow Conventional' ? {
         x: route.x,
         y: route.y,
         angle: angle / Math.PI * 180 + 90
@@ -200,7 +200,7 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
 
 
     arrowTipPath = calcSymbol(arrowTipPath, length)
-    const transform = route.shape !== 'UArrow Spiral'?{
+    const transform = route.shape !== 'UArrow Spiral' ? {
         x: route.x,
         y: route.y,
         angle: angle / Math.PI * 180 + 90
@@ -213,20 +213,22 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
     return arrowTipPath
 }
 
-function addUTurnToMainRoad (mainRoad) {
+function addUTurnToMainRoad(mainRoad) {
     const center = mainRoad.routeList[1] // use tip location
 
     // Create options for the arm
     const options = {
-      x: center.x,
-      y: center.y,
-      routeList: [{
-        x: 6 + center.x, y: 33.4 + (mainRoad.roadType == 'Spiral Roundabout' ? 2 : 0) + center.y,
-        angle: 0,
-        shape: 'UArrow ' + mainRoad.roadType.split(' ')[0],
-        width: 4
-      }],
-      xHeight: mainRoad.xHeight,
+        mainRoad: mainRoad,
+        color: mainRoad.color,
+        x: center.x,
+        y: center.y,
+        routeList: [{
+            x: 6 + center.x, y: 33.4 + (mainRoad.roadType == 'Spiral Roundabout' ? 2 : 0) + center.y,
+            angle: 0,
+            shape: 'UArrow ' + mainRoad.roadType.split(' ')[0],
+            width: 4
+        }],
+        xHeight: mainRoad.xHeight,
     };
 
     // Declare variables outside the if-else blocks 
@@ -236,7 +238,7 @@ function addUTurnToMainRoad (mainRoad) {
 
     // Create and initialize the side road
     const sideRoad = new SideRoadSymbol(options);
-    sideRoad.initialize(arrow);
+    //sideRoad.initialize(arrow);
 
 
     // Update main road to show how it would look with the new side road
@@ -244,7 +246,7 @@ function addUTurnToMainRoad (mainRoad) {
     //mainRoad.setCoords();
     mainRoad.sideRoad.push(sideRoad);
     sideRoad.mainRoad = mainRoad;
-  }
+}
 
 
 /**
@@ -307,35 +309,31 @@ class MainRoadSymbol extends BaseGroup {
         // Set the basePolygon that was initially null in the constructor
         this.setBasePolygon(arrow, false)
 
-    // Add special features based on RAfeature
-      if (this.RAfeature === 'U-turn') {
-        addUTurnToMainRoad(this);
-      }
+        // Add special features based on RAfeature
+        if (this.RAfeature === 'U-turn') {
+            addUTurnToMainRoad(this);
+        }
 
         return this;
-    }    /**
+    }    
+    
+    
+    /**
      * Updates base route object when receiving new route additions
-     * @param {Object} branchRouteList - Optional route object to add
+     * @param {Object} branchRouteList - Optional route object to add (legacy)
      * @return {void}
      */
-    receiveNewRoute(tempBranchRouteList = null) {
+    receiveNewRoute(newSideRoad = null) {
         if (this.roadType !== 'Main Line') {
-            const newPolygon = new GlyphPath();
-            newPolygon.initialize(calcVertexType[this.roadType](this.xHeight, this.routeList), {
-                left: 0,
-                top: 0,
-                angle: 0,
-                fill: this.color,
-                objectCaching: false,
-                dirty: true,
-                strokeWidth: 0
-            });
-            this.replaceBasePolygon(newPolygon)
+            if (newSideRoad) {
+                this.sideRoad.push(newSideRoad);
+            }
             return;
         }
         let newBottom = this.top + (this.tipLength) * this.xHeight / 4;
-        if (tempBranchRouteList) {
-            const vertexList = tempBranchRouteList.path ? tempBranchRouteList.path[0].vertex : tempBranchRouteList.basePolygon.vertex;
+        if (newSideRoad) {
+            this.sideRoad.push(newSideRoad);
+            const vertexList = newSideRoad.basePolygon.vertex;
 
             let bottommostY = -Infinity;
             // Loop through all vertices to find the leftmost and bottommost points
@@ -358,7 +356,7 @@ class MainRoadSymbol extends BaseGroup {
             if (route.angle === 180) {
                 route.y = Math.max(...[newBottom, ...this.sideRoad.map(b => b.top + b.height)]) + this.rootLength * this.xHeight / 4;
             }
-        });        
+        });
         let newVertexList = calcVertexType[this.roadType](this.xHeight, this.routeList);
         const newPolygon = new GlyphPath();
         newPolygon.initialize(newVertexList, {
@@ -406,6 +404,8 @@ class SideRoadSymbol extends BaseGroup {
         this.side = options.side || false; // false = right, true = left
         this.branchIndex = options.branchIndex || 0;
 
+        this.initialize();
+
         // Bind events
         this.on('moving', this.onMove.bind(this));
         this.on('moved', this.onMove.bind(this));
@@ -415,9 +415,17 @@ class SideRoadSymbol extends BaseGroup {
      * @param {Object} vertexList - Vertex data for the branch
      * @return {SideRoadSymbol} - The initialized branch
      */
-    initialize(vertexList) {
+    initialize() {
+        const {routeList, tempVertexList} = this.applySideRoadConstraints(
+            this,
+            this.mainRoad,
+            this.routeList,
+            this.side,
+            this.xHeight
+        );
+        this.routeList = routeList;
         const branch = new GlyphPath();
-        branch.initialize(vertexList, {
+        branch.initialize(tempVertexList, {
             left: 0,
             top: 0,
             angle: 0,
@@ -430,7 +438,139 @@ class SideRoadSymbol extends BaseGroup {
         // Set the basePolygon that was initially null in the constructor
         this.setBasePolygon(branch, false);
 
+        this.mainRoad.receiveNewRoute(this);
+
         return this;
+    }
+
+
+    /**
+     * Applies position constraints to side road coordinates
+     * @param {Object} sideRoad - The side road object
+     * @param {Object} mainRoad - The parent road object
+     * @param {Array} sideRouteList - The side road list to constrain
+     * @param {boolean} isSideLeft - Whether branch is on left side
+     * @param {number} xHeight - X-height value for measurements
+     * @return {Object} - Updated routeList and vertexList
+     */
+    applySideRoadConstraints(sideRoad, mainRoad, sideRouteList, isSideLeft, xHeight) {
+        // Make a copy to avoid modifying the original
+        const routeList = JSON.parse(JSON.stringify(sideRouteList));
+
+        switch (mainRoad.roadType) {
+            case 'Main Line':
+                return this.applyConstraintsMainLine(sideRoad, mainRoad, routeList, isSideLeft, xHeight)
+            case 'Conventional Roundabout':
+                return this.applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeight)
+            case 'Spiral Roundabout':
+                return this.applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList, xHeight)
+        }
+
+    }
+
+    applyConstraintsMainLine(sideRoad, mainRoad, routeList, isSideLeft, xHeight) {
+        // Horizontal constraint based on side
+        const rootLeft = mainRoad.routeList[0].x - mainRoad.routeList[0].width * mainRoad.xHeight / 8;
+        const rootRight = mainRoad.routeList[0].x + mainRoad.routeList[0].width * mainRoad.xHeight / 8;
+        const minBranchShapeXDelta = routeList[0].shape == 'Stub' ? 4 : Math.abs(routeList[0].angle) == 90 ? 12 : 13;
+        const minBranchXDelta = minBranchShapeXDelta * xHeight / 4;
+
+        // Constrain movement based on side (left or right)
+        if (routeList[0].x + minBranchXDelta > rootLeft && isSideLeft) {
+            // Left side branch constraint
+            routeList[0].x = rootLeft - minBranchXDelta;
+            //sideRoad.left = routeList[0].x;
+        } else if (routeList[0].x - minBranchXDelta < rootRight && !isSideLeft) {
+            // Right side branch constraint
+            routeList[0].x = rootRight + minBranchXDelta;
+            //sideRoad.left = rootRight
+        }
+
+        // Vertical constraint based on main road top
+        const rootTop = mainRoad.routeList[1].y;
+        const tipLength = mainRoad.tipLength * mainRoad.xHeight / 4;
+
+        // Calculate vertices with current position
+        let tempVertexList = calcSideRoadVertices(mainRoad.xHeight, mainRoad.routeList, routeList);
+
+        // Get the vertex that should touch the root (depends on side)
+        const rootTopTouchY = tempVertexList.path[0].vertex[isSideLeft ? 3 : 4];
+
+        // Ensure branch doesn't go above root + tip length
+        if (rootTopTouchY.y < rootTop + tipLength) {
+            // Push branch down if needed
+            const adjustment = rootTop + tipLength - rootTopTouchY.y;
+            routeList[0].y += adjustment;
+
+            // Recalculate vertices with new position
+            tempVertexList = calcSideRoadVertices(mainRoad.xHeight, mainRoad.routeList, routeList);
+
+            // Only set top if sideRoad is not null
+            if (sideRoad) {
+                sideRoad.top = Math.min(...tempVertexList.path[0].vertex.map(v => v.y));
+            }
+        }
+
+        return { routeList, tempVertexList };
+    }
+
+    applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeight) {
+        // Horizontal constraint based on side
+        const radius = 12
+        const minBranchShapeXDelta = (routeList[0].shape == 'Stub' ? 4 : radius);
+        const minBranchXDelta = (minBranchShapeXDelta + radius) * xHeight / 4;
+        const center = mainRoad.routeList[1]
+        const length = xHeight / 4
+
+        const rawAngleToCenter = Math.atan2(routeList[0].y - center.y, routeList[0].x - center.x)
+        // Convert to degrees, round to nearest 15 degrees, then back to radians
+        const angleInDegrees = rawAngleToCenter * 180 / Math.PI
+        const roundedDegrees = Math.round(angleInDegrees / 15) * 15
+        const angleToCenter = roundedDegrees * Math.PI / 180
+        const distToCenter = Math.max(minBranchXDelta, Math.sqrt((routeList[0].y - center.y) ** 2 + (routeList[0].x - center.x) ** 2))
+
+        if (routeList[0].shape !== 'UArrow Conventional') {
+            routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
+            routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
+        }
+        const tempVertexList = getConvRdAboutSideRoadCoords(routeList[0], length, distToCenter, radius, angleToCenter, center);
+
+        // Only set left/top if sideRoad is a real object with those properties
+        if (sideRoad && sideRoad.left !== undefined) {
+            const offset = getInsertOffset(tempVertexList);
+            sideRoad.left = offset.left;
+            sideRoad.top = offset.top;
+        }
+
+        return { routeList, tempVertexList };
+    }
+
+    applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList, xHeight) {
+        const center = mainRoad.routeList[1]
+        const length = xHeight / 4 // Use the parameter directly for temp objects without sideRoad object
+
+        const rawAngleToCenter = Math.atan2(routeList[0].y - center.y, routeList[0].x - center.x)
+        // Convert to degrees, round to nearest 15 degrees, then back to radians
+        const angleInDegrees = rawAngleToCenter * 180 / Math.PI
+        const roundedDegrees = Math.round(angleInDegrees / 15) * 15
+        const angleToCenter = roundedDegrees * Math.PI / 180
+        const distToCenter = 24 * length
+
+        if (routeList[0].shape !== 'UArrow Spiral') {
+            routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
+            routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
+        }
+
+        const tempVertexList = getSpirRdAboutSideRoadCoords(routeList[0], length, angleToCenter, center);
+
+        // Only set left/top if sideRoad is a real object with those properties
+        if (sideRoad && sideRoad.left !== undefined) {
+            const offset = getInsertOffset(tempVertexList);
+            sideRoad.left = offset.left;
+            sideRoad.top = offset.top;
+        }
+
+        return { routeList, tempVertexList };
     }
 
     /**
@@ -440,7 +580,7 @@ class SideRoadSymbol extends BaseGroup {
      */
     constrainSideRoadPosition(mainRoad) {
         // Use the common constraint function
-        const result = applySideRoadConstraints(
+        const result = this.applySideRoadConstraints(
             this,
             mainRoad,
             this.routeList,
@@ -488,141 +628,12 @@ class SideRoadSymbol extends BaseGroup {
 
         // Update root if needed
         if (updateRoot) {
-            mainRoad.receiveNewRoute(this);
+            mainRoad.receiveNewRoute();
             mainRoad.setCoords();
         }
         this.basePolygon.setCoords();
         this.drawVertex()
     }
-}
-
-/**
- * Applies position constraints to side road coordinates
- * @param {Object} sideRoad - The side road object
- * @param {Object} mainRoad - The parent road object
- * @param {Array} sideRouteList - The side road list to constrain
- * @param {boolean} isSideLeft - Whether branch is on left side
- * @param {number} xHeight - X-height value for measurements
- * @return {Object} - Updated side road data and vertex list
- */
-function applySideRoadConstraints(sideRoad, mainRoad, sideRouteList, isSideLeft, xHeight) {
-    // Make a copy to avoid modifying the original
-    const routeList = JSON.parse(JSON.stringify(sideRouteList));
-
-    switch (mainRoad.roadType) {
-        case 'Main Line':
-            return applyConstraintsMainLine(sideRoad, mainRoad, routeList, isSideLeft, xHeight)
-        case 'Conventional Roundabout':
-            return applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeight)
-        case 'Spiral Roundabout':
-            return applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList, xHeight)
-    }
-
-}
-
-function applyConstraintsMainLine(sideRoad, mainRoad, routeList, isSideLeft, xHeight) {
-    // Horizontal constraint based on side
-    const rootLeft = mainRoad.routeList[0].x - mainRoad.routeList[0].width * mainRoad.xHeight / 8;
-    const rootRight = mainRoad.routeList[0].x + mainRoad.routeList[0].width * mainRoad.xHeight / 8;
-    const minBranchShapeXDelta = routeList[0].shape == 'Stub' ? 4 : Math.abs(routeList[0].angle) == 90 ? 12 : 13;
-    const minBranchXDelta = minBranchShapeXDelta * xHeight / 4;
-
-    // Constrain movement based on side (left or right)
-    if (routeList[0].x + minBranchXDelta > rootLeft && isSideLeft) {
-        // Left side branch constraint
-        routeList[0].x = rootLeft - minBranchXDelta;
-        //sideRoad.left = routeList[0].x;
-    } else if (routeList[0].x - minBranchXDelta < rootRight && !isSideLeft) {
-        // Right side branch constraint
-        routeList[0].x = rootRight + minBranchXDelta;
-        //sideRoad.left = rootRight
-    }
-
-    // Vertical constraint based on main road top
-    const rootTop = mainRoad.routeList[1].y;
-    const tipLength = mainRoad.tipLength * mainRoad.xHeight / 4;
-
-    // Calculate vertices with current position
-    let tempVertexList = calcSideRoadVertices(mainRoad.xHeight, mainRoad.routeList, routeList);
-
-    // Get the vertex that should touch the root (depends on side)
-    const rootTopTouchY = tempVertexList.path[0].vertex[isSideLeft ? 3 : 4];
-
-    // Ensure branch doesn't go above root + tip length
-    if (rootTopTouchY.y < rootTop + tipLength) {
-        // Push branch down if needed
-        const adjustment = rootTop + tipLength - rootTopTouchY.y;
-        routeList[0].y += adjustment;
-
-        // Recalculate vertices with new position
-        tempVertexList = calcSideRoadVertices(mainRoad.xHeight, mainRoad.routeList, routeList);
-        
-        // Only set top if sideRoad is not null
-        if (sideRoad) {
-            sideRoad.top = Math.min(...tempVertexList.path[0].vertex.map(v => v.y));
-        }
-    }
-
-    return { routeList, tempVertexList };
-}
-
-function applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeight) {
-    // Horizontal constraint based on side
-    const radius = 12
-    const minBranchShapeXDelta =  (routeList[0].shape == 'Stub' ? 4 : radius);
-    const minBranchXDelta = (minBranchShapeXDelta + radius) * xHeight / 4;
-    const center = mainRoad.routeList[1]
-    const length = xHeight / 4
-
-    const rawAngleToCenter = Math.atan2(routeList[0].y - center.y, routeList[0].x - center.x)
-    // Convert to degrees, round to nearest 15 degrees, then back to radians
-    const angleInDegrees = rawAngleToCenter * 180 / Math.PI
-    const roundedDegrees = Math.round(angleInDegrees / 15) * 15
-    const angleToCenter = roundedDegrees * Math.PI / 180
-    const distToCenter = Math.max(minBranchXDelta, Math.sqrt((routeList[0].y - center.y) ** 2 + (routeList[0].x - center.x) ** 2))
-
-    if (routeList[0].shape !== 'UArrow Conventional' ) {
-        routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
-        routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
-    }
-    const tempVertexList = getConvRdAboutSideRoadCoords(routeList[0], length, distToCenter, radius, angleToCenter, center);
-
-    // Only set left/top if sideRoad is a real object with those properties
-    if (sideRoad && sideRoad.left !== undefined) {
-        const offset = getInsertOffset(tempVertexList);
-        sideRoad.left = offset.left;
-        sideRoad.top = offset.top;
-    }
-
-    return { routeList, tempVertexList };
-}
-
-function applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList, xHeight) {
-    const center = mainRoad.routeList[1]
-    const length = xHeight / 4 // Use the parameter directly for temp objects without sideRoad object
-
-    const rawAngleToCenter = Math.atan2(routeList[0].y - center.y, routeList[0].x - center.x)
-    // Convert to degrees, round to nearest 15 degrees, then back to radians
-    const angleInDegrees = rawAngleToCenter * 180 / Math.PI
-    const roundedDegrees = Math.round(angleInDegrees / 15) * 15
-    const angleToCenter = roundedDegrees * Math.PI / 180
-    const distToCenter = 24 * length
-
-    if (routeList[0].shape !== 'UArrow Spiral') {
-        routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
-        routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
-    }
-
-    const tempVertexList = getSpirRdAboutSideRoadCoords(routeList[0], length, angleToCenter, center);
-
-    // Only set left/top if sideRoad is a real object with those properties
-    if (sideRoad && sideRoad.left !== undefined) {
-        const offset = getInsertOffset(tempVertexList);
-        sideRoad.left = offset.left;
-        sideRoad.top = offset.top;
-    }
-
-    return { routeList, tempVertexList };
 }
 
 
@@ -678,11 +689,11 @@ function toggleButtonState(buttonId, isActive) {
     }
 }
 
-export { 
+export {
     MainRoadSymbol,
-    SideRoadSymbol, 
-    calcMainRoadVertices, 
+    SideRoadSymbol,
+    calcMainRoadVertices,
     calcRoundaboutVertices,
-    roadMapOnSelect, 
+    roadMapOnSelect,
     roadMapOnDeselect,
 };

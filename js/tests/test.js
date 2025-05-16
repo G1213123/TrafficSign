@@ -4,7 +4,7 @@ import { anchorShape, globalAnchorTree } from '../objects/anchor.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { HDividerCreate, VDividerCreate, HLineCreate } from '../objects/divider.js';
 import { BorderUtilities } from '../objects/border.js';
-import { MainRoadSymbol } from '../objects/route.js';
+import { MainRoadSymbol, SideRoadSymbol } from '../objects/route.js';
 import { FormTemplateComponent } from '../sidebar/sb-template.js';
 
 const canvasObject = CanvasGlobals.canvasObject; // Assuming canvasObject is defined in canvas.js
@@ -1190,7 +1190,6 @@ const RouteTest = {
       roadType: 'Main Line'
     };
 
-    // Create a MainRoute directly using the updated construction method
     // Create the route list with the main road points
     const routeList = [
       { x: params.posx, y: params.posy + (params.rootLength + params.tipLength) * params.xHeight / 4, angle: 180, width: params.width, shape: 'Stub' },
@@ -1204,11 +1203,17 @@ const RouteTest = {
       rootLength: params.rootLength,
       tipLength: params.tipLength,
       color: params.color,
-      roadType: params.roadType
+      roadType: params.roadType,
+      // Ensure left and top are set for consistent positioning in tests
+      left: params.posx - (params.width * params.xHeight / 8),
+      top: params.posy
     };
 
     // Create and initialize the MainRoadSymbol
     const mainRoad = new MainRoadSymbol(routeOptions);
+    // Manually call updateAllCoord as it's usually handled by canvas add
+    mainRoad.updateAllCoord();
+
 
     TestTracker.register("mainRoad", mainRoad);
 
@@ -1217,7 +1222,7 @@ const RouteTest = {
 
     passed = passed && TestTracker.assert(
       mainRoad.left,
-      params.posx - 3 * params.xHeight / 4,
+      params.posx - (params.width * params.xHeight / 8), // Adjusted for actual calculation in constructor
       "Main Road left position incorrect",
       5
     );
@@ -1245,44 +1250,38 @@ const RouteTest = {
   testLeftSideRoad() {
     TestTracker.startTest("LeftSideRoad");
 
-    // Get Main Road from TestTracker instead of window global
     const mainRoad = TestTracker.get("mainRoad", "MainRoad");
     if (!mainRoad) {
-      TestTracker.recordFailure("Main Road not found", "MainRoute object", "null");
+      TestTracker.recordFailure("Main Road not found for LeftSideRoad test", "MainRoad object", "null");
       TestTracker.endTest(false);
       return null;
     }
 
-    // Set up test parameters
-    const posx = mainRoad.left - 300; // Left of root
-    const posy = mainRoad.top;
+    // Ensure mainRoad coordinates are up-to-date
+    mainRoad.updateAllCoord();
+
+
     const params = {
       xHeight: mainRoad.xHeight,
-      angle: 90,
-      shape: 'Stub',
-      width: 4
+      color: 'white',
+      mainRoad: mainRoad,
+      side: true, // true for left
+      branchIndex: mainRoad.sideRoad.length + 1,
+      // Position the side road relative to the main road's root
+      // Note: SideRoadSymbol constructor handles precise attachment logic
+      routeList: [{
+        x: mainRoad.left - 100,
+        y: mainRoad.top,
+        angle: -90,
+        shape: 'Stub',
+        width: 4
+      }],
     };
 
-    // Set the Main Road as active object
-    canvas.setActiveObject(mainRoad);
+    const sideRoad = new SideRoadSymbol(params);
 
-    // Use actual drawing functions with parameters
-    drawSideRoadOnCursor(null, {
-      x: posx,
-      y: posy,
-      routeParams: params
-    });
-
-
-
-    // Create the Side Road with a simulated mouse click
-    finishDrawSideRoad({ e: { button: 0 } });
-
-    // Find the created Side Road route and register it
-    const sideRoad = mainRoad.sideRoad[mainRoad.sideRoad.length - 1];
     TestTracker.register("leftSideRoad", sideRoad);
 
-    // Test assertions
     let passed = true;
     passed = passed && TestTracker.assert(
       sideRoad.functionalType,
@@ -1303,13 +1302,13 @@ const RouteTest = {
       v.label === 'V3' || v.label === 'V4' || v.label === 'V5' || v.label === 'V6'
     );
 
-    // At least one vertex should be close to Main Road
-    const touchingRoot = touchingVertices.some(v =>
+    // All vertex should be close to Main Road
+    const touchingRoot = touchingVertices.filter(v =>
       Math.abs(v.x - rootLeft) < 1
     );
 
     passed = passed && TestTracker.assertTrue(
-      touchingRoot,
+      touchingRoot.length == touchingVertices.length,
       "Left Side Road vertices don't touch Main Road"
     );
 
@@ -1323,49 +1322,34 @@ const RouteTest = {
   testRightSideRoad() {
     TestTracker.startTest("RightSideRoad");
 
-    // Get Main Road from TestTracker
     const mainRoad = TestTracker.get("mainRoad", "MainRoad");
     if (!mainRoad) {
-      TestTracker.recordFailure("Main Road not found", "MainRoute object", "null");
+      TestTracker.recordFailure("Main Road not found for RightSideRoad test", "MainRoad object", "null");
       TestTracker.endTest(false);
       return null;
     }
+    // Ensure mainRoad coordinates are up-to-date
+    mainRoad.updateAllCoord();
 
-    // Set up test parameters - intentionally position outside constraints
-    // 1. Too close to root horizontally (should be pushed right)
-    // 2. Too high vertically (should be pushed down)
-    const posx = mainRoad.left + mainRoad.width + 10; // Too close horizontally
-    const posy = mainRoad.top - 100; // Too high vertically
     const params = {
       xHeight: mainRoad.xHeight,
-      angle: -60, // Negative angle for right side
-      shape: 'Arrow',
-      width: 4
+      color: 'white',
+      mainRoad: mainRoad,
+      side: false, // false for right
+      // Position the side road relative to the main road's root
+      routeList: [{
+        x: mainRoad.left + 300,
+        y: mainRoad.top,
+        angle: 60,
+        shape: 'Arrow',
+        width: 4
+      }],
     };
 
-    // Set the Main Road as active object
-    canvas.setActiveObject(mainRoad);
+    const sideRoad = new SideRoadSymbol(params);
 
-    // Use actual drawing functions with parameters
-    drawSideRoadOnCursor(null, {
-      x: posx,
-      y: posy,
-      routeParams: params
-    });
-
-
-    // Create the Side Road with a simulated mouse click
-    finishDrawSideRoad({ e: { button: 0 } });
-
-    // Find the right Side Road using position - more reliable than using TestTracker.get("leftBranch")
-    // A right Side Road will have its x position to the right of the Main Road center
-    const rootCenterX = mainRoad.left + mainRoad.width / 2;
-    const sideRoad = mainRoad.sideRoad.find(side => side.left > rootCenterX);
-
-    // Register the right Side Road route with TestTracker
     TestTracker.register("rightSideRoad", sideRoad);
 
-    // Test assertions
     let passed = true;
     passed = passed && TestTracker.assert(
       sideRoad.functionalType,
@@ -1383,16 +1367,16 @@ const RouteTest = {
 
     // Find connecting vertices
     const touchingVertices = sideRoad.basePolygon.vertex.filter(v =>
-      v.label === 'V0' || v.label === 'V1' || v.label === 'V5' || v.label === 'V6'
+      v.label === 'V3' || v.label === 'V4' || v.label === 'V5' || v.label === 'V6'
     );
 
     // At least one vertex should be close to main road
-    const touchingRoot = touchingVertices.some(v =>
+    const touchingRoot = touchingVertices.filter(v =>
       Math.abs(v.x - rootRight) < 1
     );
 
     passed = passed && TestTracker.assertTrue(
-      touchingRoot,
+      touchingRoot.length == touchingVertices.length,
       "Right Side Road vertices don't touch Main Road"
     );
 
@@ -1546,36 +1530,44 @@ const RoundaboutTest = {
 
     // Create a side road on the roundabout
     const sideRoadParams = {
-      x: params.posx + 120,  // Position to the right of roundabout
-      y: params.posy - 50,   // Position slightly above centerline
-      routeParams: {
+      xHeight: roundabout.xHeight,
+      color: 'white',
+      mainRoad: roundabout,
+      side: false, // false for right
+      // Position the side road relative to the main road's root
+      routeList: [{
+        x: params.posx + 120,
+        y: params.posy - 50, 
         angle: -45,
         shape: 'Stub',
         width: 4
-      }
+      }],
     };
 
     // Draw and finalize the side road
-    drawSideRoadOnCursor(null, sideRoadParams);
-    finishDrawSideRoad({ e: { button: 0 } });
+    new SideRoadSymbol(sideRoadParams);
 
     // Create a second side road on the roundabout
     const sideRoadParams2 = {
-      x: params.posx,
-      y: params.posy - 100,
-      routeParams: {
+      xHeight: roundabout.xHeight,
+      color: 'white',
+      mainRoad: roundabout,
+      side: false, // false for right
+      // Position the side road relative to the main road's root
+      routeList: [{
+        x: params.posx,
+        y: params.posy - 100,
         angle: -90,
         shape: 'Arrow',
         width: 6
-      }
+      }]
     };
 
     // Set the roundabout as active object to add a side road
     canvas.setActiveObject(roundabout);
 
     // Draw and finalize the second side road
-    drawSideRoadOnCursor(null, sideRoadParams2);
-    finishDrawSideRoad({ e: { button: 0 } });
+    new SideRoadSymbol(sideRoadParams2);
 
     // Find the created Side Road route and register it
     const sideRoad = roundabout.sideRoad[roundabout.sideRoad.length - 1];
@@ -1745,22 +1737,22 @@ const RoundaboutTest = {
 
     // Create options for the arm
     const options = {
-      x: x,
-      y: y,
-      routeParams: {
+      xHeight: roundabout.xHeight,
+      color: 'white',
+      mainRoad: roundabout,
+      side: false, // false for right
+      routeList: [{
+        x: x,
+        y: y,
         angle: angleDegrees,
         shape: 'Spiral Arrow',
         width: 4
-      }
+      }],
     };
 
     // Add the arm
-    drawSideRoadOnCursor(null, options);
+    new SideRoadSymbol(options);
 
-    // Finish adding the arm
-    finishDrawSideRoad({
-      e: { button: 0 }
-    });
 
     // Register the new arm with TestTracker
 

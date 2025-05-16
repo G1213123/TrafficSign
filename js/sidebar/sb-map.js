@@ -133,21 +133,7 @@ let FormDrawMapComponent = {
       const width = parseInt(document.getElementById('Side Road width').value);
       const shape = GeneralHandler.getToggleValue('Side Road Shape-container');
 
-      // Call the updated function that uses the general snapping functionality
-      const pointer = CanvasGlobals.canvas.getPointer({ e: { clientX: CanvasGlobals.canvas.width / 2, clientY: CanvasGlobals.canvas.height / 2 } });
-
-      // Create option object with necessary parameters
-      const option = {
-        x: pointer.x,
-        y: pointer.y,
-        routeParams: {
-          angle: angle,
-          shape: shape,
-          width: width
-        }
-      };
-
-      FormDrawMapComponent.drawSideRoadOnCursor(null, option);
+      FormDrawMapComponent.drawSideRoadOnCursor(null);
     }
   },
 
@@ -218,73 +204,64 @@ let FormDrawMapComponent = {
       RAfeature = params.RAfeature || 'Normal';
     } else {
       return;
-    }    // Create a function that returns a new MainRoadSymbol
-    const createMainRoadObject = (options) => {
-      // Create route list centered on the provided position
-      const routeList = [
-        { x: options.position.x, y: options.position.y + (options.rootLength + options.tipLength) * options.xHeight / 4, angle: 180, width: options.width, shape: options.roadType == 'Main Line' ? 'Stub' : options.RAfeature },
-        { x: options.position.x, y: options.position.y, angle: 0, width: options.width, shape: options.shape }
-      ];
-
-      // Create route options for the MainRoadSymbol
-      const routeOptions = {
-        routeList: routeList,
-        xHeight: options.xHeight,
-        color: options.color,
-        rootLength: options.rootLength,
-        tipLength: options.tipLength,
-        roadType: options.roadType,
-        RAfeature: options.RAfeature
-      };
-
-      // Create and initialize the MainRoadSymbol
-      const routeMap = new MainRoadSymbol(routeOptions);
-      //routeMap.initialize(calcVertexType[options.roadType](options.xHeight, routeList));
-
-      return routeMap;
-    };
-    try {
-      // Create a temporary component to store the new object
-      const tempComponent = {
-        newMapObject: null
-      };
-
-      // Determine which vertex to use as the active vertex for tracking
-      // For roundabouts, use C1 (center) vertex, otherwise use V1
-      const activeVertexLabel = (roadType === 'Conventional Roundabout' || roadType === 'Spiral Roundabout') ? 'C1' : 'V1';
-
-      // Use the general object creation with snapping function
-      GeneralHandler.createObjectWithSnapping(
-        {
-          position: {
-            x: event ? canvas.getPointer(event.e).x : canvas.width / 2,
-            y: event ? canvas.getPointer(event.e).y : canvas.height / 2
-          },
-          xHeight: xHeight,
-          color: color.toLowerCase(),
-          rootLength: rootLength,
-          tipLength: tipLength,
-          width: width,
-          shape: shape,
-          roadType: roadType,
-          RAfeature: RAfeature
-        },
-        createMainRoadObject,
-        tempComponent, // Pass the temp component to store the created object
-        'newMapObject',
-        activeVertexLabel,
-        FormDrawMapComponent.mainRoadOnMouseMove,
-        FormDrawMapComponent.finishDrawMainRoad,
-        FormDrawMapComponent.cancelDraw
-      );
-
-      FormDrawMapComponent.newMapObject = tempComponent.newMapObject;
-    } catch (error) {
-      console.error('Error creating main road:', error);
     }
+    // Determine which vertex to use as the active vertex for tracking
+    // For roundabouts, use C1 (center) vertex, otherwise use V1
+    const activeVertexLabel = (roadType === 'Conventional Roundabout' || roadType === 'Spiral Roundabout') ? 'C1' : 'V1';
+
+    // Use the general object creation with snapping function
+    GeneralHandler.createObjectWithSnapping(
+      {
+        position: {
+          x: event ? canvas.getPointer(event.e).x : canvas.width / 2,
+          y: event ? canvas.getPointer(event.e).y : canvas.height / 2
+        },
+        xHeight: xHeight,
+        color: color.toLowerCase(),
+        rootLength: rootLength,
+        tipLength: tipLength,
+        width: width,
+        shape: shape,
+        roadType: roadType,
+        RAfeature: RAfeature
+      },
+      FormDrawMapComponent.createMainRoadObject,
+      FormDrawMapComponent, // Pass the component to store the created object
+      'newMapObject',
+      activeVertexLabel,
+      FormDrawMapComponent.mainRoadOnMouseMove,
+      FormDrawMapComponent.finishDrawMainRoad,
+      FormDrawMapComponent.cancelDraw
+    );
+
+
   },
 
+  // Create a function that returns a new MainRoadSymbol
+  createMainRoadObject: (options) => {
+    // Create route list centered on the provided position
+    const routeList = [
+      { x: options.position.x, y: options.position.y + (options.rootLength + options.tipLength) * options.xHeight / 4, angle: 180, width: options.width, shape: options.roadType == 'Main Line' ? 'Stub' : options.RAfeature },
+      { x: options.position.x, y: options.position.y, angle: 0, width: options.width, shape: options.shape }
+    ];
 
+    // Create route options for the MainRoadSymbol
+    const routeOptions = {
+      routeList: routeList,
+      xHeight: options.xHeight,
+      color: options.color,
+      rootLength: options.rootLength,
+      tipLength: options.tipLength,
+      roadType: options.roadType,
+      RAfeature: options.RAfeature
+    };
+
+    // Create and initialize the MainRoadSymbol
+    const routeMap = new MainRoadSymbol(routeOptions);
+    //routeMap.initialize(calcVertexType[options.roadType](options.xHeight, routeList));
+
+    return routeMap;
+  },
 
   /**
   * Handle mouse movement for road symbol placement
@@ -372,38 +349,21 @@ let FormDrawMapComponent = {
   finishDrawMainRoad: function (event, options = null) {
     if (event.e.button !== 0 && event.e.type !== 'touchend') return;
 
-    // Finalize main road placement on click
-    if (!FormDrawMapComponent.newMapObject) return;
+    // Use shared mouse click handler for new text objects
+    if (FormDrawMapComponent.newMapObject) {
+      GeneralHandler.handleObjectOnMouseClick(
+        FormDrawMapComponent,
+        event,
+        'newMapObject',
+        'mainRoadOnMouseMove',
+        'finishDrawMainRoad',
+        'cancelDraw',
+      );
 
-    const mainRoad = FormDrawMapComponent.newMapObject;
-    if (mainRoad.functionalType !== 'MainRoad') return;
-
-    // Complete the placement
-    if (CanvasGlobals.activeVertex) {
-      CanvasGlobals.activeVertex.handleMouseUpRef(event);
+      return;
     }
 
-    // Add the main road to the canvas object list if not already added
-    if (!CanvasGlobals.canvasObject.includes(mainRoad)) {
-      CanvasGlobals.canvasObject.push(mainRoad);
-    }
 
-    // Update coordinates and positions
-    mainRoad.setCoords();
-    mainRoad.isTemporary = false;
-
-    // Reset state
-    const placedRoad = FormDrawMapComponent.newMapObject;
-    FormDrawMapComponent.newMapObject = null;
-    CanvasGlobals.activeVertex = null;
-
-    // Clean up event handlers
-    FormDrawMapComponent.drawRoadsHandlerOff();
-
-    // Make the new road active after a slight delay
-    setTimeout(() => {
-      canvas.setActiveObject(placedRoad);
-    }, 300);
   },
 
   /**
@@ -431,7 +391,7 @@ let FormDrawMapComponent = {
 
     // Declare variables outside the if-else blocks 
     let routeList = [];
-    let angle, shape, width, pointer;
+    let angle, shape, width, pointer, isSideLeft;
 
     if (option) {
       // Handle direct parameter input for testing
@@ -447,7 +407,8 @@ let FormDrawMapComponent = {
         width = option.routeParams.width;
 
         // Create route list with parameters
-        if (pointer.x < mainRoad.left + mainRoad.width / 2) {
+        isSideLeft = pointer.x < mainRoad.left + mainRoad.width / 2;
+        if (isSideLeft) {
           angle = -Math.abs(angle); // Make angle negative for left side
         } else {
           angle = Math.abs(angle);  // Make angle positive for right side
@@ -464,7 +425,11 @@ let FormDrawMapComponent = {
       }
     } else {
       // Normal DOM operation
-      pointer = canvas.getPointer(event.e);
+      pointer = {
+        x: event ? CanvasGlobals.canvas.getPointer(event.e).x : mainRoad.left - 10 * mainRoad.xHeight / 4,
+        y: event ? CanvasGlobals.canvas.getPointer(event.e).y : mainRoad.top
+      };
+      // Check if pointer is within the main road bounds
       if (mainRoad.roadType == 'Main Line') {
         if (pointer.x > mainRoad.getEffectiveCoords()[0].x && pointer.x < mainRoad.getEffectiveCoords()[1].x) {
           return;
@@ -477,8 +442,8 @@ let FormDrawMapComponent = {
       }
 
       angle = parseInt(document.getElementById(`angle-display`).innerText);
-
-      if (pointer.x < mainRoad.left + mainRoad.width / 2) {
+      isSideLeft = pointer.x < mainRoad.left + mainRoad.width / 2;
+      if (isSideLeft) {
         angle = -angle;
       }
 
@@ -488,110 +453,70 @@ let FormDrawMapComponent = {
       mainRoad.tempRootList = JSON.parse(JSON.stringify(routeList));
     }
 
-    // Create a function that returns a new SideRoadSymbol
-    const createSideRoadObject = (options) => {
-      const pointer = options.position;
-
-      // Determine which side the branch is on
-      const isSideLeft = pointer.x < mainRoad.left + mainRoad.width / 2;
-
-      // Create the route list with the correct angle direction based on side
-      let localAngle = options.angle;
-      if (isSideLeft) {
-        localAngle = -Math.abs(localAngle);
-      } else {
-        localAngle = Math.abs(localAngle);
-      }
-
-      // Create the route list for the side road
-      const routeList = [{
-        x: pointer.x,
-        y: pointer.y,
-        angle: localAngle,
-        shape: options.shape || (mainRoad.roadType == 'Spiral Roundabout' ? 'Spiral Arrow' : 'Arrow'),
-        width: options.width || 4
-      }];
-
-      // Apply constraints to position the side road correctly relative to main road
-      const constrainedResult = applySideRoadConstraints(
-        null, // No side road object yet
-        mainRoad,
-        routeList,
-        isSideLeft,
-        mainRoad.xHeight
-      );
-
-      // Use constrained result
-      const constrainedRouteList = constrainedResult.routeList;
-      const tempVertexList = constrainedResult.tempVertexList;
-
-      // Store route list in main road for reference
-      mainRoad.tempRootList = JSON.parse(JSON.stringify(constrainedRouteList));
-
-      // Create the branch options
-      const branchOptions = {
-        routeList: constrainedRouteList,
-        xHeight: mainRoad.xHeight,
-        color: mainRoad.color,
+    // Use the general object creation with snapping function
+    GeneralHandler.createObjectWithSnapping(
+      {
+        position: {
+          x: pointer.x,
+          y: pointer.y
+        },
+        angle: angle,
+        shape: shape,
+        width: width,
         mainRoad: mainRoad,
-        side: isSideLeft,
-        branchIndex: mainRoad.sideRoad.length + 1
-      };
+        isSideLeft: isSideLeft,
+      },
+      FormDrawMapComponent.createSideRoadObject,
+      FormDrawMapComponent,
+      'newMapObject',
+      'V1',
+      FormDrawMapComponent.sideRoadOnMouseMove,
+      FormDrawMapComponent.finishDrawSideRoad,
+      FormDrawMapComponent.cancelDraw
+    );
 
-      // Create and initialize the side road
-      const sideRoad = new SideRoadSymbol(branchOptions);
-      sideRoad.initialize(tempVertexList);
 
-      // Update main road to show how it would look with the new side road
-      mainRoad.receiveNewRoute(tempVertexList);
+  },
 
-      return sideRoad;
+  // Create a function that returns a new SideRoadSymbol
+  createSideRoadObject: function (options) {
+    // Create the route list for the side road
+    const routeList = [{
+      x: options.position.x,
+      y: options.position.y,
+      angle: options.angle,
+      shape: options.shape || (mainRoad.roadType == 'Spiral Roundabout' ? 'Spiral Arrow' : 'Arrow'),
+      width: options.width || 4
+    }];
+
+    const mainRoad = options.mainRoad;
+
+    // Create the branch options
+    const branchOptions = {
+      routeList: routeList,
+      xHeight: mainRoad.xHeight,
+      color: mainRoad.color,
+      mainRoad: mainRoad,
+      side: options.isSideLeft,
+      branchIndex: mainRoad.sideRoad.length + 1
     };
 
-    // Use the general object creation with snapping function
-    try {
-      // Create a temporary component object to use with the general function
-      const tempComponent = {
-        newMapObject: null
-      };
+    // Create and initialize the side road
+    const sideRoad = new SideRoadSymbol(branchOptions);
 
-      // Get current values from DOM or use defaults
-      const currentAngle = angle;
-      const currentShape = shape;
-      const currentWidth = width;
-
-      GeneralHandler.createObjectWithSnapping(
-        {
-          position: {
-            x: pointer.x,
-            y: pointer.y
-          },
-          angle: currentAngle,
-          shape: currentShape,
-          width: currentWidth,
-          mainRoad: mainRoad
-        },
-        createSideRoadObject,
-        tempComponent,
-        'newMapObject',
-        'V1',
-        FormDrawMapComponent.sideRoadOnMouseMove,
-        FormDrawMapComponent.finishDrawSideRoad,
-        FormDrawMapComponent.cancelDraw
-      );
-
-      // Move the reference from temporary component to canvas
-      FormDrawMapComponent.newMapObject = tempComponent.newMapObject;
-    } catch (error) {
-      console.error('Error creating side road:', error);
-    }
+    return sideRoad;
   },
+
+  sideRoadOnMouseMove: function (event) {
+    GeneralHandler.handleObjectOnMouseMove(FormDrawMapComponent, event);
+  },
+
 
   /**
   * Handle mouse movement for side road placement
   * @param {Event} event - Mouse event
   */
-  sideRoadOnMouseMove: function (event) {
+  LEGACY_sideRoadOnMouseMove: function (event) {
 
     const sideRoad = FormDrawMapComponent.newMapObject;
     if (sideRoad.functionalType !== 'SideRoad') return;
@@ -727,63 +652,18 @@ let FormDrawMapComponent = {
   finishDrawSideRoad: function (event) {
     if (event.e.button !== 0 && event.e.type !== 'touchend') return;
 
-    // Finalize side road placement on click
-    if (!FormDrawMapComponent.newMapObject) return;
-
     const sideRoad = FormDrawMapComponent.newMapObject;
-    if (sideRoad.functionalType !== 'SideRoad') return;
+    const mainRoad = FormDrawMapComponent.newMapObject?.mainRoad;
+    // Use shared mouse click handler for new text objects
+    GeneralHandler.handleObjectOnMouseClick(
+      FormDrawMapComponent,
+      event,
+      'newMapObject',
+      'sideRoadOnMouseMove',
+      'finishDrawSideRoad',
+      'cancelDraw',
+    );
 
-    const mainRoad = sideRoad.mainRoad;
-    if (!mainRoad) return;
-
-    // Complete the placement
-    if (CanvasGlobals.activeVertex) {
-      CanvasGlobals.activeVertex.handleMouseUpRef(event);
-    }
-
-    // Make sure the side road isn't already in the main road's collection
-    if (!mainRoad.sideRoad.includes(sideRoad)) {
-      // Add to main road's branch collection
-      mainRoad.sideRoad.push(sideRoad);
-
-      // Add connection point for this branch to main road if needed
-      if (mainRoad.roadType == 'Main Line') {
-        const isSideLeft = sideRoad.side;
-        const connectPoint = sideRoad.basePolygon.vertex[isSideLeft ? 0 : 6];
-        mainRoad.basePolygon.vertex.push({
-          x: connectPoint.x,
-          y: connectPoint.y,
-          label: `C${sideRoad.branchIndex}`
-        });
-      }
-    }
-
-    // Ensure main road is properly updated with the new side road
-    try {
-      mainRoad.receiveNewRoute();
-    } catch (error) {
-      console.error("Error finalizing main road update:", error);
-    }
-
-    // Update coordinates
-    mainRoad.setCoords();
-    sideRoad.isTemporary = false;
-
-    // Reset state - store a reference before clearing
-    const placedSideRoad = FormDrawMapComponent.newMapObject;
-
-    // Clear the newSymbolObject so a new side road can be drawn immediately
-    FormDrawMapComponent.newMapObject = null;
-    CanvasGlobals.activeVertex = null;
-
-    // Clean up
-    drawRoadsHandlerOff();
-
-    // Make the new branch active after a slight delay
-    setTimeout(() => {
-      canvas.setActiveObject(placedSideRoad);
-      // This delay allows UI to update before potentially drawing another side road
-    }, 300);
   },
 
   /**
@@ -849,11 +729,46 @@ let FormDrawMapComponent = {
   * @return {void}
   */
   cancelDraw: function (event, force = false) {
-    if (event.key === 'Escape' || force) {
-      drawRoadsHandlerOff();
-      setTimeout(() => {
-        document.addEventListener('keydown', ShowHideSideBarEvent);
-      }, 1000);
+    // Use shared escape key handler
+    if (event.key === 'Escape') {
+      if (FormDrawMapComponent.newMapObject) {
+        const newRoad = FormDrawMapComponent.newMapObject;
+        // If it's a side road, remove it from the main road's side roads
+        if (newRoad.functionalType === 'SideRoad' && newRoad.mainRoad) {
+          const mainRoad = newRoad.mainRoad;
+
+          // Check if this side road is already part of the main road's side roads
+          const isAdded = mainRoad.sideRoad.includes(newRoad);
+
+          if (isAdded) {
+            // Update the main road as if the side road wasn't placed
+            mainRoad.sideRoad = mainRoad.sideRoad.filter(side => side !== newRoad);
+            mainRoad.receiveNewRoute();
+            mainRoad.setCoords();
+
+            // Remove the temporary side road from canvas explicitly
+            GeneralHandler.handleCancelWithEscape(
+              FormDrawMapComponent,
+              event,
+              'newMapObject',
+              'sideRoadOnMouseMove',
+              'finishDrawSideRoad',
+            );
+
+            // Symbol-specific cleanup
+            // TODO: FormDrawMapComponent.hideAngleControls();
+          }
+        }
+        else if (newRoad.functionalType === 'MainRoad') {
+          GeneralHandler.handleCancelWithEscape(
+            FormDrawMapComponent,
+            event,
+            'newMapObject',
+            'mainRoadOnMouseMove',
+            'finishDrawMainRoad',
+          );
+        }
+      }
     }
   },
 }

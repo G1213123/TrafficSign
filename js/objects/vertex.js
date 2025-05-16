@@ -247,6 +247,7 @@ class VertexControl extends fabric.Control {
 
                     // Apply the position update with the calculated offset, respecting lock properties
                     if (!this.baseGroup.lockMovementX) {
+                        
                         this.baseGroup.routeList[0].x = finalPointer.x + offsetX;
                     }
                     if (!this.baseGroup.lockMovementY) {
@@ -265,17 +266,15 @@ class VertexControl extends fabric.Control {
                 }
             } else {
                 // For MainRoad, use original behavior but respect lock properties
-                //this.baseGroup.routeList.forEach(route => {
-                //    if (!this.baseGroup.lockMovementX) {
-                //        route.x = newLeft + this.vertexOffset.x;
-                //    }
-                //    if (!this.baseGroup.lockMovementY) {
-                //        route.y = newTop + this.vertexOffset.y;
-                //    }
-                //});
-                
             }
 
+            // Update side-flag on SideRoad based on its position relative to the main road
+            if (this.baseGroup.functionalType === 'SideRoad' && this.baseGroup.mainRoad) {
+                // Compare current branch root to main road tip (routeList[1])
+                const mainTipX = this.baseGroup.mainRoad.routeList[1].x;
+                this.baseGroup.side = this.baseGroup.routeList[0].x < mainTipX;
+                this.baseGroup.routeList[0].angle = this.baseGroup.side? -Math.abs(this.baseGroup.routeList[0].angle) : Math.abs(this.baseGroup.routeList[0].angle);
+            }
             // Process route changes in a single update cycle, but only for directions that aren't locked
             let updateX = !this.baseGroup.lockMovementX;
             let updateY = !this.baseGroup.lockMovementY;
