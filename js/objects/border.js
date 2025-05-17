@@ -973,23 +973,23 @@ class BorderGroup extends BaseGroup {
   calcfixedBboxes() {
     // Get the bounding box of the active selection 
     let coords = BorderUtilities.getBorderObjectCoords(this.heightObjects, this.widthObjects)
-    this.padding = { x: 0, y: 0 }
+    this.innerPadding = { x: 0, y: 0 }
 
     // handle roundings on borders and dividers
     //this.rounding = BorderUtilities.calcBorderRounding(this.borderType, this.xHeight, coords)
     if (!isNaN(parseInt(this.fixedWidth))) {
-      this.padding.x = parseInt(this.fixedWidth) - coords.right + coords.left + this.xHeight / 2
-      //this.rounding.x += this.padding.x
+      this.innerPadding.x = parseInt(this.fixedWidth) - coords.right + coords.left + this.xHeight / 2
+      //this.rounding.x += this.innerPadding.x
     }
     if (!isNaN(parseInt(this.fixedHeight))) {
-      this.padding.y = parseInt(this.fixedHeight) - coords.bottom + coords.top + this.xHeight / 2
-      //this.rounding.y += this.padding.y
+      this.innerPadding.y = parseInt(this.fixedHeight) - coords.bottom + coords.top + this.xHeight / 2
+      //this.rounding.y += this.innerPadding.y
     }
 
-    coords.left -= this.padding.x / 2
-    coords.right += this.padding.x / 2
-    coords.top -= this.padding.y / 2
-    coords.bottom += this.padding.y / 2
+    coords.left -= this.innerPadding.x / 2
+    coords.right += this.innerPadding.x / 2
+    coords.top -= this.innerPadding.y / 2
+    coords.bottom += this.innerPadding.y / 2
     this.inbbox = coords
 
   }

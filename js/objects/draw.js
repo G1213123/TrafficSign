@@ -301,16 +301,6 @@ class BaseGroup extends fabric.Group {
     const dataToSerialize = { ...meta };
     dataToSerialize.objectType = this.constructor.name; // Store the class name for reconstruction
 
-    // Handle basePolygon serialization carefully
-    if (this.basePolygon) {
-      // Assuming basePolygon has its own serialization or can be represented by its properties
-      // This is a placeholder; you might need a more specific way to serialize fabric objects
-      dataToSerialize.basePolygon = this.basePolygon.toObject ? this.basePolygon.toObject(this._metadataKeys) : JSON.parse(JSON.stringify(this.basePolygon));
-      // If basePolygon has vertex data that needs to be preserved exactly:
-      if (this.basePolygon.vertex) {
-        dataToSerialize.basePolygonVertex = JSON.parse(JSON.stringify(this.basePolygon.vertex));
-      }
-    }
 
     // Serialize references to other BaseGroup objects by their canvasID
     const propertiesToSerializeById = ['borderGroup', 'mainRoad'];
@@ -336,6 +326,21 @@ class BaseGroup extends fabric.Group {
       }
     });
 
+    // Handle widthObject and heightObject by their canvasID to prevent circular references
+    if (this.widthObjects && Array.isArray(this.widthObjects)) {
+      dataToSerialize.widthObjects = this.widthObjects.map(obj => obj.canvasID);
+    } else if (this.widthObjects) {
+      // Fallback for non-BaseGroup or objects without canvasID
+      dataToSerialize.widthObjects = JSON.parse(JSON.stringify(this.widthObjects));
+    }
+
+    if (this.heightObjects && Array.isArray(this.heightObjects)) {
+      dataToSerialize.heightObjects = this.heightObjects.map(obj => obj.canvasID);
+    } else if (this.heightObjects) {
+      // Fallback for non-BaseGroup or objects without canvasID
+      dataToSerialize.heightObjects = JSON.parse(JSON.stringify(this.heightObjects));
+    }
+
     // Handle lockXToPolygon and lockYToPolygon TargetObject
     if (this.lockXToPolygon && typeof this.lockXToPolygon.TargetObject?.canvasID !== 'undefined') {
       dataToSerialize.lockXToPolygonTargetID = this.lockXToPolygon.TargetObject.canvasID;
@@ -356,25 +361,6 @@ class BaseGroup extends fabric.Group {
     } else if (this.lockYToPolygon) {
         dataToSerialize.lockYToPolygon = JSON.parse(JSON.stringify(this.lockYToPolygon));
     }
-    
-    // anchorageLink might contain complex objects (like LockIcon instances)
-    // These might need their own serialization logic or be identified by type and relevant properties
-    if (this.anchorageLink && Array.isArray(this.anchorageLink)) {
-        dataToSerialize.anchorageLink = this.anchorageLink.map(link => {
-            if (link && link.constructor && link.constructor.name === 'LockIcon') {
-                // Example for LockIcon: serialize its type, target (by ID), and axis
-                return {
-                    type: 'LockIcon',
-                    targetObjectID: link.targetObject?.canvasID,
-                    axis: link.axis,
-                    // Add other relevant LockIcon properties
-                };
-            }
-            // Fallback for other types in anchorageLink
-            return JSON.parse(JSON.stringify(link));
-        });
-    }
-
 
     // Serialize other direct properties that might have been missed by _metadataKeys but are important
     // Example: this.left, this.top, this.width, this.height, this.angle, etc.
@@ -384,14 +370,6 @@ class BaseGroup extends fabric.Group {
     dataToSerialize.width = this.width;
     dataToSerialize.height = this.height;
     dataToSerialize.angle = this.angle;
-    dataToSerialize.scaleX = this.scaleX;
-    dataToSerialize.scaleY = this.scaleY;
-    dataToSerialize.flipX = this.flipX;
-    dataToSerialize.flipY = this.flipY;
-    dataToSerialize.skewX = this.skewX;
-    dataToSerialize.skewY = this.skewY;
-    dataToSerialize.visible = this.visible;
-    dataToSerialize.opacity = this.opacity;
     // Add any other fabric.Object properties you need to preserve
 
 

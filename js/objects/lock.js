@@ -3,7 +3,9 @@ import { canvasTracker } from "../canvas/Tracker.js";
 
 class LockIcon {
   constructor(baseGroup, lockParam, direction) {
-    this.baseGroup = baseGroup;
+    this.objectType = 'LockIcon'; // Added objectType for serialization
+    this.baseGroup = baseGroup; // This will be serialized as baseGroupCanvasID
+    this.lockParam = lockParam; // This will be serialized carefully
     this.direction = direction
     this.lines = []
     this.dimensionTexts = []
@@ -359,6 +361,48 @@ class LockIcon {
     this.baseGroup.focusMode = false;
 
     canvas.renderAll();
+  }
+
+  // Add a method to serialize LockIcon state
+  serializeToJSON() {
+    const serializedLockParam = {};
+    if (this.lockParam) {
+        // Serialize sourceObject and TargetObject by their canvasID
+        if (this.lockParam.sourceObject) {
+            serializedLockParam.sourceObject = this.lockParam.sourceObject.canvasID;
+        }
+        if (this.lockParam.TargetObject) {
+            serializedLockParam.TargetObject = this.lockParam.TargetObject.canvasID;
+        }
+        // Copy other primitive properties from lockParam
+        for (const key in this.lockParam) {
+            if (key !== 'sourceObject' && key !== 'TargetObject' && Object.prototype.hasOwnProperty.call(this.lockParam, key)) {
+                // Deep copy AnchorPoint objects if they exist
+                if ((key === 'sourcePoint' || key === 'targetPoint' || key === 'secondSourcePoint' || key === 'secondTargetPoint') && 
+                    this.lockParam[key] && typeof this.lockParam[key] === 'object') {
+                    serializedLockParam[key] = JSON.parse(JSON.stringify(this.lockParam[key]));
+                } else {
+                    serializedLockParam[key] = this.lockParam[key];
+                }
+            }
+        }
+         // Serialize secondSourceObject and secondTargetObject by their canvasID if they exist
+        if (this.lockParam.secondSourceObject) {
+            serializedLockParam.secondSourceObject = this.lockParam.secondSourceObject.canvasID;
+        }
+        if (this.lockParam.secondTargetObject) {
+            serializedLockParam.secondTargetObject = this.lockParam.secondTargetObject.canvasID;
+        }
+    }
+
+    return {
+        objectType: this.objectType,
+        baseGroupCanvasID: this.baseGroup ? this.baseGroup.canvasID : null,
+        lockParam: serializedLockParam, // Serialized lockParam
+        direction: this.direction,
+        // Note: Fabric.js objects (lines, dimensionTexts, icons) are not serialized directly.
+        // They will be recreated by the constructor during deserialization.
+    };
   }
 }
 

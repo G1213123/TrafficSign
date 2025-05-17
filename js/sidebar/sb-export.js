@@ -80,6 +80,39 @@ let FormExportComponent = {
     // DXF Export
     GeneralHandler.createButton('export-dxf', 'Export as DXF (Outline Only)', buttonContainer, 'input',
       async () => await FormExportComponent.exportToDXF(), 'click');
+
+    // JSON Export
+    GeneralHandler.createButton('export-json', 'Export Canvas to JSON', buttonContainer, 'input',
+      async () => await FormExportComponent.exportCanvasToJSON(), 'click');
+
+    // JSON Import
+    const importButtonContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent); // Create a new container for import elements, child of the main parent
+
+    const importJsonLabel = GeneralHandler.createNode('label', { 
+        'for': 'import-json-file', 
+        'className': 'file-input-label general-button-class sidebar-button',
+        'textContent': 'Import Canvas from JSON' // Added text content for the label
+    }, importButtonContainer); // Changed parent to importButtonContainer
+
+    const importJsonInput = GeneralHandler.createNode('input', {
+        'type': 'file',
+        'id': 'import-json-file',
+        'accept': '.json',
+        'style': 'display: none;'
+        // onchange is now added via addEventListener
+    }, importButtonContainer); // Changed parent to importButtonContainer
+
+    importJsonInput.addEventListener('change', async (event) => {
+        await FormExportComponent.importCanvasFromJSON(event);
+        // Reset file input to allow re-uploading the same file if needed
+        if (event && event.target) {
+            event.target.value = null;
+        }
+    });
+    
+    importJsonLabel.addEventListener('click', () => importJsonInput.click());
+
+
   },
 
   // Helper function to prepare canvas for export
@@ -791,6 +824,80 @@ let FormExportComponent = {
     }
   },
 
+  exportCanvasToJSON: async function () {
+    if (!CanvasGlobals.canvas) {
+      console.error("Canvas is not initialized.");
+      return;
+    }
+
+    const objectsToSerialize = CanvasGlobals.canvasObject;
+    const serializedObjects = [];
+
+    for (const obj of objectsToSerialize) {
+      if (typeof obj.serializeToJSON === 'function') {
+        serializedObjects.push(obj.serializeToJSON());
+      } 
+    }
+    
+    const jsonString = JSON.stringify(serializedObjects, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${FormExportComponent.exportSettings.filename || 'canvas-export'}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+
+  importCanvasFromJSON: async function (event) {
+    const file = event.target.files[0];
+    if (!file) {
+      console.error("No file selected.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const jsonString = e.target.result;
+        const serializedObjects = JSON.parse(jsonString);
+
+        if (!CanvasGlobals.canvas) {
+          console.error("Canvas is not initialized for import.");
+          return;
+        }
+        
+        // Clear existing objects (excluding the grid)
+        CanvasGlobals.canvas.getObjects().forEach(obj => {
+            if (obj.objectType !== 'grid') { // Assuming grid has an objectType or id
+                CanvasGlobals.canvas.remove(obj);
+            }
+        });
+        CanvasGlobals.canvas.renderAll(); // Render after clearing
+
+        // Assuming buildObjectsFromJSON is globally available or imported
+        // and it handles adding objects to the canvas and rendering.
+        if (typeof buildObjectsFromJSON === 'function') {
+          await buildObjectsFromJSON(serializedObjects, CanvasGlobals.canvas);
+        } else {
+          console.error("buildObjectsFromJSON function is not available.");
+          // As a fallback, try Fabric's loadFromJSON if custom deserialization isn't critical
+          // Note: This will not handle custom object types or re-linking logic.
+          // CanvasGlobals.canvas.loadFromJSON(jsonString, () => {
+          //   CanvasGlobals.canvas.renderAll();
+          //   console.log("Canvas loaded from JSON using Fabric.js default loader.");
+          // });
+        }
+        
+      } catch (error) {
+        console.error("Error importing canvas from JSON:", error);
+        // Optionally, provide user feedback here
+      }
+    };
+    reader.readAsText(file);
+  },
 
   // First, recursively collect all path objects
   collectPathObjects: function (obj, pathObjects) {
