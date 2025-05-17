@@ -1,5 +1,6 @@
 /* Object Inspector Panel */
 import { CanvasGlobals } from '../canvas/canvas.js';
+import { showPropertyPanel } from './property.js';
 
 let CanvasObjectInspector = {
   createObjectListPanelInit: function () {
@@ -23,6 +24,9 @@ let CanvasObjectInspector = {
         CanvasGlobals.canvas.renderAll();
         // Scroll the parent container to the clicked item
         div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+      div.addEventListener('dblclick', () => {
+        showPropertyPanel(obj);
       });
       objectListPanel.appendChild(div);
     });

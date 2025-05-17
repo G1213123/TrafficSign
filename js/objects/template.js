@@ -2473,7 +2473,7 @@ const BorderTypeScheme = {
     'rectangle': RectTemplate,
 }
 
-const BorderFrameWdith = {
+const BorderFrameWidth = {
     'stack': 1.5,
     'flagLeft': 1.5,
     'flagRight': 1.5,
@@ -2927,7 +2927,7 @@ function VLaneTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
 export {
     BorderColorScheme,
     BorderTypeScheme,
-    BorderFrameWdith,
+    BorderFrameWidth,
     DividerScheme,
     DividerMargin,
     HDividerTemplate,

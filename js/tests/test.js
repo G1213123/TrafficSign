@@ -3,7 +3,7 @@ import { SymbolObject } from '../objects/symbols.js';
 import { anchorShape, globalAnchorTree } from '../objects/anchor.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { HDividerCreate, VDividerCreate, HLineCreate } from '../objects/divider.js';
-import { BorderUtilities } from '../objects/border.js';
+import { BorderUtilities, BorderGroup } from '../objects/border.js';
 import { MainRoadSymbol, SideRoadSymbol } from '../objects/route.js';
 import { FormTemplateComponent } from '../sidebar/sb-template.js';
 
@@ -957,13 +957,14 @@ const BorderTest = {
     const expectedHeight = maxY - minY;
 
     // Create border around the objects
-    const borderGroup = BorderUtilities.BorderGroupCreate(
-      'stack',
-      [object1, object2],
-      [object1, object2],
-      null,
-      null,
-      { xHeight: 100, borderType: 'stack', colorType: 'Blue Background' }
+    const borderGroup = new BorderGroup(
+      {
+        widthObjects: [object1, object2],
+        heightObjects: [object1, object2],
+        xHeight: 100,
+        borderType: 'stack',
+        color: 'Blue Background' // Assuming BorderGroup constructor takes color directly or BorderUtilities.BorderGroupCreate handles mapping colorType to color
+      }
     );
     TestTracker.register("borderGroup", borderGroup);
 
@@ -1072,12 +1073,14 @@ const BorderTest = {
     const divider = TestTracker.get("divider");
 
     // Create border around all three objects
-    const borderGroup = BorderUtilities.BorderGroupCreate(
-      'stack',
-      [aboveObject, belowObject, divider],
-      [aboveObject, belowObject, divider],
-      null, null,
-      { xHeight: 100, borderType: 'stack', colorType: 'Yellow Background' }
+    const borderGroup = new BorderGroup(
+      {
+        widthObjects: [aboveObject, belowObject, divider],
+        heightObjects: [aboveObject, belowObject, divider],
+        xHeight: 100,
+        borderType: 'stack',
+        color: 'Yellow Background' // Assuming BorderGroup constructor takes color directly or BorderUtilities.BorderGroupCreate handles mapping colorType to color
+      }
     );
     TestTracker.register("combinedBorder", borderGroup);
 

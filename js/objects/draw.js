@@ -288,6 +288,128 @@ class BaseGroup extends fabric.Group {
     return meta;
   }
 
+  /**
+   * Serializes the BaseGroup object to a JSON string based on its metadata.
+   * @returns {string} JSON string representation of the object.
+   */
+  serializeToJSON() {
+    const meta = this.getMetadata();
+    // Add any other properties that are essential for reconstruction but might not be in _metadataKeys by default
+    // For example, the class type itself, or specific geometric properties if not covered.
+    // For now, we rely on what's populated in _metadataKeys and direct properties.
+
+    const dataToSerialize = { ...meta };
+    dataToSerialize.objectType = this.constructor.name; // Store the class name for reconstruction
+
+    // Handle basePolygon serialization carefully
+    if (this.basePolygon) {
+      // Assuming basePolygon has its own serialization or can be represented by its properties
+      // This is a placeholder; you might need a more specific way to serialize fabric objects
+      dataToSerialize.basePolygon = this.basePolygon.toObject ? this.basePolygon.toObject(this._metadataKeys) : JSON.parse(JSON.stringify(this.basePolygon));
+      // If basePolygon has vertex data that needs to be preserved exactly:
+      if (this.basePolygon.vertex) {
+        dataToSerialize.basePolygonVertex = JSON.parse(JSON.stringify(this.basePolygon.vertex));
+      }
+    }
+
+    // Serialize references to other BaseGroup objects by their canvasID
+    const propertiesToSerializeById = ['borderGroup', 'mainRoad'];
+    propertiesToSerializeById.forEach(propName => {
+      if (this[propName] && typeof this[propName].canvasID !== 'undefined') {
+        dataToSerialize[propName] = this[propName].canvasID;
+      } else if (this[propName]) {
+        // If it's not a BaseGroup but some other object, serialize as is (or define specific logic)
+        dataToSerialize[propName] = JSON.parse(JSON.stringify(this[propName]));
+      }
+    });
+
+    const arrayPropertiesToSerializeById = ['anchoredPolygon', 'sideRoad'];
+    arrayPropertiesToSerializeById.forEach(propName => {
+      if (this[propName] && Array.isArray(this[propName])) {
+        dataToSerialize[propName] = this[propName].map(item => {
+          if (item && typeof item.canvasID !== 'undefined') {
+            return item.canvasID;
+          }
+          // If item is not a BaseGroup or doesn't have canvasID, serialize as is or handle specifically
+          return JSON.parse(JSON.stringify(item));
+        });
+      }
+    });
+
+    // Handle lockXToPolygon and lockYToPolygon TargetObject
+    if (this.lockXToPolygon && typeof this.lockXToPolygon.TargetObject?.canvasID !== 'undefined') {
+      dataToSerialize.lockXToPolygonTargetID = this.lockXToPolygon.TargetObject.canvasID;
+      // Serialize other relevant properties of lockXToPolygon if needed, e.g., .AnchorPoint
+      if (this.lockXToPolygon.AnchorPoint) {
+        dataToSerialize.lockXToPolygonAnchorPoint = this.lockXToPolygon.AnchorPoint;
+      }
+    } else if (this.lockXToPolygon) {
+        dataToSerialize.lockXToPolygon = JSON.parse(JSON.stringify(this.lockXToPolygon));
+    }
+
+
+    if (this.lockYToPolygon && typeof this.lockYToPolygon.TargetObject?.canvasID !== 'undefined') {
+      dataToSerialize.lockYToPolygonTargetID = this.lockYToPolygon.TargetObject.canvasID;
+      if (this.lockYToPolygon.AnchorPoint) {
+        dataToSerialize.lockYToPolygonAnchorPoint = this.lockYToPolygon.AnchorPoint;
+      }
+    } else if (this.lockYToPolygon) {
+        dataToSerialize.lockYToPolygon = JSON.parse(JSON.stringify(this.lockYToPolygon));
+    }
+    
+    // anchorageLink might contain complex objects (like LockIcon instances)
+    // These might need their own serialization logic or be identified by type and relevant properties
+    if (this.anchorageLink && Array.isArray(this.anchorageLink)) {
+        dataToSerialize.anchorageLink = this.anchorageLink.map(link => {
+            if (link && link.constructor && link.constructor.name === 'LockIcon') {
+                // Example for LockIcon: serialize its type, target (by ID), and axis
+                return {
+                    type: 'LockIcon',
+                    targetObjectID: link.targetObject?.canvasID,
+                    axis: link.axis,
+                    // Add other relevant LockIcon properties
+                };
+            }
+            // Fallback for other types in anchorageLink
+            return JSON.parse(JSON.stringify(link));
+        });
+    }
+
+
+    // Serialize other direct properties that might have been missed by _metadataKeys but are important
+    // Example: this.left, this.top, this.width, this.height, this.angle, etc.
+    // FabricJS's toObject() usually handles these, but if you're not using it for the group itself:
+    dataToSerialize.left = this.left;
+    dataToSerialize.top = this.top;
+    dataToSerialize.width = this.width;
+    dataToSerialize.height = this.height;
+    dataToSerialize.angle = this.angle;
+    dataToSerialize.scaleX = this.scaleX;
+    dataToSerialize.scaleY = this.scaleY;
+    dataToSerialize.flipX = this.flipX;
+    dataToSerialize.flipY = this.flipY;
+    dataToSerialize.skewX = this.skewX;
+    dataToSerialize.skewY = this.skewY;
+    dataToSerialize.visible = this.visible;
+    dataToSerialize.opacity = this.opacity;
+    // Add any other fabric.Object properties you need to preserve
+
+
+    // You'll need to expand this based on how you plan to reconstruct the objects.
+    // Consider if sub-objects (like those in anchoredPolygon) need their own serializeToJSON methods.
+
+    return JSON.stringify(dataToSerialize, (key, value) => {
+      // Custom replacer to handle circular references or complex objects if any remain
+      if (value instanceof fabric.Object && value !== this.basePolygon) {
+        // Avoid serializing full fabric objects unless explicitly handled (like basePolygon)
+        // This is a safeguard. Ideally, all fabric objects are handled above.
+        if (typeof value.canvasID !== 'undefined') return `ref:${value.canvasID}`; // or just its ID
+        return `fabricObject:${value.type}`; // Or some other placeholder
+      }
+      return value;
+    });
+  }
+
   // Show border dimensions when selected
   showDimensions() {
     // Clean up any existing dimension annotations
@@ -352,7 +474,7 @@ class BaseGroup extends fabric.Group {
 
     if (this.basePolygon) {
       // Update name with additional info if available
-      this._showName = `<Group ${this.canvasID}> ${this.functionalType}${basePolygon.text ? ' - ' + basePolygon.text : ''}${basePolygon.symbol ? ' - ' + basePolygon.symbol : ''}${this.roadType ? ' - ' + this.roadType : ''}`;
+      this._showName = `<Group ${this.canvasID}> ${this.functionalType}${basePolygon.text ? ' - ' + basePolygon.text : ''}${basePolygon.symbol ? ' - ' + basePolygon.symbol : ''}${this.roadType ? ' - ' + this.roadType : ''}${this.borderType ? ' - ' + this.borderType : ''}`;
 
       this.basePolygon.insertPoint = this.basePolygon.vertex ? this.basePolygon.vertex[0] : null;
       canvas.remove(this.basePolygon);
@@ -1029,7 +1151,7 @@ class BaseGroup extends fabric.Group {
   // New method to enter focus mode
   enterFocusMode(activeVertexControl) {
     this.focusMode = true;
-    this.hideDimensions();
+    //this.hideDimensions();
     //this.drawVertex(false);
     canvas.renderAll();
   }
@@ -1038,9 +1160,9 @@ class BaseGroup extends fabric.Group {
   exitFocusMode() {
     this.focusMode = false;
     //this.drawVertex(false);
-    if (canvas.getActiveObject() === this) {
-      this.showDimensions();
-    }
+    //if (canvas.getActiveObject() === this) {
+    //  this.showDimensions();
+    //}
     canvas.renderAll();
   }
 }
