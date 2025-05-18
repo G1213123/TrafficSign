@@ -256,7 +256,7 @@ let FormDrawAddComponent = {
           y: options.position.y
         },
         xHeight: options.xHeight,
-        angle: options.angle,
+        symbolAngle: options.angle,
         color: options.color
       });
     };

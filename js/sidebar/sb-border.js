@@ -2,7 +2,7 @@
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { BorderUtilities } from '../objects/border.js';
-import { HDividerCreate, VDividerCreate, HLineCreate, VLaneCreate } from '../objects/divider.js';
+import { DividerObject } from '../objects/divider.js';
 import { BorderColorScheme, BorderFrameWidth, BorderTypeScheme } from '../objects/template.js';
 import { vertexToPath } from '../objects/path.js';
 import { selectObjectHandler } from '../canvas/promptBox.js';

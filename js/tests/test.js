@@ -2,7 +2,7 @@ import { TextObject } from '../objects/text.js';
 import { SymbolObject } from '../objects/symbols.js';
 import { anchorShape, globalAnchorTree } from '../objects/anchor.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
-import { HDividerCreate, VDividerCreate, HLineCreate } from '../objects/divider.js';
+import { DividerObject } from '../objects/divider.js';
 import { BorderUtilities, BorderGroup } from '../objects/border.js';
 import { MainRoadSymbol, SideRoadSymbol } from '../objects/route.js';
 import { FormTemplateComponent } from '../sidebar/sb-template.js';
@@ -1061,13 +1061,20 @@ const BorderTest = {
     const belowObject = TestTracker.get("belowText");
 
     // Create horizontal divider between objects
-    HDividerCreate(
-      [aboveObject],
-      [belowObject],
-      null,
-      null,
-      { xHeight: 100, colorType: 'Yellow Background' }
-    );
+    // HDividerCreate(
+    //   [aboveObject],
+    //   [belowObject],
+    //   null,
+    //   null,
+    //   { xHeight: 100, colorType: 'Yellow Background' }
+    // );
+    new DividerObject({
+      aboveObjects: [aboveObject], // Corrected to plural and array
+      belowObjects: [belowObject], // Corrected to plural and array
+      xHeight: 100,
+      colorType: 'Yellow Background',
+      dividerType: 'HDivider',
+    });
     TestTracker.register("divider");
 
     const divider = TestTracker.get("divider");
@@ -1923,22 +1930,36 @@ const ComplexSignTest = {
 
 
     // Create horizontal dividers between the 2-liner and destination on both sides
-    HLineCreate(
-      [leftDestObj],
-      [leftArrowObj],
-      null,
-      null,
-      { xHeight: 200, colorType: 'Blue Background' }
-    );
+    // HLineCreate(
+    //   [leftDestObj],
+    //   [leftArrowObj],
+    //   null,
+    //   null,
+    //   { xHeight: 200, colorType: 'Blue Background' }
+    // );
+    new DividerObject({
+      aboveObjects: [leftDestObj], // Corrected to plural and array
+      belowObjects: [leftArrowObj], // Corrected to plural and array
+      xHeight: 200,
+      colorType: 'Blue Background',
+      dividerType: 'HLine',
+    });
     TestTracker.register("leftHDivider");
 
-    HLineCreate(
-      [rightDestObj],
-      [rightArrowObj2],
-      null,
-      null,
-      { xHeight: 200, colorType: 'Blue Background' }
-    );
+    // HLineCreate(
+    //   [rightDestObj],
+    //   [rightArrowObj2],
+    //   null,
+    //   null,
+    //   { xHeight: 200, colorType: 'Blue Background' }
+    // );
+    new DividerObject({
+      aboveObjects: [rightDestObj], // Corrected to plural and array
+      belowObjects: [rightArrowObj2], // Corrected to plural and array
+      xHeight: 200,
+      colorType: 'Blue Background',
+      dividerType: 'HLine',
+    });
     TestTracker.register("rightHDivider");
 
     // Anchor the objects in place
@@ -1985,13 +2006,20 @@ const ComplexSignTest = {
     });
 
     // Create a vertical gantry divider between left and right sides
-    VDividerCreate(
-      [whcObj],
-      [rightTopObj],
-      null,
-      null,
-      { xHeight: 200, colorType: 'Blue Background' }
-    );
+    // VDividerCreate(
+    //   [whcObj],
+    //   [rightTopObj],
+    //   null,
+    //   null,
+    //   { xHeight: 200, colorType: 'Blue Background' }
+    // );
+    new DividerObject({
+      leftObjects: [whcObj], // Corrected to plural and array
+      rightObjects: [rightTopObj], // Corrected to plural and array
+      xHeight: 200,
+      colorType: 'Blue Background',
+      dividerType: 'VDivider',
+    });
     TestTracker.register("vDivider");
 
     // Create an overall border containing both sides and the dividers
@@ -2138,6 +2166,7 @@ const ComplexSignTest = {
  * Test suite for template sign creation
  */
 const TemplateTest = {
+ 
   /**
  * Expected dimensions for each template.
  * NOTE: These are placeholders and need to be filled with actual expected values.
@@ -2148,7 +2177,7 @@ const TemplateTest = {
     'Lane Sign': { width: 3950, height: 1600, left: -7882, top: 7998 }, // Placeholder values
     'Roundabout Sign': { width: 3800, height: 3250, left: -3488, top: 6019 }, // Placeholder values
     'Spiral Roundabout Sign': { width: 3800, height: 3250, left: 1794, top: 6230 }, // Placeholder values, may be null if not fully implemented
-    'Gantry Sign': { width: 7900, height: 2700, left: 7493, top: 7306 }, // Placeholder values
+    'Gantry Sign': { width: 7900, height: 2700, left: 7493, top:  7306 }, // Placeholder values
     'Diverge Sign ': { width: 2950, height: 5900, left: 17039, top: 7605 }, // Placeholder values
     // Add entries for any other templates
   },

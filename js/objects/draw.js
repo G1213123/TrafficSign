@@ -127,6 +127,7 @@ class BaseGroup extends fabric.Group {
    * @type {string[]}
    */
   _metadataKeys = [];
+  _arrayPropertiesToSerializeItemByCanvasID = ['heightObjects', 'widthObjects'];
 
   constructor(basePolygon, functionalType, options = {}) {
     super([], {
@@ -313,7 +314,7 @@ class BaseGroup extends fabric.Group {
       }
     });
 
-    const arrayPropertiesToSerializeById = ['anchoredPolygon', 'sideRoad'];
+    const arrayPropertiesToSerializeById = ['anchoredPolygon', 'sideRoad','widthObjects', 'heightObjects', 'leftObjects', 'aboveObjects', 'rightObjects', 'belowObjects'];
     arrayPropertiesToSerializeById.forEach(propName => {
       if (this[propName] && Array.isArray(this[propName])) {
         dataToSerialize[propName] = this[propName].map(item => {
@@ -326,38 +327,26 @@ class BaseGroup extends fabric.Group {
       }
     });
 
-    // Handle widthObject and heightObject by their canvasID to prevent circular references
-    if (this.widthObjects && Array.isArray(this.widthObjects)) {
-      dataToSerialize.widthObjects = this.widthObjects.map(obj => obj.canvasID);
-    } else if (this.widthObjects) {
-      // Fallback for non-BaseGroup or objects without canvasID
-      dataToSerialize.widthObjects = JSON.parse(JSON.stringify(this.widthObjects));
-    }
-
-    if (this.heightObjects && Array.isArray(this.heightObjects)) {
-      dataToSerialize.heightObjects = this.heightObjects.map(obj => obj.canvasID);
-    } else if (this.heightObjects) {
-      // Fallback for non-BaseGroup or objects without canvasID
-      dataToSerialize.heightObjects = JSON.parse(JSON.stringify(this.heightObjects));
-    }
-
     // Handle lockXToPolygon and lockYToPolygon TargetObject
     if (this.lockXToPolygon && typeof this.lockXToPolygon.TargetObject?.canvasID !== 'undefined') {
-      dataToSerialize.lockXToPolygonTargetID = this.lockXToPolygon.TargetObject.canvasID;
-      // Serialize other relevant properties of lockXToPolygon if needed, e.g., .AnchorPoint
-      if (this.lockXToPolygon.AnchorPoint) {
-        dataToSerialize.lockXToPolygonAnchorPoint = this.lockXToPolygon.AnchorPoint;
-      }
+      dataToSerialize.serializedLockXInfo = {
+        TargetObjectID: this.lockXToPolygon.TargetObject.canvasID,
+        sourcePoint: this.lockXToPolygon.sourcePoint, // Assuming AnchorPoint on this object is the source
+        targetPoint: this.lockXToPolygon.targetPoint, // Assuming this new property will hold the target's vertex index
+        spacingX: this.lockXToPolygon.spacing, // Assuming this property exists or will be added
+      };
     } else if (this.lockXToPolygon) {
         dataToSerialize.lockXToPolygon = JSON.parse(JSON.stringify(this.lockXToPolygon));
     }
 
 
     if (this.lockYToPolygon && typeof this.lockYToPolygon.TargetObject?.canvasID !== 'undefined') {
-      dataToSerialize.lockYToPolygonTargetID = this.lockYToPolygon.TargetObject.canvasID;
-      if (this.lockYToPolygon.AnchorPoint) {
-        dataToSerialize.lockYToPolygonAnchorPoint = this.lockYToPolygon.AnchorPoint;
-      }
+      dataToSerialize.serializedLockYInfo = {
+        TargetObjectID: this.lockYToPolygon.TargetObject.canvasID,
+        sourcePoint: this.lockYToPolygon.sourcePoint, // Assuming AnchorPoint on this object is the source
+        targetPoint: this.lockYToPolygon.targetPoint, // Assuming this new property will hold the target's vertex index
+        spacingY: this.lockYToPolygon.spacing, // Assuming this property exists or will be added
+      };
     } else if (this.lockYToPolygon) {
         dataToSerialize.lockYToPolygon = JSON.parse(JSON.stringify(this.lockYToPolygon));
     }

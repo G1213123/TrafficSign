@@ -30,7 +30,8 @@ module.exports = {
       template: './index.html', // Path to your source index.html
       filename: 'index.html',   // Output filename
       inject: false,           // Inject scripts into the body
-      appVersion: process.env.VERSION || 'dev' // Pass the version from .env, default to 'dev'
+      title: 'Road Sign Factory - Online Sign Creator', // Add title here
+      appVersion: process.env.VERSION || require('./package.json').version || 'dev' // Pass the version from .env or package.json, default to 'dev'
     }),
     new CopyWebpackPlugin({
       patterns: [
@@ -46,7 +47,8 @@ module.exports = {
     }),
     // Optional: If you need the version available in your JS code as well
     new webpack.DefinePlugin({
-      'process.env.APP_VERSION': JSON.stringify(process.env.VERSION || 'dev')
+      'process.env.APP_VERSION': JSON.stringify(process.env.VERSION || require('./package.json').version || 'dev'),
+      'process.env.APP_TITLE': JSON.stringify('Road Sign Factory - Online Sign Creator')
     })
   ],
   optimization: {

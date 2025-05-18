@@ -53,7 +53,7 @@ class SymbolObject extends BaseGroup {
     this.symbolType = shapeMeta.symbolType;
     this.xHeight = shapeMeta.xHeight || 100;
     this.color = shapeMeta.color || 'White';
-    this.symbolAngle = shapeMeta.angle || 0;
+    this.symbolAngle = shapeMeta.symbolAngle || 0;
     this.left = shapeMeta.x || 0;
     this.top = shapeMeta.y || 0;
 
@@ -153,7 +153,7 @@ function drawSymbolDirectly(symbolType, options) {
     symbolType: symbolType,
     xHeight: options.xHeight,
     color: options.color,
-    angle: options.angle || 0,
+    symbolAngle: options.angle || 0,
     x: options.x || 0,
     y: options.y || 0
   };

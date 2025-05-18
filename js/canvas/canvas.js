@@ -172,12 +172,9 @@ function CenterCoord() {
 }
 
 
-let resolveAnswer;
-
 
 resizeCanvas();
 
-window.canvas = canvas; // Expose canvas to the global scope for debugging
 
 const CanvasGlobals = {
   canvas: canvas,

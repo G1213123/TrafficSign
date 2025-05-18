@@ -2,6 +2,7 @@
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals, DrawGrid } from '../canvas/canvas.js';
 import { runTests, testToRun } from '../tests/test.js'; 
+import { FormExportComponent } from './sb-export.js';
 
 // Define shortcuts in a constant object
 const KEYBOARD_SHORTCUTS = {
@@ -283,7 +284,7 @@ let FormSettingsComponent = {
       localStorage.setItem('canvasState', canvasJSON);
 
       // Save canvas objects (shapes, texts, etc.)
-      const canvasObjects = JSON.stringify(CanvasGlobals.canvas.toJSON(['functionalType', 'txtFrameList', 'basePolygon']));
+      const canvasObjects = FormExportComponent.exportCanvasToJSON(false);
       localStorage.setItem('canvasObjects', canvasObjects);
 
       console.log('Canvas state and objects auto-saved', new Date());

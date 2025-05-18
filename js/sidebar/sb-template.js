@@ -4,7 +4,7 @@ import { CanvasGlobals } from '../canvas/canvas.js';
 import { TextObject } from '../objects/text.js';
 import { SymbolObject } from '../objects/symbols.js';
 import { BorderUtilities } from '../objects/border.js';
-import { VDividerCreate, HDividerCreate, VLaneCreate, HLineCreate } from '../objects/divider.js';
+import { DividerObject } from '../objects/divider.js';
 import { MainRoadSymbol, SideRoadSymbol } from '../objects/route.js';
 import { anchorShape } from '../objects/anchor.js';
 
@@ -218,7 +218,7 @@ let FormTemplateComponent = {
         x: centerX + 150,
         y: centerY - 100,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: 'White'
       });
       const Line1Symbol = canvasObject[canvasObject.length - 1];
@@ -248,7 +248,7 @@ let FormTemplateComponent = {
         x: centerX + 150,
         y: centerY + 100,
         xHeight: xHeight,
-        angle: 90,
+        symbolAngle: 90,
         color: 'White'
       });
       const Line2Symbol = canvasObject[canvasObject.length - 1];
@@ -392,7 +392,7 @@ let FormTemplateComponent = {
         x: centerX - 500,
         y: centerY + 200,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: 'white'
       });
       const leftArrow = canvasObject[canvasObject.length - 1];
@@ -431,7 +431,7 @@ let FormTemplateComponent = {
         x: centerX + 500,
         y: centerY + 300,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: 'white'
       });
       const rightArrow = canvasObject[canvasObject.length - 1];
@@ -441,7 +441,7 @@ let FormTemplateComponent = {
         x: centerX + 500,
         y: centerY + 300,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: 'white'
       });
       const exitSymmbol = canvasObject[canvasObject.length - 1];
@@ -482,13 +482,7 @@ let FormTemplateComponent = {
       });
 
       // Create vertical divider between compartments
-      VDividerCreate(
-        [leftBorder],
-        [rightChiText2],
-        null,
-        null,
-        { xHeight: xHeight, colorType: 'Green Background' }
-      );
+      new DividerObject({ dividerType: 'VDivider', leftObjects: [leftBorder], rightObjects: [rightChiText2], leftValue: null, rightValue: null, xHeight: xHeight, colorType: 'Green Background', });
       const verticalDivider = canvasObject[canvasObject.length - 1];
 
       // Create an overall green border containing all components
@@ -675,7 +669,7 @@ let FormTemplateComponent = {
         x: centerX + 200,
         y: centerY - 750,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: 'White'
       });
       const topArrow = canvasObject[canvasObject.length - 1];
@@ -685,7 +679,7 @@ let FormTemplateComponent = {
         x: centerX + 200,
         y: centerY + 50,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: 'Black'
       });
       const midArrow = canvasObject[canvasObject.length - 1];
@@ -695,7 +689,7 @@ let FormTemplateComponent = {
         x: centerX + 200,
         y: centerY + 350,
         xHeight: xHeight,
-        angle: -90,
+        symbolAngle: -90,
         color: 'Black'
       });
       const botArrow = canvasObject[canvasObject.length - 1];
@@ -705,19 +699,13 @@ let FormTemplateComponent = {
         x: centerX + 200,
         y: centerY - 664,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: 'White'
       });
       const airport = canvasObject[canvasObject.length - 1];
 
       // Create horizontal dividers
-      HDividerCreate(
-        [midChineseText],
-        [botDestinationText],
-        null,
-        null,
-        { xHeight: xHeight, colorType: 'White Background' }
-      );
+      new DividerObject({ dividerType: 'HDivider', aboveObjects: [midChineseText], belowObjects: [botDestinationText], aboveValue: null, belowValue: null, xHeight: xHeight, colorType: 'White Background', });
       const topDivider = canvasObject[canvasObject.length - 1];
 
       // Anchor text objects in pairs
@@ -994,7 +982,7 @@ let FormTemplateComponent = {
         x: centerX - 100,
         y: centerY - 200,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const topSymbol = canvasObject[canvasObject.length - 1];
@@ -1042,7 +1030,7 @@ let FormTemplateComponent = {
         x: centerX - 450,
         y: centerY + 40,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const leftSymbol1 = canvasObject[canvasObject.length - 1];
@@ -1051,7 +1039,7 @@ let FormTemplateComponent = {
         x: centerX - 450,
         y: centerY + 40,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const leftSymbol2 = canvasObject[canvasObject.length - 1];
@@ -1099,7 +1087,7 @@ let FormTemplateComponent = {
         x: centerX + 450,
         y: centerY + 40,
         xHeight: xHeight,
-        angle: 90,
+        symbolAngle: 90,
         color: color
       });
       const rightSymbol1 = canvasObject[canvasObject.length - 1];
@@ -1109,7 +1097,7 @@ let FormTemplateComponent = {
         x: centerX - 450,
         y: centerY + 40,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const rightSymbol2 = canvasObject[canvasObject.length - 1];
@@ -1118,7 +1106,7 @@ let FormTemplateComponent = {
         x: centerX - 450,
         y: centerY + 40,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const rightSymbol3 = canvasObject[canvasObject.length - 1];
@@ -1429,7 +1417,7 @@ let FormTemplateComponent = {
         x: centerX - 50,
         y: centerY - 150,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const expressway = canvasObject[canvasObject.length - 1];
@@ -1440,10 +1428,21 @@ let FormTemplateComponent = {
         x: centerX - 50,
         y: centerY - 70,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const route9 = canvasObject[canvasObject.length - 1];
+
+      // Create exit symbol 
+      new SymbolObject({
+        symbolType: 'Exit',
+        x: centerX + 150,
+        y: centerY + 150,
+        xHeight: xHeight,
+        symbolAngle: 0,
+        color: color
+      });
+      const exitSymbol = canvasObject[canvasObject.length - 1];
 
       // Create exit number text for exit panel
       const exitText = new TextObject({
@@ -1461,21 +1460,11 @@ let FormTemplateComponent = {
         x: centerX + 150,
         y: centerY + 150,
         xHeight: xHeight,
-        angle: -45,
+        symbolAngle: -45,
         color: color
       });
       const airport = canvasObject[canvasObject.length - 1];
 
-      // Create airport symbol at 45 degrees
-      new SymbolObject({
-        symbolType: 'Exit',
-        x: centerX + 150,
-        y: centerY + 150,
-        xHeight: xHeight,
-        angle: 0,
-        color: color
-      });
-      const exitSymbol = canvasObject[canvasObject.length - 1];
 
       // Anchor text objects
       // Upper destination text
@@ -1571,7 +1560,7 @@ let FormTemplateComponent = {
         color: color,
         roadType: 'Side Road',
         mainRoad: mainRoad,
-        side: true, 
+        side: true,
         // Approximate initial position, constructor will adjust
         routeList: [{
           x: centerX - 300,
@@ -1716,7 +1705,7 @@ let FormTemplateComponent = {
         x: centerX - 300,
         y: centerY + 100,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const leftArrow = canvasObject[canvasObject.length - 1];
@@ -1726,7 +1715,7 @@ let FormTemplateComponent = {
         x: centerX,
         y: centerY + 100,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const rightArrow = canvasObject[canvasObject.length - 1];
@@ -1736,7 +1725,7 @@ let FormTemplateComponent = {
         x: centerX + 300,
         y: centerY + 100,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const chtSymbol = canvasObject[canvasObject.length - 1];
@@ -1746,7 +1735,7 @@ let FormTemplateComponent = {
         x: centerX + 300,
         y: centerY + 100,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const ehcSymbol = canvasObject[canvasObject.length - 1];
@@ -1756,7 +1745,7 @@ let FormTemplateComponent = {
         x: centerX + 300,
         y: centerY + 100,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const routeSymbol = canvasObject[canvasObject.length - 1];
@@ -1769,13 +1758,7 @@ let FormTemplateComponent = {
       });
 
       // Create lane dividers
-      VLaneCreate(
-        [chtSymbol],
-        [rightLaneText1],
-        null,
-        null,
-        { xHeight: xHeight, colorType: 'Blue Background' }
-      );
+      new DividerObject({ dividerType: 'VLane', leftObjects: [chtSymbol], rightObjects: [rightLaneText1], leftValue: null, rightValue: null, xHeight: xHeight, colorType: 'Blue Background', });
       const leftLaneDivider = canvasObject[canvasObject.length - 1];
 
       // Anchor text objects in pairs
@@ -2125,7 +2108,7 @@ let FormTemplateComponent = {
         x: centerX - 500,
         y: centerY,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const leftRouteSymbol = canvasObject[canvasObject.length - 1];
@@ -2136,7 +2119,7 @@ let FormTemplateComponent = {
         x: centerX + 500,
         y: centerY,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const rightRouteSymbol = canvasObject[canvasObject.length - 1];
@@ -2147,7 +2130,7 @@ let FormTemplateComponent = {
         x: centerX + 500,
         y: centerY,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const tunnelSymbol = canvasObject[canvasObject.length - 1];

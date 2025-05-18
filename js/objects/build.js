@@ -10,6 +10,15 @@
 // Assumes 'canvas' and 'canvasObject' (e.g. window.canvas, window.canvasObject) are the global
 // Fabric canvas instance and the array storing canvas objects, respectively.
 
+import { CanvasGlobals } from "../canvas/canvas.js";
+import { BaseGroup } from "./draw.js";
+import { SymbolObject } from "./symbols.js";
+import { TextObject } from "./text.js";
+import { MainRoadSymbol, SideRoadSymbol } from "./route.js";
+import { BorderGroup } from "./border.js"; // Assuming this is defined in this file or imported correctly
+import { DividerObject } from "./divider.js";
+import { globalAnchorTree, anchorShape } from "./anchor.js"; // For registering anchor relationships and creating anchors
+
 const ObjectBuilderFactory = {
     creators: {},
 
@@ -34,14 +43,27 @@ const ObjectBuilderFactory = {
     }
 };
 
+const ObjectType = {
+    'BaseGroup': BaseGroup,
+    'SymbolObject': SymbolObject,
+    'TextObject': TextObject,
+    'MainRoadSymbol': MainRoadSymbol,
+    'SideRoadSymbol': SideRoadSymbol,
+    'BorderGroup': BorderGroup,
+    'DividerObject': DividerObject,
+    // Add other object types as needed
+}
+
 // Register a creator for BaseGroup
 // This assumes BaseGroup constructor: new BaseGroup(basePolygon, functionalType, options)
 // and that it handles adding itself to the global canvas and canvasObject array.
-ObjectBuilderFactory.register('BaseGroup', (data, reconstructedBasePolygon, constructorOptions) => {
-    // The BaseGroup constructor will use its own logic to add to canvasObject and canvas.
-    // The canvasID will be assigned by the BaseGroup constructor.
-    return new BaseGroup(reconstructedBasePolygon, data.functionalType, constructorOptions);
-});
+for (const [key, value] of Object.entries(ObjectType)) {
+    ObjectBuilderFactory.register(key, (data, reconstructedBasePolygon, constructorOptions) => {
+        // Create a new instance of the object type
+        const objectInstance = new value( constructorOptions);
+        return objectInstance;
+    });
+  }
 
 
 /**
@@ -63,33 +85,6 @@ async function reconstructSingleObjectInternal(data, fabricCanvas, allDeserializ
     let newFabricObject;
     let reconstructedBasePolygon = null;
 
-    // 1. Reconstruct basePolygon (asynchronously)
-    if (data.basePolygon) {
-        try {
-            reconstructedBasePolygon = await new Promise((resolve, reject) => {
-                fabric.util.enlivenObjects([data.basePolygon], function (objects) {
-                    if (objects && objects.length > 0) {
-                        const enlivenedPoly = objects[0];
-                        // Restore vertex data if it was specifically serialized
-                        if (data.basePolygonVertex && enlivenedPoly) {
-                             // How vertices are stored/restored on basePolygon depends on its type.
-                             // If it's a custom class, it should handle this.
-                             // If it's a standard fabric object, 'points' might be the property.
-                             // For safety, we assume 'vertex' was a custom property saved.
-                             enlivenedPoly.vertex = JSON.parse(JSON.stringify(data.basePolygonVertex));
-                        }
-                        resolve(enlivenedPoly);
-                    } else {
-                        console.error("Failed to enliven basePolygon from data:", data.basePolygon);
-                        reject(new Error("Failed to enliven basePolygon"));
-                    }
-                }, ''); // Empty namespace for enliven
-            });
-        } catch (error) {
-            console.error("Error enlivening basePolygon:", error);
-            return null; // Stop if basePolygon fails to load
-        }
-    }
 
     // 2. Prepare constructor options
     const constructorOptions = { ...data };
@@ -108,21 +103,21 @@ async function reconstructSingleObjectInternal(data, fabricCanvas, allDeserializ
     }
 
     // 4. Apply top-level Fabric.js properties that might not be covered by options or toObject/constructor
-    const fabricPropsToSet = [
-        'left', 'top', 'width', 'height', 'angle', 'scaleX', 'scaleY',
-        'flipX', 'flipY', 'skewX', 'skewY', 'visible', 'opacity',
-        'originX', 'originY', 'borderColor', 'cornerColor', 'cornerSize',
-        'transparentCorners', 'stroke', 'strokeWidth', 'fill',
-        // BaseGroup specific properties from serialization if not handled by constructor options:
-        'isTemporary', 'focusMode'
-    ];
+    //const fabricPropsToSet = [
+    //    'left', 'top', 'width', 'height', 'angle', 'scaleX', 'scaleY',
+    //    'flipX', 'flipY', 'skewX', 'skewY', 'visible', 'opacity',
+    //    'originX', 'originY', 'borderColor', 'cornerColor', 'cornerSize',
+    //    'transparentCorners', 'stroke', 'strokeWidth', 'fill',
+    //    // BaseGroup specific properties from serialization if not handled by constructor options:
+    //    'isTemporary', 'focusMode'
+    //];
+//
+    //fabricPropsToSet.forEach(prop => {
+    //    if (typeof data[prop] !== 'undefined') {
+    //        newFabricObject.set(prop, data[prop]);
+    //    }
+    //});
 
-    fabricPropsToSet.forEach(prop => {
-        if (typeof data[prop] !== 'undefined') {
-            newFabricObject.set(prop, data[prop]);
-        }
-    });
-    
     // Ensure basePolygon is correctly set if the constructor didn't fully handle it with options
     // or if it needs re-setting after other properties.
     // The BaseGroup's setBasePolygon also calls drawVertex.
@@ -138,7 +133,7 @@ async function reconstructSingleObjectInternal(data, fabricCanvas, allDeserializ
     if (typeof originalCanvasID !== 'undefined') {
         allDeserializedObjectsMap[originalCanvasID] = newFabricObject;
     }
-    
+
     // newFabricObject.setCoords(); // Called by setBasePolygon, or should be called after all props set.
 
     return newFabricObject;
@@ -147,110 +142,108 @@ async function reconstructSingleObjectInternal(data, fabricCanvas, allDeserializ
 /**
  * Main function to reconstruct a scene or a set of objects from JSON strings.
  * Assumes `canvas` and `canvasObject` are global (e.g., window.canvas, window.canvasObject).
+ * This version interleaves creation and linking.
+ * IMPORTANT: Assumes `jsonStringsArray` is ordered such that dependencies appear before
+ * the objects that depend on them.
  *
  * @param {Array<string>} jsonStringsArray - Array of JSON strings, each representing an object.
+ *                                           MUST BE IN DEPENDENCY ORDER.
  * @returns {Promise<Array<fabric.Object>>} A promise resolving to an array of the top-level reconstructed Fabric objects.
  */
 async function buildObjectsFromJSON(jsonStringsArray) {
-    if (!window.canvas || !window.canvasObject) {
-        console.error("Global 'canvas' or 'canvasObject' not found.");
-        return [];
-    }
-
-    const fabricCanvas = window.canvas;
-    const globalCanvasObjectArray = window.canvasObject; // This is where BaseGroup adds objects
+    const fabricCanvas = CanvasGlobals.canvas;
+    // It's assumed that BaseGroup's constructor (and similar for other types)
+    // adds the object to CanvasGlobals.canvasObject and the fabricCanvas.
 
     const allDeserializedData = jsonStringsArray.map(s => JSON.parse(s));
     const allDeserializedObjectsMap = {}; // Maps originalID -> new FabricObject
-    const reconstructedObjects = [];
+    const finalReconstructedObjects = []; // Stores the fabric objects in the order they are fully processed
 
-    // Phase 1: Create all objects
-    // Objects are added to globalCanvasObjectArray and fabricCanvas by their constructors (e.g., BaseGroup)
-    for (const data of allDeserializedData) {
-        const obj = await reconstructSingleObjectInternal(data, fabricCanvas, allDeserializedObjectsMap);
-        if (obj) {
-            reconstructedObjects.push(obj); // Keep track of successfully created objects
-        }
-    }
+    const propertiesToRemapById = ['borderGroup', 'mainRoad'];
+    const arrayPropertiesToRemapItemsById = ['anchoredPolygon', 'sideRoad','widthObjects', 'heightObjects', 'leftObjects', 'aboveObjects', 'rightObjects', 'belowObjects'];
 
-    // Phase 2: Link objects
+    // First pass: Create all objects and store them in the map
     for (const data of allDeserializedData) {
         const originalID = data.canvasID;
-        const fabricObject = allDeserializedObjectsMap[originalID];
-
-        if (!fabricObject) continue; // Skip if object creation failed
-
-        // Link properties like borderGroup, mainRoad, etc.
-        if (data.borderGroup && allDeserializedObjectsMap[data.borderGroup]) {
-            fabricObject.borderGroup = allDeserializedObjectsMap[data.borderGroup];
-        }
-        if (data.mainRoad && allDeserializedObjectsMap[data.mainRoad]) {
-            fabricObject.mainRoad = allDeserializedObjectsMap[data.mainRoad];
-        }
-        if (data.sideRoad && Array.isArray(data.sideRoad)) {
-            fabricObject.sideRoad = data.sideRoad.map(id => allDeserializedObjectsMap[id]).filter(Boolean);
-        }
-        if (data.anchoredPolygon && Array.isArray(data.anchoredPolygon)) {
-            fabricObject.anchoredPolygon = data.anchoredPolygon.map(id => allDeserializedObjectsMap[id]).filter(Boolean);
-        }
-
-        // Link lockXToPolygon
-        if (data.lockXToPolygonTargetID && allDeserializedObjectsMap[data.lockXToPolygonTargetID]) {
-            fabricObject.lockXToPolygon = {
-                TargetObject: allDeserializedObjectsMap[data.lockXToPolygonTargetID],
-                AnchorPoint: data.lockXToPolygonAnchorPoint // This was directly serialized
-            };
-        } else if (data.lockXToPolygon) { // If it was serialized as a full object (no ID)
-             fabricObject.lockXToPolygon = JSON.parse(JSON.stringify(data.lockXToPolygon));
-        }
+        // Create the object using the existing internal function.
+        // reconstructSingleObjectInternal will add the created object to allDeserializedObjectsMap.
+        // We pass a clean copy of data for object creation, separate from linking data.
+        const creationData = { ...data };
 
 
-        // Link lockYToPolygon
-        if (data.lockYToPolygonTargetID && allDeserializedObjectsMap[data.lockYToPolygonTargetID]) {
-            fabricObject.lockYToPolygon = {
-                TargetObject: allDeserializedObjectsMap[data.lockYToPolygonTargetID],
-                AnchorPoint: data.lockYToPolygonAnchorPoint // This was directly serialized
-            };
-        } else if (data.lockYToPolygon) {
-            fabricObject.lockYToPolygon = JSON.parse(JSON.stringify(data.lockYToPolygon));
+        // Link direct dependencies that are needed for constructor or initial setup
+        // Remap single ID references to objects
+        propertiesToRemapById.forEach(propName => {
+            if (creationData[propName] !== undefined && allDeserializedObjectsMap[creationData[propName]]) {
+                creationData[propName] = allDeserializedObjectsMap[creationData[propName]];
+            }
+        });
+
+        // Remap arrays of IDs to arrays of objects
+        arrayPropertiesToRemapItemsById.forEach(propName => {
+            if (Array.isArray(creationData[propName])) {
+                creationData[propName] = creationData[propName]
+                    .map(id => allDeserializedObjectsMap[id])
+                    .filter(Boolean); // Filter out any undefined if an ID wasn't found
+            }
+        });
+
+        const fabricObject = await reconstructSingleObjectInternal(creationData, fabricCanvas, allDeserializedObjectsMap);
+
+        if (!fabricObject) {
+            console.warn(`Failed to reconstruct object for data (originalID: ${originalID}):`, data);
+            continue; // Skip if object creation failed
+        }
+        finalReconstructedObjects.push(fabricObject);
+    }
+
+    // Second pass: Link anchors using anchorShape
+    for (const data of allDeserializedData) {
+        const fabricObject = allDeserializedObjectsMap[data.canvasID];
+        if (!fabricObject) continue;
+
+        if (data.serializedLockXInfo) {
+            const targetObjectX = allDeserializedObjectsMap[data.serializedLockXInfo.TargetObjectID];
+            if (targetObjectX) {
+                const options = {
+                    vertexIndex1: data.serializedLockXInfo.sourcePoint,
+                    vertexIndex2: data.serializedLockXInfo.targetPoint,
+                    spacingX: data.serializedLockXInfo.spacingX,
+                    spacingY: '' // Or undefined, depending on anchorShape's expectation
+                };
+                await anchorShape(targetObjectX, fabricObject, options);
+                fabricObject.updateAllCoord(); // Update coordinates after linking
+            } else {
+                console.warn(`TargetObject for X-lock not found for ${data.canvasID} (TargetID: ${data.serializedLockXInfo.TargetObjectID})`);
+            }
         }
 
-        // Reconstruct anchorageLink (e.g., LockIcon instances)
-        if (data.anchorageLink && Array.isArray(data.anchorageLink)) {
-            fabricObject.anchorageLink = data.anchorageLink.map(linkData => {
-                if (linkData && linkData.type === 'LockIcon' && window.LockIcon) {
-                    const target = allDeserializedObjectsMap[linkData.targetObjectID];
-                    if (target) {
-                        // LockIcon(targetObject, lockData, axis) - from draw.js
-                        // The lockData would be the fabricObject's lockXToPolygon or lockYToPolygon
-                        let lockDataForIcon;
-                        if (fabricObject.lockXToPolygon && fabricObject.lockXToPolygon.TargetObject === target) {
-                            lockDataForIcon = fabricObject.lockXToPolygon;
-                        } else if (fabricObject.lockYToPolygon && fabricObject.lockYToPolygon.TargetObject === target) {
-                            lockDataForIcon = fabricObject.lockYToPolygon;
-                        } else {
-                            lockDataForIcon = {}; // Fallback, might need specific anchor point
-                        }
-                        const newLockIcon = new LockIcon(fabricObject, lockDataForIcon, linkData.axis);
-                        // LockIcon constructor in draw.js adds its objects to canvas.
-                        return newLockIcon;
-                    }
-                }
-                return null; // Or handle other types if any
-            }).filter(Boolean);
+        if (data.serializedLockYInfo) {
+            const targetObjectY = allDeserializedObjectsMap[data.serializedLockYInfo.TargetObjectID];
+            if (targetObjectY) {
+                const options = {
+                    vertexIndex1: data.serializedLockYInfo.sourcePoint,
+                    vertexIndex2: data.serializedLockYInfo.targetPoint,
+                    spacingX: '', // Or undefined
+                    spacingY: data.serializedLockYInfo.spacingY
+                };
+                await anchorShape(targetObjectY, fabricObject, options);
+                fabricObject.updateAllCoord(); // Update coordinates after linking
+            } else {
+                console.warn(`TargetObject for Y-lock not found for ${data.canvasID} (TargetID: ${data.serializedLockYInfo.TargetObjectID})`);
+            }
         }
         
-        // Finalize object state
-        // setBasePolygon calls drawVertex. If not called, call drawVertex explicitly.
-        // if (fabricObject.drawVertex) fabricObject.drawVertex(false);
-
-        if (fabricObject.drawAnchorLinkage) fabricObject.drawAnchorLinkage();
-        
+        // Call drawAnchorLinkage if it exists, after anchors are set.
+        // anchorShape should handle the logic for globalAnchorTree.addNode
+        if (typeof fabricObject.drawAnchorLinkage === 'function') {
+            // fabricObject.drawAnchorLinkage(); // Potentially redundant if anchorShape updates visuals
+        }
         fabricObject.setCoords(); // Ensure coordinates are updated after all linking and property setting.
     }
-    
+
     fabricCanvas.renderAll();
-    return reconstructedObjects; // Returns array of newly constructed fabric objects
+    return finalReconstructedObjects; // Returns array of newly constructed fabric objects
 }
 
 // To use:
@@ -265,3 +258,5 @@ async function buildObjectsFromJSON(jsonStringsArray) {
 // window.canvas.clear();
 // window.canvasObject.length = 0;
 // // Potentially reset other global states related to canvas objects if necessary.
+
+export { buildObjectsFromJSON, ObjectBuilderFactory };
