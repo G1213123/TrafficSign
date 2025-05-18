@@ -458,7 +458,7 @@ function parseFont() {
         }
       }).catch(e => { console.error("Error fetching/parsing TransportHeavy:", e); throw e; }),
 
-    fetch('./css/font/NotoSansHK-Medium.ttf')
+    fetch('https://fonts.gstatic.com/s/notosanshk/v32/nKKF-GM_FYFRJvXzVXaAPe97P1KHynJFP716qEJ--oWTiYjNvVA.ttf')
       .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
       .then(buffer => {
         if (typeof opentype !== 'undefined') {
