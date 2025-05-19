@@ -194,9 +194,15 @@ const BorderUtilities = {
     return { x: roundingX, y: roundingY }
   },
 
-  FilterDivider: function (heightObjects, widthObjects) {
+  FilterDivider: function (heightObjects, widthObjects, VDivider, HDivider) {
     let HDividerObject = []
+    if (HDivider){
+      HDividerObject.push(...HDivider)
+    }
     let VDividerObject = []
+    if (VDivider){
+      VDividerObject.push(...VDivider)
+    }
     let borderedObjects = []
     let fwidthObjects = widthObjects.filter(obj => {
       if (obj.functionalType == 'HDivider' || obj.functionalType == 'HLine') {
@@ -330,6 +336,8 @@ class BorderGroup extends BaseGroup {
     this.inbbox = null; // Inner border bounding box
     this.rounding = { x: 0, y: 0 }; // Rounding values for the border
     this.compartmentBboxes = []; // Array of compartment bounding boxes
+    this.VDivider = options.VDivider
+    this.HDivider = options.HDivider
 
     // Add status flag to track border updates
     this.isUpdating = false; // Flag to track if the border is currently being updated
@@ -963,7 +971,7 @@ class BorderGroup extends BaseGroup {
   }
 
   filterBorderObjects() {
-    const [fheightObjects, fwidthObjects, VDivider, HDivider, bordered] = BorderUtilities.FilterDivider(this.heightObjects, this.widthObjects)
+    const [fheightObjects, fwidthObjects, VDivider, HDivider, bordered] = BorderUtilities.FilterDivider(this.heightObjects, this.widthObjects, this.VDivider, this.HDivider)
     this.widthObjects = fwidthObjects
     this.heightObjects = fheightObjects
     this.VDivider = VDivider

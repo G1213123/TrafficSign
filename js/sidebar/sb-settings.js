@@ -1,8 +1,9 @@
 /* Settings Panel */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals, DrawGrid } from '../canvas/canvas.js';
-import { runTests, testToRun } from '../tests/test.js'; 
+import { runTests, testToRun } from '../tests/test.js';
 import { FormExportComponent } from './sb-export.js';
+import { buildObjectsFromJSON } from '../objects/build.js';
 
 // Define shortcuts in a constant object
 const KEYBOARD_SHORTCUTS = {
@@ -24,7 +25,7 @@ let FormSettingsComponent = {
       // Load saved settings if they exist
       //FormSettingsComponent.loadSettings();
 
-      
+
       // Create a container for shortcuts
       var shortcutsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container shortcut-list-container' }, parent);
 
@@ -119,7 +120,7 @@ let FormSettingsComponent = {
       // Reset settings button
       GeneralHandler.createButton('reset-settings', 'Reset Settings', buttonContainer, 'input',
         FormSettingsComponent.resetSettings, 'click');
-      
+
       // Create a container for testing
       var testingContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
 
@@ -308,7 +309,7 @@ let FormSettingsComponent = {
     }
   },
 
-  loadCanvasState: function () {
+  loadCanvasState: async function () {
     try {
       const savedCanvas = localStorage.getItem('canvasState');
       if (savedCanvas) {
@@ -324,11 +325,25 @@ let FormSettingsComponent = {
         // Reload canvas objects if they're saved separately
         if (localStorage.getItem('canvasObjects')) {
           try {
-            const savedObjects = JSON.parse(localStorage.getItem('canvasObjects'));
-            if (Array.isArray(savedObjects)) {
-              // Clear existing objects and load saved ones
-              CanvasGlobals.canvas.clear();
-              loadCanvasFromJSON(savedObjects);
+            const jsonData = JSON.parse(localStorage.getItem('canvasObjects'));
+            if (jsonData.meta && Array.isArray(jsonData.objects)) {
+              console.log("Importing JSON with metadata:", jsonData.meta);
+              const objectsToLoad = jsonData.objects;
+              if (typeof buildObjectsFromJSON === 'function') {
+                await buildObjectsFromJSON(objectsToLoad, CanvasGlobals.canvas);
+              } else {
+                console.error("buildObjectsFromJSON function is not available.");
+                // As a fallback, try Fabric's loadFromJSON if custom deserialization isn't critical
+                // Note: This will not handle custom object types or re-linking logic.
+                // CanvasGlobals.canvas.loadFromJSON(jsonString, () => {
+                //   CanvasGlobals.canvas.renderAll();
+                //   console.log("Canvas loaded from JSON using Fabric.js default loader.");
+                // });
+              }
+            } else {
+              // Assume old format (array of objects) for backward compatibility
+              objectsToLoad = jsonData;
+              console.log("Importing JSON in old format (array of objects).");
             }
           } catch (e) {
             console.error('Failed to load canvas objects', e);
@@ -351,7 +366,7 @@ let FormSettingsComponent = {
       const savedSettings = localStorage.getItem('appSettings');
       if (savedSettings) {
         const parsedSettings = JSON.parse(savedSettings);
-        
+
         // Update existing settings instead of reassigning
         Object.keys(parsedSettings).forEach(key => {
           if (GeneralSettings.hasOwnProperty(key)) {

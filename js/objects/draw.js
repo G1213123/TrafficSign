@@ -267,7 +267,7 @@ class BaseGroup extends fabric.Group {
     });
   }
 
-  
+
   /**
    * Registers property names to include in metadata.
    * @param {...string} keys
@@ -301,6 +301,9 @@ class BaseGroup extends fabric.Group {
 
     const dataToSerialize = { ...meta };
     dataToSerialize.objectType = this.constructor.name; // Store the class name for reconstruction
+    dataToSerialize.left = this.left
+    dataToSerialize.top = this.top
+    dataToSerialize.refTopLeft = this.refTopLeft
 
 
     // Serialize references to other BaseGroup objects by their canvasID
@@ -314,7 +317,7 @@ class BaseGroup extends fabric.Group {
       }
     });
 
-    const arrayPropertiesToSerializeById = ['anchoredPolygon', 'sideRoad','widthObjects', 'heightObjects', 'leftObjects', 'aboveObjects', 'rightObjects', 'belowObjects'];
+    const arrayPropertiesToSerializeById = ['anchoredPolygon', 'sideRoad', 'widthObjects', 'heightObjects', 'leftObjects', 'aboveObjects', 'rightObjects', 'belowObjects', 'VDivider', 'HDivider'];
     arrayPropertiesToSerializeById.forEach(propName => {
       if (this[propName] && Array.isArray(this[propName])) {
         dataToSerialize[propName] = this[propName].map(item => {
@@ -336,7 +339,7 @@ class BaseGroup extends fabric.Group {
         spacingX: this.lockXToPolygon.spacing, // Assuming this property exists or will be added
       };
     } else if (this.lockXToPolygon) {
-        dataToSerialize.lockXToPolygon = JSON.parse(JSON.stringify(this.lockXToPolygon));
+      dataToSerialize.lockXToPolygon = JSON.parse(JSON.stringify(this.lockXToPolygon));
     }
 
 
@@ -348,7 +351,7 @@ class BaseGroup extends fabric.Group {
         spacingY: this.lockYToPolygon.spacing, // Assuming this property exists or will be added
       };
     } else if (this.lockYToPolygon) {
-        dataToSerialize.lockYToPolygon = JSON.parse(JSON.stringify(this.lockYToPolygon));
+      dataToSerialize.lockYToPolygon = JSON.parse(JSON.stringify(this.lockYToPolygon));
     }
 
     // Serialize other direct properties that might have been missed by _metadataKeys but are important
@@ -861,8 +864,8 @@ class BaseGroup extends fabric.Group {
     }
 
     // Check if border resize is needed
-    const firstXBorder = globalAnchorTree.starterObjectX !==null ? canvasObject[globalAnchorTree.starterObjectX].borderGroup : null;
-    const firstYBorder = globalAnchorTree.starterObjectY !==null ? canvasObject[globalAnchorTree.starterObjectY].borderGroup : null;
+    const firstXBorder = globalAnchorTree.starterObjectX !== null ? canvasObject[globalAnchorTree.starterObjectX].borderGroup : null;
+    const firstYBorder = globalAnchorTree.starterObjectY !== null ? canvasObject[globalAnchorTree.starterObjectY].borderGroup : null;
     if (this.functionalType !== 'HDivider' &&
       this.functionalType !== 'VDivider' &&
       this.functionalType !== 'HLine' &&

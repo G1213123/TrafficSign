@@ -60,10 +60,10 @@ const ObjectType = {
 for (const [key, value] of Object.entries(ObjectType)) {
     ObjectBuilderFactory.register(key, (data, reconstructedBasePolygon, constructorOptions) => {
         // Create a new instance of the object type
-        const objectInstance = new value( constructorOptions);
+        const objectInstance = new value(constructorOptions);
         return objectInstance;
     });
-  }
+}
 
 
 /**
@@ -91,12 +91,19 @@ async function reconstructSingleObjectInternal(data, fabricCanvas, allDeserializ
     delete constructorOptions.basePolygon; // Handled separately
     delete constructorOptions.basePolygonVertex; // Handled separately
     delete constructorOptions.objectType; // Used by factory
+    delete constructorOptions.top
+    delete constructorOptions.left
+
     // originalCanvasID is not an option for constructor, but useful for map
     const originalCanvasID = data.canvasID;
     delete constructorOptions.canvasID; // Let constructor assign new one, or handle if restoring
 
     // 3. Instantiate the object using the factory
     newFabricObject = ObjectBuilderFactory.create(data.objectType, data, reconstructedBasePolygon, constructorOptions);
+    newFabricObject.set({
+        left: data.left,
+        top: data.top
+    })
 
     if (!newFabricObject) {
         return null;
@@ -111,7 +118,7 @@ async function reconstructSingleObjectInternal(data, fabricCanvas, allDeserializ
     //    // BaseGroup specific properties from serialization if not handled by constructor options:
     //    'isTemporary', 'focusMode'
     //];
-//
+    //
     //fabricPropsToSet.forEach(prop => {
     //    if (typeof data[prop] !== 'undefined') {
     //        newFabricObject.set(prop, data[prop]);
@@ -160,7 +167,7 @@ async function buildObjectsFromJSON(jsonStringsArray) {
     const finalReconstructedObjects = []; // Stores the fabric objects in the order they are fully processed
 
     const propertiesToRemapById = ['borderGroup', 'mainRoad'];
-    const arrayPropertiesToRemapItemsById = ['anchoredPolygon', 'sideRoad','widthObjects', 'heightObjects', 'leftObjects', 'aboveObjects', 'rightObjects', 'belowObjects'];
+    const arrayPropertiesToRemapItemsById = ['anchoredPolygon', 'sideRoad', 'widthObjects', 'heightObjects', 'leftObjects', 'aboveObjects', 'rightObjects', 'belowObjects', 'VDivider', 'HDivider'];
 
     // First pass: Create all objects and store them in the map
     for (const data of allDeserializedData) {
@@ -233,7 +240,7 @@ async function buildObjectsFromJSON(jsonStringsArray) {
                 console.warn(`TargetObject for Y-lock not found for ${data.canvasID} (TargetID: ${data.serializedLockYInfo.TargetObjectID})`);
             }
         }
-        
+
         // Call drawAnchorLinkage if it exists, after anchors are set.
         // anchorShape should handle the logic for globalAnchorTree.addNode
         if (typeof fabricObject.drawAnchorLinkage === 'function') {

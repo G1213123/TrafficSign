@@ -805,7 +805,7 @@ let FormExportComponent = {
     }
   },
 
-  exportCanvasToJSON: async function (download = true) {
+  exportCanvasToJSON: function (download = true) {
     if (!CanvasGlobals.canvas) {
       console.error("Canvas is not initialized.");
       return;
