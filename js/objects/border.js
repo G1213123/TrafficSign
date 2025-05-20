@@ -1,9 +1,9 @@
 import { BaseGroup } from './draw.js';
 import { BorderDimensionDisplay } from './dimension.js';
 import { globalAnchorTree, processUpdateCycle } from './anchor.js';
-import { BorderTypeScheme, BorderColorScheme, BorderFrameWdith, DividerMargin } from './template.js';
+import { BorderTypeScheme, BorderColorScheme, BorderFrameWidth, DividerMargin } from './template.js';
 import { vertexToPath } from './path.js';
-import { CanvasGlobals } from '../canvas/canvas.js';
+import { CanvasGlobals, DrawGrid } from '../canvas/canvas.js';
 import { drawDivider } from './divider.js';
 
 const canvas = CanvasGlobals.canvas; // Access the global canvas object
@@ -194,9 +194,15 @@ const BorderUtilities = {
     return { x: roundingX, y: roundingY }
   },
 
-  FilterDivider: function (heightObjects, widthObjects) {
+  FilterDivider: function (heightObjects, widthObjects, VDivider, HDivider) {
     let HDividerObject = []
+    if (HDivider){
+      HDividerObject.push(...HDivider)
+    }
     let VDividerObject = []
+    if (VDivider){
+      VDividerObject.push(...VDivider)
+    }
     let borderedObjects = []
     let fwidthObjects = widthObjects.filter(obj => {
       if (obj.functionalType == 'HDivider' || obj.functionalType == 'HLine') {
@@ -223,144 +229,6 @@ const BorderUtilities = {
     return [fheightObjects, fwidthObjects, VDividerObject, HDividerObject, borderedObjects]
   },
 
-  RoundingToDivider: function (HDividers, VDividers, rounding) {
-    // No longer need sourceList parameter
-    rounding.x /= (VDividers.length + 1) * 2;
-    rounding.y /= (HDividers.length + 1) * 2;
-
-    HDividers.forEach(h => {
-      // Skip rounding if divider has fixed distance values
-      if (h.fixedTopValue || h.fixedBottomValue) {
-        return;
-      }
-
-      // Check if the target object is already being updated in the Y cycle
-      const targetObj = h.lockYToPolygon.TargetObject;
-      if (targetObj && h.functionalType == 'HDivider') {
-        // Directly update anchor properties instead of removing and recreating
-        if (h.lockYToPolygon && Object.keys(h.lockYToPolygon).length > 0) {
-          // Update spacing value
-          h.lockYToPolygon.spacingY = DividerMargin[h.functionalType]['top'] * h.xHeight / 4 + rounding.y;
-
-          // Update object position
-          const sourcePoint = h.lockYToPolygon.sourcePoint;
-          const targetPoint = h.lockYToPolygon.targetPoint;
-
-          // Calculate new position
-          const sourceVertexY = targetObj.getBasePolygonVertex(targetPoint).y;
-          const newY = sourceVertexY + h.lockYToPolygon.spacingY;
-          const deltaY = newY - h.getBasePolygonVertex(sourcePoint).y;
-
-          // Update object position and vertices
-          h.set('top', h.top + deltaY);
-          if (h.basePolygon && h.basePolygon.vertex) {
-            h.basePolygon.vertex.forEach(v => {
-              v.y += deltaY;
-            });
-          }
-        }
-      }
-
-      // Check the next anchored object (assuming it's the one below)
-      const nextAnchor = h.anchoredPolygon && h.anchoredPolygon.length > 0 ? h.anchoredPolygon[0] : null;
-      if (nextAnchor) {
-        // Directly update anchor properties instead of removing and recreating
-        if (nextAnchor.lockYToPolygon && Object.keys(nextAnchor.lockYToPolygon).length > 0) {
-          // Update spacing value
-          nextAnchor.lockYToPolygon.spacingY = DividerMargin[h.functionalType]['bottom'] * h.xHeight / 4 + rounding.y;
-
-          // Update object position
-          const sourcePoint = nextAnchor.lockYToPolygon.sourcePoint;
-          const targetPoint = nextAnchor.lockYToPolygon.targetPoint; // Target point on the *divider* (h)
-
-          // Calculate new position based on the divider (h)
-          const sourceVertexY = h.getBasePolygonVertex(targetPoint).y;
-          const newY = sourceVertexY + nextAnchor.lockYToPolygon.spacingY;
-          const deltaY = newY - nextAnchor.getBasePolygonVertex(sourcePoint).y;
-
-          // Update object position and vertices
-          nextAnchor.set('top', nextAnchor.top + deltaY);
-          if (nextAnchor.basePolygon && nextAnchor.basePolygon.vertex) {
-            nextAnchor.basePolygon.vertex.forEach(v => {
-              v.y += deltaY;
-            });
-          }
-          // Mark as updated in this cycle if part of an ongoing update
-          if (!globalAnchorTree.updateInProgressY) {
-            const updateOrderY = globalAnchorTree.getUpdateOrder('y', nextAnchor.canvasID);
-            processUpdateCycle('y', nextAnchor, updateOrderY, null, deltaY);
-          }
-        }
-      }
-    });
-
-    VDividers.forEach(v => {
-      // Skip rounding if divider has fixed distance values
-      if (v.fixedLeftValue || v.fixedRightValue) {
-        return;
-      }
-
-      // Check if the target object is already being updated in the X cycle
-      const targetObj = v.lockXToPolygon.TargetObject;
-      if (targetObj && (v.functionalType == 'VDivider' || v.functionalType == 'VLane')) {
-        // Directly update anchor properties instead of removing and recreating
-        if (v.lockXToPolygon && Object.keys(v.lockXToPolygon).length > 0) {
-          // Update spacing value
-          v.lockXToPolygon.spacingX = DividerMargin[v.functionalType]['left'] * v.xHeight / 4 + rounding.x;
-
-          // Update object position
-          const sourcePoint = v.lockXToPolygon.sourcePoint;
-          const targetPoint = v.lockXToPolygon.targetPoint;
-
-          // Calculate new position
-          const sourceVertexX = targetObj.getBasePolygonVertex(targetPoint).x;
-          const newX = sourceVertexX + v.lockXToPolygon.spacingX;
-          const deltaX = newX - v.getBasePolygonVertex(sourcePoint).x;
-
-          // Update object position and vertices
-          v.set('left', v.left + deltaX);
-          if (v.basePolygon && v.basePolygon.vertex) {
-            v.basePolygon.vertex.forEach(vertex => {
-              vertex.x += deltaX;
-            });
-          }
-        }
-      }
-
-      // Check the next anchored object (assuming it's the one to the right)
-      const nextAnchor = v.anchoredPolygon && v.anchoredPolygon.length > 0 ? v.anchoredPolygon[0] : null;
-      if (nextAnchor) {
-        // Directly update anchor properties instead of removing and recreating
-        if (nextAnchor.lockXToPolygon && Object.keys(nextAnchor.lockXToPolygon).length > 0) {
-          // Update spacing value
-          nextAnchor.lockXToPolygon.spacingX = DividerMargin[v.functionalType]['right'] * v.xHeight / 4 + rounding.x;
-
-          // Update object position
-          const sourcePoint = nextAnchor.lockXToPolygon.sourcePoint;
-          const targetPoint = nextAnchor.lockXToPolygon.targetPoint; // Target point on the *divider* (v)
-
-          // Calculate new position based on the divider (v)
-          const sourceVertexX = v.getBasePolygonVertex(targetPoint).x;
-          const newX = sourceVertexX + nextAnchor.lockXToPolygon.spacingX;
-          const deltaX = newX - nextAnchor.getBasePolygonVertex(sourcePoint).x;
-
-          // Update object position and vertices
-          nextAnchor.set('left', nextAnchor.left + deltaX);
-          if (nextAnchor.basePolygon && nextAnchor.basePolygon.vertex) {
-            nextAnchor.basePolygon.vertex.forEach(vertex => {
-              vertex.x += deltaX;
-            });
-          }
-          // Mark as updated in this cycle if part of an ongoing update
-          if (!globalAnchorTree.updateInProgressX) {
-            const updateOrderX = globalAnchorTree.getUpdateOrder('x', nextAnchor.canvasID);
-            processUpdateCycle('x', nextAnchor, updateOrderX, deltaX, null);
-          }
-        }
-        // nextAnchor.rounded = { x: rounding.x, y: 0 } // This seems out of place, commenting out for now. Re-evaluate if needed.
-      }
-    });
-  },
 
   getBorderObjectCoords: function (fheightObjects, fwidthObjects) {
     const coordsWidth = BorderUtilities.getBoundingBox(fwidthObjects)
@@ -373,65 +241,34 @@ const BorderUtilities = {
     //const borderType = options ? options.borderType : document.getElementById("input-type").value
     const colorType = options ? options.colorType : document.getElementById("input-color").value
 
-    const [fheightObjects, fwidthObjects, VDivider, HDivider, bordered] = BorderUtilities.FilterDivider(heightObjects, widthObjects)
 
-    // Get the bounding box of the active selection 
-    let coords = BorderUtilities.getBorderObjectCoords(fheightObjects, fwidthObjects)
-    let padding = { x: 0, y: 0 }
-
-    // handle roundings on borders and dividers
-    let rounding = BorderUtilities.calcBorderRounding(borderType, xHeight, coords)
-    if (!isNaN(parseInt(widthText))) {
-      padding.x = parseInt(widthText) - coords.right + coords.left + xHeight / 2
-      rounding.x += padding.x
-    }
-    if (!isNaN(parseInt(heightText))) {
-      padding.y = parseInt(heightText) - coords.bottom + coords.top + xHeight / 2
-      rounding.y += padding.y
-    }
-    BorderUtilities.RoundingToDivider(HDivider, VDivider, rounding)
-    coords = BorderUtilities.getBorderObjectCoords(fheightObjects, fwidthObjects)
-    coords.left -= padding.x / 2
-    coords.right += padding.x / 2
-    coords.top -= padding.y / 2
-    coords.bottom += padding.y / 2
 
     try {
-      const BaseBorder = drawLabeledBorder(borderType, xHeight, coords, colorType)
+      //const BaseBorder = drawLabeledBorder(borderType, xHeight, coords, colorType)
 
       // Use the new BorderGroup class instead of BaseGroup
-      const borderGroup = new BorderGroup(BaseBorder, borderType, {
-        widthObjects: [...fwidthObjects],
-        heightObjects: [...fheightObjects],
+      const borderGroup = new BorderGroup({
+        borderType: borderType,
+        widthObjects: [...widthObjects],
+        heightObjects: [...heightObjects],
         fixedWidth: widthText,
         fixedHeight: heightText,
-        VDivider: VDivider,
-        HDivider: HDivider,
         xHeight: xHeight,
         color: colorType,
-        frame: BorderFrameWdith[borderType],
+        frame: BorderFrameWidth[borderType],
       });
 
 
       // Add mid points and assign widths to dividers
-      borderGroup.assignWidthToDivider(); // Ensure this await is always present
+      //borderGroup.assignWidthToDivider(); // Ensure this await is always present
       //borderGroup.addMidPointToDivider();
 
 
       // Send border to back and update object references
-      canvas.sendObjectToBack(borderGroup);
+      //canvas.sendObjectToBack(borderGroup);
 
-      // Update border reference in width objects
-      fwidthObjects.forEach(obj => {
-        obj.borderGroup = borderGroup;
-      });
 
-      // Update border reference in height objects
-      fheightObjects.forEach(obj => {
-        obj.borderGroup = borderGroup;
-      });
-
-      canvas.renderAll();
+      //canvas.renderAll();
       return borderGroup;
     } catch (error) {
       console.error("Error creating border group:", error);
@@ -482,24 +319,25 @@ const BorderUtilities = {
 
 // Define BorderGroup class that extends BaseGroup
 class BorderGroup extends BaseGroup {
-  constructor(baseBorder, borderType, options = {}) {
+  constructor(options = {}) {
     // Call the parent constructor with the base border and 'Border' functional type
-    super(baseBorder, 'Border', options);
+    super(null, 'Border', 'BorderGroup', options);
 
     // Initialize border-specific properties
     this.widthObjects = options.widthObjects || [];
     this.heightObjects = options.heightObjects || [];
     this.fixedWidth = options.fixedWidth;
     this.fixedHeight = options.fixedHeight;
-    this.VDivider = options.VDivider || [];
-    this.HDivider = options.HDivider || [];
-    this.borderType = borderType;
+    this.borderType = options.borderType;
     this.xHeight = options.xHeight || 100;
     this.color = options.color;
     this.dimensionAnnotations = [];
-    this.frame = options.frame || 0; // Frame width for the border
-    this.bbox = null; // Main border bounding box
+    this.frame = BorderFrameWidth[this.borderType]; // Frame width for the border
+    this.inbbox = null; // Inner border bounding box
+    this.rounding = { x: 0, y: 0 }; // Rounding values for the border
     this.compartmentBboxes = []; // Array of compartment bounding boxes
+    this.VDivider = options.VDivider
+    this.HDivider = options.HDivider
 
     // Add status flag to track border updates
     this.isUpdating = false; // Flag to track if the border is currently being updated
@@ -508,8 +346,74 @@ class BorderGroup extends BaseGroup {
     this.lockMovementX = true;
     this.lockMovementY = true;
 
+    this.initialize(); // Call the initialize method to set up the border
+
     // Calculate initial bbox
     this.updateBboxes();
+  }
+
+  initialize() {
+    if (this.inbbox == null) {
+      this.filterBorderObjects();
+      this.calcfixedBboxes();
+      this.rounding = BorderUtilities.calcBorderRounding(this.borderType, this.xHeight, this.inbbox);
+    }
+
+    this.setBasePolygon(this.drawBorder());
+
+    this.RoundingToDivider()
+    this.assignWidthToDivider();
+    canvas.sendObjectToBack(this);
+    DrawGrid();
+
+    this.widthObjects.forEach(obj => {
+      // Update the borderGroup reference in each width object
+      obj.borderGroup = this;
+    });
+    this.heightObjects.forEach(obj => {
+      // Update the borderGroup reference in each height object
+      obj.borderGroup = this;
+    });
+
+  }
+
+  drawBorder() {
+    const rounding = JSON.parse(JSON.stringify(this.rounding)); // Deep copy rounding to avoid mutation
+    const block = { width: this.inbbox.right - this.inbbox.left, height: this.inbbox.bottom - this.inbbox.top };
+    const shapeMeta = BorderTypeScheme[this.borderType](this.xHeight, block, rounding);
+    const baseGroup = [];
+
+    // Create polygon with labeled vertices
+    shapeMeta.path.forEach((p) => {
+      const vertexleft = -Math.min(...p.vertex.map(v => v.x));
+      const vertextop = -Math.min(...p.vertex.map(v => v.y));
+
+      p.vertex.forEach((vertex) => {
+        vertex.x = vertex.x + this.inbbox.left;
+        vertex.y = vertex.y + this.inbbox.top;
+      });
+
+      const pathData = vertexToPath({ path: [p] });
+      // Extract the d attribute if pathData is a full SVG string
+      const dValue = pathData.includes('<path')
+        ? pathData.match(/d="([^"]+)"/)?.[1] || pathData
+        : pathData;
+
+      baseGroup.push(
+        new fabric.Path(dValue, {
+          left: this.inbbox.left - vertexleft,
+          top: this.inbbox.top - vertextop,
+          fill: (p['fill'] == 'background') || (p['fill'] == 'symbol') || (p['fill'] == 'border') ? BorderColorScheme[this.color][p['fill']] : p['fill'],
+          objectCaching: false,
+          strokeWidth: 0,
+        })
+      );
+    });
+
+    const GroupedBorder = new fabric.Group(baseGroup);
+    GroupedBorder.vertex = shapeMeta.path.map(p => p.vertex).flat();
+
+    return GroupedBorder;
   }
 
   // Show border dimensions when selected
@@ -655,7 +559,7 @@ class BorderGroup extends BaseGroup {
     // Make sure bbox is updated - using existing code
     //this.updateBboxes();
 
-    const bbox = this.bbox;
+    const bbox = this.inbbox;
     let i = 0;
 
     // First clear any existing mid points from previous calculations
@@ -689,7 +593,7 @@ class BorderGroup extends BaseGroup {
     });
   }
   // Assign width to divider
-  assignWidthToDivider(sourceList = []) {
+  assignWidthToDivider() {
     // Set the updating flag to indicate border is being updated
     this.isUpdating = true;
 
@@ -717,18 +621,18 @@ class BorderGroup extends BaseGroup {
       // Store initial positions
       const initialLeft = d.getEffectiveCoords()[0].x;
       const initialTop = d.top;
-      const needsUpdate = !d.bbox || d.top !== this.bbox.top || d.height !== this.bbox.height;
+      const needsUpdate = !d.bbox || d.top !== this.inbbox.top || d.height !== this.inbbox.height;
 
       // Check if divider has fixed distance values
       if (d.fixedLeftValue || d.fixedRightValue) {
 
         if (needsUpdate) {
           // Redraw the divider with the border's dimensions
-          const res = drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, this.bbox, d.functionalType);
+          const res = drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, this.inbbox, d.functionalType);
           d.replaceBasePolygon(res);
 
           // Position divider vertically same as before
-          d.set({ top: this.bbox.bottom - d.height - DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4, });
+          d.set({ top: this.inbbox.bottom - d.height - DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4, });
 
           // For fixed values, anchor to the border instead of objects
           // Priority: use the right value if both are specified
@@ -757,11 +661,11 @@ class BorderGroup extends BaseGroup {
         }
       } else if (needsUpdate) {
         // Regular object-anchored divider
-        const res = drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, this.bbox, d.functionalType);
+        const res = drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, this.inbbox, d.functionalType);
         d.replaceBasePolygon(res);
 
         d.set({
-          top: this.bbox.bottom - d.height - DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4,
+          top: this.inbbox.bottom - d.height - DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4,
           left: initialLeft
         });
 
@@ -783,7 +687,7 @@ class BorderGroup extends BaseGroup {
       // Store initial position
       const initialTop = d.getEffectiveCoords()[0].y;
       const initialLeft = d.left;
-      const needsUpdate = !d.bbox || d.left !== this.bbox.left || d.width !== this.bbox.width;
+      const needsUpdate = !d.bbox || d.left !== this.inbbox.left || d.width !== this.inbbox.width;
 
       // Check if divider has fixed distance values
       if (d.fixedTopValue || d.fixedBottomValue) {
@@ -797,13 +701,13 @@ class BorderGroup extends BaseGroup {
               left: d.left,
               top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4
             },
-            this.bbox,
+            this.inbbox,
             d.functionalType
           );
           d.replaceBasePolygon(res);
 
           // Position divider horizontally same as before
-          d.set({ left: this.bbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
+          d.set({ left: this.inbbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
 
           // For fixed values, anchor to the border instead of objects
           if (d.fixedBottomValue !== undefined) {
@@ -870,14 +774,14 @@ class BorderGroup extends BaseGroup {
                 left: d.left,
                 top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4
               },
-              this.bbox,
+              this.inbbox,
               d.functionalType
             );
 
             d.replaceBasePolygon(res);
             d.set({
               top: initialTop,
-              left: this.bbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4
+              left: this.inbbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4
             });
           }
 
@@ -890,13 +794,13 @@ class BorderGroup extends BaseGroup {
               left: d.left,
               top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4
             },
-            this.bbox,
+            this.inbbox,
             d.functionalType
           );
           d.replaceBasePolygon(res);
           d.set({
             top: initialTop,
-            left: this.bbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4
+            left: this.inbbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4
           });
 
         }
@@ -919,6 +823,145 @@ class BorderGroup extends BaseGroup {
     this.isUpdating = false;
   }
 
+  RoundingToDivider() {
+    // No longer need sourceList parameter
+    this.rounding.x /= (this.VDivider.length + 1) * 2;
+    this.rounding.y /= (this.HDivider.length + 1) * 2;
+
+    this.HDivider.forEach(h => {
+      // Skip rounding if divider has fixed distance values
+      if (h.fixedTopValue || h.fixedBottomValue) {
+        return;
+      }
+
+      // Check if the target object is already being updated in the Y cycle
+      const targetObj = h.lockYToPolygon.TargetObject;
+      if (targetObj && h.functionalType == 'HDivider') {
+        // Directly update anchor properties instead of removing and recreating
+        if (h.lockYToPolygon && Object.keys(h.lockYToPolygon).length > 0) {
+          // Update spacing value
+          h.lockYToPolygon.spacingY = DividerMargin[h.functionalType]['top'] * h.xHeight / 4 + this.rounding.y;
+
+          // Update object position
+          const sourcePoint = h.lockYToPolygon.sourcePoint;
+          const targetPoint = h.lockYToPolygon.targetPoint;
+
+          // Calculate new position
+          const sourceVertexY = targetObj.getBasePolygonVertex(targetPoint).y;
+          const newY = sourceVertexY + h.lockYToPolygon.spacingY;
+          const deltaY = newY - h.getBasePolygonVertex(sourcePoint).y;
+
+          // Update object position and vertices
+          h.set('top', h.top + deltaY);
+          if (h.basePolygon && h.basePolygon.vertex) {
+            h.basePolygon.vertex.forEach(v => {
+              v.y += deltaY;
+            });
+          }
+        }
+      }
+
+      // Check the next anchored object (assuming it's the one below)
+      const nextAnchor = h.anchoredPolygon && h.anchoredPolygon.length > 0 ? h.anchoredPolygon[0] : null;
+      if (nextAnchor) {
+        // Directly update anchor properties instead of removing and recreating
+        if (nextAnchor.lockYToPolygon && Object.keys(nextAnchor.lockYToPolygon).length > 0) {
+          // Update spacing value
+          nextAnchor.lockYToPolygon.spacingY = DividerMargin[h.functionalType]['bottom'] * h.xHeight / 4 + this.rounding.y;
+
+          // Update object position
+          const sourcePoint = nextAnchor.lockYToPolygon.sourcePoint;
+          const targetPoint = nextAnchor.lockYToPolygon.targetPoint; // Target point on the *divider* (h)
+
+          // Calculate new position based on the divider (h)
+          const sourceVertexY = h.getBasePolygonVertex(targetPoint).y;
+          const newY = sourceVertexY + nextAnchor.lockYToPolygon.spacingY;
+          const deltaY = newY - nextAnchor.getBasePolygonVertex(sourcePoint).y;
+
+          // Update object position and vertices
+          nextAnchor.set('top', nextAnchor.top + deltaY);
+          if (nextAnchor.basePolygon && nextAnchor.basePolygon.vertex) {
+            nextAnchor.basePolygon.vertex.forEach(v => {
+              v.y += deltaY;
+            });
+          }
+          // Mark as updated in this cycle if part of an ongoing update
+          if (!globalAnchorTree.updateInProgressY) {
+            const updateOrderY = globalAnchorTree.getUpdateOrder('y', nextAnchor.canvasID);
+            processUpdateCycle('y', nextAnchor, updateOrderY, null, deltaY);
+          }
+        }
+      }
+    });
+
+    this.VDivider.forEach(v => {
+      // Skip rounding if divider has fixed distance values
+      if (v.fixedLeftValue || v.fixedRightValue) {
+        return;
+      }
+
+      // Check if the target object is already being updated in the X cycle
+      const targetObj = v.lockXToPolygon.TargetObject;
+      if (targetObj && (v.functionalType == 'VDivider' || v.functionalType == 'VLane')) {
+        // Directly update anchor properties instead of removing and recreating
+        if (v.lockXToPolygon && Object.keys(v.lockXToPolygon).length > 0) {
+          // Update spacing value
+          v.lockXToPolygon.spacingX = DividerMargin[v.functionalType]['left'] * v.xHeight / 4 + this.rounding.x;
+
+          // Update object position
+          const sourcePoint = v.lockXToPolygon.sourcePoint;
+          const targetPoint = v.lockXToPolygon.targetPoint;
+
+          // Calculate new position
+          const sourceVertexX = targetObj.getBasePolygonVertex(targetPoint).x;
+          const newX = sourceVertexX + v.lockXToPolygon.spacingX;
+          const deltaX = newX - v.getBasePolygonVertex(sourcePoint).x;
+
+          // Update object position and vertices
+          v.set('left', v.left + deltaX);
+          if (v.basePolygon && v.basePolygon.vertex) {
+            v.basePolygon.vertex.forEach(vertex => {
+              vertex.x += deltaX;
+            });
+          }
+        }
+      }
+
+      // Check the next anchored object (assuming it's the one to the right)
+      const nextAnchor = v.anchoredPolygon && v.anchoredPolygon.length > 0 ? v.anchoredPolygon[0] : null;
+      if (nextAnchor) {
+        // Directly update anchor properties instead of removing and recreating
+        if (nextAnchor.lockXToPolygon && Object.keys(nextAnchor.lockXToPolygon).length > 0) {
+          // Update spacing value
+          nextAnchor.lockXToPolygon.spacingX = DividerMargin[v.functionalType]['right'] * v.xHeight / 4 + this.rounding.x;
+
+          // Update object position
+          const sourcePoint = nextAnchor.lockXToPolygon.sourcePoint;
+          const targetPoint = nextAnchor.lockXToPolygon.targetPoint; // Target point on the *divider* (v)
+
+          // Calculate new position based on the divider (v)
+          const sourceVertexX = v.getBasePolygonVertex(targetPoint).x;
+          const newX = sourceVertexX + nextAnchor.lockXToPolygon.spacingX;
+          const deltaX = newX - nextAnchor.getBasePolygonVertex(sourcePoint).x;
+
+          // Update object position and vertices
+          nextAnchor.set('left', nextAnchor.left + deltaX);
+          if (nextAnchor.basePolygon && nextAnchor.basePolygon.vertex) {
+            nextAnchor.basePolygon.vertex.forEach(vertex => {
+              vertex.x += deltaX;
+            });
+          }
+          // Mark as updated in this cycle if part of an ongoing update
+          if (!globalAnchorTree.updateInProgressX) {
+            const updateOrderX = globalAnchorTree.getUpdateOrder('x', nextAnchor.canvasID);
+            processUpdateCycle('x', nextAnchor, updateOrderX, deltaX, null);
+          }
+        }
+        // nextAnchor.rounded = { x: rounding.x, y: 0 } // This seems out of place, commenting out for now. Re-evaluate if needed.
+      }
+    });
+  }
+
   // Helper method to update divider coordinates without triggering recursive updates
   updateDividerCoords(divider) {
     if (!divider.basePolygon || !divider.basePolygon.vertex) return;
@@ -927,13 +970,45 @@ class BorderGroup extends BaseGroup {
     divider.updateAllCoord()
   }
 
+  filterBorderObjects() {
+    const [fheightObjects, fwidthObjects, VDivider, HDivider, bordered] = BorderUtilities.FilterDivider(this.heightObjects, this.widthObjects, this.VDivider, this.HDivider)
+    this.widthObjects = fwidthObjects
+    this.heightObjects = fheightObjects
+    this.VDivider = VDivider
+    this.HDivider = HDivider
+  }
+
+  calcfixedBboxes() {
+    // Get the bounding box of the active selection 
+    let coords = BorderUtilities.getBorderObjectCoords(this.heightObjects, this.widthObjects)
+    this.innerPadding = { x: 0, y: 0 }
+
+    // handle roundings on borders and dividers
+    //this.rounding = BorderUtilities.calcBorderRounding(this.borderType, this.xHeight, coords)
+    if (!isNaN(parseInt(this.fixedWidth))) {
+      this.innerPadding.x = parseInt(this.fixedWidth) - coords.right + coords.left + this.xHeight / 2
+      //this.rounding.x += this.innerPadding.x
+    }
+    if (!isNaN(parseInt(this.fixedHeight))) {
+      this.innerPadding.y = parseInt(this.fixedHeight) - coords.bottom + coords.top + this.xHeight / 2
+      //this.rounding.y += this.innerPadding.y
+    }
+
+    coords.left -= this.innerPadding.x / 2
+    coords.right += this.innerPadding.x / 2
+    coords.top -= this.innerPadding.y / 2
+    coords.bottom += this.innerPadding.y / 2
+    this.inbbox = coords
+
+  }
+
   // Update the bbox property and compartmentBboxes array
   updateBboxes() {
     const borderSize = this.getBoundingRect();
     const frame = 1.5 * this.xHeight / 4;
 
     // Calculate main bbox (inner area of the border)
-    this.bbox = {
+    this.inbbox = {
       left: borderSize.left + frame,
       top: borderSize.top + frame,
       right: borderSize.left + borderSize.width - frame,
@@ -947,7 +1022,7 @@ class BorderGroup extends BaseGroup {
 
     // If there are no dividers, the entire inner area is one compartment
     if (this.VDivider.length === 0 && this.HDivider.length === 0) {
-      this.compartmentBboxes.push({ ...this.bbox });
+      this.compartmentBboxes.push({ ...this.inbbox });
       return;
     }
 
@@ -967,8 +1042,8 @@ class BorderGroup extends BaseGroup {
       [];
 
     // Get divider positions, only considering them as position points, not actual width
-    const xPositions = [this.bbox.left];
-    const yPositions = [this.bbox.top];
+    const xPositions = [this.inbbox.left];
+    const yPositions = [this.inbbox.top];
 
     // Add all vertical divider positions - discount the divider width
     for (const vd of sortedVDividers) {
@@ -977,7 +1052,7 @@ class BorderGroup extends BaseGroup {
       // Add the divider's position (center point), not its edges
       xPositions.push(dividerX);
     }
-    xPositions.push(this.bbox.right);
+    xPositions.push(this.inbbox.right);
 
     // Add all horizontal divider positions - discount the divider height
     for (const hd of sortedHDividers) {
@@ -986,7 +1061,7 @@ class BorderGroup extends BaseGroup {
       // Add the divider's position (center point), not its edges  
       yPositions.push(dividerY);
     }
-    yPositions.push(this.bbox.bottom);
+    yPositions.push(this.inbbox.bottom);
 
     // Create compartment bboxes based on divider positions
     for (let i = 0; i < xPositions.length - 1; i++) {
@@ -1045,24 +1120,14 @@ class BorderGroup extends BaseGroup {
   // Optimized method to process border resize without causing infinite loops
   processResize() {
     const BG = this
+    // Could not use baseGroup replaceBasePolygon as it would not update anchored to border objects
     BG.removeAll();
 
     // Get the bounding box of the active selection 
-    let coords = BorderUtilities.getBorderObjectCoords(BG.heightObjects, BG.widthObjects);
+    this.calcfixedBboxes();
+    this.rounding = BorderUtilities.calcBorderRounding(this.borderType, this.xHeight, this.inbbox);
 
-    if (!isNaN(parseInt(BG.fixedWidth))) {
-      const padding = parseInt(BG.fixedWidth) - coords.right + coords.left;
-      coords.left -= padding / 2;
-      coords.right += padding / 2;
-    }
-
-    if (!isNaN(parseInt(BG.fixedHeight))) {
-      const padding = parseInt(BG.fixedHeight) - coords.bottom + coords.top;
-      coords.top -= padding / 2;
-      coords.bottom += padding / 2;
-    }
-
-    const borderObject = drawLabeledBorder(BG.borderType, BG.xHeight, coords, BG.color);
+    const borderObject = this.drawBorder();
 
     BG.add(borderObject);
     BG.basePolygon = borderObject;
@@ -1173,138 +1238,9 @@ class BorderGroup extends BaseGroup {
   }
 }
 
-// Border Update Queue System
-class BorderUpdateQueue {
-  constructor() {
-    this.bordersToUpdate = new Set(); // Use a Set to avoid duplicates
-    this.updatedBorders = new Set(); // Track which borders have been updated in this cycle
-  }
-
-  // Add a border to the update queue
-  addBorder(border) {
-    if (!border || !border.canvasID) return;
-
-    // Add to pending borders set
-    this.bordersToUpdate.add(border.canvasID);
-  }
-
-  // Check if we should update a border immediately during an object's updateAllCoord
-  shouldUpdateBorderNow(updatedObjectID) {
-    // If no borders to update, return false
-    if (this.bordersToUpdate.size === 0) return false;
-
-    // Get all borders that need updates
-    const pendingBorders = Array.from(this.bordersToUpdate)
-      .map(id => canvasObject.find(obj => obj.canvasID === id))
-      .filter(border =>
-        border &&
-        border.functionalType === 'Border' &&
-        !this.updatedBorders.has(border.canvasID)
-      );
-
-    // For each pending border, check if it's safe to update
-    for (const border of pendingBorders) {
-      // Skip if already updated in this cycle
-      if (this.updatedBorders.has(border.canvasID)) continue;
-
-      // Skip border if updatedObjectID is in width/height objects
-      const objectInBorder =
-        (border.widthObjects && border.widthObjects.some(obj => obj.canvasID === updatedObjectID)) ||
-        (border.heightObjects && border.heightObjects.some(obj => obj.canvasID === updatedObjectID));
-
-      if (objectInBorder) continue;
-
-      // Check if any of the active anchor updates include objects that are in this border
-      const hasActiveAnchorUpdates = this.hasActiveAnchorUpdatesForBorder(border);
-
-      // If no active anchor updates affect this border, it's safe to update it
-      if (!hasActiveAnchorUpdates) {
-        // Mark this border as updated
-        this.updatedBorders.add(border.canvasID);
-        this.bordersToUpdate.delete(border.canvasID);
-
-        // Return the border to update
-        return border;
-      }
-    }
-
-    return false; // No borders ready to update yet
-  }
-
-  // Check if any objects in the border are part of ongoing anchor updates
-  hasActiveAnchorUpdatesForBorder(border) {
-    if (!globalAnchorTree || !globalAnchorTree.updateInProgress) return false;
-
-    const borderObjects = [...(border.widthObjects || []), ...(border.heightObjects || [])];
-
-    // If any object in the border is not yet updated in the current anchor cycle,
-    // then there are active anchor updates for this border
-    for (const obj of borderObjects) {
-      const objID = obj.canvasID;
-
-      // Check if any pending x-axis updates involve this object
-      const pendingXUpdates = globalAnchorTree.getPendingUpdates('x', objID);
-      if (pendingXUpdates && pendingXUpdates.length > 0) return true;
-
-      // Check if any pending y-axis updates involve this object
-      const pendingYUpdates = globalAnchorTree.getPendingUpdates('y', objID);
-      if (pendingYUpdates && pendingYUpdates.length > 0) return true;
-    }
-
-    // If we get here, no objects in the border have pending anchor updates
-    return false;
-  }
-
-  // Reset the update tracking at the end of an update cycle
-  resetCycle() {
-    this.updatedBorders.clear();
-  }
-}
-
-// Create a global instance of the BorderUpdateQueue
-const globalBorderUpdateQueue = new BorderUpdateQueue();
-
-function drawLabeledBorder(borderType, xHeight, bbox, color) {
-  const block = { width: bbox.right - bbox.left, height: bbox.bottom - bbox.top };
-  const rounding = BorderUtilities.calcBorderRounding(borderType, xHeight, bbox);
-  const shapeMeta = BorderTypeScheme[borderType](xHeight, block, rounding);
-  const baseGroup = [];
-
-  // Create polygon with labeled vertices
-  shapeMeta.path.forEach((p) => {
-    const vertexleft = -Math.min(...p.vertex.map(v => v.x));
-    const vertextop = -Math.min(...p.vertex.map(v => v.y));
-
-    p.vertex.forEach((vertex) => {
-      vertex.x = vertex.x + bbox.left;
-      vertex.y = vertex.y + bbox.top;
-    });
-
-    const pathData = vertexToPath({ path: [p] });
-    // Extract the d attribute if pathData is a full SVG string
-    const dValue = pathData.includes('<path')
-      ? pathData.match(/d="([^"]+)"/)?.[1] || pathData
-      : pathData;
-
-    baseGroup.push(
-      new fabric.Path(dValue, {
-        left: bbox.left - vertexleft,
-        top: bbox.top - vertextop,
-        fill: (p['fill'] == 'background') || (p['fill'] == 'symbol') || (p['fill'] == 'border') ? BorderColorScheme[color][p['fill']] : p['fill'],
-        objectCaching: false,
-        strokeWidth: 0,
-      })
-    );
-  });
-
-  const GroupedBorder = new fabric.Group(baseGroup);
-  GroupedBorder.vertex = shapeMeta.path.map(p => p.vertex).flat();
-  GroupedBorder.rounding = rounding;
-
-  return GroupedBorder;
-}
 
 
-export { BorderUtilities }
+
+export { BorderUtilities, BorderGroup }
 
 

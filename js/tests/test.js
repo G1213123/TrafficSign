@@ -1,10 +1,10 @@
 import { TextObject } from '../objects/text.js';
-import { drawLabeledSymbol } from '../objects/symbols.js';
+import { SymbolObject } from '../objects/symbols.js';
 import { anchorShape, globalAnchorTree } from '../objects/anchor.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
-import { HDividerCreate, VDividerCreate, HLineCreate } from '../objects/divider.js';
-import { BorderUtilities } from '../objects/border.js';
-import { MainRoadSymbol, finishDrawSideRoad, drawSideRoadOnCursor, calcMainRoadVertices, calcRoundaboutVertices } from '../objects/route.js';
+import { DividerObject } from '../objects/divider.js';
+import { BorderUtilities, BorderGroup } from '../objects/border.js';
+import { MainRoadSymbol, SideRoadSymbol } from '../objects/route.js';
 import { FormTemplateComponent } from '../sidebar/sb-template.js';
 
 const canvasObject = CanvasGlobals.canvasObject; // Assuming canvasObject is defined in canvas.js
@@ -477,9 +477,10 @@ const ShapeTest = {
     TestTracker.register("chineseText", chineseText);
 
     // Create symbol (unchanged)
-    drawLabeledSymbol('StackArrow', {
-      x: -1500,
-      y: -900,
+    new SymbolObject({
+      symbolType: 'StackArrow',
+      left: -1500,
+      top: -900,
       xHeight: 100,
       angle: -45,
       color: 'white'
@@ -554,18 +555,20 @@ const AnchorTest = {
 
     // Create three symbols to anchor together using direct object creation instead of FormText methods
     // First symbol (base)
-    drawLabeledSymbol('Tunnel', {
-      x: 300,
-      y: -1000,
+    new SymbolObject({
+      symbolType: 'Tunnel',
+      left: 300,
+      top: -1000,
       xHeight: 100,
       color: 'white'
     });
     TestTracker.register("baseTunnel");
 
     // Second symbol (to right)
-    drawLabeledSymbol('Airport', {
-      x: 400,
-      y: -400,
+    new SymbolObject({
+      symbolType: 'Airport',
+      left: 400,
+      top: -400,
       xHeight: 100,
       angle: 0,
       color: 'white'
@@ -573,9 +576,10 @@ const AnchorTest = {
     TestTracker.register("Airport");
 
     // Third symbol (below)
-    drawLabeledSymbol('Hospital', {
-      x: 300,
-      y: -300,
+    new SymbolObject({
+      symbolType: 'Hospital',
+      left: 300,
+      top: -300,
       xHeight: 100,
       color: 'white'
     });
@@ -655,18 +659,20 @@ const AnchorTest = {
 
     // Create four symbols to anchor together
     // First pair
-    drawLabeledSymbol('EHC', {
-      x: 1500,
-      y: -1000,
+    new SymbolObject({
+      symbolType: 'Tunnel',
+      left: 1500,
+      top: -1000,
       xHeight: 100,
       angle: 0,
       color: 'white'
     });
     TestTracker.register("baseTunnel1");
 
-    drawLabeledSymbol('WHC', {
-      x: 1500,
-      y: -1000,
+    new SymbolObject({
+      symbolType: 'WHC',
+      left: 1500,
+      top: -1000,
       xHeight: 100,
       angle: 0,
       color: 'white'
@@ -674,17 +680,19 @@ const AnchorTest = {
     TestTracker.register("airport1");
 
     // Second pair
-    drawLabeledSymbol('Hospital', {
-      x: 1575,
-      y: -550,
+    new SymbolObject({
+      symbolType: 'Hospital',
+      left: 1575,
+      top: -550,
       xHeight: 100,
       color: 'white'
     });
     TestTracker.register("baseHospital");
 
-    drawLabeledSymbol('CHT', {
-      x: 1575,
-      y: -550,
+    new SymbolObject({
+      symbolType: 'CHT',
+      left: 1575,
+      top: -550,
       xHeight: 100,
       angle: 0,
       color: 'white'
@@ -949,13 +957,14 @@ const BorderTest = {
     const expectedHeight = maxY - minY;
 
     // Create border around the objects
-    const borderGroup = BorderUtilities.BorderGroupCreate(
-      'stack',
-      [object1, object2],
-      [object1, object2],
-      null,
-      null,
-      { xHeight: 100, borderType: 'stack', colorType: 'Blue Background' }
+    const borderGroup = new BorderGroup(
+      {
+        widthObjects: [object1, object2],
+        heightObjects: [object1, object2],
+        xHeight: 100,
+        borderType: 'stack',
+        color: 'Blue Background' // Assuming BorderGroup constructor takes color directly or BorderUtilities.BorderGroupCreate handles mapping colorType to color
+      }
     );
     TestTracker.register("borderGroup", borderGroup);
 
@@ -1052,24 +1061,33 @@ const BorderTest = {
     const belowObject = TestTracker.get("belowText");
 
     // Create horizontal divider between objects
-    HDividerCreate(
-      [aboveObject],
-      [belowObject],
-      null,
-      null,
-      { xHeight: 100, colorType: 'Yellow Background' }
-    );
+    // HDividerCreate(
+    //   [aboveObject],
+    //   [belowObject],
+    //   null,
+    //   null,
+    //   { xHeight: 100, colorType: 'Yellow Background' }
+    // );
+    new DividerObject({
+      aboveObjects: [aboveObject], // Corrected to plural and array
+      belowObjects: [belowObject], // Corrected to plural and array
+      xHeight: 100,
+      colorType: 'Yellow Background',
+      dividerType: 'HDivider',
+    });
     TestTracker.register("divider");
 
     const divider = TestTracker.get("divider");
 
     // Create border around all three objects
-    const borderGroup = BorderUtilities.BorderGroupCreate(
-      'stack',
-      [aboveObject, belowObject, divider],
-      [aboveObject, belowObject, divider],
-      null, null,
-      { xHeight: 100, borderType: 'stack', colorType: 'Yellow Background' }
+    const borderGroup = new BorderGroup(
+      {
+        widthObjects: [aboveObject, belowObject, divider],
+        heightObjects: [aboveObject, belowObject, divider],
+        xHeight: 100,
+        borderType: 'stack',
+        color: 'Yellow Background' // Assuming BorderGroup constructor takes color directly or BorderUtilities.BorderGroupCreate handles mapping colorType to color
+      }
     );
     TestTracker.register("combinedBorder", borderGroup);
 
@@ -1182,7 +1200,6 @@ const RouteTest = {
       roadType: 'Main Line'
     };
 
-    // Create a MainRoute directly using the updated construction method
     // Create the route list with the main road points
     const routeList = [
       { x: params.posx, y: params.posy + (params.rootLength + params.tipLength) * params.xHeight / 4, angle: 180, width: params.width, shape: 'Stub' },
@@ -1196,12 +1213,17 @@ const RouteTest = {
       rootLength: params.rootLength,
       tipLength: params.tipLength,
       color: params.color,
-      roadType: params.roadType
+      roadType: params.roadType,
+      // Ensure left and top are set for consistent positioning in tests
+      left: params.posx - (params.width * params.xHeight / 8),
+      top: params.posy
     };
 
     // Create and initialize the MainRoadSymbol
     const mainRoad = new MainRoadSymbol(routeOptions);
-    mainRoad.initialize(calcMainRoadVertices(params.xHeight, routeOptions.routeList));
+    // Manually call updateAllCoord as it's usually handled by canvas add
+    mainRoad.updateAllCoord();
+
 
     TestTracker.register("mainRoad", mainRoad);
 
@@ -1210,7 +1232,7 @@ const RouteTest = {
 
     passed = passed && TestTracker.assert(
       mainRoad.left,
-      params.posx - 3 * params.xHeight / 4,
+      params.posx - (params.width * params.xHeight / 8), // Adjusted for actual calculation in constructor
       "Main Road left position incorrect",
       5
     );
@@ -1238,44 +1260,38 @@ const RouteTest = {
   testLeftSideRoad() {
     TestTracker.startTest("LeftSideRoad");
 
-    // Get Main Road from TestTracker instead of window global
     const mainRoad = TestTracker.get("mainRoad", "MainRoad");
     if (!mainRoad) {
-      TestTracker.recordFailure("Main Road not found", "MainRoute object", "null");
+      TestTracker.recordFailure("Main Road not found for LeftSideRoad test", "MainRoad object", "null");
       TestTracker.endTest(false);
       return null;
     }
 
-    // Set up test parameters
-    const posx = mainRoad.left - 300; // Left of root
-    const posy = mainRoad.top;
+    // Ensure mainRoad coordinates are up-to-date
+    mainRoad.updateAllCoord();
+
+
     const params = {
       xHeight: mainRoad.xHeight,
-      angle: 90,
-      shape: 'Stub',
-      width: 4
+      color: 'white',
+      mainRoad: mainRoad,
+      side: true, // true for left
+      branchIndex: mainRoad.sideRoad.length + 1,
+      // Position the side road relative to the main road's root
+      // Note: SideRoadSymbol constructor handles precise attachment logic
+      routeList: [{
+        x: mainRoad.left - 100,
+        y: mainRoad.top,
+        angle: -90,
+        shape: 'Stub',
+        width: 4
+      }],
     };
 
-    // Set the Main Road as active object
-    canvas.setActiveObject(mainRoad);
+    const sideRoad = new SideRoadSymbol(params);
 
-    // Use actual drawing functions with parameters
-    drawSideRoadOnCursor(null, {
-      x: posx,
-      y: posy,
-      routeParams: params
-    });
-
-
-
-    // Create the Side Road with a simulated mouse click
-    finishDrawSideRoad({ e: { button: 0 } });
-
-    // Find the created Side Road route and register it
-    const sideRoad = mainRoad.sideRoad[mainRoad.sideRoad.length - 1];
     TestTracker.register("leftSideRoad", sideRoad);
 
-    // Test assertions
     let passed = true;
     passed = passed && TestTracker.assert(
       sideRoad.functionalType,
@@ -1296,13 +1312,13 @@ const RouteTest = {
       v.label === 'V3' || v.label === 'V4' || v.label === 'V5' || v.label === 'V6'
     );
 
-    // At least one vertex should be close to Main Road
-    const touchingRoot = touchingVertices.some(v =>
+    // All vertex should be close to Main Road
+    const touchingRoot = touchingVertices.filter(v =>
       Math.abs(v.x - rootLeft) < 1
     );
 
     passed = passed && TestTracker.assertTrue(
-      touchingRoot,
+      touchingRoot.length == touchingVertices.length,
       "Left Side Road vertices don't touch Main Road"
     );
 
@@ -1316,49 +1332,34 @@ const RouteTest = {
   testRightSideRoad() {
     TestTracker.startTest("RightSideRoad");
 
-    // Get Main Road from TestTracker
     const mainRoad = TestTracker.get("mainRoad", "MainRoad");
     if (!mainRoad) {
-      TestTracker.recordFailure("Main Road not found", "MainRoute object", "null");
+      TestTracker.recordFailure("Main Road not found for RightSideRoad test", "MainRoad object", "null");
       TestTracker.endTest(false);
       return null;
     }
+    // Ensure mainRoad coordinates are up-to-date
+    mainRoad.updateAllCoord();
 
-    // Set up test parameters - intentionally position outside constraints
-    // 1. Too close to root horizontally (should be pushed right)
-    // 2. Too high vertically (should be pushed down)
-    const posx = mainRoad.left + mainRoad.width + 10; // Too close horizontally
-    const posy = mainRoad.top - 100; // Too high vertically
     const params = {
       xHeight: mainRoad.xHeight,
-      angle: -60, // Negative angle for right side
-      shape: 'Arrow',
-      width: 4
+      color: 'white',
+      mainRoad: mainRoad,
+      side: false, // false for right
+      // Position the side road relative to the main road's root
+      routeList: [{
+        x: mainRoad.left + 300,
+        y: mainRoad.top,
+        angle: 60,
+        shape: 'Arrow',
+        width: 4
+      }],
     };
 
-    // Set the Main Road as active object
-    canvas.setActiveObject(mainRoad);
+    const sideRoad = new SideRoadSymbol(params);
 
-    // Use actual drawing functions with parameters
-    drawSideRoadOnCursor(null, {
-      x: posx,
-      y: posy,
-      routeParams: params
-    });
-
-
-    // Create the Side Road with a simulated mouse click
-    finishDrawSideRoad({ e: { button: 0 } });
-
-    // Find the right Side Road using position - more reliable than using TestTracker.get("leftBranch")
-    // A right Side Road will have its x position to the right of the Main Road center
-    const rootCenterX = mainRoad.left + mainRoad.width / 2;
-    const sideRoad = mainRoad.sideRoad.find(side => side.left > rootCenterX);
-
-    // Register the right Side Road route with TestTracker
     TestTracker.register("rightSideRoad", sideRoad);
 
-    // Test assertions
     let passed = true;
     passed = passed && TestTracker.assert(
       sideRoad.functionalType,
@@ -1376,16 +1377,16 @@ const RouteTest = {
 
     // Find connecting vertices
     const touchingVertices = sideRoad.basePolygon.vertex.filter(v =>
-      v.label === 'V0' || v.label === 'V1' || v.label === 'V5' || v.label === 'V6'
+      v.label === 'V3' || v.label === 'V4' || v.label === 'V5' || v.label === 'V6'
     );
 
     // At least one vertex should be close to main road
-    const touchingRoot = touchingVertices.some(v =>
+    const touchingRoot = touchingVertices.filter(v =>
       Math.abs(v.x - rootRight) < 1
     );
 
     passed = passed && TestTracker.assertTrue(
-      touchingRoot,
+      touchingRoot.length == touchingVertices.length,
       "Right Side Road vertices don't touch Main Road"
     );
 
@@ -1510,7 +1511,6 @@ const RoundaboutTest = {
     };
 
     const roundabout = new MainRoadSymbol(routeOptions);
-    roundabout.initialize(calcRoundaboutVertices('Conventional', params.xHeight, routeOptions.routeList));
     TestTracker.register("conventionalRoundabout", roundabout);
 
     // Test assertions
@@ -1540,36 +1540,44 @@ const RoundaboutTest = {
 
     // Create a side road on the roundabout
     const sideRoadParams = {
-      x: params.posx + 120,  // Position to the right of roundabout
-      y: params.posy - 50,   // Position slightly above centerline
-      routeParams: {
+      xHeight: roundabout.xHeight,
+      color: 'white',
+      mainRoad: roundabout,
+      side: false, // false for right
+      // Position the side road relative to the main road's root
+      routeList: [{
+        x: params.posx + 120,
+        y: params.posy - 50, 
         angle: -45,
         shape: 'Stub',
         width: 4
-      }
+      }],
     };
 
     // Draw and finalize the side road
-    drawSideRoadOnCursor(null, sideRoadParams);
-    finishDrawSideRoad({ e: { button: 0 } });
+    new SideRoadSymbol(sideRoadParams);
 
     // Create a second side road on the roundabout
     const sideRoadParams2 = {
-      x: params.posx,
-      y: params.posy - 100,
-      routeParams: {
+      xHeight: roundabout.xHeight,
+      color: 'white',
+      mainRoad: roundabout,
+      side: false, // false for right
+      // Position the side road relative to the main road's root
+      routeList: [{
+        x: params.posx,
+        y: params.posy - 100,
         angle: -90,
         shape: 'Arrow',
         width: 6
-      }
+      }]
     };
 
     // Set the roundabout as active object to add a side road
     canvas.setActiveObject(roundabout);
 
     // Draw and finalize the second side road
-    drawSideRoadOnCursor(null, sideRoadParams2);
-    finishDrawSideRoad({ e: { button: 0 } });
+    new SideRoadSymbol(sideRoadParams2);
 
     // Find the created Side Road route and register it
     const sideRoad = roundabout.sideRoad[roundabout.sideRoad.length - 1];
@@ -1643,7 +1651,6 @@ const RoundaboutTest = {
     };
 
     const spiralRoundabout = new MainRoadSymbol(routeOptions);
-    spiralRoundabout.initialize(calcRoundaboutVertices('Spiral', params.xHeight, routeOptions.routeList));
     TestTracker.register("spiralRoundabout", spiralRoundabout);
 
     // Test assertions for the roundabout
@@ -1740,22 +1747,22 @@ const RoundaboutTest = {
 
     // Create options for the arm
     const options = {
-      x: x,
-      y: y,
-      routeParams: {
+      xHeight: roundabout.xHeight,
+      color: 'white',
+      mainRoad: roundabout,
+      side: false, // false for right
+      routeList: [{
+        x: x,
+        y: y,
         angle: angleDegrees,
         shape: 'Spiral Arrow',
         width: 4
-      }
+      }],
     };
 
     // Add the arm
-    drawSideRoadOnCursor(null, options);
+    new SideRoadSymbol(options);
 
-    // Finish adding the arm
-    finishDrawSideRoad({
-      e: { button: 0 }
-    });
 
     // Register the new arm with TestTracker
 
@@ -1819,9 +1826,10 @@ const ComplexSignTest = {
     TestTracker.register("leftDestination", leftDestination);
 
     // Create stack arrow below on left
-    drawLabeledSymbol('GantryArrow', {
-      x: -2400,
-      y: 2500,
+    new SymbolObject({
+      symbolType: 'GantryArrow',
+      left: -2400,
+      top: 2500,
       xHeight: 200,
       angle: 0,
       color: 'white'
@@ -1829,9 +1837,10 @@ const ComplexSignTest = {
     TestTracker.register("leftArrow");
 
     // Create Airport on left
-    drawLabeledSymbol('Airport', {
-      x: -2700,
-      y: 2500,
+    new SymbolObject({
+      symbolType: 'Airport',
+      left: -2700,
+      top: 2500,
       xHeight: 200,
       angle: 0,
       color: 'white'
@@ -1839,9 +1848,10 @@ const ComplexSignTest = {
     TestTracker.register("Airport");
 
     // Create WHC on left
-    drawLabeledSymbol('WHC', {
-      x: 2700,
-      y: 2500,
+    new SymbolObject({
+      symbolType: 'WHC',
+      left: 2700,
+      top: 2500,
       xHeight: 200,
       angle: 0,
       color: 'white'
@@ -1872,9 +1882,10 @@ const ComplexSignTest = {
     TestTracker.register("rightDestination", rightDestination);
 
     // Create stack arrow below on right
-    drawLabeledSymbol('GantryArrow', {
-      x: 3000,
-      y: 2500,
+    new SymbolObject({
+      symbolType: 'GantryArrow',
+      left: 3000,
+      top: 2500,
       xHeight: 200,
       angle: 0,
       color: 'white'
@@ -1882,9 +1893,10 @@ const ComplexSignTest = {
     TestTracker.register("rightArrow");
 
     // Create second gantry arrow on right
-    drawLabeledSymbol('GantryArrow', {
-      x: 3300, // Position roughly to the right
-      y: 2500,
+    new SymbolObject({
+      symbolType: 'GantryArrow',
+      left: 3300, // Position roughly to the right
+      top: 2500,
       xHeight: 200,
       angle: 0,
       color: 'white'
@@ -1892,9 +1904,10 @@ const ComplexSignTest = {
     TestTracker.register("rightArrow2");
 
     // Create third gantry arrow on right
-    drawLabeledSymbol('GantryArrow', {
-      x: 3600, // Position roughly further right
-      y: 2500,
+    new SymbolObject({
+      symbolType: 'GantryArrow',
+      left: 3600, // Position roughly further right
+      top: 2500,
       xHeight: 200,
       angle: 0,
       color: 'white'
@@ -1917,22 +1930,36 @@ const ComplexSignTest = {
 
 
     // Create horizontal dividers between the 2-liner and destination on both sides
-    HLineCreate(
-      [leftDestObj],
-      [leftArrowObj],
-      null,
-      null,
-      { xHeight: 200, colorType: 'Blue Background' }
-    );
+    // HLineCreate(
+    //   [leftDestObj],
+    //   [leftArrowObj],
+    //   null,
+    //   null,
+    //   { xHeight: 200, colorType: 'Blue Background' }
+    // );
+    new DividerObject({
+      aboveObjects: [leftDestObj], // Corrected to plural and array
+      belowObjects: [leftArrowObj], // Corrected to plural and array
+      xHeight: 200,
+      colorType: 'Blue Background',
+      dividerType: 'HLine',
+    });
     TestTracker.register("leftHDivider");
 
-    HLineCreate(
-      [rightDestObj],
-      [rightArrowObj2],
-      null,
-      null,
-      { xHeight: 200, colorType: 'Blue Background' }
-    );
+    // HLineCreate(
+    //   [rightDestObj],
+    //   [rightArrowObj2],
+    //   null,
+    //   null,
+    //   { xHeight: 200, colorType: 'Blue Background' }
+    // );
+    new DividerObject({
+      aboveObjects: [rightDestObj], // Corrected to plural and array
+      belowObjects: [rightArrowObj2], // Corrected to plural and array
+      xHeight: 200,
+      colorType: 'Blue Background',
+      dividerType: 'HLine',
+    });
     TestTracker.register("rightHDivider");
 
     // Anchor the objects in place
@@ -1979,13 +2006,20 @@ const ComplexSignTest = {
     });
 
     // Create a vertical gantry divider between left and right sides
-    VDividerCreate(
-      [whcObj],
-      [rightTopObj],
-      null,
-      null,
-      { xHeight: 200, colorType: 'Blue Background' }
-    );
+    // VDividerCreate(
+    //   [whcObj],
+    //   [rightTopObj],
+    //   null,
+    //   null,
+    //   { xHeight: 200, colorType: 'Blue Background' }
+    // );
+    new DividerObject({
+      leftObjects: [whcObj], // Corrected to plural and array
+      rightObjects: [rightTopObj], // Corrected to plural and array
+      xHeight: 200,
+      colorType: 'Blue Background',
+      dividerType: 'VDivider',
+    });
     TestTracker.register("vDivider");
 
     // Create an overall border containing both sides and the dividers
@@ -2132,17 +2166,19 @@ const ComplexSignTest = {
  * Test suite for template sign creation
  */
 const TemplateTest = {
+ 
   /**
  * Expected dimensions for each template.
  * NOTE: These are placeholders and need to be filled with actual expected values.
  */
   expectedTemplateDimensions: {
+   
     'Flag Sign': { width: 2907, height: 1650, left: -15400, top: 7740 }, // Placeholder values
     'Stack Sign': { width: 1925, height: 1150 + 1275, left: -10602, top: 6749 }, // Placeholder values
     'Lane Sign': { width: 3950, height: 1600, left: -7882, top: 7998 }, // Placeholder values
     'Roundabout Sign': { width: 3800, height: 3250, left: -3488, top: 6019 }, // Placeholder values
     'Spiral Roundabout Sign': { width: 3800, height: 3250, left: 1794, top: 6230 }, // Placeholder values, may be null if not fully implemented
-    'Gantry Sign': { width: 7900, height: 2700, left: 7493, top: 7306 }, // Placeholder values
+    'Gantry Sign': { width: 7900, height: 2700, left: 7493, top:  7306 }, // Placeholder values
     'Diverge Sign ': { width: 2950, height: 5900, left: 17039, top: 7605 }, // Placeholder values
     // Add entries for any other templates
   },

@@ -1,6 +1,7 @@
 /* Export Panel */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
+import { buildObjectsFromJSON } from '../objects/build.js';
 
 let FormExportComponent = {
   // Export settings for canvas objects
@@ -80,10 +81,25 @@ let FormExportComponent = {
     // DXF Export
     GeneralHandler.createButton('export-dxf', 'Export as DXF (Outline Only)', buttonContainer, 'input',
       async () => await FormExportComponent.exportToDXF(), 'click');
+
+    // JSON Export
+    GeneralHandler.createButton('export-json', 'Export as JSON', buttonContainer, 'input',
+      async () => await FormExportComponent.exportCanvasToJSON(), 'click');
+
+    // JSON Import
+    const importButtonContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent); // Create a new container for import elements, child of the main parent
+
+    const importJsonInput = GeneralHandler.createButton('import-json', 'Import JSON file', importButtonContainer, 'input',
+      async () => await FormExportComponent.importCanvasFromJSON(), 'click'); // Changed parent to importButtonContainer
+
+    // New button for importing JSON from text
+    const importJsonTextButton = GeneralHandler.createButton('import-json-text', 'Import JSON text', importButtonContainer, 'input',
+      () => FormExportComponent.showImportJSONTextModal(), 'click');
+
   },
 
   // Helper function to prepare canvas for export
-  prepareCanvasForExport: function () {
+  prepareCanvasForExport: function ()    {
     const includeGrid = GeneralHandler.getToggleValue('Include Grid-container') === 'Yes';
     const includeBackground = GeneralHandler.getToggleValue('Include Background-container') === 'Yes';
 
@@ -191,12 +207,12 @@ let FormExportComponent = {
   },
 
   // Helper function to show loading overlay during export
-  showLoadingOverlay: function(exportType) {
+  showLoadingOverlay: function (exportType) {
     const overlay = document.getElementById('loading-overlay');
     const loadingText = overlay.querySelector('.loading-text');
     loadingText.textContent = `Exporting ${exportType}...`;
     overlay.style.display = 'flex';
-    
+
     // Force browser to render the overlay before continuing
     return new Promise(resolve => {
       // Use requestAnimationFrame to ensure DOM updates before continuing
@@ -207,70 +223,70 @@ let FormExportComponent = {
     });
   },
   // Helper function to hide loading overlay after export
-  hideLoadingOverlay: function() {
+  hideLoadingOverlay: function () {
     const overlay = document.getElementById('loading-overlay');
     overlay.style.display = 'none';
   },
-  
+
   // Helper function to show donation overlay after export
-  showDonationOverlay: function() {
+  showDonationOverlay: function () {
     // Check if overlay already exists
     let overlay = document.getElementById('donation-overlay');
-    
+
     if (!overlay) {      // Create the donation overlay if it doesn't exist
       overlay = document.createElement('div');
       overlay.id = 'donation-overlay';
-      
+
       // Create the message container
       const messageContainer = document.createElement('div');
       messageContainer.className = 'donation-container';
-      
+
       // Create the title
       const title = document.createElement('h2');
       title.textContent = 'Thank you for using Road Sign Factory!';
-      
+
       // Create the message
       const message = document.createElement('p');
       message.textContent = 'If you find this tool helpful, please consider supporting its continued development and new features.';
-      
+
       // Create button container
       const buttonContainer = document.createElement('div');
       buttonContainer.className = 'button-container';
-        // Create the donation link with Buy Me Coffee logo
+      // Create the donation link with Buy Me Coffee logo
       const donateButton = document.createElement('a');
       donateButton.href = 'https://www.buymeacoffee.com/g1213123';
       donateButton.target = '_blank';
       donateButton.className = 'donate-button';
-      
+
       // Add event listener to close overlay when donation link is clicked
-      donateButton.addEventListener('click', function() {
+      donateButton.addEventListener('click', function () {
         FormExportComponent.hideDonationOverlay();
       });
 
-      overlay.addEventListener('click', function(event) {
+      overlay.addEventListener('click', function (event) {
         FormExportComponent.hideDonationOverlay();
       });
-      
+
       // Add Buy Me Coffee logo
       const bmcLogo = document.createElement('img');
       bmcLogo.src = 'https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg';
       bmcLogo.className = 'bmc-logo';
       bmcLogo.alt = 'Buy me a coffee';
-      
+
       // Add text after the logo
       const donateText = document.createTextNode('Buy me a coffee');
-      
+
       // Append logo and text to button
       donateButton.appendChild(bmcLogo);
       donateButton.appendChild(donateText);
-      
+
       // Create the close button
       const closeButton = document.createElement('button');
       closeButton.textContent = 'No thanks';
-      closeButton.className = 'close-button';      closeButton.onclick = function() {
+      closeButton.className = 'close-button'; closeButton.onclick = function () {
         FormExportComponent.hideDonationOverlay();
       };
-      
+
       // Assemble the overlay with the new button container
       messageContainer.appendChild(title);
       messageContainer.appendChild(message);
@@ -278,16 +294,16 @@ let FormExportComponent = {
       buttonContainer.appendChild(closeButton);
       messageContainer.appendChild(buttonContainer);
       overlay.appendChild(messageContainer);
-      
+
       // Add to document
       document.body.appendChild(overlay);
     } else {
       overlay.style.display = 'flex';
     }
   },
-  
+
   // Helper function to hide donation overlay
-  hideDonationOverlay: function() {
+  hideDonationOverlay: function () {
     const overlay = document.getElementById('donation-overlay');
     if (overlay) {
       overlay.style.display = 'none';
@@ -525,7 +541,7 @@ let FormExportComponent = {
   exportToPNG: async function () {
     // Show loading overlay and wait for it to render
     await FormExportComponent.showLoadingOverlay('PNG');
-    
+
     try {
       const options = {
         format: 'png',
@@ -558,7 +574,7 @@ let FormExportComponent = {
   exportToSVG: async function () {
     // Show loading overlay and wait for it to render
     await FormExportComponent.showLoadingOverlay('SVG');
-    
+
     try {
       // Prepare canvas for export
       const originalState = FormExportComponent.prepareCanvasForExport();
@@ -622,10 +638,10 @@ let FormExportComponent = {
   exportToDXF: async function () {
     // Show loading overlay and wait for it to render
     await FormExportComponent.showLoadingOverlay('DXF');
-    
+
     // Declare originalState outside the try block so it's accessible in finally
     let originalState;
-    
+
     try {
       // Prepare canvas for export
       originalState = FormExportComponent.prepareCanvasForExport();
@@ -686,11 +702,11 @@ let FormExportComponent = {
   exportToPDF: async function () {
     // Show loading overlay and wait for it to render
     await FormExportComponent.showLoadingOverlay('PDF');
-    
+
     try {
       // Prepare canvas for export first
       const originalState = FormExportComponent.prepareCanvasForExport();
-      
+
       const includeBackground = GeneralHandler.getToggleValue('Include Background-container') === 'Yes';
 
       // Add a temporary background rectangle if background should be included
@@ -712,44 +728,44 @@ let FormExportComponent = {
         CanvasGlobals.canvas.insertAt(0, bgRect);
         originalState.tempBackgroundRect = bgRect;
       }
-      
+
       // Use the calculated bounds for content dimensions
       const contentWidth = originalState.exportBounds ? originalState.exportBounds.width : CanvasGlobals.canvas.width;
       const contentHeight = originalState.exportBounds ? originalState.exportBounds.height : CanvasGlobals.canvas.height;
-      
+
       // Get the selected paper size dimensions from settings
       const selectedPaperSize = FormExportComponent.exportSettings.paperSize;
       const [paperWidthMM, paperHeightMM] = FormExportComponent.exportSettings.paperSizes[selectedPaperSize];
-      
+
       // Convert paper dimensions from mm to pixels
       const MM_TO_PX = 2.83; // Approximate conversion from mm to px at 72 dpi
       const paperWidthPx = paperWidthMM * MM_TO_PX;
       const paperHeightPx = paperHeightMM * MM_TO_PX;
-      
+
       // Determine orientation based on content aspect ratio
       const contentAspectRatio = contentWidth / contentHeight;
       const paperAspectRatio = paperWidthPx / paperHeightPx;
-      
+
       // Choose orientation that best fits the content
       const isLandscape = contentAspectRatio > paperAspectRatio;
-      
+
       // Set PDF dimensions based on orientation
       const pdfWidth = isLandscape ? paperHeightPx : paperWidthPx;
       const pdfHeight = isLandscape ? paperWidthPx : paperHeightPx;
-      
+
       // Calculate scale to fit content within the paper size while preserving aspect ratio
       const scaleX = pdfWidth / contentWidth;
       const scaleY = pdfHeight / contentHeight;
       const scale = Math.min(scaleX, scaleY) * 0.95; // Use 95% of available space to add margin
-      
+
       // Calculate dimensions of the scaled content
       const scaledWidth = contentWidth * scale;
       const scaledHeight = contentHeight * scale;
-      
+
       // Calculate position to center the content on the page
       const xOffset = (pdfWidth - scaledWidth) / 2;
       const yOffset = (pdfHeight - scaledHeight) / 2;
-      
+
       // Create a new jsPDF instance with appropriate orientation
       const pdf = new jsPDF({
         orientation: isLandscape ? 'landscape' : 'portrait',
@@ -782,7 +798,7 @@ let FormExportComponent = {
 
       // Save the PDF
       pdf.save(`${FormExportComponent.exportSettings.filename}.pdf`);
-      
+
       // Restore the canvas after PDF creation
       FormExportComponent.restoreCanvasAfterExport(originalState);
     } finally {
@@ -791,8 +807,235 @@ let FormExportComponent = {
     }
   },
 
+  exportCanvasToJSON: function (download = true) {
+    if (!CanvasGlobals.canvas) {
+      console.error("Canvas is not initialized.");
+      return;
+    }
 
-  // First, recursively collect all path objects
+    const objectsToSerialize = CanvasGlobals.canvasObject;
+    const serializedObjectsArray = [];
+
+    for (const obj of objectsToSerialize) {
+      if (typeof obj.serializeToJSON === 'function') {
+        serializedObjectsArray.push(obj.serializeToJSON());
+      }
+    }
+
+    // Prepare metadata including website title and version by reading meta tags
+    const appNameMeta = document.querySelector('meta[name="application-name"]');
+    const appVersionMeta = document.querySelector('meta[name="application-version"]');
+
+    const metaData = {
+      title: appNameMeta ? appNameMeta.getAttribute('content') : 'TrafficSign', // Fallback title
+      version: appVersionMeta ? appVersionMeta.getAttribute('content') : '0.0.0', // Fallback version
+      exportDate: new Date().toISOString()
+    };
+
+    const exportData = {
+      meta: metaData,
+      objects: serializedObjectsArray
+    };
+
+    const jsonString = JSON.stringify(exportData, null, 2);
+
+    if (download) {
+      // Create a Blob and download the JSON file
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${FormExportComponent.exportSettings.filename || 'canvas-export'}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+    return jsonString; // Return JSON string for further processing if needed
+  },
+
+  // New private helper function to process and apply JSON data to the canvas
+  _applyJSONToCanvas: async function(jsonData) {
+    try {
+      let objectsToLoad;
+      if (jsonData.meta && Array.isArray(jsonData.objects)) {
+        console.log("Processing JSON with metadata:", jsonData.meta);
+        objectsToLoad = jsonData.objects;
+      } else {
+        objectsToLoad = jsonData.objects; // Assume old format or direct array
+        console.log("Processing JSON (direct array or old format).");
+      }
+
+      if (!Array.isArray(objectsToLoad)) {
+        // This check can be more specific based on expected structure
+        throw new Error("Provided JSON data does not resolve to an array of objects.");
+      }
+
+      // Clear existing objects (excluding the grid)
+      // This assumes CanvasGlobals.canvasObject is the array of current user-added objects
+      // and obj.deleteObject() correctly removes them from canvas and the array.
+      if (CanvasGlobals.canvasObject && typeof CanvasGlobals.canvasObject.forEach === 'function') {
+        // Iterate backwards if deleteObject modifies the array in place
+        for (let i = CanvasGlobals.canvasObject.length - 1; i >= 0; i--) {
+          const obj = CanvasGlobals.canvasObject[i];
+          if (obj && typeof obj.deleteObject === 'function') {
+            obj.deleteObject();
+          } else {
+            // Fallback for objects without deleteObject or if canvasObject is not what's expected
+            console.warn("Object or deleteObject method not found, attempting direct canvas removal for:", obj);
+            if (CanvasGlobals.canvas && obj) CanvasGlobals.canvas.remove(obj);
+          }
+        }
+      }
+      // If CanvasGlobals.canvasObject is not self-managing, it might need to be reset:
+      // CanvasGlobals.canvasObject = []; 
+      // Or, if it's just a reference to canvas.getObjects(), then canvas.clear() might be an option,
+      // but that would also remove the grid unless handled separately.
+      // The current approach relies on the existing pattern of obj.deleteObject().
+
+      CanvasGlobals.canvas.renderAll(); // Render after clearing
+
+      if (typeof buildObjectsFromJSON === 'function') {
+        await buildObjectsFromJSON(objectsToLoad, CanvasGlobals.canvas);
+      } else {
+        console.error("buildObjectsFromJSON function is not available.");
+        throw new Error("Critical function buildObjectsFromJSON is not available to reconstruct objects.");
+      }
+    } catch (error) {
+      console.error("Error applying JSON to canvas:", error);
+      throw error; // Re-throw to be handled by the caller
+    }
+  },
+
+  importCanvasFromJSON: async function () {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.json'; // Accept only JSON files
+
+    fileInput.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) {
+        console.log("No file selected or dialog cancelled.");
+        // No overlay shown yet, so no need to hide
+        return;
+      }
+      
+      await FormExportComponent.showLoadingOverlay('JSON file'); // Show overlay when processing starts
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const jsonString = e.target.result;
+          const jsonData = JSON.parse(jsonString);
+          await FormExportComponent._applyJSONToCanvas(jsonData);
+          alert('Canvas imported successfully from file!'); 
+        } catch (error) {
+          console.error("Error importing canvas from JSON file:", error);
+          alert("Failed to import from JSON file. Ensure the file is a valid JSON export from this tool. Error: " + error.message);
+        } finally {
+          FormExportComponent.hideLoadingOverlay();
+        }
+      };
+      reader.onerror = () => {
+        console.error("Error reading file.");
+        alert("Error reading the selected file.");
+        FormExportComponent.hideLoadingOverlay(); // Ensure overlay is hidden on read error
+      };
+      reader.readAsText(file);
+    });
+
+    fileInput.click(); // Trigger the file dialog
+  },
+
+  // Updated method to import canvas from JSON text
+  importCanvasFromJSONText: async function (jsonText) {
+    if (!jsonText || jsonText.trim() === '') {
+      alert('JSON text cannot be empty.');
+      return;
+    }
+
+    await FormExportComponent.showLoadingOverlay('JSON data'); // Show overlay
+
+    try {
+      const jsonData = JSON.parse(jsonText);
+      await FormExportComponent._applyJSONToCanvas(jsonData);
+      alert('JSON text imported successfully and applied to canvas!');
+
+      const modal = document.getElementById('import-json-text-modal');
+      if (modal) {
+        modal.remove();
+      }
+    } catch (error) {
+      console.error("Error importing JSON from text:", error);
+      alert('Failed to import from JSON text. Please ensure the format is correct. Error: ' + error.message);
+    } finally {
+      FormExportComponent.hideLoadingOverlay(); // Hide overlay in all cases
+    }
+  },
+
+  // New method to show a modal for pasting JSON text
+  showImportJSONTextModal: function () {
+    // Remove existing modal if any
+    let existingModal = document.getElementById('import-json-text-modal');
+    if (existingModal) {
+      existingModal.remove();
+    }
+
+    // Create modal container
+    const modal = document.createElement('div');
+    modal.id = 'import-json-text-modal';
+
+    // Create modal content box
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content'; // Added class for CSS styling
+
+    // Modal Title
+    const title = document.createElement('h3');
+    title.textContent = 'Import JSON from Text';
+
+    // Close button
+    const closeButton = document.createElement('button');
+    closeButton.textContent = '×';
+    closeButton.className = 'close-button'; // Added class for CSS styling
+    closeButton.onclick = () => modal.remove();
+
+    // Textarea
+    const textArea = document.createElement('textarea');
+    textArea.id = 'json-text-area-input';
+    textArea.placeholder = 'Paste your JSON here...';
+
+    // Import button
+    const importButton = document.createElement('button');
+    importButton.textContent = 'Import';
+    importButton.className = 'import-button'; // Added class for CSS styling
+    importButton.onclick = async () => {
+      const jsonText = textArea.value;
+      await FormExportComponent.importCanvasFromJSONText(jsonText);
+      // Modal is removed by importCanvasFromJSONText on success,
+      // but if it fails early or doesn't remove, ensure it's gone.
+      if (document.getElementById('import-json-text-modal')) {
+         // modal.remove(); // Already handled in importCanvasFromJSONText
+      }
+    };
+    
+    // Buttons container for alignment
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.className = 'buttons-container'; // Added class for CSS styling
+    buttonsContainer.appendChild(importButton);
+
+
+    // Assemble modal
+    modalContent.appendChild(closeButton);
+    modalContent.appendChild(title);
+    modalContent.appendChild(textArea);
+    modalContent.appendChild(buttonsContainer); // Add button container
+    modal.appendChild(modalContent);
+
+    // Append modal to body
+    document.body.appendChild(modal);
+    textArea.focus(); // Focus the textarea
+  },
+
   collectPathObjects: function (obj, pathObjects) {
     // Skip grid objects
     if (obj.id === 'grid') return;
@@ -919,8 +1162,8 @@ let FormExportComponent = {
         type: 'path',
         path: obj.path,
         isOuterPath: true, // Mark as potentially having holes
-        left: obj.left  || 0,
-        top: obj.top  || 0,
+        left: obj.left || 0,
+        top: obj.top || 0,
         scaleX: obj.scaleX || 1,
         scaleY: obj.scaleY || 1
       };
@@ -999,78 +1242,69 @@ let FormExportComponent = {
   processPathForDXF: function (pathObj, dxf, offsetX, offsetY) {
     // Process SVG path data for DXF export
     const pathData = pathObj.path || [];
-    
+
     // First, we'll analyze the path to find subpaths (segments starting with 'M')
     const subpaths = [];
     let currentSubpath = [];
     let firstPointInSubpath = null;
-    
+
     // Group commands by subpaths
     pathData.forEach(cmd => {
-      if (cmd[0] === 'M') {
-        // Start a new subpath
+      if (cmd[0] === 'M' || cmd[0] === 'm') {
+        // If there's an existing subpath, add it to the list
         if (currentSubpath.length > 0) {
-          subpaths.push({
-            commands: currentSubpath,
-            firstPoint: firstPointInSubpath,
-            closed: false
-          });
+          subpaths.push(currentSubpath);
         }
+        // Start a new subpath
         currentSubpath = [cmd];
-        firstPointInSubpath = [
-          cmd[1] + offsetX,
-          -(cmd[2] + offsetY) // Flip Y coordinate for DXF
-        ];
+        firstPointInSubpath = [cmd[1], cmd[2]]; // Store the first point for closing path
       } else {
         currentSubpath.push(cmd);
-        // Mark if path is closed
-        if (cmd[0] === 'Z') {
-          subpaths.push({
-            commands: currentSubpath,
-            firstPoint: firstPointInSubpath,
-            closed: false
-          });
-          currentSubpath = [];
-          firstPointInSubpath = null;
+      }
+
+      // If the command is 'Z' or 'z', close the current subpath
+      if (cmd[0] === 'Z' || cmd[0] === 'z') {
+        if (firstPointInSubpath) {
+          // Add a line to the first point to explicitly close it if needed
+          // currentSubpath.push(['L', firstPointInSubpath[0], firstPointInSubpath[1]]);
         }
+        subpaths.push(currentSubpath);
+        currentSubpath = []; // Reset for the next subpath
+        firstPointInSubpath = null;
       }
     });
-    
+
     // Add the last subpath if it exists and wasn't closed with Z
     if (currentSubpath.length > 0) {
-      subpaths.push({
-        commands: currentSubpath,
-        firstPoint: firstPointInSubpath,
-        closed: false
-      });
+      subpaths.push(currentSubpath);
     }
-    
+
     // Now process each subpath
     subpaths.forEach(subpath => {
       // For each subpath, we'll build spline control points and polyline points
       let currentX, currentY;
       let polylinePoints = [];
       let currentCmd;
-      
+
       // Process the commands in this subpath
       for (let i = 0; i < subpath.commands.length; i++) {
         currentCmd = subpath.commands[i];
         const command = currentCmd[0];
         const values = currentCmd.slice(1);
-        
+
         switch (command) {
           case 'M': // moveTo
             currentX = values[0] + offsetX;
             currentY = -(values[1] + offsetY); // Flip Y coordinate for DXF
             polylinePoints = [[currentX, currentY]];
             break;
-            
+
           case 'L': // lineTo
             currentX = values[0] + offsetX;
             currentY = -(values[1] + offsetY); // Flip Y coordinate for DXF
             polylinePoints.push([currentX, currentY]);
             break;
-            
+
           case 'C': { // bezierCurveTo - use spline for better representation
             const cp1x = values[0] + offsetX;
             const cp1y = -(values[1] + offsetY); // Flip Y coordinate for DXF
@@ -1078,14 +1312,14 @@ let FormExportComponent = {
             const cp2y = -(values[3] + offsetY); // Flip Y coordinate for DXF
             const endX = values[4] + offsetX;
             const endY = -(values[5] + offsetY); // Flip Y coordinate for DXF
-            
+
             // If we have accumulated polyline points, draw them first
             if (polylinePoints.length > 1) {
               dxf.drawPolyline(polylinePoints, false);
               // Start new polyline with the endpoint of the existing one
               polylinePoints = [[polylinePoints[polylinePoints.length - 1][0], polylinePoints[polylinePoints.length - 1][1]]];
             }
-            
+
             // Create control points for a cubic spline (degree 3)
             const cubicControlPoints = [
               [currentX, currentY],   // Start point
@@ -1093,72 +1327,72 @@ let FormExportComponent = {
               [cp2x, cp2y],          // Second control point
               [endX, endY]           // End point
             ];
-            
+
             // Draw the spline
             dxf.drawSpline(cubicControlPoints, 3);
-            
+
             // Update current position
             currentX = endX;
             currentY = endY;
-            
+
             // Continue the polyline from here
             polylinePoints = [[currentX, currentY]];
             break;
           }
-            
+
           case 'Q': { // quadraticCurveTo - use spline for better representation
             const qCpx = values[0] + offsetX;
             const qCpy = -(values[1] + offsetY); // Flip Y coordinate for DXF
             const qEndX = values[2] + offsetX;
             const qEndY = -(values[3] + offsetY); // Flip Y coordinate for DXF
-            
+
             // If we have accumulated polyline points, draw them first
             if (polylinePoints.length > 1) {
               dxf.drawPolyline(polylinePoints, false);
               // Start new polyline with the endpoint of the existing one
               polylinePoints = [[polylinePoints[polylinePoints.length - 1][0], polylinePoints[polylinePoints.length - 1][1]]];
             }
-            
+
             // Create control points for a quadratic spline (degree 2)
             const quadraticControlPoints = [
               [currentX, currentY],  // Start point
               [qCpx, qCpy],          // Control point
               [qEndX, qEndY]         // End point
             ];
-            
+
             // Draw the spline
             dxf.drawSpline(quadraticControlPoints, 2);
-            
+
             // Update current position
             currentX = qEndX;
             currentY = qEndY;
-            
+
             // Continue the polyline from here
             polylinePoints = [[currentX, currentY]];
             break;
           }
-            
+
           case 'Z': // closePath
             // If we have a first point and it's different from current position,
             // add it to close the path
-            if (subpath.firstPoint && 
-                (subpath.firstPoint[0] !== currentX || subpath.firstPoint[1] !== currentY)) {
+            if (subpath.firstPoint &&
+              (subpath.firstPoint[0] !== currentX || subpath.firstPoint[1] !== currentY)) {
               polylinePoints.push([subpath.firstPoint[0], subpath.firstPoint[1]]);
             }
             break;
         }
       }
-      
+
       // Draw any remaining polyline points
       if (polylinePoints.length > 1) {
         dxf.drawPolyline(polylinePoints, subpath.closed);
       }
 
       // Close the path if it was marked as closed
-      if (polylinePoints && polylinePoints.length > 0 ) {
+      if (polylinePoints && polylinePoints.length > 0) {
 
-        if (polylinePoints[[polylinePoints.length - 1]][0] !== subpath.firstPoint[0] || 
-            polylinePoints[[polylinePoints.length - 1]][1] !== subpath.firstPoint[1]) {
+        if (polylinePoints[[polylinePoints.length - 1]][0] !== subpath.firstPoint[0] ||
+          polylinePoints[[polylinePoints.length - 1]][1] !== subpath.firstPoint[1]) {
           dxf.drawPolyline([polylinePoints[polylinePoints.length - 1], subpath.firstPoint], false);
         }
       }
@@ -1177,25 +1411,25 @@ let FormExportComponent = {
         // Handle M and L commands
         coordinates.push({ x: cmd[1], y: cmd[2] });
       }
-      
+
       if (cmd[0] === 'C' && cmd.length >= 7) {
         // Handle Bézier curve control points
         coordinates.push({ x: cmd[1], y: cmd[2] }); // First control point
         coordinates.push({ x: cmd[3], y: cmd[4] }); // Second control point
         coordinates.push({ x: cmd[5], y: cmd[6] }); // End point
       }
-      
+
       if (cmd[0] === 'Q' && cmd.length >= 5) {
         // Handle quadratic curve control points
         coordinates.push({ x: cmd[1], y: cmd[2] }); // Control point
         coordinates.push({ x: cmd[3], y: cmd[4] }); // End point
       }
     });
-    
+
     // Find minimum x and y from all collected coordinates
     const minX = coordinates.length > 0 ? Math.min(...coordinates.map(p => p.x)) : 0;
     const minY = coordinates.length > 0 ? Math.min(...coordinates.map(p => p.y)) : 0;
-    
+
     const absLeft = parentLeft + pathObj.left - minX;
     const absTop = parentTop + pathObj.top - minY;
 

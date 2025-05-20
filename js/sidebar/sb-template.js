@@ -2,10 +2,10 @@
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { TextObject } from '../objects/text.js';
-import { drawLabeledSymbol } from '../objects/symbols.js';
+import { SymbolObject } from '../objects/symbols.js';
 import { BorderUtilities } from '../objects/border.js';
-import { VDividerCreate, HDividerCreate, VLaneCreate, HLineCreate } from '../objects/divider.js';
-import { drawSideRoadOnCursor, finishDrawSideRoad, calcMainRoadVertices, MainRoadSymbol, SideRoadSymbol, calcRoundaboutVertices } from '../objects/route.js';
+import { DividerObject } from '../objects/divider.js';
+import { MainRoadSymbol, SideRoadSymbol } from '../objects/route.js';
 import { anchorShape } from '../objects/anchor.js';
 
 const canvas = CanvasGlobals.canvas;
@@ -213,11 +213,12 @@ let FormTemplateComponent = {
       });
 
       // Create WHC symbol for first line
-      drawLabeledSymbol('WHC', {
-        x: centerX + 150,
-        y: centerY - 100,
+      new SymbolObject({
+        symbolType: 'WHC',
+        left: centerX + 150,
+        top: centerY - 100,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: 'White'
       });
       const Line1Symbol = canvasObject[canvasObject.length - 1];
@@ -242,11 +243,12 @@ let FormTemplateComponent = {
       });
 
       // Create Airport symbol for second line
-      drawLabeledSymbol('Airport', {
-        x: centerX + 150,
-        y: centerY + 100,
+      new SymbolObject({
+        symbolType: 'Airport',
+        left: centerX + 150,
+        top: centerY + 100,
         xHeight: xHeight,
-        angle: 90,
+        symbolAngle: 90,
         color: 'White'
       });
       const Line2Symbol = canvasObject[canvasObject.length - 1];
@@ -385,11 +387,12 @@ let FormTemplateComponent = {
       });
 
       // Create gantry arrow for left compartment
-      drawLabeledSymbol('GantryArrow', {
-        x: centerX - 500,
-        y: centerY + 200,
+      new SymbolObject({
+        symbolType: 'GantryArrow',
+        left: centerX - 500,
+        top: centerY + 200,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: 'white'
       });
       const leftArrow = canvasObject[canvasObject.length - 1];
@@ -423,20 +426,22 @@ let FormTemplateComponent = {
       });
 
       // Create stack arrow for right compartment
-      drawLabeledSymbol('GantryArrow', {
-        x: centerX + 500,
-        y: centerY + 300,
+      new SymbolObject({
+        symbolType: 'GantryArrow',
+        left: centerX + 500,
+        top: centerY + 300,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: 'white'
       });
       const rightArrow = canvasObject[canvasObject.length - 1];
 
-      drawLabeledSymbol('Exit', {
-        x: centerX + 500,
-        y: centerY + 300,
+      new SymbolObject({
+        symbolType: 'Exit',
+        left: centerX + 500,
+        top: centerY + 300,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: 'white'
       });
       const exitSymmbol = canvasObject[canvasObject.length - 1];
@@ -477,13 +482,7 @@ let FormTemplateComponent = {
       });
 
       // Create vertical divider between compartments
-      VDividerCreate(
-        [leftBorder],
-        [rightChiText2],
-        null,
-        null,
-        { xHeight: xHeight, colorType: 'Green Background' }
-      );
+      new DividerObject({ dividerType: 'VDivider', leftObjects: [leftBorder], rightObjects: [rightChiText2], leftValue: null, rightValue: null, xHeight: xHeight, colorType: 'Green Background', });
       const verticalDivider = canvasObject[canvasObject.length - 1];
 
       // Create an overall green border containing all components
@@ -665,50 +664,48 @@ let FormTemplateComponent = {
       });
 
       // Create arrows
-      drawLabeledSymbol('StackArrow', {
-        x: centerX + 200,
-        y: centerY - 750,
+      new SymbolObject({
+        symbolType: 'StackArrow',
+        left: centerX + 200,
+        top: centerY - 750,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: 'White'
       });
       const topArrow = canvasObject[canvasObject.length - 1];
 
-      drawLabeledSymbol('StackArrow', {
-        x: centerX + 200,
-        y: centerY + 50,
+      new SymbolObject({
+        symbolType: 'StackArrow',
+        left: centerX + 200,
+        top: centerY + 50,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: 'Black'
       });
       const midArrow = canvasObject[canvasObject.length - 1];
 
-      drawLabeledSymbol('StackArrow', {
-        x: centerX + 200,
-        y: centerY + 350,
+      new SymbolObject({
+        symbolType: 'StackArrow',
+        left: centerX + 200,
+        top: centerY + 350,
         xHeight: xHeight,
-        angle: -90,
+        symbolAngle: -90,
         color: 'Black'
       });
       const botArrow = canvasObject[canvasObject.length - 1];
 
-      drawLabeledSymbol('Airport', {
-        x: centerX + 200,
-        y: centerY - 664,
+      new SymbolObject({
+        symbolType: 'Airport',
+        left: centerX + 200,
+        top: centerY - 664,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: 'White'
       });
       const airport = canvasObject[canvasObject.length - 1];
 
       // Create horizontal dividers
-      HDividerCreate(
-        [midChineseText],
-        [botDestinationText],
-        null,
-        null,
-        { xHeight: xHeight, colorType: 'White Background' }
-      );
+      new DividerObject({ dividerType: 'HDivider', aboveObjects: [midChineseText], belowObjects: [botDestinationText], aboveValue: null, belowValue: null, xHeight: xHeight, colorType: 'White Background', });
       const topDivider = canvasObject[canvasObject.length - 1];
 
       // Anchor text objects in pairs
@@ -865,7 +862,6 @@ let FormTemplateComponent = {
   createRoundaboutDirections: function (centerX, centerY, xHeight, color) {
     try {
       // Create roundabout symbol at center with three side roads
-      // Using the same approach as in test.js for roundabout creation
       const routeOptions = {
         routeList: [
           { x: centerX, y: centerY + 5 * xHeight, angle: 180, width: 6, shape: 'Normal' },
@@ -875,64 +871,64 @@ let FormTemplateComponent = {
         rootLength: 7,
         tipLength: 12,
         roadType: 'Conventional Roundabout',
-        color: color
+        color: color,
       };
 
       const roundabout = new MainRoadSymbol(routeOptions);
-      roundabout.initialize(calcRoundaboutVertices('Conventional', xHeight, routeOptions.routeList));
-
-      // Create side roads at top, left, and right positions
-      canvas.setActiveObject(roundabout);
+      roundabout.updateAllCoord(); // Ensure coordinates are set
 
       // Top side road (Tsuen Wan West Station)
-      drawSideRoadOnCursor(null, {
-        x: centerX,
-        y: centerY - 600,
-        routeParams: {
+      const topSideRoadParams = {
+        xHeight: xHeight,
+        color: color,
+        roadType: 'Side Road',
+        mainRoad: roundabout,
+        side: null, // Constructor will determine based on angle and main road
+        // Approximate initial position, constructor will adjust
+        routeList: [{
+          x: centerX,
+          y: centerY - 10 * xHeight / 4, // Adjusted for typical side road length
           angle: 0,
-          shape: 'Arrow',
-          width: 6
-        }
-      });
-      finishDrawSideRoad({ e: { button: 0 } });
-      const side1 = canvasObject[canvas.getActiveObject().canvasID];
+          width: 4,
+          shape: 'Arrow'
+        }],
+      };
+      const side1 = new SideRoadSymbol(topSideRoadParams);
 
-      // Set the roundabout as active object to add a side road
-      canvas.setActiveObject(roundabout);
 
       // Left side road (Sham Tseng and Tuen Mun)
-      drawSideRoadOnCursor(null, {
-        x: centerX - 600,
-        y: centerY,
-        routeParams: {
+      const leftSideRoadParams = {
+        xHeight: xHeight,
+        color: color,
+        roadType: 'Side Road',
+        mainRoad: roundabout,
+        routeList: [{
+          x: centerX - 10 * xHeight / 4, // Adjusted for typical side road length
+          y: centerY,
           angle: 90,
-          shape: 'Arrow',
-          width: 4
-        }
-      });
-      finishDrawSideRoad({ e: { button: 0 } });
-      const side2 = canvasObject[canvas.getActiveObject().canvasID];
-
-      // Set the roundabout as active object to add a side road
-      canvas.setActiveObject(roundabout);
+          width: 4,
+          shape: 'Arrow'
+        }],
+        side: true, // Explicitly left
+      };
+      const side2 = new SideRoadSymbol(leftSideRoadParams);
 
       // Right side road (Tsing Yi and Kowloon)
-      drawSideRoadOnCursor(null, {
-        x: centerX + 600,
-        y: centerY,
-        routeParams: {
+      const rightSideRoadParams = {
+        xHeight: xHeight,
+        color: color,
+        roadType: 'Side Road',
+        mainRoad: roundabout,
+        side: false, // Explicitly right
+        routeList: [{
+          x: centerX + 10 * xHeight / 4, // Adjusted for typical side road length
+          y: centerY,
           angle: -90,
-          shape: 'Arrow',
-          width: 4
-        }
-      });
-      finishDrawSideRoad({ e: { button: 0 } });
-      const side3 = canvasObject[canvas.getActiveObject().canvasID];
-
-      // Get all created side roads
-      const topRoad = roundabout.sideRoad[0];
-      const leftRoad = roundabout.sideRoad[1];
-      const rightRoad = roundabout.sideRoad[2];
+          width: 4,
+          shape: 'Arrow'
+        }],
+      };
+      const side3 = new SideRoadSymbol(rightSideRoadParams);
 
       // Create destination texts for the top side road (Tsuen Wan West Station)
       const topDestinationText1 = new TextObject({
@@ -981,11 +977,12 @@ let FormTemplateComponent = {
       });
 
       // Add MTR symbol for the top side road
-      drawLabeledSymbol('MTR', {
-        x: centerX - 100,
-        y: centerY - 200,
+      new SymbolObject({
+        symbolType: 'MTR',
+        left: centerX - 100,
+        top: centerY - 200,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const topSymbol = canvasObject[canvasObject.length - 1];
@@ -1028,19 +1025,21 @@ let FormTemplateComponent = {
       });
 
       // Add symbol for the left side road
-      drawLabeledSymbol('Expressway', {
-        x: centerX - 450,
-        y: centerY + 40,
+      new SymbolObject({
+        symbolType: 'Expressway',
+        left: centerX - 450,
+        top: centerY + 40,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const leftSymbol1 = canvasObject[canvasObject.length - 1];
-      drawLabeledSymbol('Route4', {
-        x: centerX - 450,
-        y: centerY + 40,
+      new SymbolObject({
+        symbolType: 'Route4',
+        left: centerX - 450,
+        top: centerY + 40,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const leftSymbol2 = canvasObject[canvasObject.length - 1];
@@ -1083,28 +1082,31 @@ let FormTemplateComponent = {
       });
 
       // Add Airport symbol for the right side road
-      drawLabeledSymbol('Airport', {
-        x: centerX + 450,
-        y: centerY + 40,
+      new SymbolObject({
+        symbolType: 'Airport',
+        left: centerX + 450,
+        top: centerY + 40,
         xHeight: xHeight,
-        angle: 90,
+        symbolAngle: 90,
         color: color
       });
       const rightSymbol1 = canvasObject[canvasObject.length - 1];
 
-      drawLabeledSymbol('Expressway', {
-        x: centerX - 450,
-        y: centerY + 40,
+      new SymbolObject({
+        symbolType: 'Expressway',
+        left: centerX - 450,
+        top: centerY + 40,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const rightSymbol2 = canvasObject[canvasObject.length - 1];
-      drawLabeledSymbol('Route4', {
-        x: centerX - 450,
-        y: centerY + 40,
+      new SymbolObject({
+        symbolType: 'Route4',
+        left: centerX - 450,
+        top: centerY + 40,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const rightSymbol3 = canvasObject[canvasObject.length - 1];
@@ -1361,7 +1363,6 @@ let FormTemplateComponent = {
         roadType: params.roadType
       };
       const mainRoad = new MainRoadSymbol(routeOptions);
-      mainRoad.initialize(calcMainRoadVertices(xHeight, routeOptions.routeList));
 
       // Create upper destination text (Sheung Shui)
       const upperDestEng1 = new TextObject({
@@ -1411,24 +1412,37 @@ let FormTemplateComponent = {
       });
 
       // Create expressway symbol in red
-      drawLabeledSymbol('ExpresswayRed', {
-        x: centerX - 50,
-        y: centerY - 150,
+      new SymbolObject({
+        symbolType: 'ExpresswayRed',
+        left: centerX - 50,
+        top: centerY - 150,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const expressway = canvasObject[canvasObject.length - 1];
 
       // Create route 9 symbol
-      drawLabeledSymbol('Route9', {
-        x: centerX - 50,
-        y: centerY - 70,
+      new SymbolObject({
+        symbolType: 'Route9',
+        left: centerX - 50,
+        top: centerY - 70,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const route9 = canvasObject[canvasObject.length - 1];
+
+      // Create exit symbol 
+      new SymbolObject({
+        symbolType: 'Exit',
+        left: centerX + 150,
+        top: centerY + 150,
+        xHeight: xHeight,
+        symbolAngle: 0,
+        color: color
+      });
+      const exitSymbol = canvasObject[canvasObject.length - 1];
 
       // Create exit number text for exit panel
       const exitText = new TextObject({
@@ -1441,24 +1455,16 @@ let FormTemplateComponent = {
       });
 
       // Create airport symbol at 45 degrees
-      drawLabeledSymbol('Airport', {
-        x: centerX + 150,
-        y: centerY + 150,
+      new SymbolObject({
+        symbolType: 'Airport',
+        left: centerX + 150,
+        top: centerY + 150,
         xHeight: xHeight,
-        angle: -45,
+        symbolAngle: -45,
         color: color
       });
       const airport = canvasObject[canvasObject.length - 1];
 
-      // Create airport symbol at 45 degrees
-      drawLabeledSymbol('Exit', {
-        x: centerX + 150,
-        y: centerY + 150,
-        xHeight: xHeight,
-        angle: 0,
-        color: color
-      });
-      const exitSymbol = canvasObject[canvasObject.length - 1];
 
       // Anchor text objects
       // Upper destination text
@@ -1549,17 +1555,23 @@ let FormTemplateComponent = {
 
       // Create side road at 60 degrees angle pointing to lower destination
       canvas.setActiveObject(mainRoad);
-      drawSideRoadOnCursor(null, {
-        x: centerX - 300,
-        y: centerY,
-        routeParams: {
-          angle: 60,
-          shape: 'Arrow',
-          width: 4
-        }
-      });
-      finishDrawSideRoad({ e: { button: 0 } });
-      const sideRoad = canvasObject[canvas.getActiveObject().canvasID];
+      const sideRoadParams = {
+        xHeight: xHeight,
+        color: color,
+        roadType: 'Side Road',
+        mainRoad: mainRoad,
+        side: true,
+        // Approximate initial position, constructor will adjust
+        routeList: [{
+          x: centerX - 300,
+          y: centerY,
+          angle: -60,
+          width: 4,
+          shape: 'Arrow'
+        }],
+      };
+
+      const sideRoad = new SideRoadSymbol(sideRoadParams);
 
       anchorShape(exitPanel, sideRoad, {
         vertexIndex1: 'V2',
@@ -1567,7 +1579,7 @@ let FormTemplateComponent = {
         spacingX: '',
         spacingY: xHeight * 2 / 4
       });
-      
+
       anchorShape(airport, sideRoad, {
         vertexIndex1: 'V1',
         vertexIndex2: 'E4',
@@ -1688,47 +1700,52 @@ let FormTemplateComponent = {
       });
 
       // Create arrows for each lane
-      drawLabeledSymbol('StackArrow', {
-        x: centerX - 300,
-        y: centerY + 100,
+      new SymbolObject({
+        symbolType: 'StackArrow',
+        left: centerX - 300,
+        top: centerY + 100,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const leftArrow = canvasObject[canvasObject.length - 1];
 
-      drawLabeledSymbol('StackArrow', {
-        x: centerX,
-        y: centerY + 100,
+      new SymbolObject({
+        symbolType: 'StackArrow',
+        left: centerX,
+        top: centerY + 100,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const rightArrow = canvasObject[canvasObject.length - 1];
 
-      drawLabeledSymbol('CHT', {
-        x: centerX + 300,
-        y: centerY + 100,
+      new SymbolObject({
+        symbolType: 'CHT',
+        left: centerX + 300,
+        top: centerY + 100,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const chtSymbol = canvasObject[canvasObject.length - 1];
 
-      drawLabeledSymbol('EHC', {
-        x: centerX + 300,
-        y: centerY + 100,
+      new SymbolObject({
+        symbolType: 'EHC',
+        left: centerX + 300,
+        top: centerY + 100,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const ehcSymbol = canvasObject[canvasObject.length - 1];
 
-      drawLabeledSymbol('Route4', {
-        x: centerX + 300,
-        y: centerY + 100,
+      new SymbolObject({
+        symbolType: 'Route4',
+        left: centerX + 300,
+        top: centerY + 100,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const routeSymbol = canvasObject[canvasObject.length - 1];
@@ -1741,13 +1758,7 @@ let FormTemplateComponent = {
       });
 
       // Create lane dividers
-      VLaneCreate(
-        [chtSymbol],
-        [rightLaneText1],
-        null,
-        null,
-        { xHeight: xHeight, colorType: 'Blue Background' }
-      );
+      new DividerObject({ dividerType: 'VLane', leftObjects: [chtSymbol], rightObjects: [rightLaneText1], leftValue: null, rightValue: null, xHeight: xHeight, colorType: 'Blue Background', });
       const leftLaneDivider = canvasObject[canvasObject.length - 1];
 
       // Anchor text objects in pairs
@@ -1899,40 +1910,49 @@ let FormTemplateComponent = {
       };
 
       const roundabout = new MainRoadSymbol(routeOptions);
-      roundabout.initialize(calcRoundaboutVertices('Spiral', xHeight, routeOptions.routeList));
 
       // Create side roads at top-left, top-right, left and right positions
       canvas.setActiveObject(roundabout);
 
-
       // Left side road
-      drawSideRoadOnCursor(null, {
-        x: centerX,
-        y: centerY - 600,
-        routeParams: {
+
+      const topSideRoadParams = {
+        xHeight: xHeight,
+        color: color,
+        roadType: 'Side Road',
+        mainRoad: roundabout,
+        side: null, // Constructor will determine based on angle and main road
+        // Approximate initial position, constructor will adjust
+        routeList: [{
+          x: centerX,
+          y: centerY - 600, // Adjusted for typical side road length
           angle: 0,
-          shape: 'Spiral Arrow',
-          width: 4
-        }
-      });
-      finishDrawSideRoad({ e: { button: 0 } });
-      const topRoad = canvasObject[canvas.getActiveObject().canvasID];
+          width: 4,
+          shape: 'Spiral Arrow'
+        }],
+      };
+      const topRoad = new SideRoadSymbol(topSideRoadParams);
 
       // Set the roundabout as active object to add a side road
       canvas.setActiveObject(roundabout);
 
       // Right side road
-      drawSideRoadOnCursor(null, {
-        x: centerX + 600,
-        y: centerY,
-        routeParams: {
+      const rightSideRoadParams = {
+        xHeight: xHeight,
+        color: color,
+        roadType: 'Side Road',
+        mainRoad: roundabout,
+        side: null, // Constructor will determine based on angle and main road
+        // Approximate initial position, constructor will adjust
+        routeList: [{
+          x: centerX + 600,
+          y: centerY,
           angle: 0,
-          shape: 'Spiral Arrow',
-          width: 4
-        }
-      });
-      finishDrawSideRoad({ e: { button: 0 } });
-      const rightRoad = canvasObject[canvas.getActiveObject().canvasID];
+          width: 4,
+          shape: 'Spiral Arrow'
+        }]
+      };
+      const rightRoad = new SideRoadSymbol(rightSideRoadParams);
 
       // Create top text objects
       const topTextEng1 = new TextObject({
@@ -2083,31 +2103,34 @@ let FormTemplateComponent = {
 
       // Create route symbols
       // Route 7 on left side
-      drawLabeledSymbol('Route7', {
-        x: centerX - 500,
-        y: centerY,
+      new SymbolObject({
+        symbolType: 'Route7',
+        left: centerX - 500,
+        top: centerY,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const leftRouteSymbol = canvasObject[canvasObject.length - 1];
 
       // Route 6 on right side
-      drawLabeledSymbol('Route6', {
-        x: centerX + 500,
-        y: centerY,
+      new SymbolObject({
+        symbolType: 'Route6',
+        left: centerX + 500,
+        top: centerY,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const rightRouteSymbol = canvasObject[canvasObject.length - 1];
 
       // Tunnel on right side
-      drawLabeledSymbol('Tunnel', {
-        x: centerX + 500,
-        y: centerY,
+      new SymbolObject({
+        symbolType: 'Tunnel',
+        left: centerX + 500,
+        top: centerY,
         xHeight: xHeight,
-        angle: 0,
+        symbolAngle: 0,
         color: color
       });
       const tunnelSymbol = canvasObject[canvasObject.length - 1];

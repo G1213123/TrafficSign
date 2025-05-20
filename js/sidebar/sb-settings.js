@@ -1,7 +1,9 @@
 /* Settings Panel */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals, DrawGrid } from '../canvas/canvas.js';
-import { runTests, testToRun } from '../tests/test.js'; 
+import { runTests, testToRun } from '../tests/test.js';
+import { FormExportComponent } from './sb-export.js';
+import { buildObjectsFromJSON } from '../objects/build.js';
 
 // Define shortcuts in a constant object
 const KEYBOARD_SHORTCUTS = {
@@ -11,6 +13,7 @@ const KEYBOARD_SHORTCUTS = {
   "Enter": "Confirm Measurement Input",
   "Tab": "Switch Vertex / Unit",
   "Ctrl + Z": "Undo",
+  "Ctrl + S": "Save",
 };
 
 let FormSettingsComponent = {
@@ -23,7 +26,7 @@ let FormSettingsComponent = {
       // Load saved settings if they exist
       //FormSettingsComponent.loadSettings();
 
-      
+
       // Create a container for shortcuts
       var shortcutsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container shortcut-list-container' }, parent);
 
@@ -100,25 +103,33 @@ let FormSettingsComponent = {
         FormSettingsComponent.changeGridSize, 'input');
 
       // Create a container for performance settings
-      //var performanceSettingsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      //
-      //// Auto-save toggle
-      //GeneralHandler.createToggle('Auto Save', ['Yes', 'No'], performanceSettingsContainer, 
-      //  GeneralSettings.autoSave ? 'Yes' : 'No', 
-      //  FormSettingsComponent.toggleAutoSave);
-      //
-      //// Auto-save interval
-      //GeneralHandler.createInput('auto-save-interval', 'Auto Save Interval (seconds)', performanceSettingsContainer, 
-      //  GeneralSettings.autoSaveInterval,
-      //  FormSettingsComponent.changeAutoSaveInterval, 'input');
-      //
+      var performanceSettingsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      
+      // Auto-save toggle
+      GeneralHandler.createToggle('Auto Save', ['Yes', 'No'], performanceSettingsContainer, 
+        GeneralSettings.autoSave ? 'Yes' : 'No', 
+        FormSettingsComponent.toggleAutoSave);
+      
+      // Auto-save interval
+      GeneralHandler.createInput('auto-save-interval', 'Auto Save Interval (seconds)', performanceSettingsContainer, 
+        GeneralSettings.autoSaveInterval,
+        FormSettingsComponent.changeAutoSaveInterval, 'input');
+      
       // Add save/reset buttons
-      const buttonContainer = GeneralHandler.createNode("div", { 'class': 'settings-buttons-container' }, parent);
+      const buttonContainer = GeneralHandler.createNode("div", { 'class': 'settings-buttons-container' }, performanceSettingsContainer);
+
+      // Manual Save button
+      GeneralHandler.createButton('manual-save', 'Save Canvas', buttonContainer, 'input',
+        FormSettingsComponent.saveCanvasState, 'click');
+
+      // Clear Saved Canvas button
+      GeneralHandler.createButton('clear-saved-canvas', 'Clear Saved Canvas', buttonContainer, 'input',
+        FormSettingsComponent.clearSavedCanvas, 'click');
 
       // Reset settings button
       GeneralHandler.createButton('reset-settings', 'Reset Settings', buttonContainer, 'input',
         FormSettingsComponent.resetSettings, 'click');
-      
+
       // Create a container for testing
       var testingContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
 
@@ -283,12 +294,32 @@ let FormSettingsComponent = {
       localStorage.setItem('canvasState', canvasJSON);
 
       // Save canvas objects (shapes, texts, etc.)
-      const canvasObjects = JSON.stringify(CanvasGlobals.canvas.toJSON(['functionalType', 'txtFrameList', 'basePolygon']));
+      const canvasObjects = FormExportComponent.exportCanvasToJSON(false);
       localStorage.setItem('canvasObjects', canvasObjects);
 
       console.log('Canvas state and objects auto-saved', new Date());
+      // Optionally, provide user feedback about the save
+      // For example, using a toast notification or a status message
+      GeneralHandler.showToast("Canvas state saved!"); 
     } catch (e) {
       console.error('Failed to auto-save canvas state', e);
+      GeneralHandler.showToast("Error saving canvas state.", "error");
+    }
+  },
+
+  clearSavedCanvas: function () {
+    try {
+      localStorage.removeItem('canvasState');
+      localStorage.removeItem('canvasObjects');
+      console.log('Saved canvas state and objects cleared from localStorage');
+      GeneralHandler.showToast("Cleared saved canvas data!");
+      // Optionally, you might want to reload or reset the canvas view here
+      // For example, by reloading the page or resetting the canvas to a default state
+      // CanvasGlobals.canvas.clear(); // Example: Clears the canvas
+      // FormSettingsComponent.loadSettings(); // Reloads initial settings without saved state
+    } catch (e) {
+      console.error('Failed to clear saved canvas state', e);
+      GeneralHandler.showToast("Error clearing saved canvas data.", "error");
     }
   },
 
@@ -299,7 +330,7 @@ let FormSettingsComponent = {
       localStorage.setItem('appSettings', JSON.stringify(GeneralSettings));
 
       // Also save canvas state
-      FormSettingsComponent.saveCanvasState();
+      //FormSettingsComponent.saveCanvasState();
 
       console.log('Settings and canvas state saved to localStorage');
     } catch (e) {
@@ -307,7 +338,7 @@ let FormSettingsComponent = {
     }
   },
 
-  loadCanvasState: function () {
+  loadCanvasState: async function () {
     try {
       const savedCanvas = localStorage.getItem('canvasState');
       if (savedCanvas) {
@@ -323,11 +354,25 @@ let FormSettingsComponent = {
         // Reload canvas objects if they're saved separately
         if (localStorage.getItem('canvasObjects')) {
           try {
-            const savedObjects = JSON.parse(localStorage.getItem('canvasObjects'));
-            if (Array.isArray(savedObjects)) {
-              // Clear existing objects and load saved ones
-              CanvasGlobals.canvas.clear();
-              loadCanvasFromJSON(savedObjects);
+            const jsonData = JSON.parse(localStorage.getItem('canvasObjects'));
+            if (jsonData.meta && Array.isArray(jsonData.objects)) {
+              console.log("Importing JSON with metadata:", jsonData.meta);
+              const objectsToLoad = jsonData.objects;
+              if (typeof buildObjectsFromJSON === 'function') {
+                await buildObjectsFromJSON(objectsToLoad, CanvasGlobals.canvas);
+              } else {
+                console.error("buildObjectsFromJSON function is not available.");
+                // As a fallback, try Fabric's loadFromJSON if custom deserialization isn't critical
+                // Note: This will not handle custom object types or re-linking logic.
+                // CanvasGlobals.canvas.loadFromJSON(jsonString, () => {
+                //   CanvasGlobals.canvas.renderAll();
+                //   console.log("Canvas loaded from JSON using Fabric.js default loader.");
+                // });
+              }
+            } else {
+              // Assume old format (array of objects) for backward compatibility
+              objectsToLoad = jsonData;
+              console.log("Importing JSON in old format (array of objects).");
             }
           } catch (e) {
             console.error('Failed to load canvas objects', e);
@@ -350,7 +395,7 @@ let FormSettingsComponent = {
       const savedSettings = localStorage.getItem('appSettings');
       if (savedSettings) {
         const parsedSettings = JSON.parse(savedSettings);
-        
+
         // Update existing settings instead of reassigning
         Object.keys(parsedSettings).forEach(key => {
           if (GeneralSettings.hasOwnProperty(key)) {
@@ -367,8 +412,6 @@ let FormSettingsComponent = {
           FormSettingsComponent.runTests();
         }
 
-        // Load canvas state after settings are applied
-        FormSettingsComponent.loadCanvasState();
       }
     } catch (e) {
       console.error('Failed to load settings', e);
@@ -386,10 +429,11 @@ let FormSettingsComponent = {
     FormSettingsComponent.updateSettingsUI();
 
     // Save the default settings and clear canvas objects
-    localStorage.removeItem('canvasObjects');
+    //localStorage.removeItem('canvasObjects');
     FormSettingsComponent.saveSettings();
 
     console.log('Settings reset to defaults');
+    GeneralHandler.showToast("Settings reset to defaults!");
   },
 
   // Apply settings to the canvas

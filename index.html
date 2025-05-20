@@ -4,22 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="application-name" content="<%= htmlWebpackPlugin.options.title %>">
+    <meta name="application-version" content="<%= htmlWebpackPlugin.options.appVersion %>">
     <meta name="description"
-        content="Create and customize road signs online with Road Sign Factory. Design traffic signs using template texts and symbols, export them in various formats. Sign designs are based on the Hong Kong's standards.">
+        content="Create and customize road signs online with Road Sign Factory. Design and export traffic signs using template texts and symbols. Prescibed designs elements based on the Hong Kong's standards TPDM.">
     <meta name="keywords"
-        content="road sign, traffic sign, generator, creator, custom sign, Hong Kong Standard, online tool, vector, SVG, DXF, PDF">
-    <meta name="google-adsense-account" content="ca-pub-9252664921109550">
+        content="Road Sign Factory, road sign, traffic sign, generator, creator, custom sign, Hong Kong Standard, online tool, vector, SVG, DXF, PDF">
     <title>Road Sign Factory - Online Sign Creator</title>
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/fabric@6.4.3/dist/index.js"></script>
     <script src="https://kit.fontawesome.com/d9b171ca69.js" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
     <script src="https://opentype.js.org/dist/opentype.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.1/jspdf.umd.min.js"></script>
     <script src="js/dxf/dxf-bundle.js"></script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9252664921109550"
-        crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
@@ -54,9 +52,6 @@
                                 htmlWebpackPlugin.options.appVersion %>
                         </p>
                     </div>
-                    <div id="debug-info-panel">
-                        <h3 class="panel-subheading">Contact</h3>
-                    </div>
                 </div>
                 <div class="coffee-link-container">
                     <p class="coffee-quote" style="font-style:italic; color:#eee; text-align:center; margin:0 0 8px 0;">
@@ -69,13 +64,16 @@
                         <a href="https://github.com/G1213123/TrafficSign" target="_blank"><i
                                 class="fa-brands fa-github"></i><span>Visit GitHub Repository</span></a>
                     </div>
+                    <div id="debug-info-panel">
+                        <p class="panel-subheading">Email: enquiry@g1213123.info</p>
+                        <p class="panel-subheading">For Bug reports please go to <a href="https://github.com/G1213123/TrafficSign/issues" target="_blank">submit an issue</a>.</p>
+                    </div>
                 </div>
                 <div class="legal-disclaimer"
                     style="font-size: 12px; color: #aaa; padding: 10px; margin-top: 20px; border-top: 1px solid #444;">
                     <h4 style="margin: 5px 0; color: #ddd;">Disclaimer</h4>
                     <p>Fonts used are subject to their respective licenses: Transport fonts (Crown Copyright),
                         NotoSansHK (SIL OFL), and 教育部標準楷書字形檔(Version 5.00) (CC 「姓名標示-禁止改作」).</p>
-                    <p>This application is for personal and non-commercial use only.</p>
                     <p>This site is not affiliated with the authorities and makes no guarantee of 100% conformity to
                         official standards.</p>
                     <p>It is the user's responsibility to ensure that the designs comply with local regulations and
@@ -102,7 +100,7 @@
             <div class="item" id="btn_measure" data-tooltip="Measure Tool"><i class="fa-solid fa-ruler"></i></div>
             <div class="item" id="btn_template" data-tooltip="Template Signs"><i class="fa-solid fa-signs-post"></i>
             </div>
-            <div class="item" id="btn_export" data-tooltip="Export Design"><i class="fa-solid fa-file-export"></i></div>
+            <div class="item" id="btn_export" data-tooltip="Import/Export"><i class="fa-solid fa-file-export"></i></div>
             <div class="item" id="btn_tracker" data-tooltip="History Tracker"><i class="fa fa-history"></i></div>
             <div class="item" id="btn_info" data-tooltip="Information"><i class="fa fa-circle-info"></i></div>
             <div class="item" id="btn_settings" data-tooltip="Settings"><i class="fa fa-gear"></i></div>
@@ -134,16 +132,7 @@
         <button id="cursorEnterButton" class="cursor-box-button mobile-only">Enter</button>
         <button id="cursorCancelButton" class="cursor-box-button mobile-only">Cancel</button>
     </div>
-    <!-- AdSense ads container -->
 
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9252664921109550"
-        crossorigin="anonymous"></script>
-    <!-- Bottom -->
-    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9252664921109550" data-ad-slot="4538395249"
-        data-ad-format="auto" data-full-width-responsive="true"></ins>
-    <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
 
 
     <!-- Modular development: load only the main entry point as a module -->

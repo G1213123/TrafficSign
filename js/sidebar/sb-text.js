@@ -47,7 +47,7 @@ let FormTextAddComponent = {
     GeneralHandler.setActiveComponentOff(FormTextAddComponent.TextHandlerOff);
     if (parent) {
       // Create the basic parameters container using the shared function
-      GeneralHandler.createBasicParamsContainer(parent, FormTextAddComponent, null, null, this.liveUpdateText, this.liveUpdateText);
+      GeneralHandler.createBasicParamsContainer(parent, FormTextAddComponent, null, null, FormTextAddComponent.liveUpdateText, FormTextAddComponent.liveUpdateText);
 
       // Create a container for text content and font
       const textContentContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
@@ -387,7 +387,7 @@ let FormTextAddComponent = {
       'TextOnMouseClick',
       'cancelInput'
     );
-    
+
     // Additional text-specific cleanup
     const textInput = document.getElementById('input-text');
     if (textInput) {
@@ -415,17 +415,17 @@ let FormTextAddComponent = {
   cancelInput: function (event) {
     if (event.key === 'Escape') {
       // For 2-liner text, we need special handling to remove both English and Chinese texts
-      if (FormTextAddComponent.textLineInput === 2 && 
-          FormTextAddComponent.newTextObject && 
-          CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
-        
+      if (FormTextAddComponent.textLineInput === 2 &&
+        FormTextAddComponent.newTextObject &&
+        CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
+
         // First, check if the English text has anchored Chinese text
-        if (FormTextAddComponent.newTextObject.anchoredPolygon && 
-            FormTextAddComponent.newTextObject.anchoredPolygon.length > 0) {
-          
+        if (FormTextAddComponent.newTextObject.anchoredPolygon &&
+          FormTextAddComponent.newTextObject.anchoredPolygon.length > 0) {
+
           // Store references to both texts before deletion
           const anchoredTexts = [...FormTextAddComponent.newTextObject.anchoredPolygon];
-          
+
           // Remove anchored Chinese text first to avoid orphaned objects
           anchoredTexts.forEach(anchoredText => {
             if (anchoredText && typeof anchoredText.deleteObject === 'function') {
@@ -433,20 +433,20 @@ let FormTextAddComponent = {
             }
           });
         }
-        
+
         // Then continue with the normal escape handling which will remove the English text
       }
     }
-    
+
     // Use shared escape key handler for standard cleanup
     GeneralHandler.handleCancelWithEscape(
-      FormTextAddComponent, 
-      event, 
-      'newTextObject', 
-      'TextOnMouseMove', 
+      FormTextAddComponent,
+      event,
+      'newTextObject',
+      'TextOnMouseMove',
       'TextOnMouseClick'
     );
-    
+
     // Additional text-specific cleanup
     if (event.key === 'Escape') {
       document.getElementById('input-text').value = '';
@@ -478,7 +478,7 @@ let FormTextAddComponent = {
         // For two-liner mode, we need special handling to create and anchor two text objects
         // Get corresponding Chinese text using the helper function
         const chtText = FormTextAddComponent.findCorrespondingChineseText(txt);
-        
+
         // Use the general object creation with snapping function
         const createTwoLinerText = (options) => {
           // Create English text object (top one)
@@ -491,7 +491,7 @@ let FormTextAddComponent = {
             top: options.position.y - options.xHeight * 0.6 // Position it higher for the top line
           });
           engTextObject.isTemporary = true;
-  
+
           // Create Chinese text object (bottom one)
           const chtTextObject = new TextObject({
             text: options.translatedText,
@@ -502,7 +502,7 @@ let FormTextAddComponent = {
             top: options.position.y + options.xHeight * 0.6 // Position it lower for the bottom line
           });
           chtTextObject.isTemporary = true;
-  
+
           // Anchor Chinese text to English text using the justification points
           setTimeout(() => {
             anchorShape(engTextObject, chtTextObject, {
@@ -512,10 +512,10 @@ let FormTextAddComponent = {
               spacingY: 0
             });
           }, 100);
-          
+
           return engTextObject; // Return the top object as the main one
         };
-        
+
         // Use the general object creation function for two-liner text
         await GeneralHandler.createObjectWithSnapping(
           {
@@ -533,21 +533,9 @@ let FormTextAddComponent = {
           FormTextAddComponent.TextOnMouseClick,
           FormTextAddComponent.cancelInput
         );
-  
+
       } else {
-        // For regular single-line text, use our standard pattern
-        // Create a function that returns a new TextObject
-        const createTextObject = (options) => {
-          return new TextObject({
-            text: options.text,
-            xHeight: options.xHeight,
-            font: options.font,
-            color: options.color,
-            left: options.position.x,
-            top: options.position.y
-          });
-        };
-        
+
         // Use the general object creation function
         await GeneralHandler.createObjectWithSnapping(
           {
@@ -556,7 +544,7 @@ let FormTextAddComponent = {
             font: font,
             color: color
           },
-          createTextObject,
+          FormTextAddComponent.createTextObject,
           FormTextAddComponent,
           'newTextObject',
           'E1',
@@ -568,8 +556,21 @@ let FormTextAddComponent = {
     } catch (error) {
       console.error('Error creating text object:', error);
     }
-    
+
     CanvasGlobals.canvas.renderAll();
+  },
+
+  // For regular single-line text, use our standard pattern
+  // Create a function that returns a new TextObject
+  createTextObject: (options) => {
+    return new TextObject({
+      text: options.text,
+      xHeight: options.xHeight,
+      font: options.font,
+      color: options.color,
+      left: options.position.x,
+      top: options.position.y
+    });
   },
 
   TextOnMouseMove: function (event) {
@@ -579,7 +580,7 @@ let FormTextAddComponent = {
 
   TextOnMouseClick: function (event, options = null) {
     if (event.e.button !== 0 && event.e.type !== 'touchend') return;
-    
+
     // Use shared mouse click handler for new text objects
     if (FormTextAddComponent.newTextObject) {
       GeneralHandler.handleObjectOnMouseClick(
@@ -590,7 +591,7 @@ let FormTextAddComponent = {
         'TextOnMouseClick',
         'cancelInput'
       );
-      
+
       // Text-specific cleanup
       document.getElementById('input-text').value = '';
       return;
@@ -607,7 +608,7 @@ let FormTextAddComponent = {
 
 // Replace the settings listener with the shared implementation
 GeneralSettings.addListener(
-  GeneralHandler.createSettingsListener(2, function(setting, value) {
+  GeneralHandler.createSettingsListener(2, function (setting, value) {
     // Text-specific updates when settings change
     if (FormTextAddComponent.newTextObject || CanvasGlobals.canvas.getActiveObject()?.functionalType === 'Text') {
       FormTextAddComponent.liveUpdateText();

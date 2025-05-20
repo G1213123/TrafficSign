@@ -2,14 +2,14 @@
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { BorderUtilities } from '../objects/border.js';
-import { HDividerCreate, VDividerCreate, HLineCreate, VLaneCreate } from '../objects/divider.js';
-import { BorderColorScheme, BorderFrameWdith, BorderTypeScheme } from '../objects/template.js';
+import { DividerObject } from '../objects/divider.js';
+import { BorderColorScheme, BorderFrameWidth, BorderTypeScheme } from '../objects/template.js';
 import { vertexToPath } from '../objects/path.js';
 import { selectObjectHandler } from '../canvas/promptBox.js';
 
 let FormBorderWrapComponent = {
   BorderPanelInit: function () {
-    GeneralHandler.tabNum = 3
+    GeneralHandler.tabNum = 3;
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       // Create a container for border parameters
@@ -187,97 +187,5 @@ GeneralSettings.addListener(function (setting, value) {
   }
 });
 
-/* Draw Border Panel */
-let FormDrawBorderAddComponent = {
-  borderTypes: ['Rectangle', 'Circle', 'Ellipse', 'Polygon', 'Triangle'],
-  newBorderObject: null,
-
-  /**
-   * Initializes the draw border panel with input fields and buttons
-   * @param {Event} event - The triggering event object
-   * @return {void}
-   */
-  drawBorderPanelInit: function (event) {
-    GeneralHandler.tabNum = 3
-    var parent = GeneralHandler.PanelInit()
-    if (parent) {
-      // Create a container for basic parameters using the shared function
-      GeneralHandler.createBasicParamsContainer(parent, FormDrawBorderAddComponent);
-
-      // Create a container for border type selection
-      const borderTypeContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-
-      // Create border type toggle
-      GeneralHandler.createToggle('Border Type', FormDrawBorderAddComponent.borderTypes, borderTypeContainer,
-        FormDrawBorderAddComponent.borderTypes[0], FormDrawBorderAddComponent.handleBorderTypeChange);
-
-      // Create a containe  r for border-specific parameters
-      //const borderParamsContainer = GeneralHandler.createNode("div", { 'class': 'border-params-container' }, parent);
-      //FormDrawBorderAddComponent.updateBorderParamsUI('Rectangle', borderParamsContainer);
-    }
-  },
-
-
-  BorderOnMouseMove: function (event) {
-    // Use shared mouse move handler
-    GeneralHandler.handleObjectOnMouseMove(FormDrawBorderAddComponent, event);
-  },
-
-  BorderOnMouseClick: function (event) {
-    if (event.e.button !== 0 && event.e.type !== 'touchend') return;
-
-    // Use shared mouse click handler
-    if (FormDrawBorderAddComponent.newBorderObject) {
-      GeneralHandler.handleObjectOnMouseClick(
-        FormDrawBorderAddComponent,
-        event,
-        'newBorderObject',
-        'BorderOnMouseMove',
-        'BorderOnMouseClick',
-        'cancelBorderDraw'
-      );
-
-      return;
-    }
-  },
-
-  cancelBorderDraw: function (event) {
-    // Use shared escape key handler
-    GeneralHandler.handleCancelWithEscape(
-      FormDrawBorderAddComponent,
-      event,
-      'newBorderObject',
-      'BorderOnMouseMove',
-      'BorderOnMouseClick'
-    );
-  },
-
-  /**
-   * Clean up resources when switching away from the border panel
-   */
-  BorderHandlerOff: function () {
-    // Use shared handler for cleanup
-    GeneralHandler.genericHandlerOff(
-      FormDrawBorderAddComponent,
-      'newBorderObject',
-      'BorderOnMouseMove',
-      'BorderOnMouseClick',
-      'cancelBorderDraw'
-    );
-  }
-};
-
-// Use the shared settings listener implementation
-GeneralSettings.addListener(
-  GeneralHandler.createSettingsListener(3, function (setting, value) {
-    // Border-specific updates when settings change
-    if (FormDrawBorderAddComponent.newBorderObject) {
-      if (setting === 'messageColor') {
-        FormDrawBorderAddComponent.newBorderObject.set('stroke', value.toLowerCase());
-        CanvasGlobals.canvas.renderAll();
-      }
-    }
-  })
-);
 
 export { FormBorderWrapComponent };

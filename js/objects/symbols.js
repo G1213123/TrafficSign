@@ -4,7 +4,7 @@
  */
 
 import { BaseGroup, GlyphPath } from './draw.js';
-import  {symbolsTemplate, symbolsTemplateAlt} from './template.js';
+import { symbolsTemplate, symbolsTemplateAlt } from './template.js';
 import { calculateTransformedPoints } from './path.js';
 import { FormDrawAddComponent } from '../sidebar/sb-draw.js';
 
@@ -46,35 +46,33 @@ function calcSymbol(type, length, color = 'white') {
  * SymbolObject extends BaseGroup to create symbols with editing functionality
  */
 class SymbolObject extends BaseGroup {
-  constructor(symbolType, options = {}) {
-    // Store symbol properties before creating the base group
-    const symbolProperties = {
-      symbol: symbolType,
-      xHeight: options.length || (options.xHeight || 100),
-      color: options.color || 'White',
-      symbolAngle: options.angle || 0,
-    };
+  constructor(shapeMeta = {}) {
+    super(null, 'Symbol', 'SymbolObject', shapeMeta ); // Call BaseGroup constructor
 
-    // Call the BaseGroup constructor with the symbol path
-    super(null, 'Symbol');
-    
-    // Apply stored symbol properties
-    Object.assign(this, symbolProperties);
+    // Store shapeMeta properties
+    this.symbolType = shapeMeta.symbolType;
+    this.xHeight = shapeMeta.xHeight || 100;
+    this.color = shapeMeta.color || 'White';
+    this.symbolAngle = shapeMeta.symbolAngle || 0;
+    this.left = shapeMeta.left || 0;
+    this.top = shapeMeta.top || 0;
 
-    // Add double-click event handler
-    this.on('mousedblclick', this.onDoubleClick.bind(this));
+    this.initialize();
+
     // When this symbol is deselected, clear it from FormDrawAddComponent if it was active
     this.on('deselected', () => {
       if (FormDrawAddComponent.editingExistingSymbol === this) {
         FormDrawAddComponent.editingExistingSymbol = null;
+        FormDrawAddComponent.hideAngleControls();
       }
     });
   }
 
-  initialize(symbolPath) {
-    symbolPath.symbol = this.symbol;
-    // Set the basePolygon that was initially null in the constructor
-    this.setBasePolygon(symbolPath);
+  initialize() {
+
+    // Set the basePolygon
+    this.setBasePolygon(this.drawSymbol());
+
     return this;
   }
 
@@ -82,108 +80,89 @@ class SymbolObject extends BaseGroup {
    * Handle double-click on the symbol object
    */
   onDoubleClick() {
-      // If already defined, initialize directly
-      FormDrawAddComponent.drawPanelInit(null, this);
-    
+    // If already defined, initialize directly
+    FormDrawAddComponent.drawPanelInit(null, this);
+
   }
-  
+
   /**
-   * Update symbol properties and visuals
+   * LEGACY Update symbol properties and visuals
    */
-  updateSymbol(symbolType, length, color, angle) {
-    // Create new symbol data
-    const symbolData = calcSymbol(symbolType, length / 4, color);
-    
+  updateSymbol(options) {
     // Store the new properties
-    this.symbol = symbolType;
-    this.xHeight = length; // Convert back to xHeight
-    this.color = color;
-    this.symbolAngle = angle;
+        // Store shapeMeta properties
+    this.symbolType = options.symbolType;
+    this.xHeight = options.xHeight || 100;
+    this.color = options.color || 'White';
+    this.symbolAngle = options.angle || 0;
+    this.left = options.x || 0;
+    this.top = options.y || 0;
     
-    // Create symbol options - keep angle at 0 for the actual path object
+    // Initialize the new path with transformed coordinates and replace the current one
+    this.replaceBasePolygon(this.drawSymbol());
+
+    // Update the group's angle if necessary, though typically handled by rotating vertices
+    // this.set('angle', this.symbolAngle); 
+
+    this.showDimensions();
+  }
+
+  drawSymbol() {
+    // Calculate symbol data
+    const symbolData = calcSymbol(this.symbolType, this.xHeight / 4, this.color);
+
+    // Create symbol options
     const symbolOptions = {
       left: this.left,
       top: this.top,
-      fill: color,
+      fill: this.color.toLowerCase() === 'white' ? '#ffffff' : '#000000',
+      angle: 0, // Angle is applied to vertices, not the fabric object initially
       objectCaching: false,
-      strokeWidth: 0,
-      angle: 0
+      strokeWidth: 0
     };
 
-    // Create a new GlyphPath for the symbol
-    const symbolPath = new GlyphPath();
-    symbolPath.initialize(symbolData, symbolOptions);
-    
     // Apply the rotation transform to vertex coordinates before creating the path
     symbolData.path.forEach(p => {
       p.vertex = calculateTransformedPoints(p.vertex, {
-        x: 0, 
-        y: 0, 
-        angle: angle
+        x: 0,
+        y: 0,
+        angle: this.symbolAngle
       });
     });
-    
-    // Initialize the new path with transformed coordinates and replace the current one
-    this.replaceBasePolygon(symbolPath);
 
-    this.showDimensions();
+    // Create the GlyphPath for the symbol
+    const symbolPath = new GlyphPath(symbolOptions);
+    symbolPath.initialize(symbolData, symbolOptions);
+    symbolPath.symbol = this.symbolType; // Keep track of the symbol type
+
+    return symbolPath;
   }
 }
 
 /**
- * Creates a symbol directly on the canvas without using cursor intermediary
+ * Legacy function to draw a symbol directly on the canvas.
+ * Creates a symbol directly on the canvas.
  * @param {string} symbolType - Type of symbol to create
  * @param {Object} options - Configuration options: x, y, xHeight, angle, color
- * @return {Object} The created symbol object
+ * @return {SymbolObject} The created symbol object
  */
 function drawSymbolDirectly(symbolType, options) {
-  // Calculate symbol data
-  const symbolData = calcSymbol(symbolType, options.xHeight / 4, options.color);
-
-  // Create symbol options
-  const symbolOptions = {
-    left: options.x || 0,
-    top: options.y || 0,
-    fill: options.color.toLowerCase() === 'white' ? '#ffffff' : '#000000',
-    angle: 0,
-    objectCaching: false,
-    strokeWidth: 0
+  const shapeMeta = {
+    symbolType: symbolType,
+    xHeight: options.xHeight,
+    color: options.color,
+    symbolAngle: options.angle || 0,
+    x: options.x || 0,
+    y: options.y || 0
   };
 
-  // Separate the angle handling from the symbol path creation
-  symbolData.path.forEach(p => {
-    p.vertex = calculateTransformedPoints(p.vertex, {
-      x: 0,
-      y: 0,
-      angle: options.angle || 0
-    });
-  });
-
-  // Create the GlyphPath for the symbol
-  const symbolPath = new GlyphPath(symbolOptions);
-  symbolPath.initialize(symbolData, symbolOptions);
-
-  // Create the SymbolObject with all original parameters, but the actual path
-  // has pre-rotated vertices instead of a rotation transform
-  const symbolGroup = new SymbolObject(symbolType, options);
-  symbolGroup.initialize(symbolPath);
-
-  symbolGroup.set({
-    symbolAngle: options.angle || 0,
-    strokeWidth: 0,
-  });
-
-  return symbolGroup;
+  const symbolGroup = new SymbolObject(shapeMeta);
+  return symbolGroup.initialize();
 }
 
-// Update the drawLabeledSymbol function to use drawSymbolDirectly
-function drawLabeledSymbol(symbolType, options) {
-  return drawSymbolDirectly(symbolType, options);
-}
 
 export {
   SymbolObject,
   drawSymbolDirectly,
-  drawLabeledSymbol,
   calcSymbol
 };

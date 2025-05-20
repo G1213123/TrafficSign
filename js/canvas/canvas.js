@@ -7,6 +7,7 @@ canvas.isDragging = false;
 canvas.lastPosX = 0;
 canvas.lastPosY = 0;
 
+//window.canvas = canvas; // Expose canvas to the global scope for debugging
 
 canvas.setZoom(0.2);
 
@@ -171,12 +172,9 @@ function CenterCoord() {
 }
 
 
-let resolveAnswer;
-
 
 resizeCanvas();
 
-window.canvas = canvas; // Expose canvas to the global scope for debugging
 
 const CanvasGlobals = {
   canvas: canvas,

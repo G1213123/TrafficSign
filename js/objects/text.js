@@ -11,49 +11,56 @@ import { FormTextAddComponent } from '../sidebar/sb-text.js';
 class TextObject extends BaseGroup {
   constructor(options = {}) {
     options.color = options.color === 'White' ? '#ffffff' : (options.color === 'Black' ? '#000000' : options.color);
-    // Create the fabric objects first
-    const { txtCharList, txtFrameList , containsNonAlphabetic} = TextObject.createTextElements(
-      options.text || '',
-      options.xHeight || 100,
-      options.color || '#ffffff',
-      options.font || 'TransportMedium',
-      options.isCursor
+    // Call BaseGroup without base polygon
+    super(null, 'Text', 'TextObject', options);
+    // Store metadata properties
+    this.text = options.text || '';
+    this.xHeight = options.xHeight || 100;
+    this.font = options.font || 'TransportMedium';
+    this.color = options.color || '#ffffff';
+    this.left = options.left || 0;
+    this.top = options.top || 0;
+    this.containsNonAlphabetic = false;
+    this.txtCharList = [];
+    this.txtFrameList = [];
+
+    this.initialize();
+  }
+
+    /**
+   * Initialize the TextObject drawing after instantiation.
+   * Creates character paths and frames, then sets the base polygon.
+   * @returns {TextObject}
+   */
+  initialize() {
+    // Generate elements using stored properties
+    const { txtCharList, txtFrameList, containsNonAlphabetic } = TextObject.createTextElements(
+      this.text,
+      this.xHeight,
+      this.color,
+      this.font,
+      false
     );
-
-    // Create a group containing the text characters and frames
+    // Build group
     const group = new fabric.Group([...txtCharList, ...txtFrameList], {
-      left: options.left || 0,
-      top: options.top || 0
+      left: this.left,
+      top: this.top
     });
-
-    // Legacy special handling for text bounding box calculation
-    group.getCombinedBoundingBoxOfRects = TextObject.getCombinedBoundingBoxOfRects;
-
-    // Add vertex and text information to the group
+    // Custom bounding box calculation
     group.setCoords();
-    //group.vertex = group.getCombinedBoundingBoxOfRects();
-    group.text = options.text;
-    group.xHeight = options.xHeight;
-
-
-    // Call the BaseGroup constructor with our prepared group
-    super(group, 'Text', );
-
-    // Store text properties
-    this.text = options.text;
-    this.xHeight = options.xHeight;
-    this.font = options.font;
-    this.color = options.color;
+    // Store references
     this.txtCharList = txtCharList;
     this.txtFrameList = txtFrameList;
     this.containsNonAlphabetic = containsNonAlphabetic;
-
-    // Add double-click event handler
-    this.on('mousedblclick', this.onDoubleClick.bind(this));
+    // Set group as base polygon
+    this.setBasePolygon(group);
+    // Update display name
+    this._showName = `<Group ${this.canvasID}> Text - ${this.text}`;
+    return this;
   }
 
   /**
-   * Handle double-click on the text object
+   * LEGACY Handle double-click on the text object
   */
   onDoubleClick() {
       // If already defined, initialize directly
@@ -250,7 +257,7 @@ class TextObject extends BaseGroup {
   }
 
   /**
-   * Method to calculate combined bounding box from rectangle objects in a group
+   * Legacy Method to calculate combined bounding box from rectangle objects in a group
    */
   static getCombinedBoundingBoxOfRects() {
     let combinedBBox = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
@@ -310,12 +317,9 @@ class TextObject extends BaseGroup {
       top: this.top
     });
 
-    // Add special handling for text bounding box calculation
-    group.getCombinedBoundingBoxOfRects = TextObject.getCombinedBoundingBoxOfRects;
 
     // Add vertex and text information to the group
     group.setCoords();
-    group.vertex = group.getCombinedBoundingBoxOfRects();
     group.text = newText;
     group.xHeight = newXHeight;
 

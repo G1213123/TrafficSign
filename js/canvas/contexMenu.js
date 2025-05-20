@@ -1,5 +1,5 @@
-
 import { CanvasGlobals } from "./canvas.js";
+import { showPropertyPanel } from '../sidebar/property.js'; // Import showPropertyPanel
 
 const canvas = CanvasGlobals.canvas; // Access the global canvas object
 // Context menu
@@ -57,8 +57,11 @@ editMenuItem.addEventListener('click', function (e) {
   e.preventDefault();
   contextMenu.style.display = 'none';
   const obj = contextMenu.selectedArrow;
-  if (obj && typeof obj.onDoubleClick === 'function') {
-    obj.onDoubleClick();
+  // if (obj && typeof obj.onDoubleClick === 'function') { // Old behavior
+  //   obj.onDoubleClick();
+  // }
+  if (obj) { // New behavior
+    showPropertyPanel(obj);
   }
 });
 

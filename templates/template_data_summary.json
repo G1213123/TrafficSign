@@ -1,0 +1,115 @@
+{
+  "EngDestinations": {
+    "description": "Provides destination names in English, categorized by region. Refer to the application's full data for all destinations.",
+    "example_entry": [{ "Hong Kong Island": ["Hong Kong", "Hong Kong(E)", "Hong Kong(S)", "Hong Kong(W)", "Aberdeen", "Ap Lei Chau", "Causeway Bay", "Central", "Chai Wan", "Chung Hom Kok", "Cyberport", "Hang Fa Tsuen", "Happy Valley", "Kennedy Town", "Kornhill", "Mid-levels", "North Point", "Pok Fu Lam", "Quarry Bay", "Repulse Bay", "Sai Wan", "Sai Wan Ho", "Sai Ying Pun", "Shau Kei Wan", "Shek O", "Shek Tong Tsui", "Sheung Wan", "Shouson Hill", "Stanley", "Siu Sai Wan", "Tai Hang", "Tai Koo Shing", "The Peak", "Wah Fu", "Wan Chai", "Wan Chai(N)", "Wong Chuk Hang"] },
+      { "Kowloon": ["Kowloon", "Kowloon(C)", "Kowloon(E)", "Kowloon(W)", "Beacon Hill", "Cha Kwo Ling", "Cheung Sha Wan", "Cheung Sha Wan(W)", "Choi Hung", "Chuk Yuen", "Cruise Terminal", "Diamond Hill", "Hang Hau", "Ho Man Tin", "Hung Hom", "Hung Hom Bay", "Kai Tak", "King's Park", "Kowloon Bay", "Kowloon City", "Kowloon Tong", "Kwun Tong", "Kwun Tong Business Area", "Lai Chi Kok", "Lai Chi Kok(S)", "Lam Tin", "Lok Fu", "Ma Tau Wai", "Mei Foo", "Mong Kok", "Ngau Chi Wan", "Ngau Tau Kok", "Ngong Shuen Chau", "Ping Shek", "Po Lam", "San Po Kong", "Sham Shui Po", "Sham Shui Po(W)", "Shek Kip Mei", "Sau Mau Ping", "Tai Kok Tsui", "Tai Kok Tsui(W)", "Tiu Keng Leng", "To Kwan Wan", "Tsim Sha Tsui", "Tsim Sha Tsui East", "Tsz Wan Shan", "Wang Tau Hom", "West Kowloon Cultural District", "West Kowloon Terminus", "Wong Tai Sin", "Yau Ma Tei", "Yau Ma Tei(W)", "Yau Tong", "Yau Yat Chuen"] },
+      { "New Terriitories": ["Lantau", "Airport", "Au Tau", "Clear Water Bay", "Discovery Bay", "Fairview Park", "Fanling", "Fo Tan", "Ha Tsuen", "Hin Tin", "Heung Yuen Wai", "Hong Lok Yuen", "Hung Shui Kiu", "Kam Tin", "Kwai Chung", "Kwai Fong", "Kwai Hing", "Kwu Tung", "Lai King", "Lam Tei", "Lantau(S)", "Lau Fau Shan", "Lei Muk Shue", "Lok Ma Chau", "Long Ping", "Luen Wo Hui", "Luk Keng", "Lung Kwu Tan", "Ma On Shan", "Ma On Shan Town Centre", "Ma Liu Sui", "Ma Wan", "Man Kam To", "Mui Wo", "Ngong Ping", "On Lok Tsuen", "Pak Shek Kok", "Pak Tam Chung", "Pat Heung", "Ping Che", "Ping Shan", "Pui O", "River Trade Terminal", "Sai Sha", "Sai Kung", "Sam Shing Hui", "San Tin", "San Hui", "Science Park", "Sha Tau Kok", "Sha Tin", "Sha Tin Central", "Sham Tseng", "Shek Kong", "Shek Lei", "Shek Pik", "Shek Wu Hui", "Shek Yam", "Shenzhen Bay", "Sheung Shui", "Sheung Tak", "Siu Lam", "Siu Lek Yuen", "So Kwun Wat", "Tai Hing", "Tai Mei Tuk", "Tai O", "Tai Po", "Tai Po Industrial Estate", "Tai Po Kau", "Tai Po Market", "Tai Po Town Centre", "Tai Po(N)", "Tai Po(S)", "Tai Shui Hang", "Tai Wai", "Tin Shui Wai", "Tai Lin Pai", "Tai Wo Hau", "Tin Sam", "Tin Shui Wai(N)", "Tin Shui Wai(S)", "Tin Shui Wai(C)", "Tin Shui Wai(W)", "Ting Kau", "Tiu Keng Leng", "Tseung Kwan O", "Tseung Kwan O(E)", "Tseung Kwan O Industrial Estate", "Tseung Kwan O Town Centre", "Tsing Lung Tau", "Tsing Yi", "Tsing Yi Town Centre", "Tsing Yi(N)", "Tsing Yi(S)", "Tsing Yi(E)", "Tsuen Wan", "Tsuen Wan Central", "Tsuen Wan(N)", "Tsuen Wan(S)", "Tsui Lam", "Tuen Mun", "Tuen Mun Town Centre", "Tuen Mun(W)", "Tung Chung", "Tung Chung Town Centre", "Tung Chung(W)", "Tung Chung(N)", "Tung Tau Industrial Area", "Wo Hop Shek", "Wu kai sha", "Yuen Chau Kok", "Yuen Long", "Yuen Long(C)", "Yuen Long(S)", "Yuen Long Industrial Estate"] }
+    ],
+    "structure_note": "The English Destination must be complimentary by the Chinese Destination."
+  },
+  "ChtDestinations": {
+    "description": "Provides destination names in Chinese, categorized by region. Refer to the application's full data for all destinations.",
+    "example_entry": [{ "Hong Kong Island": ["香港", "香港(東)", "香港(南)", "香港(西)", "香港仔", "鴨脷洲", "銅鑼灣", "中區", "柴灣", "舂坎角", "數碼港", "杏花邨", "跑馬地", "堅尼地城", "康怡", "半山", "北角", "薄扶林", "鰂魚涌", "淺水灣", "西灣", "西灣河", "西營盤", "筲箕灣", "石澳", "石塘咀", "上環", "壽臣山", "赤柱", "小西灣", "大坑", "太古城", "山頂", "華富", "灣仔", "灣仔(北)", "黃竹坑"] },
+      { "Kowloon": ["九龍", "九龍(中)", "九龍(東)", "九龍(西)", "筆架山", "荼果嶺", "長沙灣", "長沙灣(西)", "彩虹", "竹園", "郵輪碼頭", "鑽石山", "坑口", "何文田", "紅磡", "紅磡灣", "啟德", "京士柏", "九龍灣", "九龍城區", "九龍塘", "觀塘", "觀塘商貿區", "荔枝角", "荔枝角(南)", "藍田", "樂富", "馬頭圍", "美孚", "旺角", "牛池灣", "牛頭角", "昂船洲", "坪石", "寶琳", "新蒲崗", "深水埗", "深水埗(西)", "石硤尾", "秀茂坪", "大角咀", "大角咀(西)", "調景嶺", "土瓜灣", "尖沙咀", "尖沙咀東", "慈雲山", "橫頭磡", "西九文化區", "西九龍總站", "黃大仙", "油麻地", "油麻地(西)", "油塘", "又一村"] },
+      { "New Terriitories": ["大嶼山", "機場", "凹頭", "清水灣", "愉景灣", "錦綉花園", "粉嶺", "火炭", "廈村", "顯田", "香園圍", "康樂園", "洪水橋", "錦田", "葵涌", "葵芳", "葵興", "古洞", "荔景", "藍地", "大嶼山", "流浮山", "梨木樹", "落馬洲", "朗屏", "聯和墟", "鹿頸", "龍鼓灘", "馬鞍山", "馬鞍山市中心", "馬料水", "馬灣", "文錦渡", "梅窩", "昂坪", "安樂村", "白石角", "北潭涌", "八鄉", "坪輋", "坪山", "貝澳", "內河碼頭", "西沙", "西貢", "三聖墟", "新田", "新墟", "科學園", "沙頭角", "沙田", "沙田巿中心", "深井", "石崗", "石籬", "石壁", "石湖墟", "石蔭", "深圳灣", "上水", "尚德", "小欖", "小瀝源", "掃管笏", "大興", "大美督", "大澳", "大埔", "大埔工業邨", "大埔滘", "大埔墟", "大埔市中心", "大埔(北)", "大埔(南)", "大水坑", "大圍", "天水圍", "大連排", "大窩口", "田心", "天水圍(北)", "天水圍(南)", "天水圍(中)", "天水圍(西)", "汀九", "調景嶺", "將軍澳", "將軍澳(東)", "將軍澳工業邨", "將軍澳市中心", "青龍頭", "青衣", "青衣市中心", "青衣(北)", "青衣(南)", "青衣(東)", "荃灣", "荃灣(中)", "荃灣(北)", "荃灣(南)", "翠林", "屯門", "屯門市中心", "屯門(西)", "東涌", "東涌市中心", "東涌(西)", "東涌(北)", "東頭工業區", "和合石", "烏溪沙", "圓洲角", "元朗", "元朗(中)", "元朗(南)", "元朗(南)", "元朗工業邨"] }
+    ],
+    "structure_note": "The English Destination must be complimentary by the Chinese Destination"
+  },
+    "ColorScheme": {
+    "description": "Defines color schemes for signs symbol, text, route map.",
+    "availableSchemes": [
+      "Black",
+      "White Background"
+    ]
+  },
+  "BorderColorScheme": {
+    "description": "Defines color schemes for signs border.",
+    "availableSchemes": [
+      "Blue Background",
+      "Green Background",
+      "White Background",
+      "White Background - Parking",
+      "Yellow Background",
+      "Brown Background"
+    ]
+  },
+  "BorderTypeScheme": {
+    "description": "Border type names to underlying template structures for the sign's overall layout.",
+    "availableTypes": [
+      "stack",
+      "flagLeft",
+      "flagRight",
+      "exit",
+      "panel",
+      "greenPanel",
+      "rectangle"
+    ]
+  },
+  "DividerTypeScheme": {
+    "description": "Dividers type use to separate information on sign base on road geometry.",
+    "availableTypes": [
+      "HDivider",
+      "VDivider",
+      "HLine",
+      "VLane"
+    ]
+  },
+  "SymbolTypeScheme": {
+    "description": "Symbol Object to be placed on sign.",
+    "availableTypes": ["StackArrow", "GantryArrow", "Tunnel", "Expressway", "ExpresswayRed", "Airport", "Route1", "Route2", "Route3", "Route4", "Route5", "Route6", "Route7", "Route8", "Route9", "Route10", "Route11", "Route12", "CHT", "EHC", "WHC", "MTR", "Hospital", "Disney", "Parking", "Exit", "LeftArrow", "RightArrow", "LeftStraightArrow", "RightStraightArrow", "LeftPedestrian", "RightPedestrian", "LeftDisabled", "RightDisabled", "LeftBike", "RightBike"]
+  },
+ "SymbolPermittedAngle": {
+    "description": "Allowable angle for specific symbol. If not specified, only angle allow is 0.",
+    "availableTypes":{
+      "StackArrow": [-135, -90, -45, -22.5, 0, 22.5, 45, 90, 135],
+      "Airport": [-90, -45, 0, 45, 90]
+    }
+  },
+  "SignTemplates": {
+    "description": "Predefined sign templates available in the application, with user-friendly descriptions and typical objects found on them. These guide the AI in understanding common sign layouts.",
+    "templates": [
+      {
+        "name": "Gantry Sign",
+        "original_description": "Gantry Sign with 2-4 sign panels",
+        "laymans_description": "A large overhead sign structure, typically spanning multiple lanes, displaying information on 2 to 4 separate panels.",
+        "typical_objects": ["Multiple sign panels", "Destinations (English and Chinese)", "Lane arrows", "Route numbers"]
+      },
+      {
+        "name": "Stack Sign",
+        "original_description": "Stack Sign with 1-4 destinations",
+        "laymans_description": "A sign where destinations are stacked vertically, usually indicating different directions or exits. Can show 1 to 4 destinations.",
+        "typical_objects": ["Destinations (English and Chinese)", "Stack arrows", "Route numbers"]
+      },
+      {
+        "name": "Flag Sign",
+        "original_description": "Flag Sign with 1-2 destinations",
+        "laymans_description": "A sign that juts out from a pole, like a flag, typically showing 1 or 2 destinations for a specific turn or exit.",
+        "typical_objects": ["Destinations (English and Chinese)", "Arrows", "Route numbers"]
+      },
+      {
+        "name": "Conventional Roundabout Sign",
+        "original_description": "Roundabout Sign with 2-5 exits",
+        "laymans_description": "A sign providing directions for a roundabout, indicating the destinations for its 2 to 5 exits.",
+        "typical_objects": ["Roundabout diagram symbol", "Destinations for each exit", "Arrows"]
+      },
+      {
+        "name": "Spiral Roundabout Sign",
+        "original_description": "Spiral Carpark Sign with 1-2 destinations",
+        "laymans_description": "A sign used in spiral car parks, indicating directions to 1 or 2 locations or levels within the carpark.",
+        "typical_objects": ["Destinations", "Arrows", "Parking symbols", "Level indicators"]
+      },
+      {
+        "name": "Diverging Sign",
+        "original_description": "Diverging Lanes Sign with 2-3 destinations",
+        "laymans_description": "A sign indicating that lanes are splitting ahead, with 2 or 3 destinations shown for the diverging paths.",
+        "typical_objects": ["Lane diagrams", "Destinations for each diverging lane", "Arrows"]
+      },
+      {
+        "name": "Lane Sign",
+        "original_description": "Single Panel Sign with 4 destinations separated by a vertical lane dividers",
+        "laymans_description": "Another sign indicating the lanes are splitting ahead which represent the lane destination on each side on the lanes.",
+        "typical_objects": ["One destination (English and Chinese)", "An arrow", "A regulatory/warning symbol"]
+      }
+    ]
+  }
+}
