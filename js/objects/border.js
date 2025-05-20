@@ -321,7 +321,7 @@ const BorderUtilities = {
 class BorderGroup extends BaseGroup {
   constructor(options = {}) {
     // Call the parent constructor with the base border and 'Border' functional type
-    super(null, 'Border', options);
+    super(null, 'Border', 'BorderGroup', options);
 
     // Initialize border-specific properties
     this.widthObjects = options.widthObjects || [];

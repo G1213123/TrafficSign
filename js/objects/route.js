@@ -267,7 +267,7 @@ function assignVertexLabel(vertexList) {
 class MainRoadSymbol extends BaseGroup {
     constructor(options = {}) {
         // We need to pass null as basePolygon initially, as we'll set it after initialize()
-        super(null, 'MainRoad', options);
+        super(null, 'MainRoad', 'MainRoadSymbol', options);
 
         // Initialize route-specific properties
         this.routeList = options.routeList || [];
@@ -394,7 +394,7 @@ class MainRoadSymbol extends BaseGroup {
 class SideRoadSymbol extends BaseGroup {
     constructor(options = {}) {
         // Initialize with null basePolygon, will set it later
-        super(null, 'SideRoad', options);
+        super(null, 'SideRoad', 'SideRoadSymbol', options);
 
         // Branch-specific properties
         this.routeList = options.routeList || [];

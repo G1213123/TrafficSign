@@ -47,7 +47,7 @@ function calcSymbol(type, length, color = 'white') {
  */
 class SymbolObject extends BaseGroup {
   constructor(shapeMeta = {}) {
-    super(null, 'Symbol', shapeMeta ); // Call BaseGroup constructor
+    super(null, 'Symbol', 'SymbolObject', shapeMeta ); // Call BaseGroup constructor
 
     // Store shapeMeta properties
     this.symbolType = shapeMeta.symbolType;

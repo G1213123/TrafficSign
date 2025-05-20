@@ -12,7 +12,7 @@ class TextObject extends BaseGroup {
   constructor(options = {}) {
     options.color = options.color === 'White' ? '#ffffff' : (options.color === 'Black' ? '#000000' : options.color);
     // Call BaseGroup without base polygon
-    super(null, 'Text', options);
+    super(null, 'Text', 'TextObject', options);
     // Store metadata properties
     this.text = options.text || '';
     this.xHeight = options.xHeight || 100;

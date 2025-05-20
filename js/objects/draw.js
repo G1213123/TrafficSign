@@ -130,7 +130,7 @@ class BaseGroup extends fabric.Group {
   _metadataKeys = [];
   _arrayPropertiesToSerializeItemByCanvasID = ['heightObjects', 'widthObjects'];
 
-  constructor(basePolygon, functionalType, options = {}) {
+  constructor(basePolygon, functionalType, className, options = {}) {
     super([], {
       subTargetCheck: true,
       lockScalingX: true,// lock scaling
@@ -138,7 +138,7 @@ class BaseGroup extends fabric.Group {
     });
 
     // Initialize metadata keys with default properties
-    this._metadataKeys = ['functionalType', 'canvasID'];
+    this._metadataKeys = ['functionalType', 'className', 'canvasID'];
     Object.keys(options).forEach(key => {
       if (!this._metadataKeys.includes(key)) {
         this._metadataKeys.push(key);
@@ -146,6 +146,7 @@ class BaseGroup extends fabric.Group {
     });
 
     this.functionalType = functionalType;
+    this.className = className || 'BaseGroup';
     this.anchoredPolygon = [];
     this.anchorageLink = [];
     this.lockXToPolygon = {};
@@ -306,7 +307,7 @@ class BaseGroup extends fabric.Group {
     // For now, we rely on what's populated in _metadataKeys and direct properties.
 
     const dataToSerialize = { ...meta };
-    dataToSerialize.objectType = this.constructor.name; // Store the class name for reconstruction
+    dataToSerialize.objectType = this.className; // Store the class name for reconstruction
     dataToSerialize.left = this.left
     dataToSerialize.top = this.top
     dataToSerialize.refTopLeft = this.refTopLeft

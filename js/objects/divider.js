@@ -30,7 +30,7 @@ function drawDivider (xHeight, color, position, size, type) {
 
 class DividerObject extends BaseGroup {
     constructor(options = {}) {
-        super(null, options.dividerType, options); // Call BaseGroup constructor
+        super(null, options.dividerType, 'DividerObject', options); // Call BaseGroup constructor
 
         // Store divider-specific properties
         this.xHeight = options.xHeight ;

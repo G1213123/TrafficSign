@@ -21,14 +21,14 @@ async function preload() {
         // Any initialization code that depends on fonts being loaded can go here.
 
 
-            await FormSettingsComponent.loadSettings();
+        await FormSettingsComponent.loadSettings();
 
 
-            setTimeout(function () {
-                document.getElementById('loading-overlay').style.display = 'none';
-            }, 1000); // 3 second backup timeout
+        setTimeout(function () {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }, 1000); // 3 second backup timeout
 
-        
+
 
     } catch (error) {
         console.error("Failed to initialize application due to font loading error:", error);
