@@ -22,6 +22,7 @@ async function preload() {
 
 
         await FormSettingsComponent.loadSettings();
+        await FormSettingsComponent.loadCanvasState();
 
 
         setTimeout(function () {

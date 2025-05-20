@@ -412,8 +412,6 @@ let FormSettingsComponent = {
           FormSettingsComponent.runTests();
         }
 
-        // Load canvas state after settings are applied
-        FormSettingsComponent.loadCanvasState();
       }
     } catch (e) {
       console.error('Failed to load settings', e);
