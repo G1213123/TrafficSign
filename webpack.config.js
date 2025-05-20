@@ -3,6 +3,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack'); // Ensure webpack is required
+const MiniCssExtractPlugin = require('mini-css-extract-plugin'); // Added
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin'); // Added
 require('dotenv').config(); // Load .env file
 
 module.exports = {
@@ -17,7 +19,7 @@ module.exports = {
     rules: [
       {
         test: /\.css$/i,
-        use: ['style-loader', 'css-loader'],
+        use: [MiniCssExtractPlugin.loader, 'css-loader'], // Changed
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif|ico|woff|woff2|ttf)$/i,
@@ -49,7 +51,10 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env.APP_VERSION': JSON.stringify(process.env.VERSION || require('./package.json').version || 'dev'),
       'process.env.APP_TITLE': JSON.stringify('Road Sign Factory - Online Sign Creator')
-    })
+    }),
+    new MiniCssExtractPlugin({ // Added
+      filename: 'css/[name].css', // Output CSS filename
+    }),
   ],
   optimization: {
     minimize: true,
@@ -63,6 +68,7 @@ module.exports = {
         },
         extractComments: false, // Do not extract comments to a separate file
       }),
+      new CssMinimizerPlugin(), // Added
     ],
   },
   devtool: false, // Disable source maps in production for smaller bundle size

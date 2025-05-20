@@ -25,8 +25,6 @@ class TextObject extends BaseGroup {
     this.txtFrameList = [];
 
     this.initialize();
-    // Add double-click event handler
-    this.on('mousedblclick', this.onDoubleClick.bind(this));
   }
 
     /**
@@ -49,7 +47,6 @@ class TextObject extends BaseGroup {
       top: this.top
     });
     // Custom bounding box calculation
-    group.getCombinedBoundingBoxOfRects = TextObject.getCombinedBoundingBoxOfRects;
     group.setCoords();
     // Store references
     this.txtCharList = txtCharList;
@@ -63,7 +60,7 @@ class TextObject extends BaseGroup {
   }
 
   /**
-   * Handle double-click on the text object
+   * LEGACY Handle double-click on the text object
   */
   onDoubleClick() {
       // If already defined, initialize directly
@@ -260,7 +257,7 @@ class TextObject extends BaseGroup {
   }
 
   /**
-   * Method to calculate combined bounding box from rectangle objects in a group
+   * Legacy Method to calculate combined bounding box from rectangle objects in a group
    */
   static getCombinedBoundingBoxOfRects() {
     let combinedBBox = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
@@ -320,12 +317,9 @@ class TextObject extends BaseGroup {
       top: this.top
     });
 
-    // Add special handling for text bounding box calculation
-    group.getCombinedBoundingBoxOfRects = TextObject.getCombinedBoundingBoxOfRects;
 
     // Add vertex and text information to the group
     group.setCoords();
-    group.vertex = group.getCombinedBoundingBoxOfRects();
     group.text = newText;
     group.xHeight = newXHeight;
 

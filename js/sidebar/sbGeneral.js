@@ -548,6 +548,36 @@ let GeneralHandler = {
 
     CanvasGlobals.canvas.renderAll();
   },
+
+  showToast: function(message, type = 'success', duration = 3000) {
+    const toastId = 'toast-notification';
+    // Remove existing toast if any
+    let existingToast = document.getElementById(toastId);
+    if (existingToast) {
+      existingToast.remove();
+    }
+
+    const toast = document.createElement('div');
+    toast.id = toastId;
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    // Center the toast
+    toast.style.left = `calc(50% - ${toast.offsetWidth / 2}px)`;
+
+    // Auto fade out
+    setTimeout(() => {
+      toast.classList.add('fade-out');
+      // Remove the element after fade out animation
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 500); // Corresponds to the animation duration
+    }, duration);
+  },
   
   /**
    * Utility debounce function to limit rapid successive updates
@@ -599,7 +629,7 @@ const GeneralSettings = {
   gridSize: 20,
   showAllVertices: false,
   autoSave: false,
-  autoSaveInterval: 60,
+  autoSaveInterval: 300,
   defaultExportScale: 2,
   runTestsOnStart: false,
   xHeight: 100,
@@ -641,7 +671,7 @@ const GeneralSettings = {
       gridSize: 20,
       showAllVertices: false,
       autoSave: true,
-      autoSaveInterval: 60,
+      autoSaveInterval: 300,
       defaultExportScale: 2,
       runTestsOnStart: false,
       xHeight: 100,

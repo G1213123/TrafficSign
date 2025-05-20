@@ -54,13 +54,11 @@ class SymbolObject extends BaseGroup {
     this.xHeight = shapeMeta.xHeight || 100;
     this.color = shapeMeta.color || 'White';
     this.symbolAngle = shapeMeta.symbolAngle || 0;
-    this.left = shapeMeta.x || 0;
-    this.top = shapeMeta.y || 0;
+    this.left = shapeMeta.left || 0;
+    this.top = shapeMeta.top || 0;
 
     this.initialize();
 
-    // Add double-click event handler
-    this.on('mousedblclick', this.onDoubleClick.bind(this));
     // When this symbol is deselected, clear it from FormDrawAddComponent if it was active
     this.on('deselected', () => {
       if (FormDrawAddComponent.editingExistingSymbol === this) {
@@ -88,7 +86,7 @@ class SymbolObject extends BaseGroup {
   }
 
   /**
-   * Update symbol properties and visuals
+   * LEGACY Update symbol properties and visuals
    */
   updateSymbol(options) {
     // Store the new properties

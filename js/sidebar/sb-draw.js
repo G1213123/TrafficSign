@@ -39,7 +39,7 @@ let FormDrawAddComponent = {
       GeneralHandler.createBasicParamsContainer(parent, FormDrawAddComponent,
         xHeight,
         color,
-        this.handleXHeightChange, this.handleColorChange);
+        FormDrawAddComponent.handleXHeightChange, FormDrawAddComponent.handleColorChange);
 
 
       // Create a placeholder container for angle controls
@@ -273,7 +273,7 @@ let FormDrawAddComponent = {
       createSymbol,
       FormDrawAddComponent,
       'newSymbolObject',
-      'V1',
+      'E2',
       FormDrawAddComponent.SymbolOnMouseMove,
       FormDrawAddComponent.SymbolOnMouseClick,
       FormDrawAddComponent.cancelDraw
@@ -368,7 +368,7 @@ let FormDrawAddComponent = {
       newSymbolObject.updateSymbol(newOptions);
       newSymbolObject.enterFocusMode();
       CanvasGlobals.canvas.setActiveObject(newSymbolObject);
-      CanvasGlobals.activeVertex = newSymbolObject.controls.V1;
+      CanvasGlobals.activeVertex = newSymbolObject.controls.E2;
       CanvasGlobals.activeVertex.isDown = true;
       CanvasGlobals.activeVertex.isDragging = true;
       CanvasGlobals.activeVertex.originalPosition = {
@@ -377,17 +377,17 @@ let FormDrawAddComponent = {
       };
   
       // Store vertex information
-      const v1 = newSymbolObject.getBasePolygonVertex('V1');
-      if (v1) {
+      const v2 = newSymbolObject.getBasePolygonVertex('E2');
+      if (v2) {
         CanvasGlobals.activeVertex.vertexOriginalPosition = {
-          x: v1.x,
-          y: v1.y
+          x: v2.x,
+          y: v2.y
         };
         CanvasGlobals.activeVertex.vertexOffset = {
-          x: v1.x - newSymbolObject.left,
-          y: v1.y - newSymbolObject.top
+          x: v2.x - newSymbolObject.left,
+          y: v2.y - newSymbolObject.top
         };
-  
+
       }
     }
 

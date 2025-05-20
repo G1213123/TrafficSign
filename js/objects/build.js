@@ -91,8 +91,7 @@ async function reconstructSingleObjectInternal(data, fabricCanvas, allDeserializ
     delete constructorOptions.basePolygon; // Handled separately
     delete constructorOptions.basePolygonVertex; // Handled separately
     delete constructorOptions.objectType; // Used by factory
-    delete constructorOptions.top
-    delete constructorOptions.left
+
 
     // originalCanvasID is not an option for constructor, but useful for map
     const originalCanvasID = data.canvasID;
@@ -100,10 +99,7 @@ async function reconstructSingleObjectInternal(data, fabricCanvas, allDeserializ
 
     // 3. Instantiate the object using the factory
     newFabricObject = ObjectBuilderFactory.create(data.objectType, data, reconstructedBasePolygon, constructorOptions);
-    newFabricObject.set({
-        left: data.left,
-        top: data.top
-    })
+
 
     if (!newFabricObject) {
         return null;
@@ -209,35 +205,43 @@ async function buildObjectsFromJSON(jsonStringsArray) {
         const fabricObject = allDeserializedObjectsMap[data.canvasID];
         if (!fabricObject) continue;
 
-        if (data.serializedLockXInfo) {
-            const targetObjectX = allDeserializedObjectsMap[data.serializedLockXInfo.TargetObjectID];
+        if (data.LockXInfo) {
+            const targetObjectX = allDeserializedObjectsMap[data.LockXInfo.TargetObjectID];
             if (targetObjectX) {
                 const options = {
-                    vertexIndex1: data.serializedLockXInfo.sourcePoint,
-                    vertexIndex2: data.serializedLockXInfo.targetPoint,
-                    spacingX: data.serializedLockXInfo.spacingX,
+                    vertexIndex1: data.LockXInfo.sourcePoint,
+                    vertexIndex2: data.LockXInfo.targetPoint,
+                    spacingX: data.LockXInfo.spacingX,
                     spacingY: '' // Or undefined, depending on anchorShape's expectation
                 };
-                await anchorShape(targetObjectX, fabricObject, options);
-                fabricObject.updateAllCoord(); // Update coordinates after linking
+                try{
+                    await anchorShape(targetObjectX, fabricObject, options);
+                    fabricObject.updateAllCoord(); // Update coordinates after linking
+                } catch (error) {
+                    console.error(`Error linking X-lock for ${data.canvasID} (TargetID: ${data.LockXInfo.TargetObjectID}):`, error);
+                }
             } else {
-                console.warn(`TargetObject for X-lock not found for ${data.canvasID} (TargetID: ${data.serializedLockXInfo.TargetObjectID})`);
+                console.warn(`TargetObject for X-lock not found for ${data.canvasID} (TargetID: ${data.LockXInfo.TargetObjectID})`);
             }
         }
 
-        if (data.serializedLockYInfo) {
-            const targetObjectY = allDeserializedObjectsMap[data.serializedLockYInfo.TargetObjectID];
+        if (data.LockYInfo) {
+            const targetObjectY = allDeserializedObjectsMap[data.LockYInfo.TargetObjectID];
             if (targetObjectY) {
                 const options = {
-                    vertexIndex1: data.serializedLockYInfo.sourcePoint,
-                    vertexIndex2: data.serializedLockYInfo.targetPoint,
+                    vertexIndex1: data.LockYInfo.sourcePoint,
+                    vertexIndex2: data.LockYInfo.targetPoint,
                     spacingX: '', // Or undefined
-                    spacingY: data.serializedLockYInfo.spacingY
+                    spacingY: data.LockYInfo.spacingY
                 };
-                await anchorShape(targetObjectY, fabricObject, options);
-                fabricObject.updateAllCoord(); // Update coordinates after linking
+                try {
+                    await anchorShape(targetObjectY, fabricObject, options);
+                    fabricObject.updateAllCoord(); // Update coordinates after linking
+                } catch (error) {
+                    console.error(`Error linking Y-lock for ${data.canvasID} (TargetID: ${data.LockYInfo.TargetObjectID}):`, error);
+                }
             } else {
-                console.warn(`TargetObject for Y-lock not found for ${data.canvasID} (TargetID: ${data.serializedLockYInfo.TargetObjectID})`);
+                console.warn(`TargetObject for Y-lock not found for ${data.canvasID} (TargetID: ${data.LockYInfo.TargetObjectID})`);
             }
         }
 

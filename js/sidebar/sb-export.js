@@ -89,15 +89,17 @@ let FormExportComponent = {
     // JSON Import
     const importButtonContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent); // Create a new container for import elements, child of the main parent
 
-    const importJsonInput = GeneralHandler.createButton('import-json', 'Import JSON', importButtonContainer, 'input',
+    const importJsonInput = GeneralHandler.createButton('import-json', 'Import JSON file', importButtonContainer, 'input',
       async () => await FormExportComponent.importCanvasFromJSON(), 'click'); // Changed parent to importButtonContainer
 
-
+    // New button for importing JSON from text
+    const importJsonTextButton = GeneralHandler.createButton('import-json-text', 'Import JSON text', importButtonContainer, 'input',
+      () => FormExportComponent.showImportJSONTextModal(), 'click');
 
   },
 
   // Helper function to prepare canvas for export
-  prepareCanvasForExport: function () {
+  prepareCanvasForExport: function ()    {
     const includeGrid = GeneralHandler.getToggleValue('Include Grid-container') === 'Yes';
     const includeBackground = GeneralHandler.getToggleValue('Include Background-container') === 'Yes';
 
@@ -852,71 +854,188 @@ let FormExportComponent = {
     return jsonString; // Return JSON string for further processing if needed
   },
 
+  // New private helper function to process and apply JSON data to the canvas
+  _applyJSONToCanvas: async function(jsonData) {
+    try {
+      let objectsToLoad;
+      if (jsonData.meta && Array.isArray(jsonData.objects)) {
+        console.log("Processing JSON with metadata:", jsonData.meta);
+        objectsToLoad = jsonData.objects;
+      } else {
+        objectsToLoad = jsonData.objects; // Assume old format or direct array
+        console.log("Processing JSON (direct array or old format).");
+      }
+
+      if (!Array.isArray(objectsToLoad)) {
+        // This check can be more specific based on expected structure
+        throw new Error("Provided JSON data does not resolve to an array of objects.");
+      }
+
+      // Clear existing objects (excluding the grid)
+      // This assumes CanvasGlobals.canvasObject is the array of current user-added objects
+      // and obj.deleteObject() correctly removes them from canvas and the array.
+      if (CanvasGlobals.canvasObject && typeof CanvasGlobals.canvasObject.forEach === 'function') {
+        // Iterate backwards if deleteObject modifies the array in place
+        for (let i = CanvasGlobals.canvasObject.length - 1; i >= 0; i--) {
+          const obj = CanvasGlobals.canvasObject[i];
+          if (obj && typeof obj.deleteObject === 'function') {
+            obj.deleteObject();
+          } else {
+            // Fallback for objects without deleteObject or if canvasObject is not what's expected
+            console.warn("Object or deleteObject method not found, attempting direct canvas removal for:", obj);
+            if (CanvasGlobals.canvas && obj) CanvasGlobals.canvas.remove(obj);
+          }
+        }
+      }
+      // If CanvasGlobals.canvasObject is not self-managing, it might need to be reset:
+      // CanvasGlobals.canvasObject = []; 
+      // Or, if it's just a reference to canvas.getObjects(), then canvas.clear() might be an option,
+      // but that would also remove the grid unless handled separately.
+      // The current approach relies on the existing pattern of obj.deleteObject().
+
+      CanvasGlobals.canvas.renderAll(); // Render after clearing
+
+      if (typeof buildObjectsFromJSON === 'function') {
+        await buildObjectsFromJSON(objectsToLoad, CanvasGlobals.canvas);
+      } else {
+        console.error("buildObjectsFromJSON function is not available.");
+        throw new Error("Critical function buildObjectsFromJSON is not available to reconstruct objects.");
+      }
+    } catch (error) {
+      console.error("Error applying JSON to canvas:", error);
+      throw error; // Re-throw to be handled by the caller
+    }
+  },
+
   importCanvasFromJSON: async function () {
-    // Create a file input element
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = '.json'; // Accept only JSON files
 
-    // Listen for file selection
     fileInput.addEventListener('change', async (event) => {
       const file = event.target.files[0];
       if (!file) {
-        console.error("No file selected.");
+        console.log("No file selected or dialog cancelled.");
+        // No overlay shown yet, so no need to hide
         return;
       }
+      
+      await FormExportComponent.showLoadingOverlay('JSON file'); // Show overlay when processing starts
 
       const reader = new FileReader();
       reader.onload = async (e) => {
         try {
           const jsonString = e.target.result;
           const jsonData = JSON.parse(jsonString);
-
-          // Check if the jsonData has the new structure with meta and objects
-          let objectsToLoad;
-          if (jsonData.meta && Array.isArray(jsonData.objects)) {
-            console.log("Importing JSON with metadata:", jsonData.meta);
-            objectsToLoad = jsonData.objects;
-          } else {
-            // Assume old format (array of objects) for backward compatibility
-            objectsToLoad = jsonData;
-            console.log("Importing JSON in old format (array of objects).");
-          }
-
-
-          // Clear existing objects (excluding the grid)
-          CanvasGlobals.canvasObject.forEach(obj => {
-            obj.deleteObject(); // Assuming deleteObject is a method to remove the object from canvas
-          });
-          CanvasGlobals.canvas.renderAll(); // Render after clearing
-
-          // Assuming buildObjectsFromJSON is globally available or imported
-          // and it handles adding objects to the canvas and rendering.
-          if (typeof buildObjectsFromJSON === 'function') {
-            await buildObjectsFromJSON(objectsToLoad, CanvasGlobals.canvas);
-          } else {
-            console.error("buildObjectsFromJSON function is not available.");
-            // As a fallback, try Fabric's loadFromJSON if custom deserialization isn't critical
-            // Note: This will not handle custom object types or re-linking logic.
-            // CanvasGlobals.canvas.loadFromJSON(jsonString, () => {
-            //   CanvasGlobals.canvas.renderAll();
-            //   console.log("Canvas loaded from JSON using Fabric.js default loader.");
-            // });
-          }
-
+          await FormExportComponent._applyJSONToCanvas(jsonData);
+          alert('Canvas imported successfully from file!'); 
         } catch (error) {
-          console.error("Error importing canvas from JSON:", error);
-          // Optionally, provide user feedback here
+          console.error("Error importing canvas from JSON file:", error);
+          alert("Failed to import from JSON file. Ensure the file is a valid JSON export from this tool. Error: " + error.message);
+        } finally {
+          FormExportComponent.hideLoadingOverlay();
         }
+      };
+      reader.onerror = () => {
+        console.error("Error reading file.");
+        alert("Error reading the selected file.");
+        FormExportComponent.hideLoadingOverlay(); // Ensure overlay is hidden on read error
       };
       reader.readAsText(file);
     });
 
-    // Trigger the file dialog
-    fileInput.click();
+    fileInput.click(); // Trigger the file dialog
   },
 
-  // First, recursively collect all path objects
+  // Updated method to import canvas from JSON text
+  importCanvasFromJSONText: async function (jsonText) {
+    if (!jsonText || jsonText.trim() === '') {
+      alert('JSON text cannot be empty.');
+      return;
+    }
+
+    await FormExportComponent.showLoadingOverlay('JSON data'); // Show overlay
+
+    try {
+      const jsonData = JSON.parse(jsonText);
+      await FormExportComponent._applyJSONToCanvas(jsonData);
+      alert('JSON text imported successfully and applied to canvas!');
+
+      const modal = document.getElementById('import-json-text-modal');
+      if (modal) {
+        modal.remove();
+      }
+    } catch (error) {
+      console.error("Error importing JSON from text:", error);
+      alert('Failed to import from JSON text. Please ensure the format is correct. Error: ' + error.message);
+    } finally {
+      FormExportComponent.hideLoadingOverlay(); // Hide overlay in all cases
+    }
+  },
+
+  // New method to show a modal for pasting JSON text
+  showImportJSONTextModal: function () {
+    // Remove existing modal if any
+    let existingModal = document.getElementById('import-json-text-modal');
+    if (existingModal) {
+      existingModal.remove();
+    }
+
+    // Create modal container
+    const modal = document.createElement('div');
+    modal.id = 'import-json-text-modal';
+
+    // Create modal content box
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content'; // Added class for CSS styling
+
+    // Modal Title
+    const title = document.createElement('h3');
+    title.textContent = 'Import JSON from Text';
+
+    // Close button
+    const closeButton = document.createElement('button');
+    closeButton.textContent = '×';
+    closeButton.className = 'close-button'; // Added class for CSS styling
+    closeButton.onclick = () => modal.remove();
+
+    // Textarea
+    const textArea = document.createElement('textarea');
+    textArea.id = 'json-text-area-input';
+    textArea.placeholder = 'Paste your JSON here...';
+
+    // Import button
+    const importButton = document.createElement('button');
+    importButton.textContent = 'Import';
+    importButton.className = 'import-button'; // Added class for CSS styling
+    importButton.onclick = async () => {
+      const jsonText = textArea.value;
+      await FormExportComponent.importCanvasFromJSONText(jsonText);
+      // Modal is removed by importCanvasFromJSONText on success,
+      // but if it fails early or doesn't remove, ensure it's gone.
+      if (document.getElementById('import-json-text-modal')) {
+         // modal.remove(); // Already handled in importCanvasFromJSONText
+      }
+    };
+    
+    // Buttons container for alignment
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.className = 'buttons-container'; // Added class for CSS styling
+    buttonsContainer.appendChild(importButton);
+
+
+    // Assemble modal
+    modalContent.appendChild(closeButton);
+    modalContent.appendChild(title);
+    modalContent.appendChild(textArea);
+    modalContent.appendChild(buttonsContainer); // Add button container
+    modal.appendChild(modalContent);
+
+    // Append modal to body
+    document.body.appendChild(modal);
+    textArea.focus(); // Focus the textarea
+  },
+
   collectPathObjects: function (obj, pathObjects) {
     // Skip grid objects
     if (obj.id === 'grid') return;
@@ -1131,42 +1250,33 @@ let FormExportComponent = {
 
     // Group commands by subpaths
     pathData.forEach(cmd => {
-      if (cmd[0] === 'M') {
-        // Start a new subpath
+      if (cmd[0] === 'M' || cmd[0] === 'm') {
+        // If there's an existing subpath, add it to the list
         if (currentSubpath.length > 0) {
-          subpaths.push({
-            commands: currentSubpath,
-            firstPoint: firstPointInSubpath,
-            closed: false
-          });
+          subpaths.push(currentSubpath);
         }
+        // Start a new subpath
         currentSubpath = [cmd];
-        firstPointInSubpath = [
-          cmd[1] + offsetX,
-          -(cmd[2] + offsetY) // Flip Y coordinate for DXF
-        ];
+        firstPointInSubpath = [cmd[1], cmd[2]]; // Store the first point for closing path
       } else {
         currentSubpath.push(cmd);
-        // Mark if path is closed
-        if (cmd[0] === 'Z') {
-          subpaths.push({
-            commands: currentSubpath,
-            firstPoint: firstPointInSubpath,
-            closed: false
-          });
-          currentSubpath = [];
-          firstPointInSubpath = null;
+      }
+
+      // If the command is 'Z' or 'z', close the current subpath
+      if (cmd[0] === 'Z' || cmd[0] === 'z') {
+        if (firstPointInSubpath) {
+          // Add a line to the first point to explicitly close it if needed
+          // currentSubpath.push(['L', firstPointInSubpath[0], firstPointInSubpath[1]]);
         }
+        subpaths.push(currentSubpath);
+        currentSubpath = []; // Reset for the next subpath
+        firstPointInSubpath = null;
       }
     });
 
     // Add the last subpath if it exists and wasn't closed with Z
     if (currentSubpath.length > 0) {
-      subpaths.push({
-        commands: currentSubpath,
-        firstPoint: firstPointInSubpath,
-        closed: false
-      });
+      subpaths.push(currentSubpath);
     }
 
     // Now process each subpath

@@ -479,8 +479,8 @@ const ShapeTest = {
     // Create symbol (unchanged)
     new SymbolObject({
       symbolType: 'StackArrow',
-      x: -1500,
-      y: -900,
+      left: -1500,
+      top: -900,
       xHeight: 100,
       angle: -45,
       color: 'white'
@@ -557,8 +557,8 @@ const AnchorTest = {
     // First symbol (base)
     new SymbolObject({
       symbolType: 'Tunnel',
-      x: 300,
-      y: -1000,
+      left: 300,
+      top: -1000,
       xHeight: 100,
       color: 'white'
     });
@@ -567,8 +567,8 @@ const AnchorTest = {
     // Second symbol (to right)
     new SymbolObject({
       symbolType: 'Airport',
-      x: 400,
-      y: -400,
+      left: 400,
+      top: -400,
       xHeight: 100,
       angle: 0,
       color: 'white'
@@ -578,8 +578,8 @@ const AnchorTest = {
     // Third symbol (below)
     new SymbolObject({
       symbolType: 'Hospital',
-      x: 300,
-      y: -300,
+      left: 300,
+      top: -300,
       xHeight: 100,
       color: 'white'
     });
@@ -661,8 +661,8 @@ const AnchorTest = {
     // First pair
     new SymbolObject({
       symbolType: 'Tunnel',
-      x: 1500,
-      y: -1000,
+      left: 1500,
+      top: -1000,
       xHeight: 100,
       angle: 0,
       color: 'white'
@@ -671,8 +671,8 @@ const AnchorTest = {
 
     new SymbolObject({
       symbolType: 'WHC',
-      x: 1500,
-      y: -1000,
+      left: 1500,
+      top: -1000,
       xHeight: 100,
       angle: 0,
       color: 'white'
@@ -682,8 +682,8 @@ const AnchorTest = {
     // Second pair
     new SymbolObject({
       symbolType: 'Hospital',
-      x: 1575,
-      y: -550,
+      left: 1575,
+      top: -550,
       xHeight: 100,
       color: 'white'
     });
@@ -691,8 +691,8 @@ const AnchorTest = {
 
     new SymbolObject({
       symbolType: 'CHT',
-      x: 1575,
-      y: -550,
+      left: 1575,
+      top: -550,
       xHeight: 100,
       angle: 0,
       color: 'white'
@@ -1828,8 +1828,8 @@ const ComplexSignTest = {
     // Create stack arrow below on left
     new SymbolObject({
       symbolType: 'GantryArrow',
-      x: -2400,
-      y: 2500,
+      left: -2400,
+      top: 2500,
       xHeight: 200,
       angle: 0,
       color: 'white'
@@ -1839,8 +1839,8 @@ const ComplexSignTest = {
     // Create Airport on left
     new SymbolObject({
       symbolType: 'Airport',
-      x: -2700,
-      y: 2500,
+      left: -2700,
+      top: 2500,
       xHeight: 200,
       angle: 0,
       color: 'white'
@@ -1850,8 +1850,8 @@ const ComplexSignTest = {
     // Create WHC on left
     new SymbolObject({
       symbolType: 'WHC',
-      x: 2700,
-      y: 2500,
+      left: 2700,
+      top: 2500,
       xHeight: 200,
       angle: 0,
       color: 'white'
@@ -1884,8 +1884,8 @@ const ComplexSignTest = {
     // Create stack arrow below on right
     new SymbolObject({
       symbolType: 'GantryArrow',
-      x: 3000,
-      y: 2500,
+      left: 3000,
+      top: 2500,
       xHeight: 200,
       angle: 0,
       color: 'white'
@@ -1895,8 +1895,8 @@ const ComplexSignTest = {
     // Create second gantry arrow on right
     new SymbolObject({
       symbolType: 'GantryArrow',
-      x: 3300, // Position roughly to the right
-      y: 2500,
+      left: 3300, // Position roughly to the right
+      top: 2500,
       xHeight: 200,
       angle: 0,
       color: 'white'
@@ -1906,8 +1906,8 @@ const ComplexSignTest = {
     // Create third gantry arrow on right
     new SymbolObject({
       symbolType: 'GantryArrow',
-      x: 3600, // Position roughly further right
-      y: 2500,
+      left: 3600, // Position roughly further right
+      top: 2500,
       xHeight: 200,
       angle: 0,
       color: 'white'
@@ -2172,6 +2172,7 @@ const TemplateTest = {
  * NOTE: These are placeholders and need to be filled with actual expected values.
  */
   expectedTemplateDimensions: {
+   
     'Flag Sign': { width: 2907, height: 1650, left: -15400, top: 7740 }, // Placeholder values
     'Stack Sign': { width: 1925, height: 1150 + 1275, left: -10602, top: 6749 }, // Placeholder values
     'Lane Sign': { width: 3950, height: 1600, left: -7882, top: 7998 }, // Placeholder values

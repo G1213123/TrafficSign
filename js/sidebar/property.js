@@ -1,4 +1,5 @@
 import { CanvasGlobals } from '../canvas/canvas.js';
+import { symbolsPermittedAngle, BorderColorScheme } from '../objects/template.js';
 
 // Add handler for 'Property' context-menu action
 const propertyMenuItem = document.getElementById('property');
@@ -50,8 +51,10 @@ function showPropertyPanel(object) {
   title.innerText = object._showName || object.type || 'Object Properties';
   panel.appendChild(title);
 
+  const PREDEFINED_COLORS = ['black', 'white',];
+
   // Helper to render a category box
-  function renderCategory(name, props) {
+  function renderCategory(name, props, targetObject) { // Added targetObject parameter
     if (!props.length) return;
     const box = document.createElement('div');
     box.className = 'input-group-container';
@@ -59,44 +62,221 @@ function showPropertyPanel(object) {
     header.className = 'property-title';
     header.innerText = name;
     box.appendChild(header);
+
     props.forEach(prop => {
       const item = document.createElement('div');
       item.className = 'property-item';
-      item.innerText = `${prop.label}: ${prop.value}`;
+
+      const labelSpan = document.createElement('span');
+      labelSpan.innerText = `${prop.label}: `;
+      item.appendChild(labelSpan);
+
+      if (prop.editable && targetObject) {
+        let inputElement;
+        if (prop.type === 'number') {
+          inputElement = document.createElement('input');
+          inputElement.type = 'number';
+          const currentValue = targetObject[prop.key];
+          if (prop.key === 'xHeight') {
+            inputElement.value = (currentValue !== undefined ? parseFloat(currentValue) : 0).toFixed(0);
+            inputElement.step = prop.step || '5';
+          } else {
+            inputElement.value = Math.round(currentValue !== undefined ? parseFloat(currentValue) : 0);
+            inputElement.step = prop.step || '1';
+          }
+          inputElement.style.width = '80px';
+          inputElement.addEventListener('change', (e) => {
+            let valueChanged = false;
+            if (prop.key === 'left' || prop.key === 'top') {
+              const numValue = parseInt(e.target.value, 10);
+              if (!isNaN(numValue) && targetObject[prop.key] !== numValue) {
+                targetObject.set(prop.key, numValue);
+                valueChanged = true;
+              }
+            } else if (prop.key === 'xHeight') {
+              const floatValue = parseFloat(e.target.value);
+              if (!isNaN(floatValue) && targetObject.xHeight !== floatValue) {
+                targetObject.xHeight = floatValue;
+                valueChanged = true;
+              }
+            }
+
+            if (valueChanged) {
+              if (typeof targetObject.initialize === 'function') {
+                try {
+                  targetObject.removeAll();
+                  targetObject.initialize();
+                  targetObject.updateAllCoord();
+
+                } catch (initError) {
+                  console.error(`Error calling ${targetObject.type}.initialize():`, initError);
+                }
+              }
+              CanvasGlobals.canvas.renderAll();
+              showPropertyPanel(targetObject); // Refresh panel
+            }
+          });
+        } else if (prop.type === 'select' && (prop.key === 'color' || prop.key === 'fill')) {
+          inputElement = document.createElement('select');
+          prop.options.forEach(opt => { // opt is a color name e.g. 'Primary', 'white'
+            const option = document.createElement('option');
+            option.value = opt;
+            option.text = opt;
+            inputElement.appendChild(option);
+          });
+
+          inputElement.value = prop.value; // prop.value is the initial color name to select
+
+          inputElement.addEventListener('change', (e) => {
+            const selectedOptionName = e.target.value; // This is the color name from dropdown
+
+            if (targetObject[prop.key] !== selectedOptionName) {
+              targetObject[prop.key] = selectedOptionName;
+              if (typeof targetObject.initialize === 'function') {
+                try {
+                  targetObject.removeAll();
+                  targetObject.initialize();
+                  targetObject.updateAllCoord();
+                  if (targetObject.functionalType === 'Border') {
+                    targetObject.processResize();
+                  }
+                } catch (initError) {
+                  console.error(`Error calling ${targetObject.type}.initialize() for color change:`, initError);
+                }
+              }
+              CanvasGlobals.canvas.renderAll();
+              showPropertyPanel(targetObject); // Refresh panel
+            }
+          });
+        } else if (prop.type === 'select' && (prop.key === 'font' || prop.key === 'symbolAngle')) {
+          inputElement = document.createElement('select');
+          prop.options.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt;
+            option.text = opt;
+            inputElement.appendChild(option);
+          });
+          inputElement.value = targetObject[prop.key]; // Current value
+
+          inputElement.addEventListener('change', (e) => {
+            const newValue = e.target.value;
+            let valueToSet = newValue;
+            if (prop.key === 'symbolAngle') {
+              valueToSet = parseInt(newValue, 10); // Ensure angle is a number
+            }
+
+            if (targetObject[prop.key] !== valueToSet) {
+              targetObject.set(prop.key, valueToSet);
+              if (typeof targetObject.initialize === 'function') {
+                try {
+                  targetObject.removeAll();
+                  targetObject.initialize();
+                  targetObject.updateAllCoord();
+                } catch (initError) {
+                  console.error(`Error calling ${targetObject.type}.initialize() for ${prop.key} change:`, initError);
+                }
+              }
+              CanvasGlobals.canvas.renderAll();
+              showPropertyPanel(targetObject); // Refresh panel
+            }
+          });
+        }
+        if (inputElement) {
+          item.appendChild(inputElement);
+        }
+      } else {
+        const valueSpan = document.createElement('span');
+        let displayValue = prop.value; // prop.value is now guaranteed for geometry & basic
+
+        // Handle color name conversion for display
+        if (typeof displayValue === 'string' && (prop.label === 'Color' || prop.label === 'Fill Color')) {
+          if (displayValue === '#ffffff') {
+            displayValue = 'white';
+          } else if (displayValue === '#000000') {
+            displayValue = 'black';
+          }
+        }
+
+        // Attempt to parse as float for formatting
+        const numericValue = parseFloat(displayValue);
+
+        // Check if it's a number or a string that purely represents a number
+        if (!isNaN(numericValue) && typeof displayValue !== 'boolean' && (typeof displayValue === 'number' || (typeof displayValue === 'string' && /^-?\\d+(\\.\\d+)?$/.test(displayValue.trim())))) {
+          valueSpan.innerText = numericValue.toFixed(1);
+        } else {
+          // Otherwise, display as is (e.g., color names, text, boolean values)
+          valueSpan.innerText = displayValue;
+        }
+        item.appendChild(valueSpan);
+      }
       box.appendChild(item);
     });
     panel.appendChild(box);
   }
 
   // Prepare Geometry properties
+  const isNonMovable = object.functionalType === 'Border' || object.functionalType === 'HDivider' || object.functionalType === 'VDivider' || object.functionalType === 'VLane' || object.functionalType === 'HLine';
   const geometryProps = [
-    { label: 'Left', value: Math.round(object.left) },
-    { label: 'Top', value: Math.round(object.top) },
-    { label: 'Right', value: Math.round(object.left + object.width) },
-    { label: 'Bottom', value: Math.round(object.top + object.height) },
-    { label: 'Width', value: Math.round(object.width || 0) },
-    { label: 'Height', value: Math.round(object.height || 0) }
+    { label: 'Left', key: 'left', type: 'number', editable: !isNonMovable, step: 1, value: object.left },
+    { label: 'Top', key: 'top', type: 'number', editable: !isNonMovable, step: 1, value: object.top },
+    { label: 'Right', value: Math.round(object.left + (object.width * (object.scaleX || 1))) },
+    { label: 'Bottom', value: Math.round(object.top + (object.height * (object.scaleY || 1))) },
+    { label: 'Width', value: Math.round((object.width || 0) * (object.scaleX || 1)) },
+    { label: 'Height', value: Math.round((object.height || 0) * (object.scaleY || 1)) }
   ];
 
   // Prepare Basic properties (xHeight, Color)
   const basicProps = [];
-  if (object.xHeight !== undefined) basicProps.push({ label: 'xHeight', value: object.xHeight });
-  if (object.color !== undefined) basicProps.push({ label: 'Color', value: object.color });
+  const isBorderRelatedType = object.functionalType === 'Border' ||
+    object.functionalType === 'HDivider' ||
+    object.functionalType === 'VDivider' ||
+    object.functionalType === 'VLane' ||
+    object.functionalType === 'HLine';
 
-  // Prepare special properties
+  if (object.hasOwnProperty('xHeight')) {
+    basicProps.push({ label: 'xHeight', key: 'xHeight', type: 'number', editable: true, step: 0.1, value: object.xHeight });
+  }
+
+  if (object.hasOwnProperty('color')) {
+    let colorOptions;
+    let initialSelectValue = object.color; // Actual color value (hex or name like 'white')
+
+    if (isBorderRelatedType) {
+      colorOptions = Object.keys(BorderColorScheme);
+      const colorNameFromScheme = Object.keys(BorderColorScheme).find(name => name === object.color);
+      initialSelectValue = colorNameFromScheme || (colorOptions.length > 0 ? colorOptions[0] : object.color);
+    } else {
+      colorOptions = PREDEFINED_COLORS;
+      if (object.color === '#ffffff') initialSelectValue = 'white';
+      else if (object.color === '#000000') initialSelectValue = 'black';
+      // else initialSelectValue remains object.color if not hex white/black
+    }
+    basicProps.push({ label: 'Color', key: 'color', type: 'select', options: colorOptions, editable: true, value: initialSelectValue });
+
+  } 
+
+  // Prepare special properties (remains display-only as per current structure)
   let specialProps = [];
   switch (object.functionalType) {
     case 'Text':
       specialProps = [
         { label: 'Text', value: object.text },
-        { label: 'Font', value: object.font }
+        { label: 'Font', key: 'font', type: 'select', options: ['TransportHeavy', 'TransportMedium'], editable: true, value: object.font }
       ];
       break;
     case 'Symbol':
       specialProps = [
-        { label: 'Symbol Type', value: object.symbol },
-        { label: 'Angle', value: object.symbolAngle }
+        { label: 'Symbol Type', value: object.symbolType },
       ];
+      // Determine permitted angles for the current symbolType
+      const permittedAngles = symbolsPermittedAngle[object.symbolType];
+      if (permittedAngles && permittedAngles.length > 0) {
+        specialProps.push({ label: 'Angle', key: 'symbolAngle', type: 'select', options: permittedAngles, editable: true, value: object.symbolAngle });
+      } else {
+        // If no specific angles are defined, or if the symbolType is not in symbolsPermittedAngle,
+        // default to 0 degrees and make it non-editable.
+        specialProps.push({ label: 'Angle', value: 0, editable: false });
+      }
       break;
     case 'MainRoad':
       specialProps = [
@@ -113,8 +293,8 @@ function showPropertyPanel(object) {
         { label: 'Branch Index', value: object.branchIndex },
         { label: 'Shape', value: object.routeList[0].shape },
       ];
-      if (object.mainRoad.roadType == 'Main Line') { 
-        specialProps.push({ label: 'Angle', value:  object.routeList[0].angle });
+      if (object.mainRoad.roadType == 'Main Line') {
+        specialProps.push({ label: 'Angle', value: object.routeList[0].angle });
       }
       break;
     case 'Border':
@@ -134,9 +314,9 @@ function showPropertyPanel(object) {
   }
 
   // Render categories
-  renderCategory('Geometry', geometryProps);
-  renderCategory('Basic', basicProps);
-  renderCategory(object.functionalType, specialProps);
+  renderCategory('Geometry', geometryProps, object); // Pass object
+  renderCategory('Basic', basicProps, object);       // Pass object
+  renderCategory(object.functionalType || 'Special', specialProps, object); // Pass object, provide default name
 }
 
 // Refresh property panel when arrow keys are pressed
@@ -152,4 +332,4 @@ document.addEventListener('keydown', (event) => {
 });
 
 // Export showPropertyPanel for context menu
-export { showPropertyPanel };
+export { showPropertyPanel, handleClear};

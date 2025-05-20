@@ -27,3 +27,6 @@ Thumbs.db
 
 # AdSense
 ads.txt
+
+# Exports
+export/

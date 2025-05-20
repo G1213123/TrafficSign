@@ -162,7 +162,7 @@ div.side-panel.close {
 
 @font-face {
   font-family: 'TransportHeavy';
-  src: url('font/TransportHeavy.woff2') format('woff2'),
+  src:
     url('font/TransportHeavy.woff') format('woff'),
     url("font/Transport\ Heavy.ttf") format('truetype');
   font-weight: 900;
@@ -172,7 +172,7 @@ div.side-panel.close {
 
 @font-face {
   font-family: 'TransportMedium';
-  src: url('font/TransportMedium.woff2') format('woff2'),
+  src:
     url('font/TransportMedium.woff') format('woff'),
     url("font/Transport\ Medium.ttf") format('truetype');
   font-weight: 900;
@@ -1065,7 +1065,6 @@ div.side-panel.close {
 }
 
 .github-link-container {
-  width: 80%;
   margin-top: 10px;
   padding: 10px;
   border-radius: 10px;
@@ -1155,8 +1154,29 @@ div.side-panel.close {
 }
 
 .settings-buttons-container {
+  margin-top: 10px;
   display: flex;
+  flex-direction: column;
+  /* Align children in a column */
   justify-content: space-between;
+  /* Distribute space between items */
+  width: 100%;
+  /* Span the full width of its parent */
+  gap: 10px;
+  /* Optional: adds space between buttons */
+}
+
+.settings-buttons-container .input-container {
+  flex: 1;
+  /* Allow each button container to grow and fill space */
+  width: auto;
+  /* Override any fixed width */
+  margin-top: 0;
+}
+
+.settings-buttons-container .input-button {
+  width: 100%;
+  /* Make buttons take full width of their container */
 }
 
 .color-picker {
@@ -1543,8 +1563,8 @@ div.side-panel.close {
 #debug-info-panel h3.panel-subheading {
   color: #fff;
   font-family: Arial, sans-serif;
-  font-size: 16px;
-  margin: 8px 10px;
+  font-size: 14px;
+  margin: 8px 4px;
 }
 
 
@@ -1792,4 +1812,187 @@ div.side-panel.close {
   body {
     background-color: #222 !important;
   }
+}
+
+/* Toast Notification Styles */
+.toast {
+  position: fixed;
+  top: 20px;
+  /* Position from the top */
+  left: 50%;
+  /* Start from center */
+  transform: translateX(-50%);
+  /* Adjust to true center */
+  background-color: #333;
+  /* Default background */
+  color: white;
+  padding: 15px 25px;
+  border-radius: 8px;
+  z-index: 1001;
+  /* Ensure it's above other elements */
+  font-family: 'Arial', sans-serif;
+  font-size: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
+  text-align: center;
+  min-width: 200px;
+  /* Minimum width */
+  max-width: 80%;
+  /* Maximum width relative to viewport */
+}
+
+.toast.success {
+  background-color: #4CAF50;
+  /* Green for success messages */
+}
+
+.toast.error {
+  background-color: #f44336;
+  /* Red for error messages */
+}
+
+.toast.fade-out {
+  opacity: 0;
+}
+
+/* Styles for property panel inputs */
+.property-item input[type="number"],
+.property-item select {
+  background-color: #404042;
+  color: #eee;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 2px 10px;
+  font-size: 14px;
+  width: 100%;
+  /* This might need adjustment if you want the label and input on the same line and have the input not take full width */
+  box-sizing: border-box;
+  margin: 0;
+  font-family: 'Lato', sans-serif;
+}
+
+.property-item input[type="number"]:focus,
+.property-item select:focus {
+  outline: none;
+  border-color: #6761A8;
+  box-shadow: 0 0 0 2px rgba(103, 97, 168, 0.5);
+}
+
+.property-item select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cccccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 1em;
+  padding-right: 2.5em;
+}
+
+.property-item select option {
+  background-color: #404042;
+  color: #eee;
+}
+
+.property-item input[type="number"]::-webkit-outer-spin-button,
+.property-item input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.property-item input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Import JSON Text Modal Styles */
+#import-json-text-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75); /* Darker overlay */
+  z-index: 1001;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Lato', sans-serif;
+}
+
+#import-json-text-modal .modal-content {
+  background-color: #2c2c2e; /* Dark background similar to sidebar */
+  padding: 25px;
+  border-radius: 8px;
+  width: clamp(350px, 60%, 700px);
+  box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border: 1px solid #444;
+}
+
+#import-json-text-modal h3 {
+  margin: 0 0 15px 0;
+  text-align: center;
+  color: #e0e0e0; /* Light text color */
+  font-size: 22px;
+  font-weight: 600;
+}
+
+#import-json-text-modal .close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  color: #aaa; /* Lighter close button for dark mode */
+  transition: color 0.2s ease;
+}
+
+#import-json-text-modal .close-button:hover {
+  color: #fff;
+}
+
+#import-json-text-modal textarea {
+  width: 100%;
+  min-height: 250px;
+  max-height: 450px;
+  padding: 12px;
+  border: 1px solid #555; /* Darker border */
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+  font-size: 14px;
+  resize: vertical;
+  background-color: #1e1e1e; /* Dark textarea background */
+  color: #d4d4d4; /* Light text color for textarea */
+}
+
+#import-json-text-modal .buttons-container {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+#import-json-text-modal .import-button {
+  padding: 12px 20px;
+  background-color: #007bff; /* Primary button color (can be themed) */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+#import-json-text-modal .import-button:hover {
+  background-color: #0056b3;
 }

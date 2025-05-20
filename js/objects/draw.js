@@ -6,6 +6,7 @@ import { BorderDimensionDisplay } from "./dimension.js";
 import { LockIcon } from "./lock.js";
 import { globalAnchorTree, anchorShape } from './anchor.js';
 import { CanvasObjectInspector } from "../sidebar/sb-inspector.js";
+import { showPropertyPanel, handleClear } from '../sidebar/property.js'; // Import showPropertyPanel
 
 const canvas = CanvasGlobals.canvas; // Assuming canvas is a global variable in canvas.js
 const canvasObject = CanvasGlobals.canvasObject; // Assuming canvasObject is a global variable in canvas.js
@@ -251,6 +252,11 @@ class BaseGroup extends fabric.Group {
       canvas.renderAll();
     });
 
+
+    this.on('mousedblclick', (e) => {
+      showPropertyPanel(this);
+    });
+
     this.on('modified', this.updateAllCoord.bind(this));
     this.on('moving', this.updateAllCoord.bind(this));
 
@@ -332,7 +338,7 @@ class BaseGroup extends fabric.Group {
 
     // Handle lockXToPolygon and lockYToPolygon TargetObject
     if (this.lockXToPolygon && typeof this.lockXToPolygon.TargetObject?.canvasID !== 'undefined') {
-      dataToSerialize.serializedLockXInfo = {
+      dataToSerialize.LockXInfo = {
         TargetObjectID: this.lockXToPolygon.TargetObject.canvasID,
         sourcePoint: this.lockXToPolygon.sourcePoint, // Assuming AnchorPoint on this object is the source
         targetPoint: this.lockXToPolygon.targetPoint, // Assuming this new property will hold the target's vertex index
@@ -344,7 +350,7 @@ class BaseGroup extends fabric.Group {
 
 
     if (this.lockYToPolygon && typeof this.lockYToPolygon.TargetObject?.canvasID !== 'undefined') {
-      dataToSerialize.serializedLockYInfo = {
+      dataToSerialize.LockYInfo = {
         TargetObjectID: this.lockYToPolygon.TargetObject.canvasID,
         sourcePoint: this.lockYToPolygon.sourcePoint, // Assuming AnchorPoint on this object is the source
         targetPoint: this.lockYToPolygon.targetPoint, // Assuming this new property will hold the target's vertex index
@@ -484,7 +490,6 @@ class BaseGroup extends fabric.Group {
   replaceBasePolygon(newBasePolygon, calcVertex = true) {
     this.removeAll();
     this.setBasePolygon(newBasePolygon, calcVertex);
-    this.setCoords();
     canvas.renderAll();
   }
 
@@ -924,10 +929,6 @@ class BaseGroup extends fabric.Group {
       ];
     }
 
-    if (this.basePolygon.getCombinedBoundingBoxOfRects) {
-      var allCoords = this.basePolygon.getCombinedBoundingBoxOfRects();
-      return [allCoords[0], allCoords[2], allCoords[4], allCoords[6]];
-    }
     return this.basePolygon.getCoords();
   }
   // Method to delete the object
@@ -940,6 +941,9 @@ class BaseGroup extends fabric.Group {
       id: deleteObj.canvasID,
       functionalType: deleteObj.functionalType
     }]);
+
+    // Close property panel if it is open for the object being deleted
+    handleClear(null);
 
     // Store the original canvasID before removing the object
     const originalCanvasID = deleteObj.canvasID;

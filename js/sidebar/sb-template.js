@@ -215,8 +215,8 @@ let FormTemplateComponent = {
       // Create WHC symbol for first line
       new SymbolObject({
         symbolType: 'WHC',
-        x: centerX + 150,
-        y: centerY - 100,
+        left: centerX + 150,
+        top: centerY - 100,
         xHeight: xHeight,
         symbolAngle: 0,
         color: 'White'
@@ -245,8 +245,8 @@ let FormTemplateComponent = {
       // Create Airport symbol for second line
       new SymbolObject({
         symbolType: 'Airport',
-        x: centerX + 150,
-        y: centerY + 100,
+        left: centerX + 150,
+        top: centerY + 100,
         xHeight: xHeight,
         symbolAngle: 90,
         color: 'White'
@@ -389,8 +389,8 @@ let FormTemplateComponent = {
       // Create gantry arrow for left compartment
       new SymbolObject({
         symbolType: 'GantryArrow',
-        x: centerX - 500,
-        y: centerY + 200,
+        left: centerX - 500,
+        top: centerY + 200,
         xHeight: xHeight,
         symbolAngle: 0,
         color: 'white'
@@ -428,8 +428,8 @@ let FormTemplateComponent = {
       // Create stack arrow for right compartment
       new SymbolObject({
         symbolType: 'GantryArrow',
-        x: centerX + 500,
-        y: centerY + 300,
+        left: centerX + 500,
+        top: centerY + 300,
         xHeight: xHeight,
         symbolAngle: 0,
         color: 'white'
@@ -438,8 +438,8 @@ let FormTemplateComponent = {
 
       new SymbolObject({
         symbolType: 'Exit',
-        x: centerX + 500,
-        y: centerY + 300,
+        left: centerX + 500,
+        top: centerY + 300,
         xHeight: xHeight,
         symbolAngle: 0,
         color: 'white'
@@ -666,8 +666,8 @@ let FormTemplateComponent = {
       // Create arrows
       new SymbolObject({
         symbolType: 'StackArrow',
-        x: centerX + 200,
-        y: centerY - 750,
+        left: centerX + 200,
+        top: centerY - 750,
         xHeight: xHeight,
         symbolAngle: 0,
         color: 'White'
@@ -676,8 +676,8 @@ let FormTemplateComponent = {
 
       new SymbolObject({
         symbolType: 'StackArrow',
-        x: centerX + 200,
-        y: centerY + 50,
+        left: centerX + 200,
+        top: centerY + 50,
         xHeight: xHeight,
         symbolAngle: 0,
         color: 'Black'
@@ -686,8 +686,8 @@ let FormTemplateComponent = {
 
       new SymbolObject({
         symbolType: 'StackArrow',
-        x: centerX + 200,
-        y: centerY + 350,
+        left: centerX + 200,
+        top: centerY + 350,
         xHeight: xHeight,
         symbolAngle: -90,
         color: 'Black'
@@ -696,8 +696,8 @@ let FormTemplateComponent = {
 
       new SymbolObject({
         symbolType: 'Airport',
-        x: centerX + 200,
-        y: centerY - 664,
+        left: centerX + 200,
+        top: centerY - 664,
         xHeight: xHeight,
         symbolAngle: 0,
         color: 'White'
@@ -979,8 +979,8 @@ let FormTemplateComponent = {
       // Add MTR symbol for the top side road
       new SymbolObject({
         symbolType: 'MTR',
-        x: centerX - 100,
-        y: centerY - 200,
+        left: centerX - 100,
+        top: centerY - 200,
         xHeight: xHeight,
         symbolAngle: 0,
         color: color
@@ -1027,8 +1027,8 @@ let FormTemplateComponent = {
       // Add symbol for the left side road
       new SymbolObject({
         symbolType: 'Expressway',
-        x: centerX - 450,
-        y: centerY + 40,
+        left: centerX - 450,
+        top: centerY + 40,
         xHeight: xHeight,
         symbolAngle: 0,
         color: color
@@ -1036,8 +1036,8 @@ let FormTemplateComponent = {
       const leftSymbol1 = canvasObject[canvasObject.length - 1];
       new SymbolObject({
         symbolType: 'Route4',
-        x: centerX - 450,
-        y: centerY + 40,
+        left: centerX - 450,
+        top: centerY + 40,
         xHeight: xHeight,
         symbolAngle: 0,
         color: color
@@ -1084,8 +1084,8 @@ let FormTemplateComponent = {
       // Add Airport symbol for the right side road
       new SymbolObject({
         symbolType: 'Airport',
-        x: centerX + 450,
-        y: centerY + 40,
+        left: centerX + 450,
+        top: centerY + 40,
         xHeight: xHeight,
         symbolAngle: 90,
         color: color
@@ -1094,8 +1094,8 @@ let FormTemplateComponent = {
 
       new SymbolObject({
         symbolType: 'Expressway',
-        x: centerX - 450,
-        y: centerY + 40,
+        left: centerX - 450,
+        top: centerY + 40,
         xHeight: xHeight,
         symbolAngle: 0,
         color: color
@@ -1103,8 +1103,8 @@ let FormTemplateComponent = {
       const rightSymbol2 = canvasObject[canvasObject.length - 1];
       new SymbolObject({
         symbolType: 'Route4',
-        x: centerX - 450,
-        y: centerY + 40,
+        left: centerX - 450,
+        top: centerY + 40,
         xHeight: xHeight,
         symbolAngle: 0,
         color: color
@@ -1414,8 +1414,8 @@ let FormTemplateComponent = {
       // Create expressway symbol in red
       new SymbolObject({
         symbolType: 'ExpresswayRed',
-        x: centerX - 50,
-        y: centerY - 150,
+        left: centerX - 50,
+        top: centerY - 150,
         xHeight: xHeight,
         symbolAngle: 0,
         color: color
@@ -1425,8 +1425,8 @@ let FormTemplateComponent = {
       // Create route 9 symbol
       new SymbolObject({
         symbolType: 'Route9',
-        x: centerX - 50,
-        y: centerY - 70,
+        left: centerX - 50,
+        top: centerY - 70,
         xHeight: xHeight,
         symbolAngle: 0,
         color: color
@@ -1436,8 +1436,8 @@ let FormTemplateComponent = {
       // Create exit symbol 
       new SymbolObject({
         symbolType: 'Exit',
-        x: centerX + 150,
-        y: centerY + 150,
+        left: centerX + 150,
+        top: centerY + 150,
         xHeight: xHeight,
         symbolAngle: 0,
         color: color
@@ -1457,8 +1457,8 @@ let FormTemplateComponent = {
       // Create airport symbol at 45 degrees
       new SymbolObject({
         symbolType: 'Airport',
-        x: centerX + 150,
-        y: centerY + 150,
+        left: centerX + 150,
+        top: centerY + 150,
         xHeight: xHeight,
         symbolAngle: -45,
         color: color
@@ -1702,8 +1702,8 @@ let FormTemplateComponent = {
       // Create arrows for each lane
       new SymbolObject({
         symbolType: 'StackArrow',
-        x: centerX - 300,
-        y: centerY + 100,
+        left: centerX - 300,
+        top: centerY + 100,
         xHeight: xHeight,
         symbolAngle: 0,
         color: color
@@ -1712,8 +1712,8 @@ let FormTemplateComponent = {
 
       new SymbolObject({
         symbolType: 'StackArrow',
-        x: centerX,
-        y: centerY + 100,
+        left: centerX,
+        top: centerY + 100,
         xHeight: xHeight,
         symbolAngle: 0,
         color: color
@@ -1722,8 +1722,8 @@ let FormTemplateComponent = {
 
       new SymbolObject({
         symbolType: 'CHT',
-        x: centerX + 300,
-        y: centerY + 100,
+        left: centerX + 300,
+        top: centerY + 100,
         xHeight: xHeight,
         symbolAngle: 0,
         color: color
@@ -1732,8 +1732,8 @@ let FormTemplateComponent = {
 
       new SymbolObject({
         symbolType: 'EHC',
-        x: centerX + 300,
-        y: centerY + 100,
+        left: centerX + 300,
+        top: centerY + 100,
         xHeight: xHeight,
         symbolAngle: 0,
         color: color
@@ -1742,8 +1742,8 @@ let FormTemplateComponent = {
 
       new SymbolObject({
         symbolType: 'Route4',
-        x: centerX + 300,
-        y: centerY + 100,
+        left: centerX + 300,
+        top: centerY + 100,
         xHeight: xHeight,
         symbolAngle: 0,
         color: color
@@ -2105,8 +2105,8 @@ let FormTemplateComponent = {
       // Route 7 on left side
       new SymbolObject({
         symbolType: 'Route7',
-        x: centerX - 500,
-        y: centerY,
+        left: centerX - 500,
+        top: centerY,
         xHeight: xHeight,
         symbolAngle: 0,
         color: color
@@ -2116,8 +2116,8 @@ let FormTemplateComponent = {
       // Route 6 on right side
       new SymbolObject({
         symbolType: 'Route6',
-        x: centerX + 500,
-        y: centerY,
+        left: centerX + 500,
+        top: centerY,
         xHeight: xHeight,
         symbolAngle: 0,
         color: color
@@ -2127,8 +2127,8 @@ let FormTemplateComponent = {
       // Tunnel on right side
       new SymbolObject({
         symbolType: 'Tunnel',
-        x: centerX + 500,
-        y: centerY,
+        left: centerX + 500,
+        top: centerY,
         xHeight: xHeight,
         symbolAngle: 0,
         color: color

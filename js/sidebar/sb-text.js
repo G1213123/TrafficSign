@@ -47,7 +47,7 @@ let FormTextAddComponent = {
     GeneralHandler.setActiveComponentOff(FormTextAddComponent.TextHandlerOff);
     if (parent) {
       // Create the basic parameters container using the shared function
-      GeneralHandler.createBasicParamsContainer(parent, FormTextAddComponent, null, null, this.liveUpdateText, this.liveUpdateText);
+      GeneralHandler.createBasicParamsContainer(parent, FormTextAddComponent, null, null, FormTextAddComponent.liveUpdateText, FormTextAddComponent.liveUpdateText);
 
       // Create a container for text content and font
       const textContentContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
