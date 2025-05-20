@@ -1,3 +1,6 @@
+import { CanvasGlobals } from "../canvas/canvas.js";
+const canvas = CanvasGlobals.canvas;
+
 // Class to handle engineering style dimension displays for border objects
 class BorderDimensionDisplay {
   constructor(options = {}) {

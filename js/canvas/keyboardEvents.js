@@ -1,4 +1,5 @@
 import { CanvasGlobals } from "./canvas.js";
+import { FormSettingsComponent } from "../sidebar/sb-settings.js";
 
 // Keyboard shortcut for showing/hiding sidebar
 function ShowHideSideBarEvent(e) {
@@ -64,5 +65,15 @@ function handleArrowKeys(event) {
 
 // Add event listener for arrow keys to the canvas
 document.addEventListener('keydown', handleArrowKeys);
+
+// Add event listener for Ctrl+S to save canvas state
+document.addEventListener('keydown', function(event) {
+  if (event.ctrlKey && event.key === 's') {
+    event.preventDefault(); // Prevent the browser's default save action
+    FormSettingsComponent.saveCanvasState();
+    // Optionally, provide some feedback to the user, e.g., a console log or a small notification
+    console.log('Canvas state saved (Ctrl+S)');
+  }
+});
 
 export { ShowHideSideBarEvent, handleArrowKeys };

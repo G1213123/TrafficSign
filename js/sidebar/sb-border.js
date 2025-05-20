@@ -1,7 +1,7 @@
 /* Border Panel */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
-import { BorderUtilities } from '../objects/border.js';
+import { BorderUtilities, BorderGroup } from '../objects/border.js';
 import { DividerObject } from '../objects/divider.js';
 import { BorderColorScheme, BorderFrameWidth, BorderTypeScheme } from '../objects/template.js';
 import { vertexToPath } from '../objects/path.js';
@@ -119,12 +119,19 @@ let FormBorderWrapComponent = {
   BorderCreateHandler: async function (event) {
     const borderType = event.currentTarget.id.replace('button-', '');
     const xHeight = parseInt(document.getElementById("input-xHeight").value);
+    const colorType = document.getElementById('input-color').value;
     selectObjectHandler('Select shape to calculate border width,\nor input fix width and then press Enter', function (widthObjects, options, widthText) {
       selectObjectHandler('Select shape to calculate border height,\nor input fix height and then press Enter', function (heightObjects, options, heightText) {
-        BorderUtilities.BorderGroupCreate(borderType, heightObjects, widthObjects, widthText, heightText, {
+        new BorderGroup({
+          borderType: borderType,
+          widthObjects: [...widthObjects],
+          heightObjects: [...heightObjects],
+          fixedWidth: widthText,
+          fixedHeight: heightText,
           xHeight: xHeight,
-          colorType: document.getElementById('input-color').value
-        })
+          color: colorType,
+          frame: BorderFrameWidth[borderType],
+        });
       }, null, xHeight, 'mm');
     }, null, xHeight, 'mm');
   },
@@ -134,7 +141,9 @@ let FormBorderWrapComponent = {
     selectObjectHandler('Select object above divider or type in fixed distance to border top', function (aboveObject, options, aboveValue) {
       selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
         // Pass both objects and entered values to allow for fixed distance options
-        HDividerCreate(aboveObject, belowObject, aboveValue, belowValue)
+        const color = document.getElementById('input-color').value;
+        const xHeight = parseInt(document.getElementById("input-xHeight").value);
+        new DividerObject({ dividerType: 'HDivider', aboveObjects: aboveObject, belowObjects: belowObject, aboveValue: aboveValue, belowValue: belowValue, xHeight: xHeight, colorType: color, });
       }, null, xHeight, 'mm');
     }, null, xHeight, 'mm');
   },
@@ -144,7 +153,9 @@ let FormBorderWrapComponent = {
     selectObjectHandler('Select object left to divider or type in fixed distance to border left', function (leftObject, options, leftValue) {
       selectObjectHandler('Select object right to divider or type in fixed distance to border right', function (rightObject, options, rightValue) {
         // Pass both objects and entered values to allow for fixed distance options
-        VDividerCreate(leftObject, rightObject, leftValue, rightValue)
+        const color = document.getElementById('input-color').value;
+        const xHeight = parseInt(document.getElementById("input-xHeight").value);
+        new DividerObject({ dividerType: 'VDivider', leftObjects: leftObject, rightObjects: rightObject, leftValue: leftValue, rightValue: rightValue, xHeight: xHeight, colorType: color, });
       }, null, xHeight, 'mm');
     }, null, xHeight, 'mm');
   },
@@ -154,7 +165,9 @@ let FormBorderWrapComponent = {
     selectObjectHandler('Select object above divider or type in fixed distance to border top', function (aboveObject, options, aboveValue) {
       selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
         // Pass both objects and entered values to allow for fixed distance options
-        HLineCreate(aboveObject, belowObject, aboveValue, belowValue)
+        const color = document.getElementById('input-color').value;
+        const xHeight = parseInt(document.getElementById("input-xHeight").value);
+        new DividerObject({ dividerType: 'HLine', aboveObjects: aboveObject, belowObjects: belowObject, aboveValue: aboveValue, belowValue: belowValue, xHeight: xHeight, colorType: color, });
       }, null, xHeight, 'mm');
     }, null, xHeight, 'mm');
   },
@@ -164,7 +177,9 @@ let FormBorderWrapComponent = {
     selectObjectHandler('Select object left to lane or type in fixed distance to border left', function (leftObject, options, leftValue) {
       selectObjectHandler('Select object right to lane or type in fixed distance to border right', function (rightObject, options, rightValue) {
         // Pass both objects and entered values to allow for fixed distance options
-        VLaneCreate(leftObject, rightObject, leftValue, rightValue)
+        const color = document.getElementById('input-color').value;
+        const xHeight = parseInt(document.getElementById("input-xHeight").value);
+        new DividerObject({ dividerType: 'LaneLine', leftObjects: leftObject, rightObjects: rightObject, leftValue: leftValue, rightValue: rightValue, xHeight: xHeight, colorType: color, });
       }, null, xHeight, 'mm');
     }, null, xHeight, 'mm');
   },

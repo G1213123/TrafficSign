@@ -1238,73 +1238,82 @@ let FormExportComponent = {
     };
   },
 
-  // Helper method to process a path object for DXF export
+ // Helper method to process a path object for DXF export
   processPathForDXF: function (pathObj, dxf, offsetX, offsetY) {
     // Process SVG path data for DXF export
     const pathData = pathObj.path || [];
-
+    
     // First, we'll analyze the path to find subpaths (segments starting with 'M')
     const subpaths = [];
     let currentSubpath = [];
     let firstPointInSubpath = null;
-
+    
     // Group commands by subpaths
     pathData.forEach(cmd => {
-      if (cmd[0] === 'M' || cmd[0] === 'm') {
-        // If there's an existing subpath, add it to the list
-        if (currentSubpath.length > 0) {
-          subpaths.push(currentSubpath);
-        }
+      if (cmd[0] === 'M') {
         // Start a new subpath
+        if (currentSubpath.length > 0) {
+          subpaths.push({
+            commands: currentSubpath,
+            firstPoint: firstPointInSubpath,
+            closed: false
+          });
+        }
         currentSubpath = [cmd];
-        firstPointInSubpath = [cmd[1], cmd[2]]; // Store the first point for closing path
+        firstPointInSubpath = [
+          cmd[1] + offsetX,
+          -(cmd[2] + offsetY) // Flip Y coordinate for DXF
+        ];
       } else {
         currentSubpath.push(cmd);
-      }
-
-      // If the command is 'Z' or 'z', close the current subpath
-      if (cmd[0] === 'Z' || cmd[0] === 'z') {
-        if (firstPointInSubpath) {
-          // Add a line to the first point to explicitly close it if needed
-          // currentSubpath.push(['L', firstPointInSubpath[0], firstPointInSubpath[1]]);
+        // Mark if path is closed
+        if (cmd[0] === 'Z') {
+          subpaths.push({
+            commands: currentSubpath,
+            firstPoint: firstPointInSubpath,
+            closed: false
+          });
+          currentSubpath = [];
+          firstPointInSubpath = null;
         }
-        subpaths.push(currentSubpath);
-        currentSubpath = []; // Reset for the next subpath
-        firstPointInSubpath = null;
       }
     });
-
+    
     // Add the last subpath if it exists and wasn't closed with Z
     if (currentSubpath.length > 0) {
-      subpaths.push(currentSubpath);
+      subpaths.push({
+        commands: currentSubpath,
+        firstPoint: firstPointInSubpath,
+        closed: false
+      });
     }
-
+    
     // Now process each subpath
     subpaths.forEach(subpath => {
       // For each subpath, we'll build spline control points and polyline points
       let currentX, currentY;
       let polylinePoints = [];
       let currentCmd;
-
+      
       // Process the commands in this subpath
       for (let i = 0; i < subpath.commands.length; i++) {
         currentCmd = subpath.commands[i];
         const command = currentCmd[0];
         const values = currentCmd.slice(1);
-
+        
         switch (command) {
           case 'M': // moveTo
             currentX = values[0] + offsetX;
             currentY = -(values[1] + offsetY); // Flip Y coordinate for DXF
             polylinePoints = [[currentX, currentY]];
             break;
-
+            
           case 'L': // lineTo
             currentX = values[0] + offsetX;
             currentY = -(values[1] + offsetY); // Flip Y coordinate for DXF
             polylinePoints.push([currentX, currentY]);
             break;
-
+            
           case 'C': { // bezierCurveTo - use spline for better representation
             const cp1x = values[0] + offsetX;
             const cp1y = -(values[1] + offsetY); // Flip Y coordinate for DXF
@@ -1312,14 +1321,14 @@ let FormExportComponent = {
             const cp2y = -(values[3] + offsetY); // Flip Y coordinate for DXF
             const endX = values[4] + offsetX;
             const endY = -(values[5] + offsetY); // Flip Y coordinate for DXF
-
+            
             // If we have accumulated polyline points, draw them first
             if (polylinePoints.length > 1) {
               dxf.drawPolyline(polylinePoints, false);
               // Start new polyline with the endpoint of the existing one
               polylinePoints = [[polylinePoints[polylinePoints.length - 1][0], polylinePoints[polylinePoints.length - 1][1]]];
             }
-
+            
             // Create control points for a cubic spline (degree 3)
             const cubicControlPoints = [
               [currentX, currentY],   // Start point
@@ -1327,72 +1336,72 @@ let FormExportComponent = {
               [cp2x, cp2y],          // Second control point
               [endX, endY]           // End point
             ];
-
+            
             // Draw the spline
             dxf.drawSpline(cubicControlPoints, 3);
-
+            
             // Update current position
             currentX = endX;
             currentY = endY;
-
+            
             // Continue the polyline from here
             polylinePoints = [[currentX, currentY]];
             break;
           }
-
+            
           case 'Q': { // quadraticCurveTo - use spline for better representation
             const qCpx = values[0] + offsetX;
             const qCpy = -(values[1] + offsetY); // Flip Y coordinate for DXF
             const qEndX = values[2] + offsetX;
             const qEndY = -(values[3] + offsetY); // Flip Y coordinate for DXF
-
+            
             // If we have accumulated polyline points, draw them first
             if (polylinePoints.length > 1) {
               dxf.drawPolyline(polylinePoints, false);
               // Start new polyline with the endpoint of the existing one
               polylinePoints = [[polylinePoints[polylinePoints.length - 1][0], polylinePoints[polylinePoints.length - 1][1]]];
             }
-
+            
             // Create control points for a quadratic spline (degree 2)
             const quadraticControlPoints = [
               [currentX, currentY],  // Start point
               [qCpx, qCpy],          // Control point
               [qEndX, qEndY]         // End point
             ];
-
+            
             // Draw the spline
             dxf.drawSpline(quadraticControlPoints, 2);
-
+            
             // Update current position
             currentX = qEndX;
             currentY = qEndY;
-
+            
             // Continue the polyline from here
             polylinePoints = [[currentX, currentY]];
             break;
           }
-
+            
           case 'Z': // closePath
             // If we have a first point and it's different from current position,
             // add it to close the path
-            if (subpath.firstPoint &&
-              (subpath.firstPoint[0] !== currentX || subpath.firstPoint[1] !== currentY)) {
+            if (subpath.firstPoint && 
+                (subpath.firstPoint[0] !== currentX || subpath.firstPoint[1] !== currentY)) {
               polylinePoints.push([subpath.firstPoint[0], subpath.firstPoint[1]]);
             }
             break;
         }
       }
-
+      
       // Draw any remaining polyline points
       if (polylinePoints.length > 1) {
         dxf.drawPolyline(polylinePoints, subpath.closed);
       }
 
       // Close the path if it was marked as closed
-      if (polylinePoints && polylinePoints.length > 0) {
+      if (polylinePoints && polylinePoints.length > 0 ) {
 
-        if (polylinePoints[[polylinePoints.length - 1]][0] !== subpath.firstPoint[0] ||
-          polylinePoints[[polylinePoints.length - 1]][1] !== subpath.firstPoint[1]) {
+        if (polylinePoints[[polylinePoints.length - 1]][0] !== subpath.firstPoint[0] || 
+            polylinePoints[[polylinePoints.length - 1]][1] !== subpath.firstPoint[1]) {
           dxf.drawPolyline([polylinePoints[polylinePoints.length - 1], subpath.firstPoint], false);
         }
       }

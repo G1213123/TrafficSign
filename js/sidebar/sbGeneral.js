@@ -240,9 +240,9 @@ let GeneralHandler = {
     // Use provided defaults or fall back to GeneralSettings
     const xHeight = defaultXHeight !== null ? defaultXHeight : GeneralSettings.xHeight;
     const color = defaultColor !== null ? defaultColor : GeneralSettings.messageColor;
-      // Create xHeight input with universal handler and unit (sw)
+      // Create xHeight input with universal handler and unit (mm)
     const xHeightInput = GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 
-      xHeight, xHeightCallback || GeneralHandler.handleXHeightChange, 'input', 'sw');
+      xHeight, xHeightCallback || GeneralHandler.handleXHeightChange, 'input', 'mm');
       
     // Create color toggle with universal handler
     GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, color, 

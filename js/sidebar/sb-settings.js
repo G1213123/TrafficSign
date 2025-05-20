@@ -10,7 +10,7 @@ const KEYBOARD_SHORTCUTS = {
   "Arrow Keys": "Nudge Selected Object",
   "Delete": "Delete Selected Object",
   "Escape": "Cancel Action / Toggle / Close Panel",
-  "Enter": "Confirm Measurement Input",
+  "Enter": "Confirm Input",
   "Tab": "Switch Vertex / Unit",
   "Ctrl + Z": "Undo",
   "Ctrl + S": "Save",
