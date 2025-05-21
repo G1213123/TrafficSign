@@ -345,7 +345,7 @@ class BaseGroup extends fabric.Group {
         targetPoint: this.lockXToPolygon.targetPoint, // Assuming this new property will hold the target's vertex index
         spacingX: this.lockXToPolygon.spacing, // Assuming this property exists or will be added
       };
-    } 
+    }
 
 
     if (this.lockYToPolygon && typeof this.lockYToPolygon.TargetObject?.canvasID !== 'undefined') {
@@ -355,7 +355,7 @@ class BaseGroup extends fabric.Group {
         targetPoint: this.lockYToPolygon.targetPoint, // Assuming this new property will hold the target's vertex index
         spacingY: this.lockYToPolygon.spacing, // Assuming this property exists or will be added
       };
-    } 
+    }
 
     // Serialize other direct properties that might have been missed by _metadataKeys but are important
     // Example: this.left, this.top, this.width, this.height, this.angle, etc.
@@ -743,24 +743,29 @@ class BaseGroup extends fabric.Group {
       // If basePolygon doesn't exist yet, just return
       return;
     }
+    const initialCoords = this.basePolygon.getCoords();
+    if (!initialCoords || initialCoords.length === 0) {
+      // console.warn("updateAllCoord: basePolygon.getCoords() returned empty or null for object:", this.canvasID);
+      return;
+    }
 
-    const deltaX = this.basePolygon.getCoords()[0].x - this.refTopLeft.left;
-    const deltaY = this.basePolygon.getCoords()[0].y - this.refTopLeft.top;
+    const deltaX = initialCoords[0].x - this.refTopLeft.left;
+    const deltaY = initialCoords[0].y - this.refTopLeft.top;
 
-    // Only track modifications if actual movement occurred
+    // Only track modifications if actual movement occurred for this object
     if (deltaX !== 0 || deltaY !== 0) {
-      // Track object modification
       canvasTracker.track('modifyObject', [{
         type: 'BaseGroup',
         id: this.canvasID,
         functionalType: this.functionalType,
         deltaX: deltaX,
-        deltaY: deltaY
+        deltaY: deltaY,
+        isInitialMover: !(globalAnchorTree.updateInProgressX || globalAnchorTree.updateInProgressY) || (globalAnchorTree.starterObjectX === this.canvasID || globalAnchorTree.starterObjectY === this.canvasID)
       }]);
+      this.updateCoord(deltaX, deltaY);
+      this.refTopLeft = { top: initialCoords[0].y, left: initialCoords[0].x };
     }
 
-    this.updateCoord(deltaX, deltaY);
-    this.refTopLeft = { top: this.basePolygon.getCoords()[0].y, left: this.basePolygon.getCoords()[0].x };
 
     // Check for route-specific methods
     if (this.onMove) {
@@ -779,90 +784,103 @@ class BaseGroup extends fabric.Group {
     const isAnchoredObjectX = Object.keys(this.lockXToPolygon).length > 0;
     const isAnchoredObjectY = Object.keys(this.lockYToPolygon).length > 0;
 
-    // Only propagate updates if:
-    // 1. The object hasn't been processed yet in the current cycle, AND
-    // 2. For anchored objects, only propagate if the object itself initiated the movement (not if it was moved by another object)
-    const needXPropagation = deltaX !== 0 && !alreadyProcessedX && (!isAnchoredObjectX || globalAnchorTree.starterObjectX === this.canvasID);
-    const needYPropagation = deltaY !== 0 && !alreadyProcessedY && (!isAnchoredObjectY || globalAnchorTree.starterObjectY === this.canvasID);
+    // Determine if this specific call to updateAllCoord should initiate propagation.
+    // This happens if the object itself moved (deltaX or deltaY != 0)
+    // or if it's the designated starter of an anchor update chain.
+    // let shouldInitiatePropagation = (deltaX !== 0 || deltaY !== 0); // Old logic
 
-    if (needXPropagation || needYPropagation) {
-      // Start update cycles if needed and record this object as the starter
-      if (needXPropagation && !globalAnchorTree.updateInProgressX) {
-        globalAnchorTree.startUpdateCycle('x', this.canvasID);
-      }
+    let startedXCycle = false;
+    let startedYCycle = false;
 
-      if (needYPropagation && !globalAnchorTree.updateInProgressY) {
-        globalAnchorTree.startUpdateCycle('y', this.canvasID);
-      }
+    // Start cycles if this object moved and no cycle is active for that axis
+    if (!globalAnchorTree.updateInProgressX) {
+      globalAnchorTree.startUpdateCycle('x', this.canvasID);
+      startedXCycle = true;
+    }
+    if (!globalAnchorTree.updateInProgressY) {
+      globalAnchorTree.startUpdateCycle('y', this.canvasID);
+      startedYCycle = true;
+    }
 
-      // Mark this object as updated in both axes if changed
-      if (deltaX !== 0) globalAnchorTree.updatedObjectsX.add(this.canvasID);
-      if (deltaY !== 0) globalAnchorTree.updatedObjectsY.add(this.canvasID);
+    // Mark current object as processed in active cycles, to prevent re-processing it via getUpdateOrder if it's already handled.
+    if (globalAnchorTree.updateInProgressX && !alreadyProcessedX) {
+      globalAnchorTree.updatedObjectsX.add(this.canvasID);
+    }
+    if (globalAnchorTree.updateInProgressY && !alreadyProcessedY) {
+      globalAnchorTree.updatedObjectsY.add(this.canvasID);
+    }
 
-      // Get all objects that need to be updated (combine X and Y updates)
-      const xUpdateOrder = deltaX !== 0 ? globalAnchorTree.getUpdateOrder('x', this.canvasID) : [];
-      const yUpdateOrder = deltaY !== 0 ? globalAnchorTree.getUpdateOrder('y', this.canvasID) : [];
+    // Proceed with updating anchored children if:
+    // 1. This object itself moved (deltaX or deltaY is non-zero), OR
+    // 2. An anchor update cycle is currently in progress for X or Y axis.
+    if (globalAnchorTree.updateInProgressX || globalAnchorTree.updateInProgressY) {
 
-      // Combine updates and remove duplicates while preserving order
+      const xUpdateOrder = (globalAnchorTree.updateInProgressX) ? globalAnchorTree.getUpdateOrder('x', this.canvasID) : [];
+      const yUpdateOrder = (globalAnchorTree.updateInProgressY) ? globalAnchorTree.getUpdateOrder('y', this.canvasID) : [];
+
       const allObjectsToUpdate = new Map();
 
-      // First add X axis updates with their axis info
       xUpdateOrder.forEach(obj => {
         if (!globalAnchorTree.updatedObjectsX.has(obj.canvasID)) {
-          allObjectsToUpdate.set(obj.canvasID, {
-            object: obj,
-            updateX: true,
-            updateY: false
-          });
+          allObjectsToUpdate.set(obj.canvasID, { object: obj, fromXChain: true, fromYChain: false });
         }
       });
 
-      // Then add or update with Y axis info
       yUpdateOrder.forEach(obj => {
         if (!globalAnchorTree.updatedObjectsY.has(obj.canvasID)) {
           if (allObjectsToUpdate.has(obj.canvasID)) {
-            // Object already needs X update, add Y update too
-            allObjectsToUpdate.get(obj.canvasID).updateY = true;
+            allObjectsToUpdate.get(obj.canvasID).fromYChain = true;
           } else {
-            // New object that only needs Y update
-            allObjectsToUpdate.set(obj.canvasID, {
-              object: obj,
-              updateX: false,
-              updateY: true
-            });
+            allObjectsToUpdate.set(obj.canvasID, { object: obj, fromXChain: false, fromYChain: true });
           }
         }
       });
 
-      // Process all objects in a single pass
       allObjectsToUpdate.forEach(info => {
-        // Apply position changes based on which axes need updates
-        if (info.updateX) {
-          globalAnchorTree.updatedObjectsX.add(info.object.canvasID);
-          info.object.set({ left: info.object.left + deltaX });
+        const currentAnchoredObject = info.object;
+        const { desiredLeft, desiredTop } = currentAnchoredObject.determineAnchoredPosition();
+
+        const actualDeltaX = desiredLeft - currentAnchoredObject.left;
+        const actualDeltaY = desiredTop - currentAnchoredObject.top;
+
+        if (actualDeltaX !== 0 || actualDeltaY !== 0) {
+          currentAnchoredObject.left = desiredLeft;
+          currentAnchoredObject.top = desiredTop;
+
+          if (actualDeltaX !== 0) globalAnchorTree.updatedObjectsX.add(currentAnchoredObject.canvasID);
+          if (actualDeltaY !== 0) globalAnchorTree.updatedObjectsY.add(currentAnchoredObject.canvasID);
+
+          currentAnchoredObject.updateCoord(actualDeltaX, actualDeltaY);
+
+          if (currentAnchoredObject.basePolygon && typeof currentAnchoredObject.basePolygon.getCoords === 'function') {
+            const coords = currentAnchoredObject.basePolygon.getCoords();
+            if (coords && coords.length > 0) {
+              currentAnchoredObject.refTopLeft = { top: coords[0].y, left: coords[0].x };
+            } else {
+              currentAnchoredObject.refTopLeft = { top: currentAnchoredObject.top, left: currentAnchoredObject.left };
+            }
+          } else {
+            currentAnchoredObject.refTopLeft = { top: currentAnchoredObject.top, left: currentAnchoredObject.left };
+          }
+          currentAnchoredObject.setCoords();
+
+          canvasTracker.track('modifyObject', [{
+            type: 'BaseGroup',
+            id: currentAnchoredObject.canvasID,
+            functionalType: currentAnchoredObject.functionalType,
+            deltaX: actualDeltaX,
+            deltaY: actualDeltaY,
+            triggeredByAnchor: true
+          }]);
+
+          currentAnchoredObject.updateAllCoord(null, []); // Recursive call
         }
-
-        if (info.updateY) {
-          globalAnchorTree.updatedObjectsY.add(info.object.canvasID);
-          info.object.set({ top: info.object.top + deltaY });
-        }
-
-        // Update coordinates in a single operation
-        info.object.setCoords();
-
-        // Recursive call but object will be skipped in next cycle due to being in updatedObjects set
-        info.object.updateAllCoord(null, []);
       });
 
-      // For backward compatibility, still call emitDelta
-      //this.emitDelta(deltaX, deltaY, []);
-
-      // Check if this object is the starter of any update chain and if so, end the cycle
-      if (globalAnchorTree.isUpdateStarter('x', this.canvasID)) {
+      if (startedXCycle && globalAnchorTree.isUpdateStarter('x', this.canvasID)) {
         globalAnchorTree.endUpdateCycle('x');
       }
-
-      if (globalAnchorTree.isUpdateStarter('y', this.canvasID)) {
+      if (startedYCycle && globalAnchorTree.isUpdateStarter('y', this.canvasID)) {
         globalAnchorTree.endUpdateCycle('y');
       }
     }
@@ -993,7 +1011,7 @@ class BaseGroup extends fabric.Group {
       mainRoad.receiveNewRoute()
       mainRoad.setCoords()
 
-    } 
+    }
 
     // Free anchored Polygon
     if (deleteObj.anchoredPolygon) {
@@ -1056,6 +1074,48 @@ class BaseGroup extends fabric.Group {
     ctx.drawImage(deleteImg, -size / 2, -size / 2, size, size);
     ctx.restore();
   }
+
+  // New method to determine position based on anchors
+  determineAnchoredPosition() {
+    let desiredLeft = this.left;
+    let desiredTop = this.top;
+
+    const getAbsoluteVertex = (obj, label) => {
+      if (!obj || !obj.basePolygon || !obj.basePolygon.vertex) return null;
+      // basePolygon.vertex stores absolute canvas coordinates
+      return obj.basePolygon.vertex.find(v => v.label === label);
+    };
+
+    if (this.lockXToPolygon && this.lockXToPolygon.TargetObject) {
+      const targetObj = this.lockXToPolygon.TargetObject;
+      const targetVertex = getAbsoluteVertex(targetObj, this.lockXToPolygon.targetPoint);
+      const sourceVertex = getAbsoluteVertex(this, this.lockXToPolygon.sourcePoint);
+      const spacing = this.lockXToPolygon.spacing || 0;
+
+      if (targetVertex && sourceVertex) {
+        const offsetSourceX = sourceVertex.x - this.left;
+        desiredLeft = targetVertex.x + spacing - offsetSourceX;
+      } else {
+        // console.warn('X Lock: Target or source vertex not found for object.', {thisId: this.canvasID, targetId: targetObj?.canvasID, targetPoint: this.lockXToPolygon.targetPoint, sourcePoint: this.lockXToPolygon.sourcePoint});
+      }
+    }
+
+    if (this.lockYToPolygon && this.lockYToPolygon.TargetObject) {
+      const targetObj = this.lockYToPolygon.TargetObject;
+      const targetVertex = getAbsoluteVertex(targetObj, this.lockYToPolygon.targetPoint);
+      const sourceVertex = getAbsoluteVertex(this, this.lockYToPolygon.sourcePoint);
+      const spacing = this.lockYToPolygon.spacing || 0;
+
+      if (targetVertex && sourceVertex) {
+        const offsetSourceY = sourceVertex.y - this.top;
+        desiredTop = targetVertex.y + spacing - offsetSourceY;
+      } else {
+        // console.warn('Y Lock: Target or source vertex not found for object.', {thisId: this.canvasID, targetId: targetObj?.canvasID, targetPoint: this.lockYToPolygon.targetPoint, sourcePoint: this.lockYToPolygon.sourcePoint});
+      }
+    }
+    return { desiredLeft, desiredTop };
+  }
+
 
   // New method: get final lock target along given axis
   getFinalLockTarget(axis) {

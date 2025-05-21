@@ -53,6 +53,119 @@ function showPropertyPanel(object) {
 
   const PREDEFINED_COLORS = ['black', 'white',];
 
+  // --- Helper functions for input changes ---
+  function handleNumericInputChange(e, prop, targetObject) {
+    let valueChanged = false;
+    let numValue;
+
+    if (prop.key === 'xHeight') {
+      numValue = parseFloat(e.target.value);
+      if (!isNaN(numValue) && targetObject.xHeight !== numValue) {
+        targetObject.xHeight = numValue;
+        valueChanged = true;
+      }
+    } else { // Covers 'left', 'top', 'rootLength', 'tipLength'
+      numValue = parseInt(e.target.value, 10);
+      // Check lockMovement for left/top
+      if (prop.key === 'left' && targetObject.lockMovementX) {
+        // Do not change value if movement is locked
+      } else if (prop.key === 'top' && targetObject.lockMovementY) {
+        // Do not change value if movement is locked
+      } else if (!isNaN(numValue) && targetObject[prop.key] !== numValue) {
+        targetObject.set(prop.key, numValue);
+        valueChanged = true;
+      }
+    }
+
+    if (valueChanged) {
+      if (typeof targetObject.initialize === 'function') {
+        try {
+          targetObject.removeAll();
+          targetObject.initialize();
+          targetObject.updateAllCoord();
+          if (targetObject.functionalType === 'Border' ) {
+            targetObject.processResize();
+          }
+        } catch (initError) {
+          console.error(`Error calling ${targetObject.type}.initialize() for ${prop.key} change:`, initError);
+        }
+      }
+      CanvasGlobals.canvas.renderAll();
+      showPropertyPanel(targetObject); // Refresh panel
+    }
+  }
+
+  function handleTextInputChange(e, prop, targetObject) {
+    const newValue = e.target.value;
+    if (targetObject[prop.key] !== newValue) {
+      targetObject.set(prop.key, newValue);
+      if (targetObject.functionalType === 'Text' && prop.key === 'text') {
+        targetObject._showName = newValue;
+      }
+      try {
+        targetObject.removeAll();
+        targetObject.initialize();
+        targetObject.updateAllCoord();
+      } catch (initError) {
+        console.error(`Error calling ${targetObject.type}.initialize() for ${prop.key} change:`, initError);
+      }
+      CanvasGlobals.canvas.renderAll();
+      showPropertyPanel(targetObject); // Refresh panel
+    }
+  }
+
+  function handleSelectInputChange(e, prop, targetObject) {
+    const newValue = e.target.value;
+    let valueToSet = newValue;
+    let valueChanged = false;
+
+    if (prop.key === 'color' || prop.key === 'fill') {
+      if (targetObject[prop.key] !== newValue) {
+        targetObject[prop.key] = newValue; // Direct assignment for color/fill
+        valueChanged = true;
+      }
+    } else if (prop.key === 'font') {
+      if (targetObject[prop.key] !== newValue) {
+        targetObject.set(prop.key, newValue);
+        valueChanged = true;
+      }
+    } else if (prop.key === 'symbolAngle') {
+      valueToSet = parseInt(newValue, 10);
+      if (targetObject[prop.key] !== valueToSet) {
+        targetObject.set(prop.key, valueToSet);
+        valueChanged = true;
+      }
+    } else if (targetObject.functionalType === 'SideRoad' && (prop.key === 'shape' || prop.key === 'angle')) {
+      if (prop.key === 'angle') {
+        valueToSet = parseInt(newValue, 10);
+      }
+      // Specific update logic for SideRoad shape and angle
+      if (targetObject.routeList && targetObject.routeList[0] && targetObject.routeList[0][prop.key] !== valueToSet) {
+        targetObject.routeList[0][prop.key] = valueToSet;
+        valueChanged = true;
+      }
+    }
+
+
+    if (valueChanged) {
+      if (typeof targetObject.initialize === 'function') {
+        try {
+          targetObject.removeAll();
+          targetObject.initialize();
+          targetObject.updateAllCoord();
+          if (targetObject.functionalType === 'Border' && (prop.key === 'color' || prop.key === 'fill')) {
+            targetObject.processResize();
+          }
+        } catch (initError) {
+          console.error(`Error calling ${targetObject.type}.initialize() for ${prop.key} change:`, initError);
+        }
+      }
+      CanvasGlobals.canvas.renderAll();
+      showPropertyPanel(targetObject); // Refresh panel
+    }
+  }
+  // --- End of helper functions ---
+
   // Helper to render a category box
   function renderCategory(name, props, targetObject) { // Added targetObject parameter
     if (!props.length) return;
@@ -86,35 +199,7 @@ function showPropertyPanel(object) {
           }
           inputElement.style.width = '80px';
           inputElement.addEventListener('change', (e) => {
-            let valueChanged = false;
-            if (prop.key === 'left' || prop.key === 'top') {
-              const numValue = parseInt(e.target.value, 10);
-              if (!isNaN(numValue) && targetObject[prop.key] !== numValue) {
-                targetObject.set(prop.key, numValue);
-                valueChanged = true;
-              }
-            } else if (prop.key === 'xHeight') {
-              const floatValue = parseFloat(e.target.value);
-              if (!isNaN(floatValue) && targetObject.xHeight !== floatValue) {
-                targetObject.xHeight = floatValue;
-                valueChanged = true;
-              }
-            }
-
-            if (valueChanged) {
-              if (typeof targetObject.initialize === 'function') {
-                try {
-                  targetObject.removeAll();
-                  targetObject.initialize();
-                  targetObject.updateAllCoord();
-
-                } catch (initError) {
-                  console.error(`Error calling ${targetObject.type}.initialize():`, initError);
-                }
-              }
-              CanvasGlobals.canvas.renderAll();
-              showPropertyPanel(targetObject); // Refresh panel
-            }
+            handleNumericInputChange(e, prop, targetObject);
           });
         } else if (prop.type === 'text') { // Added handler for text input
           inputElement = document.createElement('input');
@@ -122,27 +207,9 @@ function showPropertyPanel(object) {
           inputElement.value = targetObject[prop.key] || '';
           //inputElement.style.width = '400px'; // Adjust width to match other inputs
           inputElement.addEventListener('change', (e) => {
-            const newValue = e.target.value;
-            if (targetObject[prop.key] !== newValue) {
-              targetObject.set(prop.key, newValue);
-              // Assuming _showName should be updated with the text for Text objects
-              if (targetObject.functionalType === 'Text') {
-                targetObject._showName = newValue;
-              }
-                try {
-                  // Text objects might have specific update needs,
-                  // but the generic initialize pattern is used here for consistency.
-                  targetObject.removeAll();
-                  targetObject.initialize();
-                  targetObject.updateAllCoord();
-                } catch (initError) {
-                  console.error(`Error calling ${targetObject.type}.initialize() for ${prop.key} change:`, initError);
-                }            
-              CanvasGlobals.canvas.renderAll();
-              showPropertyPanel(targetObject); // Refresh panel to update title and content
-            }
+            handleTextInputChange(e, prop, targetObject);
           });
-        } else if (prop.type === 'select' && (prop.key === 'color' || prop.key === 'fill')) {
+        } else if (prop.type === 'select') {
           inputElement = document.createElement('select');
           prop.options.forEach(opt => { // opt is a color name e.g. 'Primary', 'white'
             const option = document.createElement('option');
@@ -151,28 +218,21 @@ function showPropertyPanel(object) {
             inputElement.appendChild(option);
           });
 
-          inputElement.value = prop.value.toLowerCase(); // prop.value is the initial color name to select
+          // inputElement.value = prop.value; // prop.value is the initial color name to select // Original line
+          let valueToSet = prop.value; // Default to original prop.value
+          if (typeof prop.value === 'string') {
+            // Find an option that matches prop.value case-insensitively
+            const matchedOption = prop.options.find(opt =>
+              typeof opt === 'string' && opt.toLowerCase() === prop.value.toLowerCase()
+            );
+            if (matchedOption !== undefined) {
+              valueToSet = matchedOption; // Use the casing from the option
+            }
+          }
+          inputElement.value = valueToSet;
 
           inputElement.addEventListener('change', (e) => {
-            const selectedOptionName = e.target.value; // This is the color name from dropdown
-
-            if (targetObject[prop.key] !== selectedOptionName) {
-              targetObject[prop.key] = selectedOptionName;
-              if (typeof targetObject.initialize === 'function') {
-                try {
-                  targetObject.removeAll();
-                  targetObject.initialize();
-                  targetObject.updateAllCoord();
-                  if (targetObject.functionalType === 'Border') {
-                    targetObject.processResize();
-                  }
-                } catch (initError) {
-                  console.error(`Error calling ${targetObject.type}.initialize() for color change:`, initError);
-                }
-              }
-              CanvasGlobals.canvas.renderAll();
-              showPropertyPanel(targetObject); // Refresh panel
-            }
+            handleSelectInputChange(e, prop, targetObject);
           });
         } else if (prop.type === 'select' && (prop.key === 'font' || prop.key === 'symbolAngle')) {
           inputElement = document.createElement('select');
@@ -185,26 +245,7 @@ function showPropertyPanel(object) {
           inputElement.value = targetObject[prop.key]; // Current value
 
           inputElement.addEventListener('change', (e) => {
-            const newValue = e.target.value;
-            let valueToSet = newValue;
-            if (prop.key === 'symbolAngle') {
-              valueToSet = parseInt(newValue, 10); // Ensure angle is a number
-            }
-
-            if (targetObject[prop.key] !== valueToSet) {
-              targetObject.set(prop.key, valueToSet);
-              if (typeof targetObject.initialize === 'function') {
-                try {
-                  targetObject.removeAll();
-                  targetObject.initialize();
-                  targetObject.updateAllCoord();
-                } catch (initError) {
-                  console.error(`Error calling ${targetObject.type}.initialize() for ${prop.key} change:`, initError);
-                }
-              }
-              CanvasGlobals.canvas.renderAll();
-              showPropertyPanel(targetObject); // Refresh panel
-            }
+            handleSelectInputChange(e, prop, targetObject);
           });
         }
         if (inputElement) {
@@ -243,8 +284,8 @@ function showPropertyPanel(object) {
   // Prepare Geometry properties
   const isNonMovable = object.functionalType === 'Border' || object.functionalType === 'HDivider' || object.functionalType === 'VDivider' || object.functionalType === 'VLane' || object.functionalType === 'HLine';
   const geometryProps = [
-    { label: 'Left', key: 'left', type: 'number', editable: !isNonMovable, step: 1, value: object.left },
-    { label: 'Top', key: 'top', type: 'number', editable: !isNonMovable, step: 1, value: object.top },
+    { label: 'Left', key: 'left', type: 'number', editable: !isNonMovable && !object.lockMovementX, step: 1, value: object.left },
+    { label: 'Top', key: 'top', type: 'number', editable: !isNonMovable && !object.lockMovementY, step: 1, value: object.top },
     { label: 'Right', value: Math.round(object.left + (object.width * (object.scaleX || 1))) },
     { label: 'Bottom', value: Math.round(object.top + (object.height * (object.scaleY || 1))) },
     { label: 'Width', value: Math.round((object.width || 0) * (object.scaleX || 1)) },
@@ -307,21 +348,30 @@ function showPropertyPanel(object) {
     case 'MainRoad':
       specialProps = [
         { label: 'Road Type', value: object.roadType },
-        { label: 'Root Length', value: object.rootLength },
-        { label: 'Tip Length', value: object.tipLength },
-        //{ label: 'RA Feature', value: object.RAfeature },
-        { label: 'Side Roads', value: object.sideRoad.length }
       ];
+      if (object.roadType === 'Main Line') {
+        specialProps.push(
+          { label: 'Root Length', key: 'rootLength', type: 'number', editable: true, step: 1, value: object.rootLength },
+          { label: 'Tip Length', key: 'tipLength', type: 'number', editable: true, step: 1, value: object.tipLength }
+        );
+      } else {
+        specialProps.push(
+          { label: 'Root Length', value: object.rootLength },
+          { label: 'Tip Length', value: object.tipLength }
+        );
+      }
+      specialProps.push({ label: 'Side Roads', value: object.sideRoad.length });
       break;
     case 'SideRoad':
       specialProps = [
         { label: 'Parent Road', value: object.mainRoad?.roadType || '' },
         { label: 'Branch Index', value: object.branchIndex },
-        { label: 'Shape', value: object.routeList[0].shape },
+        { label: 'Shape', key: 'shape', type: 'select', options: ['Arrow', 'Stub'], editable: true, value: object.routeList[0].shape },
+        { label: 'Angle', key: 'angle', type: 'select', options: [45, 60, 90], editable: true, value: object.routeList[0].angle }
       ];
-      if (object.mainRoad.roadType == 'Main Line') {
-        specialProps.push({ label: 'Angle', value: object.routeList[0].angle });
-      }
+      // Add event listener for SideRoad shape and angle directly if not covered by generic select
+      // This part might be redundant if the generic select handler covers it.
+      // We will rely on the handleSelectInputChange to manage SideRoad specific updates.
       break;
     case 'Border':
       specialProps = [

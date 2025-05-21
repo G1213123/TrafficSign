@@ -200,25 +200,13 @@ class VertexControl extends fabric.Control {
             }
 
             if (positionChanged) {
-                // Start a single combined update cycle instead of separate X and Y cycles
-                if (!globalAnchorTree.updateInProgressX) {
-                    globalAnchorTree.startUpdateCycle('x', this.baseGroup.canvasID);
-                }
-                if (!globalAnchorTree.updateInProgressY) {
-                    globalAnchorTree.startUpdateCycle('y', this.baseGroup.canvasID);
-                }
+
 
                 // Update coordinates in one go
                 this.baseGroup.setCoords();
                 this.baseGroup.updateAllCoord();
 
-                // End update cycles if we started them
-                if (!globalAnchorTree.updateInProgressX) {
-                    globalAnchorTree.endUpdateCycle('x');
-                }
-                if (!globalAnchorTree.updateInProgressY) {
-                    globalAnchorTree.endUpdateCycle('y');
-                }
+
             }
         } else {
             // Special handling for MainRoad and SideRoad
