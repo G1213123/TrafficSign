@@ -1176,7 +1176,7 @@ div.side-panel.close {
 
 .settings-buttons-container .input-button {
   width: 100%;
-  /* Make buttons take full width of their container */
+  /* Make buttons take full width of the container */
 }
 
 .color-picker {
@@ -1858,6 +1858,7 @@ div.side-panel.close {
 
 /* Styles for property panel inputs */
 .property-item input[type="number"],
+.property-item input[type="text"],
 .property-item select {
   background-color: #404042;
   color: #eee;
@@ -1865,7 +1866,6 @@ div.side-panel.close {
   border-radius: 4px;
   padding: 2px 10px;
   font-size: 14px;
-  width: 100%;
   /* This might need adjustment if you want the label and input on the same line and have the input not take full width */
   box-sizing: border-box;
   margin: 0;
@@ -1873,6 +1873,7 @@ div.side-panel.close {
 }
 
 .property-item input[type="number"]:focus,
+.property-item input[type="text"]:focus,
 .property-item select:focus {
   outline: none;
   border-color: #6761A8;
@@ -1902,6 +1903,17 @@ div.side-panel.close {
 }
 
 .property-item input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.property-item input[type="text"]::-webkit-outer-spin-button,
+.property-item input[type="text"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.property-item input[type="text"] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
@@ -1995,4 +2007,25 @@ div.side-panel.close {
 
 #import-json-text-modal .import-button:hover {
   background-color: #0056b3;
+}
+
+/* Styles to prevent overflow in info-content-static */
+#info-content-static {
+  width: 100%;
+  box-sizing: border-box; /* Ensures padding/border of info-content-static itself are within its 100% width */
+  overflow-wrap: break-word; /* Helps prevent overflow from long unbreakable words/URLs */
+  word-wrap: break-word; /* Legacy alias for overflow-wrap */
+}
+
+/* Apply border-box to direct children of info-content-static that are divs */
+#info-content-static > div {
+  box-sizing: border-box;
+  /* Assuming these children are intended to be full width by default as block elements.
+     If they have explicit widths less than 100%, this still ensures their padding/border
+     are included in that explicit width. */
+}
+
+/* Specifically for .legal-disclaimer if it needs to be explicitly 100% wide */
+#info-content-static > .legal-disclaimer {
+    width: 100%; /* Ensures it tries to fill the parent if it's not already doing so */
 }

@@ -116,6 +116,32 @@ function showPropertyPanel(object) {
               showPropertyPanel(targetObject); // Refresh panel
             }
           });
+        } else if (prop.type === 'text') { // Added handler for text input
+          inputElement = document.createElement('input');
+          inputElement.type = 'text';
+          inputElement.value = targetObject[prop.key] || '';
+          //inputElement.style.width = '400px'; // Adjust width to match other inputs
+          inputElement.addEventListener('change', (e) => {
+            const newValue = e.target.value;
+            if (targetObject[prop.key] !== newValue) {
+              targetObject.set(prop.key, newValue);
+              // Assuming _showName should be updated with the text for Text objects
+              if (targetObject.functionalType === 'Text') {
+                targetObject._showName = newValue;
+              }
+                try {
+                  // Text objects might have specific update needs,
+                  // but the generic initialize pattern is used here for consistency.
+                  targetObject.removeAll();
+                  targetObject.initialize();
+                  targetObject.updateAllCoord();
+                } catch (initError) {
+                  console.error(`Error calling ${targetObject.type}.initialize() for ${prop.key} change:`, initError);
+                }            
+              CanvasGlobals.canvas.renderAll();
+              showPropertyPanel(targetObject); // Refresh panel to update title and content
+            }
+          });
         } else if (prop.type === 'select' && (prop.key === 'color' || prop.key === 'fill')) {
           inputElement = document.createElement('select');
           prop.options.forEach(opt => { // opt is a color name e.g. 'Primary', 'white'
@@ -260,7 +286,7 @@ function showPropertyPanel(object) {
   switch (object.functionalType) {
     case 'Text':
       specialProps = [
-        { label: 'Text', value: object.text },
+        { label: 'Text', key: 'text', type: 'text', editable: true, value: object.text },
         { label: 'Font', key: 'font', type: 'select', options: ['TransportHeavy', 'TransportMedium'], editable: true, value: object.font }
       ];
       break;
