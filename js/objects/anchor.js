@@ -260,8 +260,7 @@ class AnchorTree {
       // Clear the old lock on the child object for this direction
       if (direction === 'x' && childObject.canvasID === Object.values(chainInfo)[0].id) {
         childObject.lockXToPolygon = {};
-      } else if (childObject.canvasID === Object.values(chainInfo)[0].id) 
-      { // direction === 'y'
+      } else if (childObject.canvasID === Object.values(chainInfo)[0].id) { // direction === 'y'
         childObject.lockYToPolygon = {};
       }
 
@@ -670,6 +669,8 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   // Process Y axis updates using the new helper function
   // Pass the delta only if it was actually applied during anchoring setup
   processUpdateCycle('y', shape2, updateOrderY, appliedDeltaY ? deltaY : NaN, sourceList);
+
+  shape2.updateAllCoord();
 
   // If no updates were triggered by anchoring (e.g., only one axis anchored, or no spacing),
   // ensure the object itself is updated if it wasn't part of an ongoing cycle.

@@ -125,7 +125,7 @@ function showPropertyPanel(object) {
             inputElement.appendChild(option);
           });
 
-          inputElement.value = prop.value; // prop.value is the initial color name to select
+          inputElement.value = prop.value.toLowerCase(); // prop.value is the initial color name to select
 
           inputElement.addEventListener('change', (e) => {
             const selectedOptionName = e.target.value; // This is the color name from dropdown

@@ -345,9 +345,7 @@ class BaseGroup extends fabric.Group {
         targetPoint: this.lockXToPolygon.targetPoint, // Assuming this new property will hold the target's vertex index
         spacingX: this.lockXToPolygon.spacing, // Assuming this property exists or will be added
       };
-    } else if (this.lockXToPolygon) {
-      dataToSerialize.lockXToPolygon = JSON.parse(JSON.stringify(this.lockXToPolygon));
-    }
+    } 
 
 
     if (this.lockYToPolygon && typeof this.lockYToPolygon.TargetObject?.canvasID !== 'undefined') {
@@ -357,9 +355,7 @@ class BaseGroup extends fabric.Group {
         targetPoint: this.lockYToPolygon.targetPoint, // Assuming this new property will hold the target's vertex index
         spacingY: this.lockYToPolygon.spacing, // Assuming this property exists or will be added
       };
-    } else if (this.lockYToPolygon) {
-      dataToSerialize.lockYToPolygon = JSON.parse(JSON.stringify(this.lockYToPolygon));
-    }
+    } 
 
     // Serialize other direct properties that might have been missed by _metadataKeys but are important
     // Example: this.left, this.top, this.width, this.height, this.angle, etc.
@@ -374,6 +370,8 @@ class BaseGroup extends fabric.Group {
 
     // You'll need to expand this based on how you plan to reconstruct the objects.
     // Consider if sub-objects (like those in anchoredPolygon) need their own serializeToJSON methods.
+    delete dataToSerialize['lockXToPolygon']
+    delete dataToSerialize['lockYToPolygon']
 
     return JSON.stringify(dataToSerialize, (key, value) => {
       // Custom replacer to handle circular references or complex objects if any remain
@@ -946,6 +944,15 @@ class BaseGroup extends fabric.Group {
     // Close property panel if it is open for the object being deleted
     handleClear(null);
 
+    // Delete Side road first as they affects the canvasID numbering
+    if (deleteObj.sideRoad) {
+      const sideRoad = deleteObj.sideRoad
+      sideRoad.forEach(side => {
+        side.mainRoad = null
+        side.deleteObject()
+      })
+    }
+
     // Store the original canvasID before removing the object
     const originalCanvasID = deleteObj.canvasID;
 
@@ -986,13 +993,7 @@ class BaseGroup extends fabric.Group {
       mainRoad.receiveNewRoute()
       mainRoad.setCoords()
 
-    } else if (deleteObj.sideRoad) {
-      const sideRoad = deleteObj.sideRoad
-      sideRoad.forEach(side => {
-        side.mainRoad = null
-        side.deleteObject()
-      })
-    }
+    } 
 
     // Free anchored Polygon
     if (deleteObj.anchoredPolygon) {

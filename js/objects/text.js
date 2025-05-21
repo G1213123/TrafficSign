@@ -324,7 +324,7 @@ class TextObject extends BaseGroup {
     group.xHeight = newXHeight;
 
     // Update this text object with the new group
-    this.replaceBasePolygon(group, false);
+    this.replaceBasePolygon(group);
 
     // Update properties
     this.text = newText;
