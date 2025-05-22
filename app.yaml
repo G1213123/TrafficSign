@@ -38,6 +38,20 @@ handlers:
   mime_type: text/plain
   secure: always
 
+# Serve sitemap.xml from the root
+- url: /sitemap.xml
+  static_files: sitemap.xml
+  upload: sitemap.xml
+  mime_type: application/xml
+  secure: always
+
+# Serve robots.txt from the root
+- url: /robots.txt
+  static_files: robots.txt
+  upload: robots.txt
+  mime_type: text/plain
+  secure: always
+
 # Serve index.html as the main entry point
 - url: /
   static_files: index.html
