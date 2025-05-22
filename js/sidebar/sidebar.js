@@ -24,61 +24,129 @@ import { CanvasGlobals } from '../canvas/canvas.js';
 window.GeneralSettings = GeneralSettings; // Make GeneralSettings globally accessible
 window.GeneralHandler = GeneralHandler; // Make GeneralHandler globally accessible
 
+// Define a mapping from hash to button ID and its init function
+const routeMappings = {
+  'text': { buttonId: 'btn_text', initFn: FormTextAddComponent.textPanelInit },
+  'draw': { buttonId: 'btn_draw', initFn: FormDrawAddComponent.drawPanelInit },
+  'border': { buttonId: 'btn_border', initFn: FormBorderWrapComponent.BorderPanelInit },
+  'map': { buttonId: 'btn_map', initFn: FormDrawMapComponent.drawMapPanelInit },
+  'export': { buttonId: 'btn_export', initFn: FormExportComponent.exportPanelInit },
+  'info': { buttonId: 'btn_info', initFn: FormInfoComponent.InfoPanelInit },
+  'settings': { buttonId: 'btn_settings', initFn: FormSettingsComponent.settingsPanelInit },
+  'templates': { buttonId: 'btn_template', initFn: FormTemplateComponent.templatePanelInit },
+  'measure': { buttonId: 'btn_measure', initFn: FormMeasureComponent.measurePanelInit },
+  'tracker': { buttonId: 'btn_tracker', initFn: () => {
+    let instance = window.canvasTrackerComponentInstance;
+    if (instance && instance.initialized) {
+      instance.restoreUI();
+    } else if (instance) {
+      instance.initialize();
+    }
+    // Note: This assumes canvasTrackerComponentInstance is globally available or passed appropriately.
+    // If not, this specific route might need a different handling strategy for initialization.
+  } }
+};
+
+function activatePanelFromHash() {
+  const hash = window.location.hash.substring(1); // Remove #
+  const route = routeMappings[hash];
+  if (route) {
+    const button = document.getElementById(route.buttonId);
+    if (button) {
+      // Ensure the panel initialization logic is called.
+      // Some panels might already be initialized by default (e.g., settings).
+      // Others are initialized on click. We need to ensure the correct state.
+      if (typeof route.initFn === 'function') {
+        route.initFn(); // Call the panel's initialization function
+      }
+      // Simulate a click if the initFn doesn't cover all click actions (like UI highlighting)
+      // or if direct initFn call isn't sufficient.
+      // However, calling initFn is generally preferred to avoid unintended side effects of a raw click.
+      // If initFn handles UI updates (like active class), a direct click might not be needed.
+      // For simplicity and to ensure UI consistency, we can also trigger a click.
+      // Be cautious if initFn and click handler do redundant work or conflict.
+      button.click();
+    }
+  } else if (hash === '') {
+    // Default to draw panel or settings if no hash or unknown hash
+    const defaultButton = document.getElementById(routeMappings['draw'].buttonId);
+    if (defaultButton) {
+      defaultButton.click();
+    }
+  }
+}
+
+function updateHash(newHash) {
+  if (window.location.hash !== `#${newHash}`) {
+    window.location.hash = newHash;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   // Initialize GeneralHandler first if needed (assuming it has an init function)
   GeneralHandler.ShowHideSideBar(null, 'on');
 
-  // Settings module button - Initialize directly
-  FormSettingsComponent.settingsPanelInit();
-  document.getElementById('btn_settings').onclick = FormSettingsComponent.settingsPanelInit;
+  // Store the tracker instance globally or in a way accessible to routeMappings
+  window.canvasTrackerComponentInstance = new CanvasTrackerUI();
+  // Initializing tracker here might be too early if it depends on other DOM elements not yet ready.
+  // Consider initializing it within its route activation or ensuring all dependencies are met.
 
-  // Tracker module button
-  let canvasTrackerComponentInstance = new CanvasTrackerUI();
-  canvasTrackerComponentInstance.initialize(); // Keep instance reference
-  document.getElementById('btn_tracker').addEventListener('click', function () {
+  // Setup button clicks to update hash and call their original functions
+  Object.keys(routeMappings).forEach(hashKey => {
+    const route = routeMappings[hashKey];
+    const button = document.getElementById(route.buttonId);
+    if (button) {
+      const originalOnClick = button.onclick; // Store original if any (though addEventListener is better)
+      const originalAddEventListenerFn = route.initFn; // Assuming initFn is the primary action
 
-    if (canvasTrackerComponentInstance.initialized) { // Check if already initialized
-      canvasTrackerComponentInstance.restoreUI();
-    } else {
-      canvasTrackerComponentInstance.initialize(); // Initialize if not yet done
+      button.onclick = null; // Clear existing onclick to avoid double calls if we use addEventListener
+      button.addEventListener('click', function(event) {
+        // Call the original initialization/handler function
+        if (hashKey === 'tracker') { // Special handling for tracker
+            let instance = window.canvasTrackerComponentInstance;
+            if (!instance.initialized) { // Initialize tracker only if not already
+                instance.initialize();
+            } else {
+                instance.restoreUI();
+            }
+        } else if (typeof originalAddEventListenerFn === 'function') {
+          originalAddEventListenerFn.call(this, event); // Call the original function
+        } else if (typeof originalOnClick === 'function' && hashKey !== 'tracker') {
+            // Fallback for any `button.onclick = ` style handlers if not covered by initFn
+            originalOnClick.call(this, event);
+        }
+        updateHash(hashKey); // Update the hash
+      });
     }
-
   });
 
-  // Text module button
-  const btnText = document.getElementById('btn_text');
-  btnText.addEventListener('click', FormTextAddComponent.textPanelInit); // Directly assign handler
-  btnText.onclick = FormTextAddComponent.textPanelInit; // Keep the onclick assignment if you still want to replace the listener after first click
 
-  // Draw module button (# Default module)
-  document.getElementById('btn_draw').onclick = FormDrawAddComponent.drawPanelInit;
-
-  // Border module button
-  document.getElementById('btn_border').onclick = FormBorderWrapComponent.BorderPanelInit;
-
-  // Map module button
-  document.getElementById('btn_map').onclick = FormDrawMapComponent.drawMapPanelInit;
-
-  // Export module button
-  document.getElementById('btn_export').onclick = FormExportComponent.exportPanelInit;
-
-  // Info module button (if it exists)
-  const infoBtn = document.getElementById('btn_info');
-  if (infoBtn) {
-    infoBtn.onclick = FormInfoComponent.InfoPanelInit;
+  // Settings module button - Initialize directly as it might be a default view
+  // And ensure its click updates the hash
+  const settingsButton = document.getElementById(routeMappings['settings'].buttonId);
+  if (settingsButton) {
+    // FormSettingsComponent.settingsPanelInit(); // Initialized by default or on first load
+     settingsButton.addEventListener('click', () => { // Ensure hash updates
+        FormSettingsComponent.settingsPanelInit(); // Redundant if already handled by generic setup, but safe
+        updateHash('settings');
+    });
+  }
+  // Tracker needs special handling due to its instance-based setup
+  const trackerButton = document.getElementById(routeMappings['tracker'].buttonId);
+  if (trackerButton) {
+    // The generic setup above should handle the tracker click to call its init/restore.
+    // We just ensure the instance is created early enough.
+    // window.canvasTrackerComponentInstance.initialize(); // Initialize tracker; might be better done lazily
   }
 
-  // Template module button
-  const templateBtn = document.getElementById('btn_template');
-  if (templateBtn) {
-    templateBtn.onclick = FormTemplateComponent.templatePanelInit;
-  }
 
-  // Measure tool button
-  const measureBtn = document.getElementById('btn_measure');
-  if (measureBtn) {
-    measureBtn.onclick = FormMeasureComponent.measurePanelInit;
-  }
+  // Listen for hash changes to activate panels
+  window.addEventListener('hashchange', activatePanelFromHash);
+
+  // Activate panel based on initial hash on page load
+  // Ensure this runs after all buttons have their new event listeners attached.
+  // activatePanelFromHash();
+
 
   // Assuming 'canvas' is a global or accessible variable
   if (typeof canvas !== 'undefined' && canvas.renderAll) {
@@ -86,3 +154,4 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 
+export {activatePanelFromHash}

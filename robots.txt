@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: http://road-sign.g1213123.info/sitemap.xml

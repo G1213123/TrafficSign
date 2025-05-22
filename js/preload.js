@@ -4,6 +4,7 @@ import { parseFont } from './objects/path.js'; // Import parseFont specifically
 import { FormDrawAddComponent } from './sidebar/sb-draw.js'; // Import FormDrawAddComponent specifically
 import { FormSettingsComponent } from './sidebar/sb-settings.js'; // Import FormSettingsComponent specifically
 import { DrawGrid } from './canvas/canvas.js'; // Import DrawGrid if needed
+import {activatePanelFromHash} from './sidebar/sidebar.js'; // Import activatePanelFromHash if needed
 
 window.jsPDF = window.jspdf.jsPDF; // Ensure jsPDF is available globally if needed
 
@@ -15,7 +16,7 @@ async function preload() {
         // Show a loading indicator here if desired
         await parseFont(); // Call parseFont and wait for it to complete
         DrawGrid(); // Initialize grid drawing
-        FormDrawAddComponent.drawPanelInit(); // Initialize Draw panel by default
+        activatePanelFromHash(); // Initialize Draw panel by default
         console.log("Fonts parsed successfully. Application ready.");
         // Hide loading indicator here
         // Any initialization code that depends on fonts being loaded can go here.

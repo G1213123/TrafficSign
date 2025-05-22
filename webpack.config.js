@@ -44,7 +44,9 @@ module.exports = {
         { from: 'ads.txt', to: 'ads.txt' }, // Ensure ads.txt is copied
         { from: 'app.yaml', to: 'app.yaml' }, // Ensure app.yaml is copied
         { from: 'LICENSE', to: 'LICENSE' },
-        { from: 'readme.md', to: 'readme.md' }
+        { from: 'readme.md', to: 'readme.md' },
+        { from: 'sitemap.xml', to: 'sitemap.xml' }, // Ensure sitemap.xml is copied
+        { from: 'robots.txt', to: 'robots.txt' } // Ensure robots.txt is copied
       ],
     }),
     // Optional: If you need the version available in your JS code as well
