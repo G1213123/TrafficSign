@@ -146,6 +146,8 @@ class AnchorTree {
       }
     }
 
+    delete tree[objId]; // Finally, delete the node itself
+
   }
 
   // Helper function to find the upward chain based on current locks
