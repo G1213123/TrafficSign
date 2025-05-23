@@ -139,6 +139,12 @@ class AnchorTree {
         tree[parentId].children = tree[parentId].children.filter(id => id !== objId);
       }
     }
+    // Remove this node from all its children's parents lists
+    for (const childId of tree[objId].children) {
+      if (tree[childId]) {
+        tree[childId].parents = tree[childId].parents.filter(id => id !== objId);
+      }
+    }
 
   }
 
@@ -409,12 +415,11 @@ class AnchorTree {
 
   // Handle updates to the tree structure when an object is deleted
   updateOnDelete(objectId, newIdMapping) {
-    // Remove the object from both X and Y trees
-    this.removeNode('x', objectId);
-    this.removeNode('y', objectId);
 
     // Update canvas IDs in both trees
     ['x', 'y'].forEach(direction => {
+      // Remove the object from both X and Y trees
+      this.removeNode(direction, objectId);
       const tree = direction === 'x' ? this.xTree : this.yTree;
 
       // Create a new tree with updated IDs
@@ -423,29 +428,27 @@ class AnchorTree {
       // Process each node in the tree
       Object.keys(tree).forEach(id => {
         const numId = parseInt(id);
-
+        let newId;
         // If the ID needs to be updated (it's greater than the deleted object's ID)
         if (newIdMapping[numId] !== undefined) {
-          const newId = newIdMapping[numId];
-
-          // Copy the node with the new ID
-          updatedTree[newId] = tree[numId];
-          updatedTree[newId].object = tree[numId].object;
-
-          // Update parent references
-          updatedTree[newId].parents = tree[numId].parents.map(parentId =>
-            newIdMapping[parentId] !== undefined ? newIdMapping[parentId] : parentId
-          );
-
-          // Update child references
-          updatedTree[newId].children = tree[numId].children.map(childId =>
-            newIdMapping[childId] !== undefined ? newIdMapping[childId] : childId
-          );
+          newId = newIdMapping[numId];
+        } else {
+          newId = numId;
         }
-        // If the ID is not affected by deletion, just copy it as-is
-        else if (numId < objectId) {
-          updatedTree[numId] = tree[numId];
-        }
+
+        // Copy the node with the new ID
+        updatedTree[newId] = tree[numId];
+        updatedTree[newId].object = tree[numId].object;
+
+        // Update parent references
+        updatedTree[newId].parents = tree[numId].parents.map(parentId =>
+          newIdMapping[parentId] !== undefined ? newIdMapping[parentId] : parentId
+        );
+
+        // Update child references
+        updatedTree[newId].children = tree[numId].children.map(childId =>
+          newIdMapping[childId] !== undefined ? newIdMapping[childId] : childId
+        );
       });
 
       // Replace the old tree with the updated one

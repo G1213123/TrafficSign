@@ -843,38 +843,23 @@ class BaseGroup extends fabric.Group {
         const actualDeltaX = desiredLeft - currentAnchoredObject.left;
         const actualDeltaY = desiredTop - currentAnchoredObject.top;
 
-        if (actualDeltaX !== 0 || actualDeltaY !== 0) {
-          currentAnchoredObject.left = desiredLeft;
-          currentAnchoredObject.top = desiredTop;
+        currentAnchoredObject.left = desiredLeft;
+        currentAnchoredObject.top = desiredTop;
 
-          if (actualDeltaX !== 0) globalAnchorTree.updatedObjectsX.add(currentAnchoredObject.canvasID);
-          if (actualDeltaY !== 0) globalAnchorTree.updatedObjectsY.add(currentAnchoredObject.canvasID);
+        globalAnchorTree.updatedObjectsX.add(currentAnchoredObject.canvasID);
+        globalAnchorTree.updatedObjectsY.add(currentAnchoredObject.canvasID);
 
-          currentAnchoredObject.updateCoord(actualDeltaX, actualDeltaY);
+        canvasTracker.track('modifyObject', [{
+          type: 'BaseGroup',
+          id: currentAnchoredObject.canvasID,
+          functionalType: currentAnchoredObject.functionalType,
+          deltaX: actualDeltaX,
+          deltaY: actualDeltaY,
+          triggeredByAnchor: true
+        }]);
 
-          if (currentAnchoredObject.basePolygon && typeof currentAnchoredObject.basePolygon.getCoords === 'function') {
-            const coords = currentAnchoredObject.basePolygon.getCoords();
-            if (coords && coords.length > 0) {
-              currentAnchoredObject.refTopLeft = { top: coords[0].y, left: coords[0].x };
-            } else {
-              currentAnchoredObject.refTopLeft = { top: currentAnchoredObject.top, left: currentAnchoredObject.left };
-            }
-          } else {
-            currentAnchoredObject.refTopLeft = { top: currentAnchoredObject.top, left: currentAnchoredObject.left };
-          }
-          currentAnchoredObject.setCoords();
+        currentAnchoredObject.updateAllCoord(null, []); // Recursive call
 
-          canvasTracker.track('modifyObject', [{
-            type: 'BaseGroup',
-            id: currentAnchoredObject.canvasID,
-            functionalType: currentAnchoredObject.functionalType,
-            deltaX: actualDeltaX,
-            deltaY: actualDeltaY,
-            triggeredByAnchor: true
-          }]);
-
-          currentAnchoredObject.updateAllCoord(null, []); // Recursive call
-        }
       });
 
       if (startedXCycle && globalAnchorTree.isUpdateStarter('x', this.canvasID)) {
@@ -1032,23 +1017,14 @@ class BaseGroup extends fabric.Group {
 
     // Free border
     if (deleteObj.borderGroup) {
-      if (deleteObj.borderGroup.widthObjects) {
-        const index = deleteObj.borderGroup.widthObjects.indexOf(deleteObj);
-        deleteObj.borderGroup.widthObjects.splice(index, 1);
-      }
-      if (deleteObj.borderGroup.heightObjects) {
-        const index = deleteObj.borderGroup.heightObjects.indexOf(deleteObj);
-        deleteObj.borderGroup.heightObjects.splice(index, 1);
-      }
-      if (deleteObj.borderGroup.HDivider) {
-        const index = deleteObj.borderGroup.HDivider.indexOf(deleteObj);
-        deleteObj.borderGroup.HDivider.splice(index, 1);
-      }
-      if (deleteObj.borderGroup.VDivider) {
-        const index = deleteObj.borderGroup.VDivider.indexOf(deleteObj);
-        deleteObj.borderGroup.VDivider.splice(index, 1);
-      }
-      deleteObj.borderResize()
+      ['widthObjects', 'heightObjects', 'HDivider', 'VDivider'].forEach(prop => {
+        const arr = deleteObj.borderGroup[prop];
+        if (Array.isArray(arr)) {
+          const idx = arr.indexOf(deleteObj);
+          if (idx > -1) arr.splice(idx, 1);
+        }
+      });
+      deleteObj.borderResize();
     }
 
     // If this is a borderGroup
