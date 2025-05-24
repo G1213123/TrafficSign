@@ -4,7 +4,7 @@
 
 import { BaseGroup } from './draw.js';
 import {textWidthMedium, textWidthHeavy,} from './template.js';
-import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontKai } from './path.js';
+import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontKorean, parsedFontKai } from './path.js';
 import { GeneralSettings } from '../sidebar/sbGeneral.js';
 import { FormTextAddComponent } from '../sidebar/sb-text.js';
 
@@ -173,6 +173,7 @@ class TextObject extends BaseGroup {
 
       // Get the appropriate font - use pre-parsed fonts instead of parsing each time
       let fontGlyphs;
+      let supplementalFont;
       if (fontFamily === 'TransportMedium' && !containsNonAlphabetic) {
         fontGlyphs = parsedFontMedium;
       } else if (fontFamily === 'TransportHeavy' && !containsNonAlphabetic) {
@@ -180,7 +181,7 @@ class TextObject extends BaseGroup {
       } else if (textChar === '、') {
         fontGlyphs = parsedFontKai;
       } else {
-        fontGlyphs = parsedFontChinese ;
+        fontGlyphs = parsedFontChinese;
       }
 
       // Access font metrics

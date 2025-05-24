@@ -4,12 +4,13 @@
  * draw.js and symbols.js files.
  */
 
-  // Store parsed fonts (assuming opentype.js objects)
-  let parsedFontMedium = null;
-  let parsedFontHeavy = null;
-  let parsedFontChinese = null;
-  let parsedFontKai = null;
-  let fontParsingPromise = null; // To store the promise
+// Store parsed fonts (assuming opentype.js objects)
+let parsedFontMedium = null;
+let parsedFontHeavy = null;
+let parsedFontKorean = null; // Korean font has closer appearance to the true sign fonts
+let parsedFontChinese = null; // Chinese font for supplement for special characters
+let parsedFontKai = null;
+let fontParsingPromise = null; // To store the promise
 
 /**
  * Calculate transformed points based on position and rotation
@@ -81,27 +82,27 @@ function calculateTangentPoint(point, center, offsetDistance) {
  */
 function calculateBoundingBox(vertices) {
   if (!vertices || vertices.length === 0) {
-      return { left: 0, top: 0, width: 0, height: 0 };
+    return { left: 0, top: 0, width: 0, height: 0 };
   }
-  
+
   let minX = Infinity;
   let minY = Infinity;
   let maxX = -Infinity;
   let maxY = -Infinity;
-  
+
   // Find min and max coordinates
   vertices.forEach(vertex => {
-      minX = Math.min(minX, vertex.x);
-      minY = Math.min(minY, vertex.y);
-      maxX = Math.max(maxX, vertex.x);
-      maxY = Math.max(maxY, vertex.y);
+    minX = Math.min(minX, vertex.x);
+    minY = Math.min(minY, vertex.y);
+    maxX = Math.max(maxX, vertex.x);
+    maxY = Math.max(maxY, vertex.y);
   });
-  
+
   return {
-      left: minX,
-      top: minY,
-      width: maxX - minX,
-      height: maxY - minY
+    left: minX,
+    top: minY,
+    width: maxX - minX,
+    height: maxY - minY
   };
 }
 
@@ -499,6 +500,16 @@ function parseFont() {
         }
       }).catch(e => { console.error("Error fetching/parsing NotoSansHK-Medium:", e); throw e; }),
 
+    fetch('https://fonts.gstatic.com/s/notosanskr/v36/PbyxFmXiEBPT4ITbgNA5Cgms3VYcOA-vvnIzztgyeLTq8H4hfeE.ttf')
+      .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
+      .then(buffer => {
+        if (typeof opentype !== 'undefined') {
+          parsedFontKorean = opentype.parse(buffer);
+        } else {
+          throw new Error("opentype.js not loaded. Cannot parse NotoSansKR-Medium font.");
+        }
+      }).catch(e => { console.error("Error fetching/parsing NotoSansKR-Medium:", e); throw e; }),
+
     fetch('./css/font/TW-MOE-Std-Kai-compact.ttf')
       .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
       .then(buffer => {
@@ -530,6 +541,7 @@ function parseFont() {
 function getFontPath(t) {
 
   let font = null;
+  let supplementFont = parsedFontChinese; // Default to Chinese font for special characters
 
   // Select the appropriate pre-parsed font object
   switch (t.fontFamily) {
@@ -543,7 +555,7 @@ function getFontPath(t) {
       font = parsedFontKai;
       break;
     default: // Default to NotoSansHK-Medium or whatever your intended default is
-      font = parsedFontChinese;
+      font = parsedFontKorean;
       break;
   }
 
@@ -552,11 +564,21 @@ function getFontPath(t) {
     console.error(`Font "${t.fontFamily || 'Default'}" not loaded or parsed. Make sure parseFont() was called and completed successfully.`);
     return null; // Return null if the font isn't available
   }
-
   // Check if opentype.js is available and the font object has getPath
   if (typeof opentype === 'undefined' || typeof font.getPath !== 'function') {
-      console.error("opentype.js not loaded or font object is invalid.");
-      return null;
+    console.error("opentype.js not loaded or font object is invalid.");
+    return null;
+  }
+
+  // Check if the character glyph exists in the primary font
+  let fontToUse = font;
+  if (font.charToGlyph && font.charToGlyph(t.character).index === 0) {
+ // Check if supplement font is available and has the character
+    if (supplementFont && typeof supplementFont.getPath === 'function') {
+      fontToUse = supplementFont;
+    } else {
+      console.warn("Supplement font not available, using primary font anyway.");
+    }
   }
 
   // Generate and return the path object using opentype.js getPath method
@@ -564,7 +586,7 @@ function getFontPath(t) {
     // Note: opentype.js getPath usually takes (text, x, y, fontSize, options)
     // Adjust parameters as needed based on your opentype.js version and usage.
     // The x, y here are baseline coordinates.
-    return font.getPath(t.character, t.x, t.y, t.fontSize);
+    return fontToUse.getPath(t.character, t.x, t.y, t.fontSize);
   } catch (error) {
     console.error(`Error getting path for character "${t.character}" with font ${t.fontFamily}:`, error);
     return null; // Return null on error
@@ -726,5 +748,6 @@ export {
   parsedFontMedium,
   parsedFontHeavy,
   parsedFontChinese,
+  parsedFontKorean,
   parsedFontKai,
 };
