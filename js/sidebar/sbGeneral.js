@@ -240,18 +240,39 @@ let GeneralHandler = {
     // Use provided defaults or fall back to GeneralSettings
     const xHeight = defaultXHeight !== null ? defaultXHeight : GeneralSettings.xHeight;
     const color = defaultColor !== null ? defaultColor : GeneralSettings.messageColor;
-      // Create xHeight input with universal handler and unit (mm)
+    
+    // Create wrapper function for xHeight that calls both handlers
+    const xHeightHandler = function(event) {
+      // Always call the universal handler first
+      GeneralHandler.handleXHeightChange(event);
+      // Then call the provided callback if it exists
+      if (xHeightCallback) {
+        xHeightCallback(event);
+      }
+    };
+    
+    // Create wrapper function for color that calls both handlers  
+    const colorHandler = function(event) {
+      // Always call the universal handler first
+      GeneralHandler.handleColorChange(event);
+      // Then call the provided callback if it exists
+      if (colorCallback) {
+        colorCallback(event);
+      }
+    };
+    
+    // Create xHeight input with combined handler and unit (mm)
     const xHeightInput = GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 
-      xHeight, xHeightCallback || GeneralHandler.handleXHeightChange, 'input', 'mm');
+      xHeight, xHeightHandler, 'input', 'mm');
       
-    // Create color toggle with universal handler
+    // Create color toggle with combined handler
     GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, color, 
-      colorCallback || GeneralHandler.handleColorChange);
+      colorHandler);
 
-            // Add debounced event listener for real-time updates on xHeight input
-      xHeightInput.addEventListener('input', GeneralHandler.debounce(function (e) {
-        // The handleXHeightChange function will update GeneralSettings
-      }, 300));
+    // Add debounced event listener for real-time updates on xHeight input
+    xHeightInput.addEventListener('input', GeneralHandler.debounce(function (e) {
+      // The handleXHeightChange function will update GeneralSettings
+    }, 300));
       
     return basicParamsContainer;
   },

@@ -202,15 +202,15 @@ let FormTextAddComponent = {
   /**
    * Live update text as the user types or changes parameters
    */
-  liveUpdateText: function () {
+  liveUpdateText: function (event) {
+    const newXHeight = parseInt(document.getElementById('input-xHeight').value);
+    const newFont = document.getElementById('Text Font-container').selected.getAttribute('data-value');
+    const newColor = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
+
     // Make sure we're not in placement mode
     if (FormTextAddComponent.newTextObject) {
       // If in placement mode, update the new object being placed
       let newText = document.getElementById('input-text').value;
-      const newXHeight = parseInt(document.getElementById('input-xHeight').value);
-      const newFont = document.getElementById('Text Font-container').selected.getAttribute('data-value');
-      const newColor = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
-
       // Check if we're in 2Liner mode
       const isTwoLiner = FormTextAddComponent.textLineInput === 2;
       const justification = FormTextAddComponent.justification || 'Left';
@@ -359,9 +359,6 @@ let FormTextAddComponent = {
     if (!textObj || textObj.functionalType !== 'Text') return;
     let newText = document.getElementById('input-text').value;
     if (!newText || newText.trim() === '') newText = textObj.text; // Don't create empty text
-    const newXHeight = parseInt(document.getElementById('input-xHeight').value);
-    const newFont = document.getElementById('Text Font-container').selected.getAttribute('data-value');
-    const newColor = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
 
     // Check if this is part of a two-liner set
     const isTwoLiner = textObj.anchoredPolygon && textObj.anchoredPolygon.length > 0;
