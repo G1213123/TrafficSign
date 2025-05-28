@@ -4,6 +4,8 @@
  * draw.js and symbols.js files.
  */
 
+import { FontPriorityManager } from '../modal/md-font.js';
+
 // Store parsed fonts (assuming opentype.js objects)
 let parsedFontMedium = null;
 let parsedFontHeavy = null;
@@ -541,7 +543,6 @@ function parseFont() {
 function getFontPath(t) {
 
   let font = null;
-  let supplementFont = parsedFontChinese; // Default to Chinese font for special characters
 
   // Select the appropriate pre-parsed font object
   switch (t.fontFamily) {
@@ -567,18 +568,120 @@ function getFontPath(t) {
   // Check if opentype.js is available and the font object has getPath
   if (typeof opentype === 'undefined' || typeof font.getPath !== 'function') {
     console.error("opentype.js not loaded or font object is invalid.");
-    return null;
+    return null;  }  // Define font priority list for fallback
+  let fontPriorityList = [];
+    // Get special characters for override from FontPriorityManager
+  const getSpecialGlyphArray = () => {
+      return FontPriorityManager.getSpecialCharactersArray();
+  };
+  // Get override font from FontPriorityManager
+  const getOverrideFont = () => {
+    try {
+      const overrideFontName = FontPriorityManager.getOverrideFont();
+      
+      // Check for built-in parsed fonts first
+      switch(overrideFontName) {
+        case 'parsedFontChinese': return parsedFontChinese;
+        case 'parsedFontKorean': return parsedFontKorean;
+        case 'parsedFontMedium': return parsedFontMedium;
+        case 'parsedFontHeavy': return parsedFontHeavy;
+        case 'parsedFontKai': return parsedFontKai;
+        default:
+          // Check for custom fonts in window object
+          return window[overrideFontName] || null;
+      }
+    } catch (error) {
+      console.warn('Could not get override font from FontPriorityManager:', error);
+      // Fallback to Chinese font
+      return parsedFontChinese;
+    }
+  };
+    // Get user-configured font priority list
+  const getUserFontPriority = () => {
+    try {
+      // Try to get from FontPriorityManager
+      const priorityNames = FontPriorityManager.getFontPriorityList();
+      return priorityNames.map(name => {
+        switch(name) {
+          case 'parsedFontChinese': return parsedFontChinese;
+          case 'parsedFontKorean': return parsedFontKorean;
+          case 'parsedFontKai': return parsedFontKai;
+          default:
+            // Handle custom fonts
+            return window[name] || null;
+        }
+      }).filter(f => f !== null);
+    } catch (e) {
+      console.warn('Failed to load font priority from FontPriorityManager, falling back to localStorage');
+      
+      // Fallback to localStorage
+      try {
+        const stored = localStorage.getItem('fontPriorityList');
+        if (stored) {
+          const priorityNames = JSON.parse(stored);
+          return priorityNames.map(name => {
+            switch(name) {
+              case 'parsedFontChinese': return parsedFontChinese;
+              case 'parsedFontKorean': return parsedFontKorean;
+              case 'parsedFontKai': return parsedFontKai;
+              default:
+                // Handle custom fonts
+                return window[name] || null;
+            }
+          }).filter(f => f !== null);
+        }
+      } catch (storageError) {
+        console.warn('Failed to load font priority from localStorage as well');
+      }
+    }
+    // Default fallback
+    return [parsedFontChinese, parsedFontKorean];
+  };
+  
+  // For Chinese/Korean text, use user priority list, otherwise use selected font
+  if (font === parsedFontKorean || t.fontFamily === 'TW-MOE-Std-Kai') {
+    fontPriorityList = getUserFontPriority();
+  } else {
+    fontPriorityList = [font]; // For other fonts, just use the selected font
   }
-
-  // Check if the character glyph exists in the primary font
-  let fontToUse = font;
-  const specialGlyph = ['朗', '彩', '天', '愉', '輸', '勝', '都']
-  if (font.charToGlyph(t.character).index === 0 || specialGlyph.includes(t.character)) {
- // Check if supplement font is available and has the character
-    if (supplementFont && typeof supplementFont.getPath === 'function') {
-      fontToUse = supplementFont;
+  
+  let fontToUse = null;
+    // Try fonts in priority order
+  for (let priorityFont of fontPriorityList) {
+    if (!priorityFont || typeof priorityFont.getPath !== 'function') {
+      continue; // Skip if font not available
+    }
+    
+    // Get current special characters from FontPriorityManager
+    const specialGlyph = getSpecialGlyphArray();
+    
+    // Check if character should use override font
+    if (specialGlyph.includes(t.character)) {
+      const overrideFont = getOverrideFont();
+      if (overrideFont && typeof overrideFont.getPath === 'function') {
+        fontToUse = overrideFont;
+        break;
+      }
+    }
+    
+    // Apply fallback criteria for regular fonts
+    const glyph = priorityFont.charToGlyph(t.character);
+    if (glyph.index === 0) {
+      continue; // Try next font in priority list
+    }
+    
+    // Found suitable font
+    fontToUse = priorityFont;
+    break;
+  }
+  
+  // If no font worked, fall back to original font or supplementFont
+  if (!fontToUse) {
+    if (parsedFontChinese && typeof parsedFontChinese.getPath === 'function') {
+      fontToUse = parsedFontChinese;
     } else {
-      console.warn("Supplement font not available, using primary font anyway.");
+      fontToUse = font;
+      console.warn("No suitable font found, using primary font anyway.");
     }
   }
 

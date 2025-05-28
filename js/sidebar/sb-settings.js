@@ -4,6 +4,7 @@ import { CanvasGlobals, DrawGrid } from '../canvas/canvas.js';
 import { runTests, testToRun } from '../tests/test.js';
 import { FormExportComponent } from './sb-export.js';
 import { buildObjectsFromJSON } from '../objects/build.js';
+import { FontPriorityManager } from '../modal/md-font.js';
 
 // Define shortcuts in a constant object
 const KEYBOARD_SHORTCUTS = {
@@ -417,10 +418,17 @@ let FormSettingsComponent = {
       console.error('Failed to load settings', e);
     }
   },
-
   resetSettings: function () {
     // Default settings
     GeneralSettings.resetSetting();
+
+    // Reset font manager settings
+    try {
+      FontPriorityManager.resetToDefaults();
+      console.log('Font manager settings reset successfully');
+    } catch (error) {
+      console.error('Error resetting font manager settings:', error);
+    }
 
     // Apply all settings
     FormSettingsComponent.applyAllSettings();

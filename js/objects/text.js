@@ -163,7 +163,7 @@ class TextObject extends BaseGroup {
       fontFamily: font,
       fontSize: xHeight * 1.88,
       charWidth: charWidth,
-      bracketOffset: ['(', ')'].includes(textChar) ? 0.2 : 0,
+      bracketOffset: ['(', ')'].includes(textChar) ? 0.15 : 0,
       leftOffset: 0,
       topOffset: 0.1 * xHeight,
       frameWidth: charWidth * xHeight / 100 - 2,
@@ -203,12 +203,12 @@ class TextObject extends BaseGroup {
       fontFamily: fontFamily,
       fontSize: xHeight * 1.88,
       charWidth: charWidth,
-      bracketOffset: 0,
+      bracketOffset: ['(', ')'].includes(textChar) ? -0.3125 : 0,
       leftOffset: 0.25 * xHeight,
       topOffset: 0.2 * xHeight,
-      frameWidth: charWidth * xHeight / 100 + 0.25 * xHeight,
+      frameWidth: charWidth * xHeight / 100 + 0.5 * xHeight - 2,
       frameHeight: 2.85 * xHeight - 2,
-      advanceWidth: charWidth * xHeight / 100 + 0.25 * xHeight
+      advanceWidth: charWidth * xHeight / 100 + 0.5 * xHeight
     };
   }
 
@@ -225,11 +225,11 @@ class TextObject extends BaseGroup {
       fontSize: xHeight * 1.88 * 1.375,
       charWidth: charWidth * xHeight,
       bracketOffset: 0,
-      leftOffset:  (this._containsNonEnglishCharacters(previousChar || '') ? 0.25 * xHeight : 0),
+      leftOffset: (this._containsNonEnglishCharacters(previousChar || '') ? 0.25 * xHeight : 0),
       topOffset: 0.1 * xHeight,
       frameWidth: charWidth - 2 + (this._containsNonEnglishCharacters(previousChar || '') ? 0.25 * xHeight : 0),
       frameHeight: 2.85 * xHeight - 2,
-      advanceWidth: charWidth - 2 + (this._containsNonEnglishCharacters(previousChar || '') ? 0.25 * xHeight : 0)
+      advanceWidth: charWidth + (this._containsNonEnglishCharacters(previousChar || '') ? 0.25 * xHeight : 0)
     };
   }
 
@@ -343,9 +343,9 @@ class TextObject extends BaseGroup {
    * Helper function to get appropriate font glyphs
    */
   static _getFontGlyphs(fontFamily, textChar, containsNonAlphabetic) {
-    if (fontFamily === 'TransportMedium' ) {
+    if (fontFamily === 'TransportMedium') {
       return parsedFontMedium;
-    } else if (fontFamily === 'TransportHeavy' ) {
+    } else if (fontFamily === 'TransportHeavy') {
       return parsedFontHeavy;
     } else if (textChar === '、') {
       return parsedFontKai;

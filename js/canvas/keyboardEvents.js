@@ -40,8 +40,13 @@ function handleArrowKeys(event) {
           obj.left += 1;
           moved = true;
         }
-        break;
-      case 'Delete':
+        break;      case 'Delete':
+        // Check if user is currently inputting something - if so, don't delete objects
+        if (document.activeElement.tagName === 'INPUT' || 
+            document.activeElement.tagName === 'TEXTAREA') {
+          return; // Exit early if user is typing in an input field
+        }
+        
         if (obj.deleteObject) {
           CanvasGlobals.canvas.discardActiveObject(obj)
           CanvasGlobals.canvas.fire('object:deselected', { target: obj });

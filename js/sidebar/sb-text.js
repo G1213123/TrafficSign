@@ -4,6 +4,7 @@ import { CanvasGlobals } from '../canvas/canvas.js';
 import { TextObject } from '../objects/text.js';
 import { anchorShape } from '../objects/anchor.js';
 import { EngDestinations, ChtDestinations } from '../objects/template.js';
+import { FontPriorityManager } from '../modal/md-font.js';
 
 let FormTextAddComponent = {
   textFont: ['TransportMedium', 'TransportHeavy'],
@@ -54,8 +55,10 @@ let FormTextAddComponent = {
       const textInput = GeneralHandler.createInput('input-text', 'Add Text', textContentContainer, '', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler, 'input');
       // Add the info text div for 2Liner mode
       const twoLinerInfo = GeneralHandler.createNode("div", { 'id': 'two-liner-info', 'class': 'info-text', 'style': 'display: none;' }, textContentContainer);
-      twoLinerInfo.textContent = "Text input is disabled in 2Liner mode. Select a destination below.";
-      const fontToggle = GeneralHandler.createToggle('Text Font', FormTextAddComponent.textFont, textContentContainer, 'TransportMedium', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler);
+      twoLinerInfo.textContent = "Text input is disabled in 2Liner mode. Select a destination below.";      const fontToggle = GeneralHandler.createToggle('Text Font', FormTextAddComponent.textFont, textContentContainer, 'TransportMedium', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler);
+      
+      // Add font priority management button for Chinese fonts
+      const fontPriorityButton = GeneralHandler.createButton('font-priority-btn', 'Chinese Font Setting', textContentContainer, 'input', FontPriorityManager.showModal, 'click');
 
       // Create a container for location selection
       const locationContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
