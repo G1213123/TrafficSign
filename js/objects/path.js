@@ -572,7 +572,8 @@ function getFontPath(t) {
 
   // Check if the character glyph exists in the primary font
   let fontToUse = font;
-  if (font.charToGlyph && font.charToGlyph(t.character).index === 0) {
+  const specialGlyph = ['朗', '彩', '天', '愉', '輸', '勝', '都']
+  if (font.charToGlyph(t.character).index === 0 || specialGlyph.includes(t.character)) {
  // Check if supplement font is available and has the character
     if (supplementFont && typeof supplementFont.getPath === 'function') {
       fontToUse = supplementFont;
