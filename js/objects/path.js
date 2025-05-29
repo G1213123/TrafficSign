@@ -555,8 +555,14 @@ function getFontPath(t) {
     case 'TW-MOE-Std-Kai':
       font = parsedFontKai;
       break;
-    default: // Default to NotoSansHK-Medium or whatever your intended default is
+    case 'parsedFontChinese': // Fallback to Chinese font for special characters
+      font = parsedFontChinese;
+      break;
+    case 'parsedFontKorean': // Fallback to Korean font for special characters
       font = parsedFontKorean;
+      break;
+    default: // Default to NotoSansHK-Medium or whatever your intended default is
+      font = window[t.fontFamily] || parsedFontKorean; // Fallback to Chinese font if not found
       break;
   }
 
@@ -567,35 +573,8 @@ function getFontPath(t) {
   }
   // Check if opentype.js is available and the font object has getPath
   if (typeof opentype === 'undefined' || typeof font.getPath !== 'function') {
-    console.error("opentype.js not loaded or font object is invalid.");
-    return null;  }  // Define font priority list for fallback
+    console.error("opentype.js not loaded or font object is invalid.");    return null;  }  // Define font priority list for fallback
   let fontPriorityList = [];
-    // Get special characters for override from FontPriorityManager
-  const getSpecialGlyphArray = () => {
-      return FontPriorityManager.getSpecialCharactersArray();
-  };
-  // Get override font from FontPriorityManager
-  const getOverrideFont = () => {
-    try {
-      const overrideFontName = FontPriorityManager.getOverrideFont();
-      
-      // Check for built-in parsed fonts first
-      switch(overrideFontName) {
-        case 'parsedFontChinese': return parsedFontChinese;
-        case 'parsedFontKorean': return parsedFontKorean;
-        case 'parsedFontMedium': return parsedFontMedium;
-        case 'parsedFontHeavy': return parsedFontHeavy;
-        case 'parsedFontKai': return parsedFontKai;
-        default:
-          // Check for custom fonts in window object
-          return window[overrideFontName] || null;
-      }
-    } catch (error) {
-      console.warn('Could not get override font from FontPriorityManager:', error);
-      // Fallback to Chinese font
-      return parsedFontChinese;
-    }
-  };
     // Get user-configured font priority list
   const getUserFontPriority = () => {
     try {
@@ -605,7 +584,6 @@ function getFontPath(t) {
         switch(name) {
           case 'parsedFontChinese': return parsedFontChinese;
           case 'parsedFontKorean': return parsedFontKorean;
-          case 'parsedFontKai': return parsedFontKai;
           default:
             // Handle custom fonts
             return window[name] || null;
@@ -623,7 +601,6 @@ function getFontPath(t) {
             switch(name) {
               case 'parsedFontChinese': return parsedFontChinese;
               case 'parsedFontKorean': return parsedFontKorean;
-              case 'parsedFontKai': return parsedFontKai;
               default:
                 // Handle custom fonts
                 return window[name] || null;
@@ -637,64 +614,54 @@ function getFontPath(t) {
     // Default fallback
     return [parsedFontChinese, parsedFontKorean];
   };
-  
-  // For Chinese/Korean text, use user priority list, otherwise use selected font
-  if (font === parsedFontKorean || t.fontFamily === 'TW-MOE-Std-Kai') {
-    fontPriorityList = getUserFontPriority();
-  } else {
-    fontPriorityList = [font]; // For other fonts, just use the selected font
-  }
-  
-  let fontToUse = null;
-    // Try fonts in priority order
-  for (let priorityFont of fontPriorityList) {
-    if (!priorityFont || typeof priorityFont.getPath !== 'function') {
-      continue; // Skip if font not available
-    }
-    
-    // Get current special characters from FontPriorityManager
-    const specialGlyph = getSpecialGlyphArray();
-    
-    // Check if character should use override font
-    if (specialGlyph.includes(t.character)) {
-      const overrideFont = getOverrideFont();
-      if (overrideFont && typeof overrideFont.getPath === 'function') {
-        fontToUse = overrideFont;
-        break;
-      }
-    }
-    
-    // Apply fallback criteria for regular fonts
-    const glyph = priorityFont.charToGlyph(t.character);
-    if (glyph.index === 0) {
-      continue; // Try next font in priority list
-    }
-    
-    // Found suitable font
-    fontToUse = priorityFont;
-    break;
-  }
-  
-  // If no font worked, fall back to original font or supplementFont
-  if (!fontToUse) {
-    if (parsedFontChinese && typeof parsedFontChinese.getPath === 'function') {
-      fontToUse = parsedFontChinese;
-    } else {
-      fontToUse = font;
-      console.warn("No suitable font found, using primary font anyway.");
-    }
-  }
-
-  // Generate and return the path object using opentype.js getPath method
+    // Generate and return the path object using opentype.js getPath method
   try {
-    // Note: opentype.js getPath usually takes (text, x, y, fontSize, options)
-    // Adjust parameters as needed based on your opentype.js version and usage.
-    // The x, y here are baseline coordinates.
-    return fontToUse.getPath(t.character, t.x, t.y, t.fontSize);
+    // Helper function to check if character exists in font
+    const hasCharacter = (font, character) => {
+      if (!font) return false;
+      
+      // Method 1: Check using charToGlyph
+      if (font.charToGlyph) {
+        const glyph = font.charToGlyph(character);
+        if (glyph && glyph.unicode !== undefined && glyph.unicode !== 0) {
+          return true;
+        }
+      }
+      
+      // Method 2: Check using stringToGlyphs
+      if (font.stringToGlyphs) {
+        const glyphs = font.stringToGlyphs(character);
+        if (glyphs && glyphs.length > 0 && glyphs[0].unicode !== undefined && glyphs[0].unicode !== 0) {
+          return true;
+        }
+      }
+      
+      return false;
+    };
+
+    // First, check if the character exists in the current font
+    if (hasCharacter(font, t.character)) {
+      // Character exists in current font, use it
+      return font.getPath(t.character, t.x, t.y, t.fontSize);
+    } else {
+      // Character not found in current font, try font priority list
+      console.warn(`Character "${t.character}" not found in font ${t.fontFamily}, trying fallback fonts...`);
+      
+      const fallbackFonts = getUserFontPriority();
+      for (const fallbackFont of fallbackFonts) {
+        if (hasCharacter(fallbackFont, t.character)) {
+          console.log(`Found character "${t.character}" in fallback font`);
+          return fallbackFont.getPath(t.character, t.x, t.y, t.fontSize);
+        }
+      }
+      
+      // If character not found in any font, try with the original font anyway (might render as missing character box)
+      console.warn(`Character "${t.character}" not found in any available font, using original font`);
+      return font.getPath(t.character, t.x, t.y, t.fontSize);
+    }
   } catch (error) {
     console.error(`Error getting path for character "${t.character}" with font ${t.fontFamily}:`, error);
     return null; // Return null on error
-
   }
 }
 

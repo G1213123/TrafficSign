@@ -3,6 +3,8 @@
  * This module handles the Chinese font priority management functionality
  */
 
+import { ModalUtils } from './mdGeneral.js';
+
 const FontPriorityManager = {
   fontPriorityList: ['parsedFontKorean', 'parsedFontChinese'], // Default priority
 
@@ -17,34 +19,11 @@ const FontPriorityManager = {
    * Show the font priority management modal
    */
   showModal: function () {
-    // Remove existing modal if any
-    let existingModal = document.getElementById('font-priority-modal');
-    if (existingModal) {
-      existingModal.remove();
-    }
-
-    // Create modal container
-    const modal = document.createElement('div');
-    modal.id = 'font-priority-modal';
-
-    // Create modal content box
-    const modalContent = document.createElement('div');
-    modalContent.className = 'modal-content';
-
-    // Modal Title
-    const title = document.createElement('h3');
-    title.textContent = 'Chinese Font Priority Management';
-
-    // Close button
-    const closeButton = document.createElement('button');
-    closeButton.textContent = '×';
-    closeButton.className = 'close-button';
-    closeButton.onclick = () => modal.remove();
+    const modalId = 'font-priority-modal';
+    const { modal, modalContent } = ModalUtils.createModal(modalId, 'Chinese Font Priority Management');
 
     // Info text
-    const infoText = document.createElement('p');
-    infoText.textContent = 'Fonts are tried in order from top to bottom.';
-    infoText.className = 'info-text';
+    const infoText = ModalUtils.createInfoText('Fonts are tried in order from top to bottom.');
 
     // Font list container
     const fontListContainer = document.createElement('div');
@@ -55,8 +34,7 @@ const FontPriorityManager = {
     FontPriorityManager.updateFontListDisplay(fontListContainer);
 
     // Upload font section
-    const uploadSection = document.createElement('div');
-    uploadSection.className = 'upload-section';
+    const uploadSection = ModalUtils.createSection('upload-section');
 
     const uploadTitle = document.createElement('h4');
     uploadTitle.textContent = 'Upload Custom Font';
@@ -66,23 +44,18 @@ const FontPriorityManager = {
     uploadInput.className = 'font-upload-input';
     uploadInput.onchange = FontPriorityManager.handleFontUpload;
 
-    const uploadButton = document.createElement('button');
-    uploadButton.textContent = 'Choose Font File';
-    uploadButton.className = 'upload-button';
-    uploadButton.onclick = () => uploadInput.click();
+    const uploadButton = ModalUtils.createButton('Choose Font File', 'upload-button', () => uploadInput.click());
 
     uploadSection.appendChild(uploadTitle);
     uploadSection.appendChild(uploadButton);
     uploadSection.appendChild(uploadInput);
 
     // Character Override section
-    const overrideSection = document.createElement('div');
-    overrideSection.className = 'upload-section';
+    const overrideSection = ModalUtils.createSection('upload-section');
 
     const overrideTitle = document.createElement('h4');
-    overrideTitle.textContent = 'Character Override Settings'; const overrideInfo = document.createElement('p');
-    overrideInfo.textContent = 'Specify characters that should use a specific font. Enter characters directly without spaces or commas.';
-    overrideInfo.className = 'info-text';
+    overrideTitle.textContent = 'Character Override Settings';
+    const overrideInfo = ModalUtils.createInfoText('Specify characters that should use a specific font. Enter characters directly without spaces or commas.');
 
     const overrideContainer = document.createElement('div');
     overrideContainer.className = 'override-container';
@@ -95,9 +68,7 @@ const FontPriorityManager = {
     const fontSelect = document.createElement('select');
     fontSelect.className = 'font-select';
     fontSelect.id = 'override-font-select';
-    FontPriorityManager.populateFontSelect(fontSelect);
-
-    // Character input
+    FontPriorityManager.populateFontSelect(fontSelect);    // Character input
     const charInputLabel = document.createElement('label');
     charInputLabel.textContent = 'Characters:';
     charInputLabel.className = 'override-label';
@@ -116,13 +87,8 @@ const FontPriorityManager = {
     overrideSection.appendChild(overrideInfo);
     overrideSection.appendChild(overrideContainer);
 
-    // Buttons container
-    const buttonsContainer = document.createElement('div');
-    buttonsContainer.className = 'buttons-container';
-    const applyButton = document.createElement('button');
-    applyButton.textContent = 'Apply Changes';
-    applyButton.className = 'apply-button';
-    applyButton.onclick = () => {
+    // Create apply button using ModalUtils
+    const applyButton = ModalUtils.createButton('Apply Changes', 'apply-button', () => {
       // Save character override settings
       const fontSelect = document.getElementById('override-font-select');
       const charInput = document.getElementById('override-char-input');
@@ -135,23 +101,21 @@ const FontPriorityManager = {
 
       // Apply other changes and close modal
       FontPriorityManager.applyChanges();
-      modal.remove();
-    };
+      ModalUtils.removeModal('font-priority-modal');
+    });
 
-    buttonsContainer.appendChild(applyButton);
+    // Create buttons container using ModalUtils
+    const buttonsContainer = ModalUtils.createButtonsContainer([applyButton]);
 
     // Assemble modal
-    modalContent.appendChild(closeButton);
-    modalContent.appendChild(title);
     modalContent.appendChild(infoText);
     modalContent.appendChild(fontListContainer);
     modalContent.appendChild(uploadSection);
     modalContent.appendChild(overrideSection);
     modalContent.appendChild(buttonsContainer);
-    modal.appendChild(modalContent);
 
-    // Append modal to body
-    document.body.appendChild(modal);  },
+    // Show modal
+    ModalUtils.showModal(modal);},
 
   /**
    * Update the font list display in the modal
@@ -288,12 +252,11 @@ const FontPriorityManager = {
         window[customFontName] = font;
 
         // Add to priority list
-        FontPriorityManager.fontPriorityList.push(customFontName);
+        FontPriorityManager.fontPriorityList.unshift(customFontName);
 
         // Update display
         FontPriorityManager.updateFontListDisplay(document.getElementById('font-list-container'));
 
-        alert(`Font "${file.name}" uploaded successfully!`);
       } catch (error) {
         console.error('Error parsing font:', error);
         alert('Failed to parse font file. Please ensure it\'s a valid font file.');
@@ -324,7 +287,6 @@ const FontPriorityManager = {
     FontPriorityManager.saveFontPriorityToStorage();
 
     console.log('Font priority updated:', FontPriorityManager.fontPriorityList);
-    alert('Font priority changes applied successfully!');
   },
 
   /**
@@ -439,8 +401,8 @@ const FontPriorityManager = {
       
       // Clear character override settings
       localStorage.removeItem('characterOverrideFont');
-      localStorage.removeItem('characterOverrideCharacters');
-      
+      localStorage.setItem('specialCharacters', '彩天輸勝都愉朗 ');
+
       // Remove custom fonts from window object
       Object.keys(window).forEach(key => {
         if (key.startsWith('custom_') && typeof window[key] === 'object' && window[key]?.getPath) {
@@ -458,6 +420,38 @@ const FontPriorityManager = {
       return false;
     }
   },
+  /**
+   * Get all available fonts (built-in + custom) with user-friendly labels
+   * @param {boolean} containsNonEnglish - Whether the text contains non-English characters
+   * @returns {Array} Array of {value, label} objects for font selection
+   */
+  getAllAvailableFonts: function (containsNonEnglish = false) {
+    const fonts = [];
+    
+    if (containsNonEnglish) {
+      // For text with non-English characters, show Chinese/Asian fonts
+      fonts.push({ value: 'parsedFontChinese', label: 'Noto Sans HK' });
+      fonts.push({ value: 'parsedFontKorean', label: 'Noto Sans KR' });
+      
+      // Add custom fonts from fontPriorityList for non-English text
+      FontPriorityManager.fontPriorityList.forEach(fontName => {
+        if (fontName.startsWith('custom_')) {
+          // Check if custom font is still available in window
+          if (window[fontName]) {
+            const label = fontName.replace('custom_', '').replace(/([A-Z])/g, ' $1').trim() || fontName;
+            fonts.push({ value: fontName, label: `${label} (Custom)` });
+          }
+        }
+      });
+    } else {
+      // For English-only text, show standard English fonts
+      fonts.push({ value: 'TransportMedium', label: 'Transport Medium' });
+      fonts.push({ value: 'TransportHeavy', label: 'Transport Heavy' });
+    }
+    
+    return fonts;
+  },
+
 };
 
 // Initialize the font priority system when the module loads

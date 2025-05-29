@@ -2053,7 +2053,6 @@ div.side-panel.close {
   width: 90%;
   max-height: 70vh;
   overflow-y: auto;
-  box-shadow: 0 0 20px rgba(103, 97, 168, 0.4);
   border: 1px solid #444;
   color: white;
   position: relative;

@@ -2,6 +2,7 @@
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { buildObjectsFromJSON } from '../objects/build.js';
+import { ImportManager } from '../modal/md-import.js';
 
 let FormExportComponent = {
   // Export settings for canvas objects
@@ -90,11 +91,9 @@ let FormExportComponent = {
     const importButtonContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent); // Create a new container for import elements, child of the main parent
 
     const importJsonInput = GeneralHandler.createButton('import-json', 'Import JSON file', importButtonContainer, 'input',
-      async () => await FormExportComponent.importCanvasFromJSON(), 'click'); // Changed parent to importButtonContainer
-
-    // New button for importing JSON from text
+      async () => await FormExportComponent.importCanvasFromJSON(), 'click'); // Changed parent to importButtonContainer    // New button for importing JSON from text
     const importJsonTextButton = GeneralHandler.createButton('import-json-text', 'Import JSON text', importButtonContainer, 'input',
-      () => FormExportComponent.showImportJSONTextModal(), 'click');
+      () => ImportManager.showImportJSONTextModal(FormExportComponent.importCanvasFromJSONText), 'click');
 
   },
 
@@ -972,70 +971,6 @@ let FormExportComponent = {
       FormExportComponent.hideLoadingOverlay(); // Hide overlay in all cases
     }
   },
-
-  // New method to show a modal for pasting JSON text
-  showImportJSONTextModal: function () {
-    // Remove existing modal if any
-    let existingModal = document.getElementById('import-json-text-modal');
-    if (existingModal) {
-      existingModal.remove();
-    }
-
-    // Create modal container
-    const modal = document.createElement('div');
-    modal.id = 'import-json-text-modal';
-
-    // Create modal content box
-    const modalContent = document.createElement('div');
-    modalContent.className = 'modal-content'; // Added class for CSS styling
-
-    // Modal Title
-    const title = document.createElement('h3');
-    title.textContent = 'Import JSON from Text';
-
-    // Close button
-    const closeButton = document.createElement('button');
-    closeButton.textContent = '×';
-    closeButton.className = 'close-button'; // Added class for CSS styling
-    closeButton.onclick = () => modal.remove();
-
-    // Textarea
-    const textArea = document.createElement('textarea');
-    textArea.id = 'json-text-area-input';
-    textArea.placeholder = 'Paste your JSON here...';
-
-    // Import button
-    const importButton = document.createElement('button');
-    importButton.textContent = 'Import';
-    importButton.className = 'import-button'; // Added class for CSS styling
-    importButton.onclick = async () => {
-      const jsonText = textArea.value;
-      await FormExportComponent.importCanvasFromJSONText(jsonText);
-      // Modal is removed by importCanvasFromJSONText on success,
-      // but if it fails early or doesn't remove, ensure it's gone.
-      if (document.getElementById('import-json-text-modal')) {
-         // modal.remove(); // Already handled in importCanvasFromJSONText
-      }
-    };
-    
-    // Buttons container for alignment
-    const buttonsContainer = document.createElement('div');
-    buttonsContainer.className = 'buttons-container'; // Added class for CSS styling
-    buttonsContainer.appendChild(importButton);
-
-
-    // Assemble modal
-    modalContent.appendChild(closeButton);
-    modalContent.appendChild(title);
-    modalContent.appendChild(textArea);
-    modalContent.appendChild(buttonsContainer); // Add button container
-    modal.appendChild(modalContent);
-
-    // Append modal to body
-    document.body.appendChild(modal);
-    textArea.focus(); // Focus the textarea
-  },
-
   collectPathObjects: function (obj, pathObjects) {
     // Skip grid objects
     if (obj.id === 'grid') return;

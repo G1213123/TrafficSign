@@ -1,7 +1,7 @@
 /* Text panel component */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
-import { TextObject } from '../objects/text.js';
+import { TextObject, containsNonEnglishCharacters } from '../objects/text.js';
 import { anchorShape } from '../objects/anchor.js';
 import { EngDestinations, ChtDestinations } from '../objects/template.js';
 import { FontPriorityManager } from '../modal/md-font.js';
@@ -204,11 +204,41 @@ let FormTextAddComponent = {
 
   /**
    * Live update text as the user types or changes parameters
-   */
-  liveUpdateText: function (event) {
+   */  liveUpdateText: function (event) {
     const newXHeight = parseInt(document.getElementById('input-xHeight').value);
-    const newFont = document.getElementById('Text Font-container').selected.getAttribute('data-value');
-    const newColor = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
+    let newFont = document.getElementById('Text Font-container').selected.getAttribute('data-value');
+    const newColor = document.getElementById('Message Colour-container').selected.getAttribute('data-value');    // Check if text contains non-English characters and override font if needed
+    const txt = document.getElementById('input-text').value;
+    const containsNonEnglish = containsNonEnglishCharacters(txt);
+    
+    if (containsNonEnglish) {
+      // Get the primary font from FontPriorityManager for Chinese text
+      try {
+        const fontPriorityList = FontPriorityManager.getFontPriorityList();
+        // Use the first font in the priority list for Chinese text
+        const priorityFont = fontPriorityList.length > 0 ? fontPriorityList[0] : 'parsedFontKorean';
+        // Convert font priority names to font family names
+        switch(priorityFont) {
+          case 'parsedFontKorean':
+            newFont = 'TW-MOE-Std-Kai';
+            break;
+          case 'parsedFontChinese':
+            newFont = 'TW-MOE-Std-Kai';
+            break;
+          case 'parsedFontMedium':
+            newFont = 'TransportMedium';
+            break;
+          case 'parsedFontHeavy':
+            newFont = 'TransportHeavy';
+            break;
+          default:
+            newFont = 'TW-MOE-Std-Kai'; // Default for Chinese text
+        }
+      } catch (error) {
+        console.warn('Could not get font from FontPriorityManager, falling back to default Chinese font:', error);
+        newFont = 'TW-MOE-Std-Kai'; // Fallback to default Chinese font
+      }
+    }
 
     // Make sure we're not in placement mode
     if (FormTextAddComponent.newTextObject) {
@@ -452,14 +482,36 @@ let FormTextAddComponent = {
       document.getElementById('input-text').value = '';
     }
   },
-
   TextInputHandler: async function (event, options = null) {
     // Get text and parameters
     const txt = options ? options.text : document.getElementById('input-text').value;
     if (!txt || txt.trim() === '') return; // Don't create empty text
 
     const xHeight = options ? options.xHeight : parseInt(document.getElementById('input-xHeight').value);
-    const font = options ? options.font : document.getElementById('Text Font-container').selected.getAttribute('data-value');
+      // Check if text contains non-English characters
+    const containsNonEnglish = containsNonEnglishCharacters(txt);
+    
+    // Get font - use Chinese font from FontPriorityManager if text contains non-English characters
+    let font;
+    if (options && options.font) {
+      font = options.font;
+    } else if (containsNonEnglish) {
+      // Get the primary font from FontPriorityManager for Chinese text
+      try {
+        const fontPriorityList = FontPriorityManager.getFontPriorityList();
+        // Use the first font in the priority list for Chinese text
+        font = fontPriorityList.length > 0 ? fontPriorityList[0] : 'parsedFontKorean';
+        // Convert font priority names to font family names
+
+      } catch (error) {
+        console.warn('Could not get font from FontPriorityManager, falling back to default Chinese font:', error);
+        font = 'Noto Sans KR'; // Fallback to default Chinese font
+      }
+    } else {
+      // For English text, use the UI toggle value
+      font = document.getElementById('Text Font-container').selected.getAttribute('data-value');
+    }
+    
     const color = options ? options.color : document.getElementById('Message Colour-container').selected.getAttribute('data-value');
 
     // Check if we're using two-liner mode
@@ -599,21 +651,26 @@ let FormTextAddComponent = {
 
     // Legacy options handling - should rarely be used now
   },
-
   EditOnMouseClick: function (event) {
     document.getElementById('input-text').value = '';
     FormTextAddComponent.textPanelInit(null);
+  },
+
+  /**
+   * Initialize the text component settings listener
+   * This should be called after all modules are loaded to avoid circular dependencies
+   */
+  initializeSettingsListener: function() {
+    // Replace the settings listener with the shared implementation
+    GeneralSettings.addListener(
+      GeneralHandler.createSettingsListener(2, function (setting, value) {
+        // Text-specific updates when settings change
+        if (FormTextAddComponent.newTextObject || CanvasGlobals.canvas.getActiveObject()?.functionalType === 'Text') {
+          FormTextAddComponent.liveUpdateText();
+        }
+      })
+    );
   }
 };
-
-// Replace the settings listener with the shared implementation
-GeneralSettings.addListener(
-  GeneralHandler.createSettingsListener(2, function (setting, value) {
-    // Text-specific updates when settings change
-    if (FormTextAddComponent.newTextObject || CanvasGlobals.canvas.getActiveObject()?.functionalType === 'Text') {
-      FormTextAddComponent.liveUpdateText();
-    }
-  })
-);
 
 export { FormTextAddComponent };

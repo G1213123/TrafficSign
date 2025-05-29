@@ -7,6 +7,7 @@ import { textWidthMedium, textWidthHeavy, } from './template.js';
 import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontKorean, parsedFontKai } from './path.js';
 import { GeneralSettings } from '../sidebar/sbGeneral.js';
 import { FormTextAddComponent } from '../sidebar/sb-text.js';
+import { FontPriorityManager } from '../modal/md-font.js';
 
 class TextObject extends BaseGroup {
   constructor(options = {}) {
@@ -16,13 +17,21 @@ class TextObject extends BaseGroup {
     // Store metadata properties
     this.text = options.text || '';
     this.xHeight = options.xHeight || 100;
-    this.font = options.font || 'TransportMedium';
     this.color = options.color || '#ffffff';
     this.left = options.left || 0;
     this.top = options.top || 0;
     this.containsNonAlphabetic = false;
     this.txtCharList = [];
     this.txtFrameList = [];
+    this.containsNonAlphabetic = containsNonEnglishCharacters(this.text);
+
+    // Determine the correct font based on text content and priority system
+    const defaultFont = options.font || 'TransportMedium';
+    const chineseFontFromPriority = this._getChineseFontFromPriority(this.text, defaultFont);
+
+    // Use Chinese font from priority system if text contains non-English characters,
+    // otherwise use the provided font or default
+    this.font = chineseFontFromPriority || defaultFont;
 
     this.initialize();
   }
@@ -118,14 +127,31 @@ class TextObject extends BaseGroup {
       }
     }, 100);
   }
+
+
   /**
-   * Helper function to check if text contains non-English characters
+   * Helper function to get the appropriate font for Chinese/non-English characters
+   * @param {string} text - Text to check
+   * @returns {string} - Font family name to use
    */
-  static _containsNonEnglishCharacters(txt) {
-    return txt.split('').some(char => {
-      // If the character is not in our English width dictionaries, consider it non-English
-      return !textWidthMedium.map(item => item.char).includes(char);
-    });
+  _getChineseFontFromPriority(text, defaultFont = null) {
+    try {
+      // Check if text contains non-English characters
+      if (!containsNonEnglishCharacters(text)) {
+        return null; // Not Chinese text, don't override font
+      }
+
+     if (window[defaultFont]) {
+        return defaultFont; // If a specific font is provided, don't override it
+      } else {
+        const fontPriorityList = FontPriorityManager.getFontPriorityList();
+        const priorityFont = fontPriorityList.length > 0 ? fontPriorityList[0] : 'parsedFontKorean';
+        return priorityFont; // Return the first font from the priority list
+      }
+    } catch (error) {
+      console.warn('Could not get font from FontPriorityManager, falling back to default Chinese font:', error);
+      return defaultFont; // Fallback to default Chinese font
+    }
   }
 
   /**
@@ -139,7 +165,7 @@ class TextObject extends BaseGroup {
     }
 
     if (containsNonAlphabetic) {
-      return this._getNonEnglishCharacterParams(actualChar, xHeight, previousChar);
+      return this._getNonEnglishCharacterParams(actualChar, font, xHeight, previousChar);
     } else {
       return this._getEnglishCharacterParams(textChar, font, xHeight, previousChar);
     }
@@ -171,11 +197,10 @@ class TextObject extends BaseGroup {
       advanceWidth: charWidth * xHeight / 100
     };
   }
-
   /**
    * Helper function for non-English character parameters (Chinese, numbers, punctuation)
    */
-  static _getNonEnglishCharacterParams(actualChar, xHeight, previousChar) {
+  static _getNonEnglishCharacterParams(actualChar, font, xHeight, previousChar) {
     const isKnownPunctuation = textWidthHeavy.map(item => item.char).includes(actualChar);
 
     if (this._isNumber(actualChar)) {
@@ -185,8 +210,8 @@ class TextObject extends BaseGroup {
       // English punctuation in non-English text - use Transport Heavy
       return this._getPunctuationParams(actualChar, xHeight, previousChar);
     } else {
-      // Chinese characters
-      return this._getChineseCharacterParams(actualChar, xHeight);
+      // Chinese characters - pass the font parameter
+      return this._getChineseCharacterParams(actualChar, font, xHeight);
     }
   }
 
@@ -220,24 +245,36 @@ class TextObject extends BaseGroup {
     const charWidth = charWidthObj.width * 1.375 * xHeight / 100;
 
     return {
-      actualChar: textChar,
-      fontFamily: 'TransportMedium',
+      actualChar: textChar, fontFamily: 'TransportMedium',
       fontSize: xHeight * 1.88 * 1.375,
       charWidth: charWidth * xHeight,
       bracketOffset: 0,
-      leftOffset: (this._containsNonEnglishCharacters(previousChar || '') ? 0.25 * xHeight : 0),
+      leftOffset: (containsNonEnglishCharacters(previousChar || '') ? 0.25 * xHeight : 0),
       topOffset: 0.1 * xHeight,
-      frameWidth: charWidth - 2 + (this._containsNonEnglishCharacters(previousChar || '') ? 0.25 * xHeight : 0),
+      frameWidth: charWidth - 2 + (containsNonEnglishCharacters(previousChar || '') ? 0.25 * xHeight : 0),
       frameHeight: 2.85 * xHeight - 2,
-      advanceWidth: charWidth + (this._containsNonEnglishCharacters(previousChar || '') ? 0.25 * xHeight : 0)
+      advanceWidth: charWidth + (containsNonEnglishCharacters(previousChar || '') ? 0.25 * xHeight : 0)
     };
-  }
-
-  /**
+  }  /**
    * Helper function for Chinese character parameters
    */
-  static _getChineseCharacterParams(actualChar, xHeight) {
-    const fontFamily = 'Noto Sans Hong Kong';
+  static _getChineseCharacterParams(actualChar, font, xHeight) {
+    // Check if character requires special override font
+    let fontFamily = font;
+    
+    try {
+      // Get special characters array and override font from FontPriorityManager
+      const specialCharacters = FontPriorityManager.getSpecialCharactersArray();
+      
+      // Check if the character is in the special characters array
+      if (specialCharacters.includes(actualChar)) {
+        const overrideFontName = FontPriorityManager.getOverrideFont();
+        fontFamily = overrideFontName;
+      }
+    } catch (error) {
+      console.warn('Could not check special characters, using default font:', error);
+      // Continue with the originally passed font
+    }
 
     return {
       actualChar: actualChar,
@@ -338,7 +375,6 @@ class TextObject extends BaseGroup {
       frame: txt_frame
     };
   }
-
   /**
    * Helper function to get appropriate font glyphs
    */
@@ -347,8 +383,12 @@ class TextObject extends BaseGroup {
       return parsedFontMedium;
     } else if (fontFamily === 'TransportHeavy') {
       return parsedFontHeavy;
-    } else if (textChar === '、') {
+    } else if (fontFamily === 'TW-MOE-Std-Kai') {
       return parsedFontKai;
+    } else if (fontFamily.startsWith('custom_')) {
+      // Handle custom fonts - they should have their font object in window
+      const customFont = window[fontFamily];
+      return customFont || parsedFontChinese; // Fallback to default
     } else {
       return parsedFontChinese;
     }
@@ -364,10 +404,11 @@ class TextObject extends BaseGroup {
    * 
    * 2. Non-English text containing:
    *    a) English punctuation: Uses TransportHeavy font
-   *    b) Numbers: Uses Noto Sans Hong Kong font
-   *    c) Chinese characters: Uses Noto Sans Hong Kong or TW-MOE-Std-Kai font
+   *    b) Numbers: Uses TransportMedium font with adjusted sizing
+   *    c) Chinese characters: Uses font from FontPriorityManager priority system
+   *       - Font determined by priority list (e.g., TW-MOE-Std-Kai, custom fonts)
    *       - Special handling for comma (,) → 、 transformation
-   * 
+   *
    * Each character type has specific parameters for:
    * - Font family and size
    * - Character width and positioning offsets
@@ -376,10 +417,8 @@ class TextObject extends BaseGroup {
   static createTextElements(txt, xHeight, color, font, isCursor = false) {
     let txtCharList = [];
     let txtFrameList = [];
-    let left_pos = 0;
-
-    // Check if text contains any non-English characters
-    const containsNonAlphabetic = this._containsNonEnglishCharacters(txt);
+    let left_pos = 0;    // Check if text contains any non-English characters
+    const containsNonAlphabetic = containsNonEnglishCharacters(txt);
 
     for (let i = 0; i < txt.length; i++) {
       let textChar = txt.charAt(i);
@@ -492,10 +531,37 @@ class TextObject extends BaseGroup {
     this.containsNonAlphabetic = containsNonAlphabetic;
 
     // Update the name for the object inspector
-    this._showName = `<Group ${this.canvasID}> Text - ${newText}`;
-
-    this.canvas.renderAll();
+    this._showName = `<Group ${this.canvasID}> Text - ${newText}`; this.canvas.renderAll();
   }
+}
+
+/**
+ * Check if text contains non-English characters
+ * @param {string} txt - Text to check
+ * @returns {boolean} - True if text contains non-English characters
+ */
+export function containsNonEnglishCharacters(txt) {
+  if (!txt || typeof txt !== 'string') {
+    return false;
+  }
+
+  return txt.split('').some(char => {
+    // If the character is not in our English width dictionaries, consider it non-English
+    return !textWidthMedium.map(item => item.char).includes(char);
+  });
+}
+
+/**
+ * Check if a single character is non-English
+ * @param {string} char - Single character to check
+ * @returns {boolean} - True if character is non-English
+ */
+export function isNonEnglishCharacter(char) {
+  if (!char || typeof char !== 'string' || char.length !== 1) {
+    return false;
+  }
+
+  return !textWidthMedium.map(item => item.char).includes(char);
 }
 
 export { TextObject };

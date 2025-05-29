@@ -1,5 +1,7 @@
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { symbolsPermittedAngle, BorderColorScheme } from '../objects/template.js';
+import { FontPriorityManager } from '../modal/md-font.js';
+import { containsNonEnglishCharacters } from '../objects/text.js';
 
 // Add handler for 'Property' context-menu action
 const propertyMenuItem = document.getElementById('property');
@@ -233,13 +235,18 @@ function showPropertyPanel(object) {
 
           inputElement.addEventListener('change', (e) => {
             handleSelectInputChange(e, prop, targetObject);
-          });
-        } else if (prop.type === 'select' && (prop.key === 'font' || prop.key === 'symbolAngle')) {
+          });        } else if (prop.type === 'select' && (prop.key === 'font' || prop.key === 'symbolAngle')) {
           inputElement = document.createElement('select');
           prop.options.forEach(opt => {
             const option = document.createElement('option');
-            option.value = opt;
-            option.text = opt;
+            // Handle both string options and {value, label} objects
+            if (typeof opt === 'object' && opt.value !== undefined) {
+              option.value = opt.value;
+              option.text = opt.label || opt.value;
+            } else {
+              option.value = opt;
+              option.text = opt;
+            }
             inputElement.appendChild(option);
           });
           inputElement.value = targetObject[prop.key]; // Current value
@@ -323,12 +330,13 @@ function showPropertyPanel(object) {
   } 
 
   // Prepare special properties (remains display-only as per current structure)
-  let specialProps = [];
-  switch (object.functionalType) {
-    case 'Text':
+  let specialProps = [];  switch (object.functionalType) {    case 'Text':
+      // Check if text contains non-English characters to determine appropriate font options
+      const hasNonEnglish = containsNonEnglishCharacters(object.text);
+      const fontOptions = FontPriorityManager.getAllAvailableFonts(hasNonEnglish);
       specialProps = [
         { label: 'Text', key: 'text', type: 'text', editable: true, value: object.text },
-        { label: 'Font', key: 'font', type: 'select', options: ['TransportHeavy', 'TransportMedium'], editable: true, value: object.font }
+        { label: 'Font', key: 'font', type: 'select', options: fontOptions.map(f => f.value), editable: true, value: object.font }
       ];
       break;
     case 'Symbol':
