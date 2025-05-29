@@ -543,7 +543,6 @@ function parseFont() {
 function getFontPath(t) {
 
   let font = null;
-
   // Select the appropriate pre-parsed font object
   switch (t.fontFamily) {
     case 'TransportMedium':
@@ -560,16 +559,47 @@ function getFontPath(t) {
       break;
     case 'parsedFontKorean': // Fallback to Korean font for special characters
       font = parsedFontKorean;
-      break;
-    default: // Default to NotoSansHK-Medium or whatever your intended default is
-      font = window[t.fontFamily] || parsedFontKorean; // Fallback to Chinese font if not found
+      break;    default: // Check for custom fonts in window
+      const windowFont = window[t.fontFamily];
+      // Validate that it's actually a font object with getPath method
+      if (windowFont && typeof windowFont.getPath === 'function') {
+        font = windowFont;
+      } else {
+        font = null; // Font not found or invalid
+      }
       break;
   }
-
   // Check if the selected font is actually loaded/parsed
   if (!font) {
-    console.error(`Font "${t.fontFamily || 'Default'}" not loaded or parsed. Make sure parseFont() was called and completed successfully.`);
-    return null; // Return null if the font isn't available
+    // Handle missing font using FontPriorityManager
+    const fallbackFont = FontPriorityManager.handleMissingFont(t.fontFamily);
+    
+    // Use the fallback font for this specific call
+    switch (fallbackFont) {
+      case 'TransportMedium':
+        font = parsedFontMedium;
+        break;
+      case 'TransportHeavy':
+        font = parsedFontHeavy;
+        break;
+      case 'TW-MOE-Std-Kai':
+        font = parsedFontKai;
+        break;
+      case 'parsedFontChinese':
+        font = parsedFontChinese;
+        break;
+      case 'parsedFontKorean':
+        font = parsedFontKorean;
+        break;
+      default:
+        font = parsedFontKorean; // Final fallback
+        break;
+    }
+    
+    if (!font) {
+      console.error(`Critical error: No fonts available. Make sure parseFont() was called and completed successfully.`);
+      return null;
+    }
   }
   // Check if opentype.js is available and the font object has getPath
   if (typeof opentype === 'undefined' || typeof font.getPath !== 'function') {

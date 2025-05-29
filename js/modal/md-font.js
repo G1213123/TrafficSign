@@ -4,15 +4,17 @@
  */
 
 import { ModalUtils } from './mdGeneral.js';
+import { GeneralHandler } from '../sidebar/sbGeneral.js';
+import { CanvasGlobals } from '../canvas/canvas.js';
 
 const FontPriorityManager = {
   fontPriorityList: ['parsedFontKorean', 'parsedFontChinese'], // Default priority
-
   /**
    * Initialize font priority system
    */
   initialize: function () {
     FontPriorityManager.loadFontPriorityFromStorage();
+
   },
 
   /**
@@ -115,7 +117,8 @@ const FontPriorityManager = {
     modalContent.appendChild(buttonsContainer);
 
     // Show modal
-    ModalUtils.showModal(modal);},
+    ModalUtils.showModal(modal);
+  },
 
   /**
    * Update the font list display in the modal
@@ -130,7 +133,7 @@ const FontPriorityManager = {
     FontPriorityManager.fontPriorityList.forEach((fontName) => {
       // Check if it's a built-in font
       const isBuiltInFont = ['parsedFontChinese', 'parsedFontKorean', 'parsedFontMedium', 'parsedFontHeavy', 'parsedFontKai'].includes(fontName);
-      
+
       if (isBuiltInFont) {
         validFonts.push(fontName);
       } else {
@@ -236,8 +239,7 @@ const FontPriorityManager = {
 
   /**
    * Handle font file upload
-   */
-  handleFontUpload: function (event) {
+   */  handleFontUpload: function (event) {
     const file = event.target.files[0];
     if (!file) return;
 
@@ -257,9 +259,23 @@ const FontPriorityManager = {
         // Update display
         FontPriorityManager.updateFontListDisplay(document.getElementById('font-list-container'));
 
+        // Check for text objects that need this font and update them
+        FontPriorityManager.updateTextObjectsWithUploadedFont(customFontName);
+
+        // Save the updated priority list
+        FontPriorityManager.saveFontPriorityToStorage();
+
       } catch (error) {
         console.error('Error parsing font:', error);
-        alert('Failed to parse font file. Please ensure it\'s a valid font file.');
+        if (GeneralHandler && GeneralHandler.showToast) {
+          GeneralHandler.showToast(
+            'Failed to parse font file. Please ensure it\'s a valid font file.',
+            'warning',
+            4000
+          );
+        } else {
+          alert('Failed to parse font file. Please ensure it\'s a valid font file.');
+        }
       }
     };
     reader.readAsArrayBuffer(file);
@@ -288,12 +304,13 @@ const FontPriorityManager = {
 
     console.log('Font priority updated:', FontPriorityManager.fontPriorityList);
   },
-
   /**
    * Save font priority to localStorage
    */
   saveFontPriorityToStorage: function () {
     localStorage.setItem('fontPriorityList', JSON.stringify(FontPriorityManager.fontPriorityList));
+    // Validate fonts after saving
+    setTimeout(() => FontPriorityManager.validateFonts(), 100);
   },
 
   /**
@@ -304,6 +321,8 @@ const FontPriorityManager = {
     if (stored) {
       try {
         FontPriorityManager.fontPriorityList = JSON.parse(stored);
+        // Validate fonts after loading
+        setTimeout(() => FontPriorityManager.validateFonts(), 100);
       } catch (e) {
         console.warn('Failed to parse stored font priority list');
       }
@@ -398,7 +417,7 @@ const FontPriorityManager = {
     try {
       // Reset font priority list to default
       FontPriorityManager.fontPriorityList = ['parsedFontKorean', 'parsedFontChinese'];
-      
+
       // Clear character override settings
       localStorage.removeItem('characterOverrideFont');
       localStorage.setItem('specialCharacters', '彩天輸勝都愉朗 ');
@@ -409,10 +428,10 @@ const FontPriorityManager = {
           delete window[key];
         }
       });
-      
+
       // Save the reset font priority to storage
       FontPriorityManager.saveFontPriorityToStorage();
-      
+
       console.log('Font manager settings reset to defaults');
       return true;
     } catch (error) {
@@ -427,12 +446,12 @@ const FontPriorityManager = {
    */
   getAllAvailableFonts: function (containsNonEnglish = false) {
     const fonts = [];
-    
+
     if (containsNonEnglish) {
       // For text with non-English characters, show Chinese/Asian fonts
       fonts.push({ value: 'parsedFontChinese', label: 'Noto Sans HK' });
       fonts.push({ value: 'parsedFontKorean', label: 'Noto Sans KR' });
-      
+
       // Add custom fonts from fontPriorityList for non-English text
       FontPriorityManager.fontPriorityList.forEach(fontName => {
         if (fontName.startsWith('custom_')) {
@@ -448,9 +467,211 @@ const FontPriorityManager = {
       fonts.push({ value: 'TransportMedium', label: 'Transport Medium' });
       fonts.push({ value: 'TransportHeavy', label: 'Transport Heavy' });
     }
-    
+
     return fonts;
   },
+
+  /**
+   * Validate that all fonts in the priority list exist
+   * Show warning toast for missing fonts
+   */
+  validateFonts: function () {
+    const missingFonts = [];
+
+    FontPriorityManager.fontPriorityList.forEach(fontName => {
+      // Check if font exists (either as built-in or in window)
+      const isBuiltInFont = ['parsedFontKorean', 'parsedFontChinese', 'TransportMedium', 'TransportHeavy', 'TW-MOE-Std-Kai'].includes(fontName);
+      const existsInWindow = window[fontName] !== undefined;
+
+      if (!isBuiltInFont && !existsInWindow) {
+        missingFonts.push(fontName);
+      }
+    });
+
+    if (missingFonts.length > 0 && GeneralHandler && GeneralHandler.showToast) {
+      GeneralHandler.showToast(
+        `Warning: ${missingFonts.length} font(s) not found: ${missingFonts.join(', ')}. Please upload or remove them from the priority list.`,
+        'warning',
+        7000
+      );
+    }
+    return missingFonts;
+  },
+
+  /**
+   * Check all fonts periodically and show warnings for missing ones
+   * This is useful after font uploads or changes
+   */
+  checkAllFonts: function () {
+    // Check if any fonts in the current priority list are missing
+    const missingFonts = FontPriorityManager.validateFonts();
+
+    // Also check all custom fonts that might be referenced by text objects
+    if (window.CanvasGlobals && window.CanvasGlobals.canvas) {
+      const textObjects = window.CanvasGlobals.canvas.getObjects().filter(obj =>
+        obj.functionalType === 'Text'
+      );
+
+      const uniqueFonts = new Set();
+      textObjects.forEach(textObj => {
+        if (textObj.fontFamily) uniqueFonts.add(textObj.fontFamily);
+        if (textObj.fontNames) uniqueFonts.add(textObj.fontNames);
+      });
+
+      // Check each unique font
+      uniqueFonts.forEach(fontName => {
+        const isBuiltInFont = ['parsedFontKorean', 'parsedFontChinese', 'TransportMedium', 'TransportHeavy', 'TW-MOE-Std-Kai'].includes(fontName);
+        const existsInWindow = window[fontName] !== undefined;
+
+        if (!isBuiltInFont && !existsInWindow && !missingFonts.includes(fontName)) {
+          missingFonts.push(fontName);
+        }
+      });
+    }
+
+    return missingFonts;
+  },
+
+  /**
+   * Get all text objects from the canvas
+   * @returns {Array} Array of text objects
+   */
+  getAllTextObjects: function () {
+
+    return CanvasGlobals.canvasObject.filter(obj =>
+      obj.functionalType === 'Text'
+    );
+  },
+  /**
+   * Update all text objects to use a fallback font
+   * @param {string} missingFont - The font that was not found
+   * @param {string} fallbackFont - The font to use instead
+   * @returns {number} Number of text objects updated
+   */
+  updateAllTextObjectsFont: function (missingFont, fallbackFont) {
+    const textObjects = FontPriorityManager.getAllTextObjects();
+    let updatedCount = 0;
+
+    textObjects.forEach(textObj => {
+      if (textObj.fontFamily === missingFont || textObj.fontNames === missingFont) {
+        // Store the original font name so we can restore it later when the font becomes available
+        if (!textObj.originalFontFamily) {
+          textObj.originalFontFamily = missingFont;
+        }
+
+        // Update the font property
+        if (textObj.fontFamily) textObj.fontFamily = fallbackFont;
+        if (textObj.fontNames) textObj.fontNames = fallbackFont;
+
+        // Force re-render
+        textObj.dirty = true;
+        updatedCount++;
+      }
+    });
+
+    if (updatedCount > 0) {
+      window.CanvasGlobals.canvas.renderAll();
+    }
+
+    return updatedCount;
+  },
+
+  /**
+   * Get the first available font from the system
+   * @returns {string} Name of an available font
+   */
+  getFirstAvailableFont: function () {
+    // Check built-in fonts first by accessing global font variables
+    const builtInFonts = [
+      { name: 'TransportMedium', check: () => window.parsedFontMedium },
+      { name: 'TransportHeavy', check: () => window.parsedFontHeavy },
+      { name: 'TW-MOE-Std-Kai', check: () => window.parsedFontKai },
+      { name: 'parsedFontKorean', check: () => window.parsedFontKorean },
+      { name: 'parsedFontChinese', check: () => window.parsedFontChinese }
+    ];
+
+    for (const font of builtInFonts) {
+      if (font.check && font.check()) {
+        return font.name;
+      }
+    }
+
+    // Fallback to system font
+    return 'TransportMedium';
+  },
+
+  /**
+   * Handle missing font - show toast and update all text objects
+   * @param {string} missingFontName - The name of the missing font
+   * @returns {string} The fallback font name used
+   */
+  handleMissingFont: function (missingFontName) {
+    const fallbackFont = FontPriorityManager.getFirstAvailableFont();
+    const updatedCount = FontPriorityManager.updateAllTextObjectsFont(missingFontName, fallbackFont);
+
+    // Show toast message instead of console warning
+    if (GeneralHandler && GeneralHandler.showToast) {
+      GeneralHandler.showToast(
+        `Font "${missingFontName}" not found. ${updatedCount} text object(s) updated to use "${fallbackFont}".`,
+        'warning',
+        5000
+      );
+    }
+    return fallbackFont;
+  },
+  /**
+   * Check for text objects that need the uploaded font and update them
+   * @param {string} uploadedFontName - The name of the newly uploaded font
+   * @returns {number} Number of text objects updated
+   */
+  updateTextObjectsWithUploadedFont: function (uploadedFontName) {
+    const textObjects = FontPriorityManager.getAllTextObjects();
+    let updatedCount = 0;
+
+    // Get the original font filename without the "custom_" prefix
+    const originalFontName = uploadedFontName.replace(/^custom_/, '');
+
+    textObjects.forEach(textObj => {
+      // Check if this text object was looking for this font
+      // This could happen if the font was missing before and now it's available
+      const needsUpdate = (
+        (textObj.font === uploadedFontName) ||
+        (textObj.font === originalFontName));
+
+      if (needsUpdate) {
+        // Update to use the newly uploaded font
+        textObj.font = uploadedFontName;
+
+        // Force re-render
+        textObj.removeAll();
+        textObj.initialize();
+        textObj.updateAllCoord();
+      }
+    });
+
+    if (updatedCount > 0) {
+
+      // Show success toast
+      if (GeneralHandler && GeneralHandler.showToast) {
+        GeneralHandler.showToast(
+          `Font "${originalFontName}" uploaded successfully! ${updatedCount} text object(s) updated to use the new font.`,
+          'success',
+          4000
+        );
+      }
+    } else {
+      // Show info toast even if no objects were updated
+      if (GeneralHandler && GeneralHandler.showToast) {
+        GeneralHandler.showToast(
+          `Font "${originalFontName}" uploaded successfully and added to priority list.`,
+          'success',
+          3000
+        );
+      }
+    }
+    return updatedCount;
+  },
+
 
 };
 
