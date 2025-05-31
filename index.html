@@ -46,10 +46,8 @@
             "name": "Road Sign Factory"
         }
     }
-    </script>
-
-    <link rel="stylesheet" href="css/homepage.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    </script>    <link rel="stylesheet" href="css/homepage.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
@@ -85,8 +83,9 @@
                         report any issues on GitHub.</span>
                 </div>
                 <h1 class="hero-title">
-                    Professional Traffic Sign Designer
-                </h1>                <p class="hero-subtitle">Create, customize, and export professional road signs online. Built with Hong
+                    Professional Traffic Sign Design Tool
+                </h1>
+                <p class="hero-subtitle">Create, customize, and export professional road signs online. Built with Hong
                     Kong TPDM standards for precision and compliance.</p>
                 
                 <!-- Buttons Container -->
@@ -200,59 +199,47 @@
                 </div>
             </div>
         </div>
-    </section>
-
-    <!-- Demo Section -->
+    </section>    <!-- Demo Section -->
     <section id="demo" class="demo">
         <div class="container">
             <h2 class="section-title">See It In Action</h2>
-            <p class="section-subtitle">Interactive demonstrations of key features</p>
+            <p class="section-subtitle">Interactive demonstration of key features</p>
 
-            <div class="demo-grid">
-                <div class="demo-item">
-                    <div class="demo-canvas" id="demo-canvas-1">
-                        <div class="demo-placeholder">
-                            <i class="fas fa-plus-circle"></i>
-                            <p>Click & Add Symbols</p>
+            <div class="demo-container">
+                <!-- Main Demo Canvas -->
+                <div class="main-demo-canvas" id="main-demo-canvas">
+                    <div class="demo-sign-canvas">
+                        <div class="demo-sign-content" id="demo-sign-content">
+                            <div class="demo-placeholder-text">Click any button below to see the feature in action</div>
                         </div>
                     </div>
-                    <h3>Add Symbols</h3>
-                    <p>Click to add traffic symbols and icons to your sign design</p>
                 </div>
 
-                <div class="demo-item">
-                    <div class="demo-canvas" id="demo-canvas-2">
-                        <div class="demo-placeholder">
-                            <i class="fas fa-arrows-alt"></i>
-                            <p>Drag & Drop</p>
-                        </div>
-                    </div>
-                    <h3>Drag & Snap</h3>
-                    <p>Intuitive drag and drop with smart snapping for precise positioning</p>
-                </div>
-
-                <div class="demo-item">
-                    <div class="demo-canvas" id="demo-canvas-3">
-                        <div class="demo-placeholder">
-                            <i class="fas fa-font"></i>
-                            <p>Add Text</p>
-                        </div>
-                    </div>
-                    <h3>Text Tools</h3>
-                    <p>Professional typography with multiple font options and styles</p>
-                </div>
-
-                <div class="demo-item">
-                    <div class="demo-canvas" id="demo-canvas-4">
-                        <div class="demo-placeholder">
-                            <i class="fas fa-border-style"></i>
-                            <p>Custom Borders</p>
-                        </div>
-                    </div>
-                    <h3>Sign Borders</h3>
-                    <p>Create custom borders and frames following standard guidelines</p>
+                <!-- Demo Controls -->
+                <div class="demo-controls">
+                    <button class="demo-btn" data-demo="symbol">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Add Symbol</span>
+                    </button>
+                    <button class="demo-btn" data-demo="text">
+                        <i class="fas fa-font"></i>
+                        <span>Add Text</span>
+                    </button>
+                    <button class="demo-btn" data-demo="drag">
+                        <i class="fas fa-arrows-alt"></i>
+                        <span>Drag & Drop</span>
+                    </button>
+                    <button class="demo-btn" data-demo="border">
+                        <i class="fas fa-border-style"></i>
+                        <span>Add Border</span>
+                    </button>
+                    <button class="demo-btn" data-demo="reset">
+                        <i class="fas fa-undo"></i>
+                        <span>Reset</span>
+                    </button>
                 </div>
             </div>
+
             <div class="demo-cta">
                 <a href="app.html" class="btn btn-primary btn-large">
                     <i class="fas fa-play"></i>
