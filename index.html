@@ -3,153 +3,378 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="application-name" content="<%= htmlWebpackPlugin.options.title %>">
-    <meta name="application-version" content="<%= htmlWebpackPlugin.options.appVersion %>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Create and customize road signs online with Road Sign Factory. Design and export traffic signs using template texts and symbols. Prescibed designs elements based on the Hong Kong's standards TPDM.">
+        content="Road Sign Factory - Professional online traffic sign designer and creator. Design custom road signs with Hong Kong TPDM standards. Export to SVG, DXF, and PDF formats.">
     <meta name="keywords"
-        content="Road Sign Factory, road sign, traffic sign, generator, creator, custom sign, Hong Kong Standard, online tool, vector, SVG, DXF, PDF">
-    <title>Road Sign Factory - Online Sign Creator</title>
+        content="road sign creator, traffic sign designer, Hong Kong TPDM, online sign maker, professional sign design, vector sign export, SVG DXF PDF">
+    <meta name="author" content="Road Sign Factory">
+    <title>Road Sign Factory - Professional Traffic Sign Designer</title><!-- Open Graph Meta Tags for Social Media -->
+    <meta property="og:title" content="Road Sign Factory - Professional Traffic Sign Designer">
+    <meta property="og:description"
+        content="Create professional traffic signs online with our advanced design tool. Based on Hong Kong TPDM standards.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://road-sign.g1213123.info/">
+    <meta property="og:image" content="images/og-image.jpg">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Road Sign Factory - Professional Traffic Sign Designer">
+    <meta name="twitter:description" content="Create professional traffic signs online with our advanced design tool.">
+    <meta name="twitter:image" content="images/twitter-card.jpg">
+
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
-    <link rel="stylesheet" href="css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/fabric@6.4.3/dist/index.js"></script>
-    <script src="https://kit.fontawesome.com/d9b171ca69.js" crossorigin="anonymous"></script>
-    <script src="https://opentype.js.org/dist/opentype.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.1/jspdf.umd.min.js"></script>
-    <script src="js/dxf/dxf-bundle.js"></script>
+    <link rel="canonical" href="http://road-sign.g1213123.info/">
+
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Road Sign Factory",
+        "description": "Professional online traffic sign designer and creator based on Hong Kong TPDM standards",
+        "url": "http://road-sign.g1213123.info/",
+        "applicationCategory": "DesignApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "author": {
+            "@type": "Organization",
+            "name": "Road Sign Factory"
+        }
+    }
+    </script>
+
+    <link rel="stylesheet" href="css/homepage.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
-    <div class="side-panel" id="side-panel">
-        <header id="sidepanel-heading" class="heading">
-            <span id="content-heading">Road Sign Factory</span>
-        </header>
-
-        <div id="content-frame">
-            <!-- Static Info Panel Content -->
-            <div id="info-content-static" style="display: none;">
-                <h2 class="panel-heading">About</h2>
-                <div class="input-group-container">
-                    <div id="debug-info-panel">
-                        <p>Road Sign Factory is a web-based application for designing, customizing, and exporting
-                            professional traffic signs. Create your own symbols, add text, borders, and route maps, then
-                            export your design in multiple formats.</p>
-                        <p>Sign designs are referring the Hong Kong Transport Department’s <a
-                                href="https://www.td.gov.hk/en/publications_and_press_releases/publications/tpdm/index.html"
-                                target="_blank" rel="noopener noreferrer">Transport Planning and Design Manual
-                                (TPDM)</a> as closely as possible.</p>
-                        <h3 class="panel-subheading">Features</h3>
-                        <ul>
-                            <li>Symbol drawing</li>
-                            <li>Custom text insertion</li>
-                            <li>Sign Border creation</li>
-                            <li>Measurement tools</li>
-                            <li>Design export</li>
-                        </ul>
-                        <p id="app-version-display" style="margin-top: 15px; color: #ccc;">Version: <%=
-                                htmlWebpackPlugin.options.appVersion %>
-                        </p>
-                    </div>
-                </div>
-                <div class="coffee-link-container">
-                    <p class="coffee-quote" style="font-style:italic; color:#eee; text-align:center; margin:0 0 4px 0;">
-                        "That's the way it is."
-                    </p>
-                    <p style="color: #ddd; text-align: center; margin: 10px 0 8px 0; font-family: Arial, sans-serif;">To help support this project, you can buy me a coffee! Donations are much appreciated:</p>
-                    <a href="https://www.buymeacoffee.com/G1213123" target="_blank"><img
-                            src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee"
-                            height="41" width="174" style="max-width:100%;"></a>
-                </div>
-                <div class="contact-info-container" style="text-align: center;  padding: 10px 0;">
-                    <p style="color: #ddd; font-size: 1em; font-family: Arial, sans-serif; margin: 0 0 10px 0;">Contact
-                        Email: enquiry@g1213123.info</p>
-                    <div style="margin-bottom: 10px;"> <!-- Row 1 -->
-                        <a href="mailto:enquiry@g1213123.info" title="Email Us" style="color: #ccc; text-decoration: none; margin: 0 10px;">
-                            <i class="fas fa-envelope" style="color: #aaa; margin-right: 5px;"></i><span style="font-size: 1em; font-family: Arial, sans-serif;">Email</span>
-                        </a>
-                        <a href="https://github.com/G1213123/TrafficSign" title="Visit GitHub Repository" target="_blank" style="color: #ccc; text-decoration: none; margin: 0 10px;">
-                            <i class="fab fa-github" style="color: #aaa; margin-right: 5px;"></i><span style="font-size: 1em; font-family: Arial, sans-serif;">GitHub</span>
-                        </a>
-                    </div>
-                    <div> <!-- Row 2 -->
-                        <a href="https://github.com/G1213123/TrafficSign/issues" title="Report a Bug" target="_blank" style="color: #ccc; text-decoration: none; margin: 0 10px;">
-                            <i class="fas fa-bug" style="color: #aaa; margin-right: 5px;"></i><span style="font-size: 1em; font-family: Arial, sans-serif;">Report Bug</span>
-                        </a>
-                        <a href="https://www.threads.net/@ginger_n_1213" title="Visit Threads Profile" target="_blank" style="color: #ccc; text-decoration: none; margin: 0 10px;">
-                            <i class="fa-brands fa-threads" style="color: #aaa; margin-right: 5px;"></i><span style="font-size: 1em; font-family: Arial, sans-serif;">Threads</span>
-                        </a>
-                    </div>
-                </div>
-                <div class="legal-disclaimer"
-                    style="font-size: 12px; color: #aaa; padding: 10px; margin-top: 20px; border-top: 1px solid #444;">
-                    <h4 style="margin: 5px 0; color: #ddd;">Disclaimer</h4>
-                    <p>Fonts used are subject to their respective licenses: Transport fonts (Crown Copyright),
-                        Noto Sans HK & KR (SIL OFL), and 教育部標準楷書字形檔(Version 5.00) (CC 「姓名標示-禁止改作」).</p>
-                    <p>This site is not affiliated with the authorities and makes no guarantee of 100% conformity to
-                        official standards.</p>
-                    <p>It is the user's responsibility to ensure that the designs comply with local regulations and
-                        standards.</p>
-                    <p>The creator assumes no liability for any damages resulting from the use of this application or
-                        its outputs.</p>
-                </div>
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <div class="nav-container">            <div class="nav-logo">
+                <img src="images/favicon.ico" alt="Logo" class="nav-logo-icon">
+                <span>Road Sign Factory</span>
             </div>
-            <!-- End Static Info Panel Content -->
-            <form id="input-form" class="input-form"></form>
-            <div class="object-list-heading">
-                Canvas Objects
-                <i id="toggle-object-list" class="fa fa-chevron-down rotated"></i>
+            <div class="nav-menu">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#demo" class="nav-link">Demo</a>
+                <a href="#about" class="nav-link">About</a>
+                <a href="https://github.com/G1213123/TrafficSign" class="nav-link" target="_blank">GitHub</a>
+                <a href="app.html" class="nav-button">Launch App</a>
             </div>
-            <div id="objectListPanel" class="object-list-panel contracted">
-                <div id="objectList" class="object-list"></div>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
             </div>
         </div>
-        <div data-position="left" class="side-bar" id="side-bar">
-            <div class="item" id="btn_draw" data-tooltip="Draw Symbol"><i class="fa-solid fa-road"></i></div>
-            <div class="item" id="btn_text" data-tooltip="Add Text"><i class="fa-solid fa-font"></i></div>
-            <div class="item" id="btn_border" data-tooltip="Add Border"><i class="fa fa-vector-square"></i></div>
-            <div class="item" id="btn_map" data-tooltip="Add Route Map"><i class="fa fa-location-arrow"></i></div>
-            <div class="item" id="btn_measure" data-tooltip="Measure Tool"><i class="fa-solid fa-ruler"></i></div>
-            <div class="item" id="btn_template" data-tooltip="Template Signs"><i class="fa-solid fa-signs-post"></i>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="development-notice">
+                    <i class="fas fa-info-circle"></i>
+                    <span><strong>Development Version</strong> - This application is under active development. Please
+                        report any issues on GitHub.</span>
+                </div>
+                <h1 class="hero-title">
+                    Professional Traffic Sign Designer
+                </h1>                <p class="hero-subtitle">Create, customize, and export professional road signs online. Built with Hong
+                    Kong TPDM standards for precision and compliance.</p>
+                
+                <!-- Buttons Container -->
+                <div class="hero-buttons">
+                    <!-- Primary Action Group (Launch + Version) -->
+                    <div class="primary-action-group">
+                        <a href="app.html" class="btn btn-primary">
+                            <i class="fas fa-play"></i>
+                            Launch Application
+                        </a>
+                        <div class="version-display">
+                            <span class="version-number">
+                                <%= htmlWebpackPlugin.options.appVersion %>
+                            </span>
+                            <span class="version-label">Current Build</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Secondary Action -->
+                    <a href="#demo" class="btn btn-secondary">
+                        <i class="fas fa-eye"></i>
+                        View Demo
+                    </a>
+                </div>
+                
+                <!-- Main Stats -->
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">10+</span>
+                        <span class="stat-label">Sign Templates</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">10+</span>
+                        <span class="stat-label">Symbols</span>
+                    </div>                    <div class="stat">
+                        <span class="stat-number">3</span>
+                        <span class="stat-label">Export Formats</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label">Web-Based</span>
+                    </div>
+                </div>
+            </div>            <div class="hero-visual">
+                <div class="hero-preview">
+                    <img src="images/hero-preview.svg" alt="Traffic Sign Designer Preview" class="preview-image">
+                    <div class="preview-overlay">
+                        <a href="app.html" class="preview-launch">
+                            <i class="fas fa-external-link-alt"></i>
+                            Open Full App
+                        </a>
+                    </div>
+                </div>
             </div>
-            <div class="item" id="btn_export" data-tooltip="Import/Export"><i class="fa-solid fa-file-export"></i></div>
-            <div class="item" id="btn_tracker" data-tooltip="History Tracker"><i class="fa fa-history"></i></div>
-            <div class="item" id="btn_info" data-tooltip="Information"><i class="fa fa-circle-info"></i></div>
-            <div class="item" id="btn_settings" data-tooltip="Settings"><i class="fa fa-gear"></i></div>
-
-            <div class="item bottom" id="show_hide" data-tooltip="Toggle Sidebar"><i
-                    class="fa fa-angle-double-right"></i></div>
         </div>
-    </div>
-    <div id="loading-overlay">
-        <div class="spinner"></div>
-        <div class="loading-text">Loading resources...</div>
-    </div>
-    <div id="canvas-container">
-        <canvas id="canvas"></canvas>
-    </div>
-    <div id="context-menu">
-        <ul>
-            <li id="set-anchor">Set Anchor</li>
-            <li id="pivot-anchor">Pivot Anchor</li>
-            <li id="edit-object">Edit</li>
-            <li id="delete-object">Delete</li>
-            <li id="property">Property</li>
-        </ul>
-    </div>
-    <div id="property-panel" class="property-panel"></div>
-    <div id="cursorBoxContainer" class="cursor-box-contained">
-        <div id="cursorTextBox" class="cursor-box">Follow the cursor</div>
-        <input type="text" id="cursorAnswerBox" class="cursor-box" value=0 />
-        <button id="cursorEnterButton" class="cursor-box-button mobile-only">Enter</button>
-        <button id="cursorCancelButton" class="cursor-box-button mobile-only">Cancel</button>
-    </div>
+    </section>
 
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Professional Design Features</h2>
+            <p class="section-subtitle">Comprehensive tools for creating standards-compliant traffic signs</p>
 
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-vector-square"></i>
+                    </div>
+                    <h3>Vector Graphics</h3>
+                    <p>Create scalable signs using vector graphics that maintain quality at any size.</p>
+                </div>
 
-    <!-- Modular development: load only the main entry point as a module -->
-    <script type="module" src="js/main.js"></script>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-font"></i>
+                    </div>
+                    <h3>Customizable Typography</h3>
+                    <p>Use Transport fonts for English message and custom fonts for Chinese languages.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shapes"></i>
+                    </div>
+                    <h3>Symbol Library</h3>
+                    <p>Access a comprehensive library of traffic symbols and custom drawing tools.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-export"></i>
+                    </div>
+                    <h3>Multiple Export Formats</h3>
+                    <p>Export your designs as SVG, DXF, or PDF for professional use.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-ruler"></i>
+                    </div>
+                    <h3>Precision Tools</h3>
+                    <p>Built-in measurement tools and grid system for accurate sign dimensions.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Cross-Platform</h3>
+                    <p>Works on desktop, tablet, and mobile devices with touch support.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="demo">
+        <div class="container">
+            <h2 class="section-title">See It In Action</h2>
+            <p class="section-subtitle">Interactive demonstrations of key features</p>
+
+            <div class="demo-grid">
+                <div class="demo-item">
+                    <div class="demo-canvas" id="demo-canvas-1">
+                        <div class="demo-placeholder">
+                            <i class="fas fa-plus-circle"></i>
+                            <p>Click & Add Symbols</p>
+                        </div>
+                    </div>
+                    <h3>Add Symbols</h3>
+                    <p>Click to add traffic symbols and icons to your sign design</p>
+                </div>
+
+                <div class="demo-item">
+                    <div class="demo-canvas" id="demo-canvas-2">
+                        <div class="demo-placeholder">
+                            <i class="fas fa-arrows-alt"></i>
+                            <p>Drag & Drop</p>
+                        </div>
+                    </div>
+                    <h3>Drag & Snap</h3>
+                    <p>Intuitive drag and drop with smart snapping for precise positioning</p>
+                </div>
+
+                <div class="demo-item">
+                    <div class="demo-canvas" id="demo-canvas-3">
+                        <div class="demo-placeholder">
+                            <i class="fas fa-font"></i>
+                            <p>Add Text</p>
+                        </div>
+                    </div>
+                    <h3>Text Tools</h3>
+                    <p>Professional typography with multiple font options and styles</p>
+                </div>
+
+                <div class="demo-item">
+                    <div class="demo-canvas" id="demo-canvas-4">
+                        <div class="demo-placeholder">
+                            <i class="fas fa-border-style"></i>
+                            <p>Custom Borders</p>
+                        </div>
+                    </div>
+                    <h3>Sign Borders</h3>
+                    <p>Create custom borders and frames following standard guidelines</p>
+                </div>
+            </div>
+            <div class="demo-cta">
+                <a href="app.html" class="btn btn-primary btn-large">
+                    <i class="fas fa-play"></i>
+                    Launch Application - Free
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>Professional Sign Design Solution</h2>
+                    <p>Road Sign Factory provides traffic engineers, designers, and enthusiasts with a
+                        standards-compliant tool for creating professional road signage. Built with modern web
+                        technologies and following Hong Kong TPDM guidelines.</p>
+
+                    <div class="about-features">
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Hong Kong TPDM Standards Compliance</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Professional Export Quality</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>No Installation Required</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Open Source & Free</span>
+                        </div>
+                    </div>
+
+                    <div class="about-buttons">
+                        <a href="https://github.com/G1213123/TrafficSign" class="btn btn-outline" target="_blank">
+                            <i class="fab fa-github"></i>
+                            View on GitHub
+                        </a>
+                        <a href="mailto:enquiry@g1213123.info" class="btn btn-outline">
+                            <i class="fas fa-envelope"></i>
+                            Contact Us
+                        </a>
+                    </div>
+                </div>
+
+                <div class="about-visual">
+                    <div class="about-image">
+                        <img src="images/about-illustration.svg" alt="Professional sign design illustration"
+                            loading="lazy">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Road Sign Factory</h3>
+                    <p>Professional traffic sign design tool for modern web browsers.</p>
+                    <div class="social-links">
+                        <a href="https://github.com/G1213123/TrafficSign" target="_blank" aria-label="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="https://www.threads.net/@ginger_n_1213" target="_blank" aria-label="Threads">
+                            <i class="fa-brands fa-threads"></i>
+                        </a>
+                        <a href="mailto:enquiry@g1213123.info" aria-label="Email">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="app.html">Launch App</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#demo">Demo</a></li>
+                        <li><a href="https://github.com/G1213123/TrafficSign/issues" target="_blank">Report Issues</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="https://www.td.gov.hk/en/publications_and_press_releases/publications/tpdm/index.html"
+                                target="_blank">HK TPDM Guidelines</a></li>
+                        <li><a href="https://github.com/G1213123/TrafficSign" target="_blank">Documentation</a></li>
+                        <li><a href="https://github.com/G1213123/TrafficSign/releases" target="_blank">Changelog</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <p>Help support this project:</p>
+                    <a href="https://www.buymeacoffee.com/G1213123" target="_blank" class="coffee-button">
+                        <img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee"
+                            height="32">
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div class="footer-legal">
+                    <p>&copy; 2025 Road Sign Factory. Open source project.</p>
+                    <p class="disclaimer">This application is under development and not affiliated with government
+                        authorities. Users are responsible for ensuring compliance with local regulations.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="js/homepage.js"></script>
 </body>
 
 </html>

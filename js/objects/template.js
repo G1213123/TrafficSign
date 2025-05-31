@@ -969,7 +969,7 @@ const symbolsTemplate = {
         ],
         text: [
             { character: 'C', x: 4.845, y: -9, fontSize: 6.5 * 0.94, fontFamily: 'TransportMedium' },
-            { character: '中', x: -9.8, y: -9, fontSize: 5.7 * 0.9, fontFamily: 'Chinese' }
+            { character: '中', x: -9.8, y: -9, fontSize: 5.7 * 0.9, fontFamily: 'parsedFontKorean' }
         ]
     },
 
@@ -1067,7 +1067,7 @@ const symbolsTemplate = {
         ],
         text: [
             { character: 'E', x: 4.945, y: -9, fontSize: 6.5 * 0.94, fontFamily: 'TransportMedium' },
-            { character: '東', x: -9.8, y: - 9, fontSize: 5.7 * 0.9, fontFamily: 'Chinese' }
+            { character: '東', x: -9.8, y: - 9, fontSize: 5.7 * 0.9, fontFamily: 'parsedFontKorean' }
         ]
     },
 
@@ -1165,7 +1165,7 @@ const symbolsTemplate = {
         ],
         text: [
             { character: 'W', x: 4.2, y: -9, fontSize: 6.5 * 0.94, fontFamily: 'TransportMedium' },
-            { character: '西', x: -9.8, y: - 9, fontSize: 5.7 * 0.9, fontFamily: 'Chinese' }
+            { character: '西', x: -9.8, y: - 9, fontSize: 5.7 * 0.9, fontFamily: 'parsedFontKorean' }
         ]
     },
 
