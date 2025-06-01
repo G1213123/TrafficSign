@@ -447,9 +447,10 @@ body {
     flex-direction: column;
     gap: 2rem;
     margin-bottom: 4rem;
-    max-width: 800px;
+    max-width: 1200px; /* Increased max width for larger screens */
     margin-left: auto;
     margin-right: auto;
+    padding: 0 1rem; /* Add padding for mobile */
 }
 
 .main-demo-canvas {
@@ -458,16 +459,44 @@ body {
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--border-color);
     overflow: hidden;
+    width: 100%; /* Make container full width */
 }
 
 .demo-sign-canvas {
     height: 400px;
-    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    width: 100%; /* Make canvas container full width */
+    background: #2f2f2f; /* Match main app canvas background */
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     overflow: hidden;
+}
+
+#demo-canvas {
+    background: #2f2f2f; /* Match main app canvas background */
+    border: none; /* Remove border to match main app */
+    width: 100% !important; /* Force full width */
+    height: 100% !important; /* Force full height */
+    cursor: default; /* Match main app cursor */
+}
+
+.demo-placeholder-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(248, 250, 252, 0.9);
+    transition: opacity 0.3s ease;
+}
+
+.demo-placeholder-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .demo-sign-content {
@@ -820,6 +849,39 @@ body {
     .about-buttons {
         flex-direction: column;
         align-items: center;
+    }
+}
+
+/* Responsive demo canvas styles */
+@media (min-width: 768px) {
+    .demo-sign-canvas {
+        height: 450px; /* Slightly taller on tablets */
+    }
+}
+
+@media (min-width: 1024px) {
+    .demo-sign-canvas {
+        height: 500px; /* Even taller on desktop */
+    }
+    
+    .demo-container {
+        padding: 0 2rem; /* More padding on desktop */
+    }
+}
+
+@media (min-width: 1440px) {
+    .demo-sign-canvas {
+        height: 600px; /* Maximum height on large screens */
+    }
+}
+
+@media (max-width: 767px) {
+    .demo-sign-canvas {
+        height: 300px; /* Smaller height on mobile */
+    }
+    
+    .demo-container {
+        padding: 0 0.5rem; /* Less padding on mobile */
     }
 }
 

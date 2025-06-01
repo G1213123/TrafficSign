@@ -49,6 +49,7 @@
     </script>    <link rel="stylesheet" href="css/homepage.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fabric@6.4.3/dist/index.js"></script>
 </head>
 
 <body>
@@ -205,11 +206,12 @@
             <h2 class="section-title">See It In Action</h2>
             <p class="section-subtitle">Interactive demonstration of key features</p>
 
-            <div class="demo-container">
+            <div class="demo-container">                
                 <!-- Main Demo Canvas -->
                 <div class="main-demo-canvas" id="main-demo-canvas">
                     <div class="demo-sign-canvas">
-                        <div class="demo-sign-content" id="demo-sign-content">
+                        <canvas id="demo-canvas"></canvas>
+                        <div class="demo-placeholder-overlay" id="demo-placeholder-overlay">
                             <div class="demo-placeholder-text">Click any button below to see the feature in action</div>
                         </div>
                     </div>
@@ -359,9 +361,8 @@
                         authorities. Users are responsible for ensuring compliance with local regulations.</p>
                 </div>
             </div>
-        </div>
-    </footer>
-    <script src="js/homepage.js"></script>
+        </div>    </footer>
+    <script type="module" src="js/homepage.js"></script>
 </body>
 
 </html>

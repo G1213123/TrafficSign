@@ -1,4 +1,5 @@
 // Homepage JavaScript - Interactive Elements and Animations
+import { DemoCanvas } from './demo-canvas.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all homepage functionality
@@ -105,10 +106,21 @@ function animateStatsCounter() {
 
 // Demo interactions
 function initDemoInteractions() {
-    const demoButtons = document.querySelectorAll('.demo-btn');
-    const demoContent = document.getElementById('demo-sign-content');
+    // Wait for DOM to be fully loaded and then initialize the demo canvas
+    setTimeout(() => {
+        if (DemoCanvas && document.getElementById('demo-canvas')) {
+            try {
+                DemoCanvas.init();
+                console.log('Demo canvas initialized successfully');
+            } catch (error) {
+                console.error('Error initializing demo canvas:', error);
+            }
+        } else {
+            console.warn('Demo canvas or DemoCanvas object not available');
+        }
+    }, 100);
     
-    if (!demoContent) return;
+    const demoButtons = document.querySelectorAll('.demo-btn');
     
     demoButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -118,115 +130,48 @@ function initDemoInteractions() {
             this.classList.add('active');
             
             const demoType = this.dataset.demo;
-            simulateDemo(demoType, demoContent);
+            executeDemo(demoType);
         });
     });
 }
 
-// Demo simulation functions
-function simulateDemo(type, content) {
-    switch(type) {
-        case 'symbol':
-            simulateAddSymbol(content);
-            break;
-        case 'text':
-            simulateAddText(content);
-            break;
-        case 'drag':
-            simulateDragDrop(content);
-            break;
-        case 'border':
-            simulateAddBorder(content);
-            break;
-        case 'reset':
-            resetDemo(content);
-            break;
+// Execute demo actions using real canvas
+function executeDemo(type) {
+    if (!DemoCanvas) {
+        console.warn('DemoCanvas not available');
+        return;
     }
-}
-
-function simulateAddSymbol(content) {
-    content.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column;">
-            <div style="font-size: 4rem; color: #dc2626; margin-bottom: 1rem;">🛑</div>
-            <div style="color: #374151; font-weight: 600;">STOP</div>
-            <div style="color: #6b7280; font-size: 0.875rem; margin-top: 1rem;">Symbol added successfully!</div>
-        </div>
-    `;
-}
-
-function simulateAddText(content) {
-    content.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column;">
-            <div style="font-size: 2rem; color: #1f2937; font-weight: bold; margin-bottom: 1rem;">HIGHWAY 101</div>
-            <div style="font-size: 1.25rem; color: #374151;">Next Exit 2 km</div>
-            <div style="color: #6b7280; font-size: 0.875rem; margin-top: 1rem;">Text added with professional typography!</div>
-        </div>
-    `;
-}
-
-function simulateDragDrop(content) {
-    content.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: center; height: 100%; position: relative;">
-            <div id="draggable-demo" style="padding: 1rem; background: #fef3c7; border: 2px dashed #f59e0b; border-radius: 8px; cursor: move; transition: all 0.3s ease;">
-                <div style="font-size: 1.5rem;">📍</div>
-                <div style="font-size: 0.875rem; color: #92400e;">Drag me around!</div>
-            </div>
-        </div>
-    `;
     
-    // Add simple drag simulation
-    const draggable = document.getElementById('draggable-demo');
-    let isMoving = false;
-    
-    const animateDrag = () => {
-        if (isMoving) return;
-        isMoving = true;
-        
-        const positions = [
-            { x: 0, y: 0 },
-            { x: 50, y: -30 },
-            { x: -30, y: 40 },
-            { x: 0, y: 0 }
-        ];
-        
-        let index = 0;
-        const moveInterval = setInterval(() => {
-            if (index < positions.length) {
-                draggable.style.transform = `translate(${positions[index].x}px, ${positions[index].y}px)`;
-                index++;
-            } else {
-                clearInterval(moveInterval);
-                isMoving = false;
-            }
-        }, 800);
-    };
-    
-    setTimeout(animateDrag, 500);
-}
-
-function simulateAddBorder(content) {
-    content.style.border = '4px solid #dc2626';
-    content.style.borderRadius = '12px';
-    content.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column;">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
-            <div style="color: #dc2626; font-weight: bold; font-size: 1.5rem;">WARNING</div>
-            <div style="color: #6b7280; font-size: 0.875rem; margin-top: 1rem;">Custom border applied!</div>
-        </div>
-    `;
-}
-
-function resetDemo(content) {
-    content.style.border = '2px solid var(--border-color)';
-    content.style.borderRadius = '8px';
-    content.innerHTML = `
-        <div class="demo-placeholder-text">
-            Click any button above to see the feature in action
-        </div>
-    `;
-    
-    // Remove active class from all buttons
-    document.querySelectorAll('.demo-btn').forEach(btn => btn.classList.remove('active'));
+    try {
+        switch(type) {
+            case 'symbol':
+                DemoCanvas.createSymbol();
+                console.log('Demo symbol created');
+                break;
+            case 'text':
+                DemoCanvas.createText();
+                console.log('Demo text created');
+                break;
+            case 'drag':
+                DemoCanvas.simulateDrag();
+                console.log('Demo drag simulation started');
+                break;
+            case 'border':
+                DemoCanvas.createBorder();
+                console.log('Demo border created');
+                break;
+            case 'reset':
+                DemoCanvas.reset();
+                // Remove active class from all buttons
+                document.querySelectorAll('.demo-btn').forEach(btn => btn.classList.remove('active'));
+                console.log('Demo canvas reset');
+                break;
+            default:
+                console.warn('Unknown demo type:', type);
+        }
+    } catch (error) {
+        console.error('Error executing demo:', error);
+    }
 }
 
 // Smooth scrolling for anchor links
