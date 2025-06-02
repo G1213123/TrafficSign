@@ -173,15 +173,15 @@ function createDemoSymbol() {
 
     try {
         const triangle = new fabric.Polygon([
-                { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
-                { x: 100, y: 100, label: 'V2', start: 0, display: 0 },
-                { x: 100, y: 200, label: 'V3', start: 0, display: 0 },
-                { x: 100 / 3, y: 400 / 3, label: 'V4', start: 0, display: 0 },
-                { x: 100 / 3, y: 400, label: 'V5', start: 0, display: 0 },
-                { x: -100 / 3, y: 400, label: 'V6', start: 0, display: 0 },
-                { x: -100 / 3, y: 400 / 3, label: 'V7', start: 0, display: 0 },
-                { x: -100, y: 200, label: 'V8', start: 0, display: 0 },
-                { x: -100, y: 100, label: 'V9', start: 0, display: 0 },
+            { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+            { x: 100, y: 100, label: 'V2', start: 0, display: 0 },
+            { x: 100, y: 200, label: 'V3', start: 0, display: 0 },
+            { x: 100 / 3, y: 400 / 3, label: 'V4', start: 0, display: 0 },
+            { x: 100 / 3, y: 400, label: 'V5', start: 0, display: 0 },
+            { x: -100 / 3, y: 400, label: 'V6', start: 0, display: 0 },
+            { x: -100 / 3, y: 400 / 3, label: 'V7', start: 0, display: 0 },
+            { x: -100, y: 200, label: 'V8', start: 0, display: 0 },
+            { x: -100, y: 100, label: 'V9', start: 0, display: 0 },
         ], {
             fill: '#ffffff',
             strokeWidth: 0,
@@ -220,48 +220,27 @@ function createDemoText() {
 
     try {
         // Create more realistic highway sign text with proper styling
-        const bgRect = new fabric.Rect({
-            width: 240,
-            height: 100,
-            fill: '#1e40af',  // Highway blue
-            stroke: '#ffffff',
-            strokeWidth: 3,
-            rx: 8,
-            ry: 8
+        fabric.loadSVGFromURL('./images/demo-text.svg').then((results) => {
+            const textGroup = new fabric.Group([], {
+                left: -150,
+                top: 100,
+                originX: 'center',
+                originY: 'center',
+                selectable: true,
+                hasControls: false,
+                hasBorders: true,
+                cornerStyle: 'circle',
+                borderColor: '#3b82f6',
+                cornerColor: '#3b82f6'
+            })
+            textGroup.add(...(results.objects.filter((obj) => !!obj)))
+
+            demoCanvas.add(textGroup);
+            demoCanvas.setActiveObject(textGroup);
+            demoCanvas.renderAll();
+            demoCanvasObject.push(textGroup);
         });
 
-        const mainText = new fabric.Text('HIGHWAY 101', {
-            fontSize: 22,
-            fill: '#ffffff',
-            fontFamily: 'Arial',
-            fontWeight: 'bold',
-            top: -30,
-            textAlign: 'center'
-        });
-
-        const subText = new fabric.Text('Next Exit 2 km', {
-            fontSize: 14,
-            fill: '#ffffff',
-            fontFamily: 'Arial',
-            top: 10,
-            textAlign: 'center'
-        });
-
-        const textGroup = new fabric.Group([bgRect, mainText, subText], {
-            left: 250,
-            top: 180,
-            selectable: true,
-            hasControls: true,
-            hasBorders: true,
-            cornerStyle: 'circle',
-            borderColor: '#3b82f6',
-            cornerColor: '#3b82f6'
-        });
-
-        demoCanvas.add(textGroup);
-        demoCanvas.setActiveObject(textGroup);
-        demoCanvas.renderAll();
-        demoCanvasObject.push(textGroup);
     } catch (error) {
         console.error('Error creating demo text:', error);
     }
