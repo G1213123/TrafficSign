@@ -2029,3 +2029,232 @@ div.side-panel.close {
 #info-content-static > .legal-disclaimer {
     width: 100%; /* Ensures it tries to fill the parent if it's not already doing so */
 }
+
+/* Font Priority Modal Styles */
+#font-priority-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  font-family: 'Lato', sans-serif;
+}
+
+#font-priority-modal .modal-content {
+  background-color: #222;
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 70vh;
+  overflow-y: auto;
+  border: 1px solid #444;
+  color: white;
+  position: relative;
+}
+
+#font-priority-modal .close-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+#font-priority-modal .close-button:hover {
+  color: #fff;
+}
+
+#font-priority-modal h3 {
+  margin-bottom: 20px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  color: #fff;
+  font-size: 20px;
+  padding-right: 40px;
+}
+
+#font-priority-modal h4 {
+  margin-bottom: 10px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 600;
+  color: #fff;
+  font-size: 16px;
+}
+
+#font-priority-modal .info-text {
+  margin-bottom: 20px;
+  color: #ccc;
+  line-height: 1.4;
+  font-size: 14px;
+}
+
+.font-list-container {
+  background-color: #333;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid #555;
+}
+
+.font-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 8px;
+  background-color: #404042;
+  border-radius: 6px;
+  border: 1px solid #555;
+}
+
+.font-item:last-child {
+  margin-bottom: 0;
+}
+
+.font-label {
+  color: #eee;
+  font-size: 14px;
+  flex: 1;
+}
+
+.font-controls {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.move-button, .remove-button {
+  background-color: #555;
+  border: none;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  min-width: 24px;
+  transition: background-color 0.2s ease;
+}
+
+.move-button:hover:not(:disabled) {
+  background-color: #3498db;
+}
+
+.move-button:disabled {
+  background-color: #333;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.remove-button:hover {
+  background-color: #e74c3c;
+}
+
+.upload-section {
+  background-color: #333;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid #555;
+}
+
+.upload-button {
+  background-color: #555;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+  margin-bottom: 10px;
+}
+
+.upload-button:hover {
+  background-color: #3498db;
+}
+
+.font-upload-input {
+  display: none;
+}
+
+.apply-button {
+  background-color: #6761A8;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.apply-button:hover {
+  background-color: #5a539c;
+  transform: translateY(-1px);
+}
+
+/* Character Override Section Styles */
+.override-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.override-label {
+  color: #eee;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.font-select {
+  background-color: #404042;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.font-select:focus {
+  outline: none;
+  border-color: #6761A8;
+  box-shadow: 0 0 0 2px rgba(103, 97, 168, 0.2);
+}
+
+.char-input {
+  background-color: #404042;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.char-input:focus {
+  outline: none;
+  border-color: #6761A8;
+  box-shadow: 0 0 0 2px rgba(103, 97, 168, 0.2);
+}
+
+.char-input::placeholder {
+  color: #999;
+}

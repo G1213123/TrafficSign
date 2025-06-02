@@ -1,9 +1,10 @@
 /* Text panel component */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
-import { TextObject } from '../objects/text.js';
+import { TextObject, containsNonEnglishCharacters } from '../objects/text.js';
 import { anchorShape } from '../objects/anchor.js';
 import { EngDestinations, ChtDestinations } from '../objects/template.js';
+import { FontPriorityManager } from '../modal/md-font.js';
 
 let FormTextAddComponent = {
   textFont: ['TransportMedium', 'TransportHeavy'],
@@ -54,8 +55,10 @@ let FormTextAddComponent = {
       const textInput = GeneralHandler.createInput('input-text', 'Add Text', textContentContainer, '', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler, 'input');
       // Add the info text div for 2Liner mode
       const twoLinerInfo = GeneralHandler.createNode("div", { 'id': 'two-liner-info', 'class': 'info-text', 'style': 'display: none;' }, textContentContainer);
-      twoLinerInfo.textContent = "Text input is disabled in 2Liner mode. Select a destination below.";
-      const fontToggle = GeneralHandler.createToggle('Text Font', FormTextAddComponent.textFont, textContentContainer, 'TransportMedium', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler);
+      twoLinerInfo.textContent = "Text input is disabled in 2Liner mode. Select a destination below.";      const fontToggle = GeneralHandler.createToggle('Text Font', FormTextAddComponent.textFont, textContentContainer, 'TransportMedium', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler);
+      
+      // Add font priority management button for Chinese fonts
+      const fontPriorityButton = GeneralHandler.createButton('font-priority-btn', 'Chinese Font Setting', textContentContainer, 'input', FontPriorityManager.showModal, 'click');
 
       // Create a container for location selection
       const locationContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
@@ -201,16 +204,46 @@ let FormTextAddComponent = {
 
   /**
    * Live update text as the user types or changes parameters
-   */
-  liveUpdateText: function () {
+   */  liveUpdateText: function (event) {
+    const newXHeight = parseInt(document.getElementById('input-xHeight').value);
+    let newFont = document.getElementById('Text Font-container').selected.getAttribute('data-value');
+    const newColor = document.getElementById('Message Colour-container').selected.getAttribute('data-value');    // Check if text contains non-English characters and override font if needed
+    const txt = document.getElementById('input-text').value;
+    const containsNonEnglish = containsNonEnglishCharacters(txt);
+    
+    if (containsNonEnglish) {
+      // Get the primary font from FontPriorityManager for Chinese text
+      try {
+        const fontPriorityList = FontPriorityManager.getFontPriorityList();
+        // Use the first font in the priority list for Chinese text
+        const priorityFont = fontPriorityList.length > 0 ? fontPriorityList[0] : 'parsedFontKorean';
+        // Convert font priority names to font family names
+        switch(priorityFont) {
+          case 'parsedFontKorean':
+            newFont = 'TW-MOE-Std-Kai';
+            break;
+          case 'parsedFontChinese':
+            newFont = 'TW-MOE-Std-Kai';
+            break;
+          case 'parsedFontMedium':
+            newFont = 'TransportMedium';
+            break;
+          case 'parsedFontHeavy':
+            newFont = 'TransportHeavy';
+            break;
+          default:
+            newFont = 'TW-MOE-Std-Kai'; // Default for Chinese text
+        }
+      } catch (error) {
+        console.warn('Could not get font from FontPriorityManager, falling back to default Chinese font:', error);
+        newFont = 'TW-MOE-Std-Kai'; // Fallback to default Chinese font
+      }
+    }
+
     // Make sure we're not in placement mode
     if (FormTextAddComponent.newTextObject) {
       // If in placement mode, update the new object being placed
       let newText = document.getElementById('input-text').value;
-      const newXHeight = parseInt(document.getElementById('input-xHeight').value);
-      const newFont = document.getElementById('Text Font-container').selected.getAttribute('data-value');
-      const newColor = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
-
       // Check if we're in 2Liner mode
       const isTwoLiner = FormTextAddComponent.textLineInput === 2;
       const justification = FormTextAddComponent.justification || 'Left';
@@ -359,9 +392,6 @@ let FormTextAddComponent = {
     if (!textObj || textObj.functionalType !== 'Text') return;
     let newText = document.getElementById('input-text').value;
     if (!newText || newText.trim() === '') newText = textObj.text; // Don't create empty text
-    const newXHeight = parseInt(document.getElementById('input-xHeight').value);
-    const newFont = document.getElementById('Text Font-container').selected.getAttribute('data-value');
-    const newColor = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
 
     // Check if this is part of a two-liner set
     const isTwoLiner = textObj.anchoredPolygon && textObj.anchoredPolygon.length > 0;
@@ -452,14 +482,36 @@ let FormTextAddComponent = {
       document.getElementById('input-text').value = '';
     }
   },
-
   TextInputHandler: async function (event, options = null) {
     // Get text and parameters
     const txt = options ? options.text : document.getElementById('input-text').value;
     if (!txt || txt.trim() === '') return; // Don't create empty text
 
     const xHeight = options ? options.xHeight : parseInt(document.getElementById('input-xHeight').value);
-    const font = options ? options.font : document.getElementById('Text Font-container').selected.getAttribute('data-value');
+      // Check if text contains non-English characters
+    const containsNonEnglish = containsNonEnglishCharacters(txt);
+    
+    // Get font - use Chinese font from FontPriorityManager if text contains non-English characters
+    let font;
+    if (options && options.font) {
+      font = options.font;
+    } else if (containsNonEnglish) {
+      // Get the primary font from FontPriorityManager for Chinese text
+      try {
+        const fontPriorityList = FontPriorityManager.getFontPriorityList();
+        // Use the first font in the priority list for Chinese text
+        font = fontPriorityList.length > 0 ? fontPriorityList[0] : 'parsedFontKorean';
+        // Convert font priority names to font family names
+
+      } catch (error) {
+        console.warn('Could not get font from FontPriorityManager, falling back to default Chinese font:', error);
+        font = 'Noto Sans KR'; // Fallback to default Chinese font
+      }
+    } else {
+      // For English text, use the UI toggle value
+      font = document.getElementById('Text Font-container').selected.getAttribute('data-value');
+    }
+    
     const color = options ? options.color : document.getElementById('Message Colour-container').selected.getAttribute('data-value');
 
     // Check if we're using two-liner mode
@@ -599,21 +651,26 @@ let FormTextAddComponent = {
 
     // Legacy options handling - should rarely be used now
   },
-
   EditOnMouseClick: function (event) {
     document.getElementById('input-text').value = '';
     FormTextAddComponent.textPanelInit(null);
+  },
+
+  /**
+   * Initialize the text component settings listener
+   * This should be called after all modules are loaded to avoid circular dependencies
+   */
+  initializeSettingsListener: function() {
+    // Replace the settings listener with the shared implementation
+    GeneralSettings.addListener(
+      GeneralHandler.createSettingsListener(2, function (setting, value) {
+        // Text-specific updates when settings change
+        if (FormTextAddComponent.newTextObject || CanvasGlobals.canvas.getActiveObject()?.functionalType === 'Text') {
+          FormTextAddComponent.liveUpdateText();
+        }
+      })
+    );
   }
 };
-
-// Replace the settings listener with the shared implementation
-GeneralSettings.addListener(
-  GeneralHandler.createSettingsListener(2, function (setting, value) {
-    // Text-specific updates when settings change
-    if (FormTextAddComponent.newTextObject || CanvasGlobals.canvas.getActiveObject()?.functionalType === 'Text') {
-      FormTextAddComponent.liveUpdateText();
-    }
-  })
-);
 
 export { FormTextAddComponent };

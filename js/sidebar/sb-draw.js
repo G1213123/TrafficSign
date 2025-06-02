@@ -121,9 +121,6 @@ let FormDrawAddComponent = {
   handleColorChange: function (event) {
     const color = event.getAttribute('data-value');
 
-    // Update GeneralSettings using the built-in function
-    GeneralHandler.handleColorChange(event);
-
     // Update buttons immediately
     FormDrawAddComponent.addAllSymbolsButton();
 
@@ -138,9 +135,6 @@ let FormDrawAddComponent = {
   // Add a custom handler for color change to update SVG buttons immediately
   handleXHeightChange: function (event) {
     const xHeight = parseInt(event.target.value);
-
-    // Update GeneralSettings using the built-in function
-    GeneralHandler.handleXHeightChange(event);
 
     // Update the symbol with new color if one exists
     if (FormDrawAddComponent.newSymbolObject) {

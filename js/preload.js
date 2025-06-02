@@ -3,6 +3,7 @@
 import { parseFont } from './objects/path.js'; // Import parseFont specifically
 import { FormDrawAddComponent } from './sidebar/sb-draw.js'; // Import FormDrawAddComponent specifically
 import { FormSettingsComponent } from './sidebar/sb-settings.js'; // Import FormSettingsComponent specifically
+import { FormTextAddComponent } from './sidebar/sb-text.js'; // Import FormTextAddComponent for initialization
 import { DrawGrid } from './canvas/canvas.js'; // Import DrawGrid if needed
 import {activatePanelFromHash} from './sidebar/sidebar.js'; // Import activatePanelFromHash if needed
 
@@ -19,12 +20,11 @@ async function preload() {
         activatePanelFromHash(); // Initialize Draw panel by default
         console.log("Fonts parsed successfully. Application ready.");
         // Hide loading indicator here
-        // Any initialization code that depends on fonts being loaded can go here.
-
-
-        await FormSettingsComponent.loadSettings();
+        // Any initialization code that depends on fonts being loaded can go here.        await FormSettingsComponent.loadSettings();
         await FormSettingsComponent.loadCanvasState();
 
+        // Initialize text component settings listener after all modules are loaded
+        FormTextAddComponent.initializeSettingsListener();
 
         setTimeout(function () {
             document.getElementById('loading-overlay').style.display = 'none';

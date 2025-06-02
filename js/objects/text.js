@@ -3,10 +3,11 @@
  */
 
 import { BaseGroup } from './draw.js';
-import {textWidthMedium, textWidthHeavy,} from './template.js';
-import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontKai } from './path.js';
+import { textWidthMedium, textWidthHeavy, } from './template.js';
+import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontKorean, parsedFontKai } from './path.js';
 import { GeneralSettings } from '../sidebar/sbGeneral.js';
 import { FormTextAddComponent } from '../sidebar/sb-text.js';
+import { FontPriorityManager } from '../modal/md-font.js';
 
 class TextObject extends BaseGroup {
   constructor(options = {}) {
@@ -16,22 +17,30 @@ class TextObject extends BaseGroup {
     // Store metadata properties
     this.text = options.text || '';
     this.xHeight = options.xHeight || 100;
-    this.font = options.font || 'TransportMedium';
     this.color = options.color || '#ffffff';
     this.left = options.left || 0;
     this.top = options.top || 0;
     this.containsNonAlphabetic = false;
     this.txtCharList = [];
     this.txtFrameList = [];
+    this.containsNonAlphabetic = containsNonEnglishCharacters(this.text);
+
+    // Determine the correct font based on text content and priority system
+    const defaultFont = options.font || 'TransportMedium';
+    const chineseFontFromPriority = this._getChineseFontFromPriority(this.text, defaultFont);
+
+    // Use Chinese font from priority system if text contains non-English characters,
+    // otherwise use the provided font or default
+    this.font = chineseFontFromPriority || defaultFont;
 
     this.initialize();
   }
 
-    /**
-   * Initialize the TextObject drawing after instantiation.
-   * Creates character paths and frames, then sets the base polygon.
-   * @returns {TextObject}
-   */
+  /**
+ * Initialize the TextObject drawing after instantiation.
+ * Creates character paths and frames, then sets the base polygon.
+ * @returns {TextObject}
+ */
   initialize() {
     // Generate elements using stored properties
     const { txtCharList, txtFrameList, containsNonAlphabetic } = TextObject.createTextElements(
@@ -63,10 +72,10 @@ class TextObject extends BaseGroup {
    * LEGACY Handle double-click on the text object
   */
   onDoubleClick() {
-      // If already defined, initialize directly
-      FormTextAddComponent.textPanelInit(null, this);
-      this.setupTextPanelInputs();
-    
+    // If already defined, initialize directly
+    FormTextAddComponent.textPanelInit(null, this);
+    this.setupTextPanelInputs();
+
   }
 
   /**
@@ -106,10 +115,10 @@ class TextObject extends BaseGroup {
       if (colorToggle) {
         const buttons = colorToggle.querySelectorAll('.toggle-button');
         buttons.forEach(button => {
-          if (button.getAttribute('data-value') === 'White' && this.color == '#ffffff' ) {
+          if (button.getAttribute('data-value') === 'White' && this.color == '#ffffff') {
             button.classList.add('active');
-          } else if 
-          (button.getAttribute('data-value') === 'Black' && this.color == '#000000') {
+          } else if
+            (button.getAttribute('data-value') === 'Black' && this.color == '#000000') {
             button.classList.add('active');
           } else {
             button.classList.remove('active');
@@ -119,138 +128,324 @@ class TextObject extends BaseGroup {
     }, 100);
   }
 
-  /**
-   * Static method to create text and frame elements
-   */
-  static createTextElements(txt, xHeight, color, font, isCursor = false) {
-    // Access the font width dictionaries from FormTextAddComponent
-    let txtCharList = [];
-    let txtCharPromises = [];
-    let txtFrameList = [];
-    let left_pos = 0;
 
-    // Check if text contains any non-alphabetic characters
-    const containsNonAlphabetic = txt.split('').some(char => {
-      // If the character is not in our width dictionaries, consider it non-alphabetic
-      return !textWidthMedium.map(item => item.char).includes(char);
+  /**
+   * Helper function to get the appropriate font for Chinese/non-English characters
+   * @param {string} text - Text to check
+   * @returns {string} - Font family name to use
+   */
+  _getChineseFontFromPriority(text, defaultFont = null) {
+    try {
+      // Check if text contains non-English characters
+      if (!containsNonEnglishCharacters(text)) {
+        return null; // Not Chinese text, don't override font
+      }
+
+     if (window[defaultFont]) {
+        return defaultFont; // If a specific font is provided, don't override it
+      } else {
+        const fontPriorityList = FontPriorityManager.getFontPriorityList();
+        const priorityFont = fontPriorityList.length > 0 ? fontPriorityList[0] : 'parsedFontKorean';
+        return priorityFont; // Return the first font from the priority list
+      }
+    } catch (error) {
+      console.warn('Could not get font from FontPriorityManager, falling back to default Chinese font:', error);
+      return defaultFont; // Fallback to default Chinese font
+    }
+  }
+
+  /**
+   * Helper function to get character parameters based on type
+   */
+  static _getCharacterParameters(textChar, containsNonAlphabetic, font, xHeight, previousChar) {
+    // Handle special character transformations
+    let actualChar = textChar;
+    if (textChar === ',' && containsNonAlphabetic) {
+      actualChar = '、';
+    }
+
+    if (containsNonAlphabetic) {
+      return this._getNonEnglishCharacterParams(actualChar, font, xHeight, previousChar);
+    } else {
+      return this._getEnglishCharacterParams(textChar, font, xHeight, previousChar);
+    }
+  }
+
+  /**
+   * Helper function for English character parameters
+   */
+  static _getEnglishCharacterParams(textChar, font, xHeight, previousChar) {
+    const isTransportHeavy = font === 'TransportHeavy';
+    const fontWidth = isTransportHeavy ? textWidthHeavy : textWidthMedium;
+    const hasShortWidth = previousChar && ['T', 'U', 'V'].includes(previousChar);
+
+    const charWidthObj = fontWidth.find(e => e.char === textChar);
+    const charWidth = charWidthObj ?
+      (hasShortWidth && charWidthObj.shortWidth !== 0 ? charWidthObj.shortWidth : charWidthObj.width) :
+      100;
+
+    return {
+      actualChar: textChar,
+      fontFamily: font,
+      fontSize: xHeight * 1.88,
+      charWidth: charWidth,
+      bracketOffset: ['(', ')'].includes(textChar) ? 0.15 : 0,
+      leftOffset: 0,
+      topOffset: 0.1 * xHeight,
+      frameWidth: charWidth * xHeight / 100 - 2,
+      frameHeight: xHeight * 2 - 2,
+      advanceWidth: charWidth * xHeight / 100
+    };
+  }
+  /**
+   * Helper function for non-English character parameters (Chinese, numbers, punctuation)
+   */
+  static _getNonEnglishCharacterParams(actualChar, font, xHeight, previousChar) {
+    const isKnownPunctuation = textWidthHeavy.map(item => item.char).includes(actualChar);
+
+    if (this._isNumber(actualChar)) {
+      // Numbers in non-English text
+      return this._getNumberParams(actualChar, xHeight, previousChar);
+    } else if (isKnownPunctuation) {
+      // English punctuation in non-English text - use Transport Heavy
+      return this._getPunctuationParams(actualChar, xHeight, previousChar);
+    } else {
+      // Chinese characters - pass the font parameter
+      return this._getChineseCharacterParams(actualChar, font, xHeight);
+    }
+  }
+
+  /**
+   * Helper function for punctuation parameters
+   */
+  static _getPunctuationParams(textChar, xHeight, previousChar) {
+    const charWidthObj = textWidthHeavy.find(e => e.char === textChar);
+    const charWidth = charWidthObj.width || xHeight * 100 / 4;
+    const fontFamily = textChar === '、' ? 'TW-MOE-Std-Kai' : 'TransportHeavy';
+
+    return {
+      actualChar: textChar,
+      fontFamily: fontFamily,
+      fontSize: xHeight * 1.88,
+      charWidth: charWidth,
+      bracketOffset: ['(', ')'].includes(textChar) ? -0.3125 : 0,
+      leftOffset: 0.25 * xHeight,
+      topOffset: 0.2 * xHeight,
+      frameWidth: charWidth * xHeight / 100 + 0.5 * xHeight - 2,
+      frameHeight: 2.85 * xHeight - 2,
+      advanceWidth: charWidth * xHeight / 100 + 0.5 * xHeight
+    };
+  }
+
+  /**
+   * Helper function for number parameters
+   */
+  static _getNumberParams(textChar, xHeight, previousChar) {
+    const charWidthObj = textWidthMedium.find(e => e.char === textChar);
+    const charWidth = charWidthObj.width * 1.375 * xHeight / 100;
+
+    return {
+      actualChar: textChar, fontFamily: 'TransportMedium',
+      fontSize: xHeight * 1.88 * 1.375,
+      charWidth: charWidth * xHeight,
+      bracketOffset: 0,
+      leftOffset: (containsNonEnglishCharacters(previousChar || '') ? 0.25 * xHeight : 0),
+      topOffset: 0.1 * xHeight,
+      frameWidth: charWidth - 2 + (containsNonEnglishCharacters(previousChar || '') ? 0.25 * xHeight : 0),
+      frameHeight: 2.85 * xHeight - 2,
+      advanceWidth: charWidth + (containsNonEnglishCharacters(previousChar || '') ? 0.25 * xHeight : 0)
+    };
+  }  /**
+   * Helper function for Chinese character parameters
+   */
+  static _getChineseCharacterParams(actualChar, font, xHeight) {
+    // Check if character requires special override font
+    let fontFamily = font;
+    
+    try {
+      // Get special characters array and override font from FontPriorityManager
+      const specialCharacters = FontPriorityManager.getSpecialCharactersArray();
+      
+      // Check if the character is in the special characters array
+      if (specialCharacters.includes(actualChar)) {
+        const overrideFontName = FontPriorityManager.getOverrideFont();
+        fontFamily = overrideFontName;
+      }
+    } catch (error) {
+      console.warn('Could not check special characters, using default font:', error);
+      // Continue with the originally passed font
+    }
+
+    return {
+      actualChar: actualChar,
+      fontFamily: fontFamily,
+      fontSize: xHeight * 2.25,
+      charWidth: 275,
+      bracketOffset: 0,
+      leftOffset: 0.25 * xHeight,
+      topOffset: -0.2 * xHeight,
+      frameWidth: 2.75 * xHeight - 2,
+      frameHeight: 2.85 * xHeight - 2,
+      advanceWidth: 2.75 * xHeight
+    };
+  }
+
+  /**
+   * Helper function to check if character is a number
+   */
+  static _isNumber(char) {
+    return /\d/.test(char);
+  }
+
+  /**
+   * Helper function to calculate character positioning
+   */
+  static _calculateCharacterPositioning(left_pos, charParams, xHeight, previousChar) {
+    return {
+      charLeftPos: left_pos + charParams.leftOffset,
+      charTopPos: charParams.bracketOffset * xHeight + charParams.topOffset
+    };
+  }
+
+  /**
+   * Helper function to create character elements (path and frame)
+   */
+  static _createCharacterElements(charParams, positioning, fontGlyphs, color, xHeight) {
+    // Access font metrics
+    const fontMetrics = {
+      unitsPerEm: fontGlyphs.unitsPerEm,
+      ascender: fontGlyphs.ascender,
+      descender: fontGlyphs.descender,
+    };
+
+    // Scale metrics to desired font size
+    const fontScale = charParams.fontSize / fontMetrics.unitsPerEm;
+    const scaledAscender = fontMetrics.ascender * fontScale;
+    const scaledDescender = Math.abs(fontMetrics.descender) * fontScale;
+    const fontHeight = scaledAscender + scaledDescender;
+
+    // Calculate the vertical position to center the glyph
+    const font2CanvasRatio = 1 / fontHeight * charParams.frameHeight;
+
+    // Create the path parameters for this character
+    const pathParams = {
+      character: charParams.actualChar,
+      x: 0,
+      y: scaledAscender * font2CanvasRatio,
+      fontSize: charParams.fontSize,
+      fontFamily: charParams.fontFamily,
+      fill: color
+    };
+
+    // Get the font path
+    const charPath = getFontPath(pathParams);
+    charPath.fill = color;
+    const charSVG = charPath.toPathData({ flipY: false });
+    const charGlyph = fontGlyphs.charToGlyph(charParams.actualChar);
+
+    const minTop = Math.min(...charPath.commands.map(cmd => cmd.y));
+
+    // Create a path from the font path data
+    const txt_char = new fabric.Path(charSVG, {
+      left: (charParams.actualChar === '、' ? charGlyph.leftSideBearing - 800 : charGlyph.leftSideBearing) * fontScale + positioning.charLeftPos,
+      top: minTop + positioning.charTopPos - (charParams.actualChar === '、' ? 600 * fontScale : 0),
+      fill: color,
+      originX: 'left',
+      originY: 'top'
     });
 
+    // Set properties and return the created path
+    txt_char.lockScalingX = txt_char.lockScalingY = true;
+    txt_char._textChar = charParams.actualChar; // Store the character for reference
+
+    // Create the frame rectangle
+    const txt_frame = new fabric.Rect({
+      left: positioning.charLeftPos - charParams.leftOffset,
+      top: 0,
+      width: charParams.frameWidth,
+      height: charParams.frameHeight,
+      fill: 'rgba(0,0,0,0)',
+      stroke: GeneralSettings.showTextBorders ? color : 'rgba(0,0,0,0)',
+      strokeWidth: 2,
+      strokeDashArray: [xHeight / 10, xHeight / 10],
+    });
+
+    return {
+      textPath: txt_char,
+      frame: txt_frame
+    };
+  }
+  /**
+   * Helper function to get appropriate font glyphs
+   */
+  static _getFontGlyphs(fontFamily, textChar, containsNonAlphabetic) {
+    if (fontFamily === 'TransportMedium') {
+      return parsedFontMedium;
+    } else if (fontFamily === 'TransportHeavy') {
+      return parsedFontHeavy;
+    } else if (fontFamily === 'TW-MOE-Std-Kai') {
+      return parsedFontKai;
+    } else if (fontFamily.startsWith('custom_')) {
+      // Handle custom fonts - they should have their font object in window
+      const customFont = window[fontFamily];
+      return customFont || parsedFontChinese; // Fallback to default
+    } else {
+      return parsedFontChinese;
+    }
+  }
+  /**
+   * Static method to create text and frame elements
+   * 
+   * This function handles different character types with clear separation:
+   * 
+   * 1. English characters:
+   *    - Uses TransportMedium or TransportHeavy font based on font parameter
+   *    - Handles short width for characters following T, U, V
+   * 
+   * 2. Non-English text containing:
+   *    a) English punctuation: Uses TransportHeavy font
+   *    b) Numbers: Uses TransportMedium font with adjusted sizing
+   *    c) Chinese characters: Uses font from FontPriorityManager priority system
+   *       - Font determined by priority list (e.g., TW-MOE-Std-Kai, custom fonts)
+   *       - Special handling for comma (,) → 、 transformation
+   *
+   * Each character type has specific parameters for:
+   * - Font family and size
+   * - Character width and positioning offsets
+   * - Frame dimensions and advance width
+   */
+  static createTextElements(txt, xHeight, color, font, isCursor = false) {
+    let txtCharList = [];
+    let txtFrameList = [];
+    let left_pos = 0;    // Check if text contains any non-English characters
+    const containsNonAlphabetic = containsNonEnglishCharacters(txt);
+
     for (let i = 0; i < txt.length; i++) {
-      // Check if the character is a Chinese character
-      const bracketOffset = ['(', ')',].includes(txt.charAt(i)) ? 0.2 : 0;
       let textChar = txt.charAt(i);
+      const previousChar = i > 0 ? txt[i - 1] : null;
 
-      // Determine font family and size based on character type
-      const isKnownPunctuation = textWidthHeavy.map(item => item.char).includes(textChar);
-      let fontFamily = containsNonAlphabetic ?
-        (isKnownPunctuation ? 'TransportHeavy' : 'Noto Sans Hong Kong') :
-        font;
-      const fontSize = containsNonAlphabetic ?
-        (isKnownPunctuation ? xHeight * 1.88 : xHeight * 2.25) :
-        xHeight * 1.88;
-      const shortWidth = (i > 0 && ['T', 'U', 'V'].includes(txt[i - 1])) ? true : false;
-      if (textChar === ',' && containsNonAlphabetic) {
-        textChar = '、';
-        fontFamily = 'TW-MOE-Std-Kai';
-      }
+      // Get character parameters based on type
+      const charParams = this._getCharacterParameters(textChar, containsNonAlphabetic, font, xHeight, previousChar);
+      // Calculate positioning
+      const positioning = this._calculateCharacterPositioning(left_pos, charParams, xHeight, previousChar);
 
-      // Determine character width based on font and character
-      const fontWidth = font.replace('Transport', '') === 'Heavy' ? textWidthHeavy : textWidthMedium;
-      const charWidthObj = containsNonAlphabetic && isKnownPunctuation ?
-        textWidthHeavy.find(e => e.char === textChar) :
-        fontWidth.find(e => e.char === textChar);
-      const charWidth = charWidthObj ? (shortWidth ? (charWidthObj.shortWidth === 0 ? charWidthObj.width : charWidthObj.shortWidth) : charWidthObj.width) : (containsNonAlphabetic && !isKnownPunctuation ? 275 : 100);
+      // Get font glyphs
+      const fontGlyphs = this._getFontGlyphs(charParams.fontFamily, charParams.actualChar, containsNonAlphabetic);
 
-      // Calculate position adjustments for horizontal positioning
-      let charLeftPos = left_pos + (containsNonAlphabetic ? 0.25 * xHeight : 0);
-      let charTopPos = (bracketOffset+(containsNonAlphabetic ? -0.2 : 0.1)) * xHeight;
+      // Create character path and frame
+      const charElements = this._createCharacterElements(
+        charParams,
+        positioning,
+        fontGlyphs,
+        color,
+        xHeight
+      );
 
-      // Create the frame rectangle - we'll need these dimensions for centering
-      const frameWidth = containsNonAlphabetic ?
-        (isKnownPunctuation ? charWidth * xHeight / 100 + 0.25 * xHeight : 2.75 * xHeight - 2) :
-        charWidth * xHeight / 100 - 2;
-      const frameHeight = containsNonAlphabetic ? 2.85 * xHeight - 2 : xHeight * 2 - 2;
-
-      // Get the appropriate font - use pre-parsed fonts instead of parsing each time
-      let fontGlyphs;
-      if (fontFamily === 'TransportMedium' && !containsNonAlphabetic) {
-        fontGlyphs = parsedFontMedium;
-      } else if (fontFamily === 'TransportHeavy' && !containsNonAlphabetic) {
-        fontGlyphs = parsedFontHeavy;
-      } else if (textChar === '、') {
-        fontGlyphs = parsedFontKai;
-      } else {
-        fontGlyphs = parsedFontChinese ;
-      }
-
-      // Access font metrics
-      const fontMetrics = {
-        unitsPerEm: fontGlyphs.unitsPerEm,
-        ascender: fontGlyphs.ascender,
-        descender: fontGlyphs.descender,
-      };
-
-      // Scale metrics to desired font size
-      const fontScale = fontSize / fontMetrics.unitsPerEm;
-      const scaledAscender = fontMetrics.ascender * fontScale;
-      const scaledDescender = Math.abs(fontMetrics.descender) * fontScale;
-      const fontHeight = scaledAscender + scaledDescender;
-
-      // Calculate the vertical position to center the glyph
-      const verticalCenterOffset = (frameHeight - fontHeight) / 2;
-      let font2CanvasRatio = 1 / fontHeight * frameHeight;
-
-      // Create the path parameters for this character
-      const pathParams = {
-        character: textChar,
-        x: 0,
-        y: scaledAscender * font2CanvasRatio,
-        fontSize: fontSize,
-        fontFamily: fontFamily,
-        fill: color
-      };
-
-      // Get the font path
-      const charPath = getFontPath(pathParams);
-      charPath.fill = color;
-      const charSVG = charPath.toPathData({ flipY: false })
-      const charGlyph = fontGlyphs.charToGlyph(textChar);
-
-      const minTop = Math.min(...charPath.commands.map(cmd => cmd.y));
-
-      // Create a path from the font path data
-      const txt_char = new fabric.Path(charSVG, {
-        left: (textChar == '、'? charGlyph.leftSideBearing-800:charGlyph.leftSideBearing) * fontScale + charLeftPos ,
-        top: minTop + charTopPos,
-        fill: color,
-        originX: 'left',
-        originY: 'top'
-      });
-
-      // Set properties and return the created path
-      txt_char.lockScalingX = txt_char.lockScalingY = true;
-      txt_char._textChar = textChar; // Store the character for reference
-
-      txtCharList.push(txt_char);
-
-      // Create the frame rectangle
-      const txt_frame = new fabric.Rect({
-        left: left_pos,
-        top: 0,
-        width: frameWidth,
-        height: frameHeight,
-        fill: 'rgba(0,0,0,0)',
-        stroke: GeneralSettings.showTextBorders ? color : 'rgba(0,0,0,0)',
-        strokeWidth: 2,
-        strokeDashArray: [xHeight / 10, xHeight / 10],
-      });
-
-      txtFrameList.push(txt_frame);
+      txtCharList.push(charElements.textPath);
+      txtFrameList.push(charElements.frame);
 
       // Update position for next character
-      left_pos += containsNonAlphabetic ?
-        (isKnownPunctuation ? charWidth * xHeight / 100 + 0.25 * xHeight : 2.75 * xHeight) :
-        charWidth * xHeight / 100;
+      left_pos += charParams.advanceWidth;
     }
 
     return { txtCharList, txtFrameList, containsNonAlphabetic };
@@ -336,10 +531,37 @@ class TextObject extends BaseGroup {
     this.containsNonAlphabetic = containsNonAlphabetic;
 
     // Update the name for the object inspector
-    this._showName = `<Group ${this.canvasID}> Text - ${newText}`;
-
-    this.canvas.renderAll();
+    this._showName = `<Group ${this.canvasID}> Text - ${newText}`; this.canvas.renderAll();
   }
+}
+
+/**
+ * Check if text contains non-English characters
+ * @param {string} txt - Text to check
+ * @returns {boolean} - True if text contains non-English characters
+ */
+export function containsNonEnglishCharacters(txt) {
+  if (!txt || typeof txt !== 'string') {
+    return false;
+  }
+
+  return txt.split('').some(char => {
+    // If the character is not in our English width dictionaries, consider it non-English
+    return !textWidthMedium.map(item => item.char).includes(char);
+  });
+}
+
+/**
+ * Check if a single character is non-English
+ * @param {string} char - Single character to check
+ * @returns {boolean} - True if character is non-English
+ */
+export function isNonEnglishCharacter(char) {
+  if (!char || typeof char !== 'string' || char.length !== 1) {
+    return false;
+  }
+
+  return !textWidthMedium.map(item => item.char).includes(char);
 }
 
 export { TextObject };

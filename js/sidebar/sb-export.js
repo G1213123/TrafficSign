@@ -2,6 +2,7 @@
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { buildObjectsFromJSON } from '../objects/build.js';
+import { ImportManager } from '../modal/md-import.js';
 
 let FormExportComponent = {
   // Export settings for canvas objects
@@ -90,11 +91,9 @@ let FormExportComponent = {
     const importButtonContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent); // Create a new container for import elements, child of the main parent
 
     const importJsonInput = GeneralHandler.createButton('import-json', 'Import JSON file', importButtonContainer, 'input',
-      async () => await FormExportComponent.importCanvasFromJSON(), 'click'); // Changed parent to importButtonContainer
-
-    // New button for importing JSON from text
+      async () => await FormExportComponent.importCanvasFromJSON(), 'click'); // Changed parent to importButtonContainer    // New button for importing JSON from text
     const importJsonTextButton = GeneralHandler.createButton('import-json-text', 'Import JSON text', importButtonContainer, 'input',
-      () => FormExportComponent.showImportJSONTextModal(), 'click');
+      () => ImportManager.showImportJSONTextModal(FormExportComponent.importCanvasFromJSONText), 'click');
 
   },
 
@@ -1010,10 +1009,10 @@ let FormExportComponent = {
       // Modal is removed by importCanvasFromJSONText on success,
       // but if it fails early or doesn't remove, ensure it's gone.
       if (document.getElementById('import-json-text-modal')) {
-        // modal.remove(); // Already handled in importCanvasFromJSONText
+         // modal.remove(); // Already handled in importCanvasFromJSONText
       }
     };
-
+    
     // Buttons container for alignment
     const buttonsContainer = document.createElement('div');
     buttonsContainer.className = 'buttons-container'; // Added class for CSS styling
