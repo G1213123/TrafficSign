@@ -1,11 +1,11 @@
 // Homepage JavaScript - Interactive Elements and Animations
-import { DemoCanvas } from './demo-canvas.js';
+import { DemoCanvas } from './demo/demo-canvas.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all homepage functionality
     initNavigation();
     initScrollAnimations();
-    initDemoInteractions();
+    DemoCanvas.initInteractions();
     initSmoothScrolling();
     initMobileNavigation();
 });
@@ -104,75 +104,6 @@ function animateStatsCounter() {
     stats.forEach(stat => observer.observe(stat));
 }
 
-// Demo interactions
-function initDemoInteractions() {
-    // Wait for DOM to be fully loaded and then initialize the demo canvas
-    setTimeout(() => {
-        if (DemoCanvas && document.getElementById('demo-canvas')) {
-            try {
-                DemoCanvas.init();
-                console.log('Demo canvas initialized successfully');
-            } catch (error) {
-                console.error('Error initializing demo canvas:', error);
-            }
-        } else {
-            console.warn('Demo canvas or DemoCanvas object not available');
-        }
-    }, 100);
-    
-    const demoButtons = document.querySelectorAll('.demo-btn');
-    
-    demoButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Remove active class from all buttons
-            demoButtons.forEach(btn => btn.classList.remove('active'));
-            // Add active class to clicked button
-            this.classList.add('active');
-            
-            const demoType = this.dataset.demo;
-            executeDemo(demoType);
-        });
-    });
-}
-
-// Execute demo actions using real canvas
-function executeDemo(type) {
-    if (!DemoCanvas) {
-        console.warn('DemoCanvas not available');
-        return;
-    }
-    
-    try {
-        switch(type) {
-            case 'symbol':
-                DemoCanvas.createSymbol();
-                console.log('Demo symbol created');
-                break;
-            case 'text':
-                DemoCanvas.createText();
-                console.log('Demo text created');
-                break;
-            case 'drag':
-                DemoCanvas.simulateDrag();
-                console.log('Demo drag simulation started');
-                break;
-            case 'border':
-                DemoCanvas.createBorder();
-                console.log('Demo border created');
-                break;
-            case 'reset':
-                DemoCanvas.reset();
-                // Remove active class from all buttons
-                document.querySelectorAll('.demo-btn').forEach(btn => btn.classList.remove('active'));
-                console.log('Demo canvas reset');
-                break;
-            default:
-                console.warn('Unknown demo type:', type);
-        }
-    } catch (error) {
-        console.error('Error executing demo:', error);
-    }
-}
 
 // Smooth scrolling for anchor links
 function initSmoothScrolling() {
