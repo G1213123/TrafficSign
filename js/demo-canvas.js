@@ -202,7 +202,7 @@ function createDemoSymbol() {
         demoCanvas.renderAll();
         demoCanvasObject.push(triangle);
 
-        console.log('Demo fallback symbol created');
+        console.log('Demo symbol created');
     }
     catch (error) {
         console.error('Error creating demo symbol:', error);
@@ -253,56 +253,74 @@ function createDemoBorder() {
     }
 
     try {
-        // Create a realistic sign border frame
-        const outerBorder = new fabric.Rect({
-            width: 420,
-            height: 280,
-            fill: 'transparent',
-            stroke: '#dc2626',
-            strokeWidth: 6,
-            strokeDashArray: [],
-            rx: 12,
-            ry: 12,
-            left: 90,
-            top: 60,
-            selectable: true,
-            hasControls: true,
-            hasBorders: true,
-            cornerStyle: 'circle',
-            borderColor: '#3b82f6',
-            cornerColor: '#3b82f6'
-        });
+        // Get canvas Object boundar
+        let xmin = -Infinity, ymin = - Infinity, xmax = Infinity, ymax = Infinity
+        demoCanvasObject.forEach(function (item, index, object) {
+            if (item.functionalType == 'border') {
+                demoCanvas.remove(obj)
+                object.splice(index, 1);
+            } else {
+                xmin = Math.max(item.left, xmin)
+                xmax = Math.min(item.left + item.width, xmax)
+                ymin = Math.max(item.top, ymin)
+                ymax = Math.min(item.top, ymax)
+            }
+        })
+        if (demoCanvasObject.length > 0) {
 
-        const innerBorder = new fabric.Rect({
-            width: 380,
-            height: 240,
-            fill: 'transparent',
-            stroke: '#ffffff',
-            strokeWidth: 2,
-            rx: 8,
-            ry: 8,
-            left: 110,
-            top: 80,
-            selectable: false,
-            evented: false
-        });
+            // Create a realistic sign border frame
+            const outerBorder = new fabric.Rect({
+                width: xmax - xmin + 100,
+                height: ymax - ymin + 100,
+                fill: 'transparent',
+                stroke: '#dc2626',
+                strokeWidth: 37.5,
+                strokeDashArray: [],
+                rx: 12,
+                ry: 12,
+                left: xmin - 100,
+                top: ymin - 100,
+                selectable: true,
+                hasControls: true,
+                hasBorders: true,
+                cornerStyle: 'circle',
+                borderColor: '#3b82f6',
+                cornerColor: '#3b82f6'
+            });
 
-        // Group the borders together
-        const borderGroup = new fabric.Group([outerBorder, innerBorder], {
-            left: 90,
-            top: 60,
-            selectable: true,
-            hasControls: true,
-            hasBorders: true,
-            cornerStyle: 'circle',
-            borderColor: '#3b82f6',
-            cornerColor: '#3b82f6'
-        });
+            const innerBorder = new fabric.Rect({
+                width: 380,
+                height: 240,
+                fill: 'transparent',
+                stroke: '#ffffff',
+                strokeWidth: 2,
+                rx: 8,
+                ry: 8,
+                left: 110,
+                top: 80,
+                selectable: false,
+                evented: false
+            });
 
-        demoCanvas.add(borderGroup);
-        demoCanvas.setActiveObject(borderGroup);
-        demoCanvas.renderAll();
-        demoCanvasObject.push(borderGroup);
+            // Group the borders together
+            const borderGroup = new fabric.Group([outerBorder, innerBorder], {
+                left: 90,
+                top: 60,
+                selectable: true,
+                hasControls: true,
+                hasBorders: true,
+                cornerStyle: 'circle',
+                borderColor: '#3b82f6',
+                cornerColor: '#3b82f6'
+            });
+
+            borderGroup.functionalType = 'border'
+
+            demoCanvas.add(borderGroup);
+            demoCanvas.setActiveObject(borderGroup);
+            demoCanvas.renderAll();
+            demoCanvasObject.push(borderGroup);
+        }
     } catch (error) {
         console.error('Error creating demo border:', error);
     }
