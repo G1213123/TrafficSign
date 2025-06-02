@@ -99,7 +99,7 @@ let FormExportComponent = {
   },
 
   // Helper function to prepare canvas for export
-  prepareCanvasForExport: function ()    {
+  prepareCanvasForExport: function () {
     const includeGrid = GeneralHandler.getToggleValue('Include Grid-container') === 'Yes';
     const includeBackground = GeneralHandler.getToggleValue('Include Background-container') === 'Yes';
 
@@ -110,16 +110,11 @@ let FormExportComponent = {
       height: CanvasGlobals.canvas.height,
       viewportTransform: [...CanvasGlobals.canvas.viewportTransform],
       zoom: CanvasGlobals.canvas.getZoom(),
-      objects: CanvasGlobals.canvas.getObjects().map(obj => ({
-        obj: obj,
-        visible: obj.visible
-      }))
+      objects: CanvasGlobals.canvasObject
     };
 
     // Calculate the bounding box that contains all visible objects (excluding grid)
-    const visibleObjects = CanvasGlobals.canvas.getObjects().filter(obj =>
-      obj.visible && (includeGrid || obj.id !== 'grid')
-    );
+    const visibleObjects = originalState.objects;
 
     if (visibleObjects.length > 0) {
       // Find the bounds of all objects
@@ -198,9 +193,10 @@ let FormExportComponent = {
     // Restore background
     CanvasGlobals.canvas.backgroundColor = originalState.backgroundColor;
 
-    // Restore object visibility
-    originalState.objects.forEach(item => {
-      item.obj.visible = item.visible;
+    CanvasGlobals.canvas.getObjects().forEach(obj => {
+      if (obj.id === 'grid') {
+        obj.visible = true;
+      }
     });
 
     CanvasGlobals.canvas.renderAll();
@@ -605,10 +601,10 @@ let FormExportComponent = {
       const svgData = CanvasGlobals.canvas.toSVG({
         // SVG-specific options
         viewBox: {
-          x: originalState.exportBounds ? originalState.exportBounds.left : 0,
-          y: originalState.exportBounds ? originalState.exportBounds.top : 0,
-          width: originalState.exportBounds ? originalState.exportBounds.width : CanvasGlobals.canvas.width,
-          height: originalState.exportBounds ? originalState.exportBounds.height : CanvasGlobals.canvas.height
+          x:  originalState.exportBounds.left,
+          y:  originalState.exportBounds.top,
+          width: originalState.exportBounds.width ,
+          height:  originalState.exportBounds.height
         }
       });
 
@@ -855,7 +851,7 @@ let FormExportComponent = {
   },
 
   // New private helper function to process and apply JSON data to the canvas
-  _applyJSONToCanvas: async function(jsonData) {
+  _applyJSONToCanvas: async function (jsonData) {
     try {
       let objectsToLoad;
       if (jsonData.meta && Array.isArray(jsonData.objects)) {
@@ -919,7 +915,7 @@ let FormExportComponent = {
         // No overlay shown yet, so no need to hide
         return;
       }
-      
+
       await FormExportComponent.showLoadingOverlay('JSON file'); // Show overlay when processing starts
 
       const reader = new FileReader();
@@ -928,7 +924,7 @@ let FormExportComponent = {
           const jsonString = e.target.result;
           const jsonData = JSON.parse(jsonString);
           await FormExportComponent._applyJSONToCanvas(jsonData);
-          alert('Canvas imported successfully from file!'); 
+          alert('Canvas imported successfully from file!');
         } catch (error) {
           console.error("Error importing canvas from JSON file:", error);
           alert("Failed to import from JSON file. Ensure the file is a valid JSON export from this tool. Error: " + error.message);
@@ -1014,10 +1010,10 @@ let FormExportComponent = {
       // Modal is removed by importCanvasFromJSONText on success,
       // but if it fails early or doesn't remove, ensure it's gone.
       if (document.getElementById('import-json-text-modal')) {
-         // modal.remove(); // Already handled in importCanvasFromJSONText
+        // modal.remove(); // Already handled in importCanvasFromJSONText
       }
     };
-    
+
     // Buttons container for alignment
     const buttonsContainer = document.createElement('div');
     buttonsContainer.className = 'buttons-container'; // Added class for CSS styling
@@ -1238,16 +1234,16 @@ let FormExportComponent = {
     };
   },
 
- // Helper method to process a path object for DXF export
+  // Helper method to process a path object for DXF export
   processPathForDXF: function (pathObj, dxf, offsetX, offsetY) {
     // Process SVG path data for DXF export
     const pathData = pathObj.path || [];
-    
+
     // First, we'll analyze the path to find subpaths (segments starting with 'M')
     const subpaths = [];
     let currentSubpath = [];
     let firstPointInSubpath = null;
-    
+
     // Group commands by subpaths
     pathData.forEach(cmd => {
       if (cmd[0] === 'M') {
@@ -1278,7 +1274,7 @@ let FormExportComponent = {
         }
       }
     });
-    
+
     // Add the last subpath if it exists and wasn't closed with Z
     if (currentSubpath.length > 0) {
       subpaths.push({
@@ -1287,33 +1283,33 @@ let FormExportComponent = {
         closed: false
       });
     }
-    
+
     // Now process each subpath
     subpaths.forEach(subpath => {
       // For each subpath, we'll build spline control points and polyline points
       let currentX, currentY;
       let polylinePoints = [];
       let currentCmd;
-      
+
       // Process the commands in this subpath
       for (let i = 0; i < subpath.commands.length; i++) {
         currentCmd = subpath.commands[i];
         const command = currentCmd[0];
         const values = currentCmd.slice(1);
-        
+
         switch (command) {
           case 'M': // moveTo
             currentX = values[0] + offsetX;
             currentY = -(values[1] + offsetY); // Flip Y coordinate for DXF
             polylinePoints = [[currentX, currentY]];
             break;
-            
+
           case 'L': // lineTo
             currentX = values[0] + offsetX;
             currentY = -(values[1] + offsetY); // Flip Y coordinate for DXF
             polylinePoints.push([currentX, currentY]);
             break;
-            
+
           case 'C': { // bezierCurveTo - use spline for better representation
             const cp1x = values[0] + offsetX;
             const cp1y = -(values[1] + offsetY); // Flip Y coordinate for DXF
@@ -1321,14 +1317,14 @@ let FormExportComponent = {
             const cp2y = -(values[3] + offsetY); // Flip Y coordinate for DXF
             const endX = values[4] + offsetX;
             const endY = -(values[5] + offsetY); // Flip Y coordinate for DXF
-            
+
             // If we have accumulated polyline points, draw them first
             if (polylinePoints.length > 1) {
               dxf.drawPolyline(polylinePoints, false);
               // Start new polyline with the endpoint of the existing one
               polylinePoints = [[polylinePoints[polylinePoints.length - 1][0], polylinePoints[polylinePoints.length - 1][1]]];
             }
-            
+
             // Create control points for a cubic spline (degree 3)
             const cubicControlPoints = [
               [currentX, currentY],   // Start point
@@ -1336,72 +1332,72 @@ let FormExportComponent = {
               [cp2x, cp2y],          // Second control point
               [endX, endY]           // End point
             ];
-            
+
             // Draw the spline
             dxf.drawSpline(cubicControlPoints, 3);
-            
+
             // Update current position
             currentX = endX;
             currentY = endY;
-            
+
             // Continue the polyline from here
             polylinePoints = [[currentX, currentY]];
             break;
           }
-            
+
           case 'Q': { // quadraticCurveTo - use spline for better representation
             const qCpx = values[0] + offsetX;
             const qCpy = -(values[1] + offsetY); // Flip Y coordinate for DXF
             const qEndX = values[2] + offsetX;
             const qEndY = -(values[3] + offsetY); // Flip Y coordinate for DXF
-            
+
             // If we have accumulated polyline points, draw them first
             if (polylinePoints.length > 1) {
               dxf.drawPolyline(polylinePoints, false);
               // Start new polyline with the endpoint of the existing one
               polylinePoints = [[polylinePoints[polylinePoints.length - 1][0], polylinePoints[polylinePoints.length - 1][1]]];
             }
-            
+
             // Create control points for a quadratic spline (degree 2)
             const quadraticControlPoints = [
               [currentX, currentY],  // Start point
               [qCpx, qCpy],          // Control point
               [qEndX, qEndY]         // End point
             ];
-            
+
             // Draw the spline
             dxf.drawSpline(quadraticControlPoints, 2);
-            
+
             // Update current position
             currentX = qEndX;
             currentY = qEndY;
-            
+
             // Continue the polyline from here
             polylinePoints = [[currentX, currentY]];
             break;
           }
-            
+
           case 'Z': // closePath
             // If we have a first point and it's different from current position,
             // add it to close the path
-            if (subpath.firstPoint && 
-                (subpath.firstPoint[0] !== currentX || subpath.firstPoint[1] !== currentY)) {
+            if (subpath.firstPoint &&
+              (subpath.firstPoint[0] !== currentX || subpath.firstPoint[1] !== currentY)) {
               polylinePoints.push([subpath.firstPoint[0], subpath.firstPoint[1]]);
             }
             break;
         }
       }
-      
+
       // Draw any remaining polyline points
       if (polylinePoints.length > 1) {
         dxf.drawPolyline(polylinePoints, subpath.closed);
       }
 
       // Close the path if it was marked as closed
-      if (polylinePoints && polylinePoints.length > 0 ) {
+      if (polylinePoints && polylinePoints.length > 0) {
 
-        if (polylinePoints[[polylinePoints.length - 1]][0] !== subpath.firstPoint[0] || 
-            polylinePoints[[polylinePoints.length - 1]][1] !== subpath.firstPoint[1]) {
+        if (polylinePoints[[polylinePoints.length - 1]][0] !== subpath.firstPoint[0] ||
+          polylinePoints[[polylinePoints.length - 1]][1] !== subpath.firstPoint[1]) {
           dxf.drawPolyline([polylinePoints[polylinePoints.length - 1], subpath.firstPoint], false);
         }
       }
