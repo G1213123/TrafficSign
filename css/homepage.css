@@ -558,6 +558,35 @@ body {
     border-color: var(--primary-color);
 }
 
+.demo-btn.completed {
+    background: #6b7280;
+    color: #9ca3af;
+    border-color: #6b7280;
+    cursor: default;
+}
+
+.demo-btn.completed:hover {
+    background: #6b7280;
+    color: #9ca3af;
+    border-color: #6b7280;
+    transform: none;
+}
+
+.demo-btn.disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+    border-color: #e5e7eb;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.demo-btn.disabled:hover {
+    background: #f3f4f6;
+    color: #9ca3af;
+    border-color: #e5e7eb;
+    transform: none;
+}
+
 .demo-btn i {
     font-size: 1.5rem;
 }
@@ -569,8 +598,53 @@ body {
     letter-spacing: 0.5px;
 }
 
+.demo-btn.current {
+    background: white;
+    color: var(--text-color);
+    border-color: var(--border-color);
+    border-width: 2px;
+}
+
+.demo-btn.current:hover {
+    background: #f8f9fa;
+    color: var(--text-color);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
 .demo-cta {
     text-align: center;
+}
+
+/* Demo Cursor Box Styles - Matching style.css cursor-box */
+.demo-cursor-box-container {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    display: none;
+}
+
+.demo-cursor-text-box {
+    background-color: lightyellow;
+    padding: 5px;
+    border: 1px solid black;
+    display: block;
+    margin-bottom: 5px;
+    white-space: pre-line;
+    line-height: 1.4;
+}
+
+.demo-cursor-answer-box {
+    background-color: lightyellow;
+    padding: 5px;
+    border: 1px solid black;
+    margin-bottom: 5px;
+    outline: none;
 }
 
 /* About Section */

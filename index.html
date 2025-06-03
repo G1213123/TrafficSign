@@ -206,13 +206,17 @@
             <h2 class="section-title">See It In Action</h2>
             <p class="section-subtitle">Interactive demonstration of key features</p>
 
-            <div class="demo-container">                
-                <!-- Main Demo Canvas -->
+            <div class="demo-container">                  <!-- Main Demo Canvas -->
                 <div class="main-demo-canvas" id="main-demo-canvas">
                     <div class="demo-sign-canvas">
                         <canvas id="demo-canvas"></canvas>
                         <div class="demo-placeholder-overlay" id="demo-placeholder-overlay">
                             <div class="demo-placeholder-text">Click any button below to see the feature in action</div>
+                        </div>
+                        <!-- Demo Cursor Box for Snap Prompts -->
+                        <div id="demo-cursor-box-container" class="demo-cursor-box-container">
+                            <div id="demo-cursor-text-box" class="demo-cursor-text-box">Snap prompt</div>
+                            <input type="text" id="demo-cursor-answer-box" class="demo-cursor-answer-box" value="0" />
                         </div>
                     </div>
                 </div>

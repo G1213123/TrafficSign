@@ -5,8 +5,8 @@
 
 import { createDemoSymbol } from './demo-symbols.js';
 import { createDemoText } from './demo-text.js';
-import { simulateDemoSnap } from './demo-snap.js';
-import { createDemoBorder }  from './demo-border.js';
+import { simulateDemoSnap, executeAutomatedSnap } from './demo-snap.js';
+import { createDemoBorder } from './demo-border.js';
 
 // Demo Canvas Setup - Mirror main app canvas initialization
 let demoCanvas = null;
@@ -15,6 +15,11 @@ let demoCanvasObject = [];
 
 // Demo CanvasGlobals - Mirror the structure from canvas.js for SymbolObject compatibility
 let DemoCanvasGlobals = null;
+
+// Progressive demo state tracking
+let demoStage = 0; // 0: initial, 1: symbol, 2: text, 3: snap, 4: border
+const demoStages = ['symbol', 'text', 'snap', 'border'];
+let executedStages = new Set(); // Track which stages have been executed
 
 // Settings for demo (simplified version of GeneralSettings)
 const DemoSettings = {
@@ -38,20 +43,18 @@ function initDemoInteractions() {
             console.warn('Demo canvas or DemoCanvas object not available');
         }
     }, 100);
-    
     const demoButtons = document.querySelectorAll('.demo-btn');
-    
     demoButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Remove active class from all buttons
-            demoButtons.forEach(btn => btn.classList.remove('active'));
-            // Add active class to clicked button
-            this.classList.add('active');
-            
+        button.addEventListener('click', function () {
             const demoType = this.dataset.demo;
-            executeDemo(demoType);
+            handleProgressiveDemo(demoType, demoButtons);
         });
     });
+
+    // Initialize button states
+    setTimeout(() => {
+        updateButtonStates(demoButtons);
+    }, 100);
 }
 
 // Execute demo actions using real canvas
@@ -60,9 +63,9 @@ function executeDemo(type) {
         console.warn('DemoCanvas not available');
         return;
     }
-    
+
     try {
-        switch(type) {
+        switch (type) {
             case 'symbol':
                 createDemoSymbol(demoCanvas, demoCanvasObject);
                 console.log('Demo symbol created');
@@ -81,8 +84,6 @@ function executeDemo(type) {
                 break;
             case 'reset':
                 DemoCanvas.reset();
-                // Remove active class from all buttons
-                document.querySelectorAll('.demo-btn').forEach(btn => btn.classList.remove('active'));
                 console.log('Demo canvas reset');
                 break;
             default:
@@ -243,13 +244,24 @@ function drawDemoGrid() {
 
 function resetDemoCanvas() {
     // Deactivate vertex mode first
-    deactivateDemoVertexMode();
-    
+    //deactivateDemoVertexMode();
+
     // Clear all demo objects except grid
     demoCanvasObject.forEach(obj => {
         demoCanvas.remove(obj);
     });
-    demoCanvasObject = [];
+    demoCanvasObject = []; // Clear array while maintaining reference
+
+    // Reset demo stage and executed stages
+    demoStage = 0;
+    executedStages.clear();
+
+    // Reset button states
+    const demoButtons = document.querySelectorAll('.demo-btn');
+    demoButtons.forEach(btn => {
+        btn.classList.remove('active', 'completed', 'disabled', 'current');
+    });
+    updateButtonStates(demoButtons);
 
     // Clear active selection
     demoCanvas.discardActiveObject();
@@ -288,6 +300,82 @@ function resizeDemoCanvas() {
     } catch (error) {
         console.error('Error resizing demo canvas:', error);
     }
+}
+
+// Progressive demo system
+function handleProgressiveDemo(requestedType, demoButtons) {
+    if (!DemoCanvas) {
+        console.warn('DemoCanvas not available');
+        return;
+    }
+
+    // Handle reset - always allowed
+    if (requestedType === 'reset') {
+        executeDemo('reset');
+        return;
+    }
+
+    const requestedStageIndex = demoStages.indexOf(requestedType);
+
+    // If requesting a stage that's already completed, re-execute it
+    if (requestedStageIndex < demoStage) {
+        executeDemo(requestedType);
+        return;
+    }
+
+    // If requesting the current stage, execute it and advance
+    if (requestedStageIndex === demoStage) {
+        executeDemo(requestedType);
+        executedStages.add(requestedType);        
+        if (requestedType === 'snap') {
+            // For snap, trigger automated completion
+            executeAutomatedSnap(demoCanvasObject, () => {
+                demoStage++;
+                const demoButtons = document.querySelectorAll('.demo-btn');
+                updateButtonStates(demoButtons);
+            });
+        } else {
+            // For drag & drop stages (symbol, text, border), advance immediately
+            demoStage++;
+            updateButtonStates(demoButtons);
+        }
+        return;
+    }
+
+    // If requesting a future stage, do nothing (button is disabled)
+    console.log(`Stage ${requestedType} is not yet available. Complete previous stages first.`);
+}
+
+function updateButtonStates(demoButtons) {
+    demoButtons.forEach((button, index) => {
+        const buttonType = button.dataset.demo;
+
+        // Reset button is always available
+        if (buttonType === 'reset') {
+            button.classList.remove('disabled', 'completed', 'active', 'current');
+            return;
+        }
+
+        const stageIndex = demoStages.indexOf(buttonType);
+
+        if (stageIndex < demoStage) {
+            // Completed stages - greyed out
+            button.classList.add('completed');
+            button.classList.remove('active', 'disabled', 'current');
+        } else if (stageIndex === demoStage) {
+            // Current stage - white if not executed, blue if executed
+            if (executedStages.has(buttonType)) {
+                button.classList.add('active');
+                button.classList.remove('completed', 'disabled', 'current');
+            } else {
+                button.classList.add('current');
+                button.classList.remove('active', 'completed', 'disabled');
+            }
+        } else {
+            // Future stages - disabled
+            button.classList.add('disabled');
+            button.classList.remove('active', 'completed', 'current');
+        }    });
 }
 
 // Export demo canvas functions for use in homepage.js

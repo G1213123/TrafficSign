@@ -2,22 +2,20 @@ export function createDemoBorder(demoCanvas, demoCanvasObject) {
     if (!demoCanvas) {
         console.error('Demo canvas not initialized');
         return;
-    }    try {
+    } try {
         // 1. Handle existing border groups - dissolve and extract content
         const existingBorderGroups = demoCanvasObject.filter(obj => obj.functionalType === 'border');
-        let extractedObjects = [];
-        
-        existingBorderGroups.forEach(borderGroup => {
+        let extractedObjects = [];        existingBorderGroups.forEach(borderGroup => {
             if (borderGroup.type === 'group' && borderGroup._objects) {
                 // Extract all objects from the group except border rectangles
-                const groupObjects = borderGroup._objects.filter(obj => 
+                const groupObjects = borderGroup._objects.filter(obj =>
                     !(obj.type === 'rect' && (obj.fill === '#0033a2' || obj.stroke === '#ffffff'))
                 );
-                
+
                 // Calculate the group's transform to properly position extracted objects
                 const groupLeft = borderGroup.left || 0;
                 const groupTop = borderGroup.top || 0;
-                
+
                 groupObjects.forEach(obj => {
                     // Apply group transform to individual objects
                     if (obj.left !== undefined) obj.left += groupLeft;
@@ -25,19 +23,19 @@ export function createDemoBorder(demoCanvas, demoCanvasObject) {
                     extractedObjects.push(obj);
                 });
             }
-            
-            // Remove the border group from canvas
+
+            // Remove the border group from canvas and array
             demoCanvas.remove(borderGroup);
-        });
-        
-        // Add extracted objects back to canvas
+            const borderIndex = demoCanvasObject.indexOf(borderGroup);
+            if (borderIndex > -1) {
+                demoCanvasObject.splice(borderIndex, 1);
+            }
+        });        // Add extracted objects back to canvas and array
         extractedObjects.forEach(obj => {
             demoCanvas.add(obj);
+            demoCanvasObject.push(obj);
         });
-        
-        // Update demoCanvasObject to exclude border groups and include extracted objects
-        demoCanvasObject = demoCanvasObject.filter(obj => obj.functionalType !== 'border');
-        demoCanvasObject.push(...extractedObjects);
+
 
         // 2. Collect all objects for bounding box calculation
         const objectsToBound = demoCanvasObject;
@@ -99,7 +97,7 @@ export function createDemoBorder(demoCanvas, demoCanvasObject) {
             originY: 'top'
             // strokeLineJoin: 'round' // Optional: for smoother stroke corners
         });
-        
+
 
         // 5. Create Inner Border Rectangle (fill)
         const innerRect = new fabric.Rect({
@@ -118,7 +116,7 @@ export function createDemoBorder(demoCanvas, demoCanvasObject) {
         objectsToBound.forEach(obj => {
             demoCanvas.remove(obj);
         });
-        
+
         // The outerRect is drawn first, then innerRect, then the bounded objects on top
         const borderGroup = new fabric.Group([outerRect, innerRect, ...objectsToBound], {
             left: contentLeft - padding,
@@ -133,10 +131,13 @@ export function createDemoBorder(demoCanvas, demoCanvasObject) {
         });        // 7. Update Canvas
         demoCanvas.add(borderGroup);
         demoCanvas.setActiveObject(borderGroup); // Optional: set active
-        demoCanvas.renderAll();
-        
-        // Update demoCanvasObject - remove the individual objects and add the group
-        demoCanvasObject = demoCanvasObject.filter(obj => !objectsToBound.includes(obj));
+        demoCanvas.renderAll();        // Update demoCanvasObject - remove the individual objects and add the group
+        // Remove existing border groups from the array first
+        for (let i = demoCanvasObject.length - 1; i >= 0; i--) {
+            if (existingBorderGroups.includes(demoCanvasObject[i]) || objectsToBound.includes(demoCanvasObject[i])) {
+                demoCanvasObject.splice(i, 1);
+            }
+        }
         demoCanvasObject.push(borderGroup);
 
         console.log('Demo border created/updated');
