@@ -8,9 +8,12 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin'); // Added
 require('dotenv').config(); // Load .env file
 
 module.exports = {
-  entry: './js/main.js',
+  entry: {
+    main: './js/main.js',
+    homepage: './js/homepage.js'
+  },
   output: {
-    filename: './js/main.js',
+    filename: './js/[name].js',
     path: path.resolve(__dirname, 'dist'),
     clean: true, // Clean the output directory before emit.
   },
@@ -31,7 +34,8 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './index.html', // Path to your source index.html (homepage)
       filename: 'index.html',   // Output filename
-      inject: false,           // Don't inject webpack assets into homepage
+      chunks: ['homepage'],     // Include only homepage bundle
+      inject: true,             // Inject scripts into the homepage
       title: 'Road Sign Factory - Professional Traffic Sign Designer',
       appVersion: (process.env.VERSION || require('./package.json').version || 'dev').replace(/-/g, '.')
     }),
@@ -39,14 +43,13 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './app.html', // Path to your app.html
       filename: 'app.html',   // Output filename
+      chunks: ['main'],       // Include only main bundle
       inject: true,           // Inject scripts into the app
       title: 'Road Sign Factory - Online Sign Creator',
       appVersion: process.env.VERSION || require('./package.json').version || 'dev'
-    }),
-    new CopyWebpackPlugin({
+    }),    new CopyWebpackPlugin({
       patterns: [
         { from: 'css', to: 'css' },
-        { from: 'js/homepage.js', to: 'js/homepage.js' },
         { from: 'images', to: 'images' },
         // Include DXF bundle for publishing
         { from: 'js/dxf', to: 'js/dxf' },
