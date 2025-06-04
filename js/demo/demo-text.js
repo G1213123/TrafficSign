@@ -17,7 +17,7 @@ export function createDemoText(demoCanvas, demoCanvasObject) {
             })
             textGroup.add(...(results.objects.filter((obj) => !!obj)))
             textGroup.set({
-                left: 100,
+                left: -50,
                 top: -200,
             });
             textGroup.functionalType = 'text'; // Mark this object as a text

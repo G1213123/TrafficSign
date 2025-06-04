@@ -117,7 +117,7 @@ class SnapControl extends fabric.Control {
                 return;
             }            // Show the prompt for the specific axis
             promptBox.innerText = `Enter spacing for ${axis} axis (in units):`;
-            answerBox.value = axis === 'X' ? '-2' : '1.7'; // Default value for Y axis
+            answerBox.value = axis === 'X' ? '-2' : '1.2'; // Default value for Y axis
             container.style.display = 'block';
             
             // Use setTimeout to ensure the element is visible before focusing

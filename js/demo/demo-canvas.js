@@ -326,14 +326,20 @@ function handleProgressiveDemo(requestedType, demoButtons) {
     // If requesting the current stage, execute it and advance
     if (requestedStageIndex === demoStage) {
         executeDemo(requestedType);
-        executedStages.add(requestedType);        
-        if (requestedType === 'snap') {
-            // For snap, trigger automated completion
-            executeAutomatedSnap(demoCanvasObject, () => {
-                demoStage++;
-                const demoButtons = document.querySelectorAll('.demo-btn');
-                updateButtonStates(demoButtons);
-            });
+        executedStages.add(requestedType);
+        if (requestedType === 'border') {
+            const textObject = demoCanvasObject.filter(obj => { obj.functionType == 'text' })
+            const symbolObject = demoCanvasObject.filter(obj => { obj.functionType == 'symbol' })
+            if (textObject.length > 0 && symbolObject.length > 0) {
+                // For snap, trigger automated completion
+                executeAutomatedSnap(demoCanvasObject, () => {
+                    demoStage++;
+                    const demoButtons = document.querySelectorAll('.demo-btn');
+                    updateButtonStates(demoButtons);
+                });
+            }
+            demoStage++;
+            updateButtonStates(demoButtons);
         } else {
             // For drag & drop stages (symbol, text, border), advance immediately
             demoStage++;
@@ -375,7 +381,8 @@ function updateButtonStates(demoButtons) {
             // Future stages - disabled
             button.classList.add('disabled');
             button.classList.remove('active', 'completed', 'current');
-        }    });
+        }
+    });
 }
 
 // Export demo canvas functions for use in homepage.js

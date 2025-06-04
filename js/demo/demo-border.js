@@ -73,24 +73,24 @@ export function createDemoBorder(demoCanvas, demoCanvasObject) {
 
         // 3. Define Border Properties
         const padding = 67.5;
+        const bottomPadding = 37.5
         const outerStrokeWidth = 37.5;
         const innerFillColor = '#0033a2';
         const outerStrokeColor = '#ffffff';
-        const cornerRadius = 37.5; // Consistent rounded corners
+        const cornerRadius = 75; // Consistent rounded corners
 
         // Calculate dimensions for the border paths (inner and outer will share this path size)
-        const borderPathWidth = contentWidth + (2 * padding);
-        const borderPathHeight = contentHeight + (2 * padding);
+        const borderPathWidth = contentWidth + (2 * padding) + (2 * outerStrokeWidth);
+        const borderPathHeight = contentHeight + (bottomPadding + padding) + (2 * outerStrokeWidth);
 
         // 4. Create Outer Border Rectangle (stroke)
         const outerRect = new fabric.Rect({
-            left: contentLeft - padding - outerStrokeWidth / 2,
-            top: contentTop - padding - outerStrokeWidth / 2,
+            left: contentLeft - padding - outerStrokeWidth ,
+            top: contentTop - padding - outerStrokeWidth ,
             width: borderPathWidth,
             height: borderPathHeight,
-            fill: 'transparent',
-            stroke: outerStrokeColor,
-            strokeWidth: outerStrokeWidth,
+            fill: outerStrokeColor,
+            strokeWidth: 0,
             rx: cornerRadius,
             ry: cornerRadius,
             originX: 'left',
@@ -103,12 +103,12 @@ export function createDemoBorder(demoCanvas, demoCanvasObject) {
         const innerRect = new fabric.Rect({
             left: contentLeft - padding,
             top: contentTop - padding,
-            width: borderPathWidth,
-            height: borderPathHeight,
+            width: borderPathWidth -  (2* outerStrokeWidth),
+            height: borderPathHeight - ( 2* outerStrokeWidth),
             fill: innerFillColor,
             strokeWidth: 0, // No stroke for the inner fill part
-            rx: cornerRadius,
-            ry: cornerRadius,
+            rx: cornerRadius - outerStrokeWidth,
+            ry: cornerRadius - outerStrokeWidth,
             originX: 'left',
             originY: 'top'
         });        // 6. Group and Position
