@@ -3,37 +3,54 @@
  
 ## About
 
-Road Sign Factory is a web-based application for designing, customizing, and exporting professional traffic signs. Create your own symbols, add text, borders, and route maps, then export your design in multiple formats.
+Road Sign Factory is a professional web-based application for designing, customizing, and exporting traffic signs. Built with modern web technologies and following Hong Kong TPDM standards, it provides engineers and designers with powerful tools for creating compliant road signage.
 
-Sign designs aim to follow the Hong Kong Transport Department’s [Traffic Signs and Road Markings (TPDM)](https://www.td.gov.hk/en/transport_in_hong_kong/public_transport/transport_standards/traffic_signs_and_road_markings/index.html) standards as closely as possible.
+🌐 **Website:** [road-sign.g1213123.info](http://road-sign.g1213123.info/)  
+🚀 **Launch App:** [road-sign.g1213123.info/app.html](http://road-sign.g1213123.info/app.html)  
+📖 **Documentation:** [GitHub Repository](https://github.com/G1213123/TrafficSign)
 
-**Features:**
-- Symbol drawing
-- Custom text insertion
-- Border creation
-- Route mapping
-- Measurement tools
-- Design export
+## ⚠️ Development Status
 
-Learn more on [GitHub](http://road-sign.g1213123.info/).
+**This is an experimental beta version currently under active development.**
 
-## Test Site
+## ✨ Key Features
 
-You can access the test site [here](https://g1213123.github.io/TrafficSign/).
+- 🎨 **Vector Graphics**: Professional scalable sign design
+- 📝 **Typography**: Transport fonts with TPDM compliance
+- 🔧 **Symbol Library**: Comprehensive traffic symbol collection
+- 📐 **Precision Tools**: Built-in measurement and grid systems
+- 📤 **Multi-Format Export**: SVG, DXF, and PDF support
+- 📱 **Cross-Platform**: Works on desktop, tablet, and mobile
+- 🎯 **Standards Compliant**: Hong Kong TPDM guidelines
+
+## 🏗️ Project Structure
+
+The application now uses a professional homepage structure:
+
+- **`index.html`** - Professional landing page
+- **`app.html`** - The main application interface
+- **`css/homepage.css`** - Landing page styles
+- **`js/homepage.js`** - Landing page interactions
+- **`css/style.css`** - Application styles
+- **`js/main.js`** - Application entry point
+
 
 ## Features
 
  #### TODO: 
 - [x] Unify input value of xheight and color in all panel
-- [ ] Adding loading and save function to cookies
+- [x] Professional homepage for better SEO
+- [x] support touch screen gesture
+- [x] Adding loading and save function to localStorage
 - [ ] Hints for user inputs
-- [ ] support touch screen gesture
 - [ ] Chinese Readme file and description for site
 
-## Getting Started
+## 📱 Mobile Support
 
-1. Visit the [site](https://road-sign-factory.g1213123.info/).
-2. Follow the on-screen instructions to create your directional signs.
+The application includes responsive design and touch support:
+- Touch-friendly interface for tablets and mobile devices
+- Gesture support for drawing and manipulation
+- Adaptive layout for different screen sizes
 
 ## Contact
 

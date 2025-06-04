@@ -26,18 +26,27 @@ module.exports = {
         type: 'asset/resource',
       },
     ],
-  },
-  plugins: [
+  },  plugins: [
+    // Homepage HTML
     new HtmlWebpackPlugin({
-      template: './index.html', // Path to your source index.html
+      template: './index.html', // Path to your source index.html (homepage)
       filename: 'index.html',   // Output filename
-      inject: false,           // Inject scripts into the body
-      title: 'Road Sign Factory - Online Sign Creator', // Add title here
-      appVersion: process.env.VERSION || require('./package.json').version || 'dev' // Pass the version from .env or package.json, default to 'dev'
+      inject: false,           // Don't inject webpack assets into homepage
+      title: 'Road Sign Factory - Professional Traffic Sign Designer',
+      appVersion: (process.env.VERSION || require('./package.json').version || 'dev').replace(/-/g, '.')
+    }),
+    // App HTML
+    new HtmlWebpackPlugin({
+      template: './app.html', // Path to your app.html
+      filename: 'app.html',   // Output filename
+      inject: true,           // Inject scripts into the app
+      title: 'Road Sign Factory - Online Sign Creator',
+      appVersion: process.env.VERSION || require('./package.json').version || 'dev'
     }),
     new CopyWebpackPlugin({
       patterns: [
         { from: 'css', to: 'css' },
+        { from: 'js/homepage.js', to: 'js/homepage.js' },
         { from: 'images', to: 'images' },
         // Include DXF bundle for publishing
         { from: 'js/dxf', to: 'js/dxf' },
