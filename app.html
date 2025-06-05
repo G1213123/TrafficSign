@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="application-name" content="<%= htmlWebpackPlugin.options.title %>">
-    <meta name="application-version" content="<%= htmlWebpackPlugin.options.appVersion %>">    <meta name="description"
+    <meta name="application-version" content="<%= htmlWebpackPlugin.options.appVersion %>">
+    <meta name="description"
         content="Road Sign Factory - Create and customize road signs online. Professional design tool using template texts and symbols. Based on Hong Kong's TPDM standards.">
     <meta name="keywords"
         content="Road Sign Factory, road sign, traffic sign, generator, creator, custom sign, Hong Kong Standard, online tool, vector, SVG, DXF, PDF">
@@ -18,21 +19,33 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.1/jspdf.umd.min.js"></script>
     <script src="js/dxf/dxf-bundle.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1W8GWKLVSK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-1W8GWKLVSK');
+    </script>
 </head>
 
 <body>
-    <div class="side-panel" id="side-panel">        <header id="sidepanel-heading" class="heading">
-            <a href="index.html" id="content-heading" style="text-decoration: none; color: inherit;">Road Sign Factory</a>
+    <div class="side-panel" id="side-panel">
+        <header id="sidepanel-heading" class="heading">
+            <a href="index.html" id="content-heading" style="text-decoration: none; color: inherit;">Road Sign
+                Factory</a>
         </header>
 
         <div id="content-frame">
             <!-- Static Info Panel Content -->
             <div id="info-content-static" style="display: none;">
                 <h2 class="panel-heading">About</h2>
-                <div class="input-group-container">                <div id="debug-info-panel">
-                    <p>Road Sign Factory is a web-based application for designing, customizing, and exporting
-                        professional traffic signs. Create your own symbols, add text, borders, and route maps, then
-                        export your design in multiple formats.</p>
+                <div class="input-group-container">
+                    <div id="debug-info-panel">
+                        <p>Road Sign Factory is a web-based application for designing, customizing, and exporting
+                            professional traffic signs. Create your own symbols, add text, borders, and route maps, then
+                            export your design in multiple formats.</p>
                         <p>Sign designs are referring the Hong Kong Transport Department’s <a
                                 href="https://www.td.gov.hk/en/publications_and_press_releases/publications/tpdm/index.html"
                                 target="_blank" rel="noopener noreferrer">Transport Planning and Design Manual
@@ -48,17 +61,21 @@
                         <p id="app-version-display" style="margin-top: 15px; color: #ccc;">Version: <%=
                                 htmlWebpackPlugin.options.appVersion %>
                         </p>
-                        <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 12px; margin-bottom: 15px;">
-                        <p style="color: #92400e; font-weight: bold; margin: 0 0 8px 0;">⚠️ BETA VERSION</p>
-                        <p style="color: #92400e; font-size: 0.9em; margin: 0;">This is an experimental version under active development. Features may be incomplete, unstable, or change without notice. Use for testing and evaluation purposes only.</p>
-                    </div>
+                        <div
+                            style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 12px; margin-bottom: 15px;">
+                            <p style="color: #92400e; font-weight: bold; margin: 0 0 8px 0;">⚠️ BETA VERSION</p>
+                            <p style="color: #92400e; font-size: 0.9em; margin: 0;">This is an experimental version
+                                under active development. Features may be incomplete, unstable, or change without
+                                notice. Use for testing and evaluation purposes only.</p>
+                        </div>
                     </div>
                 </div>
                 <div class="coffee-link-container">
                     <p class="coffee-quote" style="font-style:italic; color:#eee; text-align:center; margin:0 0 4px 0;">
                         "That's the way it is."
                     </p>
-                    <p style="color: #ddd; text-align: center; margin: 10px 0 8px 0; font-family: Arial, sans-serif;">To help support this project, you can buy me a coffee! Donations are much appreciated:</p>
+                    <p style="color: #ddd; text-align: center; margin: 10px 0 8px 0; font-family: Arial, sans-serif;">To
+                        help support this project, you can buy me a coffee! Donations are much appreciated:</p>
                     <a href="https://www.buymeacoffee.com/G1213123" target="_blank"><img
                             src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee"
                             height="41" width="174" style="max-width:100%;"></a>
@@ -67,19 +84,27 @@
                     <p style="color: #ddd; font-size: 1em; font-family: Arial, sans-serif; margin: 0 0 10px 0;">Contact
                         Email: enquiry@g1213123.info</p>
                     <div style="margin-bottom: 10px;"> <!-- Row 1 -->
-                        <a href="mailto:enquiry@g1213123.info" title="Email Us" style="color: #ccc; text-decoration: none; margin: 0 10px;">
-                            <i class="fas fa-envelope" style="color: #aaa; margin-right: 5px;"></i><span style="font-size: 1em; font-family: Arial, sans-serif;">Email</span>
+                        <a href="mailto:enquiry@g1213123.info" title="Email Us"
+                            style="color: #ccc; text-decoration: none; margin: 0 10px;">
+                            <i class="fas fa-envelope" style="color: #aaa; margin-right: 5px;"></i><span
+                                style="font-size: 1em; font-family: Arial, sans-serif;">Email</span>
                         </a>
-                        <a href="https://github.com/G1213123/TrafficSign" title="Visit GitHub Repository" target="_blank" style="color: #ccc; text-decoration: none; margin: 0 10px;">
-                            <i class="fab fa-github" style="color: #aaa; margin-right: 5px;"></i><span style="font-size: 1em; font-family: Arial, sans-serif;">GitHub</span>
+                        <a href="https://github.com/G1213123/TrafficSign" title="Visit GitHub Repository"
+                            target="_blank" style="color: #ccc; text-decoration: none; margin: 0 10px;">
+                            <i class="fab fa-github" style="color: #aaa; margin-right: 5px;"></i><span
+                                style="font-size: 1em; font-family: Arial, sans-serif;">GitHub</span>
                         </a>
                     </div>
                     <div> <!-- Row 2 -->
-                        <a href="https://github.com/G1213123/TrafficSign/issues" title="Report a Bug" target="_blank" style="color: #ccc; text-decoration: none; margin: 0 10px;">
-                            <i class="fas fa-bug" style="color: #aaa; margin-right: 5px;"></i><span style="font-size: 1em; font-family: Arial, sans-serif;">Report Bug</span>
+                        <a href="https://github.com/G1213123/TrafficSign/issues" title="Report a Bug" target="_blank"
+                            style="color: #ccc; text-decoration: none; margin: 0 10px;">
+                            <i class="fas fa-bug" style="color: #aaa; margin-right: 5px;"></i><span
+                                style="font-size: 1em; font-family: Arial, sans-serif;">Report Bug</span>
                         </a>
-                        <a href="https://www.threads.net/@ginger_n_1213" title="Visit Threads Profile" target="_blank" style="color: #ccc; text-decoration: none; margin: 0 10px;">
-                            <i class="fa-brands fa-threads" style="color: #aaa; margin-right: 5px;"></i><span style="font-size: 1em; font-family: Arial, sans-serif;">Threads</span>
+                        <a href="https://www.threads.net/@ginger_n_1213" title="Visit Threads Profile" target="_blank"
+                            style="color: #ccc; text-decoration: none; margin: 0 10px;">
+                            <i class="fa-brands fa-threads" style="color: #aaa; margin-right: 5px;"></i><span
+                                style="font-size: 1em; font-family: Arial, sans-serif;">Threads</span>
                         </a>
                     </div>
                 </div>

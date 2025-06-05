@@ -46,7 +46,17 @@
             "name": "Road Sign Factory"
         }
     }
-    </script>    <link rel="stylesheet" href="css/homepage.css">
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1W8GWKLVSK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-1W8GWKLVSK');
+    </script>
+    <link rel="stylesheet" href="css/homepage.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fabric@6.4.3/dist/index.js"></script>
@@ -55,7 +65,8 @@
 <body>
     <!-- Navigation Header -->
     <nav class="navbar">
-        <div class="nav-container">            <div class="nav-logo">
+        <div class="nav-container">
+            <div class="nav-logo">
                 <img src="images/favicon.ico" alt="Logo" class="nav-logo-icon">
                 <span>Road Sign Factory</span>
             </div>
@@ -63,6 +74,7 @@
                 <a href="#features" class="nav-link">Features</a>
                 <a href="#demo" class="nav-link">Demo</a>
                 <a href="#about" class="nav-link">About</a>
+                <a href="changelog.html" class="nav-link">Changelog</a>
                 <a href="https://github.com/G1213123/TrafficSign" class="nav-link" target="_blank">GitHub</a>
                 <a href="app.html" class="nav-button">Launch App</a>
             </div>
@@ -88,7 +100,7 @@
                 </h1>
                 <p class="hero-subtitle">Create, customize, and export professional road signs online. Built with Hong
                     Kong TPDM standards for precision and compliance.</p>
-                
+
                 <!-- Buttons Container -->
                 <div class="hero-buttons">
                     <!-- Primary Action Group (Launch + Version) -->
@@ -104,14 +116,14 @@
                             <span class="version-label">Current Build</span>
                         </div>
                     </div>
-                    
+
                     <!-- Secondary Action -->
                     <a href="#demo" class="btn btn-secondary">
                         <i class="fas fa-eye"></i>
                         View Demo
                     </a>
                 </div>
-                
+
                 <!-- Main Stats -->
                 <div class="hero-stats">
                     <div class="stat">
@@ -121,7 +133,8 @@
                     <div class="stat">
                         <span class="stat-number">10+</span>
                         <span class="stat-label">Symbols</span>
-                    </div>                    <div class="stat">
+                    </div>
+                    <div class="stat">
                         <span class="stat-number">3</span>
                         <span class="stat-label">Export Formats</span>
                     </div>
@@ -130,7 +143,8 @@
                         <span class="stat-label">Web-Based</span>
                     </div>
                 </div>
-            </div>            <div class="hero-visual">
+            </div>
+            <div class="hero-visual">
                 <div class="hero-preview">
                     <img src="images/hero-preview.svg" alt="Traffic Sign Designer Preview" class="preview-image">
                     <div class="preview-overlay">
@@ -200,13 +214,13 @@
                 </div>
             </div>
         </div>
-    </section>    <!-- Demo Section -->
+    </section> <!-- Demo Section -->
     <section id="demo" class="demo">
         <div class="container">
             <h2 class="section-title">See It In Action</h2>
             <p class="section-subtitle">Interactive demonstration of key features</p>
 
-            <div class="demo-container">                  <!-- Main Demo Canvas -->
+            <div class="demo-container"> <!-- Main Demo Canvas -->
                 <div class="main-demo-canvas" id="main-demo-canvas">
                     <div class="demo-sign-canvas">
                         <canvas id="demo-canvas"></canvas>
@@ -336,14 +350,14 @@
                         </li>
                     </ul>
                 </div>
-
                 <div class="footer-section">
                     <h4>Resources</h4>
                     <ul>
                         <li><a href="https://www.td.gov.hk/en/publications_and_press_releases/publications/tpdm/index.html"
                                 target="_blank">HK TPDM Guidelines</a></li>
-                        <li><a href="https://github.com/G1213123/TrafficSign" target="_blank">Documentation</a></li>
-                        <li><a href="https://github.com/G1213123/TrafficSign/releases" target="_blank">Changelog</a>
+                        <li><a href="https://www.gov.uk/government/publications/traffic-signs-manual"
+                                target="_blank">UK Traffic Signs Manual</a></li>
+                        <li><a href="changelog.html">Changelog</a>
                         </li>
                     </ul>
                 </div>
@@ -365,7 +379,8 @@
                         authorities. Users are responsible for ensuring compliance with local regulations.</p>
                 </div>
             </div>
-        </div>    </footer>
+        </div>
+    </footer>
     <script type="module" src="js/homepage.js"></script>
 </body>
 

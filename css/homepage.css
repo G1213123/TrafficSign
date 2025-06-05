@@ -989,3 +989,270 @@ body {
 html {
     scroll-behavior: smooth;
 }
+
+/* Changelog Page Specific Styles */
+
+.changelog-section {
+    padding: 80px 0;
+    background-color: var(--background-color);
+}
+
+.changelog-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.changelog-intro {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.changelog-intro h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.changelog-intro h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.changelog-intro p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.changelog-intro .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.changelog-intro .breadcrumb a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.changelog-intro .breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.changelog-entries {
+    margin-bottom: 4rem;
+}
+
+.changelog-entry {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.changelog-entry:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.changelog-entry.upcoming {
+    border-top: 4px solid var(--accent-color);
+}
+
+.changelog-header {
+    background: var(--background-alt);
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.version-tag {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.version-beta {
+    color: var(--accent-color);
+}
+
+.release-date {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.changelog-body {
+    padding: 2rem;
+}
+
+.changelog-body h4 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.changelog-body p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.changelog-categories {
+    margin-top: 1.5rem;
+}
+
+.category-section {
+    margin-bottom: 1.5rem;
+}
+
+.category-section:last-child {
+    margin-bottom: 0;
+}
+
+.category-section h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.category-section h5 i {
+    color: var(--primary-color);
+    font-size: 1rem;
+}
+
+.category-section ul {
+    list-style: none;
+    margin-left: 1.5rem;
+}
+
+.category-section li {
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    position: relative;
+    padding-left: 1rem;
+}
+
+.category-section li:before {
+    content: "•";
+    color: var(--primary-color);
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+}
+
+.changelog-cta {
+    background: var(--background-alt);
+    border-radius: var(--border-radius);
+    padding: 3rem 2rem;
+    text-align: center;
+    border: 1px solid var(--border-color);
+}
+
+.changelog-cta h3 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.changelog-cta p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Active navigation state for changelog page */
+.nav-links a.active {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Responsive Design for Changelog */
+@media (max-width: 768px) {
+    .changelog-intro h1 {
+        font-size: 2.5rem;
+    }
+    
+    .changelog-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+    
+    .changelog-body {
+        padding: 1.5rem;
+    }
+    
+    .changelog-cta {
+        padding: 2rem 1.5rem;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .cta-buttons .btn {
+        width: 100%;
+        max-width: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    .changelog-intro h1 {
+        font-size: 2rem;
+    }
+    
+    .changelog-intro h2 {
+        font-size: 1.5rem;
+    }
+    
+    .changelog-header {
+        padding: 1rem 1.5rem;
+    }
+    
+    .changelog-body {
+        padding: 1rem 1.5rem;
+    }
+}
+
+/* General breadcrumb styling */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.breadcrumb a {
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.breadcrumb a:hover {
+    opacity: 0.8;
+}
+
+.breadcrumb span {
+    color: var(--text-muted);
+}
