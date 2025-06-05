@@ -70,6 +70,15 @@ handlers:
     X-Content-Type-Options: nosniff
     Strict-Transport-Security: max-age=31536000; includeSubDomains
 
+# Serve changelog.html as the changelog page
+- url: /changelog.html
+  static_files: changelog.html
+  upload: changelog.html
+  secure: always
+  http_headers:
+    X-Content-Type-Options: nosniff
+    Strict-Transport-Security: max-age=31536000; includeSubDomains
+
 # Handle 404 errors
 - url: /.*
   static_files: index.html

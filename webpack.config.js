@@ -38,8 +38,7 @@ module.exports = {
       inject: true,             // Inject scripts into the homepage
       title: 'Road Sign Factory - Professional Traffic Sign Designer',
       appVersion: (process.env.VERSION || require('./package.json').version || 'dev').replace(/-/g, '.')
-    }),
-    // App HTML
+    }),    // App HTML
     new HtmlWebpackPlugin({
       template: './app.html', // Path to your app.html
       filename: 'app.html',   // Output filename
@@ -47,7 +46,16 @@ module.exports = {
       inject: true,           // Inject scripts into the app
       title: 'Road Sign Factory - Online Sign Creator',
       appVersion: process.env.VERSION || require('./package.json').version || 'dev'
-    }),    new CopyWebpackPlugin({
+    }),
+    // Changelog HTML
+    new HtmlWebpackPlugin({
+      template: './changelog.html', // Path to your changelog.html
+      filename: 'changelog.html',   // Output filename
+      chunks: ['homepage'],         // Include homepage bundle for consistent styling and navigation
+      inject: true,                 // Inject scripts into the changelog
+      title: 'Changelog - Road Sign Factory',
+      appVersion: process.env.VERSION || require('./package.json').version || 'dev'
+    }),new CopyWebpackPlugin({
       patterns: [
         { from: 'css', to: 'css' },
         { from: 'images', to: 'images' },
