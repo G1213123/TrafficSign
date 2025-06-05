@@ -62,15 +62,14 @@
     <script src="https://cdn.jsdelivr.net/npm/fabric@6.4.3/dist/index.js"></script>
 </head>
 
-<body>
-    <!-- Navigation Header -->
+<body>    <!-- Navigation Header -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="nav-logo">
+            <a href="index.html" class="nav-logo">
                 <img src="images/favicon.ico" alt="Logo" class="nav-logo-icon">
                 <span>Road Sign Factory</span>
-            </div>
-            <div class="nav-menu">
+            </a>            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
                 <a href="#features" class="nav-link">Features</a>
                 <a href="#demo" class="nav-link">Demo</a>
                 <a href="#about" class="nav-link">About</a>
@@ -265,6 +264,80 @@
                     <i class="fas fa-play"></i>
                     Launch Application - Free
                 </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- SVG Gallery Roulette Section -->
+    <section id="gallery" class="svg-gallery">
+        <div class="container">
+            <h2 class="section-title">Example Signs Gallery</h2>
+            <p class="section-subtitle">Browse through various traffic sign examples</p>            <div class="roulette-container">
+                <div class="roulette-track-container">
+                    <div class="roulette-track" id="roulette-track">
+                        <!-- First set of SVG items -->
+                        <div class="roulette-item">
+                            <img src="images/diverge.svg" alt="Diverge Sign" />
+                            <div class="item-title">Diverge Sign</div>
+                        </div>
+                        <div class="roulette-item">
+                            <img src="images/flag.svg" alt="Flag Sign" />
+                            <div class="item-title">Flag Sign</div>
+                        </div>
+                        <div class="roulette-item">
+                            <img src="images/gantry.svg" alt="Gantry Sign" />
+                            <div class="item-title">Gantry Sign</div>
+                        </div>
+                        <div class="roulette-item">
+                            <img src="images/lane.svg" alt="Lane Sign" />
+                            <div class="item-title">Lane Sign</div>
+                        </div>
+                        <div class="roulette-item">
+                            <img src="images/roundabout.svg" alt="Roundabout Sign" />
+                            <div class="item-title">Roundabout Sign</div>
+                        </div>
+                        <div class="roulette-item">
+                            <img src="images/spiral.svg" alt="Spiral Sign" />
+                            <div class="item-title">Spiral Sign</div>
+                        </div>
+                        <div class="roulette-item">
+                            <img src="images/stack.svg" alt="Stack Sign" />
+                            <div class="item-title">Stack Sign</div>
+                        </div>
+                        <!-- Duplicate set for seamless loop -->
+                        <div class="roulette-item">
+                            <img src="images/diverge.svg" alt="Diverge Sign" />
+                            <div class="item-title">Diverge Sign</div>
+                        </div>
+                        <div class="roulette-item">
+                            <img src="images/flag.svg" alt="Flag Sign" />
+                            <div class="item-title">Flag Sign</div>
+                        </div>
+                        <div class="roulette-item">
+                            <img src="images/gantry.svg" alt="Gantry Sign" />
+                            <div class="item-title">Gantry Sign</div>
+                        </div>
+                        <div class="roulette-item">
+                            <img src="images/lane.svg" alt="Lane Sign" />
+                            <div class="item-title">Lane Sign</div>
+                        </div>
+                        <div class="roulette-item">
+                            <img src="images/roundabout.svg" alt="Roundabout Sign" />
+                            <div class="item-title">Roundabout Sign</div>
+                        </div>
+                        <div class="roulette-item">
+                            <img src="images/spiral.svg" alt="Spiral Sign" />
+                            <div class="item-title">Spiral Sign</div>
+                        </div>
+                        <div class="roulette-item">
+                            <img src="images/stack.svg" alt="Stack Sign" />
+                            <div class="item-title">Stack Sign</div>
+                        </div>                    </div>
+                </div>
+            </div>
+            
+            <div class="roulette-indicators" id="roulette-indicators">
+                <!-- Dots will be dynamically generated -->
             </div>
         </div>
     </section>

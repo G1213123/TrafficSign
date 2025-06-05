@@ -991,6 +991,47 @@ html {
 }
 
 /* Changelog Page Specific Styles */
+.changelog-hero {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: white;
+    padding: 120px 0 80px;
+    text-align: center;
+}
+
+.changelog-hero h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.changelog-hero .hero-subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.breadcrumb a {
+    color: white;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.breadcrumb a:hover {
+    opacity: 0.8;
+}
+
+.breadcrumb span {
+    color: rgba(255, 255, 255, 0.6);
+}
 
 .changelog-section {
     padding: 80px 0;
@@ -1189,7 +1230,11 @@ html {
 
 /* Responsive Design for Changelog */
 @media (max-width: 768px) {
-    .changelog-intro h1 {
+    .changelog-hero {
+        padding: 100px 0 60px;
+    }
+    
+    .changelog-hero h1 {
         font-size: 2.5rem;
     }
     
@@ -1219,12 +1264,12 @@ html {
 }
 
 @media (max-width: 480px) {
-    .changelog-intro h1 {
+    .changelog-hero h1 {
         font-size: 2rem;
     }
     
     .changelog-intro h2 {
-        font-size: 1.5rem;
+        font-size: 2rem;
     }
     
     .changelog-header {
@@ -1236,23 +1281,253 @@ html {
     }
 }
 
-/* General breadcrumb styling */
-.breadcrumb {
+/* SVG Gallery Roulette Styles */
+.svg-gallery {
+    padding: 6rem 0;
+    background: linear-gradient(135deg, var(--background-alt) 0%, var(--background-color) 100%);
+}
+
+.roulette-container {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    margin: 3rem 0;
+    overflow: hidden;
+}
+
+.roulette-track-container {
+    flex: 1;
+    overflow: hidden;
+    border-radius: calc(var(--border-radius) + 4px);
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06), var(--shadow-lg);
+    margin: 0 1rem;
+    padding: 1rem;
+}
+
+.roulette-track {
+    display: flex;
+    gap: 2rem;
+    padding: 1rem;
+    animation: slide-left 60s linear infinite;
+    width: calc(200% + 2rem); /* Account for duplicated items and gap */
+}
+
+@keyframes slide-left {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%); /* Only slide to halfway point since we have duplicates */
+    }
+}
+
+.roulette-track:hover {
+    animation-play-state: paused;
+}
+
+.roulette-item {
+    flex: 0 0 auto;
+    width: 280px;
+    height: 200px;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: var(--border-radius);
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.roulette-item:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+}
+
+.roulette-item.active {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+    box-shadow: var(--shadow-md);
+}
+
+.roulette-item svg,
+.roulette-item img {
+    max-width: 90%;
+    max-height: 90%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.roulette-item .item-title {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    color: white;
+    padding: 1rem 0.5rem 0.5rem;
     font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+    text-transform: capitalize;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-.breadcrumb a {
-    text-decoration: none;
-    transition: opacity 0.2s;
+.roulette-item:hover .item-title {
+    opacity: 1;
 }
 
-.breadcrumb a:hover {
+.roulette-nav {
+    display: none; /* Hidden since we're using pure CSS animation */
+}
+
+.roulette-nav:hover,
+.roulette-nav:active,
+.roulette-nav i {
+    display: none; /* Not needed anymore */
+}
+
+.roulette-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    padding: 1rem;
+}
+
+.roulette-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.roulette-dot::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    right: -8px;
+    bottom: -8px;
+    border-radius: 50%;
+    background: transparent;
+    transition: background 0.3s ease;
+}
+
+.roulette-dot:hover::before {
+    background: rgba(37, 99, 235, 0.1);
+}
+
+.roulette-dot.active {
+    background: var(--primary-color);
+    transform: scale(1.2);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.roulette-dot:hover {
+    background: var(--primary-color);
     opacity: 0.8;
+    transform: scale(1.1);
 }
 
-.breadcrumb span {
-    color: var(--text-muted);
+.roulette-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--border-color);
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Animation Classes */
+.fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Stagger animation delays for child elements */
+.feature-card:nth-child(1) { transition-delay: 0.1s; }
+.feature-card:nth-child(2) { transition-delay: 0.2s; }
+.feature-card:nth-child(3) { transition-delay: 0.3s; }
+.feature-card:nth-child(4) { transition-delay: 0.4s; }
+
+.roulette-item {
+    transition-delay: 0.1s;
+}
+
+/* Responsive Design for Roulette */
+@media (max-width: 768px) {
+    .roulette-item {
+        width: 240px;
+        height: 180px;
+    }
+    
+    .roulette-track {
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .roulette-nav {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .roulette-nav i {
+        font-size: 1rem;
+    }
+    
+    .svg-gallery {
+        padding: 4rem 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .roulette-item {
+        width: 200px;
+        height: 150px;
+    }
+    
+    .roulette-track {
+        padding: 1rem;
+    }
+    
+    .roulette-container {
+        margin: 2rem 0;
+    }
+    
+    .roulette-track-container {
+        margin: 0 0.5rem;
+    }
 }

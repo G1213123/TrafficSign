@@ -42,14 +42,15 @@
 <body> <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="nav-logo">
+            <a href="index.html" class="nav-logo">
                 <img src="images/favicon.ico" alt="Logo" class="nav-logo-icon">
                 <span>Road Sign Factory</span>
-            </div>
+            </a>
             <div class="nav-menu">
                 <a href="index.html" class="nav-link">Home</a>
                 <a href="index.html#features" class="nav-link">Features</a>
                 <a href="index.html#demo" class="nav-link">Demo</a>
+                <a href="index.html#about" class="nav-link">About</a>
                 <a href="changelog.html" class="nav-link active">Changelog</a>
                 <a href="https://github.com/G1213123/TrafficSign" class="nav-link" target="_blank">GitHub</a>
                 <a href="app.html" class="nav-button">Launch App</a>
@@ -68,63 +69,153 @@
             <div class="container">
                 <div class="changelog-content"> <!-- Introduction -->
                     <div class="changelog-intro">
-                        <div class="breadcrumb" style="justify-content: flex-start; margin-bottom: 2rem;">
-                            <a href="index.html">Home</a>
-                            <span>/</span>
-                            <span>Changelog</span>
-                        </div>
                         <h1>Release History</h1>
                         <p>Here you'll find detailed information about all the updates, new features, bug fixes, and
-                            improvements made to Road Sign Factory. Each entry includes the release date and
-                            comprehensive notes about what's changed.</p>
+                            improvements made to Road Sign Factory. Each entry includes a short summary of what's
+                            changed.</p>
                     </div>
-
                     <!-- Changelog Entries -->
                     <div class="changelog-entries">
-                        <!-- Placeholder entry - you can replace this with your actual blog posts -->
+                        <!-- Version 1.1.13 Release -->
                         <article class="changelog-entry">
                             <div class="changelog-header">
-                                <h3 class="version-tag">Coming Soon</h3>
-                                <time class="release-date">TBD</time>
+                                <h3 class="version-tag">Version 1.1.13</h3>
+                                <time class="release-date">June 2025</time>
                             </div>
                             <div class="changelog-body">
-                                <h4>Future Updates</h4>
-                                <p>We're continuously working on improving Road Sign Factory. Check back here for the
-                                    latest updates and release notes from our development blog.</p>
+                                <h4>Enhanced Font System & Typography Standards</h4>
+                                <p>This update focuses on improving font accuracy and compliance with official signage
+                                    standards. After extensive research and testing, we've optimized the font selection
+                                    to better match authentic traffic sign typography.</p>
 
                                 <div class="changelog-categories">
                                     <div class="category-section">
-                                        <h5><i class="fas fa-plus-circle"></i> Planned Features</h5>
+                                        <h5><i class="fas fa-font"></i> Font System Improvements</h5>
                                         <ul>
-                                            <li>Additional symbol libraries</li>
-                                            <li>Enhanced export options</li>
-                                            <li>Improved user interface</li>
-                                            <li>Mobile optimization</li>
+                                            <li>Upgraded default font system for better standard compliance</li>
+                                            <li>Implemented Noto Sans Korean as primary font with higher fidelity</li>
+                                            <li>Added Noto Sans HK as fallback font for character support</li>
+                                            <li>Improved font rendering accuracy compared to official standards</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="category-section">
+                                        <h5><i class="fas fa-plus-circle"></i> New Features</h5>
+                                        <ul>
+                                            <li>Added custom font upload capability</li>
+                                            <li>Support for user-provided licensed fonts</li>
+                                            <li>Enhanced typography flexibility for professional use</li>
+                                            <li>Font fallback system for missing characters</li>
+                                        </ul>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Version 1.1.12 Release -->
+                        <article class="changelog-entry">
+                            <div class="changelog-header">
+                                <h3 class="version-tag">Version 1.1.12</h3>
+                                <time class="release-date">June 2025</time>
+                            </div>
+                            <div class="changelog-body">
+                                <h4>Load & Save Functionality</h4>
+                                <p>This major update introduces comprehensive save and load capabilities, a fundamental
+                                    feature for any professional CAD application. Users can now preserve their work and
+                                    seamlessly continue editing across sessions.</p>
+
+                                <div class="changelog-categories">
+                                    <div class="category-section">
+                                        <h5><i class="fas fa-save"></i> Save & Load System</h5>
+                                        <ul>
+                                            <li>Implemented custom JSON serialization for project files</li>
+                                            <li>Added automatic browser-based project saving (Ctrl+S or Settings menu)
+                                            </li>
+                                            <li>Projects automatically restore on page reload or browser restart</li>
+                                            <li>Optimized file format for smaller file sizes and better performance</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="category-section">
+                                        <h5><i class="fas fa-edit"></i> Enhanced Property Panel</h5>
+                                        <ul>
+                                            <li>Direct object content and position editing capabilities</li>
+                                            <li>Real-time property modification interface</li>
+                                            <li>Improved object manipulation and fine-tuning controls</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="category-section">
+                                        <h5><i class="fas fa-exchange-alt"></i> Import/Export Improvements</h5>
+                                        <ul>
+                                            <li>Renamed Export Menu to Import/Export for better clarity</li>
+                                            <li>Added JSON project import and export functionality</li>
+                                            <li>Support for direct JSON paste import feature</li>
+                                            <li>Streamlined file sharing and project distribution workflow</li>
                                         </ul>
                                     </div>
                                 </div>
                             </div>
                         </article>
 
-                        <!-- Example structure for future entries -->
-                        <article class="changelog-entry upcoming">
+                        <!-- Version 1.1.11 Release -->
+                        <article class="changelog-entry">
                             <div class="changelog-header">
-                                <h3 class="version-tag version-beta">Beta Updates</h3>
-                                <time class="release-date">Ongoing</time>
+                                <h3 class="version-tag">Version 1.1.11</h3>
+                                <time class="release-date">May 2025</time>
                             </div>
                             <div class="changelog-body">
-                                <h4>Current Development</h4>
-                                <p>Road Sign Factory is currently in beta development. We're actively working on
-                                    stabilizing features and improving the overall user experience.</p>
+                                <h4>Mobile Interface Improvements & Export Fixes</h4>
+                                <p>This release focuses on enhancing mobile device compatibility and resolving critical
+                                    export functionality issues. While Road Sign Factory remains optimized for desktop
+                                    CAD workflows, we've made significant strides in mobile usability.</p>
 
                                 <div class="changelog-categories">
                                     <div class="category-section">
-                                        <h5><i class="fas fa-wrench"></i> In Progress</h5>
+                                        <h5><i class="fas fa-mobile-alt"></i> Mobile Enhancements</h5>
                                         <ul>
-                                            <li>Core functionality stabilization</li>
-                                            <li>Cross-browser compatibility improvements</li>
-                                            <li>Performance optimizations</li>
-                                            <li>User feedback integration</li>
+                                            <li>Implemented touch event handling for mobile devices using
+                                                fabricjs-extension library</li>
+                                            <li>Added basic touch-based zoom and pan functionality</li>
+                                            <li>Improved mobile layout and responsive design elements</li>
+                                            <li>Enhanced touch interaction support for sign editing</li>
+                                        </ul>
+                                    </div>
+                                    <div class="category-section">
+                                        <h5><i class="fas fa-bug"></i> Bug Fixes</h5>
+                                        <ul>
+                                            <li>Resolved PDF export functionality that was previously non-functional
+                                            </li>
+                                            <li>Fixed export module compatibility issues</li>
+                                            <li>Corrected sign design template errors from previous version</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Future Updates -->
+                        <article class="changelog-entry upcoming">
+                            <div class="changelog-header">
+                                <h3 class="version-tag version-beta">Upcoming Features</h3>
+                                <time class="release-date">In Development</time>
+                            </div>
+                            <div class="changelog-body">
+                                <h4>Future Improvements</h4>
+                                <p>We're continuously working on improving Road Sign Factory. Here are some features and
+                                    improvements we're considering for future releases.</p>
+
+                                <div class="changelog-categories">
+                                    <div class="category-section">
+                                        <h5><i class="fas fa-plus-circle"></i> Planned Features</h5>
+                                        <ul>
+                                            <li>Language support for traditional Chinese</li>
+                                            <li>Hint for sign creation best practices</li>
+                                            <li>Extended symbol and template libraries</li>
+                                            <li>AI tools to assist with sign design</li>
+                                            <li>Export CAD function optimized for font display</li>
+                                            <li>Redo and Undo function optimization</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -156,9 +247,19 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h4>Road Sign Factory</h4>
-                    <p>Professional traffic sign designer based on Hong Kong TPDM standards. Create, customize, and
-                        export professional road signs online.</p>
+                    <h3>Road Sign Factory</h3>
+                    <p>Professional traffic sign design tool for modern web browsers.</p>
+                    <div class="social-links">
+                        <a href="https://github.com/G1213123/TrafficSign" target="_blank" aria-label="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="https://www.threads.net/@ginger_n_1213" target="_blank" aria-label="Threads">
+                            <i class="fa-brands fa-threads"></i>
+                        </a>
+                        <a href="mailto:enquiry@g1213123.info" aria-label="Email">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                    </div>
                 </div>
 
                 <div class="footer-section">
@@ -171,14 +272,13 @@
                         </li>
                     </ul>
                 </div>
-
                 <div class="footer-section">
                     <h4>Resources</h4>
                     <ul>
                         <li><a href="https://www.td.gov.hk/en/publications_and_press_releases/publications/tpdm/index.html"
                                 target="_blank">HK TPDM Guidelines</a></li>
-                        <li><a href="https://www.gov.uk/government/publications/traffic-signs-manual"
-                                target="_blank">UK Traffic Signs Manual</a></li>
+                        <li><a href="https://www.gov.uk/government/publications/traffic-signs-manual" target="_blank">UK
+                                Traffic Signs Manual</a></li>
                         <li><a href="changelog.html">Changelog</a>
                         </li>
                     </ul>
@@ -195,26 +295,10 @@
             </div>
 
             <div class="footer-bottom">
-                <div class="footer-info">
-                    <p>&copy; 2024 Road Sign Factory. All rights reserved.</p>
-                    <p>Contact: <a href="mailto:enquiry@g1213123.info">enquiry@g1213123.info</a></p>
-                </div>
-                <div class="footer-social">
-                    <a href="https://github.com/G1213123/TrafficSign" target="_blank" title="GitHub">
-                        <i class="fab fa-github"></i>
-                    </a>
-                    <a href="https://www.threads.net/@ginger_n_1213" target="_blank" title="Threads">
-                        <i class="fa-brands fa-threads"></i>
-                    </a>
-                    <a href="mailto:enquiry@g1213123.info" title="Email">
-                        <i class="fas fa-envelope"></i>
-                    </a>
-                </div>
-                <div class="footer-disclaimer">
-                    <p style="font-size: 0.8em; color: var(--text-muted);">
-                        This site is not affiliated with transport authorities. Users are responsible for ensuring
-                        compliance with local regulations.
-                    </p>
+                <div class="footer-legal">
+                    <p>&copy; 2025 Road Sign Factory. Open source project.</p>
+                    <p class="disclaimer">This application is under development and not affiliated with government
+                        authorities. Users are responsible for ensuring compliance with local regulations.</p>
                 </div>
             </div>
         </div>
