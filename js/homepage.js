@@ -2,13 +2,20 @@
 import { DemoCanvas } from './demo/demo-canvas.js';
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Homepage DOM loaded');
     // Initialize all homepage functionality
     initNavigation();
     initScrollAnimations();
-    DemoCanvas.initInteractions();
+    // Temporarily comment out demo canvas to avoid errors
+    try {
+        DemoCanvas.initInteractions();
+    } catch (error) {
+        console.warn('Demo canvas failed to initialize:', error);
+    }
     initSmoothScrolling();
     initMobileNavigation();
     initSVGRoulette();
+    console.log('All homepage functions initialized');
 });
 
 // Navigation functionality
@@ -194,65 +201,80 @@ setTimeout(preloadApp, 2000);
 
 // SVG Roulette Gallery functionality
 function initSVGRoulette() {
+    console.log('Initializing SVG Roulette...');
     const rouletteIndicators = document.getElementById('roulette-indicators');
     const rouletteTrack = document.getElementById('roulette-track');
 
     if (!rouletteIndicators || !rouletteTrack) {
-        return; // Elements not found, skip initialization
+        console.error('Roulette elements not found');
+        return;
     }
 
     // Get unique SVG files (first half of items, since we have duplicates)
     const allItems = document.querySelectorAll('.roulette-item');
-    const uniqueItemCount = Math.floor(allItems.length / 2); // Half since we have duplicates
+    const uniqueItemCount = Math.floor(allItems.length / 2);
+    console.log('Items found:', allItems.length, 'Unique:', uniqueItemCount);
     
     let currentIndex = 0;
-    let autoPlayInterval;
     let isAutoPlaying = true;
+    let autoPlayInterval;
+    let isManualControl = false;
     
-    // Create indicator dots based on unique SVGs only
+    // Create indicator dots
     function createIndicators() {
         rouletteIndicators.innerHTML = '';
         for (let i = 0; i < uniqueItemCount; i++) {
             const dot = document.createElement('div');
             dot.className = 'roulette-dot';
             dot.setAttribute('data-index', i);
+            dot.setAttribute('title', `Go to slide ${i + 1}`);
             
-            // Add click event to each dot
-            dot.addEventListener('click', () => {
+            // Click handler
+            dot.addEventListener('click', function(e) {
+                console.log('DOT CLICKED:', i);
+                e.preventDefault();
+                e.stopPropagation();
+                isManualControl = true;
                 goToSlide(i);
                 pauseAutoPlay();
-                // Resume auto play after 10 seconds
+                
+                // Resume auto play after 8 seconds
                 setTimeout(() => {
-                    if (!isAutoPlaying) {
+                    if (isManualControl) {
                         resumeAutoPlay();
+                        isManualControl = false;
                     }
-                }, 10000);
+                }, 2000);
             });
             
             rouletteIndicators.appendChild(dot);
         }
-    }
-
-    // Go to specific slide
+        console.log('Created dots:', uniqueItemCount);
+    }    // Go to specific slide
     function goToSlide(index) {
+        console.log('Going to slide:', index);
         currentIndex = index;
         updateActiveIndicator();
         
-        // Calculate position to scroll to
-        const itemWidth = 280 + 32; // item width + gap (2rem = 32px)
-        const scrollPosition = -(index * itemWidth);
+        // Stop continuous animation
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
         
-        // Pause CSS animation and set manual position
-        rouletteTrack.style.animationPlayState = 'paused';
+        // Calculate scroll position
+        const itemWidth = 280; // item width
+        const gap = 32; // 2rem gap
+        const scrollPosition = -(index * (itemWidth + gap));
+        
+        // Update current position for continuous animation
+        currentPosition = scrollPosition;
+        
+        // Apply transform with smooth transition
+        rouletteTrack.style.animation = 'none';
+        rouletteTrack.style.transition = 'transform 0.8s ease-in-out';
         rouletteTrack.style.transform = `translateX(${scrollPosition}px)`;
         
-        // Add smooth transition
-        rouletteTrack.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        
-        // Remove transition after animation completes
-        setTimeout(() => {
-            rouletteTrack.style.transition = '';
-        }, 600);
+        console.log('Applied transform:', scrollPosition + 'px');
     }
 
     // Update active indicator
@@ -262,39 +284,102 @@ function initSVGRoulette() {
         if (dots[currentIndex]) {
             dots[currentIndex].classList.add('active');
         }
-    }
-
-    // Auto-play functionality
+    }    // Auto-play functionality - Continuous sliding
+    let animationFrameId;
+    let startTime;
+    let currentPosition = 0;
+    const totalDistance = uniqueItemCount * (280 + 32); // Total distance to slide through all items
+    const slideDuration = 60000; // 60 seconds for full cycle
+    
     function startAutoPlay() {
-        autoPlayInterval = setInterval(() => {
-            if (isAutoPlaying) {
-                currentIndex = (currentIndex + 1) % uniqueItemCount;
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
+        
+        startTime = performance.now();
+        
+        function animate(currentTime) {
+            if (!isAutoPlaying || isManualControl) {
+                return;
+            }
+            
+            const elapsed = currentTime - startTime;
+            const progress = (elapsed / slideDuration) % 1; // Loop progress from 0 to 1
+            currentPosition = -(progress * totalDistance);
+            
+            // Update transform for continuous movement
+            rouletteTrack.style.animation = 'none';
+            rouletteTrack.style.transition = 'none';
+            rouletteTrack.style.transform = `translateX(${currentPosition}px)`;
+            
+            // Update active indicator based on position
+            const activeIndex = Math.floor(progress * uniqueItemCount) % uniqueItemCount;
+            if (activeIndex !== currentIndex) {
+                currentIndex = activeIndex;
                 updateActiveIndicator();
             }
-        }, 60000 / uniqueItemCount); // Sync with CSS animation duration
+            
+            animationFrameId = requestAnimationFrame(animate);
+        }
+        
+        animationFrameId = requestAnimationFrame(animate);
     }
 
     // Pause auto play
     function pauseAutoPlay() {
         isAutoPlaying = false;
-        rouletteTrack.style.animationPlayState = 'paused';
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
+        // Store current position for resuming
+        const currentTransform = rouletteTrack.style.transform;
+        const match = currentTransform.match(/translateX\((-?\d+(?:\.\d+)?)px\)/);
+        if (match) {
+            currentPosition = parseFloat(match[1]);
+        }
     }
 
     // Resume auto play
     function resumeAutoPlay() {
         isAutoPlaying = true;
-        rouletteTrack.style.animationPlayState = 'running';
-        rouletteTrack.style.transform = ''; // Reset manual transform
-    }
-
-    // Pause on hover
+        // Calculate how much progress we've made based on current position
+        const progress = Math.abs(currentPosition) / totalDistance;
+        const elapsedTime = progress * slideDuration;
+        
+        // Adjust start time to continue from current position
+        startTime = performance.now() - elapsedTime;
+        
+        function animate(currentTime) {
+            if (!isAutoPlaying || isManualControl) {
+                return;
+            }
+            
+            const elapsed = currentTime - startTime;
+            const progress = (elapsed / slideDuration) % 1;
+            currentPosition = -(progress * totalDistance);
+            
+            rouletteTrack.style.animation = 'none';
+            rouletteTrack.style.transition = 'none';
+            rouletteTrack.style.transform = `translateX(${currentPosition}px)`;
+            
+            const activeIndex = Math.floor(progress * uniqueItemCount) % uniqueItemCount;
+            if (activeIndex !== currentIndex) {
+                currentIndex = activeIndex;
+                updateActiveIndicator();
+            }
+            
+            animationFrameId = requestAnimationFrame(animate);
+        }
+        
+        animationFrameId = requestAnimationFrame(animate);
+    }// Pause on hover
     rouletteTrack.addEventListener('mouseenter', () => {
-        rouletteTrack.style.animationPlayState = 'paused';
+        pauseAutoPlay();
     });
 
     rouletteTrack.addEventListener('mouseleave', () => {
-        if (isAutoPlaying) {
-            rouletteTrack.style.animationPlayState = 'running';
+        if (!isManualControl) {
+            resumeAutoPlay();
         }
     });
 
@@ -302,4 +387,5 @@ function initSVGRoulette() {
     createIndicators();
     updateActiveIndicator();
     startAutoPlay();
+    console.log('SVG Roulette initialized');
 }

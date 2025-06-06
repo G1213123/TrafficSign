@@ -1404,13 +1404,31 @@ html {
 }
 
 .roulette-dot {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    background: var(--border-color);
+    background: var(--text-muted);
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
+    border: 2px solid transparent;
+    margin: 4px; /* Add some margin for easier clicking */
+}
+
+.roulette-dot:hover::before {
+    background: rgba(37, 99, 235, 0.2);
+}
+
+.roulette-dot.active {
+    background: var(--primary-color);
+    transform: scale(1.2);
+    border-color: rgba(37, 99, 235, 0.3);
+}
+
+.roulette-dot:hover {
+    background: var(--primary-color);
+    opacity: 0.9;
+    transform: scale(1.1);
 }
 
 .roulette-dot::before {
@@ -1423,22 +1441,11 @@ html {
     border-radius: 50%;
     background: transparent;
     transition: background 0.3s ease;
+    pointer-events: none; /* This ensures clicks pass through to the dot */
 }
 
 .roulette-dot:hover::before {
     background: rgba(37, 99, 235, 0.1);
-}
-
-.roulette-dot.active {
-    background: var(--primary-color);
-    transform: scale(1.2);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-}
-
-.roulette-dot:hover {
-    background: var(--primary-color);
-    opacity: 0.8;
-    transform: scale(1.1);
 }
 
 .roulette-loading {
