@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initSmoothScrolling();
     initMobileNavigation();
     initSVGRoulette();
+    initTpdmTooltip();
     console.log('All homepage functions initialized');
 });
 
@@ -388,4 +389,32 @@ function initSVGRoulette() {
     updateActiveIndicator();
     startAutoPlay();
     console.log('SVG Roulette initialized');
+}
+
+// TPDM Tooltip functionality
+function initTpdmTooltip() {
+    const tpdmTooltips = document.querySelectorAll('.tpdm-tooltip');
+    
+    tpdmTooltips.forEach(tooltip => {
+        // Add click event to redirect to about page
+        tooltip.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = 'about.html';
+        });
+        
+        // Add keyboard accessibility
+        tooltip.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                window.location.href = 'about.html';
+            }
+        });
+        
+        // Make it focusable for keyboard navigation
+        tooltip.setAttribute('tabindex', '0');
+        tooltip.setAttribute('role', 'button');
+        tooltip.setAttribute('aria-label', 'Learn more about Transport Planning and Design Manual - click to go to About page');
+    });
+    
+    console.log('TPDM tooltip initialized');
 }
