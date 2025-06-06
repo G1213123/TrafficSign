@@ -14,8 +14,7 @@ export function createDemoSymbol(demoCanvas, demoCanvasObject) {
             { x: -100 / 3, y: 400, label: 'V6', start: 0, display: 0 },
             { x: -100 / 3, y: 400 / 3, label: 'V7', start: 0, display: 0 },
             { x: -100, y: 200, label: 'V8', start: 0, display: 0 },
-            { x: -100, y: 100, label: 'V9', start: 0, display: 0 },
-        ], {
+            { x: -100, y: 100, label: 'V9', start: 0, display: 0 },        ], {
             fill: '#ffffff',
             strokeWidth: 0,
             left: -550,
@@ -25,7 +24,12 @@ export function createDemoSymbol(demoCanvas, demoCanvasObject) {
             hasBorders: true,
             cornerStyle: 'circle',
             borderColor: '#3b82f6',
-            cornerColor: '#3b82f6'
+            cornerColor: '#3b82f6',
+            hasRotatingPoint: false,
+            lockRotation: true,
+            lockScalingX: true,
+            lockScalingY: true,
+            lockUniScaling: true
         });
 
         triangle.functionalType = 'symbol'; // Mark this object as a symbol

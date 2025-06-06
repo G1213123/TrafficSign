@@ -6,14 +6,18 @@ export function createDemoText(demoCanvas, demoCanvasObject) {
 
     try {
         // Create more realistic highway sign text with proper styling
-        fabric.loadSVGFromURL('./images/demo-text.svg').then((results) => {
-            const textGroup = new fabric.Group([], {
+        fabric.loadSVGFromURL('./images/demo-text.svg').then((results) => {            const textGroup = new fabric.Group([], {
                 selectable: true,
                 hasControls: false,
                 hasBorders: true,
                 cornerStyle: 'circle',
                 borderColor: '#3b82f6',
-                cornerColor: '#3b82f6'
+                cornerColor: '#3b82f6',
+                hasRotatingPoint: false,
+                lockRotation: true,
+                lockScalingX: true,
+                lockScalingY: true,
+                lockUniScaling: true
             })
             textGroup.add(...(results.objects.filter((obj) => !!obj)))
             textGroup.set({

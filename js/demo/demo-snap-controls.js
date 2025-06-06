@@ -60,12 +60,12 @@ class SnapControl extends fabric.Control {
 
     startFollowingCursor(demoCanvasObject) {
         this.canvas.on('mouse:move', this.handleMouseMoveRef);
-        this.canvas.on('mouse:down', (event) => { this.handleMouseClickRef(event, demoCanvasObject); });
+        this.canvas.on('mouse:up', (event) => { this.handleMouseClickRef(event, demoCanvasObject); });
     }
 
     stopFollowingCursor() {
         this.canvas.off('mouse:move', this.handleMouseMoveRef);
-        this.canvas.off('mouse:down', this.handleMouseClickRef);
+        this.canvas.off('mouse:up', this.handleMouseClickRef);
     }
 
     handleMouseMove(event) {

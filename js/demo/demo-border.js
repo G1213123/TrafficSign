@@ -115,9 +115,7 @@ export function createDemoBorder(demoCanvas, demoCanvasObject) {
         // Remove the objects to be bounded from the canvas first
         objectsToBound.forEach(obj => {
             demoCanvas.remove(obj);
-        });
-
-        // The outerRect is drawn first, then innerRect, then the bounded objects on top
+        });        // The outerRect is drawn first, then innerRect, then the bounded objects on top
         const borderGroup = new fabric.Group([outerRect, innerRect, ...objectsToBound], {
             left: contentLeft - padding,
             top: contentTop - padding,
@@ -127,11 +125,20 @@ export function createDemoBorder(demoCanvas, demoCanvasObject) {
             cornerStyle: 'circle',
             borderColor: '#3b82f6', // Standard controls color
             cornerColor: '#3b82f6',
-            functionalType: 'border' // Mark this object as a border
-        });        // 7. Update Canvas
+            functionalType: 'border', // Mark this object as a border
+            hasRotatingPoint: false,
+            lockRotation: true,
+            lockScalingX: true,
+            lockScalingY: true,
+            lockUniScaling: true
+        });
+
+        // 7. Update Canvas
         demoCanvas.add(borderGroup);
         demoCanvas.setActiveObject(borderGroup); // Optional: set active
-        demoCanvas.renderAll();        // Update demoCanvasObject - remove the individual objects and add the group
+        demoCanvas.renderAll();
+
+        // Update demoCanvasObject - remove the individual objects and add the group
         // Remove existing border groups from the array first
         for (let i = demoCanvasObject.length - 1; i >= 0; i--) {
             if (existingBorderGroups.includes(demoCanvasObject[i]) || objectsToBound.includes(demoCanvasObject[i])) {
