@@ -959,7 +959,7 @@ body {
 
 .about-text p {
     font-size: 1.125rem;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     margin-bottom: 2rem;
     line-height: 1.6;
 }
@@ -1753,7 +1753,7 @@ html {
     transform: translateY(-4px);
     box-shadow: var(--shadow-xl);
     border-color: var(--primary-color);
-    background: linear-gradient(135deg, #5c5959 0%, #f1f5f9 100%);
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
 .roulette-item.active {
