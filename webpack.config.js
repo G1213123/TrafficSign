@@ -7,10 +7,10 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin'); // Added
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin'); // Added
 require('dotenv').config(); // Load .env file
 
-module.exports = {
-  entry: {
+module.exports = {  entry: {
     main: './js/main.js',
-    homepage: './js/homepage.js'
+    homepage: './js/homepage.js',
+    nav: './js/nav.js'
   },
   output: {
     filename: './js/[name].js',
@@ -45,14 +45,22 @@ module.exports = {
       inject: true,           // Inject scripts into the app
       title: 'Road Sign Factory - Online Sign Creator',
       appVersion: process.env.VERSION || require('./package.json').version || 'dev'
-    }),
-    // Changelog HTML
+    }),    // Changelog HTML
     new HtmlWebpackPlugin({
       template: './changelog.html', // Path to your changelog.html
       filename: 'changelog.html',   // Output filename
-      chunks: ['homepage'],         // Include homepage bundle for consistent styling and navigation
+      chunks: ['nav'],              // Include nav bundle for navigation functionality
       inject: true,                 // Inject scripts into the changelog
       title: 'Changelog - Road Sign Factory',
+      appVersion: process.env.VERSION || require('./package.json').version || 'dev'
+    }),
+    // About HTML
+    new HtmlWebpackPlugin({
+      template: './about.html',     // Path to your about.html
+      filename: 'about.html',       // Output filename
+      chunks: ['nav'],              // Include nav bundle for navigation functionality
+      inject: true,                 // Inject scripts into the about page
+      title: 'About - Road Sign Factory',
       appVersion: process.env.VERSION || require('./package.json').version || 'dev'
     }),new CopyWebpackPlugin({
       patterns: [
@@ -62,8 +70,6 @@ module.exports = {
         { from: 'js/dxf', to: 'js/dxf' },
         { from: 'ads.txt', to: 'ads.txt' }, // Ensure ads.txt is copied
         { from: 'app.yaml', to: 'app.yaml' }, // Ensure app.yaml is copied
-        { from: 'LICENSE', to: 'LICENSE' },
-        { from: 'readme.md', to: 'readme.md' },
         { from: 'sitemap.xml', to: 'sitemap.xml' }, // Ensure sitemap.xml is copied
         { from: 'robots.txt', to: 'robots.txt' } // Ensure robots.txt is copied
       ],
