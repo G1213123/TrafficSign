@@ -62,7 +62,9 @@
 
 **File Structure:**
 - `index.html` → Professional homepage
-- `app.html` → Original application (renamed from index.html)
+- `design.html` → Original application (renamed from index.html)
+- `about.html` → About page with features and technical info
+- `changelog.html` → Version history and updates
 - `css/homepage.css` → Landing page styles
 - `js/homepage.js` → Landing page interactions
 
@@ -125,7 +127,7 @@
 
 ### For Visitors
 1. **Homepage** (`/`) - Professional landing page
-2. **App Access** - Click "Launch Designer" or visit `/app.html`
+2. **App Access** - Click "Launch Designer" or visit `/design.html`
 3. **Navigation** - Smooth scrolling to different sections
 
 ### For Development
@@ -137,7 +139,9 @@
 ```
 /
 ├── index.html          # Homepage
-├── app.html           # Application
+├── design.html         # Application
+├── about.html          # About page
+├── changelog.html      # Version history
 ├── css/
 │   ├── homepage.css   # Landing page styles
 │   └── style.css      # App styles

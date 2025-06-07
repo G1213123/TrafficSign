@@ -6,7 +6,7 @@
 Road Sign Factory is a professional web-based application for designing, customizing, and exporting traffic signs. Built with modern web technologies and following Hong Kong TPDM standards, it provides engineers and designers with powerful tools for creating compliant road signage.
 
 🌐 **Website:** [road-sign.g1213123.info](http://road-sign.g1213123.info/)  
-🚀 **Launch App:** [road-sign.g1213123.info/app.html](http://road-sign.g1213123.info/app.html)  
+🚀 **Launch App:** [road-sign.g1213123.info/design.html](http://road-sign.g1213123.info/design.html)  
 📖 **Documentation:** [GitHub Repository](https://github.com/G1213123/TrafficSign)
 
 ## ⚠️ Development Status
@@ -28,7 +28,7 @@ Road Sign Factory is a professional web-based application for designing, customi
 The application now uses a professional homepage structure:
 
 - **`index.html`** - Professional landing page
-- **`app.html`** - The main application interface
+- **`design.html`** - The main application interface
 - **`css/homepage.css`** - Landing page styles
 - **`js/homepage.js`** - Landing page interactions
 - **`css/style.css`** - Application styles

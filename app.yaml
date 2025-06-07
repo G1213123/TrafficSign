@@ -61,9 +61,9 @@ handlers:
     X-Content-Type-Options: nosniff
     Strict-Transport-Security: max-age=31536000; includeSubDomains
 
-# Serve app.html as the application entry point
-- url: /app.html
-  static_files: app.html
+# Serve design.html as the application entry point
+- url: /design.html
+  static_files: design.html
   upload: app.html
   secure: always
   http_headers:

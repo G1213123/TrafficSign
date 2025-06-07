@@ -39,9 +39,8 @@ module.exports = {
       title: 'Road Sign Factory - Professional Traffic Sign Designer',
       appVersion: (process.env.VERSION || require('./package.json').version || 'dev').replace(/-/g, '.')
     }),    // App HTML
-    new HtmlWebpackPlugin({
-      template: './app.html', // Path to your app.html
-      filename: 'app.html',   // Output filename
+    new HtmlWebpackPlugin({      template: './design.html', // Path to your design.html
+      filename: 'design.html',   // Output filename
       chunks: ['main'],       // Include only main bundle
       inject: true,           // Inject scripts into the app
       title: 'Road Sign Factory - Online Sign Creator',

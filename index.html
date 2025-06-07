@@ -32,7 +32,7 @@
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "Road Sign Factory",
-        "description": "Professional online traffic sign designer and creator based on Hong Kong TPDM standards",
+        "description": "Professional online directional sign designer and creator based on Hong Kong TPDM standards",
         "url": "http://road-sign.g1213123.info/",
         "applicationCategory": "DesignApplication",
         "operatingSystem": "Web Browser",
@@ -62,20 +62,21 @@
     <script src="https://cdn.jsdelivr.net/npm/fabric@6.4.3/dist/index.js"></script>
 </head>
 
-<body>    <!-- Navigation Header -->
+<body> <!-- Navigation Header -->
     <nav class="navbar">
         <div class="nav-container">
             <a href="index.html" class="nav-logo">
                 <img src="images/favicon.ico" alt="Logo" class="nav-logo-icon">
                 <span>Road Sign Factory</span>
-            </a>            <div class="nav-menu">
+            </a>
+            <div class="nav-menu">
                 <a href="index.html" class="nav-link">Home</a>
                 <a href="#features" class="nav-link">Features</a>
                 <a href="#demo" class="nav-link">Demo</a>
                 <a href="about.html" class="nav-link">About</a>
                 <a href="changelog.html" class="nav-link">Changelog</a>
                 <a href="https://github.com/G1213123/TrafficSign" class="nav-link" target="_blank">GitHub</a>
-                <a href="app.html" class="nav-button">Launch App</a>
+                <a href="design.html" class="nav-button">Launch App</a>
             </div>
             <div class="nav-toggle">
                 <span></span>
@@ -92,18 +93,22 @@
                 <div class="development-notice">
                     <i class="fas fa-info-circle"></i>
                     <span><strong>Development Version</strong> - This application is under active development. Please
-                        report any issues on GitHub.</span>
+                        report any issues on <a href="https://github.com/G1213123/TrafficSign"
+                            target="_blank">GitHub</a>. </span>
                 </div>
                 <h1 class="hero-title">
-                    Professional Traffic Sign Design Tool
-                </h1>                <p class="hero-subtitle">Create, customize, and export professional road signs online. Built with Hong
-                    Kong <span class="tpdm-tooltip" data-tooltip="Transport Planning and Design Manual">TPDM</span> standards for precision and compliance.</p>
+                    Professional Directional Sign Design Tool
+                </h1>
+                <p class="hero-subtitle">Create, customize, and export professional directional signs online. Built with
+                    Hong
+                    Kong <span class="tpdm-tooltip" data-tooltip="Transport Planning and Design Manual">TPDM</span>
+                    standards for precision and compliance.</p>
 
                 <!-- Buttons Container -->
                 <div class="hero-buttons">
                     <!-- Primary Action Group (Launch + Version) -->
                     <div class="primary-action-group">
-                        <a href="app.html" class="btn btn-primary">
+                        <a href="design.html" class="btn btn-primary">
                             <i class="fas fa-play"></i>
                             Launch Application
                         </a>
@@ -133,8 +138,8 @@
                         <span class="stat-label">Symbols</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-number">3</span>
-                        <span class="stat-label">Export Formats</span>
+                        <span class="stat-number">200+</span>
+                        <span class="stat-label">Destination Names</span>
                     </div>
                     <div class="stat">
                         <span class="stat-number">100%</span>
@@ -146,7 +151,7 @@
                 <div class="hero-preview">
                     <img src="images/hero-preview.svg" alt="Traffic Sign Designer Preview" class="preview-image">
                     <div class="preview-overlay">
-                        <a href="app.html" class="preview-launch">
+                        <a href="design.html" class="preview-launch">
                             <i class="fas fa-external-link-alt"></i>
                             Open Full App
                         </a>
@@ -163,6 +168,25 @@
             <p class="section-subtitle">Comprehensive tools for creating standards-compliant traffic signs</p>
 
             <div class="features-grid">
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-font"></i>
+                    </div>
+                    <h3>Destination Text</h3>
+                    <p>Choose destinations from a comprehensive list of common districts, or type in
+                        names with authentic fonts.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shapes"></i>
+                    </div>
+                    <h3>Symbol Library</h3>
+                    <p>Access a comprehensive library of traffic symbols and glyphs. No hassle for drawing points and
+                        shapes.</p>
+                </div>
+
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-vector-square"></i>
@@ -173,26 +197,10 @@
 
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <i class="fas fa-font"></i>
-                    </div>
-                    <h3>Customizable Typography</h3>
-                    <p>Use Transport fonts for English message and custom fonts for Chinese languages.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-shapes"></i>
-                    </div>
-                    <h3>Symbol Library</h3>
-                    <p>Access a comprehensive library of traffic symbols and custom drawing tools.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">
                         <i class="fas fa-file-export"></i>
                     </div>
                     <h3>Multiple Export Formats</h3>
-                    <p>Export your designs as SVG, DXF, or PDF for professional use.</p>
+                    <p>Export your designs as PNG, SVG, DXF, or PDF for professional use.</p>
                 </div>
 
                 <div class="feature-card">
@@ -201,7 +209,9 @@
                     </div>
                     <h3>Precision Tools</h3>
                     <p>Built-in measurement tools and grid system for accurate sign dimensions.</p>
-                </div>                <div class="feature-card">
+                </div>
+
+                <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-save"></i>
                     </div>
@@ -257,7 +267,7 @@
             </div>
 
             <div class="demo-cta">
-                <a href="app.html" class="btn btn-primary btn-large">
+                <a href="design.html" class="btn btn-primary btn-large">
                     <i class="fas fa-play"></i>
                     Launch Application - Free
                 </a>
@@ -269,7 +279,8 @@
     <section id="gallery" class="svg-gallery">
         <div class="container">
             <h2 class="section-title">Example Signs Gallery</h2>
-            <p class="section-subtitle">Browse through various traffic sign examples</p>            <div class="roulette-container">
+            <p class="section-subtitle">Browse through various traffic sign examples</p>
+            <div class="roulette-container">
                 <div class="roulette-track-container">
                     <div class="roulette-track" id="roulette-track">
                         <!-- First set of SVG items -->
@@ -329,10 +340,11 @@
                         <div class="roulette-item">
                             <img src="images/stack.svg" alt="Stack Sign" />
                             <div class="item-title">Stack Sign</div>
-                        </div>                    </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
+
             <div class="roulette-indicators" id="roulette-indicators">
                 <!-- Dots will be dynamically generated -->
             </div>
@@ -362,7 +374,7 @@
                 <div class="footer-section">
                     <h4>Quick Links</h4>
                     <ul>
-                        <li><a href="app.html">Launch App</a></li>
+                        <li><a href="design.html">Launch App</a></li>
                         <li><a href="#features">Features</a></li>
                         <li><a href="#demo">Demo</a></li>
                         <li><a href="https://github.com/G1213123/TrafficSign/issues" target="_blank">Report Issues</a>
@@ -374,8 +386,8 @@
                     <ul>
                         <li><a href="https://www.td.gov.hk/en/publications_and_press_releases/publications/tpdm/index.html"
                                 target="_blank">HK TPDM Guidelines</a></li>
-                        <li><a href="https://www.gov.uk/government/publications/traffic-signs-manual"
-                                target="_blank">UK Traffic Signs Manual</a></li>
+                        <li><a href="https://www.gov.uk/government/publications/traffic-signs-manual" target="_blank">UK
+                                Traffic Signs Manual</a></li>
                         <li><a href="changelog.html">Changelog</a>
                         </li>
                     </ul>

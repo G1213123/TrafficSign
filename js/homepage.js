@@ -136,9 +136,9 @@ function initSmoothScrolling() {
 }
 
 // Add loading states for external links
-document.querySelectorAll('a[href^="http"], a[href="app.html"]').forEach(link => {
+document.querySelectorAll('a[href^="http"], a[href="design.html"]').forEach(link => {
     link.addEventListener('click', function() {
-        if (this.href.includes('app.html')) {
+        if (this.href.includes('design.html')) {
             this.classList.add('loading');
             this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
         }
@@ -193,7 +193,7 @@ document.addEventListener('keydown', function(e) {
 function preloadApp() {
     const link = document.createElement('link');
     link.rel = 'prefetch';
-    link.href = 'app.html';
+    link.href = 'design.html';
     document.head.appendChild(link);
 }
 
