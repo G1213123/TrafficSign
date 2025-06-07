@@ -3,6 +3,7 @@ import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { MainRoadSymbol, SideRoadSymbol, } from '../objects/route.js';
 const canvas = CanvasGlobals.canvas;
+const canvasObject = CanvasGlobals.canvasObject;
 
 let FormDrawMapComponent = {
   MapType: ['Main Line', 'Conventional Roundabout', 'Spiral Roundabout',],

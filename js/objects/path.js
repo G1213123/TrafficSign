@@ -376,6 +376,7 @@ function convertVertexToPathCommands(path) {
     // If this is a start point (other than the first vertex), move to it
     if (current.start && i > 0) {
       pathCommands += `M ${current.x} ${current.y} `;
+      pathStart = current; // Update path start for next segments
     }
     // If there's a previous arc, draw an arc
     else if (prevArc && (!current.start || i === vertices.length - 1)) {
@@ -397,18 +398,23 @@ function convertVertexToPathCommands(path) {
     }
     // If this vertex has a radius property, create rounded corner
     else if (current.radius) {
+      // Check if next starts a new curve, if yes trace back this path start
+      let curveEnd = next;
+      if (next.start && i < vertices.length - 1) {
+        curveEnd = pathStart; // Use the path start for the arc end
+      }
       // Calculate the angle between previous-current and current-next
-      const angle = calculateAngle(previous, current, next);
+      const angle = calculateAngle(previous, current, curveEnd);
 
       // Calculate offset distance based on radius and angle
       const offsetDistance = Math.abs(current.radius * Math.tan(angle / 2));
 
       // Calculate tangent points for the arc
       const prevTangent = calculateTangentPoint(previous, current, offsetDistance);
-      const nextTangent = calculateTangentPoint(next, current, offsetDistance);
+      const nextTangent = calculateTangentPoint(curveEnd, current, offsetDistance);
 
       // Determine arc direction (0 = counterclockwise, 1 = clockwise)
-      const arcDirection = getArcDirection(previous, current, next);
+      const arcDirection = getArcDirection(previous, current, curveEnd);
 
       // Line to start of arc
       pathCommands += `L ${prevTangent.x} ${prevTangent.y} `;
