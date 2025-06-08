@@ -65,6 +65,7 @@
 - `design.html` → Original application (renamed from index.html)
 - `about.html` → About page with features and technical info
 - `changelog.html` → Version history and updates
+- `getting-started.html` → Step-by-step tutorial and guide
 - `css/homepage.css` → Landing page styles
 - `js/homepage.js` → Landing page interactions
 
@@ -149,11 +150,13 @@
 ├── design.html         # Application
 ├── about.html          # About page
 ├── changelog.html      # Version history
+├── getting-started.html # Tutorial guide
 ├── css/
 │   ├── homepage.css   # Landing page styles
 │   └── style.css      # App styles
 ├── js/
 │   ├── homepage.js    # Landing page JS
+│   ├── nav.js         # Navigation for other pages
 │   └── main.js        # App entry point
 └── images/
     └── about-illustration.svg
