@@ -64,7 +64,7 @@ handlers:
 # Serve design.html as the application entry point
 - url: /design.html
   static_files: design.html
-  upload: app.html
+  upload: design.html
   secure: always
   http_headers:
     X-Content-Type-Options: nosniff
