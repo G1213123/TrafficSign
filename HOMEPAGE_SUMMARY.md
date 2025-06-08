@@ -135,6 +135,13 @@
 2. **Build**: `npm run build`
 3. **Preview**: Visit `http://localhost:8080`
 
+#### ⚠️ Important: File Structure Changes
+**Whenever modifying the file structure (adding/removing HTML files, assets, or changing folder organization):**
+1. **Update `webpack.config.js`** - Add new HTML files to HtmlWebpackPlugin entries and ensure asset paths are correct
+2. **Update `app.yaml`** - Modify handlers and static file configurations for proper deployment routing
+3. **Test build process** - Run `npm run build` to verify all files are processed correctly
+4. **Test deployment** - Ensure all routes work correctly in the production environment
+
 ### File Organization
 ```
 /

@@ -20,7 +20,7 @@
     "build": "webpack --mode production",
     "start": "npx http-server . -p 8080",
     "preview": "npx http-server dist -p 8080",
-    "deploy": "env-cmd -f .env npm run build && cd dist && env-cmd -f .env gcloud app deploy --no-cache --promote --version=$VERSION",
+    "deploy": "cd dist && env-cmd -f .env gcloud app deploy --no-cache --promote --version=$VERSION",
     "test": "webpack --mode development",
     "loadEnv": "env-cmd echo -x \\$VERSION"
   }

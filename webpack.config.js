@@ -7,7 +7,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin'); // Added
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin'); // Added
 require('dotenv').config(); // Load .env file
 
-module.exports = {  entry: {
+module.exports = {
+  entry: {
     main: './js/main.js',
     homepage: './js/homepage.js',
     nav: './js/nav.js'
@@ -29,7 +30,7 @@ module.exports = {  entry: {
         type: 'asset/resource',
       },
     ],
-  },  plugins: [
+  }, plugins: [
     // Homepage HTML
     new HtmlWebpackPlugin({
       template: './index.html', // Path to your source index.html (homepage)
@@ -39,7 +40,8 @@ module.exports = {  entry: {
       title: 'Road Sign Factory - Professional Traffic Sign Designer',
       appVersion: (process.env.VERSION || require('./package.json').version || 'dev').replace(/-/g, '.')
     }),    // App HTML
-    new HtmlWebpackPlugin({      template: './design.html', // Path to your design.html
+    new HtmlWebpackPlugin({
+      template: './design.html', // Path to your design.html
       filename: 'design.html',   // Output filename
       chunks: ['main'],       // Include only main bundle
       inject: true,           // Inject scripts into the app
@@ -62,7 +64,7 @@ module.exports = {  entry: {
       inject: true,                 // Inject scripts into the about page
       title: 'About - Road Sign Factory',
       appVersion: process.env.VERSION || require('./package.json').version || 'dev'
-    }),new CopyWebpackPlugin({
+    }), new CopyWebpackPlugin({
       patterns: [
         { from: 'css', to: 'css' },
         { from: 'images', to: 'images' },
