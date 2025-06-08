@@ -6,14 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1">
     <meta name="description"
         content="Learn how to use Road Sign Factory - Step-by-step guide for creating professional traffic signs with our online design tool.">
-    <meta name="k            <div class="nav-menu">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="getting-started.html" class="nav-link active">Getting Started</a>
-                <a href="about.html" class="nav-link">About</a>
-                <a href="changelog.html" class="nav-link">Changelog</a>
-                <a href="https://github.com/G1213123/TrafficSign" class="nav-link" target="_blank">GitHub</a>
-                <a href="design.html" class="nav-button">Launch App</a>
-            </div>        content="getting started guide, road sign tutorial, traffic sign design tutorial, how to use road sign factory">
+    <meta name="keywords"
+        content="getting started guide, road sign tutorial, traffic sign design tutorial, how to use road sign factory">
     <meta name="author" content="Road Sign Factory">
     <title>Getting Started - Road Sign Factory</title>
 
@@ -38,7 +32,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
     <style>        /* Additional styles for getting started page */
         .getting-started-hero {
@@ -93,15 +87,8 @@
             background: linear-gradient(135deg, #fefefe 0%, #f1f5f9 100%);
             border-color: #10b981;
         }
-
-        .image-placeholder::before {
-            content: '🖼';
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            font-size: 1.5rem;
-            opacity: 0.7;
-        }        .video-placeholder:hover,
+        
+        .video-placeholder:hover,
         .image-placeholder:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
@@ -202,14 +189,11 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
+        }        
         .tutorial-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 6fr 4fr;
             gap: 3rem;
-            margin-bottom: 4rem;
         }
 
         .tutorial-section {
@@ -309,7 +293,151 @@
 
         .breadcrumb span {
             color: rgba(255, 255, 255, 0.6);
-        }        /* Responsive adjustments */
+        }        /* JSON Display Box Styles */
+        .json-display-container {
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background: var(--background-alt);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .json-display-header {
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .json-display-header:hover {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        }
+
+        .json-display-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .json-display-toggle {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .json-display-toggle:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .json-display-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .json-display-content.expanded {
+            max-height: 400px;
+        }        .json-display-description {
+            padding: 1rem 1.5rem;
+            background: #dcfce7;
+            border-bottom: 1px solid #86efac;
+            color: #166534;
+            font-size: 0.9rem;
+        }
+
+        .json-code-container {
+            position: relative;
+            background: #1f2937;
+            color: #f9fafb;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .json-code {
+            padding: 1.5rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .copy-json-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            z-index: 10;
+        }
+
+        .copy-json-btn:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .copy-json-btn.copied {
+            background: var(--success-color);
+            transform: translateY(-1px);
+        }
+
+        /* JSON Loading and Error States */
+        .json-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 2rem;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .json-loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        .json-error {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 2rem;
+            color: #ef4444;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 4px;
+            margin: 1rem;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
             .getting-started-hero {
                 padding: 100px 0 60px;
@@ -355,6 +483,16 @@
             }
         }
     </style>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1W8GWKLVSK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-1W8GWKLVSK');
+    </script>
 </head>
 
 <body>
@@ -367,9 +505,7 @@
             </a>
             <div class="nav-menu">
                 <a href="index.html" class="nav-link">Home</a>
-                <a href="index.html#features" class="nav-link">Features</a>
-                <a href="index.html#demo" class="nav-link">Demo</a>
-                <a href="getting-started.html" class="nav-link nav-active">Getting Started</a>
+                <a href="getting-started.html" class="nav-link active">Getting Started</a>
                 <a href="about.html" class="nav-link">About</a>
                 <a href="changelog.html" class="nav-link">Changelog</a>
                 <a href="https://github.com/G1213123/TrafficSign" class="nav-link" target="_blank">GitHub</a>
@@ -511,123 +647,169 @@
                     </div>
 
                 </div>
-            </div>
-
-            <!-- Tutorial Set 1: Directional Sign -->
+            </div>            <!-- Tutorial Set 3: Flag Sign -->
             <div class="tutorial-section" style="margin-bottom: 5rem;">
                 <div style="text-align: center; margin-bottom: 3rem;">
-                    <h3 style="font-size: 2rem; color: var(--text-primary); margin-bottom: 1rem;">Example of Directional
-                        Sign</h3>
-                    <p style="color: var(--text-secondary); font-size: 1.1rem;">Learn to create simple directional
-                        traffic signs</p>
+                    <h3 style="font-size: 2rem; color: var(--text-primary); margin-bottom: 1rem;">Example of Flag Sign</h3>
                 </div>
-                <div class="tutorial-grid">
-                    <!-- Video Tutorial Column -->
+                <div class="tutorial-grid">                    <!-- Video Tutorial Column -->
                     <div>
-                        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Watch how to create a
-                            directional traffic sign from start to finish.</p>                        <div class="video-placeholder" data-tutorial="1">
+                        <div class="video-placeholder" data-tutorial="3">
+                            <video controls style="width: 100%; max-width: 500px; border-radius: 8px; box-shadow: var(--shadow-sm);">
+                                <source src="images/example-video-3.mp4" type="video/mp4">
+                                <p>Your browser does not support the video tag.</p>
+                            </video>
+                            <div style="text-align: center; margin-top: 1rem;">
+                                <p><strong>Flag Sign Tutorial</strong></p>
+                            </div>
+                        </div>
+                    </div>                    <!-- Example Product Column -->
+                    <div>
+                        <div class="image-placeholder" data-example="3">
+                            <img src="images/example-sign-3.svg" alt="Flag traffic sign example">
+                            <p><strong>Flag Sign Example</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- JSON Display Box -->
+                <div class="json-display-container">
+                    <div class="json-display-header" onclick="toggleJsonDisplay('json-flag')">
+                        <div class="json-display-title">
+                            <i class="fas fa-code"></i>
+                            View JSON Template
+                        </div>
+                        <button class="json-display-toggle">
+                            <i class="fas fa-chevron-down" id="json-flag-icon"></i>
+                            Show Code
+                        </button>
+                    </div>
+                    <div class="json-display-content" id="json-flag">
+                        <div class="json-display-description">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>How to use:</strong> Copy the JSON code below and paste it into the Road Sign Factory app using the Import function to load this example sign.
+                        </div>
+                        <div class="json-code-container">
+                            <button class="copy-json-btn" onclick="copyJsonToClipboard('flag-json-code', this)">
+                                <i class="fas fa-copy"></i>
+                                Copy All
+                            </button>                            <pre class="json-code" id="flag-json-code" data-json-file="example-sign-1.json">                                <div class="json-loading">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    Loading example-sign-1.json...
+                                </div>
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+            </div>            <!-- Tutorial Set 1: Diverging Sign -->
+            <div class="tutorial-section" style="margin-bottom: 5rem;">
+                <div style="text-align: center; margin-bottom: 3rem;">
+                    <h3 style="font-size: 2rem; color: var(--text-primary); margin-bottom: 1rem;">Example of Diverging Sign</h3>
+                </div>
+                <div class="tutorial-grid">                    <!-- Video Tutorial Column -->
+                    <div>
+                        <div class="video-placeholder" data-tutorial="1">
                             <video controls style="width: 100%; max-width: 500px; border-radius: 8px; box-shadow: var(--shadow-sm);">
                                 <source src="images/example-video-1.mp4" type="video/mp4">
                                 <p>Your browser does not support the video tag.</p>
                             </video>
                             <div style="text-align: center; margin-top: 1rem;">
-                                <p><strong>Directional Sign Tutorial</strong></p>
-                                <p>Creating a simple directional sign</p>
+                                <p><strong>Diverging Sign Tutorial</strong></p>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Example Product Column -->
+                    </div>                    <!-- Example Product Column -->
                     <div>
-                        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">The final directional sign
-                            you'll create following this tutorial.</p>
-
                         <div class="image-placeholder" data-example="1">
-                            <!-- <img src="images/example-directional-sign.svg" alt="Directional traffic sign example"> -->
-                            <i class="fas fa-image"
-                                style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
-                            <p><strong>Directional Sign Example</strong></p>
-                            <p>Simple directional traffic sign</p>
+                            <img src="images/example-sign-1.svg" alt="Diverging traffic sign example">
+                            <p><strong>Diverging Sign Example</strong></p>
                         </div>
                     </div>
                 </div>
-            </div> <!-- Tutorial Set 2: Roundabout Sign -->
+
+                <!-- JSON Display Box -->
+                <div class="json-display-container">
+                    <div class="json-display-header" onclick="toggleJsonDisplay('json-diverge')">
+                        <div class="json-display-title">
+                            <i class="fas fa-code"></i>
+                            View JSON Template
+                        </div>
+                        <button class="json-display-toggle">
+                            <i class="fas fa-chevron-down" id="json-diverge-icon"></i>
+                            Show Code
+                        </button>
+                    </div>
+                    <div class="json-display-content" id="json-diverge">
+                        <div class="json-display-description">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>How to use:</strong> Copy the JSON code below and paste it into the Road Sign Factory app using the Import function to load this example sign.
+                        </div>
+                        <div class="json-code-container">
+                            <button class="copy-json-btn" onclick="copyJsonToClipboard('diverge-json-code', this)">
+                                <i class="fas fa-copy"></i>
+                                Copy All
+                            </button>                            <pre class="json-code" id="diverge-json-code" data-json-file="example-sign-2.json">                                <div class="json-loading">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    Loading example-sign-2.json...
+                                </div>
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+            </div>            <!-- Tutorial Set 2: Roundabout Sign -->
             <div class="tutorial-section" style="margin-bottom: 5rem;">
                 <div style="text-align: center; margin-bottom: 3rem;">
-                    <h3 style="font-size: 2rem; color: var(--text-primary); margin-bottom: 1rem;">Example of Roundabout
-                        Sign</h3>
-                    <p style="color: var(--text-secondary); font-size: 1.1rem;">Create complex multi-directional
-                        roundabout signs</p>
+                    <h3 style="font-size: 2rem; color: var(--text-primary); margin-bottom: 1rem;">Example of Roundabout Sign</h3>
                 </div>
-                <div class="tutorial-grid">
-                    <!-- Video Tutorial Column -->
+                <div class="tutorial-grid">                    <!-- Video Tutorial Column -->
                     <div>
-                        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Learn to design complex
-                            roundabout signs with multiple destinations.</p>                        <div class="video-placeholder" data-tutorial="2">
+                        <div class="video-placeholder" data-tutorial="2">
                             <video controls style="width: 100%; max-width: 500px; border-radius: 8px; box-shadow: var(--shadow-sm);">
                                 <source src="images/example-video-2.mp4" type="video/mp4">
                                 <p>Your browser does not support the video tag.</p>
                             </video>
                             <div style="text-align: center; margin-top: 1rem;">
                                 <p><strong>Roundabout Sign Tutorial</strong></p>
-                                <p>Multi-directional roundabout design</p>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Example Product Column -->
+                    </div>                    <!-- Example Product Column -->
                     <div>
-                        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Complex roundabout sign with
-                            multiple destinations and arrows.</p>
-
                         <div class="image-placeholder" data-example="2">
-                            <!-- <img src="images/example-roundabout-sign.svg" alt="Roundabout traffic sign example"> -->
-                            <i class="fas fa-image"
-                                style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                            <img src="images/example-sign-2.svg" alt="Roundabout traffic sign example">
                             <p><strong>Roundabout Sign Example</strong></p>
-                            <p>Multi-directional roundabout sign</p>
                         </div>
                     </div>
                 </div>
-            </div> <!-- Tutorial Set 3: Gantry Sign -->
-            <div class="tutorial-section" style="margin-bottom: 5rem;">
-                <div style="text-align: center; margin-bottom: 3rem;">
-                    <h3 style="font-size: 2rem; color: var(--text-primary); margin-bottom: 1rem;">Example of Gantry Sign
-                    </h3>
-                    <p style="color: var(--text-secondary); font-size: 1.1rem;">Master complex highway gantry sign
-                        designs</p>
-                </div>
-                <div class="tutorial-grid">
-                    <!-- Video Tutorial Column -->
-                    <div>
-                        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Master the creation of complex
-                            highway gantry signs with multiple lanes.</p>                        <div class="video-placeholder" data-tutorial="3">
-                            <video controls style="width: 100%; max-width: 500px; border-radius: 8px; box-shadow: var(--shadow-sm);">
-                                <source src="images/example-video-3.mp4" type="video/mp4">
-                                <p>Your browser does not support the video tag.</p>
-                            </video>
-                            <div style="text-align: center; margin-top: 1rem;">
-                                <p><strong>Gantry Sign Tutorial</strong></p>
-                                <p>Complex highway gantry design</p>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Example Product Column -->
-                    <div>
-                        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Professional highway gantry sign
-                            with multiple lane designations.</p>
-
-                        <div class="image-placeholder" data-example="3">
-                            <!-- <img src="images/example-gantry-sign.svg" alt="Gantry traffic sign example"> -->
-                            <i class="fas fa-image"
-                                style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
-                            <p><strong>Gantry Sign Example</strong></p>
-                            <p>Complex highway gantry sign</p>
+                <!-- JSON Display Box -->
+                <div class="json-display-container">
+                    <div class="json-display-header" onclick="toggleJsonDisplay('json-roundabout')">
+                        <div class="json-display-title">
+                            <i class="fas fa-code"></i>
+                            View JSON Template
+                        </div>
+                        <button class="json-display-toggle">
+                            <i class="fas fa-chevron-down" id="json-roundabout-icon"></i>
+                            Show Code
+                        </button>
+                    </div>
+                    <div class="json-display-content" id="json-roundabout">
+                        <div class="json-display-description">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>How to use:</strong> Copy the JSON code below and paste it into the Road Sign Factory app using the Import function to load this example sign.
+                        </div>
+                        <div class="json-code-container">
+                            <button class="copy-json-btn" onclick="copyJsonToClipboard('roundabout-json-code', this)">
+                                <i class="fas fa-copy"></i>
+                                Copy All
+                            </button>                            <pre class="json-code" id="roundabout-json-code" data-json-file="example-sign-3.json">                                <div class="json-loading">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    Loading example-sign-3.json...
+                                </div>
+                            </pre>
                         </div>
                     </div>
                 </div>
-            </div> <!-- Call to Action -->
+            </div>  <!-- Call to Action -->
             <div
                 style="text-align: center; margin-top: 5rem; padding: 3rem 2rem; background: var(--background-alt); border-radius: var(--border-radius);">
                 <h2 style="font-size: 2rem; color: var(--text-primary); margin-bottom: 1rem;">Ready to Create Your Own
@@ -731,49 +913,182 @@
                 video.addEventListener('mousedown', function(event) {
                     event.stopPropagation();
                 });
+            });        // Add hover effects to show connections
+        videoPlaceholders.forEach(video => {
+            video.addEventListener('mouseenter', function () {
+                const tutorialId = this.getAttribute('data-tutorial');
+                const correspondingImage = document.querySelector(`[data-example="${tutorialId}"]`);
+                if (correspondingImage && !this.classList.contains('active')) {
+                    correspondingImage.style.borderColor = 'var(--primary-color)';
+                    correspondingImage.style.opacity = '0.8';
+                }
             });
 
-            // Add hover effects to show connections
-            videoPlaceholders.forEach(video => {
-                video.addEventListener('mouseenter', function () {
-                    const tutorialId = this.getAttribute('data-tutorial');
-                    const correspondingImage = document.querySelector(`[data-example="${tutorialId}"]`);
-                    if (correspondingImage && !this.classList.contains('active')) {
-                        correspondingImage.style.borderColor = 'var(--primary-color)';
-                        correspondingImage.style.opacity = '0.8';
-                    }
-                });
+            video.addEventListener('mouseleave', function () {
+                const tutorialId = this.getAttribute('data-tutorial');
+                const correspondingImage = document.querySelector(`[data-example="${tutorialId}"]`);
+                if (correspondingImage && !this.classList.contains('active')) {
+                    correspondingImage.style.borderColor = '';
+                    correspondingImage.style.opacity = '';
+                }
+            });
+        });
 
-                video.addEventListener('mouseleave', function () {
-                    const tutorialId = this.getAttribute('data-tutorial');
-                    const correspondingImage = document.querySelector(`[data-example="${tutorialId}"]`);
-                    if (correspondingImage && !this.classList.contains('active')) {
-                        correspondingImage.style.borderColor = '';
-                        correspondingImage.style.opacity = '';
-                    }
-                });
+        imagePlaceholders.forEach(image => {
+            image.addEventListener('mouseenter', function () {
+                const exampleId = this.getAttribute('data-example');
+                const correspondingVideo = document.querySelector(`[data-tutorial="${exampleId}"]`);
+                if (correspondingVideo && !this.classList.contains('active')) {
+                    correspondingVideo.style.borderColor = 'var(--primary-color)';
+                    correspondingVideo.style.opacity = '0.8';
+                }
             });
 
-            imagePlaceholders.forEach(image => {
-                image.addEventListener('mouseenter', function () {
-                    const exampleId = this.getAttribute('data-example');
-                    const correspondingVideo = document.querySelector(`[data-tutorial="${exampleId}"]`);
-                    if (correspondingVideo && !this.classList.contains('active')) {
-                        correspondingVideo.style.borderColor = 'var(--primary-color)';
-                        correspondingVideo.style.opacity = '0.8';
-                    }
-                });
-
-                image.addEventListener('mouseleave', function () {
-                    const exampleId = this.getAttribute('data-example');
-                    const correspondingVideo = document.querySelector(`[data-tutorial="${exampleId}"]`);
-                    if (correspondingVideo && !this.classList.contains('active')) {
-                        correspondingVideo.style.borderColor = '';
-                        correspondingVideo.style.opacity = '';
-                    }
-                });
+            image.addEventListener('mouseleave', function () {
+                const exampleId = this.getAttribute('data-example');
+                const correspondingVideo = document.querySelector(`[data-tutorial="${exampleId}"]`);
+                if (correspondingVideo && !this.classList.contains('active')) {
+                    correspondingVideo.style.borderColor = '';
+                    correspondingVideo.style.opacity = '';
+                }
             });
-    });
+        });
+    });    // JSON Display Toggle Functions
+    function toggleJsonDisplay(elementId) {
+        const content = document.getElementById(elementId);
+        let icon = document.getElementById(elementId + '-icon');
+        
+        // Add null checks to prevent errors
+        if (!content) {
+            console.error('Could not find content element for JSON display toggle:', elementId);
+            return;
+        }
+        
+        // Find the button by looking for the toggle button associated with this content
+        const button = document.querySelector(`[onclick="toggleJsonDisplay('${elementId}')"]`);
+        if (!button) {
+            console.error('Could not find button element for JSON display toggle:', elementId);
+            return;
+        }
+        
+        if (content.classList.contains('expanded')) {
+            content.classList.remove('expanded');
+            button.innerHTML = '<i class="fas fa-chevron-down" id="' + elementId + '-icon"></i> Show Code';
+        } else {
+            content.classList.add('expanded');
+            button.innerHTML = '<i class="fas fa-chevron-up" id="' + elementId + '-icon"></i> Hide Code';
+            
+            // Load JSON content if not already loaded
+            const jsonCodeElement = content.querySelector('.json-code');
+            if (jsonCodeElement && jsonCodeElement.hasAttribute('data-json-file')) {
+                loadJsonContent(jsonCodeElement);
+            }
+        }
+    }
+
+    // Load JSON content dynamically from templates folder
+    async function loadJsonContent(element) {
+        const fileName = element.getAttribute('data-json-file');
+        if (!fileName) {
+            console.error('No JSON file specified');
+            return;
+        }        try {
+            const response = await fetch(`images/${fileName}`);
+            if (!response.ok) {
+                throw new Error(`Failed to load ${fileName}: ${response.status} ${response.statusText}`);
+            }
+            
+            const jsonData = await response.json();
+            const formattedJson = JSON.stringify(jsonData, null, 2);
+            
+            // Replace loading indicator with actual JSON
+            element.innerHTML = formattedJson;
+            element.removeAttribute('data-json-file'); // Mark as loaded
+            
+        } catch (error) {
+            console.error('Error loading JSON file:', error);
+            element.innerHTML = `<div class="json-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                Failed to load ${fileName}. Please try again later.
+            </div>`;
+        }
+    }
+
+    // Copy JSON to Clipboard Function (updated for dynamic content)
+    function copyJsonToClipboard(elementId, buttonElement) {
+        const jsonElement = document.getElementById(elementId);
+        
+        // Check if content is still loading
+        if (jsonElement.hasAttribute('data-json-file')) {
+            showCopyError(buttonElement, 'Please expand the section first to load the content');
+            return;
+        }
+        
+        const jsonText = jsonElement.textContent;
+        
+        // Check if content is available
+        if (!jsonText || jsonText.trim() === '') {
+            showCopyError(buttonElement, 'No content available to copy');
+            return;
+        }
+        
+        // Use the modern Clipboard API if available
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(jsonText).then(function() {
+                showCopySuccess(buttonElement);
+            }).catch(function(err) {
+                // Fallback for older browsers
+                fallbackCopyToClipboard(jsonText, buttonElement);
+            });
+        } else {
+            // Fallback for older browsers
+            fallbackCopyToClipboard(jsonText, buttonElement);
+        }
+    }
+
+    // Fallback copy function for older browsers
+    function fallbackCopyToClipboard(text, buttonElement) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+            document.execCommand('copy');
+            showCopySuccess(buttonElement);
+        } catch (err) {
+            console.error('Could not copy text: ', err);
+            showCopyError(buttonElement);
+        }
+        
+        document.body.removeChild(textArea);
+    }
+
+    // Show copy success feedback
+    function showCopySuccess(buttonElement) {
+        const originalContent = buttonElement.innerHTML;
+        buttonElement.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        buttonElement.classList.add('copied');
+        
+        setTimeout(() => {
+            buttonElement.innerHTML = originalContent;
+            buttonElement.classList.remove('copied');
+        }, 2000);
+    }    // Show copy error feedback
+    function showCopyError(buttonElement, customMessage = 'Error copying content') {
+        const originalContent = buttonElement.innerHTML;
+        buttonElement.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + customMessage;
+        buttonElement.style.background = '#ef4444';
+        
+        setTimeout(() => {
+            buttonElement.innerHTML = originalContent;
+            buttonElement.style.background = '';
+        }, 3000);
+    }
     </script>
     <script src="js/animation.js"></script>
 </body>

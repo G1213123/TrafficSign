@@ -752,6 +752,7 @@ body {
 
 .about-intro-content h3 {
     padding-bottom: 1rem;
+    margin-top: 3rem;
 }
 
 .intro-text {
@@ -820,16 +821,20 @@ body {
     line-height: 1.6;
 }
 
-.about-features {
-    margin-bottom: 0;
+.about-features {    margin-bottom: 0;
     flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 2rem;
+    align-content: start;
 }
 
 .about-feature {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
+    padding: 0.25rem 0;
 }
 
 .about-feature i {
@@ -995,6 +1000,9 @@ body {
 .about-features {
     margin-bottom: 0;
     flex: 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
 }
 
 .about-feature {
@@ -2077,26 +2085,27 @@ html {
 
 .timeline {
     position: relative;
-    max-width: 1000px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0;
 }
 
 .timeline::after {
     content: '';
     position: absolute;
     width: 4px;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    background: linear-gradient(135deg, var(--primary-color), #06674b);
     top: 0;
     bottom: 0;
     left: 50%;
     margin-left: -2px;
     border-radius: 2px;
     box-shadow: 0 0 10px rgba(37, 99, 235, 0.3);
+    z-index: -99;
 }
 
 .timeline-item {
-    padding: 10px 40px;
+    padding: 10px 60px 10px 40px;
     position: relative;
     background-color: inherit;
     width: 50%;
@@ -2106,6 +2115,7 @@ html {
 
 .timeline-item:nth-child(even) {
     left: 50%;
+    padding: 10px 40px 10px 60px;
 }
 
 .timeline-item:nth-child(even)::after {
@@ -2132,6 +2142,7 @@ html {
 
 .timeline-item:nth-child(even) .timeline-icon {
     left: -30px;
+    right: auto;
 }
 
 .timeline-content {
@@ -2153,7 +2164,7 @@ html {
     content: '';
     position: absolute;
     top: 2rem;
-    right: -15px;
+    right: -20px;
     width: 0;
     height: 0;
     border: 15px solid transparent;
@@ -2166,7 +2177,7 @@ html {
     content: '';
     position: absolute;
     top: 2rem;
-    left: -15px;
+    left: -20px;
     width: 0;
     height: 0;
     border: 15px solid transparent;
@@ -2195,22 +2206,37 @@ html {
 }
 
 .status-concept {
-    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    background: linear-gradient(135deg, #1e40af, #1d4ed8);
     color: white;
 }
 
 .status-development {
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
     color: white;
 }
 
 .status-beta {
-    background: linear-gradient(135deg, #f97316, #ea580c);
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
     color: white;
 }
 
 .status-completed {
     background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.status-research {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+}
+
+.status-innovation {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    color: white;
+}
+
+.status-future {
+    background: linear-gradient(135deg, #047857, #065f46);
     color: white;
 }
 
@@ -2253,6 +2279,62 @@ html {
     opacity: 0.95;
 }
 
+/* Timeline content color theming - Blue to Green spectrum progression */
+.timeline-content:has(.status-concept) {
+    border-left: 4px solid #1e40af;
+    background: linear-gradient(135deg, rgba(30, 64, 175, 0.02), rgba(29, 78, 216, 0.01));
+}
+
+.timeline-content:has(.status-research) {
+    border-left: 4px solid #3b82f6;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.02), rgba(37, 99, 235, 0.01));
+}
+
+.timeline-content:has(.status-development) {
+    border-left: 4px solid #0ea5e9;
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.02), rgba(2, 132, 199, 0.01));
+}
+
+.timeline-content:has(.status-innovation) {
+    border-left: 4px solid #0ea5e9;
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.02), rgba(2, 132, 199, 0.01));
+}
+
+.timeline-content:has(.status-beta) {
+    border-left: 4px solid #06b6d4;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.02), rgba(8, 145, 178, 0.01));
+}
+
+.timeline-content:has(.status-future) {
+    border-left: 4px solid #047857;
+    background: linear-gradient(135deg, rgba(4, 120, 87, 0.02), rgba(6, 95, 70, 0.01));
+}
+
+/* Timeline icon color coordination */
+.timeline-item:has(.status-concept) .timeline-icon {
+    background: linear-gradient(135deg, #1e40af, #1d4ed8);
+}
+
+.timeline-item:has(.status-research) .timeline-icon {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.timeline-item:has(.status-development) .timeline-icon {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+}
+
+.timeline-item:has(.status-innovation) .timeline-icon {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+}
+
+.timeline-item:has(.status-beta) .timeline-icon {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+}
+
+.timeline-item:has(.status-future) .timeline-icon {
+    background: linear-gradient(135deg, #047857, #065f46);
+}
+
 /* Timeline responsive design */
 @media (max-width: 768px) {
     .timeline::after {
@@ -2261,8 +2343,8 @@ html {
     
     .timeline-item {
         width: 100%;
-        padding-left: 70px;
-        padding-right: 25px;
+        padding-left: 10px;
+        padding-right: 5px;
     }
     
     .timeline-item::before {
@@ -2290,11 +2372,7 @@ html {
         height: 50px;
         font-size: 1.25rem;
     }
-    
-    .timeline-item:nth-child(even) .timeline-icon {
-        left: 1px;
-    }
-    
+        
     .timeline-content.timeline-left::before,
     .timeline-content.timeline-right::before {
         top: 2rem;
@@ -2367,7 +2445,7 @@ html {
     width: 100%;
     height: auto;
     aspect-ratio: 16 / 9;
-    object-fit: cover;
+    object-fit: inherit;
     display: block;
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -2497,12 +2575,12 @@ html {
         margin: 1.5rem 0;
     }    .timeline-left,
     .timeline-right {
-        left: 70px;
-        width: calc(100% - 70px);
+        left: 10px;
+        width: calc(100% - 10px);
     }
 
     .timeline-icon {
-        left: 0;
+        left: -30px;
         width: 60px;
         height: 60px;
     }    .timeline-content {
@@ -2533,12 +2611,12 @@ html {
 
     .timeline-left,
     .timeline-right {
-        left: 50px;
-        width: calc(100% - 50px);
+        left: 10px;
+        width: calc(100% - 10px);
     }
 
     .timeline-icon {
-        left: 0;
+        left: -30px;
         width: 40px;
         height: 40px;
     }    .timeline-content {

@@ -39,7 +39,7 @@ function initCommonScrollAnimations() {
         '.about-feature',
         '.about-intro-section',
         '.timeline-item',
-        '.timeline-section',
+        '.timeline',
         '.about-detailed',
         '.intro-image',
         '.timeline-image',
