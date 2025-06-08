@@ -67,24 +67,31 @@ function initMobileNavigation() {
 
 // Scroll animations
 function initScrollAnimations() {
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-    
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-            }
+    // Use the common animation system
+    if (typeof window.initCommonScrollAnimations === 'function') {
+        window.initCommonScrollAnimations();
+    } else {
+        // Fallback to basic homepage-specific animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+        
+        // Add fade-in class to elements and observe them
+        const animatedElements = document.querySelectorAll('.feature-card, .demo-item, .demo-container, .about-text, .about-visual, .svg-gallery');
+        animatedElements.forEach(el => {
+            el.classList.add('fade-in');
+            observer.observe(el);
         });
-    }, observerOptions);
-      // Add fade-in class to elements and observe them
-    const animatedElements = document.querySelectorAll('.feature-card, .demo-item, .about-text, .about-visual, .svg-gallery');
-    animatedElements.forEach(el => {
-        el.classList.add('fade-in');
-        observer.observe(el);
-    });
+    }
     
     // Animate stats counter
     animateStatsCounter();
