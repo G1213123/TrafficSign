@@ -16,7 +16,7 @@
     <meta property="og:description"
         content="Learn how to create professional traffic signs with our step-by-step guide">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="http://road-sign.g1213123.info/getting-started.html">
+    <meta property="og:url" content="http://roadsignfactory.hk/getting-started.html">
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary">
@@ -25,7 +25,7 @@
         content="Learn how to create professional traffic signs with our step-by-step guide">
 
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
-    <link rel="canonical" href="http://road-sign.g1213123.info/getting-started.html">
+    <link rel="canonical" href="http://roadsignfactory.hk/getting-started.html">
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="css/homepage.css">
@@ -34,7 +34,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
-    <style>        /* Additional styles for getting started page */
+    <style>       
+     /* Additional styles for getting started page */
         .getting-started-hero {
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             color: var(--text-primary);
@@ -987,16 +988,6 @@
         }
     }
 
-    // Utility function to escape HTML special characters
-    function escapeHtml(unsafe) {
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
     // Load JSON content dynamically from templates folder
     async function loadJsonContent(element) {
         const fileName = element.getAttribute('data-json-file');
@@ -1018,11 +1009,11 @@
             
         } catch (error) {
             console.error('Error loading JSON file:', error);
-            const escapedFileName = escapeHtml(fileName);
             element.innerHTML = `<div class="json-error">
                 <i class="fas fa-exclamation-triangle"></i>
-                Failed to load ${escapedFileName}. Please try again later.
+                Failed to load ${fileName}. Please try again later.
             </div>`;
+        }
     }
 
     // Copy JSON to Clipboard Function (updated for dynamic content)
