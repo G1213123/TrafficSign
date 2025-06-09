@@ -884,7 +884,8 @@ class BaseGroup extends fabric.Group {
         this.canvasID == globalAnchorTree.starterObjectY)) {
       this.borderResize();
     }
-
+    this.setCoords();
+    canvas.renderAll();
   }
 
   // Method to update coordinates
@@ -916,8 +917,7 @@ class BaseGroup extends fabric.Group {
     }
 
     polygon.insertPoint = transformedPoints[0];
-    polygon.setCoords();
-    canvas.renderAll();
+
   }
 
   getEffectiveCoords() {
