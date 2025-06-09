@@ -987,6 +987,16 @@
         }
     }
 
+    // Utility function to escape HTML special characters
+    function escapeHtml(unsafe) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
     // Load JSON content dynamically from templates folder
     async function loadJsonContent(element) {
         const fileName = element.getAttribute('data-json-file');
@@ -1008,11 +1018,11 @@
             
         } catch (error) {
             console.error('Error loading JSON file:', error);
+            const escapedFileName = escapeHtml(fileName);
             element.innerHTML = `<div class="json-error">
                 <i class="fas fa-exclamation-triangle"></i>
-                Failed to load ${fileName}. Please try again later.
+                Failed to load ${escapedFileName}. Please try again later.
             </div>`;
-        }
     }
 
     // Copy JSON to Clipboard Function (updated for dynamic content)
