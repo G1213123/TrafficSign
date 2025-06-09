@@ -7,11 +7,11 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin'); // Added
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin'); // Added
 require('dotenv').config(); // Load .env file
 
-module.exports = {
-  entry: {
+module.exports = {  entry: {
     main: './js/main.js',
     homepage: './js/homepage.js',
-    nav: './js/nav.js'
+    nav: './js/nav.js',
+    animation: './js/animation.js'
   },
   output: {
     filename: './js/[name].js',
@@ -30,16 +30,15 @@ module.exports = {
         type: 'asset/resource',
       },
     ],
-  }, plugins: [
-    // Homepage HTML
+  }, plugins: [    // Homepage HTML
     new HtmlWebpackPlugin({
       template: './index.html', // Path to your source index.html (homepage)
       filename: 'index.html',   // Output filename
-      chunks: ['homepage'],     // Include only homepage bundle
+      chunks: ['homepage', 'animation'],     // Include homepage and animation bundles
       inject: true,             // Inject scripts into the homepage
       title: 'Road Sign Factory - Professional Traffic Sign Designer',
       appVersion: (process.env.VERSION || require('./package.json').version || 'dev').replace(/-/g, '.')
-    }),    // App HTML
+    }),// App HTML
     new HtmlWebpackPlugin({
       template: './design.html', // Path to your design.html
       filename: 'design.html',   // Output filename
@@ -55,16 +54,24 @@ module.exports = {
       inject: true,                 // Inject scripts into the changelog
       title: 'Changelog - Road Sign Factory',
       appVersion: process.env.VERSION || require('./package.json').version || 'dev'
-    }),
-    // About HTML
+    }),    // About HTML
     new HtmlWebpackPlugin({
       template: './about.html',     // Path to your about.html
       filename: 'about.html',       // Output filename
-      chunks: ['nav'],              // Include nav bundle for navigation functionality
+      chunks: ['nav', 'animation'], // Include nav and animation bundles
       inject: true,                 // Inject scripts into the about page
       title: 'About - Road Sign Factory',
       appVersion: process.env.VERSION || require('./package.json').version || 'dev'
-    }), new CopyWebpackPlugin({
+    }),
+    // Getting Started HTML
+    new HtmlWebpackPlugin({
+      template: './getting-started.html', // Path to your getting-started.html
+      filename: 'getting-started.html',   // Output filename
+      chunks: ['nav'],                    // Include nav bundle for navigation functionality
+      inject: true,                       // Inject scripts into the getting started page
+      title: 'Getting Started - Road Sign Factory',
+      appVersion: process.env.VERSION || require('./package.json').version || 'dev'
+    }),new CopyWebpackPlugin({
       patterns: [
         { from: 'css', to: 'css' },
         { from: 'images', to: 'images' },
