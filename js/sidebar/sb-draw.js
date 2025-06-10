@@ -4,6 +4,7 @@ import { CanvasGlobals } from '../canvas/canvas.js';
 import { symbolsTemplate, symbolsTemplateAlt, symbolsPermittedAngle } from '../objects/template.js';
 import { calcSymbol, SymbolObject } from '../objects/symbols.js';
 import { convertVertexToPathCommands, convertFontPathToFabricPath, getFontPath } from '../objects/path.js';
+import { parsedFontMedium, parsedFontHeavy, parsedFontKorean } from "../objects/path.js";
 
 let FormDrawAddComponent = {
   symbolAngle: 0,
@@ -369,7 +370,7 @@ let FormDrawAddComponent = {
         left: newSymbolObject.left,
         top: newSymbolObject.top
       };
-  
+
       // Store vertex information
       const v2 = newSymbolObject.getBasePolygonVertex('E2');
       if (v2) {
@@ -466,6 +467,30 @@ let FormDrawAddComponent = {
     // Process text elements if present
     if (symbolData.text && symbolData.text.length > 0) {
       symbolData.text.forEach(textElem => {
+        let fontGlyphs;
+        switch (textElem.fontFamily) {
+          case 'TransportMedium':
+            fontGlyphs = parsedFontMedium;
+            break;
+          case 'TransportHeavy':
+            fontGlyphs = parsedFontHeavy;
+            break;
+          default:
+            fontGlyphs = parsedFontKorean;
+        }
+        // Access font metrics
+        const fontMetrics = {
+          unitsPerEm: fontGlyphs.unitsPerEm,
+          ascender: fontGlyphs.ascender,
+          descender: fontGlyphs.descender,
+        };
+
+        // Scale metrics to desired font size
+        const fontScale = textElem.fontSize / fontMetrics.unitsPerEm;
+        const scaledAscender = (fontMetrics.unitsPerEm - fontMetrics.ascender) * fontScale;
+
+        const yOffset = scaledAscender;
+        textElem.y = textElem.y - yOffset;
         // Check for font path
         const charPath = getFontPath(textElem);
         if (charPath && charPath.commands) {

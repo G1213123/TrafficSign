@@ -624,10 +624,9 @@ const symbolsTemplate = {
                     { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
                 ], 'fill': 'rgb(233, 181, 0)'
-            },
-        ],
+            },        ],
         text: [
-            { character: '1', x: -1.56, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '1', x: -1.56, y: -0.7, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -648,7 +647,7 @@ const symbolsTemplate = {
             },
         ],
         text: [
-            { character: '2', x: -2.4, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '2', x: -2.4, y: -0.7, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -669,7 +668,7 @@ const symbolsTemplate = {
             },
         ],
         text: [
-            { character: '3', x: -2.54, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '3', x: -2.54, y: -0.6, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -690,7 +689,7 @@ const symbolsTemplate = {
             },
         ],
         text: [
-            { character: '4', x: -2.64, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '4', x: -2.64, y: -0.7, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -711,7 +710,7 @@ const symbolsTemplate = {
             },
         ],
         text: [
-            { character: '5', x: -2.44, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '5', x: -2.44, y: -0.7, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -732,7 +731,7 @@ const symbolsTemplate = {
             },
         ],
         text: [
-            { character: '6', x: -2.52, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '6', x: -2.52, y: -0.6, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -753,7 +752,7 @@ const symbolsTemplate = {
             },
         ],
         text: [
-            { character: '7', x: -2.08, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '7', x: -2.08, y: -0.7, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -774,7 +773,7 @@ const symbolsTemplate = {
             },
         ],
         text: [
-            { character: '8', x: -2.6, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '8', x: -2.76, y: -0.6, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -795,7 +794,7 @@ const symbolsTemplate = {
             },
         ],
         text: [
-            { character: '9', x: -2.56, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '9', x: -2.56, y: -0.6, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -820,7 +819,7 @@ const symbolsTemplate = {
             },
         ],
         text: [
-            { character: '10', x: -4.22, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '10', x: -4.22, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -845,7 +844,7 @@ const symbolsTemplate = {
             },
         ],
         text: [
-            { character: '11', x: -3.12, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '11', x: -3.12, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -870,7 +869,7 @@ const symbolsTemplate = {
             },
         ],
         text: [
-            { character: '12', x: -3.96, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '12', x: -3.96, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -2014,7 +2013,7 @@ const symbolsTemplateAlt = {
             },
         ],
         text: [
-            { character: '1', x: -1.56, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '1', x: -1.56, y: -0.7, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
     'Route2': {
@@ -2047,7 +2046,7 @@ const symbolsTemplateAlt = {
             },
         ],
         text: [
-            { character: '2', x: -2.4, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '2', x: -2.4, y: -0.7, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -2081,7 +2080,7 @@ const symbolsTemplateAlt = {
             },
         ],
         text: [
-            { character: '3', x: -2.54, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '3', x: -2.54, y: -0.6, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -2115,7 +2114,7 @@ const symbolsTemplateAlt = {
             },
         ],
         text: [
-            { character: '4', x: -2.64, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '4', x: -2.64, y: -0.7, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -2149,7 +2148,7 @@ const symbolsTemplateAlt = {
             },
         ],
         text: [
-            { character: '5', x: -2.44, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '5', x: -2.44, y: -0.7, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -2183,7 +2182,7 @@ const symbolsTemplateAlt = {
             },
         ],
         text: [
-            { character: '6', x: -2.52, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '6', x: -2.52, y: -0.6, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -2217,7 +2216,7 @@ const symbolsTemplateAlt = {
             },
         ],
         text: [
-            { character: '7', x: -2.08, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '7', x: -2.08, y: -0.7, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -2251,7 +2250,7 @@ const symbolsTemplateAlt = {
             },
         ],
         text: [
-            { character: '8', x: -2.6, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '8', x: -2.76, y: -0.6, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -2285,7 +2284,7 @@ const symbolsTemplateAlt = {
             },
         ],
         text: [
-            { character: '9', x: -2.56, y: -0.9, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '9', x: -2.56, y: -0.6, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -2327,7 +2326,7 @@ const symbolsTemplateAlt = {
             },
         ],
         text: [
-            { character: '10', x: -4.22, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '10', x: -4.22, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -2369,7 +2368,7 @@ const symbolsTemplateAlt = {
             },
         ],
         text: [
-            { character: '11', x: -3.12, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '11', x: -3.12, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 
@@ -2411,7 +2410,7 @@ const symbolsTemplateAlt = {
             },
         ],
         text: [
-            { character: '12', x: -3.96, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportMedium', fill: '#000000' },
+            { character: '12', x: -3.96, y: -0.5, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
     },
 }

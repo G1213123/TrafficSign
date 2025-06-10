@@ -7,6 +7,7 @@ import { LockIcon } from "./lock.js";
 import { globalAnchorTree, anchorShape } from './anchor.js';
 import { CanvasObjectInspector } from "../sidebar/sb-inspector.js";
 import { showPropertyPanel, handleClear } from '../sidebar/property.js'; // Import showPropertyPanel
+import { parsedFontMedium, parsedFontHeavy, parsedFontKorean } from "./path.js";
 
 const canvas = CanvasGlobals.canvas; // Assuming canvas is a global variable in canvas.js
 const canvasObject = CanvasGlobals.canvasObject; // Assuming canvasObject is a global variable in canvas.js
@@ -98,6 +99,30 @@ class GlyphPath extends fabric.Group {
     // Add text elements if present
     if (shapeMeta.text && shapeMeta.text.length > 0) {
       shapeMeta.text.forEach(textElem => {
+        let fontGlyphs;
+        switch (textElem.fontFamily) {
+          case 'TransportMedium':
+            fontGlyphs = parsedFontMedium;
+            break;
+          case 'TransportHeavy':
+            fontGlyphs = parsedFontHeavy;
+            break;
+          default:
+            fontGlyphs = parsedFontKorean;
+        }
+        // Access font metrics
+        const fontMetrics = {
+          unitsPerEm: fontGlyphs.unitsPerEm,
+          ascender: fontGlyphs.ascender,
+          descender: fontGlyphs.descender,
+        };
+        
+        // Scale metrics to desired font size
+        const fontScale = textElem.fontSize / fontMetrics.unitsPerEm;
+        const scaledAscender = (fontMetrics.unitsPerEm - fontMetrics.ascender) * fontScale;
+        
+        const yOffset = scaledAscender;
+        textElem.y = textElem.y - yOffset;
         const charPath = getFontPath(textElem);
         if (charPath && charPath.commands) {
           // Convert font path commands to fabric.Path format
