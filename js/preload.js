@@ -22,6 +22,7 @@ async function preload() {
         // Hide loading indicator here
         // Any initialization code that depends on fonts being loaded can go here.        await FormSettingsComponent.loadSettings();
         await FormSettingsComponent.loadCanvasState();
+        await FormSettingsComponent.loadSettings();
 
         // Initialize text component settings listener after all modules are loaded
         FormTextAddComponent.initializeSettingsListener();
