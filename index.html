@@ -65,7 +65,21 @@
     <script src="https://cdn.jsdelivr.net/npm/fabric@6.4.3/dist/index.js"></script>
 </head>
 
-<body> <!-- Navigation Header -->
+<body>
+    <!-- Migration Notice -->
+    <div id="migrationNotice" class="migration-notice">
+        <div class="migration-content">
+            <button class="migration-close" onclick="closeMigrationNotice()">&times;</button>
+            <img src="images/diversion-sign.svg" alt="Diversion Sign" class="migration-sign">
+            <div class="migration-title">Site Migration Notice</div>
+            <div class="migration-text">
+                We're moving from <strong>g1213123.info</strong> to <strong><a href="https://roadsignfactory.hk" target="_blank" class="migration-link">roadsignfactory.hk</a></strong><br>
+                Please update your bookmarks to ensure continued access to our services.
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Header -->
     <nav class="navbar">
         <div class="nav-container">
             <a href="index.html" class="nav-logo">
@@ -408,8 +422,34 @@
 
 
             </div>
-        </div>
-    </footer>
+        </div>    </footer>    <script>
+        // Migration Notice Functionality
+        function closeMigrationNotice() {
+            const notice = document.getElementById('migrationNotice');
+            notice.classList.add('fade-out');
+            setTimeout(() => {
+                notice.style.display = 'none';
+            }, 300);
+        }
+
+        // Check domain and show notice only if not on new domain
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentDomain = window.location.hostname;
+            const newDomain = 'roadsignfactory.hk';
+            
+            // Only show migration notice if not on the new domain
+            if (currentDomain !== newDomain) {
+                // Auto-dismiss after 5 seconds
+                setTimeout(() => {
+                    closeMigrationNotice();
+                }, 5000);
+            } else {
+                // Hide the notice immediately if already on new domain
+                const notice = document.getElementById('migrationNotice');
+                notice.style.display = 'none';
+            }
+        });
+    </script>
 
 </body>
 
