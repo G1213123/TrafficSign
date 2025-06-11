@@ -24,7 +24,10 @@
     <meta name="twitter:description"
         content="Learn how to create professional traffic signs with our step-by-step guide">
 
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+    <link rel="icon" type="images/png" sizes="32x32" href="images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+    <link rel="manifest" href="images/site.webmanifest">
     <link rel="canonical" href="http://roadsignfactory.hk/getting-started.html">
 
     <!-- Stylesheets -->
@@ -34,8 +37,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
-    <style>       
-     /* Additional styles for getting started page */
+    <style>
+        /* Additional styles for getting started page */
         .getting-started-hero {
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             color: var(--text-primary);
@@ -62,12 +65,16 @@
             flex-direction: column;
             transition: all 0.3s ease;
             position: relative;
-        }        .video-placeholder {
+        }
+
+        .video-placeholder {
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             border-color: #3b82f6;
             text-align: center;
             position: relative;
-        }        .video-placeholder video {
+        }
+
+        .video-placeholder video {
             width: 100%;
             max-width: 500px;
             border-radius: 8px;
@@ -88,7 +95,7 @@
             background: linear-gradient(135deg, #fefefe 0%, #f1f5f9 100%);
             border-color: #10b981;
         }
-        
+
         .video-placeholder:hover,
         .image-placeholder:hover {
             transform: translateY(-2px);
@@ -103,7 +110,9 @@
         .image-placeholder:hover {
             border-color: #059669;
             background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-        }        .video-placeholder p,
+        }
+
+        .video-placeholder p,
         .image-placeholder p {
             font-size: 1rem;
             color: var(--text-primary);
@@ -114,7 +123,9 @@
         .image-placeholder strong {
             color: var(--text-primary);
             font-weight: 600;
-        }.image-placeholder img {
+        }
+
+        .image-placeholder img {
             max-width: 100%;
             height: auto;
             border-radius: var(--border-radius);
@@ -190,7 +201,8 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1.5rem;
-        }        
+        }
+
         .tutorial-grid {
             display: grid;
             grid-template-columns: 6fr 4fr;
@@ -212,7 +224,9 @@
             height: 4px;
             background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
             border-radius: 2px;
-        }        .video-placeholder,
+        }
+
+        .video-placeholder,
         .image-placeholder {
             cursor: pointer;
             position: relative;
@@ -295,7 +309,9 @@
 
         .breadcrumb span {
             color: rgba(255, 255, 255, 0.6);
-        }        /* JSON Display Box Styles */
+        }
+
+        /* JSON Display Box Styles */
         .json-display-container {
             border: 2px solid var(--border-color);
             border-radius: var(--border-radius);
@@ -354,7 +370,9 @@
 
         .json-display-content.expanded {
             max-height: 400px;
-        }        .json-display-description {
+        }
+
+        .json-display-description {
             padding: 1rem 1.5rem;
             background: #dcfce7;
             border-bottom: 1px solid #86efac;
@@ -436,8 +454,13 @@
         }
 
         @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         @media (max-width: 768px) {
@@ -478,7 +501,7 @@
             .steps-grid {
                 gap: 1.5rem;
             }
-            
+
             .step-card {
                 min-width: calc(50% - 0.75rem);
                 max-width: calc(50% - 0.75rem);
@@ -545,90 +568,108 @@
             <div style="text-align: center; margin-bottom: 4rem;">
                 <h2 class="section-title">Welcome to Road Sign Factory</h2>
                 <p class="section-subtitle">Follow our step-by-step tutorials to master traffic sign design</p>
-            </div> 
-              <!-- 4-Step Visual Guide -->
+            </div>
+            <!-- 4-Step Visual Guide -->
             <div style="margin-bottom: 5rem;">
                 <div class="steps-grid"
-                    style="display: flex; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 4rem; justify-content: center;">                    <!-- Step 1 -->
+                    style="display: flex; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 4rem; justify-content: center;">
+                    <!-- Step 1 -->
                     <div
                         style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(37, 99, 235, 0.12) 100%); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: var(--border-radius); padding: 1.5rem; position: relative; color: var(--text-primary); box-shadow: var(--shadow-sm); transition: transform 0.3s ease, box-shadow 0.3s ease; flex: 1; min-width: 280px; max-width: 320px; display: flex; flex-direction: column; align-items: center;">
                         <div
                             style="position: absolute; top: -12px; left: 1.5rem; background: var(--primary-color); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem; color: white; box-shadow: var(--shadow-sm);">
                             1</div>
-                        <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; text-align: center; width: 100%;">
-                            <h3 style="font-size: 1.1rem; margin: 0 0 0.75rem 0; color: var(--text-primary); font-weight: 600;">Launch
+                        <div
+                            style="flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; text-align: center; width: 100%;">
+                            <h3
+                                style="font-size: 1.1rem; margin: 0 0 0.75rem 0; color: var(--text-primary); font-weight: 600;">
+                                Launch
                                 Application</h3>
-                            <p
-                                style="color: var(--text-secondary); margin: 0; line-height: 1.4; font-size: 0.9rem;">
-                                Open the Road Sign Factory application and explore the intuitive side panel interface and grid
+                            <p style="color: var(--text-secondary); margin: 0; line-height: 1.4; font-size: 0.9rem;">
+                                Open the Road Sign Factory application and explore the intuitive side panel interface
+                                and grid
                                 canvas designed for precision and ease of use.</p>
                         </div>
                         <div style="text-align: center; margin: 1rem 0; flex-shrink: 0;">
-                            <img src="images/getting-start-1.png" alt="Launch Application" style="width: 100%; max-width: 200px; height: 150px; object-fit: contain; border-radius: 16px; border: 2px solid rgba(37, 99, 235, 0.3);">
+                            <img src="images/getting-start-1.png" alt="Launch Application"
+                                style="width: 100%; max-width: 200px; height: 150px; object-fit: contain; border-radius: 16px; border: 2px solid rgba(37, 99, 235, 0.3);">
                         </div>
-                    </div>                    <!-- Step 2 -->
+                    </div> <!-- Step 2 -->
                     <div
                         style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.12) 100%); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: var(--border-radius); padding: 1.5rem; position: relative; color: var(--text-primary); box-shadow: var(--shadow-sm); transition: transform 0.3s ease, box-shadow 0.3s ease; flex: 1; min-width: 280px; max-width: 320px; display: flex; flex-direction: column; align-items: center;">
                         <div
                             style="position: absolute; top: -12px; left: 1.5rem; background: var(--success-color); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem; color: white; box-shadow: var(--shadow-sm);">
                             2</div>
-                        <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; text-align: center; width: 100%;">
-                            <h3 style="font-size: 1.1rem; margin: 0 0 0.75rem 0; color: var(--text-primary); font-weight: 600;">Choose
+                        <div
+                            style="flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; text-align: center; width: 100%;">
+                            <h3
+                                style="font-size: 1.1rem; margin: 0 0 0.75rem 0; color: var(--text-primary); font-weight: 600;">
+                                Choose
                                 Template</h3>
-                            <p
-                                style="color: var(--text-secondary); margin: 0; line-height: 1.4; font-size: 0.9rem;">
-                                Select from our comprehensive template library or start from scratch. Add text, routes, symbols, and shapes using our powerful editing tools.</p>
+                            <p style="color: var(--text-secondary); margin: 0; line-height: 1.4; font-size: 0.9rem;">
+                                Select from our comprehensive template library or start from scratch. Add text, routes,
+                                symbols, and shapes using our powerful editing tools.</p>
                         </div>
                         <div style="text-align: center; margin: 1rem 0; flex-shrink: 0;">
-                            <img src="images/getting-start-2.png" alt="Choose Template" style="width: 100%; max-width: 200px; height: 150px; object-fit: contain; border-radius: 16px; border: 2px solid rgba(16, 185, 129, 0.3);">
+                            <img src="images/getting-start-2.png" alt="Choose Template"
+                                style="width: 100%; max-width: 200px; height: 150px; object-fit: contain; border-radius: 16px; border: 2px solid rgba(16, 185, 129, 0.3);">
                         </div>
-                    </div>                    <!-- Step 3 -->
+                    </div> <!-- Step 3 -->
                     <div
                         style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(245, 158, 11, 0.12) 100%); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: var(--border-radius); padding: 1.5rem; position: relative; color: var(--text-primary); box-shadow: var(--shadow-sm); transition: transform 0.3s ease, box-shadow 0.3s ease; flex: 1; min-width: 280px; max-width: 320px; display: flex; flex-direction: column; align-items: center;">
                         <div
                             style="position: absolute; top: -12px; left: 1.5rem; background: var(--accent-color); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem; color: white; box-shadow: var(--shadow-sm);">
                             3</div>
-                        <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; text-align: center; width: 100%;">
-                            <h3 style="font-size: 1.1rem; margin: 0 0 0.75rem 0; color: var(--text-primary); font-weight: 600;">
+                        <div
+                            style="flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; text-align: center; width: 100%;">
+                            <h3
+                                style="font-size: 1.1rem; margin: 0 0 0.75rem 0; color: var(--text-primary); font-weight: 600;">
                                 Snap & Lock Shape</h3>
-                            <p
-                                style="color: var(--text-secondary); margin: 0; line-height: 1.4; font-size: 0.9rem;">
-                                Use precision controls and snapping features to position elements accurately. Lock shapes in place to prevent accidental movement during design.</p>
+                            <p style="color: var(--text-secondary); margin: 0; line-height: 1.4; font-size: 0.9rem;">
+                                Use precision controls and snapping features to position elements accurately. Lock
+                                shapes in place to prevent accidental movement during design.</p>
                         </div>
                         <div style="text-align: center; margin: 1rem 0; flex-shrink: 0;">
-                            <img src="images/getting-start-3.png" alt="Snap & Lock Shape" style="width: 100%; max-width: 200px; height: 150px; object-fit: contain; border-radius: 16px; border: 2px solid rgba(245, 158, 11, 0.3);">
+                            <img src="images/getting-start-3.png" alt="Snap & Lock Shape"
+                                style="width: 100%; max-width: 200px; height: 150px; object-fit: contain; border-radius: 16px; border: 2px solid rgba(245, 158, 11, 0.3);">
                         </div>
-                    </div>                    <!-- Step 4 -->
+                    </div> <!-- Step 4 -->
                     <div
                         style="background: linear-gradient(135deg, rgba(139, 69, 19, 0.08) 0%, rgba(139, 69, 19, 0.12) 100%); border: 1px solid rgba(139, 69, 19, 0.2); border-radius: var(--border-radius); padding: 1.5rem; position: relative; color: var(--text-primary); box-shadow: var(--shadow-sm); transition: transform 0.3s ease, box-shadow 0.3s ease; flex: 1; min-width: 280px; max-width: 320px; display: flex; flex-direction: column; align-items: center;">
                         <div
                             style="position: absolute; top: -12px; left: 1.5rem; background: #8b4513; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem; color: white; box-shadow: var(--shadow-sm);">
                             4</div>
-                        <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; text-align: center; width: 100%;">
-                            <h3 style="font-size: 1.1rem; margin: 0 0 0.75rem 0; color: var(--text-primary); font-weight: 600;">
+                        <div
+                            style="flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; text-align: center; width: 100%;">
+                            <h3
+                                style="font-size: 1.1rem; margin: 0 0 0.75rem 0; color: var(--text-primary); font-weight: 600;">
                                 Frame with Border</h3>
-                            <p
-                                style="color: var(--text-secondary); margin: 0; line-height: 1.4; font-size: 0.9rem;">
-                                Add professional borders with auto-calculated padding and styling. Choose from various border types to frame your content perfectly.</p>
+                            <p style="color: var(--text-secondary); margin: 0; line-height: 1.4; font-size: 0.9rem;">
+                                Add professional borders with auto-calculated padding and styling. Choose from various
+                                border types to frame your content perfectly.</p>
                         </div>
                         <div style="text-align: center; margin: 1rem 0; flex-shrink: 0;">
-                            <img src="images/getting-start-4.png" alt="Frame with Border" style="width: 100%; max-width: 200px; height: 150px; object-fit: contain; border-radius: 16px; border: 2px solid rgba(139, 69, 19, 0.3);">
+                            <img src="images/getting-start-4.png" alt="Frame with Border"
+                                style="width: 100%; max-width: 200px; height: 150px; object-fit: contain; border-radius: 16px; border: 2px solid rgba(139, 69, 19, 0.3);">
                         </div>
-                    </div>                    <!-- Step 5 -->
+                    </div> <!-- Step 5 -->
                     <div
                         style="background: linear-gradient(135deg, rgba(147, 51, 234, 0.08) 0%, rgba(147, 51, 234, 0.12) 100%); border: 1px solid rgba(147, 51, 234, 0.2); border-radius: var(--border-radius); padding: 1.5rem; position: relative; color: var(--text-primary); box-shadow: var(--shadow-sm); transition: transform 0.3s ease, box-shadow 0.3s ease; flex: 1; min-width: 280px; max-width: 320px; display: flex; flex-direction: column; align-items: center;">
                         <div
                             style="position: absolute; top: -12px; left: 1.5rem; background: #9333ea; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem; color: white; box-shadow: var(--shadow-sm);">
                             5</div>
-                        <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; text-align: center; width: 100%;">
-                            <h3 style="font-size: 1.1rem; margin: 0 0 0.75rem 0; color: var(--text-primary); font-weight: 600;">
+                        <div
+                            style="flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; text-align: center; width: 100%;">
+                            <h3
+                                style="font-size: 1.1rem; margin: 0 0 0.75rem 0; color: var(--text-primary); font-weight: 600;">
                                 Save Design</h3>
-                            <p
-                                style="color: var(--text-secondary); margin: 0; line-height: 1.4; font-size: 0.9rem;">
-                                Save your design locally to browser storage for quick access, or export as JSON file format for backup and sharing with others.</p>
+                            <p style="color: var(--text-secondary); margin: 0; line-height: 1.4; font-size: 0.9rem;">
+                                Save your design locally to browser storage for quick access, or export as JSON file
+                                format for backup and sharing with others.</p>
                         </div>
                         <div style="text-align: center; margin: 1rem 0; flex-shrink: 0;">
-                            <img src="images/getting-start-5.png" alt="Save Design" style="width: 100%; max-width: 200px; height: 150px; object-fit: contain; border-radius: 16px; border: 2px solid rgba(147, 51, 234, 0.3);">
+                            <img src="images/getting-start-5.png" alt="Save Design"
+                                style="width: 100%; max-width: 200px; height: 150px; object-fit: contain; border-radius: 16px; border: 2px solid rgba(147, 51, 234, 0.3);">
                         </div>
                     </div><!-- Step 6 -->
                     <div
@@ -636,28 +677,33 @@
                         <div
                             style="position: absolute; top: -12px; left: 1.5rem; background: var(--secondary-color); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem; color: white; box-shadow: var(--shadow-sm);">
                             6</div>
-                        <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; text-align: center; width: 100%;">
-                            <h3 style="font-size: 1.1rem; margin: 0 0 0.75rem 0; color: var(--text-primary); font-weight: 600;">
+                        <div
+                            style="flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; text-align: center; width: 100%;">
+                            <h3
+                                style="font-size: 1.1rem; margin: 0 0 0.75rem 0; color: var(--text-primary); font-weight: 600;">
                                 Export & Share</h3>
-                            <p
-                                style="color: var(--text-secondary); margin: 0; line-height: 1.4; font-size: 0.9rem;">
-                                Export your finished sign in common file formats (PNG, PDF, SVG, DXF) ready for professional printing, sharing, and installation.</p>
+                            <p style="color: var(--text-secondary); margin: 0; line-height: 1.4; font-size: 0.9rem;">
+                                Export your finished sign in common file formats (PNG, PDF, SVG, DXF) ready for
+                                professional printing, sharing, and installation.</p>
                         </div>
                         <div style="text-align: center; margin: 1rem 0; flex-shrink: 0;">
-                            <img src="images/getting-start-6.png" alt="Export & Share" style="width: 100%; max-width: 200px; height: 150px; object-fit: contain; border-radius: 16px; border: 2px solid rgba(100, 116, 139, 0.3);">
+                            <img src="images/getting-start-6.png" alt="Export & Share"
+                                style="width: 100%; max-width: 200px; height: 150px; object-fit: contain; border-radius: 16px; border: 2px solid rgba(100, 116, 139, 0.3);">
                         </div>
                     </div>
 
                 </div>
-            </div>            <!-- Tutorial Set 3: Flag Sign -->
+            </div> <!-- Tutorial Set 3: Flag Sign -->
             <div class="tutorial-section" style="margin-bottom: 5rem;">
                 <div style="text-align: center; margin-bottom: 3rem;">
-                    <h3 style="font-size: 2rem; color: var(--text-primary); margin-bottom: 1rem;">Example of Flag Sign</h3>
+                    <h3 style="font-size: 2rem; color: var(--text-primary); margin-bottom: 1rem;">Example of Flag Sign
+                    </h3>
                 </div>
-                <div class="tutorial-grid">                    <!-- Video Tutorial Column -->
+                <div class="tutorial-grid"> <!-- Video Tutorial Column -->
                     <div>
                         <div class="video-placeholder" data-tutorial="3">
-                            <video controls style="width: 100%; max-width: 500px; border-radius: 8px; box-shadow: var(--shadow-sm);">
+                            <video controls
+                                style="width: 100%; max-width: 500px; border-radius: 8px; box-shadow: var(--shadow-sm);">
                                 <source src="images/example-video-3.mp4" type="video/mp4">
                                 <p>Your browser does not support the video tag.</p>
                             </video>
@@ -665,7 +711,7 @@
                                 <p><strong>Flag Sign Tutorial</strong></p>
                             </div>
                         </div>
-                    </div>                    <!-- Example Product Column -->
+                    </div> <!-- Example Product Column -->
                     <div>
                         <div class="image-placeholder" data-example="3">
                             <img src="images/example-sign-3.svg" alt="Flag traffic sign example">
@@ -689,13 +735,15 @@
                     <div class="json-display-content" id="json-flag">
                         <div class="json-display-description">
                             <i class="fas fa-info-circle"></i>
-                            <strong>How to use:</strong> Copy the JSON code below and paste it into the Road Sign Factory app using the Import function to load this example sign.
+                            <strong>How to use:</strong> Copy the JSON code below and paste it into the Road Sign
+                            Factory app using the Import function to load this example sign.
                         </div>
                         <div class="json-code-container">
                             <button class="copy-json-btn" onclick="copyJsonToClipboard('flag-json-code', this)">
                                 <i class="fas fa-copy"></i>
                                 Copy All
-                            </button>                            <pre class="json-code" id="flag-json-code" data-json-file="example-sign-1.json">                                <div class="json-loading">
+                            </button>
+                            <pre class="json-code" id="flag-json-code" data-json-file="example-sign-1.json">                                <div class="json-loading">
                                     <i class="fas fa-spinner fa-spin"></i>
                                     Loading example-sign-1.json...
                                 </div>
@@ -703,15 +751,17 @@
                         </div>
                     </div>
                 </div>
-            </div>            <!-- Tutorial Set 1: Diverging Sign -->
+            </div> <!-- Tutorial Set 1: Diverging Sign -->
             <div class="tutorial-section" style="margin-bottom: 5rem;">
                 <div style="text-align: center; margin-bottom: 3rem;">
-                    <h3 style="font-size: 2rem; color: var(--text-primary); margin-bottom: 1rem;">Example of Diverging Sign</h3>
+                    <h3 style="font-size: 2rem; color: var(--text-primary); margin-bottom: 1rem;">Example of Diverging
+                        Sign</h3>
                 </div>
-                <div class="tutorial-grid">                    <!-- Video Tutorial Column -->
+                <div class="tutorial-grid"> <!-- Video Tutorial Column -->
                     <div>
                         <div class="video-placeholder" data-tutorial="1">
-                            <video controls style="width: 100%; max-width: 500px; border-radius: 8px; box-shadow: var(--shadow-sm);">
+                            <video controls
+                                style="width: 100%; max-width: 500px; border-radius: 8px; box-shadow: var(--shadow-sm);">
                                 <source src="images/example-video-1.mp4" type="video/mp4">
                                 <p>Your browser does not support the video tag.</p>
                             </video>
@@ -719,7 +769,7 @@
                                 <p><strong>Diverging Sign Tutorial</strong></p>
                             </div>
                         </div>
-                    </div>                    <!-- Example Product Column -->
+                    </div> <!-- Example Product Column -->
                     <div>
                         <div class="image-placeholder" data-example="1">
                             <img src="images/example-sign-1.svg" alt="Diverging traffic sign example">
@@ -743,13 +793,15 @@
                     <div class="json-display-content" id="json-diverge">
                         <div class="json-display-description">
                             <i class="fas fa-info-circle"></i>
-                            <strong>How to use:</strong> Copy the JSON code below and paste it into the Road Sign Factory app using the Import function to load this example sign.
+                            <strong>How to use:</strong> Copy the JSON code below and paste it into the Road Sign
+                            Factory app using the Import function to load this example sign.
                         </div>
                         <div class="json-code-container">
                             <button class="copy-json-btn" onclick="copyJsonToClipboard('diverge-json-code', this)">
                                 <i class="fas fa-copy"></i>
                                 Copy All
-                            </button>                            <pre class="json-code" id="diverge-json-code" data-json-file="example-sign-2.json">                                <div class="json-loading">
+                            </button>
+                            <pre class="json-code" id="diverge-json-code" data-json-file="example-sign-2.json">                                <div class="json-loading">
                                     <i class="fas fa-spinner fa-spin"></i>
                                     Loading example-sign-2.json...
                                 </div>
@@ -757,15 +809,17 @@
                         </div>
                     </div>
                 </div>
-            </div>            <!-- Tutorial Set 2: Roundabout Sign -->
+            </div> <!-- Tutorial Set 2: Roundabout Sign -->
             <div class="tutorial-section" style="margin-bottom: 5rem;">
                 <div style="text-align: center; margin-bottom: 3rem;">
-                    <h3 style="font-size: 2rem; color: var(--text-primary); margin-bottom: 1rem;">Example of Roundabout Sign</h3>
+                    <h3 style="font-size: 2rem; color: var(--text-primary); margin-bottom: 1rem;">Example of Roundabout
+                        Sign</h3>
                 </div>
-                <div class="tutorial-grid">                    <!-- Video Tutorial Column -->
+                <div class="tutorial-grid"> <!-- Video Tutorial Column -->
                     <div>
                         <div class="video-placeholder" data-tutorial="2">
-                            <video controls style="width: 100%; max-width: 500px; border-radius: 8px; box-shadow: var(--shadow-sm);">
+                            <video controls
+                                style="width: 100%; max-width: 500px; border-radius: 8px; box-shadow: var(--shadow-sm);">
                                 <source src="images/example-video-2.mp4" type="video/mp4">
                                 <p>Your browser does not support the video tag.</p>
                             </video>
@@ -773,7 +827,7 @@
                                 <p><strong>Roundabout Sign Tutorial</strong></p>
                             </div>
                         </div>
-                    </div>                    <!-- Example Product Column -->
+                    </div> <!-- Example Product Column -->
                     <div>
                         <div class="image-placeholder" data-example="2">
                             <img src="images/example-sign-2.svg" alt="Roundabout traffic sign example">
@@ -797,13 +851,15 @@
                     <div class="json-display-content" id="json-roundabout">
                         <div class="json-display-description">
                             <i class="fas fa-info-circle"></i>
-                            <strong>How to use:</strong> Copy the JSON code below and paste it into the Road Sign Factory app using the Import function to load this example sign.
+                            <strong>How to use:</strong> Copy the JSON code below and paste it into the Road Sign
+                            Factory app using the Import function to load this example sign.
                         </div>
                         <div class="json-code-container">
                             <button class="copy-json-btn" onclick="copyJsonToClipboard('roundabout-json-code', this)">
                                 <i class="fas fa-copy"></i>
                                 Copy All
-                            </button>                            <pre class="json-code" id="roundabout-json-code" data-json-file="example-sign-3.json">                                <div class="json-loading">
+                            </button>
+                            <pre class="json-code" id="roundabout-json-code" data-json-file="example-sign-3.json">                                <div class="json-loading">
                                     <i class="fas fa-spinner fa-spin"></i>
                                     Loading example-sign-3.json...
                                 </div>
@@ -811,7 +867,7 @@
                         </div>
                     </div>
                 </div>
-            </div>  <!-- Call to Action -->
+            </div> <!-- Call to Action -->
             <div
                 style="text-align: center; margin-top: 5rem; padding: 3rem 2rem; background: var(--background-alt); border-radius: var(--border-radius);">
                 <h2 style="font-size: 2rem; color: var(--text-primary); margin-bottom: 1rem;">Ready to Create Your Own
@@ -859,7 +915,8 @@
                     </div>
                 </div>
                 <div class="footer-section">
-                    <h4>Quick Links</h4>                    <ul>
+                    <h4>Quick Links</h4>
+                    <ul>
                         <li><a href="index.html">Home</a></li>
                         <li><a href="getting-started.html">Getting Started</a></li>
                         <li><a href="about.html">About</a></li>
@@ -909,199 +966,199 @@
             // Ensure video controls are clickable by preventing event bubbling
             const videos = document.querySelectorAll('.video-placeholder video');
             videos.forEach(video => {
-                video.addEventListener('click', function(event) {
+                video.addEventListener('click', function (event) {
                     event.stopPropagation();
                 });
-                video.addEventListener('mousedown', function(event) {
+                video.addEventListener('mousedown', function (event) {
                     event.stopPropagation();
                 });
             });        // Add hover effects to show connections
-        videoPlaceholders.forEach(video => {
-            video.addEventListener('mouseenter', function () {
-                const tutorialId = this.getAttribute('data-tutorial');
-                const correspondingImage = document.querySelector(`[data-example="${tutorialId}"]`);
-                if (correspondingImage && !this.classList.contains('active')) {
-                    correspondingImage.style.borderColor = 'var(--primary-color)';
-                    correspondingImage.style.opacity = '0.8';
-                }
+            videoPlaceholders.forEach(video => {
+                video.addEventListener('mouseenter', function () {
+                    const tutorialId = this.getAttribute('data-tutorial');
+                    const correspondingImage = document.querySelector(`[data-example="${tutorialId}"]`);
+                    if (correspondingImage && !this.classList.contains('active')) {
+                        correspondingImage.style.borderColor = 'var(--primary-color)';
+                        correspondingImage.style.opacity = '0.8';
+                    }
+                });
+
+                video.addEventListener('mouseleave', function () {
+                    const tutorialId = this.getAttribute('data-tutorial');
+                    const correspondingImage = document.querySelector(`[data-example="${tutorialId}"]`);
+                    if (correspondingImage && !this.classList.contains('active')) {
+                        correspondingImage.style.borderColor = '';
+                        correspondingImage.style.opacity = '';
+                    }
+                });
             });
 
-            video.addEventListener('mouseleave', function () {
-                const tutorialId = this.getAttribute('data-tutorial');
-                const correspondingImage = document.querySelector(`[data-example="${tutorialId}"]`);
-                if (correspondingImage && !this.classList.contains('active')) {
-                    correspondingImage.style.borderColor = '';
-                    correspondingImage.style.opacity = '';
-                }
-            });
-        });
+            imagePlaceholders.forEach(image => {
+                image.addEventListener('mouseenter', function () {
+                    const exampleId = this.getAttribute('data-example');
+                    const correspondingVideo = document.querySelector(`[data-tutorial="${exampleId}"]`);
+                    if (correspondingVideo && !this.classList.contains('active')) {
+                        correspondingVideo.style.borderColor = 'var(--primary-color)';
+                        correspondingVideo.style.opacity = '0.8';
+                    }
+                });
 
-        imagePlaceholders.forEach(image => {
-            image.addEventListener('mouseenter', function () {
-                const exampleId = this.getAttribute('data-example');
-                const correspondingVideo = document.querySelector(`[data-tutorial="${exampleId}"]`);
-                if (correspondingVideo && !this.classList.contains('active')) {
-                    correspondingVideo.style.borderColor = 'var(--primary-color)';
-                    correspondingVideo.style.opacity = '0.8';
-                }
+                image.addEventListener('mouseleave', function () {
+                    const exampleId = this.getAttribute('data-example');
+                    const correspondingVideo = document.querySelector(`[data-tutorial="${exampleId}"]`);
+                    if (correspondingVideo && !this.classList.contains('active')) {
+                        correspondingVideo.style.borderColor = '';
+                        correspondingVideo.style.opacity = '';
+                    }
+                });
             });
+        });    // JSON Display Toggle Functions
+        function toggleJsonDisplay(elementId) {
+            const content = document.getElementById(elementId);
+            let icon = document.getElementById(elementId + '-icon');
 
-            image.addEventListener('mouseleave', function () {
-                const exampleId = this.getAttribute('data-example');
-                const correspondingVideo = document.querySelector(`[data-tutorial="${exampleId}"]`);
-                if (correspondingVideo && !this.classList.contains('active')) {
-                    correspondingVideo.style.borderColor = '';
-                    correspondingVideo.style.opacity = '';
+            // Add null checks to prevent errors
+            if (!content) {
+                console.error('Could not find content element for JSON display toggle:', elementId);
+                return;
+            }
+
+            // Find the button by looking for the toggle button associated with this content
+            const button = document.querySelector(`[onclick="toggleJsonDisplay('${elementId}')"]`);
+            if (!button) {
+                console.error('Could not find button element for JSON display toggle:', elementId);
+                return;
+            }
+
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                button.innerHTML = '<i class="fas fa-chevron-down" id="' + elementId + '-icon"></i> Show Code';
+            } else {
+                content.classList.add('expanded');
+                button.innerHTML = '<i class="fas fa-chevron-up" id="' + elementId + '-icon"></i> Hide Code';
+
+                // Load JSON content if not already loaded
+                const jsonCodeElement = content.querySelector('.json-code');
+                if (jsonCodeElement && jsonCodeElement.hasAttribute('data-json-file')) {
+                    loadJsonContent(jsonCodeElement);
                 }
-            });
-        });
-    });    // JSON Display Toggle Functions
-    function toggleJsonDisplay(elementId) {
-        const content = document.getElementById(elementId);
-        let icon = document.getElementById(elementId + '-icon');
-        
-        // Add null checks to prevent errors
-        if (!content) {
-            console.error('Could not find content element for JSON display toggle:', elementId);
-            return;
-        }
-        
-        // Find the button by looking for the toggle button associated with this content
-        const button = document.querySelector(`[onclick="toggleJsonDisplay('${elementId}')"]`);
-        if (!button) {
-            console.error('Could not find button element for JSON display toggle:', elementId);
-            return;
-        }
-        
-        if (content.classList.contains('expanded')) {
-            content.classList.remove('expanded');
-            button.innerHTML = '<i class="fas fa-chevron-down" id="' + elementId + '-icon"></i> Show Code';
-        } else {
-            content.classList.add('expanded');
-            button.innerHTML = '<i class="fas fa-chevron-up" id="' + elementId + '-icon"></i> Hide Code';
-            
-            // Load JSON content if not already loaded
-            const jsonCodeElement = content.querySelector('.json-code');
-            if (jsonCodeElement && jsonCodeElement.hasAttribute('data-json-file')) {
-                loadJsonContent(jsonCodeElement);
             }
         }
-    }
 
-    // Utility function to escape HTML special characters
-    function escapeHtml(unsafe) {
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
+        // Utility function to escape HTML special characters
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
 
-    // Load JSON content dynamically from templates folder
-    async function loadJsonContent(element) {
-        const fileName = element.getAttribute('data-json-file');
-        if (!fileName) {
-            console.error('No JSON file specified');
-            return;
-        }        try {
-            const response = await fetch(`images/${fileName}`);
-            if (!response.ok) {
-                throw new Error(`Failed to load ${fileName}: ${response.status} ${response.statusText}`);
-            }
-            
-            const jsonData = await response.json();
-            const formattedJson = JSON.stringify(jsonData, null, 2);
-            
-            // Replace loading indicator with actual JSON
-            element.innerHTML = formattedJson;
-            element.removeAttribute('data-json-file'); // Mark as loaded
-            
-        } catch (error) {
-            console.error('Error loading JSON file:', error);
-            const escapedFileName = escapeHtml(fileName);
-            element.innerHTML = `<div class="json-error">
+        // Load JSON content dynamically from templates folder
+        async function loadJsonContent(element) {
+            const fileName = element.getAttribute('data-json-file');
+            if (!fileName) {
+                console.error('No JSON file specified');
+                return;
+            } try {
+                const response = await fetch(`images/${fileName}`);
+                if (!response.ok) {
+                    throw new Error(`Failed to load ${fileName}: ${response.status} ${response.statusText}`);
+                }
+
+                const jsonData = await response.json();
+                const formattedJson = JSON.stringify(jsonData, null, 2);
+
+                // Replace loading indicator with actual JSON
+                element.innerHTML = formattedJson;
+                element.removeAttribute('data-json-file'); // Mark as loaded
+
+            } catch (error) {
+                console.error('Error loading JSON file:', error);
+                const escapedFileName = escapeHtml(fileName);
+                element.innerHTML = `<div class="json-error">
                 <i class="fas fa-exclamation-triangle"></i>
                 Failed to load ${escapedFileName}. Please try again later.
             </div>`;
+            }
         }
-    }
 
-    // Copy JSON to Clipboard Function (updated for dynamic content)
-    function copyJsonToClipboard(elementId, buttonElement) {
-        const jsonElement = document.getElementById(elementId);
-        
-        // Check if content is still loading
-        if (jsonElement.hasAttribute('data-json-file')) {
-            showCopyError(buttonElement, 'Please expand the section first to load the content');
-            return;
-        }
-        
-        const jsonText = jsonElement.textContent;
-        
-        // Check if content is available
-        if (!jsonText || jsonText.trim() === '') {
-            showCopyError(buttonElement, 'No content available to copy');
-            return;
-        }
-        
-        // Use the modern Clipboard API if available
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(jsonText).then(function() {
-                showCopySuccess(buttonElement);
-            }).catch(function(err) {
+        // Copy JSON to Clipboard Function (updated for dynamic content)
+        function copyJsonToClipboard(elementId, buttonElement) {
+            const jsonElement = document.getElementById(elementId);
+
+            // Check if content is still loading
+            if (jsonElement.hasAttribute('data-json-file')) {
+                showCopyError(buttonElement, 'Please expand the section first to load the content');
+                return;
+            }
+
+            const jsonText = jsonElement.textContent;
+
+            // Check if content is available
+            if (!jsonText || jsonText.trim() === '') {
+                showCopyError(buttonElement, 'No content available to copy');
+                return;
+            }
+
+            // Use the modern Clipboard API if available
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(jsonText).then(function () {
+                    showCopySuccess(buttonElement);
+                }).catch(function (err) {
+                    // Fallback for older browsers
+                    fallbackCopyToClipboard(jsonText, buttonElement);
+                });
+            } else {
                 // Fallback for older browsers
                 fallbackCopyToClipboard(jsonText, buttonElement);
-            });
-        } else {
-            // Fallback for older browsers
-            fallbackCopyToClipboard(jsonText, buttonElement);
+            }
         }
-    }
 
-    // Fallback copy function for older browsers
-    function fallbackCopyToClipboard(text, buttonElement) {
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        textArea.style.top = '-999999px';
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        
-        try {
-            document.execCommand('copy');
-            showCopySuccess(buttonElement);
-        } catch (err) {
-            console.error('Could not copy text: ', err);
-            showCopyError(buttonElement);
+        // Fallback copy function for older browsers
+        function fallbackCopyToClipboard(text, buttonElement) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                document.execCommand('copy');
+                showCopySuccess(buttonElement);
+            } catch (err) {
+                console.error('Could not copy text: ', err);
+                showCopyError(buttonElement);
+            }
+
+            document.body.removeChild(textArea);
         }
-        
-        document.body.removeChild(textArea);
-    }
 
-    // Show copy success feedback
-    function showCopySuccess(buttonElement) {
-        const originalContent = buttonElement.innerHTML;
-        buttonElement.innerHTML = '<i class="fas fa-check"></i> Copied!';
-        buttonElement.classList.add('copied');
-        
-        setTimeout(() => {
-            buttonElement.innerHTML = originalContent;
-            buttonElement.classList.remove('copied');
-        }, 2000);
-    }    // Show copy error feedback
-    function showCopyError(buttonElement, customMessage = 'Error copying content') {
-        const originalContent = buttonElement.innerHTML;
-        buttonElement.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + customMessage;
-        buttonElement.style.background = '#ef4444';
-        
-        setTimeout(() => {
-            buttonElement.innerHTML = originalContent;
-            buttonElement.style.background = '';
-        }, 3000);
-    }
+        // Show copy success feedback
+        function showCopySuccess(buttonElement) {
+            const originalContent = buttonElement.innerHTML;
+            buttonElement.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            buttonElement.classList.add('copied');
+
+            setTimeout(() => {
+                buttonElement.innerHTML = originalContent;
+                buttonElement.classList.remove('copied');
+            }, 2000);
+        }    // Show copy error feedback
+        function showCopyError(buttonElement, customMessage = 'Error copying content') {
+            const originalContent = buttonElement.innerHTML;
+            buttonElement.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + customMessage;
+            buttonElement.style.background = '#ef4444';
+
+            setTimeout(() => {
+                buttonElement.innerHTML = originalContent;
+                buttonElement.style.background = '';
+            }, 3000);
+        }
     </script>
     <script src="js/animation.js"></script>
 </body>
