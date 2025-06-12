@@ -129,6 +129,7 @@ body {
         opacity: 0;
         backdrop-filter: blur(0px);
     }
+
     to {
         opacity: 1;
         backdrop-filter: blur(4px);
@@ -144,6 +145,7 @@ body {
         opacity: 1;
         backdrop-filter: blur(4px);
     }
+
     to {
         opacity: 0;
         backdrop-filter: blur(0px);
@@ -1623,8 +1625,7 @@ body {
     }
 
     .btn {
-        width: 100%;
-        max-width: 280px;
+        max-width: 320px;
         text-align: center;
         box-sizing: border-box;
         white-space: nowrap;
@@ -1633,8 +1634,7 @@ body {
     }
 
     .version-display {
-        width: 100%;
-        max-width: 280px;
+        max-width: 320px;
         text-align: center;
         box-sizing: border-box;
     }
@@ -1832,6 +1832,17 @@ html {
     border-top: 4px solid var(--accent-color);
 }
 
+.changelog-entry.major {
+    border-top: 4px solid var(--primary-color);
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(37, 99, 235, 0.1);
+    background: linear-gradient(to bottom, rgba(37, 99, 235, 0.01), white);
+}
+
+.changelog-entry.major:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-xl), 0 0 0 1px rgba(37, 99, 235, 0.15);
+}
+
 .changelog-header {
     background: var(--background-alt);
     padding: 1.5rem 2rem;
@@ -1839,6 +1850,21 @@ html {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.changelog-header.major {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.06), var(--background-alt));
+    position: relative;
+}
+
+.changelog-header.major::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
 }
 
 .version-tag {
@@ -1850,6 +1876,21 @@ html {
 
 .version-beta {
     color: var(--accent-color);
+}
+
+.version-major {
+    color: var(--primary-color);
+    font-weight: 700;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.version-major::after {
+    content: '✨';
+    font-size: 0.9em;
+    opacity: 0.8;
 }
 
 .release-date {

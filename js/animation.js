@@ -31,12 +31,10 @@ function initCommonScrollAnimations() {
         '.step-card', 
         '.demo-item',
         '.demo-container',
-        '.about-text',
         '.about-visual',
         '.svg-gallery',
         
         // About page specific
-        '.about-feature',
         '.about-intro-section',
         '.timeline-item',
         '.timeline',

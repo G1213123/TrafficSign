@@ -1,6 +1,6 @@
 {
   "name": "road-sign-factory",
-  "version": "1.1.14",
+  "version": "1.2.0",
   "dependencies": {
     "dxf-writer": "^1.18.4",
     "env-cmd": "^10.1.0"
@@ -20,17 +20,17 @@
     "jest-environment-jsdom": "^30.0.0",
     "mini-css-extract-plugin": "^2.9.2",
     "terser-webpack-plugin": "^5.3.14",
-    "webpack": "^5.99.6",
+    "webpack": "^5.99.6",    
     "webpack-cli": "^6.0.1"
-  },  "scripts": {
+  },
+  "scripts": {
     "build": "webpack --mode production",
     "start": "npx http-server . -p 8080",
-    "preview": "npx http-server dist -p 8080",
-    "deploy": "cd dist && env-cmd -f .env gcloud app deploy --no-cache --promote --version=$VERSION",
+    "preview": "npx http-server dist -p 8080",    
+    "deploy": "cd dist && gcloud app deploy --no-cache --promote --version=$(node -p \"require('../package.json').version\")",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "webpack:dev": "webpack --mode development",
-    "loadEnv": "env-cmd echo -x \\$VERSION"
+    "webpack:dev": "webpack --mode development"
   }
 }
