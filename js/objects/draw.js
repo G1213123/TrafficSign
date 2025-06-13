@@ -477,8 +477,10 @@ class BaseGroup extends fabric.Group {
       this._showName = `<Group ${this.canvasID}> ${this.functionalType}${basePolygon.text ? ' - ' + basePolygon.text : ''}${basePolygon.symbol ? ' - ' + basePolygon.symbol : ''}${this.roadType ? ' - ' + this.roadType : ''}${this.borderType ? ' - ' + this.borderType : ''}`;
 
       this.basePolygon.insertPoint = this.basePolygon.vertex ? this.basePolygon.vertex[0] : null;
+      const oldLeft = this.left; // Store old left position since symbols path have negative left values
       canvas.remove(this.basePolygon);
       this.add(this.basePolygon);
+      this.left = oldLeft
 
       // Basepolygon async not loaded, make a temp dimension
       if (this.width == 0 || this.height == 0) {
