@@ -86,7 +86,7 @@ function initScrollAnimations() {
         }, observerOptions);
         
         // Add fade-in class to elements and observe them
-        const animatedElements = document.querySelectorAll('.feature-card, .demo-item, .demo-container, .about-text, .about-visual, .svg-gallery');
+        const animatedElements = document.querySelectorAll('.feature-card, .demo-item, .demo-container, .about-visual, .svg-gallery');
         animatedElements.forEach(el => {
             el.classList.add('fade-in');
             observer.observe(el);
