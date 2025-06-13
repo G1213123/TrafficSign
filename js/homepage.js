@@ -213,7 +213,7 @@ function preloadApp() {
 }
 
 // Preload after a short delay
-setTimeout(preloadApp, 2000);
+//setTimeout(preloadApp, 2000);
 
 // SVG Roulette Gallery functionality
 function initSVGRoulette() {
