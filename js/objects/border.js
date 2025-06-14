@@ -196,11 +196,11 @@ const BorderUtilities = {
 
   FilterDivider: function (heightObjects, widthObjects, VDivider, HDivider) {
     let HDividerObject = []
-    if (HDivider){
+    if (HDivider) {
       HDividerObject.push(...HDivider)
     }
     let VDividerObject = []
-    if (VDivider){
+    if (VDivider) {
       VDividerObject.push(...VDivider)
     }
     let borderedObjects = []
@@ -444,6 +444,16 @@ class BorderGroup extends BaseGroup {
       width: borderRect.width - (2 * frame),
       height: borderRect.height - (2 * frame)
     };
+
+    const frameDimension = new BorderDimensionDisplay({
+      direction: 'vertical',
+      startX: innerBorder.left + (innerBorder.width / 3),
+      startY: innerBorder.top,
+      endY: innerBorder.top - frame,
+      color: 'red',
+      offset: 30 / canvas.getZoom()
+    });
+    this.dimensionAnnotations.push(frameDimension);
 
     // Create horizontal dimensions (left and right)
     if (this.widthObjects.length > 0) {
