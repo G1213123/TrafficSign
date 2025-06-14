@@ -32,14 +32,13 @@ function collectPathObjects (obj, pathObjects) {
           };
 
           pathObjects.push(framePath);
-        });
-      }
-
-      // Process text character paths if available
+        });      }      // Process text character paths if available
       if (obj.txtCharList && obj.txtCharList.length > 0) {
+        // Collect all character paths for union calculation
+        const characterPaths = [];
+        
         obj.txtCharList.forEach(charObj => {
-          if (charObj && charObj.type === 'path' && charObj.path) {
-            // Create a copy of the path to preserve the original
+          if (charObj && charObj.type === 'path' && charObj.path) {            // Create a copy of the path to preserve the original
             const pathCopy = {
               type: 'path',
               path: charObj.path.slice(),
@@ -47,7 +46,8 @@ function collectPathObjects (obj, pathObjects) {
               top: charObj.top,
               scaleX: charObj.scaleX || 1,
               scaleY: charObj.scaleY || 1,
-              angle: charObj.angle || 0
+              angle: charObj.angle || 0,
+              objectType: 'text' // Tag character paths as text
             };
 
             // Apply transformations based on the character's position within the text object
@@ -58,10 +58,18 @@ function collectPathObjects (obj, pathObjects) {
             );
 
             if (transformedPath) {
-              pathObjects.push(transformedPath);
+              characterPaths.push(transformedPath);
             }
           }
         });
+          // Union all character paths into a single outline if we have any paths
+        if (characterPaths.length > 0) {
+          const unionedPath = calculatePathUnion(characterPaths);
+          if (unionedPath) {
+            unionedPath.objectType = 'text'; // Tag as text object
+            pathObjects.push(unionedPath);
+          }
+        }
       }
       return;
     }
@@ -274,9 +282,7 @@ function collectPathObjects (obj, pathObjects) {
             currentX = values[0] + offsetX;
             currentY = -(values[1] + offsetY); // Flip Y coordinate for DXF
             polylinePoints.push([currentX, currentY]);
-            break;
-
-          case 'C': { // bezierCurveTo - convert to DXF arc for better representation
+            break;          case 'C': { // bezierCurveTo - convert to DXF arc for better representation (except for text)
             const cp1x = values[0] + offsetX;
             const cp1y = -(values[1] + offsetY); // Flip Y coordinate for DXF
             const cp2x = values[2] + offsetX;
@@ -291,14 +297,8 @@ function collectPathObjects (obj, pathObjects) {
               polylinePoints = [[polylinePoints[polylinePoints.length - 1][0], polylinePoints[polylinePoints.length - 1][1]]];
             }
 
-            // Convert cubic Bézier curve to arc parameters
-            const arcParams = cubicBezierToArc(currentX, currentY, cp1x, cp1y, cp2x, cp2y, endX, endY);
-
-            if (arcParams) {
-              // Draw as arc if conversion is successful
-              dxf.drawArc(arcParams.centerX, arcParams.centerY, arcParams.radius, arcParams.startAngle, arcParams.endAngle);
-            } else {
-              // Fallback to spline if curve cannot be approximated as arc
+            // For text objects, use splines directly without arc conversion
+            if (pathObj.objectType === 'text') {
               const cubicControlPoints = [
                 [currentX, currentY],   // Start point
                 [cp1x, cp1y],          // First control point
@@ -306,6 +306,23 @@ function collectPathObjects (obj, pathObjects) {
                 [endX, endY]           // End point
               ];
               dxf.drawSpline(cubicControlPoints, 3);
+            } else {
+              // For non-text objects, try to convert cubic Bézier curve to arc parameters
+              const arcParams = cubicBezierToArc(currentX, currentY, cp1x, cp1y, cp2x, cp2y, endX, endY);
+
+              if (arcParams) {
+                // Draw as arc if conversion is successful
+                dxf.drawArc(arcParams.centerX, arcParams.centerY, arcParams.radius, arcParams.startAngle, arcParams.endAngle);
+              } else {
+                // Fallback to spline if curve cannot be approximated as arc
+                const cubicControlPoints = [
+                  [currentX, currentY],   // Start point
+                  [cp1x, cp1y],          // First control point
+                  [cp2x, cp2y],          // Second control point
+                  [endX, endY]           // End point
+                ];
+                dxf.drawSpline(cubicControlPoints, 3);
+              }
             }
 
             // Update current position
@@ -637,9 +654,166 @@ function collectPathObjects (obj, pathObjects) {
       radius: smartRound(radius),
       startAngle: finalStartAngle,
       endAngle: finalEndAngle
-    };
-  }
+    };  
+  }    
 
+  function calculatePathUnion (pathObjects) {
+    if (!pathObjects || !Array.isArray(pathObjects) || pathObjects.length === 0) {
+      return null;
+    }
+
+    if (pathObjects.length === 1) {
+      return pathObjects[0];
+    }
+
+    try {
+      let unionPath = null;
+      
+      for (let pathObj of pathObjects) {
+        if (!pathObj || !pathObj.path || !Array.isArray(pathObj.path)) {
+          continue;
+        }
+
+        // Split the path array by 'Z' to get individual chunks for this path object
+        const chunks = [];
+        let currentChunk = [];
+        
+        for (let i = 0; i < pathObj.path.length; i++) {
+          const command = pathObj.path[i];
+          currentChunk.push(command);
+          
+          if (command[0] === 'Z' || command === 'Z') {
+            if (currentChunk.length > 1) { // Only add non-empty chunks
+              chunks.push(currentChunk);
+            }
+            currentChunk = [];
+          }
+        }
+        
+        // Add any remaining chunk
+        if (currentChunk.length > 0) {
+          chunks.push(currentChunk);
+        }
+        
+        // Convert each chunk to a Paper.js path and unite them within this path object
+        let pathObjUnion = null;
+        
+        for (let chunk of chunks) {
+          // Convert chunk to path string
+          const pathString = chunk.map(cmd => {
+            if (Array.isArray(cmd)) {
+              return cmd.join(' ');
+            }
+            return cmd;
+          }).join(' ');
+          
+          // Create Paper.js path
+          const paperPath = new paper.Path(pathString);
+          
+          if (!pathObjUnion) {
+            pathObjUnion = paperPath;
+          } else {
+            pathObjUnion = pathObjUnion.unite(paperPath);
+          }
+        }
+        
+        // Unite this path object's union with the overall union
+        if (pathObjUnion) {
+          if (!unionPath) {
+            unionPath = pathObjUnion;
+          } else {
+            unionPath = unionPath.unite(pathObjUnion);
+          }
+        }
+      }
+      
+      if (!unionPath) {
+        return null;
+      }      // Convert back to path array format
+      const resultPath = [];
+      const pathData = unionPath.pathData;
+      
+      if (pathData) {
+        // Parse SVG path data string into array format
+        const commands = pathData.match(/[MmLlHhVvCcSsQqTtAaZz][^MmLlHhVvCcSsQqTtAaZz]*/g);
+        let currentX = 0, currentY = 0;
+          for (let command of commands) {
+          const type = command[0];
+          const coords = command.slice(1).trim().split(/[\s,]+/).filter(n => n !== '').map(parseFloat);
+          
+          switch (type) {
+            case 'M':
+              currentX = coords[0];
+              currentY = coords[1];
+              resultPath.push(['M', currentX, currentY]);
+              break;
+            case 'm':
+              currentX += coords[0];
+              currentY += coords[1];
+              resultPath.push(['M', currentX, currentY]);
+              break;
+            case 'L':
+              currentX = coords[0];
+              currentY = coords[1];
+              resultPath.push(['L', currentX, currentY]);
+              break;
+            case 'l':
+              const newX = currentX + coords[0];
+              const newY = currentY + coords[1];
+              resultPath.push(['L', newX, newY]);
+              currentX = newX;
+              currentY = newY;
+              break;
+            case 'H':
+              currentX = coords[0];
+              resultPath.push(['L', currentX, currentY]);
+              break;
+            case 'h':
+              currentX += coords[0];
+              resultPath.push(['L', currentX, currentY]);
+              break;
+            case 'V':
+              currentY = coords[0];
+              resultPath.push(['L', currentX, currentY]);
+              break;
+            case 'v':
+              currentY += coords[0];
+              resultPath.push(['L', currentX, currentY]);
+              break;
+            case 'C':
+              currentX = coords[4];
+              currentY = coords[5];
+              resultPath.push(['C', coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]]);
+              break;
+            case 'c':
+              const cp1X = currentX + coords[0];
+              const cp1Y = currentY + coords[1];
+              const cp2X = currentX + coords[2];
+              const cp2Y = currentY + coords[3];
+              const endX = currentX + coords[4];
+              const endY = currentY + coords[5];
+              resultPath.push(['C', cp1X, cp1Y, cp2X, cp2Y, endX, endY]);
+              currentX = endX;
+              currentY = endY;
+              break;
+            case 'Z':
+            case 'z':
+              resultPath.push(['Z']);
+              break;
+          }
+        }
+      }
+        return {
+        type: 'path',
+        path: resultPath,
+        objectType: pathObjects[0]?.objectType // Preserve objectType from input paths
+      };
+      
+    } catch (error) {
+      return null;
+    }
+  }
+    
   export {
     collectPathObjects,
     collectNestedPathObjects,
@@ -647,5 +821,6 @@ function collectPathObjects (obj, pathObjects) {
     processPathForDXF,
     transformPath,
     isClockwise,
-    cubicBezierToArc
+    cubicBezierToArc,
+    calculatePathUnion,
   };
