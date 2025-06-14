@@ -480,7 +480,9 @@ class BaseGroup extends fabric.Group {
       const oldLeft = this.left; // Store old left position since symbols path have negative left values
       canvas.remove(this.basePolygon);
       this.add(this.basePolygon);
-      this.left = oldLeft
+      if (this.functionalType== 'Symbol'){
+        this.left = oldLeft
+      }
 
       // Basepolygon async not loaded, make a temp dimension
       if (this.width == 0 || this.height == 0) {

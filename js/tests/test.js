@@ -768,7 +768,7 @@ const AnchorTest = {
       xHeight: 100,
       font: 'TransportMedium',
       color: 'White',
-      left: 2500,
+      left: 2750,
       top: -1000
     });
     TestTracker.register("pivotTopText", topText1);
@@ -779,7 +779,7 @@ const AnchorTest = {
       xHeight: 100,
       font: 'TransportMedium',
       color: 'White',
-      left: 2500,
+      left: 2750,
       top: -1000
     });
     TestTracker.register("pivotTopText", topText2);
@@ -789,7 +789,7 @@ const AnchorTest = {
       xHeight: 100,
       font: 'TransportMedium',
       color: 'White',
-      left: 2500,
+      left: 2750,
       top: -800 // Position it roughly below
     });
     TestTracker.register("pivotBottomText", bottomText1);
@@ -799,7 +799,7 @@ const AnchorTest = {
       xHeight: 100,
       font: 'TransportMedium',
       color: 'White',
-      left: 2500,
+      left: 2750,
       top: -800 // Position it roughly below
     });
     TestTracker.register("pivotBottomText", bottomText2);
@@ -2175,11 +2175,11 @@ const TemplateTest = {
    
     'Flag Sign': { width: 2907, height: 1650, left: -15400, top: 7740 }, // Placeholder values
     'Stack Sign': { width: 1925, height: 1150 + 1275, left: -10602, top: 6749 }, // Placeholder values
-    'Lane Sign': { width: 3950, height: 1600, left: -7882, top: 7998 }, // Placeholder values
+    'Lane Sign': { width: 3950, height: 1600, left: -7606, top: 7998 }, // Placeholder values
     'Roundabout Sign': { width: 3800, height: 3250, left: -3488, top: 6019 }, // Placeholder values
     'Spiral Roundabout Sign': { width: 3800, height: 3250, left: 1794, top: 6230 }, // Placeholder values, may be null if not fully implemented
     'Gantry Sign': { width: 7900, height: 2700, left: 7493, top:  7306 }, // Placeholder values
-    'Diverge Sign ': { width: 2950, height: 5900, left: 17039, top: 7605 }, // Placeholder values
+    'Diverge Sign ': { width: 2950, height: 5900, left: 17320, top: 7605 }, // Placeholder values
     // Add entries for any other templates
   },
 
