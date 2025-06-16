@@ -80,7 +80,6 @@ function collectPathObjects(obj, pathObjects) {
     pathObjects.push({
       type: 'path',
       path: rawPath.path,
-      isOuterPath: true, // Mark as potentially having holes
       left: rawPath.left || 0,
       top: rawPath.top || 0,
       scaleX: rawPath.scaleX || 1,
@@ -104,7 +103,6 @@ function collectPathObjects(obj, pathObjects) {
     // Add path direction info (clockwise/counterclockwise) for hole detection
     const pathWithDirection = {
       ...obj,
-      isOuterPath: isClockwise(obj.path)
     };
     pathObjects.push(pathWithDirection);
   }
@@ -112,7 +110,6 @@ function collectPathObjects(obj, pathObjects) {
   else if (obj.type === 'rect') {
     const rectPathObj = convertRectToPath(obj);
     if (rectPathObj) {
-      rectPathObj.isOuterPath = true; // Rectangles are always outer paths
       pathObjects.push(rectPathObj);
     }
   }
@@ -128,7 +125,6 @@ function collectNestedPathObjects(obj, collection, parentObj) {
     const rawPath = {
       type: 'path',
       path: obj.path,
-      isOuterPath: true, // Mark as potentially having holes
       left: obj.left || 0,
       top: obj.top || 0,
       scaleX: obj.scaleX || 1,
@@ -149,7 +145,6 @@ function collectNestedPathObjects(obj, collection, parentObj) {
   else if (obj.type === 'rect') {
     const rectPathObj = convertRectToPath(obj);
     if (rectPathObj) {
-      rectPathObj.isOuterPath = true; // Rectangles are always outer paths
       rectPathObj.parentObj = parentObj;
       collection.push(rectPathObj);
     }
@@ -488,16 +483,6 @@ function transformPath(pathObj, parentLeft, parentTop) {
   return transformedPath;
 }
 
-function isClockwise(path) {
-  // Calculate the area of the path to determine if it's clockwise or counterclockwise
-  let total = 0;
-  for (let i = 0; i < path.length - 1; i++) {
-    const [x1, y1] = path[i].slice(1);
-    const [x2, y2] = path[i + 1].slice(1);
-    total += (x2 - x1) * (y2 + y1);
-  }
-  return total > 0;
-}
 // Helper function to convert cubic Bézier curve to arc parameters
 function cubicBezierToArc(startX, startY, cp1x, cp1y, cp2x, cp2y, endX, endY) {
   // For a cubic Bézier to represent a circular arc, the control points must satisfy specific conditions
@@ -660,7 +645,7 @@ function calculatePathUnion(pathObjects) {
   }
 
   try {
-    let pathObjUnion = null;
+    let pathObjUnion = [];
 
     for (let pathObj of pathObjects) {
       if (!pathObj || !pathObj.path || !Array.isArray(pathObj.path)) {
@@ -704,14 +689,8 @@ function calculatePathUnion(pathObjects) {
         if (!paperPath.closed) {
           paperPath.closed = true; // Ensure the path is closed for union operations
         }
+        pathObjUnion.push(paperPath)
 
-        if (!pathObjUnion) {
-          pathObjUnion = paperPath;
-        } else if (paperPath.clockwise) {
-          pathObjUnion = pathObjUnion.unite(paperPath);
-        } else {
-          subtractChunks.push(paperPath);
-        }
       }
 
       if (subtractChunks.length > 0) {
@@ -725,10 +704,11 @@ function calculatePathUnion(pathObjects) {
 
     if (!pathObjUnion) {
       return null;
-    }      
+    } 
+    const compoundPath = new paper.CompoundPath({children:pathObjUnion})
     // Convert back to path array format
     const resultPath = [];
-    const pathData = pathObjUnion.pathData;
+    const pathData = compoundPath.unite().pathData;
 
     if (pathData) {
       // Parse SVG path data string into array format
@@ -817,7 +797,6 @@ export {
   convertRectToPath,
   processPathForDXF,
   transformPath,
-  isClockwise,
   cubicBezierToArc,
   calculatePathUnion,
 };
