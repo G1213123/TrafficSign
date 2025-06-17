@@ -1,3 +1,5 @@
+const SPECIAL_EXPORT_CHAR = '九炮功勁勞勢磡婆支波飛肉內';
+
 function collectPathObjects(obj, pathObjects) {
   // Skip grid objects
   if (obj.id === 'grid') return;
@@ -61,7 +63,7 @@ function collectPathObjects(obj, pathObjects) {
           );
 
           if (transformedPath.path && transformedPath.path.length > 0) {
-            const unionedPath = calculatePathUnion([transformedPath]);
+            const unionedPath = calculatePathUnion(transformedPath, charObj);
             unionedPath.objectType = 'text'; // Tag as text object
             pathObjects.push(unionedPath);
           }
@@ -639,157 +641,170 @@ function cubicBezierToArc(startX, startY, cp1x, cp1y, cp2x, cp2y, endX, endY) {
   };
 }
 
-function calculatePathUnion(pathObjects) {
-  if (!pathObjects || !Array.isArray(pathObjects) || pathObjects.length === 0) {
-    return null;
+function splitToChunkedPaths(pathObjects) {
+  // Split path objects into chunks based on character
+  const chunkedPaths = [];
+  let currentChunk = [];
+  let unionPaths;
+  pathObjects.path.forEach((pathObj, index) => {
+    if (pathObj[0] === 'M' && currentChunk.length > 0) {
+      // If we encounter a new 'M' command and current chunk is not empty,
+      // push the current chunk to chunkedPaths and start a new one
+      chunkedPaths.push(currentChunk);
+      currentChunk = [];
+    }
+    // Add the current path object to the current chunk
+    currentChunk.push(pathObj);
+  });
+  // If there's any remaining paths in the current chunk, add it
+  if (currentChunk.length > 0) {
+    chunkedPaths.push(currentChunk);
   }
 
-  try {
-    let pathObjUnion = [];
-
-    for (let pathObj of pathObjects) {
-      if (!pathObj || !pathObj.path || !Array.isArray(pathObj.path)) {
-        continue;
+  // Convert each chunk to a path object
+  chunkedPaths.map(chunk => {
+    let pathString = chunk.map(cmd => {
+      if (Array.isArray(cmd)) {
+        return cmd.join(' ');
       }
+      return cmd;
+    }).join(' ');
 
-      // Split the path array by 'Z' to get individual chunks for this path object
-      const chunks = [];
-      let subtractChunks = [];
-      let currentChunk = [];
-
-      for (let i = 0; i < pathObj.path.length; i++) {
-        const command = pathObj.path[i];
-        currentChunk.push(command);
-
-        if (command[0] === 'Z' || command === 'Z') {
-          if (currentChunk.length > 1) { // Only add non-empty chunks
-            chunks.push(currentChunk);
-          }
-          currentChunk = [];
-        }
-      }
-
-      // Add any remaining chunk
-      if (currentChunk.length > 0) {
-        chunks.push(currentChunk);
-      }
-
-      // Convert each chunk to a Paper.js path and unite them within this path object
-      for (let chunk of chunks) {
-        // Convert chunk to path string
-        const pathString = chunk.map(cmd => {
-          if (Array.isArray(cmd)) {
-            return cmd.join(' ');
-          }
-          return cmd;
-        }).join(' ');
-
-        // Create Paper.js path
-        const paperPath = new paper.Path(pathString);
-        if (!paperPath.closed) {
-          paperPath.closed = true; // Ensure the path is closed for union operations
-        }
-        pathObjUnion.push(paperPath)
-
-      }
-
-      if (subtractChunks.length > 0) {
-        // If there are subtract chunks, subtract them from the union path
-        for (let subPath of subtractChunks) {
-          pathObjUnion = pathObjUnion.subtract(subPath);
-        }
-      }
-
+    if (pathString.slice(-1).toUpperCase() !== 'Z') {
+      // Ensure the path ends with 'Z' to close it
+      pathString += ' Z';
     }
 
-    if (!pathObjUnion) {
-      return null;
-    } 
-    const compoundPath = new paper.CompoundPath({children:pathObjUnion})
-    // Convert back to path array format
-    const resultPath = [];
-    const pathData = compoundPath.unite().pathData;
-
-    if (pathData) {
-      // Parse SVG path data string into array format
-      const commands = pathData.match(/[MmLlHhVvCcSsQqTtAaZz][^MmLlHhVvCcSsQqTtAaZz]*/g);
-      let currentX = 0, currentY = 0;
-      for (let command of commands) {
-        const type = command[0];
-        const coords = command.slice(1).trim().split(/[\s,]+/).filter(n => n !== '').map(parseFloat);
-
-        switch (type) {
-          case 'M':
-            currentX = coords[0];
-            currentY = coords[1];
-            resultPath.push(['M', currentX, currentY]);
-            break;
-          case 'm':
-            currentX += coords[0];
-            currentY += coords[1];
-            resultPath.push(['M', currentX, currentY]);
-            break;
-          case 'L':
-            currentX = coords[0];
-            currentY = coords[1];
-            resultPath.push(['L', currentX, currentY]);
-            break;
-          case 'l':
-            const newX = currentX + coords[0];
-            const newY = currentY + coords[1];
-            resultPath.push(['L', newX, newY]);
-            currentX = newX;
-            currentY = newY;
-            break;
-          case 'H':
-            currentX = coords[0];
-            resultPath.push(['L', currentX, currentY]);
-            break;
-          case 'h':
-            currentX += coords[0];
-            resultPath.push(['L', currentX, currentY]);
-            break;
-          case 'V':
-            currentY = coords[0];
-            resultPath.push(['L', currentX, currentY]);
-            break;
-          case 'v':
-            currentY += coords[0];
-            resultPath.push(['L', currentX, currentY]);
-            break;
-          case 'C':
-            currentX = coords[4];
-            currentY = coords[5];
-            resultPath.push(['C', coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]]);
-            break;
-          case 'c':
-            const cp1X = currentX + coords[0];
-            const cp1Y = currentY + coords[1];
-            const cp2X = currentX + coords[2];
-            const cp2Y = currentY + coords[3];
-            const endX = currentX + coords[4];
-            const endY = currentY + coords[5];
-            resultPath.push(['C', cp1X, cp1Y, cp2X, cp2Y, endX, endY]);
-            currentX = endX;
-            currentY = endY;
-            break;
-          case 'Z':
-          case 'z':
-            resultPath.push(['Z']);
-            break;
-        }
+    if (unionPaths === undefined) {
+      // Create Paper.js path
+      unionPaths = new paper.CompoundPath(pathString);
+      unionPaths.windingRule = 'nonzero';
+    } else {
+      // Create Paper.js path for the chunk
+      const paperPath = new paper.Path(pathString);
+      paperPath.windingRule = 'nonzero';
+      // Add the chunk path to the union paths
+      if (paperPath.clockwise) {
+        unionPaths = unionPaths.unite(paperPath);
+      } else {
+        unionPaths = unionPaths.subtract(paperPath);
       }
     }
-    return {
-      type: 'path',
-      path: resultPath,
-      objectType: pathObjects[0]?.objectType // Preserve objectType from input paths
-    };
 
-  } catch (error) {
-    return null;
-  }
+  });
+  return unionPaths;
 }
+
+function calculatePathUnion(pathObjects, char) {
+  let pathData;
+
+  // Process each subpath and determine if it should be united or subtracted
+  // for some text characters it is better to split them into chunks then union them
+  if (SPECIAL_EXPORT_CHAR.includes(char._textChar)) {
+    const unionPath = splitToChunkedPaths(pathObjects);
+    pathData = unionPath.pathData;
+  } else {
+
+    // Convert subpath to path string
+    let pathString = pathObjects.path.map(cmd => {
+      if (Array.isArray(cmd)) {
+        return cmd.join(' ');
+      }
+      return cmd;
+    }).join(' ');
+
+    if (pathString.slice(-1).toUpperCase() !== 'Z') {
+      // Ensure the path ends with 'Z' to close it
+      pathString += ' Z';
+    }
+
+    // Create Paper.js path
+    const paperPath = new paper.CompoundPath(pathString);
+    paperPath.windingRule = 'nonzero';
+    const unionPaths = paperPath.unite(); // Perform union operation
+
+    pathData = unionPaths.pathData;
+  }
+
+  let resultPath = [];
+
+  if (pathData) {
+    // Parse SVG path data string into array format
+    const commands = pathData.match(/[MmLlHhVvCcSsQqTtAaZz][^MmLlHhVvCcSsQqTtAaZz]*/g);
+    let currentX = 0, currentY = 0;
+    for (let command of commands) {
+      const type = command[0];
+      const coords = command.slice(1).trim().split(/[\s,]+/).filter(n => n !== '').map(parseFloat);
+
+      switch (type) {
+        case 'M':
+          currentX = coords[0];
+          currentY = coords[1];
+          resultPath.push(['M', currentX, currentY]);
+          break;
+        case 'm':
+          currentX += coords[0];
+          currentY += coords[1];
+          resultPath.push(['M', currentX, currentY]);
+          break;
+        case 'L':
+          currentX = coords[0];
+          currentY = coords[1];
+          resultPath.push(['L', currentX, currentY]);
+          break;
+        case 'l':
+          const newX = currentX + coords[0];
+          const newY = currentY + coords[1];
+          resultPath.push(['L', newX, newY]);
+          currentX = newX;
+          currentY = newY;
+          break;
+        case 'H':
+          currentX = coords[0];
+          resultPath.push(['L', currentX, currentY]);
+          break;
+        case 'h':
+          currentX += coords[0];
+          resultPath.push(['L', currentX, currentY]);
+          break;
+        case 'V':
+          currentY = coords[0];
+          resultPath.push(['L', currentX, currentY]);
+          break;
+        case 'v':
+          currentY += coords[0];
+          resultPath.push(['L', currentX, currentY]);
+          break;
+        case 'C':
+          currentX = coords[4];
+          currentY = coords[5];
+          resultPath.push(['C', coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]]);
+          break;
+        case 'c':
+          const cp1X = currentX + coords[0];
+          const cp1Y = currentY + coords[1];
+          const cp2X = currentX + coords[2];
+          const cp2Y = currentY + coords[3];
+          const endX = currentX + coords[4];
+          const endY = currentY + coords[5];
+          resultPath.push(['C', cp1X, cp1Y, cp2X, cp2Y, endX, endY]);
+          currentX = endX;
+          currentY = endY;
+          break;
+        case 'Z':
+        case 'z':
+          resultPath.push(['Z']);
+          break;
+      }
+    }
+  }
+  return {
+    type: 'path',
+    path: resultPath,
+    objectType: pathObjects[0]?.objectType // Preserve objectType from input paths
+  };
+}
+
 
 export {
   collectPathObjects,
