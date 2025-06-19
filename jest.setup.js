@@ -46,9 +46,22 @@ global.fabric = {
   Control: jest.fn().mockImplementation(() => ({})),
   Line: jest.fn().mockImplementation(() => ({
     set: jest.fn()
-  })),
-  Text: jest.fn().mockImplementation(() => ({})),
+  })),  Text: jest.fn().mockImplementation(() => ({})),
   Group: jest.fn().mockImplementation(() => ({})),
+  Path: jest.fn().mockImplementation((pathData, options = {}) => ({
+    ...options,
+    pathData: pathData,
+    left: options.left || 0,
+    top: options.top || 0,
+    fill: options.fill || '#000000',
+    stroke: options.stroke || null,
+    strokeWidth: options.strokeWidth || 0,
+    selectable: options.selectable !== false,
+    evented: options.evented !== false,
+    set: jest.fn(),
+    get: jest.fn(),
+    getBoundingRect: jest.fn(() => ({ left: 0, top: 0, width: 100, height: 100 }))
+  })),
   Point: jest.fn().mockImplementation((x, y) => ({ x, y })),
   util: {
     invertTransform: jest.fn(() => [1, 0, 0, 1, 0, 0])
