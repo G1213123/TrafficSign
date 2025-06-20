@@ -1,4 +1,5 @@
 import { CanvasGlobals,DrawGrid } from './canvas.js';
+import { canvasTracker } from './Tracker.js';
 const canvas = CanvasGlobals.canvas; // Access the global canvas object
 const activeVertex = CanvasGlobals.activeVertex; // Access the global active vertex object
 
@@ -97,3 +98,18 @@ function lockGroupSelection(event) {
   }
 }
 
+// Add event listeners to detect the end of drag operations
+canvas.on('mouse:up', function () {
+  // When mouse is released, signal the end of any ongoing drag
+  canvasTracker.endDrag();
+});
+
+canvas.on('object:modified', function (e) {
+  // When an object is modified (e.g., after resizing or rotation is complete), signal the end of any drag
+  canvasTracker.endDrag();
+  
+  // Also capture the detailed state for property tracking
+  if (e.target && e.target.id) {
+    canvasTracker.trackMetadataChange('objectModified', `Object ${e.target.id} modified`);
+  }
+});

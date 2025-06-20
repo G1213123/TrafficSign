@@ -15,54 +15,69 @@ function ShowHideSideBarEvent(e) {
 function handleArrowKeys(event) {
   const activeObjects = CanvasGlobals.canvas.getActiveObjects();
   let moved = false;
+  let deltaX = 0;
+  let deltaY = 0;
 
   activeObjects.forEach(obj => {
     switch (event.key) {
       case 'ArrowUp':
         if (!obj.lockMovementY) {
           obj.top -= 1;
+          deltaY = -1;
           moved = true;
         }
         break;
       case 'ArrowDown':
         if (!obj.lockMovementY) {
           obj.top += 1;
+          deltaY = 1;
           moved = true;
         }
         break;
       case 'ArrowLeft':
         if (!obj.lockMovementX) {
           obj.left -= 1;
+          deltaX = -1;
           moved = true;
         }
         break;
       case 'ArrowRight':
         if (!obj.lockMovementX) {
           obj.left += 1;
+          deltaX = 1;
           moved = true;
         }
-        break;      case 'Delete':
+        break;
+      case 'Delete':
         // Check if user is currently inputting something - if so, don't delete objects
-        if (document.activeElement.tagName === 'INPUT' || 
-            document.activeElement.tagName === 'TEXTAREA') {
+        if (document.activeElement.tagName === 'INPUT' ||
+          document.activeElement.tagName === 'TEXTAREA') {
           return; // Exit early if user is typing in an input field
         }
-        
+
         if (obj.deleteObject) {
           CanvasGlobals.canvas.discardActiveObject(obj)
           CanvasGlobals.canvas.fire('object:deselected', { target: obj });
           obj.deleteObject(null, obj)
         }
         break;
-    }    if (moved) {
+    }    
+    if (moved) {
       obj.updateAllCoord();
       obj.setCoords();
       obj.fire('moving');
       // Notify listeners (e.g., property panel) that object was modified
       CanvasGlobals.canvas.fire('object:modified', { target: obj });
-      
+
       // Track the movement for undo/redo
-      canvasTracker.track('modifyObject', { object: obj }, 'Object moved with arrow keys');
+      canvasTracker.track('modifyObject', [{
+        type: 'BaseGroup',
+        id: obj.canvasID,
+        functionalType: obj.functionalType,
+        deltaX: deltaX,
+        deltaY: deltaY,
+        isInitialMover:  true,
+      }], 'Object moved with arrow keys');
     }
   });
 
@@ -75,7 +90,7 @@ function handleArrowKeys(event) {
 document.addEventListener('keydown', handleArrowKeys);
 
 // Add event listener for Ctrl+S to save canvas state
-document.addEventListener('keydown', function(event) {
+document.addEventListener('keydown', function (event) {
   if (event.ctrlKey && event.key === 's') {
     event.preventDefault(); // Prevent the browser's default save action
     FormSettingsComponent.saveCanvasState();
@@ -85,10 +100,10 @@ document.addEventListener('keydown', function(event) {
 });
 
 // Add event listeners for undo/redo functionality
-document.addEventListener('keydown', function(event) {
+document.addEventListener('keydown', function (event) {
   // Check if user is currently inputting something - if so, don't trigger undo/redo
-  if (document.activeElement.tagName === 'INPUT' || 
-      document.activeElement.tagName === 'TEXTAREA') {
+  if (document.activeElement.tagName === 'INPUT' ||
+    document.activeElement.tagName === 'TEXTAREA') {
     return; // Exit early if user is typing in an input field
   }
   // Ctrl+Z for undo (try state-based first, fallback to original)
@@ -111,10 +126,10 @@ document.addEventListener('keydown', function(event) {
       }
     }
   }
-  
+
   // Ctrl+Y or Ctrl+Shift+Z for redo (try state-based first, fallback to original)
-  if ((event.ctrlKey && event.key === 'y') || 
-      (event.ctrlKey && event.shiftKey && event.key === 'Z')) {
+  if ((event.ctrlKey && event.key === 'y') ||
+    (event.ctrlKey && event.shiftKey && event.key === 'Z')) {
     event.preventDefault();
     const stateSuccess = canvasTracker.redoState();
     if (stateSuccess) {

@@ -1124,21 +1124,7 @@ window.CanvasTracker = CanvasTracker;
 // Initialize canvas tracker to monitor object creation, deletion, and modification
 const canvasTracker = new CanvasTracker();
 
-// Add event listeners to detect the end of drag operations
-CanvasGlobals.canvas.on('mouse:up', function () {
-  // When mouse is released, signal the end of any ongoing drag
-  canvasTracker.endDrag();
-});
-
-CanvasGlobals.canvas.on('object:modified', function (e) {
-  // When an object is modified (e.g., after resizing or rotation is complete), signal the end of any drag
-  canvasTracker.endDrag();
-  
-  // Also capture the detailed state for property tracking
-  if (e.target && e.target.id) {
-    canvasTracker.trackMetadataChange('objectModified', `Object ${e.target.id} modified`);
-  }
-});
+/*
 
 // ENHANCED EVENT LISTENERS FOR DETAILED PROPERTY TRACKING
 
@@ -1213,5 +1199,5 @@ if (typeof fabric !== 'undefined' && fabric.Object && fabric.Object.prototype) {
     return result;
   };
 }
-
+*/
 export { canvasTracker };
