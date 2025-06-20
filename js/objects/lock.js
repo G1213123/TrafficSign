@@ -350,14 +350,14 @@ class LockIcon {
     }
 
     // Record this unlock operation in history (if canvasTracker exists)
-    if (canvasTracker) {
-      canvasTracker.track('unlockObject', [{
-        type: 'Unlock',
-        objectId: this.baseGroup.canvasID,
-        functionalType: this.baseGroup.functionalType,
-        direction: this.direction
-      }]);
-    }
+    //if (canvasTracker) {
+    //  canvasTracker.track('unlockObject', [{
+    //    type: 'Unlock',
+    //    objectId: this.baseGroup.canvasID,
+    //    functionalType: this.baseGroup.functionalType,
+    //    direction: this.direction
+    //  }]);
+    //}
 
     // Reshow the vertexes and dimensions
     this.baseGroup.focusMode = false;

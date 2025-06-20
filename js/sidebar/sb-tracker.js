@@ -4,12 +4,12 @@ import { canvasTracker } from '../canvas/Tracker.js';
 
 class CanvasTrackerUI {
   constructor() {
-    this.initialized = false;
-    this.actionsMap = {
+    this.initialized = false;    this.actionsMap = {
       'createObject': 'Created',
       'deleteObject': 'Deleted',
       'modifyObject': 'Modified',
-      'anchorObject': 'Anchored'
+      'anchorObject': 'Anchored',
+      'propertyChanged': 'Property Changed'
     };
     this.trackerContainer = null;
     this.undoMode = false;
@@ -189,8 +189,7 @@ class CanvasTrackerUI {
       }
 
       const params = entry.params[0];
-      let itemContent = '';
-
+      let itemContent = '';      
       switch (entry.action) {
         case 'createObject':
           itemContent = `${this.actionsMap[entry.action]} ${params.functionalType} (ID: ${params.id})`;
@@ -205,9 +204,13 @@ class CanvasTrackerUI {
             itemContent = `${this.createChainSymbol(entry)} ${itemContent}`;
           }
           break;
+        case 'propertyChanged':
+          // Display property changes
+          itemContent = `${this.actionsMap[entry.action]} ${params.functionalType} (ID: ${params.id}) - ${params.propertyKey}: "${params.oldValue}" → "${params.newValue}"`;
+          break;
         case 'unlockObject':
           // Simpler display for unlock operations
-          itemContent = `Unlocked ${params.functionalType} (ID: ${params.objectId}) - ${params.direction.toUpperCase()} axis`;
+          itemContent = `Unlocked ${params.functionalType} (ID: ${params.id}) - ${params.direction.toUpperCase()} axis`;
           break;
         case 'anchorObject':
           if (params.type === 'Anchor') {
@@ -329,9 +332,7 @@ class CanvasTrackerUI {
             setInterval(() => lockIcon.onClick(), 100);
           });
         }
-      }
-
-    } else {
+      }    } else {
       // Handle non-chained operations
       switch (entry.action) {
         case 'createObject':
@@ -360,6 +361,13 @@ class CanvasTrackerUI {
             });
             modifyObj.setCoords();
             modifyObj.updateAllCoord();
+          }
+          break;        
+          case 'propertyChanged':
+          // Undo property change using the tracker's method
+          const success = canvasTracker.undoPropertyChange(entry);
+          if (!success) {
+            alert("Failed to undo property change. The object may no longer exist.");
           }
           break;
       }

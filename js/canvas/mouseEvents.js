@@ -109,7 +109,7 @@ canvas.on('object:modified', function (e) {
   canvasTracker.endDrag();
   
   // Also capture the detailed state for property tracking
-  if (e.target && e.target.id) {
-    canvasTracker.trackMetadataChange('objectModified', `Object ${e.target.id} modified`);
-  }
+  //if (e.target && e.target.id) {
+  //  canvasTracker.trackMetadataChange('objectModified', `Object ${e.target.id} modified`);
+  //}
 });

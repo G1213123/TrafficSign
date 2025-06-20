@@ -2,6 +2,7 @@ import { CanvasGlobals } from '../canvas/canvas.js';
 import { symbolsPermittedAngle, BorderColorScheme } from '../objects/template.js';
 import { FontPriorityManager } from '../modal/md-font.js';
 import { containsNonEnglishCharacters } from '../objects/text.js';
+import { canvasTracker } from '../canvas/Tracker.js';
 
 // Add handler for 'Property' context-menu action
 const propertyMenuItem = document.getElementById('property');
@@ -54,15 +55,16 @@ function showPropertyPanel(object) {
   panel.appendChild(title);
 
   const PREDEFINED_COLORS = ['black', 'white',];
-
   // --- Helper functions for input changes ---
   function handleNumericInputChange(e, prop, targetObject) {
     let valueChanged = false;
     let numValue;
+    let oldValue; // Track old value for undo
 
     if (prop.key === 'xHeight') {
       numValue = parseFloat(e.target.value);
       if (!isNaN(numValue) && targetObject.xHeight !== numValue) {
+        oldValue = targetObject.xHeight; // Store old value
         targetObject.xHeight = numValue;
         valueChanged = true;
       }
@@ -74,18 +76,28 @@ function showPropertyPanel(object) {
       } else if (prop.key === 'top' && targetObject.lockMovementY) {
         // Do not change value if movement is locked
       } else if (!isNaN(numValue) && targetObject[prop.key] !== numValue) {
+        oldValue = targetObject[prop.key]; // Store old value
         targetObject.set(prop.key, numValue);
         valueChanged = true;
       }
     }
 
     if (valueChanged) {
+      // Track the property change for undo functionality
+      canvasTracker.track('propertyChanged', [{
+        functionalType: targetObject.functionalType,
+        id: targetObject.canvasID,
+        propertyKey: prop.key,
+        oldValue: oldValue,
+        newValue: numValue,
+      }]);
+
       if (typeof targetObject.initialize === 'function') {
         try {
           targetObject.removeAll();
           targetObject.initialize();
           targetObject.updateAllCoord();
-          if (targetObject.functionalType === 'Border' ) {
+          if (targetObject.functionalType === 'Border') {
             targetObject.processResize();
           }
         } catch (initError) {
@@ -93,13 +105,24 @@ function showPropertyPanel(object) {
         }
       }
       CanvasGlobals.canvas.renderAll();
+      canvasTracker.isDragging = false; // Reset dragging state
       showPropertyPanel(targetObject); // Refresh panel
     }
   }
-
   function handleTextInputChange(e, prop, targetObject) {
     const newValue = e.target.value;
     if (targetObject[prop.key] !== newValue) {
+      const oldValue = targetObject[prop.key]; // Store old value for tracking
+
+      // Track the property change for undo functionality
+      canvasTracker.track('propertyChanged', [{
+        functionalType: targetObject.functionalType,
+        id: targetObject.canvasID,
+        propertyKey: prop.key,
+        oldValue: oldValue,
+        newValue: newValue,
+      }]);
+
       targetObject.set(prop.key, newValue);
       if (targetObject.functionalType === 'Text' && prop.key === 'text') {
         targetObject._showName = newValue;
@@ -111,29 +134,33 @@ function showPropertyPanel(object) {
       } catch (initError) {
         console.error(`Error calling ${targetObject.type}.initialize() for ${prop.key} change:`, initError);
       }
-      CanvasGlobals.canvas.renderAll();
+      CanvasGlobals.canvas.renderAll();      
+      canvasTracker.isDragging = false; // Reset dragging state
       showPropertyPanel(targetObject); // Refresh panel
     }
   }
-
   function handleSelectInputChange(e, prop, targetObject) {
     const newValue = e.target.value;
     let valueToSet = newValue;
     let valueChanged = false;
+    let oldValue; // Store old value for tracking
 
     if (prop.key === 'color' || prop.key === 'fill') {
       if (targetObject[prop.key] !== newValue) {
+        oldValue = targetObject[prop.key]; // Store old value
         targetObject[prop.key] = newValue; // Direct assignment for color/fill
         valueChanged = true;
       }
     } else if (prop.key === 'font') {
       if (targetObject[prop.key] !== newValue) {
+        oldValue = targetObject[prop.key]; // Store old value
         targetObject.set(prop.key, newValue);
         valueChanged = true;
       }
     } else if (prop.key === 'symbolAngle') {
       valueToSet = parseInt(newValue, 10);
       if (targetObject[prop.key] !== valueToSet) {
+        oldValue = targetObject[prop.key]; // Store old value
         targetObject.set(prop.key, valueToSet);
         valueChanged = true;
       }
@@ -143,13 +170,22 @@ function showPropertyPanel(object) {
       }
       // Specific update logic for SideRoad shape and angle
       if (targetObject.routeList && targetObject.routeList[0] && targetObject.routeList[0][prop.key] !== valueToSet) {
+        oldValue = targetObject.routeList[0][prop.key]; // Store old value
         targetObject.routeList[0][prop.key] = valueToSet;
         valueChanged = true;
       }
     }
 
-
     if (valueChanged) {
+      // Track the property change for undo functionality
+      canvasTracker.track('propertyChanged',[{
+        functionalType: targetObject.functionalType,
+        id: targetObject.canvasID,
+        propertyKey: prop.key,
+        oldValue: oldValue,
+        newValue: valueToSet,
+      }]);
+
       if (typeof targetObject.initialize === 'function') {
         try {
           targetObject.removeAll();
@@ -162,7 +198,8 @@ function showPropertyPanel(object) {
           console.error(`Error calling ${targetObject.type}.initialize() for ${prop.key} change:`, initError);
         }
       }
-      CanvasGlobals.canvas.renderAll();
+      CanvasGlobals.canvas.renderAll();      
+      canvasTracker.isDragging = false; // Reset dragging state
       showPropertyPanel(targetObject); // Refresh panel
     }
   }
@@ -235,7 +272,8 @@ function showPropertyPanel(object) {
 
           inputElement.addEventListener('change', (e) => {
             handleSelectInputChange(e, prop, targetObject);
-          });        } else if (prop.type === 'select' && (prop.key === 'font' || prop.key === 'symbolAngle')) {
+          });
+        } else if (prop.type === 'select' && (prop.key === 'font' || prop.key === 'symbolAngle')) {
           inputElement = document.createElement('select');
           prop.options.forEach(opt => {
             const option = document.createElement('option');
@@ -327,10 +365,11 @@ function showPropertyPanel(object) {
     }
     basicProps.push({ label: 'Color', key: 'color', type: 'select', options: colorOptions, editable: true, value: initialSelectValue });
 
-  } 
+  }
 
   // Prepare special properties (remains display-only as per current structure)
-  let specialProps = [];  switch (object.functionalType) {    case 'Text':
+  let specialProps = []; switch (object.functionalType) {
+    case 'Text':
       // Check if text contains non-English characters to determine appropriate font options
       const hasNonEnglish = containsNonEnglishCharacters(object.text);
       const fontOptions = FontPriorityManager.getAllAvailableFonts(hasNonEnglish);
@@ -403,17 +442,7 @@ function showPropertyPanel(object) {
   renderCategory(object.functionalType || 'Special', specialProps, object); // Pass object, provide default name
 }
 
-// Refresh property panel when arrow keys are pressed
-document.addEventListener('keydown', (event) => {
-  const panel = document.getElementById('property-panel');
-  if (panel.style.display !== 'block') return;
-  const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
-  if (arrowKeys.includes(event.key)) {
-    // Update content based on current active object
-    const obj = CanvasGlobals.canvas.getActiveObject();
-    if (obj) showPropertyPanel(obj);
-  }
-});
+
 
 // Export showPropertyPanel for context menu
-export { showPropertyPanel, handleClear};
+export { showPropertyPanel, handleClear };

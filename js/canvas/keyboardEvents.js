@@ -1,6 +1,7 @@
 import { CanvasGlobals } from "./canvas.js";
 import { FormSettingsComponent } from "../sidebar/sb-settings.js";
 import { canvasTracker } from "./Tracker.js";
+import { showPropertyPanel } from "../sidebar/property.js";
 
 // Keyboard shortcut for showing/hiding sidebar
 function ShowHideSideBarEvent(e) {
@@ -148,6 +149,17 @@ document.addEventListener('keydown', function (event) {
       }
     }
   }
+
+  // Refresh property panel when arrow keys are pressed
+    const panel = document.getElementById('property-panel');
+    if (panel.style.display !== 'block') return;
+    const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+    if (arrowKeys.includes(event.key)) {
+      // Update content based on current active object
+      const obj = CanvasGlobals.canvas.getActiveObject();
+      if (obj) showPropertyPanel(obj);
+    }
 });
+
 
 export { ShowHideSideBarEvent, handleArrowKeys };
