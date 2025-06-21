@@ -419,7 +419,7 @@ class BaseGroup extends fabric.Group {
     const borderRect = this.getBoundingRect();
 
     // Find closest objects in each direction to show dimensions
-    if (!this.isTemporary && !this.focusMode) {
+    if (!this.isTemporary) {
       this.createDimensionAnnotations(borderRect);
     }
   }
@@ -441,7 +441,7 @@ class BaseGroup extends fabric.Group {
     const leftDimension = new BorderDimensionDisplay({
       direction: 'horizontal',
       startX: borderRect.left,
-      startY: borderRect.top + (borderRect.height / 2),
+      startY: borderRect.top - 8 / canvas.getZoom(),
       endX: borderRect.left + borderRect.width,
       color: 'green',
       offset: 30 / canvas.getZoom()
@@ -453,7 +453,7 @@ class BaseGroup extends fabric.Group {
     // Create vertical dimensions (top and bottom)
     const topDimension = new BorderDimensionDisplay({
       direction: 'vertical',
-      startX: borderRect.left + (borderRect.width / 2),
+      startX: borderRect.left - 12 / canvas.getZoom(),
       startY: borderRect.top,
       endY: borderRect.top + borderRect.height,
       color: 'red',

@@ -22,7 +22,7 @@ class BorderDimensionDisplay {
     const lineWidth = 1 / zoom;
     const fontSize = 12 / zoom;
     const arrowSize = 8 / zoom;
-    const extensionLength = 6 / zoom;
+    const extensionLength = 8 / zoom;
 
     // Create dimension lines based on direction
     if (this.direction === 'horizontal') {
@@ -42,7 +42,7 @@ class BorderDimensionDisplay {
 
     // Extension lines
     this.objects.push(new fabric.Line(
-      [this.startX, this.startY, this.startX, dimLineY + extensionLength],
+      [this.startX, this.startY, this.startX, dimLineY - extensionLength],
       {
         stroke: this.color,
         strokeWidth: lineWidth,
@@ -52,7 +52,7 @@ class BorderDimensionDisplay {
     ));
 
     this.objects.push(new fabric.Line(
-      [this.endX, this.startY, this.endX, dimLineY + extensionLength],
+      [this.endX, this.startY, this.endX, dimLineY - extensionLength],
       {
         stroke: this.color,
         strokeWidth: lineWidth,
@@ -82,7 +82,7 @@ class BorderDimensionDisplay {
       `${Math.round(distance)}mm`,
       {
         left: midX,
-        top: dimLineY - (15 / canvas.getZoom()),
+        top: dimLineY - (8 / canvas.getZoom()),
         fontSize: fontSize,
         fill: this.color,
         fontFamily: 'Arial',
@@ -105,7 +105,7 @@ class BorderDimensionDisplay {
 
     // Extension lines
     this.objects.push(new fabric.Line(
-      [this.startX, this.startY, dimLineX + extensionLength, this.startY],
+      [this.startX, this.startY, dimLineX - extensionLength, this.startY],
       {
         stroke: this.color,
         strokeWidth: lineWidth,
@@ -115,7 +115,7 @@ class BorderDimensionDisplay {
     ));
 
     this.objects.push(new fabric.Line(
-      [this.startX, this.endY, dimLineX + extensionLength, this.endY],
+      [this.startX, this.endY, dimLineX - extensionLength, this.endY],
       {
         stroke: this.color,
         strokeWidth: lineWidth,
@@ -209,4 +209,115 @@ class BorderDimensionDisplay {
   }
 }
 
-export { BorderDimensionDisplay };
+// Class to handle radius dimension displays for corner radius
+class RadiusDimensionDisplay {
+  constructor(options = {}) {
+    this.centerX = options.centerX;
+    this.centerY = options.centerY;
+    this.radius = options.radius;
+    this.color = options.color || 'purple';
+    this.startAngle = options.startAngle || 0; // Angle in degrees where to start the dimension
+    this.objects = [];
+
+    this.createRadiusDimension();
+  }
+
+  createRadiusDimension() {
+    // Scale adjustments based on zoom
+    const zoom = canvas.getZoom();
+    const lineWidth = 1 / zoom;
+    const fontSize = 12 / zoom;
+    const arrowSize = 6 / zoom;
+
+    // Convert start angle to radians
+    const startAngleRad = (this.startAngle * Math.PI) / 180;
+    
+    // Calculate radius line end point
+    const radiusEndX = this.centerX + this.radius * Math.cos(startAngleRad);
+    const radiusEndY = this.centerY + this.radius * Math.sin(startAngleRad);
+
+    // Create radius line from center to edge
+    this.objects.push(new fabric.Line(
+      [this.centerX, this.centerY, radiusEndX, radiusEndY],
+      {
+        stroke: this.color,
+        strokeWidth: lineWidth,
+        selectable: false,
+        evented: false
+      }
+    ));
+
+    // Add center point marker
+    this.objects.push(new fabric.Circle({
+      left: this.centerX,
+      top: this.centerY,
+      radius: 2 / zoom,
+      fill: this.color,
+      originX: 'center',
+      originY: 'center',
+      selectable: false,
+      evented: false
+    }));
+
+    // Add arrow at the radius end
+    this.addRadiusArrow(radiusEndX, radiusEndY, startAngleRad, arrowSize);
+
+    // Add radius dimension text
+    const textX = this.centerX - (this.radius * 0.2) * Math.cos(startAngleRad);
+    const textY = this.centerY - (this.radius * 0.2) * Math.sin(startAngleRad);
+    
+    this.objects.push(new fabric.Text(
+      `R${Math.round(this.radius)}mm`,
+      {
+        left: textX,
+        top: textY,
+        fontSize: fontSize,
+        fill: this.color,
+        fontFamily: 'Arial',
+        textAlign: 'center',
+        originX: 'center',
+        originY: 'center',
+        selectable: false,
+        evented: false,
+        stroke: '#fff',
+        strokeWidth: 3 / canvas.getZoom(),
+        paintFirst: 'stroke'
+      }
+    ));
+
+
+    // Add all objects to the canvas
+    canvas.add(...this.objects);
+  }
+
+  addRadiusArrow(x, y, angle, size) {
+    // Calculate arrow direction (pointing away from center)
+    const arrowAngle1 = angle + Math.PI + Math.PI / 6;
+    const arrowAngle2 = angle + Math.PI - Math.PI / 6;
+
+    const points = [
+      { x: x, y: y },
+      { x: x + size * Math.cos(arrowAngle1), y: y + size * Math.sin(arrowAngle1) },
+      { x: x + size * Math.cos(arrowAngle2), y: y + size * Math.sin(arrowAngle2) }
+    ];
+
+    const arrow = new fabric.Polygon(points, {
+      fill: this.color,
+      stroke: this.color,
+      strokeWidth: 0,
+      selectable: false,
+      evented: false
+    });
+
+    this.objects.push(arrow);
+  }
+
+
+  // Remove radius dimension from canvas
+  remove() {
+    this.objects.forEach(obj => canvas.remove(obj));
+    this.objects = [];
+  }
+}
+
+export { BorderDimensionDisplay, RadiusDimensionDisplay };

@@ -43,18 +43,18 @@ class LockIcon {
     // Scale adjustments based on zoom
     const zoom = canvas.getZoom();
     const lineWidth = 1 / zoom;        // Thinner lines for engineering style
-    const fontSize = 15 / zoom;        // Fixed 15px font size
+    const fontSize = 12 / zoom;        // Fixed 12px font size
     const arrowSize = 12 / zoom;        // Size of dimension arrows
     const extensionLineLength = 8 / zoom; // Length of extension lines
 
     // Create dimension lines and position lock icon based on direction
     if (this.direction == 'x') {
       // Position of dimension line, offset from source and target points
-      const dimLineY = sourcePoint.y - offsetDistance / zoom;
+      const dimLineY = sourcePoint.y + offsetDistance / zoom;
 
       // Extension lines (vertical lines from source and target points to dimension line)
       this.lines.push(new fabric.Line(
-        [sourcePoint.x, sourcePoint.y, sourcePoint.x, dimLineY - extensionLineLength],
+        [sourcePoint.x, sourcePoint.y, sourcePoint.x, dimLineY + extensionLineLength],
         {
           stroke: 'green',
           strokeWidth: lineWidth,
@@ -64,7 +64,7 @@ class LockIcon {
       ));
 
       this.lines.push(new fabric.Line(
-        [targetPoint.x, targetPoint.y, targetPoint.x, dimLineY - extensionLineLength],
+        [targetPoint.x, targetPoint.y, targetPoint.x, dimLineY + extensionLineLength],
         {
           stroke: 'green',
           strokeWidth: lineWidth,
@@ -97,7 +97,7 @@ class LockIcon {
         (targetPoint.x - sourcePoint.x).toFixed() + 'mm',
         {
           left: midX,
-          top: dimLineY - (25 / canvas.getZoom()),
+          top: dimLineY + (25 / canvas.getZoom()),
           fontSize: fontSize,
           fill: 'green',
           fontFamily: 'Arial',
@@ -130,11 +130,11 @@ class LockIcon {
 
     } else { // Y direction
       // Position of dimension line, offset from source and target points
-      const dimLineX = sourcePoint.x - offsetDistance / zoom;
+      const dimLineX = sourcePoint.x + offsetDistance / zoom;
 
       // Extension lines (horizontal lines from source and target points to dimension line)
       this.lines.push(new fabric.Line(
-        [sourcePoint.x, sourcePoint.y, dimLineX - extensionLineLength, sourcePoint.y],
+        [sourcePoint.x, sourcePoint.y, dimLineX + extensionLineLength, sourcePoint.y],
         {
           stroke: 'red',
           strokeWidth: lineWidth,
@@ -144,7 +144,7 @@ class LockIcon {
       ));
 
       this.lines.push(new fabric.Line(
-        [targetPoint.x, targetPoint.y, dimLineX - extensionLineLength, targetPoint.y],
+        [targetPoint.x, targetPoint.y, dimLineX + extensionLineLength, targetPoint.y],
         {
           stroke: 'red',
           strokeWidth: lineWidth,
@@ -176,8 +176,8 @@ class LockIcon {
       this.dimensionTexts.push(new fabric.Text(
         (targetPoint.y - sourcePoint.y).toFixed() + 'mm',
         {
-          left: midX,
-          top: midY - 15 / canvas.getZoom(),
+          left: midX + 45 / canvas.getZoom(),
+          top: midY + 8 / canvas.getZoom(),
           fontSize: fontSize,
           fill: 'red',
           fontFamily: 'Arial',

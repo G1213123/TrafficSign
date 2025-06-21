@@ -1,5 +1,5 @@
 import { BaseGroup } from './draw.js';
-import { BorderDimensionDisplay } from './dimension.js';
+import { BorderDimensionDisplay, RadiusDimensionDisplay } from './dimension.js';
 import { globalAnchorTree, processUpdateCycle } from './anchor.js';
 import { BorderTypeScheme, BorderColorScheme, BorderFrameWidth, DividerMargin } from './template.js';
 import { vertexToPath } from './path.js';
@@ -415,7 +415,6 @@ class BorderGroup extends BaseGroup {
 
     return GroupedBorder;
   }
-
   // Show border dimensions when selected
   showDimensions() {
     // Clean up any existing dimension annotations
@@ -430,8 +429,25 @@ class BorderGroup extends BaseGroup {
 
     // Find closest objects in each direction to show dimensions
     this.createBorderDimensionAnnotations(borderRect, frame);
+
+    // Show radius dimension for one corner
+    this.createCornerRadiusDimension(borderRect);
   }
 
+  // Override hideDimensions to handle both BorderDimensionDisplay and RadiusDimensionDisplay
+  hideDimensions() {
+    // Remove all dimension annotations from canvas
+    this.dimensionAnnotations.forEach(annotation => {
+      if (annotation.remove && typeof annotation.remove === 'function') {
+        // For RadiusDimensionDisplay which has a remove method
+        annotation.remove();
+      } else if (annotation.objects && Array.isArray(annotation.objects)) {
+        // For BorderDimensionDisplay which has objects array
+        canvas.remove(...annotation.objects);
+      }
+    });
+    this.dimensionAnnotations = [];
+  }
 
   // Create dimension annotations for the border and contained objects
   createBorderDimensionAnnotations(borderRect, frame) {
@@ -523,6 +539,51 @@ class BorderGroup extends BaseGroup {
         });
         this.dimensionAnnotations.push(bottomDimension);
       }
+    }
+  }
+
+  // Create radius dimension for one corner of the border
+  createCornerRadiusDimension(borderRect) {
+    // Get the border template to check for corner radius information
+    const block = { width: borderRect.width, height: borderRect.height };
+    const shapeMeta = BorderTypeScheme[this.borderType](this.xHeight, block, this.rounding);
+
+    // Look for the first vertex with a radius property (typically top-left corner)
+    let cornerRadius = null;
+    let cornerVertex = null;
+
+    if (shapeMeta && shapeMeta.path && shapeMeta.path.length > 0) {
+      for (const path of shapeMeta.path) {
+        if (path.vertex && path.vertex.length > 0) {
+          for (const vertex of path.vertex) {
+            if (vertex.radius && vertex.radius > 0) {
+              cornerRadius = vertex.radius; // Convert to actual size
+              cornerVertex = vertex;
+              break;
+            }
+          }
+          if (cornerRadius) break;
+        }
+      }
+    }
+
+    // If we found a corner with radius, create radius dimension
+    if (cornerRadius && cornerRadius > 0) {
+      // For most borders, the top-left corner would be at borderRect position
+      // We'll show the radius dimension for the top-left corner
+      const isFlagRight = this.borderType === 'flagRight';
+      const centerX = borderRect.left + (isFlagRight ? cornerRadius : borderRect.width - cornerRadius);
+      const centerY = borderRect.top + borderRect.height - cornerRadius;
+
+      const radiusDimension = new RadiusDimensionDisplay({
+        centerX: centerX,
+        centerY: centerY,
+        radius: cornerRadius,
+        color: 'teal',
+        startAngle: (isFlagRight ? 120 : 60)  // 45 degrees (pointing toward top-left from center)
+      });
+
+      this.dimensionAnnotations.push(radiusDimension);
     }
   }
 
