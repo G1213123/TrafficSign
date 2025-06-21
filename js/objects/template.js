@@ -66,7 +66,7 @@ const roadMapTemplate = {
             ]
         },
         ],
-    },    'Normal Conventional': {
+    }, 'Normal Conventional': {
         path: [{
             'vertex': [
                 { x: -3, y: 30, label: 'V1', start: 1, display: 1 },
@@ -102,7 +102,7 @@ const roadMapTemplate = {
             ]
         },
         ],
-    },    'U-turn Conventional': {
+    }, 'U-turn Conventional': {
         path: [{
             'vertex': [
                 { x: -8, y: 45, label: 'V1', start: 1, display: 1 },
@@ -138,7 +138,7 @@ const roadMapTemplate = {
             ]
         },
         ],
-    },    'Auxiliary Conventional': {
+    }, 'Auxiliary Conventional': {
         path: [{
             'vertex': [
                 { x: -3, y: 30, label: 'V1', start: 1, display: 1 },
@@ -187,7 +187,7 @@ const roadMapTemplate = {
                 { start: 'V26', end: 'V21', radius: 12, direction: 1, sweep: 0 },
             ]
         },],
-    },    'Normal Spiral': {
+    }, 'Normal Spiral': {
         path: [{
             'vertex': [
                 { x: -2, y: 24, label: 'V1', start: 1, display: 1 },
@@ -222,7 +222,7 @@ const roadMapTemplate = {
                 { start: 'V16', end: 'V11', radius: 14, direction: 1, sweep: 0 },
             ]
         },],
-    },    'U-turn Spiral': {
+    }, 'U-turn Spiral': {
         path: [{
             'vertex': [
                 { x: -6, y: 45, label: 'V1', start: 1, display: 1 },
@@ -624,7 +624,7 @@ const symbolsTemplate = {
                     { start: 'V3', end: 'V4', radius: 6, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V5', radius: 6, direction: 1, sweep: 0 },
                 ], 'fill': 'rgb(233, 181, 0)'
-            },        ],
+            },],
         text: [
             { character: '1', x: -1.56, y: -0.7, fontSize: 8 * 0.94, fontFamily: 'TransportHeavy', fill: '#000000' },
         ]
@@ -968,7 +968,7 @@ const symbolsTemplate = {
         ],
         text: [
             { character: 'C', x: 4.845, y: -9, fontSize: 6.5 * 0.94, fontFamily: 'TransportMedium' },
-            { character: '中', x: -9.8, y: -9, fontSize: 5.7 * 0.9, fontFamily: 'parsedFontKorean' }
+            { character: '中', x: -9.8, y: -9.3, fontSize: 5.7 * 0.9, fontFamily: 'parsedFontKorean' }
         ]
     },
 
@@ -1066,7 +1066,7 @@ const symbolsTemplate = {
         ],
         text: [
             { character: 'E', x: 4.945, y: -9, fontSize: 6.5 * 0.94, fontFamily: 'TransportMedium' },
-            { character: '東', x: -9.8, y: - 9, fontSize: 5.7 * 0.9, fontFamily: 'parsedFontKorean' }
+            { character: '東', x: -9.8, y: - 9.3, fontSize: 5.7 * 0.9, fontFamily: 'parsedFontKorean' }
         ]
     },
 
@@ -1164,7 +1164,7 @@ const symbolsTemplate = {
         ],
         text: [
             { character: 'W', x: 4.2, y: -9, fontSize: 6.5 * 0.94, fontFamily: 'TransportMedium' },
-            { character: '西', x: -9.8, y: - 9, fontSize: 5.7 * 0.9, fontFamily: 'parsedFontKorean' }
+            { character: '西', x: -9.8, y: - 9.3, fontSize: 5.7 * 0.9, fontFamily: 'parsedFontKorean' }
         ]
     },
 
@@ -1527,7 +1527,7 @@ const symbolsTemplate = {
                     { start: 'V1', end: 'V2', radius: 1.283, direction: 0, sweep: 0 },
                     { start: 'V2', end: 'V1', radius: 1.283, direction: 0, sweep: 0 },
 
-                ], 
+                ],
             },
             {
                 'vertex': [
@@ -1573,7 +1573,7 @@ const symbolsTemplate = {
                     { start: 'V1', end: 'V2', radius: 1.283, direction: 1, sweep: 0 },
                     { start: 'V2', end: 'V1', radius: 1.283, direction: 1, sweep: 0 },
 
-                ], 
+                ],
             },
             {
                 'vertex': [
@@ -1631,7 +1631,7 @@ const symbolsTemplate = {
                 ], 'arcs': [
                     { start: 'V1', end: 'V2', radius: 1.645, direction: 0, sweep: 1 },
 
-                ], 
+                ],
             },
             {
                 'vertex': [
@@ -1670,7 +1670,7 @@ const symbolsTemplate = {
                 ], 'arcs': [
                     { start: 'V1', end: 'V2', radius: 1.645, direction: 1, sweep: 1 },
 
-                ], 
+                ],
             },
             {
                 'vertex': [
@@ -1685,7 +1685,7 @@ const symbolsTemplate = {
                 ],
             },
         ],
-    },    'LeftArrow': {
+    }, 'LeftArrow': {
         path: [{
             'vertex': [
                 { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
@@ -1953,7 +1953,7 @@ const symbolsTemplate = {
                     { start: 'V2', end: 'V3', radius: 8.25, direction: 1, sweep: 0 },
                     { start: 'V3', end: 'V4', radius: 8.25, direction: 1, sweep: 0 },
                     { start: 'V4', end: 'V1', radius: 8.25, direction: 1, sweep: 0 },
-                ]
+                ], 'fill': 'rgb(255, 255, 255)'
             },
             {
                 'vertex': [
@@ -1966,16 +1966,16 @@ const symbolsTemplate = {
                     { start: 'V12', end: 'V13', radius: 8, direction: 1, sweep: 0 },
                     { start: 'V13', end: 'V14', radius: 8, direction: 1, sweep: 0 },
                     { start: 'V14', end: 'V11', radius: 8, direction: 1, sweep: 0 },
-                ] , 'fill': 'rgb(224, 0, 0)'
+                ], 'fill': 'rgb(224, 0, 0)'
             },
             {
                 'vertex': [
                     { x: 0, y: 6.75, label: 'V21', start: 1, display: 1 },
-                    { x: 7.25, y: 6.75, label: 'V22', start: 0, display: 0  , radius: 0.75},
-                    { x: 7.25, y: 9.75, label: 'V23', start: 0, display: 0  , radius: 0.75},
-                    { x: -7.25, y: 9.75, label: 'V24', start: 0, display: 0 , radius: 0.75},
-                    { x: -7.25, y: 6.75, label: 'V25', start: 0, display: 0 , radius: 0.75},
-                ], 'arcs': [] 
+                    { x: 7.25, y: 6.75, label: 'V22', start: 0, display: 0, radius: 0.75 },
+                    { x: 7.25, y: 9.75, label: 'V23', start: 0, display: 0, radius: 0.75 },
+                    { x: -7.25, y: 9.75, label: 'V24', start: 0, display: 0, radius: 0.75 },
+                    { x: -7.25, y: 6.75, label: 'V25', start: 0, display: 0, radius: 0.75 },
+                ], 'arcs': [], 'fill': 'rgb(255, 255, 255)'
             },
         ],
     },
@@ -2006,11 +2006,166 @@ const symbolsTemplate = {
                     { start: 'V12', end: 'V13', radius: 6.4, direction: 1, sweep: 0 },
                     { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
                     { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
-                ] 
+                ], 'fill': 'rgb(255, 255, 255)'
             },
-            
+
         ],
     },
+
+    'NoLeftTurn': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: -4.557, y: 5.173, label: 'V21', start: 1, display: 1 },
+                    { x: -5.6, y: 5.973, label: 'V22', start: 0, display: 0 },
+                    { x: -4.557, y: 6.773, label: 'V23', start: 0, display: 0 },
+                    { x: 0.96, y: 6.773, label: 'V24', start: 0, display: 0, radius: 0.533 },
+                    { x: 0.96, y: 13.333, label: 'V25', start: 0, display: 0 },
+                    { x: 2.56, y: 13.333, label: 'V26', start: 0, display: 0 },
+                    { x: 2.56, y: 5.173, label: 'V27', start: 0, display: 0, radius: 1.6 },
+                ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                    { x: -5.056, y: 4.076, label: 'V11', start: 1, display: 1 },
+                    { x: 3.924, y: 13.056, label: 'V12', start: 0, display: 0 },
+                    { x: -3.924, y: 2.944, label: 'V13', start: 1, display: 1 },
+                    { x: 5.056, y: 11.924, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V11', end: 'V12', radius: 6.4, direction: 0, sweep: 0 },
+                    { start: 'V14', end: 'V13', radius: 6.4, direction: 0, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+           
+        ],
+    },
+
+    'NoRightTurn': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: 4.557, y: 5.173, label: 'V21', start: 1, display: 1 },
+                    { x: 5.6, y: 5.973, label: 'V22', start: 0, display: 0 },
+                    { x: 4.557, y: 6.773, label: 'V23', start: 0, display: 0 },
+                    { x: -0.96, y: 6.773, label: 'V24', start: 0, display: 0, radius: 0.533 },
+                    { x: -0.96, y: 13.333, label: 'V25', start: 0, display: 0 },
+                    { x: -2.56, y: 13.333, label: 'V26', start: 0, display: 0 },
+                    { x: -2.56, y: 5.173, label: 'V27', start: 0, display: 0, radius: 1.6 },
+                ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                    { x: 5.056, y: 4.076, label: 'V11', start: 1, display: 1 },
+                    { x: -3.924, y: 13.056, label: 'V12', start: 0, display: 0 },
+                    { x: 3.924, y: 2.944, label: 'V13', start: 1, display: 1 },
+                    { x: -5.056, y: 11.924, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V12', end: 'V11', radius: 6.4, direction: 0, sweep: 0 },
+                    { start: 'V13', end: 'V14', radius: 6.4, direction: 0, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+           
+        ],
+    },
+
+    'NoUTurn': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: -3.467, y: 13.067, label: 'V21', start: 1, display: 0 },
+                    { x: -3.467, y: 6.667, label: 'V22', start: 0, display: 0 },
+                    { x: 3.467, y: 6.667, label: 'V23', start: 0, display: 0 },
+                    { x: 3.467, y: 11.677, label: 'V24', start: 0, display: 0 },
+                    { x: 2.4, y: 13.067, label: 'V25', start: 0, display: 0 },
+                    { x: 1.333, y: 11.677, label: 'V26', start: 0, display: 0 },
+                    { x: 1.333, y: 6.667, label: 'V27', start: 0, display: 0 },
+                    { x: -1.333, y: 6.667, label: 'V28', start: 0, display: 0 },
+                    { x: -1.333, y: 13.067, label: 'V29', start: 0, display: 0 },
+                    { x: -2.4, y: 11.0667, label: 'V30', start: 0, display: 0 },
+
+                ], 'arcs': [
+                     { start: 'V22', end: 'V23', radius: 3.467, direction: 1, sweep: 0 },
+                    { start: 'V27', end: 'V28', radius: 1.333, direction: 0, sweep: 0 },
+                ], 'fill': 'rgb(0, 0, 0)'
+            },
+             {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                    { x: -5.899, y: 5.518, label: 'V11', start: 1, display: 1 },
+                    { x: 5.099, y: 11.868, label: 'V12', start: 0, display: 0 },
+                    { x: -5.099, y: 4.132, label: 'V13', start: 1, display: 1 },
+                    { x: 5.899, y: 10.482, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V11', end: 'V12', radius: 6.4, direction: 0, sweep: 0 },
+                    { start: 'V14', end: 'V13', radius: 6.4, direction: 0, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+           
+        ],
+    },
+
 
 };
 
@@ -2663,15 +2818,15 @@ function StackBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
     const returnBorder = [{
         'vertex': [
             { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', radius: 3, start: 1 },
-            { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', radius: 3, start: 0 , display: 0},
+            { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', radius: 3, start: 0, display: 0 },
             { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, label: 'V3', radius: 3, start: 0, display: 0 },
             { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, label: 'V4', radius: 3, start: 0, display: 0 },
         ], 'arcs': [], 'fill': 'border'
     }, {
         'vertex': [
-            { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', radius: 1.5, start: 1 , display: 0},
-            { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', radius: 1.5, start: 0 , display: 0},
-            { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V7', radius: 1.5, start: 0 , display: 0},
+            { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', radius: 1.5, start: 1, display: 0 },
+            { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', radius: 1.5, start: 0, display: 0 },
+            { x: block.width / length + padding.right, y: block.height / length + padding.bottom, label: 'V7', radius: 1.5, start: 0, display: 0 },
             { x: 0 - padding.right, y: block.height / length + padding.bottom, label: 'V8', radius: 1.5, start: 0, display: 0 },
         ], 'arcs': [], 'fill': 'background'
     }];
@@ -2694,15 +2849,15 @@ function ExitBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
         'vertex': [
             { x: 0 - padding.left - border, y: 0 - padding.top - border, label: 'V1', start: 1 },
             { x: block.width / length + padding.right + border, y: 0 - padding.top - border, label: 'V2', start: 0, display: 0 },
-            { x: block.width / length + padding.right + border, y: 7.2, label: 'V3', start: 0 , display: 0},
+            { x: block.width / length + padding.right + border, y: 7.2, label: 'V3', start: 0, display: 0 },
             { x: 0 - padding.left - border, y: 7.2, label: 'V4', start: 0, display: 0 },
         ], 'arcs': [], 'fill': 'border'
     }, {
         'vertex': [
             { x: 0 - padding.left, y: 0 - padding.top, label: 'V5', start: 1, display: 0 },
-            { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', start: 0 , display: 0},
+            { x: block.width / length + padding.right, y: 0 - padding.top, label: 'V6', start: 0, display: 0 },
             { x: block.width / length + padding.right, y: 6.7, label: 'V7', start: 0, display: 0 },
-            { x: 0 - padding.right, y: 6.7, label: 'V8', start: 0 , display: 0},
+            { x: 0 - padding.right, y: 6.7, label: 'V8', start: 0, display: 0 },
         ], 'arcs': [], 'fill': '#000000'
     }];
 
@@ -2754,31 +2909,31 @@ function FlagLeftBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
         /*{
         'vertex': [{ x: 0, y: 0, label: 'V0', start: 1 }], 'arcs': [], 'fill': 'symbol'
     }, */{
-        'vertex': [
-            { x: 0 - padding.left + panel.height / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top - border, radius: v.H, label: 'V1', start: 1 },
-            { x: block.width / length + padding.right + border, y: 0 - padding.top - border, radius: v.H, label: 'V2', start: 0 , display: 0},
-            { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, radius: v.H, label: 'V3', start: 0, display: 0 },
-            { x: 0 - padding.left + panel.height / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom + border, radius: v.H, label: 'V4', start: 0, display: 0 },
-            { x: 0 - padding.left, y: 0 - v.E - rounding.y - border + panel.height / 2, radius: v.F, label: 'V5', start: 0 , display: 0}
-        ], 'arcs': [], 'fill': 'border'
-    }, {
-        'vertex': [
-            { x: 0 - padding.left + v.A + (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top, radius: v.G, label: 'V6', start: 1 , display: 0},
-            { x: block.width / length + padding.right, y: 0 - padding.top, radius: v.G, label: 'V7', start: 0, display: 0 },
-            { x: block.width / length + padding.right, y: block.height / length + padding.bottom, radius: v.G, label: 'V8', start: 0 , display: 0},
-            { x: 0 - padding.left + v.A + (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom, radius: v.G, label: 'V9', start: 0 , display: 0},
-            { x: 0 - padding.left + v.A, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V10', start: 0, display: 0 }
-        ], 'arcs': [], 'fill': 'background'
-    }, {
-        'vertex': [
-            { x: 0 - v.D - v.C / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y + v.D, label: 'V11', start: 1 , display: 0},
-            { x: 0 - v.D, y: 0 - v.E - rounding.y + v.D, label: 'V12', start: 0 , display: 0},
-            { x: -padding.left + v.A + (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V13', start: 0, display: 0 },
-            { x: 0 - v.D, y: 0 + block.height / length, label: 'V14', start: 0, display: 0 },
-            { x: 0 - v.D - v.C / Math.cos(Math.PI / 6), y: 0 + block.height / length, label: 'V15', start: 0 , display: 0},
-            { x: -padding.left + v.A + v.B / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V16', start: 0 , display: 0},
-        ], 'arcs': [], 'fill': 'symbol'
-    }];
+            'vertex': [
+                { x: 0 - padding.left + panel.height / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top - border, radius: v.H, label: 'V1', start: 1 },
+                { x: block.width / length + padding.right + border, y: 0 - padding.top - border, radius: v.H, label: 'V2', start: 0, display: 0 },
+                { x: block.width / length + padding.right + border, y: block.height / length + padding.bottom + border, radius: v.H, label: 'V3', start: 0, display: 0 },
+                { x: 0 - padding.left + panel.height / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom + border, radius: v.H, label: 'V4', start: 0, display: 0 },
+                { x: 0 - padding.left, y: 0 - v.E - rounding.y - border + panel.height / 2, radius: v.F, label: 'V5', start: 0, display: 0 }
+            ], 'arcs': [], 'fill': 'border'
+        }, {
+            'vertex': [
+                { x: 0 - padding.left + v.A + (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top, radius: v.G, label: 'V6', start: 1, display: 0 },
+                { x: block.width / length + padding.right, y: 0 - padding.top, radius: v.G, label: 'V7', start: 0, display: 0 },
+                { x: block.width / length + padding.right, y: block.height / length + padding.bottom, radius: v.G, label: 'V8', start: 0, display: 0 },
+                { x: 0 - padding.left + v.A + (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom, radius: v.G, label: 'V9', start: 0, display: 0 },
+                { x: 0 - padding.left + v.A, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V10', start: 0, display: 0 }
+            ], 'arcs': [], 'fill': 'background'
+        }, {
+            'vertex': [
+                { x: 0 - v.D - v.C / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y + v.D, label: 'V11', start: 1, display: 0 },
+                { x: 0 - v.D, y: 0 - v.E - rounding.y + v.D, label: 'V12', start: 0, display: 0 },
+                { x: -padding.left + v.A + (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V13', start: 0, display: 0 },
+                { x: 0 - v.D, y: 0 + block.height / length, label: 'V14', start: 0, display: 0 },
+                { x: 0 - v.D - v.C / Math.cos(Math.PI / 6), y: 0 + block.height / length, label: 'V15', start: 0, display: 0 },
+                { x: -padding.left + v.A + v.B / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V16', start: 0, display: 0 },
+            ], 'arcs': [], 'fill': 'symbol'
+        }];
 
     returnBorder.forEach(path => applyLengthAndRounding(path, length));
     return { path: returnBorder };
@@ -2828,31 +2983,31 @@ function FlagRightBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
         /*{
         'vertex': [{ x: 0, y: 0, label: 'V0', start: 1 }], 'arcs': [], 'fill': 'symbol'
     }, */{
-        'vertex': [
-            { x: 0 - padding.left - border, y: 0 - padding.top - border, radius: v.H, label: 'V1', start: 1 },
-            { x: block.width / length + padding.right - panel.height / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top - border, radius: v.H, label: 'V2', start: 0 , display: 0},
-            { x: block.width / length + padding.right, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, radius: v.F, label: 'V3', start: 0 , display: 0},
-            { x: block.width / length + padding.right - panel.height / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom + border, radius: v.H, label: 'V4', start: 0, display: 0 },
-            { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, radius: v.H, label: 'V5', start: 0, display: 0 },
-        ], 'arcs': [], 'fill': 'border'
-    }, {
-        'vertex': [
-            { x: 0 - padding.left, y: 0 - padding.top, radius: v.G, label: 'V8', start: 1 },
-            { x: block.width / length + padding.right - v.A - (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top, radius: v.G, label: 'V7', start: 0, display: 0 },
-            { x: block.width / length + padding.right - v.A, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V8', start: 0, display: 0 },
-            { x: block.width / length + padding.right - v.A - (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom, radius: v.G, label: 'V9', start: 0, display: 0 },
-            { x: 0 - padding.left, y: block.height / length + padding.bottom, radius: v.G, label: 'V10', start: 0, display: 0 },
-        ], 'arcs': [], 'fill': 'background'
-    }, {
-        'vertex': [
-            { x: block.width / length + v.D + v.C / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y + v.D, label: 'V11', start: 1, display: 0 },
-            { x: block.width / length + v.D, y: 0 - v.E - rounding.y + v.D, label: 'V12', start: 0, display: 0 },
-            { x: block.width / length + padding.right - v.A - (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V13', start: 0, display: 0 },
-            { x: block.width / length + v.D, y: 0 + block.height / length, label: 'V14', start: 0, display: 0 },
-            { x: block.width / length + v.D + v.C / Math.cos(Math.PI / 6), y: 0 + block.height / length, label: 'V15', start: 0, display: 0 },
-            { x: block.width / length + padding.right - v.A - v.B / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V16', start: 0, display: 0 },
-        ], 'arcs': [], 'fill': 'symbol'
-    }];
+            'vertex': [
+                { x: 0 - padding.left - border, y: 0 - padding.top - border, radius: v.H, label: 'V1', start: 1 },
+                { x: block.width / length + padding.right - panel.height / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top - border, radius: v.H, label: 'V2', start: 0, display: 0 },
+                { x: block.width / length + padding.right, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, radius: v.F, label: 'V3', start: 0, display: 0 },
+                { x: block.width / length + padding.right - panel.height / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom + border, radius: v.H, label: 'V4', start: 0, display: 0 },
+                { x: 0 - padding.left - border, y: block.height / length + padding.bottom + border, radius: v.H, label: 'V5', start: 0, display: 0 },
+            ], 'arcs': [], 'fill': 'border'
+        }, {
+            'vertex': [
+                { x: 0 - padding.left, y: 0 - padding.top, radius: v.G, label: 'V8', start: 1 },
+                { x: block.width / length + padding.right - v.A - (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: 0 - padding.top, radius: v.G, label: 'V7', start: 0, display: 0 },
+                { x: block.width / length + padding.right - v.A, y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V8', start: 0, display: 0 },
+                { x: block.width / length + padding.right - v.A - (panel.height - border * 2) / 2 * Math.tan(Math.PI / 6), y: block.height / length + padding.bottom, radius: v.G, label: 'V9', start: 0, display: 0 },
+                { x: 0 - padding.left, y: block.height / length + padding.bottom, radius: v.G, label: 'V10', start: 0, display: 0 },
+            ], 'arcs': [], 'fill': 'background'
+        }, {
+            'vertex': [
+                { x: block.width / length + v.D + v.C / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y + v.D, label: 'V11', start: 1, display: 0 },
+                { x: block.width / length + v.D, y: 0 - v.E - rounding.y + v.D, label: 'V12', start: 0, display: 0 },
+                { x: block.width / length + padding.right - v.A - (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V13', start: 0, display: 0 },
+                { x: block.width / length + v.D, y: 0 + block.height / length, label: 'V14', start: 0, display: 0 },
+                { x: block.width / length + v.D + v.C / Math.cos(Math.PI / 6), y: 0 + block.height / length, label: 'V15', start: 0, display: 0 },
+                { x: block.width / length + padding.right - v.A - v.B / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V16', start: 0, display: 0 },
+            ], 'arcs': [], 'fill': 'symbol'
+        }];
 
     returnBorder.forEach(path => applyLengthAndRounding(path, length));
     return { path: returnBorder };
@@ -2974,7 +3129,7 @@ function VLaneTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
     rounding.x /= length;
     rounding.y /= length;
 
-    const strokeCount = Math.max(2,Math.floor((BHeight - rounding.y / 2 - DividerMargin['VLane'].top - DividerMargin['VLane'].bottom + strokeSpacing) / (strokeHeight + strokeSpacing)));
+    const strokeCount = Math.max(2, Math.floor((BHeight - rounding.y / 2 - DividerMargin['VLane'].top - DividerMargin['VLane'].bottom + strokeSpacing) / (strokeHeight + strokeSpacing)));
 
     let returnBorder = [{
         'vertex': [], 'arcs': [], 'fill': 'border'
