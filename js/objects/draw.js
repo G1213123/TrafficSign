@@ -280,6 +280,7 @@ class BaseGroup extends fabric.Group {
 
 
     this.on('mousedblclick', (e) => {
+      canvasTracker.isDragging = false;
       showPropertyPanel(this);
     });
 
@@ -799,7 +800,8 @@ class BaseGroup extends fabric.Group {
     // Check for route-specific methods
     if (this.onMove) {
       this.onMove();
-    } if (canvas.getActiveObject() === this) {
+    } 
+    if (canvas.getActiveObject() === this) {
       this.drawAnchorLinkage();
       this.showLockHighlights();
       this.showDimensions();
@@ -878,14 +880,14 @@ class BaseGroup extends fabric.Group {
         globalAnchorTree.updatedObjectsX.add(currentAnchoredObject.canvasID);
         globalAnchorTree.updatedObjectsY.add(currentAnchoredObject.canvasID);
 
-        canvasTracker.track('modifyObject', [{
-          type: 'BaseGroup',
-          id: currentAnchoredObject.canvasID,
-          functionalType: currentAnchoredObject.functionalType,
-          deltaX: actualDeltaX,
-          deltaY: actualDeltaY,
-          triggeredByAnchor: true
-        }]);
+        //canvasTracker.track('modifyObject', [{
+        //  type: 'BaseGroup',
+        //  id: currentAnchoredObject.canvasID,
+        //  functionalType: currentAnchoredObject.functionalType,
+        //  deltaX: actualDeltaX,
+        //  deltaY: actualDeltaY,
+        //  triggeredByAnchor: true
+        //}]);
 
         currentAnchoredObject.updateAllCoord(null, []); // Recursive call
 
