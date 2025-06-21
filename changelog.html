@@ -39,7 +39,10 @@
         gtag('js', new Date());
 
         gtag('config', 'G-1W8GWKLVSK');
-    </script>
+    </script>    <!-- Google ads -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<%= htmlWebpackPlugin.options.googleAdsClientId %>"
+        crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="<%= htmlWebpackPlugin.options.googleAdsClientId %>">
 </head>
 
 <body> <!-- Navigation -->
@@ -75,9 +78,57 @@
                         <p>Here you'll find detailed information about all the updates, new features, bug fixes, and
                             improvements made to Road Sign Factory. Each entry includes a short summary of what's
                             changed.</p>
-                    </div>
-                    <!-- Changelog Entries -->
-                    <div class="changelog-entries">                        <!-- Version 1.2.0 Release -->
+                    </div>                    <!-- Changelog Entries -->
+                    <div class="changelog-entries"> <!-- Version 1.2.1 Release -->
+                        <article class="changelog-entry">
+                            <div class="changelog-header">
+                                <h3 class="version-tag">Version 1.2.1</h3>
+                                <time class="release-date">June 2025</time>
+                            </div>
+                            <div class="changelog-body">
+                                <h4>Enhanced Symbol Library & DXF Export Improvements</h4>
+                                <p>This release focuses on expanding the symbol library with new traffic sign symbols and significant improvements to the DXF export functionality for better CAD integration.</p>
+
+                                <div class="changelog-categories">
+                                    <div class="category-section">
+                                        <h5><i class="fas fa-plus-circle"></i> New Symbol Templates</h5>
+                                        <ul>
+                                            <li>Added height and width limit symbols for restriction signage</li>
+                                            <li>Implemented No Turn symbols for directional restrictions</li>
+                                            <li>Added No Entry and All Vehicles Prohibited symbols</li>
+                                            <li>Introduced new red background color scheme for prohibition signs</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="category-section">
+                                        <h5><i class="fas fa-file-export"></i> DXF Export Enhancements</h5>
+                                        <ul>
+                                            <li>Enhanced DXF export with improved arc handling and text outline processing</li>
+                                            <li>Implemented Paper.js integration for path union operations on Chinese glyphs</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="category-section">
+                                        <h5><i class="fas fa-cogs"></i> Technical Improvements</h5>
+                                        <ul>
+                                            <li>Added radius dimension display for border corners</li>
+                                            <li>Enhanced CanvasTracker for undoing of canvas state</li>
+                                            <li>Added comprehensive unit testing for code quality control</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="category-section">
+                                        <h5><i class="fas fa-bug"></i> Bug Fixes</h5>
+                                        <ul>
+                                            <li>Fixed BaseGroup vertex position adjustment on layout changes</li>
+                                            <li>Improved positioning values in anchor and template tests for better alignment</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Version 1.2.0 Release -->
                         <article class="changelog-entry major">
                             <div class="changelog-header major">
                                 <h3 class="version-tag version-major">Version 1.2.0</h3>
@@ -85,7 +136,8 @@
                             </div>
                             <div class="changelog-body">
                                 <h4>Website Structure Overhaul & Documentation</h4>
-                                <p>Major website restructuring with new landing page, comprehensive documentation, and critical bug fixes for drawing functionality and autosave system.</p>
+                                <p>Major website restructuring with new landing page, comprehensive documentation, and
+                                    critical bug fixes for drawing functionality and autosave system.</p>
 
                                 <div class="changelog-categories">
                                     <div class="category-section">
@@ -103,8 +155,10 @@
                                     <div class="category-section">
                                         <h5><i class="fas fa-bug"></i> Bug Fixes</h5>
                                         <ul>
-                                            <li>Fixed autosave not being called when starting up the web application</li>
-                                            <li>Fixed drawing object issues (issues #8 and #9) affecting object placement</li>
+                                            <li>Fixed autosave not being called when starting up the web application
+                                            </li>
+                                            <li>Fixed drawing object issues (issues #8 and #9) affecting object
+                                                placement</li>
                                             <li>Resolved DOM security issues with text reinterpretation</li>
                                             <li>Fixed progressive demo system criteria for better user experience</li>
                                         </ul>

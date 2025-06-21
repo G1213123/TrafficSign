@@ -4,20 +4,26 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
         {
             "type": "chrome",
             "request": "launch",
             "name": "Open index.html",
             "file": "${workspaceFolder}/index.html",
-            "runtimeArgs": ["--disable-web-security"],
+            "runtimeArgs": [
+                "--disable-web-security"
+            ],
+            "skipFiles": [
+                "*VM*",
+            ]
         },
         {
             "type": "chrome",
             "request": "launch",
             "name": "Open dist",
             "file": "${workspaceFolder}/dist/index.html",
-            "runtimeArgs": ["--disable-web-security"]
+            "runtimeArgs": [
+                "--disable-web-security"
+            ]
         }
     ]
 }
