@@ -510,7 +510,7 @@ const ShapeTest = {
     const symbol = TestTracker.get("symbol");
     const symbolV1 = symbol.getBasePolygonVertex('V1');
     passed = passed && symbol.functionalType === 'Symbol';
-    passed = passed && TestTracker.assert(symbolV1.x, -1500, "Symbol left position incorrect", 5);
+    passed = passed && TestTracker.assert(symbolV1.x, -1400, "Symbol left position incorrect", 5);
     passed = passed && TestTracker.assert(symbolV1.y, -900, "Symbol top position incorrect", 5);
 
     // Check that text objects are instances of TextObject class

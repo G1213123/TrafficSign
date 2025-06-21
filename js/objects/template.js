@@ -2166,6 +2166,795 @@ const symbolsTemplate = {
         ],
     },
 
+     '2.3WidthLimit': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
+                    { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V11', end: 'V12', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V12', end: 'V13', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: 4.516, y: 8, label: 'V11', start: 1, display: 1 },
+                    { x: 5.867, y: 6.667, label: 'V12', start: 0, display: 0 },
+                    { x: 5.867, y: 9.333, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: -4.516, y: 8, label: 'V11', start: 1, display: 1 },
+                    { x: -5.867, y: 6.667, label: 'V12', start: 0, display: 0 },
+                    { x: -5.867, y: 9.333, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+
+        ],
+        text: [
+            { character: '2.3', x: -4.52, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy' , fill: '#000000'},
+            { character: 'm', x: 1.45, y: -6.9, fontSize: 3.556, fontFamily: 'TransportHeavy' , fill: '#000000'},
+        ]
+    },
+
+     '2.5WidthLimit': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
+                    { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V11', end: 'V12', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V12', end: 'V13', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: 4.466, y: 8, label: 'V11', start: 1, display: 1 },
+                    { x: 5.817, y: 6.667, label: 'V12', start: 0, display: 0 },
+                    { x: 5.817, y: 9.333, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: -4.466, y: 8, label: 'V11', start: 1, display: 1 },
+                    { x: -5.817, y: 6.667, label: 'V12', start: 0, display: 0 },
+                    { x: -5.817, y: 9.333, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+
+        ],
+        text: [
+            { character: '2.5', x: -4.47, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+            { character: 'm', x: 1.4, y: -6.9, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+        ]
+    },
+
+     '2.7WidthLimit': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
+                    { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V11', end: 'V12', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V12', end: 'V13', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: 4.25, y: 8, label: 'V11', start: 1, display: 1 },
+                    { x: 5.60, y: 6.667, label: 'V12', start: 0, display: 0 },
+                    { x: 5.60, y: 9.333, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: -4.25, y: 8, label: 'V11', start: 1, display: 1 },
+                    { x: -5.601, y: 6.667, label: 'V12', start: 0, display: 0 },
+                    { x: -5.601, y: 9.333, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+
+        ],
+        text: [
+            { character: '2.7', x: -4.25, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+            { character: 'm', x: 1.184, y: -6.9, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+        ]
+    },
+
+     '2.9WidthLimit': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
+                    { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V11', end: 'V12', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V12', end: 'V13', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: 4.466, y: 8, label: 'V11', start: 1, display: 1 },
+                    { x: 5.817, y: 6.667, label: 'V12', start: 0, display: 0 },
+                    { x: 5.817, y: 9.333, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: -4.466, y: 8, label: 'V11', start: 1, display: 1 },
+                    { x: -5.817, y: 6.667, label: 'V12', start: 0, display: 0 },
+                    { x: -5.817, y: 9.333, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+
+        ],
+        text: [
+            { character: '2.9', x: -4.47, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+            { character: 'm', x: 1.4, y: -6.9, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+        ]
+    },
+
+    '2HeightLimit': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
+                    { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V11', end: 'V12', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V12', end: 'V13', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+
+        ],
+        text: [
+            { character: '2', x: -3.111, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+            { character: 'm', x: 0.017, y: -6.9, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+        ]
+    },
+    '3HeightLimit': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
+                    { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V11', end: 'V12', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V12', end: 'V13', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+
+        ],
+        text: [
+            { character: '3', x: -3.2, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+            { character: 'm', x: 0.107, y: -6.9, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+        ]
+    },
+    '3.5HeightLimit': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
+                    { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V11', end: 'V12', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V12', end: 'V13', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+
+        ],
+        text: [
+            { character: '3.5', x: -4.853, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+            { character: 'm', x: 1.76, y: -6.9, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+        ]
+    },
+    '4HeightLimit': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
+                    { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V11', end: 'V12', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V12', end: 'V13', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+
+        ],
+        text: [
+            { character: '4', x: -3.218, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+            { character: 'm', x: 0.124, y: -6.9, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+        ]
+    },
+    '4.1HeightLimit': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
+                    { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V11', end: 'V12', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V12', end: 'V13', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+
+        ],
+        text: [
+            { character: '4.1', x: -4.462, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+            { character: 'm', x: 1.369, y: -6.9, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+        ]
+    },
+    '4.2HeightLimit': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
+                    { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V11', end: 'V12', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V12', end: 'V13', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+
+        ],
+        text: [
+            { character: '4.2', x: -4.836, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+            { character: 'm', x: 1.742, y: -6.9, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+        ]
+    },
+    '4.3HeightLimit': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
+                    { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V11', end: 'V12', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V12', end: 'V13', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+
+        ],
+        text: [
+            { character: '4.3', x: -4.924, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+            { character: 'm', x: 1.831, y: -6.9, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+        ]
+    },
+    '4.4HeightLimit': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
+                    { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V11', end: 'V12', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V12', end: 'V13', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+
+        ],
+        text: [
+            { character: '4.4', x: -4.942, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+            { character: 'm', x: 1.849, y: -6.9, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+        ]
+    },
+    '4.5HeightLimit': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
+                    { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V11', end: 'V12', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V12', end: 'V13', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+
+        ],
+        text: [
+            { character: '4.5', x: -4.871, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+            { character: 'm', x: 1.778, y: -6.9, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+        ]
+    },
+    '4.6HeightLimit': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
+                    { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V11', end: 'V12', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V12', end: 'V13', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+
+        ],
+        text: [
+            { character: '4.6', x: -4.871, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+            { character: 'm', x: 1.778, y: -6.9, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+        ]
+    },
+    '4.7HeightLimit': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
+                    { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V11', end: 'V12', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V12', end: 'V13', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+
+        ],
+        text: [
+            { character: '4.7', x: -4.853, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+            { character: 'm', x: 1.76, y: -6.9, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+        ]
+    },
+    '4.8HeightLimit': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
+                    { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V11', end: 'V12', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V12', end: 'V13', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
+                ], 'arcs': [ ], 'fill': 'rgb(0, 0, 0)'
+            },
+
+        ],
+        text: [
+            { character: '4.8', x: -4.942, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+            { character: 'm', x: 1.849, y: -6.9, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
+        ]
+    },
+
 
 };
 
