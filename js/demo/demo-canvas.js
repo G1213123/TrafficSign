@@ -157,20 +157,7 @@ function initDemoCanvas() {
         const placeholderOverlay = document.getElementById('demo-placeholder-overlay');
         if (placeholderOverlay) {
             placeholderOverlay.style.display = 'none';
-        }
-
-        // Test symbol template availability
-        import('../objects/template.js').then(module => {
-            console.log('Template module loaded, checking StackArrow...');
-            if (module.symbolsTemplate && module.symbolsTemplate.StackArrow) {
-                console.log('✓ StackArrow template found:', module.symbolsTemplate.StackArrow);
-            } else {
-                console.error('✗ StackArrow template not found in symbolsTemplate');
-            }
-        }).catch(err => {
-            console.error('Error loading template module:', err);
-        });
-
+        }        
         console.log('Demo canvas initialized successfully');
         return demoCanvas;
     } catch (error) {

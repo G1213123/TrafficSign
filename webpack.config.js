@@ -35,7 +35,7 @@ module.exports = {  entry: {
       template: './index.html', // Path to your source index.html (homepage)
       filename: 'index.html',   // Output filename
       chunks: ['homepage', 'animation'],     // Include homepage and animation bundles
-      inject: true,             // Changed to true to process template variables
+      inject: false,             // Changed to true to process template variables
       title: 'Road Sign Factory - Professional Traffic Sign Designer',
       appVersion: (require('./package.json').version || process.env.VERSION || 'dev').replace(/-/g, '.'),
       googleAdsClientId: process.env.GOOGLE_ADS_CLIENT_ID || 'ca-pub-0000000000000000'
@@ -44,7 +44,7 @@ module.exports = {  entry: {
       template: './design.html', // Path to your design.html
       filename: 'design.html',   // Output filename
       chunks: ['main'],       // Include only main bundle
-      inject: true,           // Changed to true to process template variables
+      inject: false,           // Changed to true to process template variables
       title: 'Road Sign Factory - Online Sign Creator',
       appVersion: require('./package.json').version || process.env.VERSION || 'dev',
       googleAdsClientId: process.env.GOOGLE_ADS_CLIENT_ID || 'ca-pub-0000000000000000'
@@ -61,7 +61,7 @@ module.exports = {  entry: {
     new HtmlWebpackPlugin({
       template: './about.html',     // Path to your about.html
       filename: 'about.html',       // Output filename
-      chunks: ['nav', 'animation'], // Include nav and animation bundles
+      chunks: ['nav'], // Include nav and animation bundles
       inject: true,                 // Inject scripts into the about page
       title: 'About - Road Sign Factory',
       appVersion: require('./package.json').version || process.env.VERSION || 'dev',
