@@ -482,6 +482,9 @@ class BaseGroup extends fabric.Group {
       canvas.remove(this.basePolygon);
       this.add(this.basePolygon);
       if (this.functionalType== 'Symbol'){
+        this.basePolygon.vertex.forEach((v) => {
+          v.x += oldLeft - this.left;
+        })
         this.left = oldLeft
       }
 

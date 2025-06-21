@@ -2460,6 +2460,11 @@ const BorderColorScheme = {
         'symbol': '#ffffff',
         'border': '#ffffff',
     },
+    "Red Background": {
+        'background': 'rgb(224,0,0)',
+        'symbol': '#ffffff',
+        'border': '#ffffff',
+    },
 }
 
 const BorderTypeScheme = {
