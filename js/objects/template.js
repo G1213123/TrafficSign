@@ -1940,6 +1940,78 @@ const symbolsTemplate = {
         ],
     },
 
+    'NoEntry': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8.25, y: 8.25, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16.5, label: 'V3', start: 0, display: 0 },
+                    { x: -8.25, y: 8.25, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8.25, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8.25, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8.25, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8.25, direction: 1, sweep: 0 },
+                ]
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 0.25, label: 'V11', start: 1, display: 1 },
+                    { x: 8, y: 8.25, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 16.25, label: 'V13', start: 0, display: 0 },
+                    { x: -8, y: 8.25, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V11', end: 'V12', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V12', end: 'V13', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V13', end: 'V14', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V14', end: 'V11', radius: 8, direction: 1, sweep: 0 },
+                ] , 'fill': 'rgb(224, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 6.75, label: 'V21', start: 1, display: 1 },
+                    { x: 7.25, y: 6.75, label: 'V22', start: 0, display: 0  , radius: 0.75},
+                    { x: 7.25, y: 9.75, label: 'V23', start: 0, display: 0  , radius: 0.75},
+                    { x: -7.25, y: 9.75, label: 'V24', start: 0, display: 0 , radius: 0.75},
+                    { x: -7.25, y: 6.75, label: 'V25', start: 0, display: 0 , radius: 0.75},
+                ], 'arcs': [] 
+            },
+        ],
+    },
+
+    'AllVehProhibited': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
+                    { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V2', end: 'V3', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V3', end: 'V4', radius: 8, direction: 1, sweep: 0 },
+                    { start: 'V4', end: 'V1', radius: 8, direction: 1, sweep: 0 },
+                ], 'fill': 'rgb(224, 0, 0)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
+                    { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
+                    { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [
+                    { start: 'V11', end: 'V12', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V12', end: 'V13', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
+                    { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
+                ] 
+            },
+            
+        ],
+    },
+
 };
 
 const symbolsTemplateAlt = {
