@@ -30,13 +30,33 @@ function calcMainRoadVertices(xHeight, routeList) {
     let RootTopVertex = getSideRoadCoords(RootTop, length)
 
     const vertexList = [...RootTopVertex.path[0].vertex, ...RootBottomVertex.path[0].vertex]
+    const arcList = RootTopVertex.path[0].arcs
     // Move the first vertex to the end of the list
     if (vertexList.length > 0) {
         const firstVertex = vertexList.shift();
         vertexList.push(firstVertex);
     }
     assignVertexLabel(vertexList)
-    return { path: [{ 'vertex': vertexList, 'arcs': [] }] };
+    // remap the arc vertex
+    function shiftV(v, vertexList) {
+        let id = v.match(/\d+/)[0]
+        id = id - 1 == 0 ? vertexList.length : id - 1
+        return `V${id}`
+    }
+    arcList.map(arc => {
+        arc.start = shiftV(arc.start, vertexList)
+        arc.end = shiftV(arc.end, vertexList)
+    })
+
+    const remainingPath = []
+    if (RootTopVertex.path.length > 1){
+        remainingPath.push(...RootTopVertex.path.slice(-RootTopVertex.path.length + 1))
+        remainingPath.forEach(p=>{
+            p.vertex.map(v => { v.x *= RootTop.width; v.y *= RootTop.width })
+        }    )
+    }
+
+    return { path: [{ 'vertex': vertexList, 'arcs': [...arcList] }, ...remainingPath] };
 }
 
 /**
@@ -98,7 +118,8 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
  */
 function getSideRoadCoords(route, length, left, right) {
     let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]))
-    arrowTipPath.path[0].vertex.map((v) => { v.x *= route.width / 2; v.y *= route.width / 2 })
+    arrowTipPath.path[0].vertex.map((v) => { v.x *= route.width / 2; v.y *= route.width / 2; v.radius *= route.width / 2 })
+    arrowTipPath.path[0].arcs.map((a) => { a.radius *= route.width / 2 })
     arrowTipPath = calcSymbol(arrowTipPath, length)
     arrowTipPath.path.map((p) => {
         let transformed = calculateTransformedPoints(p.vertex, {
@@ -315,9 +336,9 @@ class MainRoadSymbol extends BaseGroup {
         }
 
         return this;
-    }    
-    
-    
+    }
+
+
     /**
      * Updates base route object when receiving new route additions
      * @param {Object} branchRouteList - Optional route object to add (legacy)
@@ -416,7 +437,7 @@ class SideRoadSymbol extends BaseGroup {
      * @return {SideRoadSymbol} - The initialized branch
      */
     initialize() {
-        const {routeList, tempVertexList} = this.applySideRoadConstraints(
+        const { routeList, tempVertexList } = this.applySideRoadConstraints(
             this,
             this.mainRoad,
             this.routeList,

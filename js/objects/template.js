@@ -17,6 +17,22 @@ const roadMapTemplate = {
             ], 'arcs': []
         }],
     },
+    'RedBar': {
+        path: [{
+            'vertex': [
+                { x: -1, y: 2.667, label: 'V1', start: 0, display: 1 },
+                { x: 0, y: 2.667, label: 'V2', start: 1, display: 1 },
+                { x: 1, y: 2.667, label: 'V3', start: 0, display: 1 },
+            ], 'arcs': []
+        },{
+            'vertex': [
+                { x: -3, y: 0, label: 'V4', start: 1, display: 1 },
+                { x: 3, y: 0, label: 'V5', start: 0, display: 1 },
+                { x: 3, y: 2, label: 'V6', start: 0, display: 1 },
+                { x: -3, y: 2, label: 'V7', start: 0, display: 1 },
+            ], 'arcs': [], fill: 'rgb(224, 0, 0)'
+        }],
+    },
     'Round': {
         path: [{
             'vertex': [
@@ -30,6 +46,84 @@ const roadMapTemplate = {
                 { x: 1, y: 24, label: 'V1', start: 1, display: 0 },
                 { x: -1, y: 24, label: 'V2', start: 0, display: 0 },
             ], 'arcs': []
+        }],
+    },
+    'Left': {
+        path: [{
+            'vertex': [
+                { x: -1, y: 2.5, label: 'V1', start: 1, display: 0 },
+                { x: -1, y: 2, label: 'V2', start: 0, display: 0, radius: 0.5 },
+                { x: -15, y: 2, label: 'V3', start: 0, display: 0 },
+                { x: -16, y: 1, label: 'V4', start: 0, display: 0 },
+                { x: -15, y: 0, label: 'V5', start: 0, display: 0 },
+                { x: 1, y: 0, label: 'V6', start: 0, display: 0, radius: 2 },
+                { x: 1, y: 2.5, label: 'V7', start: 0, display: 0 },
+            ], 'arcs': [
+                //{ start: 'V1', end: 'V2', radius: 0.5, direction: 0, sweep: 0 },
+                //{ start: 'V6', end: 'V7', radius: 2, direction: 1, sweep: 0 },
+            ]
+        }],
+    },
+    'Right': {
+        path: [{
+            'vertex': [
+                { x: -1, y: 2.5, label: 'V1', start: 1, display: 0 },
+                { x: -1, y: 0, label: 'V2', start: 0, display: 0, radius: 2 },
+                { x: 15, y: 0, label: 'V3', start: 0, display: 0 },
+                { x: 16, y: 1, label: 'V4', start: 0, display: 0 },
+                { x: 15, y: 2, label: 'V5', start: 0, display: 0 },
+                { x: 1, y: 2, label: 'V6', start: 0, display: 0, radius: 0.5 },
+                { x: 1, y: 2.5, label: 'V7', start: 0, display: 0 },
+            ], 'arcs': []
+        }],
+    },
+    'Tee': {
+        path: [{
+            'vertex': [
+                { x: -1, y: 2.5, label: 'V1', start: 1, display: 0 },
+                { x: -1, y: 2, label: 'V2', start: 0, display: 0, radius: 0.5 },
+                { x: -15, y: 2, label: 'V3', start: 0, display: 0 },
+                { x: -16, y: 1, label: 'V4', start: 0, display: 0 },
+                { x: -15, y: 0, label: 'V5', start: 0, display: 0 },
+                { x: 15, y: 0, label: 'V6', start: 0, display: 0 },
+                { x: 16, y: 1, label: 'V7', start: 0, display: 0 },
+                { x: 15, y: 2, label: 'V8', start: 0, display: 0 },
+                { x: 1, y: 2, label: 'V9', start: 0, display: 0, radius: 0.5 },
+                { x: 1, y: 2.5, label: 'V10', start: 0, display: 0 },
+            ], 'arcs': []
+        }],
+    },
+    'LaneDrop': {
+        path: [{
+            'vertex': [
+                { x: -1, y: 6.712, label: 'V1', start: 1, display: 0 },
+                { x: -1.5, y: 5.846, label: 'V2', start: 0, display: 0 },
+                { x: -8.625, y: 1.732, label: 'V3', start: 0, display: 0 },
+                { x: -8.991, y: 0.366, label: 'V4', start: 0, display: 0 },
+                { x: -7.625, y: 0, label: 'V5', start: 0, display: 0 },
+                { x: -0.5, y: 4.114, label: 'V6', start: 0, display: 0 },
+                { x: 1, y: 6.712, label: 'V7', start: 0, display: 0 },
+            ], 'arcs': [
+                { start: 'V1', end: 'V2', radius: 1, direction: 0, sweep: 0 },
+                { start: 'V6', end: 'V7', radius: 3, direction: 1, sweep: 0 },
+            ]
+        }],
+    },
+    'Bifurcation': {
+        path: [{
+            'vertex': [
+                { x: -1, y: 8.262, label: 'V1', start: 1, display: 0, radius: 0.333 },
+                { x: -5.244, y: 0.911, label: 'V2', start: 0, display: 0 },
+                { x: -5, y: 0, label: 'V3', start: 0, display: 0 },
+                { x: -4.089, y: 0.244, label: 'V4', start: 0, display: 0 },
+                { x: 0, y: 7.327, label: 'V5', start: 0, display: 0, radius: 0.667 },
+                { x: 4.089, y: 0.244, label: 'V4', start: 0, display: 0 },
+                { x: 5, y: 0, label: 'V3', start: 0, display: 0 },
+                { x: 5.244, y: 0.911, label: 'V2', start: 0, display: 0 },
+                { x: 1, y: 8.262, label: 'V1', start: 1, display: 0, radius: 0.333 },
+
+            ], 'arcs': [
+            ]
         }],
     },
     'UArrow Conventional': {
@@ -66,7 +160,8 @@ const roadMapTemplate = {
             ]
         },
         ],
-    }, 'Normal Conventional': {
+    },
+    'Normal Conventional': {
         path: [{
             'vertex': [
                 { x: -3, y: 30, label: 'V1', start: 1, display: 1 },
@@ -102,7 +197,8 @@ const roadMapTemplate = {
             ]
         },
         ],
-    }, 'U-turn Conventional': {
+    },
+    'U-turn Conventional': {
         path: [{
             'vertex': [
                 { x: -8, y: 45, label: 'V1', start: 1, display: 1 },
@@ -138,7 +234,8 @@ const roadMapTemplate = {
             ]
         },
         ],
-    }, 'Auxiliary Conventional': {
+    },
+    'Auxiliary Conventional': {
         path: [{
             'vertex': [
                 { x: -3, y: 30, label: 'V1', start: 1, display: 1 },
@@ -187,7 +284,8 @@ const roadMapTemplate = {
                 { start: 'V26', end: 'V21', radius: 12, direction: 1, sweep: 0 },
             ]
         },],
-    }, 'Normal Spiral': {
+    },
+    'Normal Spiral': {
         path: [{
             'vertex': [
                 { x: -2, y: 24, label: 'V1', start: 1, display: 1 },
@@ -222,7 +320,8 @@ const roadMapTemplate = {
                 { start: 'V16', end: 'V11', radius: 14, direction: 1, sweep: 0 },
             ]
         },],
-    }, 'U-turn Spiral': {
+    },
+    'U-turn Spiral': {
         path: [{
             'vertex': [
                 { x: -6, y: 45, label: 'V1', start: 1, display: 1 },
@@ -2057,7 +2156,7 @@ const symbolsTemplate = {
                     { start: 'V14', end: 'V13', radius: 6.4, direction: 0, sweep: 0 },
                 ], 'fill': 'rgb(224, 0, 0)'
             },
-           
+
         ],
     },
 
@@ -2106,7 +2205,7 @@ const symbolsTemplate = {
                     { start: 'V13', end: 'V14', radius: 6.4, direction: 0, sweep: 0 },
                 ], 'fill': 'rgb(224, 0, 0)'
             },
-           
+
         ],
     },
 
@@ -2139,11 +2238,11 @@ const symbolsTemplate = {
                     { x: -2.4, y: 11.0667, label: 'V30', start: 0, display: 0 },
 
                 ], 'arcs': [
-                     { start: 'V22', end: 'V23', radius: 3.467, direction: 1, sweep: 0 },
+                    { start: 'V22', end: 'V23', radius: 3.467, direction: 1, sweep: 0 },
                     { start: 'V27', end: 'V28', radius: 1.333, direction: 0, sweep: 0 },
                 ], 'fill': 'rgb(0, 0, 0)'
             },
-             {
+            {
                 'vertex': [
                     { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
@@ -2162,7 +2261,7 @@ const symbolsTemplate = {
                     { start: 'V14', end: 'V13', radius: 6.4, direction: 0, sweep: 0 },
                 ], 'fill': 'rgb(224, 0, 0)'
             },
-           
+
         ],
     },
 

@@ -2,12 +2,15 @@
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { MainRoadSymbol, SideRoadSymbol, } from '../objects/route.js';
+import { roadMapTemplate } from '../objects/template.js';
+
 const canvas = CanvasGlobals.canvas;
 const canvasObject = CanvasGlobals.canvasObject;
 
 let FormDrawMapComponent = {
   MapType: ['Main Line', 'Conventional Roundabout', 'Spiral Roundabout',],
-  EndShape: ['Arrow', 'Stub'],
+  MainEndShape: ['Arrow', 'Stub', /*'Left', 'Right',*/ 'RedBar', 'Tee', 'LaneDrop', 'Bifurcation'],
+  SideEndShape: ['Arrow', 'Stub',],
   RoundaboutFeatures: ['Normal', 'Auxiliary', 'U-turn'],
   permitAngle: [45, 60, 90],
   defaultRoute: [{ x: 0, y: 7, angle: 60, width: 4, shape: 'Arrow' }],
@@ -50,7 +53,7 @@ let FormDrawMapComponent = {
             addRouteButton.disabled = true;
           }
           GeneralHandler.createInput(`Side Road width`, `Side Road Width`, SideRoadParamsContainer, 4, null, 'input', 'sw')
-          GeneralHandler.createToggle(`Side Road Shape`, FormDrawMapComponent.EndShape, SideRoadParamsContainer, route.shape, null)
+          GeneralHandler.createToggle(`Side Road Shape`, FormDrawMapComponent.SideEndShape, SideRoadParamsContainer, route.shape, null)
 
           var angleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, SideRoadParamsContainer);
           GeneralHandler.createButton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', angleContainer, null, FormDrawMapComponent.setAngle, 'click')
@@ -77,7 +80,7 @@ let FormDrawMapComponent = {
       GeneralHandler.createInput('root-length', 'Main Road Root Length', roadTypeSettingsContainer, 7, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
       GeneralHandler.createInput('tip-length', 'Main Road Tip Length', roadTypeSettingsContainer, 12, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
       GeneralHandler.createInput('main-width', 'Main Road Width', roadTypeSettingsContainer, 6, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
-      GeneralHandler.createToggle(`Main Road Shape`, FormDrawMapComponent.EndShape, roadTypeSettingsContainer, 'Arrow', FormDrawMapComponent.drawMainRoadOnCursor);
+      GeneralHandler.createToggle(`Main Road Shape`, FormDrawMapComponent.MainEndShape, roadTypeSettingsContainer, 'Arrow', FormDrawMapComponent.drawMainRoadOnCursor);
     } else if (roadType === 'Conventional Roundabout') {
       // Placeholder for Conventional Roundabout settings
       GeneralHandler.createToggle(`Roundabout Type`, FormDrawMapComponent.RoundaboutFeatures, roadTypeSettingsContainer, 'Normal', FormDrawMapComponent.drawMainRoadOnCursor);
@@ -241,9 +244,17 @@ let FormDrawMapComponent = {
 
   // Create a function that returns a new MainRoadSymbol
   createMainRoadObject: (options) => {
+    let tipLength 
+    if ( options.shape == "Arrow" || options.shape == "Stub"){
+      tipLength = options.tipLength
+    } else {
+      const vertex = roadMapTemplate[options.shape].path[0].vertex
+      const shapeHeight = Math.max(...vertex.map(v=>v.y))
+      tipLength = shapeHeight * options.width / 2
+    }
     // Create route list centered on the provided position
     const routeList = [
-      { x: options.position.x, y: options.position.y + (options.rootLength + options.tipLength) * options.xHeight / 4, angle: 180, width: options.width, shape: options.roadType == 'Main Line' ? 'Stub' : options.RAfeature },
+      { x: options.position.x, y: options.position.y + (options.rootLength + tipLength) * options.xHeight / 4, angle: 180, width: options.width, shape: options.roadType == 'Main Line' ? 'Stub' : options.RAfeature },
       { x: options.position.x, y: options.position.y, angle: 0, width: options.width, shape: options.shape }
     ];
 
@@ -253,7 +264,7 @@ let FormDrawMapComponent = {
       xHeight: options.xHeight,
       color: options.color,
       rootLength: options.rootLength,
-      tipLength: options.tipLength,
+      tipLength: tipLength,
       roadType: options.roadType,
       RAfeature: options.RAfeature
     };
