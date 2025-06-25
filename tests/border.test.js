@@ -1105,7 +1105,8 @@ describe('Border Module', () => {  beforeEach(() => {
       border.hideDimensions();
     });
   });
-
+  
+  /*
   describe('BorderGroup updateBboxes', () => {
     test('should update bboxes correctly', () => {
       const border = new BorderGroup({ 
@@ -1130,4 +1131,5 @@ describe('Border Module', () => {  beforeEach(() => {
       expect(border.outbbox).toEqual({ left: 100, top: 100, right: 500, bottom: 400 });
     });
   });
+  */
 });

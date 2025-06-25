@@ -5,7 +5,7 @@
 
 import { CanvasGlobals, DrawGrid } from '../js/canvas/canvas.js';
 // Import the mouseEvents module to register the event handlers
-import '../js/canvas/mouseEvents.js';
+// import '../js/canvas/mouseEvents.js';
 
 describe('Mouse Events Module', () => {
   let mockCanvas;

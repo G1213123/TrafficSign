@@ -2682,8 +2682,6 @@ html {
 .timeline-image img {
     width: 100%;
     height: auto;
-    aspect-ratio: 16 / 9;
-    object-fit: inherit;
     display: block;
     border: 1px solid var(--border-color);
     border-radius: 8px;

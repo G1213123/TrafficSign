@@ -39,10 +39,16 @@
         gtag('js', new Date());
 
         gtag('config', 'G-1W8GWKLVSK');
-    </script>
+    </script> <!-- Google ads -->
+    <script async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<%= htmlWebpackPlugin.options.googleAdsClientId %>"
+        crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="<%= htmlWebpackPlugin.options.googleAdsClientId %>">
+
     <link rel="stylesheet" href="css/homepage.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 </head>
 
 <body>
@@ -135,11 +141,12 @@
                         <div class="timeline-intro">
                             <p>
                                 Traditionally, traffic signs are designed by professional engineers as a package of a
-                                roadworks project with <span class="tpdm-tooltip" data-tooltip="Computer Aided Design">CAD</span>. While
+                                roadworks project with <span class="tpdm-tooltip"
+                                    data-tooltip="Computer Aided Design">CAD</span>. While
                                 <span class="tpdm-tooltip" data-tooltip="Computer Aided Design">CAD</span> is powerful
                                 in generating detailed drawings, characters and symbols must still be drawn carefully
-                                block by block, stroke by stroke. Sign making was like a renaissance of old technology <a
-                                    href="https://en.wikipedia.org/wiki/Movable_type"> Movable
+                                block by block, stroke by stroke. Sign making was like a renaissance of old technology
+                                <a href="https://en.wikipedia.org/wiki/Movable_type"> Movable
                                     Printing Press</a> in modern times. A need to speed up the design process within a
                                 tight project timeframe is called. This
                                 application is the result of seeking a modern and streamlined workflow for road sign
@@ -281,9 +288,11 @@
                                 rel="noopener noreferrer">jsPDF</a> library, which converts the canvas content to
                             high-quality PDF documents suitable for printing and sharing. DXF export is powered by the
                             <a href="https://github.com/tarikjabiri/js-dxf" target="_blank"
-                                rel="noopener noreferrer">dxf-writer</a> library, enabling seamless integration with
-                            professional CAD software and engineering workflows. This allows your traffic sign designs
-                            to be easily imported into AutoCAD, SolidWorks, and other industry-standard design tools.
+                                rel="noopener noreferrer">dxf-writer</a> library, with the aids of <a
+                                href="http://paperjs.org/" target="_blank" rel="noopener noreferrer">paper.js</a> for
+                            path processing,
+                            enabling seamless integration with
+                            professional CAD software and engineering workflows.
                         </p>
                     </div>
 
