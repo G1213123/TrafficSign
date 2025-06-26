@@ -25,11 +25,70 @@ const calcVertexType = {
 function calcMainRoadVertices(xHeight, routeList) {
     const length = xHeight / 4
     let RootBottom = routeList.filter(item => item.angle === 180)[0]
-    let RootTop = routeList.filter(item => item.angle === 0)[0]
-    let RootBottomVertex = getSideRoadCoords(RootBottom, length)
+    let RootTop = routeList.filter(item => item.angle !== 180)[0]
+
     let RootTopVertex = getSideRoadCoords(RootTop, length)
 
-    const vertexList = [...RootTopVertex.path[0].vertex, ...RootBottomVertex.path[0].vertex]
+    // Calculate left and right pivot points based on intersection with angled lines
+    const topVertices = RootTopVertex.path[0].vertex;
+
+    // Get the angle in radians
+    const angleRad = RootTop.angle === 0 ? 0 : RootTop.angle / Math.abs(RootTop.angle) * (90 - Math.abs(RootTop.angle)) * Math.PI / 180;
+
+    // Calculate left pivot: intersection from top left vertex (vertex[0]) to bottom at angle
+    const topLeftVertex = topVertices[0];
+
+    // Calculate right pivot: intersection from top right vertex (vertex[2]) to bottom at angle
+    const topRightVertex = topVertices[topVertices.length - 1];
+
+    // For left pivot: line from top left vertex angled toward bottom
+    const leftPivotX = RootBottom.x - RootBottom.width * length / 2;
+    let leftPivotY;
+
+    // For right pivot: line from top right vertex angled toward bottom
+    const rightPivotX = RootBottom.x + RootBottom.width * length / 2;
+    let rightPivotY;
+
+    // Handle special cases for vertical angles (±90°)
+    if (Math.abs(RootTop.angle) === 90) {
+        // For vertical angles, pivot points should be at the same Y level as top vertices
+        leftPivotY = topLeftVertex.y;
+        rightPivotY = topRightVertex.y;
+    } else if (RootTop.angle == 0) {
+        leftPivotY = topLeftVertex.y + RootTop.length * length;
+        rightPivotY = topRightVertex.y + RootTop.length * length;
+    }
+    else {
+        // Normal case: calculate intersection using tangent
+        leftPivotY = topLeftVertex.y + (leftPivotX - topLeftVertex.x) * Math.tan(-angleRad);
+        rightPivotY = topRightVertex.y + (rightPivotX - topRightVertex.x) * Math.tan(-angleRad);
+    }
+
+    let leftRadius = null;
+    let rightRadius = null;
+    switch (Math.sign(RootTop.angle)) {
+        case 0:
+            leftRadius = null;
+            rightRadius = null;
+            break;
+        case 1:
+            leftRadius = 4 * length;
+            rightRadius = length;
+            break;
+        case -1:
+            leftRadius = length;
+            rightRadius = 4 * length;
+            break;
+    }
+
+    const leftPivot = { x: leftPivotX, y: leftPivotY, display: 0, radius: leftRadius };
+    const rightPivot = { x: rightPivotX, y: rightPivotY, display: 0, radius: rightRadius };
+
+    const extendedBottom = Math.max(...[leftPivot.y, rightPivot.y])
+    RootBottom.y = extendedBottom + RootBottom.length * length
+    let RootBottomVertex = getSideRoadCoords(RootBottom, length)
+
+    const vertexList = [...RootTopVertex.path[0].vertex, rightPivot, ...RootBottomVertex.path[0].vertex, leftPivot]
     const arcList = RootTopVertex.path[0].arcs
     // Move the first vertex to the end of the list
     if (vertexList.length > 0) {
@@ -37,6 +96,7 @@ function calcMainRoadVertices(xHeight, routeList) {
         vertexList.push(firstVertex);
     }
     assignVertexLabel(vertexList)
+
     // remap the arc vertex
     function shiftV(v, vertexList) {
         let id = v.match(/\d+/)[0]
@@ -49,7 +109,7 @@ function calcMainRoadVertices(xHeight, routeList) {
     })
 
     const remainingPath = []
-    if (RootTopVertex.path.length > 1){
+    if (RootTopVertex.path.length > 1) {
         remainingPath.push(...RootTopVertex.path.slice(-RootTopVertex.path.length + 1))
     }
 
@@ -67,8 +127,8 @@ function calcSideRoadVertices(xHeight, mainRouteList, routeList) {
     const length = xHeight / 4
 
     // Calculate the direction vector of the arrow
-    let RootLeft = mainRouteList[0].x - mainRouteList[0].width * xHeight / 8
-    let RootRight = mainRouteList[0].x + mainRouteList[0].width * xHeight / 8
+    let RootLeft = mainRouteList[1].x - mainRouteList[1].width * xHeight / 8
+    let RootRight = mainRouteList[1].x + mainRouteList[1].width * xHeight / 8
 
     // Calculate the arrowhead vertices
     let arrowTipPath = getSideRoadCoords(routeList[0], length, RootLeft, RootRight)
@@ -493,8 +553,8 @@ class SideRoadSymbol extends BaseGroup {
 
     applyConstraintsMainLine(sideRoad, mainRoad, routeList, isSideLeft, xHeight) {
         // Horizontal constraint based on side
-        const rootLeft = mainRoad.routeList[0].x - mainRoad.routeList[0].width * mainRoad.xHeight / 8;
-        const rootRight = mainRoad.routeList[0].x + mainRoad.routeList[0].width * mainRoad.xHeight / 8;
+        const rootLeft = mainRoad.routeList[1].x - mainRoad.routeList[1].width * mainRoad.xHeight / 8;
+        const rootRight = mainRoad.routeList[1].x + mainRoad.routeList[1].width * mainRoad.xHeight / 8;
         const minBranchShapeXDelta = routeList[0].shape == 'Stub' ? 4 : Math.abs(routeList[0].angle) == 90 ? 12 : 13;
         const minBranchXDelta = minBranchShapeXDelta * xHeight / 4;
 
