@@ -147,7 +147,7 @@ let GeneralHandler = {
     return input
   },
 
-  createToggle: function (name, options, parent, defaultSelected = null, callback = null,) {
+  createToggle: function (name, options, parent, defaultSelected = null, callback = null, maxItemsPerRow = null) {
     // Create a container for the toggle including its label
     var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent);
 
@@ -155,8 +155,17 @@ let GeneralHandler = {
     var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, inputContainer);
     label.innerHTML = name;
 
+    // Determine if we need multi-row layout
+    const needsMultiRow = maxItemsPerRow && options.length > maxItemsPerRow;
+    const containerClass = needsMultiRow ? 'toggle-container multi-row' : 'toggle-container';
+
     // Create a container for the toggle buttons
-    var toggleContainer = GeneralHandler.createNode("div", { 'class': 'toggle-container', 'id': name + '-container' }, inputContainer);
+    var toggleContainer = GeneralHandler.createNode("div", { 'class': containerClass, 'id': name + '-container' }, inputContainer);
+    
+    // If multi-row, set CSS custom property for items per row
+    if (needsMultiRow) {
+      toggleContainer.style.setProperty('--items-per-row', maxItemsPerRow);
+    }
 
     // Keep track of the buttons to manage their state
     let toggleButtons = [];

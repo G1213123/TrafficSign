@@ -9,7 +9,7 @@ const canvasObject = CanvasGlobals.canvasObject;
 
 let FormDrawMapComponent = {
   MapType: ['Main Line', 'Conventional Roundabout', 'Spiral Roundabout',],
-  MainEndShape: ['Arrow', 'Stub', /*'Left', 'Right',*/ 'RedBar', 'Tee', 'LaneDrop', 'Bifurcation'],
+  MainEndShape: ['Arrow', 'Stub', 'Left', 'Right', 'RedBar', 'Tee', 'LaneDrop', 'Bifurcation'],
   SideEndShape: ['Arrow', 'Stub',],
   RoundaboutFeatures: ['Normal', 'Auxiliary', 'U-turn'],
   permitAngle: [45, 60, 90],
@@ -80,7 +80,7 @@ let FormDrawMapComponent = {
       GeneralHandler.createInput('root-length', 'Main Road Root Length', roadTypeSettingsContainer, 7, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
       GeneralHandler.createInput('tip-length', 'Main Road Tip Length', roadTypeSettingsContainer, 12, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
       GeneralHandler.createInput('main-width', 'Main Road Width', roadTypeSettingsContainer, 6, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
-      GeneralHandler.createToggle(`Main Road Shape`, FormDrawMapComponent.MainEndShape, roadTypeSettingsContainer, 'Arrow', FormDrawMapComponent.drawMainRoadOnCursor);
+      GeneralHandler.createToggle(`Main Road Shape`, FormDrawMapComponent.MainEndShape, roadTypeSettingsContainer, 'Arrow', FormDrawMapComponent.drawMainRoadOnCursor, 4);
     } else if (roadType === 'Conventional Roundabout') {
       // Placeholder for Conventional Roundabout settings
       GeneralHandler.createToggle(`Roundabout Type`, FormDrawMapComponent.RoundaboutFeatures, roadTypeSettingsContainer, 'Normal', FormDrawMapComponent.drawMainRoadOnCursor);

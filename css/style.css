@@ -599,6 +599,31 @@ div.side-panel.close {
   background-color: rgba(20, 20, 20, 0.6);
 }
 
+/* Multi-row toggle container */
+.toggle-container.multi-row {
+  flex-wrap: wrap;
+  border-radius: 4px;
+}
+
+.toggle-container.multi-row .toggle-button {
+  flex: 0 0 calc(100% / var(--items-per-row));
+  max-width: calc(100% / var(--items-per-row));
+}
+
+/* Add borders for multi-row layout */
+.toggle-container.multi-row .toggle-button {
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.toggle-container.multi-row .toggle-button:nth-child(var(--items-per-row)n) {
+  border-right: none;
+}
+
+.toggle-container.multi-row .toggle-button:nth-last-child(-n + var(--items-per-row)) {
+  border-bottom: none;
+}
+
 .toggle-button {
   flex: 1;
   padding: 8px 12px;

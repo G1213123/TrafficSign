@@ -51,9 +51,6 @@ function calcMainRoadVertices(xHeight, routeList) {
     const remainingPath = []
     if (RootTopVertex.path.length > 1){
         remainingPath.push(...RootTopVertex.path.slice(-RootTopVertex.path.length + 1))
-        remainingPath.forEach(p=>{
-            p.vertex.map(v => { v.x *= RootTop.width; v.y *= RootTop.width })
-        }    )
     }
 
     return { path: [{ 'vertex': vertexList, 'arcs': [...arcList] }, ...remainingPath] };
@@ -118,8 +115,13 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
  */
 function getSideRoadCoords(route, length, left, right) {
     let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]))
-    arrowTipPath.path[0].vertex.map((v) => { v.x *= route.width / 2; v.y *= route.width / 2; v.radius *= route.width / 2 })
-    arrowTipPath.path[0].arcs.map((a) => { a.radius *= route.width / 2 })
+    // Apply vertex and arc scaling to each path
+    arrowTipPath.path.forEach((path) => {
+        path.vertex.map((v) => { v.x *= route.width / 2; v.y *= route.width / 2; v.radius *= route.width / 2 })
+        if (path.arcs) {
+            path.arcs.map((a) => { a.radius *= route.width / 2 })
+        }
+    })
     arrowTipPath = calcSymbol(arrowTipPath, length)
     arrowTipPath.path.map((p) => {
         let transformed = calculateTransformedPoints(p.vertex, {
