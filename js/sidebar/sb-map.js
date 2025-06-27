@@ -302,29 +302,41 @@ let FormDrawMapComponent = {
     }
 
     // Calculate position based on angle
-    const mainAngle = options.mainAngle || 0;
+    const mainAngle = options.mainAngle;
     const angleRad = mainAngle * Math.PI / 180;
-    const totalLength = (options.rootLength + tipLength) * options.xHeight / 4;
+    const totalLength = ( tipLength) * options.xHeight / 4;
+    let addRootwidth
+    switch (Math.sign(mainAngle)) {
+      case 0:
+        addRootwidth = 0
+        break
+      case 1:
+        addRootwidth = -options.width / 2* options.xHeight / 4;
+        break
+      case -1:
+        addRootwidth = options.width / 2* options.xHeight / 4;
+        break
+    }
 
     // Create route list with angle applied
     const routeList = [
       // tip
-      { 
-        x: options.position.x, 
-        y: options.position.y, 
-        angle: mainAngle, 
-        width: options.width, 
-        length: options.tipLength, 
-        shape: options.shape 
+      {
+        x: options.position.x,
+        y: options.position.y,
+        angle: mainAngle,
+        width: options.width,
+        length: options.tipLength,
+        shape: options.shape
       },
       // bottom
-      { 
-        x: options.position.x - Math.sin(angleRad) * totalLength, 
-        y: options.position.y - Math.cos(angleRad) * totalLength, 
-        angle: 180, 
-        width: options.width, 
+      {
+        x: options.position.x - Math.sin(angleRad) * totalLength + addRootwidth,
+        y: options.position.y + Math.cos(angleRad) * totalLength + (options.width / 2 * (1 - Math.cos(angleRad)) + options.rootLength) * options.xHeight / 4,
+        angle: 180,
+        width: options.width,
         length: options.rootLength,
-        shape: options.roadType == 'Main Line' ? 'Stub' : options.RAfeature 
+        shape: options.roadType == 'Main Line' ? 'Stub' : options.RAfeature
       },
     ];
 
