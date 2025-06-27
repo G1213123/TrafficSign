@@ -70,12 +70,22 @@ function showPropertyPanel(object) {
       }
     } else { // Covers 'left', 'top', 'rootLength', 'tipLength'
       numValue = parseInt(e.target.value, 10);
+
+      if (prop.key === 'rootLength' && targetObject.roadType == 'Main Line') {
+        // edit the routeList
+        targetObject.routeList[1].length = numValue
+      } else if (prop.key === 'tipLength' && targetObject.roadType == 'Main Line') {
+        // edit the routeList
+        targetObject.routeList[0].length = numValue
+      }
+
       // Check lockMovement for left/top
       if (prop.key === 'left' && targetObject.lockMovementX) {
         // Do not change value if movement is locked
       } else if (prop.key === 'top' && targetObject.lockMovementY) {
         // Do not change value if movement is locked
-      } else if (!isNaN(numValue) && targetObject[prop.key] !== numValue) {
+      }
+      else if (!isNaN(numValue) && targetObject[prop.key] !== numValue) {
         oldValue = targetObject[prop.key]; // Store old value
         targetObject.set(prop.key, numValue);
         valueChanged = true;
@@ -134,7 +144,7 @@ function showPropertyPanel(object) {
       } catch (initError) {
         console.error(`Error calling ${targetObject.type}.initialize() for ${prop.key} change:`, initError);
       }
-      CanvasGlobals.canvas.renderAll();      
+      CanvasGlobals.canvas.renderAll();
       canvasTracker.isDragging = false; // Reset dragging state
       showPropertyPanel(targetObject); // Refresh panel
     }
@@ -178,7 +188,7 @@ function showPropertyPanel(object) {
 
     if (valueChanged) {
       // Track the property change for undo functionality
-      canvasTracker.track('propertyChanged',[{
+      canvasTracker.track('propertyChanged', [{
         functionalType: targetObject.functionalType,
         id: targetObject.canvasID,
         propertyKey: prop.key,
@@ -198,7 +208,7 @@ function showPropertyPanel(object) {
           console.error(`Error calling ${targetObject.type}.initialize() for ${prop.key} change:`, initError);
         }
       }
-      CanvasGlobals.canvas.renderAll();      
+      CanvasGlobals.canvas.renderAll();
       canvasTracker.isDragging = false; // Reset dragging state
       showPropertyPanel(targetObject); // Refresh panel
     }

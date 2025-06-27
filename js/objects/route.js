@@ -84,8 +84,6 @@ function calcMainRoadVertices(xHeight, routeList) {
     const leftPivot = { x: leftPivotX, y: leftPivotY, display: 0, radius: leftRadius };
     const rightPivot = { x: rightPivotX, y: rightPivotY, display: 0, radius: rightRadius };
 
-    const extendedBottom = Math.max(...[leftPivot.y, rightPivot.y])
-    RootBottom.y = extendedBottom + RootBottom.length * length
     let RootBottomVertex = getSideRoadCoords(RootBottom, length)
 
     const vertexList = [...RootTopVertex.path[0].vertex, rightPivot, ...RootBottomVertex.path[0].vertex, leftPivot]
@@ -414,31 +412,25 @@ class MainRoadSymbol extends BaseGroup {
             }
             return;
         }
-        let newBottom = this.top + (this.tipLength) * this.xHeight / 4;
+        const topList = this.routeList[0]
+        const bottomList = this.routeList[1]
+        const angleRad = topList.angle * Math.PI / 180;
+
+        let newBottom = topList.y + (Math.cos(angleRad) * topList.length + (topList.width / 2 * (1 - Math.cos(angleRad)) + bottomList.length)) * this.xHeight / 4;
         if (newSideRoad) {
             this.sideRoad.push(newSideRoad);
-            const vertexList = newSideRoad.basePolygon.vertex;
-
-            let bottommostY = -Infinity;
-            // Loop through all vertices to find the leftmost and bottommost points
-            for (const vertex of vertexList) {
-                if (vertex.y > bottommostY) { // Note: y increases downward in canvas
-                    bottommostY = vertex.y;
-                }
-            }
-            newBottom = bottommostY;
         }
 
         this.sideRoad.forEach(side => {
-            const sideBottom = side.basePolygon.vertex[side.side ? 4 : 3].y;
-            if (sideBottom > newBottom) {
-                newBottom = sideBottom;
+            const sideBottom = side.side ? side.basePolygon.vertex[4].y : side.basePolygon.vertex[3].y;
+            if (sideBottom + bottomList.length * this.xHeight / 4 > newBottom) {
+                newBottom = sideBottom + bottomList.length * this.xHeight / 4;
             }
         });
 
         this.routeList.forEach(route => {
             if (route.angle === 180) {
-                route.y = Math.max(...[newBottom, ...this.sideRoad.map(b => b.top + b.height)]) + this.rootLength * this.xHeight / 4;
+                route.y = newBottom;
             }
         });
         let newVertexList = calcVertexType[this.roadType](this.xHeight, this.routeList);
@@ -571,8 +563,12 @@ class SideRoadSymbol extends BaseGroup {
         }
 
         // Vertical constraint based on main road top
-        const rootTop = mainRoad.routeList[1].y;
+        const rootTop = mainRoad.routeList[0].y;
         const tipLength = mainRoad.tipLength * mainRoad.xHeight / 4;
+        const mainVertex = mainRoad.basePolygon.vertex
+        const leftPivot = mainVertex[mainVertex.length - 2].y
+        const rightPivot = mainVertex[mainVertex.length - 6].y
+        const bottomPivotY = Math.max(leftPivot,rightPivot)
 
         // Calculate vertices with current position
         let tempVertexList = calcSideRoadVertices(mainRoad.xHeight, mainRoad.routeList, routeList);
@@ -581,9 +577,9 @@ class SideRoadSymbol extends BaseGroup {
         const rootTopTouchY = tempVertexList.path[0].vertex[isSideLeft ? 3 : 4];
 
         // Ensure branch doesn't go above root + tip length
-        if (rootTopTouchY.y < rootTop + tipLength) {
+        if (rootTopTouchY.y < bottomPivotY) {
             // Push branch down if needed
-            const adjustment = rootTop + tipLength - rootTopTouchY.y;
+            const adjustment = bottomPivotY - rootTopTouchY.y;
             routeList[0].y += adjustment;
 
             // Recalculate vertices with new position
