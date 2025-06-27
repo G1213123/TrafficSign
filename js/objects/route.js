@@ -358,6 +358,7 @@ class MainRoadSymbol extends BaseGroup {
         this.xHeight = options.xHeight || 100;
         this.rootLength = options.rootLength ?? 7;
         this.tipLength = options.tipLength ?? 12;
+        this.routeWidth = options.routeWidth ?? 6;
         this.color = options.color || 'white';
         this.roadType = options.roadType || 'Main Line';
         this.sideRoad = [];

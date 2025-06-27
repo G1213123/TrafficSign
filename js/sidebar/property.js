@@ -399,14 +399,15 @@ function showPropertyPanel(object) {
       if (object.roadType === 'Main Line') {
         specialProps.push(
           { label: 'Root Length', key: 'rootLength', type: 'number', editable: true, step: 1, value: object.rootLength },
-          { label: 'Tip Length', key: 'tipLength', type: 'number', editable: true, step: 1, value: object.tipLength }
+          { label: 'Tip Length', key: 'tipLength', type: 'number', editable: true, step: 1, value: object.tipLength },
+          { label: 'Width', key: 'width', type: 'number', editable: true, step: 1, value: object.routeWidth },
         );
-      } else {
+      } /*else {
         specialProps.push(
           { label: 'Root Length', value: object.rootLength },
           { label: 'Tip Length', value: object.tipLength }
         );
-      }
+      }*/
       specialProps.push({ label: 'Side Roads', value: object.sideRoad.length });
       break;
     case 'SideRoad':

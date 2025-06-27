@@ -335,6 +335,7 @@ let FormDrawMapComponent = {
       color: options.color,
       rootLength: options.rootLength,
       tipLength: tipLength,
+      routeWidth: options.width,
       roadType: options.roadType,
       RAfeature: options.RAfeature,
       mainAngle: mainAngle
