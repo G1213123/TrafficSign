@@ -369,7 +369,16 @@ describe('Route Module', () => {
           { angle: 180, x: 100, y: 150, width: 2, shape: 'Root' }
         ];
 
-        const mainRoad = new MainRoadSymbol({ routeList });
+        const mainRoad = new MainRoadSymbol({ 
+          routeList: routeList,
+          xHeight: 100,
+          color: 'white',
+          rootLength: 7,
+          tipLength: 12,
+          routeWidth: 6,
+          roadType: 'Main Line',
+          RAfeature: 'Conventional'
+        });
 
         expect(mainRoad.functionalType).toBe('MainRoad');
         expect(mainRoad.className).toBe('MainRoadSymbol');
@@ -377,6 +386,7 @@ describe('Route Module', () => {
         expect(mainRoad.xHeight).toBe(100);
         expect(mainRoad.rootLength).toBe(7);
         expect(mainRoad.tipLength).toBe(12);
+        expect(mainRoad.routeWidth).toBe(6);
         expect(mainRoad.color).toBe('white');
         expect(mainRoad.roadType).toBe('Main Line');
         expect(mainRoad.sideRoad).toEqual([]);
@@ -387,10 +397,11 @@ describe('Route Module', () => {
           { x: 100, y: 100 } // center point for roundabout
         ];
         const options = {
-          routeList,
+          routeList: routeList,
           xHeight: 120,
           rootLength: 8,
           tipLength: 15,
+          routeWidth: 5,
           color: 'black',
           roadType: 'Conventional Roundabout',
           RAfeature: 'U-turn'
@@ -402,6 +413,7 @@ describe('Route Module', () => {
         expect(mainRoad.xHeight).toBe(120);
         expect(mainRoad.rootLength).toBe(8);
         expect(mainRoad.tipLength).toBe(15);
+        expect(mainRoad.routeWidth).toBe(5);
         expect(mainRoad.color).toBe('black');
         expect(mainRoad.roadType).toBe('Conventional Roundabout');
         expect(mainRoad.RAfeature).toBe('U-turn');
@@ -410,7 +422,16 @@ describe('Route Module', () => {
           { angle: 0, x: 100, y: 50, width: 2, shape: 'Root' },
           { angle: 180, x: 100, y: 150, width: 2, shape: 'Root' }
         ];
-        const mainRoad = new MainRoadSymbol({ routeList });
+        const mainRoad = new MainRoadSymbol({ 
+          routeList: routeList,
+          xHeight: 100,
+          color: 'white',
+          rootLength: 7,
+          tipLength: 12,
+          routeWidth: 6,
+          roadType: 'Main Line',
+          RAfeature: 'Conventional'
+        });
 
         expect(mainRoad.on).toHaveBeenCalledWith('selected', roadMapOnSelect);
         expect(mainRoad.on).toHaveBeenCalledWith('deselected', roadMapOnDeselect);
@@ -426,7 +447,16 @@ describe('Route Module', () => {
           { angle: 0, x: 100, y: 50, width: 2, shape: 'Root' },
           { angle: 180, x: 100, y: 150, width: 2, shape: 'Root' }
         ];
-        const mainRoad = new MainRoadSymbol({ routeList, color: 'red' });
+        const mainRoad = new MainRoadSymbol({ 
+          routeList: routeList,
+          xHeight: 100,
+          color: 'red',
+          rootLength: 7,
+          tipLength: 12,
+          routeWidth: 6,
+          roadType: 'Main Line',
+          RAfeature: 'Conventional'
+        });
 
         const glyphInstance = GlyphPath.mock.results[0].value;
         expect(glyphInstance.initialize).toHaveBeenCalledWith(
@@ -452,7 +482,16 @@ describe('Route Module', () => {
           { angle: 0, x: 100, y: 50, width: 2, shape: 'Root' },
           { angle: 180, x: 100, y: 150, width: 2, shape: 'Root' }
         ];
-        const mainRoad = new MainRoadSymbol({ routeList, roadType: 'Main Line' });
+        const mainRoad = new MainRoadSymbol({ 
+          routeList: routeList, 
+          roadType: 'Main Line',
+          xHeight: 100,
+          color: 'white',
+          rootLength: 7,
+          tipLength: 12,
+          routeWidth: 6,
+          RAfeature: 'Conventional'
+        });
 
         const mockSideRoad = {
           basePolygon: {
@@ -478,8 +517,14 @@ describe('Route Module', () => {
           { x: 150, y: 150 } // center point for roundabout
         ];
         const mainRoad = new MainRoadSymbol({ 
-          routeList, 
-          roadType: 'Conventional Roundabout' 
+          routeList: routeList, 
+          roadType: 'Conventional Roundabout',
+          xHeight: 100,
+          color: 'white',
+          rootLength: 7,
+          tipLength: 12,
+          routeWidth: 6,
+          RAfeature: 'Normal'
         });
 
         const mockSideRoad = {
@@ -502,7 +547,16 @@ describe('Route Module', () => {
           { angle: 0, x: 100, y: 50, width: 2, shape: 'Root' },
           { angle: 180, x: 100, y: 150, width: 2, shape: 'Root' }
         ];
-        const mainRoad = new MainRoadSymbol({ routeList, roadType: 'Main Line' });        const mockSideRoad = {
+        const mainRoad = new MainRoadSymbol({ 
+          routeList: routeList, 
+          roadType: 'Main Line',
+          xHeight: 100,
+          color: 'white',
+          rootLength: 7,
+          tipLength: 12,
+          routeWidth: 6,
+          RAfeature: 'Conventional'
+        });        const mockSideRoad = {
           onMove: jest.fn(),
           basePolygon: {
             vertex: [
@@ -539,7 +593,19 @@ describe('Route Module', () => {
         rootLength: 7,
         tipLength: 12,
         receiveNewRoute: jest.fn(),
-        setCoords: jest.fn()
+        setCoords: jest.fn(),
+        basePolygon: {
+          vertex: [
+            { x: 90, y: 50, label: 'V1' },
+            { x: 110, y: 50, label: 'V2' },
+            { x: 110, y: 60, label: 'V3' },
+            { x: 105, y: 65, label: 'V4' },
+            { x: 110, y: 150, label: 'V5' },
+            { x: 90, y: 150, label: 'V6' },
+            { x: 95, y: 65, label: 'V7' },
+            { x: 90, y: 60, label: 'V8' }
+          ]
+        }
       };
     });
 
@@ -550,9 +616,14 @@ describe('Route Module', () => {
         ];
 
         const sideRoad = new SideRoadSymbol({ 
-          routeList, 
-          mainRoad: mockMainRoad 
-        });        expect(sideRoad.functionalType).toBe('SideRoad');
+          routeList: routeList, 
+          xHeight: 100,
+          color: 'white',
+          mainRoad: mockMainRoad,
+          side: false,
+          branchIndex: 0
+        });        
+        expect(sideRoad.functionalType).toBe('SideRoad');
         expect(sideRoad.className).toBe('SideRoadSymbol');
         expect(sideRoad.routeList).toHaveLength(1);
         expect(sideRoad.routeList[0]).toMatchObject({
@@ -572,7 +643,7 @@ describe('Route Module', () => {
           { x: 200, y: 100, angle: 90, shape: 'Stub', width: 3 }
         ];
         const options = {
-          routeList,
+          routeList: routeList,
           xHeight: 120,
           color: 'blue',
           mainRoad: mockMainRoad,
@@ -598,8 +669,12 @@ describe('Route Module', () => {
         ];
 
         const sideRoad = new SideRoadSymbol({ 
-          routeList, 
-          mainRoad: mockMainRoad 
+          routeList: routeList, 
+          xHeight: 100,
+          color: 'white',
+          mainRoad: mockMainRoad,
+          side: false,
+          branchIndex: 0
         });
 
         expect(sideRoad.on).toHaveBeenCalledWith('moving', expect.any(Function));
@@ -615,9 +690,12 @@ describe('Route Module', () => {
         ];
 
         const sideRoad = new SideRoadSymbol({ 
-          routeList, 
+          routeList: routeList, 
+          xHeight: 100,
+          color: 'white',
           mainRoad: mockMainRoad,
-          side: false
+          side: false,
+          branchIndex: 0
         });
 
         expect(mockMainRoad.receiveNewRoute).toHaveBeenCalledWith(sideRoad);
@@ -638,8 +716,12 @@ describe('Route Module', () => {
         ];
 
         const sideRoad = new SideRoadSymbol({ 
-          routeList, 
-          mainRoad: roundaboutMainRoad 
+          routeList: routeList, 
+          xHeight: 100,
+          color: 'white',
+          mainRoad: roundaboutMainRoad,
+          side: false,
+          branchIndex: 0
         });
 
         expect(sideRoad.routeList).toBeDefined();
@@ -653,8 +735,12 @@ describe('Route Module', () => {
         ];
 
         const sideRoad = new SideRoadSymbol({ 
-          routeList, 
-          mainRoad: mockMainRoad 
+          routeList: routeList, 
+          xHeight: 100,
+          color: 'white',
+          mainRoad: mockMainRoad,
+          side: false,
+          branchIndex: 0
         });
 
         sideRoad.onMove({}, true);
@@ -671,8 +757,12 @@ describe('Route Module', () => {
         ];
 
         const sideRoad = new SideRoadSymbol({ 
-          routeList, 
-          mainRoad: mockMainRoad 
+          routeList: routeList, 
+          xHeight: 100,
+          color: 'white',
+          mainRoad: mockMainRoad,
+          side: false,
+          branchIndex: 0
         });
 
         jest.clearAllMocks();
@@ -688,8 +778,12 @@ describe('Route Module', () => {
 
         expect(() => {
           new SideRoadSymbol({ 
-            routeList, 
-            mainRoad: null 
+            routeList: routeList, 
+            xHeight: 100,
+            color: 'white',
+            mainRoad: null,
+            side: false,
+            branchIndex: 0
           });
         }).toThrow();
       });
@@ -748,7 +842,14 @@ describe('Route Module', () => {
       ];
 
       expect(() => {
-        new SideRoadSymbol({ routeList, mainRoad: null });
+        new SideRoadSymbol({ 
+          routeList: routeList, 
+          xHeight: 100,
+          color: 'white',
+          mainRoad: null,
+          side: false,
+          branchIndex: 0
+        });
       }).toThrow();
     });
   });
