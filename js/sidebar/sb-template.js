@@ -1349,8 +1349,8 @@ let FormTemplateComponent = {
       // Create a MainRoute directly using the updated construction method
       // Create the route list with the main road points
       const routeList = [
-        { x: params.posx, y: params.posy + (params.rootLength + params.tipLength) * params.xHeight / 4, angle: 180, width: params.width, shape: 'Stub' },
-        { x: params.posx, y: params.posy, angle: 0, width: params.width, shape: params.shape }
+        { x: params.posx, y: params.posy + (params.rootLength) * params.xHeight / 4, angle: 180, length: params.rootLength, width: params.width, shape: 'Stub' },
+        { x: params.posx, y: params.posy, angle: 0, length: params.rootLength, width: params.width, shape: params.shape }
       ];
 
       // Create route options for the MainRoadSymbol
@@ -1359,6 +1359,7 @@ let FormTemplateComponent = {
         xHeight: params.xHeight,
         rootLength: params.rootLength,
         tipLength: params.tipLength,
+        routeWidth: params.width,
         color: params.color,
         roadType: params.roadType
       };

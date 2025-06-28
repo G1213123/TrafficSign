@@ -412,8 +412,8 @@ class MainRoadSymbol extends BaseGroup {
             }
             return;
         }
-        const topList = this.routeList[0]
-        const bottomList = this.routeList[1]
+        const topList = this.routeList.filter(route => route.angle !== 180)[0];
+        const bottomList = this.routeList.filter(route => route.angle === 180)[0];
         const angleRad = topList.angle * Math.PI / 180;
 
         let newBottom = topList.y + (Math.cos(angleRad) * topList.length + (topList.width / 2 * (1 - Math.cos(angleRad)) + bottomList.length)) * this.xHeight / 4;
@@ -563,8 +563,6 @@ class SideRoadSymbol extends BaseGroup {
         }
 
         // Vertical constraint based on main road top
-        const rootTop = mainRoad.routeList[0].y;
-        const tipLength = mainRoad.tipLength * mainRoad.xHeight / 4;
         const mainVertex = mainRoad.basePolygon.vertex
         const leftPivot = mainVertex[mainVertex.length - 2].y
         const rightPivot = mainVertex[mainVertex.length - 6].y

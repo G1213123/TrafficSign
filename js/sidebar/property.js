@@ -77,6 +77,10 @@ function showPropertyPanel(object) {
       } else if (prop.key === 'tipLength' && targetObject.roadType == 'Main Line') {
         // edit the routeList
         targetObject.routeList[0].length = numValue
+      } else if (prop.key === 'routeWidth' && targetObject.roadType == 'Main Line') {
+        targetObject.routeList.forEach(route => {
+          route.width = numValue; // Update width for all routes
+        });
       }
 
       // Check lockMovement for left/top
@@ -410,7 +414,7 @@ function showPropertyPanel(object) {
         specialProps.push(
           { label: 'Root Length', key: 'rootLength', type: 'number', editable: true, step: 1, value: object.rootLength },
           { label: 'Tip Length', key: 'tipLength', type: 'number', editable: true, step: 1, value: object.tipLength },
-          { label: 'Width', key: 'width', type: 'number', editable: true, step: 1, value: object.routeWidth },
+          { label: 'Route Width', key: 'routeWidth', type: 'number', editable: true, step: 1, value: object.routeWidth },
         );
       } /*else {
         specialProps.push(

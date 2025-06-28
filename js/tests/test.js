@@ -1202,8 +1202,8 @@ const RouteTest = {
 
     // Create the route list with the main road points
     const routeList = [
-      { x: params.posx, y: params.posy + (params.rootLength + params.tipLength) * params.xHeight / 4, angle: 180, width: params.width, shape: 'Stub' },
-      { x: params.posx, y: params.posy, angle: 0, width: params.width, shape: params.shape }
+      { x: params.posx, y: params.posy + (params.rootLength) * params.xHeight / 4, angle: 180, length: params.tipLength, width: params.width, shape: 'Stub' },
+      { x: params.posx, y: params.posy, angle: 0, length: params.rootLength, width: params.width, shape: params.shape }
     ];
 
     // Create route options for the MainRoadSymbol
@@ -1212,6 +1212,7 @@ const RouteTest = {
       xHeight: params.xHeight,
       rootLength: params.rootLength,
       tipLength: params.tipLength,
+      width: params.width,
       color: params.color,
       roadType: params.roadType,
       // Ensure left and top are set for consistent positioning in tests
@@ -1403,18 +1404,16 @@ const RouteTest = {
     );
 
     // 2. Test vertical constraint - branch should not be above main road's tip
-    const rootTop = mainRoad.routeList[1].y;
-    const tipLength = mainRoad.tipLength * mainRoad.xHeight / 4;
-    const minTopPosition = rootTop + tipLength;
 
-    // Get the top-most part of the side road
-    const sideRoadTopVertices = sideRoad.basePolygon.vertex.filter(v =>
-      v.label === 'V5');
-    const branchTopY = Math.min(...sideRoadTopVertices.map(v => v.y));
+    const mainVertex = mainRoad.basePolygon.vertex
+    const bottomPivotY = mainVertex[mainVertex.length - 6].y
+
+    const sideRoadTopVertices = sideRoad.basePolygon.vertex[4];
+    const branchTopY = sideRoadTopVertices.y;
 
     passed = passed && TestTracker.assertTrue(
-      branchTopY >= minTopPosition,
-      `Side Road top (${branchTopY}) should not be above Main Road tip position (${minTopPosition})`
+      branchTopY >= bottomPivotY,
+      `Side Road top (${branchTopY}) should not be above Main Road tip position (${bottomPivotY})`
     );
 
     TestTracker.endTest(passed);
@@ -1547,7 +1546,7 @@ const RoundaboutTest = {
       // Position the side road relative to the main road's root
       routeList: [{
         x: params.posx + 120,
-        y: params.posy - 50, 
+        y: params.posy - 50,
         angle: -45,
         shape: 'Stub',
         width: 4
@@ -2166,19 +2165,19 @@ const ComplexSignTest = {
  * Test suite for template sign creation
  */
 const TemplateTest = {
- 
+
   /**
  * Expected dimensions for each template.
  * NOTE: These are placeholders and need to be filled with actual expected values.
  */
   expectedTemplateDimensions: {
-   
+
     'Flag Sign': { width: 2907, height: 1650, left: -15400, top: 7740 }, // Placeholder values
     'Stack Sign': { width: 1925, height: 1150 + 1275, left: -10602, top: 6749 }, // Placeholder values
     'Lane Sign': { width: 3950, height: 1600, left: -7606, top: 7998 }, // Placeholder values
     'Roundabout Sign': { width: 3800, height: 3250, left: -3488, top: 6019 }, // Placeholder values
     'Spiral Roundabout Sign': { width: 3800, height: 3250, left: 1794, top: 6230 }, // Placeholder values, may be null if not fully implemented
-    'Gantry Sign': { width: 7900, height: 2700, left: 7493, top:  7306 }, // Placeholder values
+    'Gantry Sign': { width: 7900, height: 2700, left: 7493, top: 7306 }, // Placeholder values
     'Diverge Sign ': { width: 2950, height: 5900, left: 17320, top: 7605 }, // Placeholder values
     // Add entries for any other templates
   },

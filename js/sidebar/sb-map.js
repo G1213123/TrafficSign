@@ -327,7 +327,7 @@ let FormDrawMapComponent = {
         angle: mainAngle,
         width: options.width,
         length: options.tipLength,
-        shape: options.shape
+        shape: options.roadType == 'Main Line' ? options.shape : options.RAfeature
       },
       // bottom
       {
