@@ -323,6 +323,7 @@ let FormExportComponent = {
       const originalState = FormExportComponent.prepareCanvasForExport();
 
       // Generate the export
+      CanvasGlobals.canvas.renderAll();
       const dataURL = CanvasGlobals.canvas.toDataURL(options);
 
       // Restore canvas
@@ -544,6 +545,8 @@ let FormExportComponent = {
         format: isLandscape ? [paperHeightPx, paperWidthPx] : [paperWidthPx, paperHeightPx],
         compress: true
       });
+
+      CanvasGlobals.canvas.renderAll();
 
       // Get PNG data URL from canvas
       const dataURL = CanvasGlobals.canvas.toDataURL({

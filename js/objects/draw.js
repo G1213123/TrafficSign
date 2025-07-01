@@ -585,6 +585,10 @@ class BaseGroup extends fabric.Group {
         // Create new control for vertices that don't have one
         this.controls[vertexLabel] = new VertexControl(v, this);
         this.controls[vertexLabel].visible = shouldDisplay;
+      } else {
+        // Update existing control position and visibility
+        this.controls[vertexLabel].x = (v.x - this.left) / this.width - 0.5;
+        this.controls[vertexLabel].y = (v.y - this.top) / this.height - 0.5;
       }
 
       // For SideRoad objects, set the control location to match the basePolygon location

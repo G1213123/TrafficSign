@@ -17,56 +17,87 @@ const calcVertexType = {
 // Extract drawing functions from FormDrawMapComponent
 
 /**
- * Calculates vertices for Main Road
- * @param {number} xHeight - X-height value
- * @param {Array} routeList - List of routes
- * @return {Object} Vertex list object
+ * Calculates the correct bottom Y coordinate for a main road based on pivot points
+ * @param {Object} RootTop - Top route object with angle, length, etc.
+ * @param {Object} RootBottom - Bottom route object
+ * @param {number} length - Calculated length (xHeight / 4)
+ * @return {number} The calculated bottom Y coordinate
  */
-function calcMainRoadVertices(xHeight, routeList) {
-    const length = xHeight / 4
-    let RootBottom = routeList.filter(item => item.angle === 180)[0]
-    let RootTop = routeList.filter(item => item.angle !== 180)[0]
-
-    let RootTopVertex = getSideRoadCoords(RootTop, length)
-
-    // Calculate left and right pivot points based on intersection with angled lines
-    const topVertices = RootTopVertex.path[0].vertex;
-
+function calculateMainRoadBottomY(RootTop, RootBottom, length) {
     // Get the angle in radians
     const angleRad = RootTop.angle === 0 ? 0 : RootTop.angle / Math.abs(RootTop.angle) * (90 - Math.abs(RootTop.angle)) * Math.PI / 180;
 
-    // Calculate left pivot: intersection from top left vertex (vertex[0]) to bottom at angle
+    // Get top vertices to calculate pivot points
+    let RootTopVertex = getSideRoadCoords(RootTop, length);
+    const topVertices = RootTopVertex.path[0].vertex;
     const topLeftVertex = topVertices[0];
-
-    // Calculate right pivot: intersection from top right vertex (vertex[2]) to bottom at angle
     const topRightVertex = topVertices[topVertices.length - 1];
-
-    // Get the vertex with the minimum y value (topmost vertex)
     const topVertex = topVertices.reduce((min, vertex) => vertex.y < min.y ? vertex : min, topVertices[0]);
 
-    // For left pivot: line from top left vertex angled toward bottom
+    // Calculate pivot points
     const leftPivotX = RootBottom.x - RootBottom.width * length / 2;
-    let leftPivotY;
-
-    // For right pivot: line from top right vertex angled toward bottom
     const rightPivotX = RootBottom.x + RootBottom.width * length / 2;
-    let rightPivotY;
+    let leftPivotY, rightPivotY;
 
     // Handle special cases for vertical angles (±90°)
     if (Math.abs(RootTop.angle) === 90) {
-        // For vertical angles, pivot points should be at the same Y level as top vertices
         leftPivotY = topLeftVertex.y;
         rightPivotY = topRightVertex.y;
     } else if (RootTop.angle == 0) {
         leftPivotY = topVertex.y + RootTop.length * length;
         rightPivotY = topVertex.y + RootTop.length * length;
-    }
-    else {
+    } else {
         // Normal case: calculate intersection using tangent
         leftPivotY = topLeftVertex.y + (leftPivotX - topLeftVertex.x) * Math.tan(-angleRad);
         rightPivotY = topRightVertex.y + (rightPivotX - topRightVertex.x) * Math.tan(-angleRad);
     }
 
+    // Return the maximum of original bottom Y, and pivot points plus bottom length
+    return Math.max(rightPivotY + RootBottom.length * length, leftPivotY + RootBottom.length * length);
+}
+
+/**
+ * Calculates pivot points for a single arm
+ * @param {Object} RootTop - Top route object
+ * @param {Object} RootBottom - Bottom route object
+ * @param {number} length - Calculated length (xHeight / 4)
+ * @return {Object} Object containing left and right pivot points
+ */
+function calculatePivotPoints(RootTop, RootBottom, length) {
+    let RootTopVertex = getSideRoadCoords(RootTop, length);
+    const topVertices = RootTopVertex.path[0].vertex;
+
+    // Get the angle in radians
+    const angleRad = RootTop.angle === 0 ? 0 : RootTop.angle / Math.abs(RootTop.angle) * (90 - Math.abs(RootTop.angle)) * Math.PI / 180;
+
+    // Get key vertices
+    const topLeftVertex = topVertices[0];
+    const topRightVertex = topVertices[topVertices.length - 1];
+    const topVertex = topVertices.reduce((min, vertex) => vertex.y < min.y ? vertex : min, topVertices[0]);
+
+    // Calculate pivot X coordinates
+    const leftPivotX = RootBottom.x - RootBottom.width * length / 2;
+    const midPivotX = RootBottom.x;
+    const rightPivotX = RootBottom.x + RootBottom.width * length / 2;
+    let leftPivotY, midPivotY, rightPivotY;
+
+    // Handle special cases for vertical angles (±90°)
+    if (Math.abs(RootTop.angle) === 90) {
+        leftPivotY = topLeftVertex.y;
+        midPivotY = topVertex.y;
+        rightPivotY = topRightVertex.y;
+    } else if (RootTop.angle == 0) {
+        leftPivotY = topVertex.y + RootTop.length * length;
+        midPivotY = topVertex.y + RootTop.length * length;
+        rightPivotY = topVertex.y + RootTop.length * length;
+    } else {
+        // Normal case: calculate intersection using tangent
+        leftPivotY = topLeftVertex.y + (leftPivotX - topLeftVertex.x) * Math.tan(-angleRad);
+        midPivotY = topRightVertex.y + (midPivotX - topRightVertex.x) * Math.tan(-angleRad);
+        rightPivotY = topRightVertex.y + (rightPivotX - topRightVertex.x) * Math.tan(-angleRad);
+    }
+
+    // Calculate radii
     let leftRadius = null;
     let rightRadius = null;
     switch (Math.sign(RootTop.angle)) {
@@ -84,37 +115,135 @@ function calcMainRoadVertices(xHeight, routeList) {
             break;
     }
 
-    const leftPivot = { x: leftPivotX, y: leftPivotY, display: 0, radius: leftRadius };
-    const rightPivot = { x: rightPivotX, y: rightPivotY, display: 0, radius: rightRadius };
+    return {
+        leftPivot: { x: leftPivotX, y: leftPivotY, display: 0, radius: leftRadius },
+        midPivot: { x: midPivotX, y: midPivotY, display: 0, radius: 2 * length },
+        rightPivot: { x: rightPivotX, y: rightPivotY, display: 0, radius: rightRadius },
+        topVertex: RootTopVertex,
+        angleRad
+    };
+}
 
-    let RootBottomVertex = getSideRoadCoords(RootBottom, length)
-
-    const vertexList = [...RootTopVertex.path[0].vertex, rightPivot, ...RootBottomVertex.path[0].vertex, leftPivot]
-    const arcList = RootTopVertex.path[0].arcs
+/**
+ * Processes vertex list and arcs for final output
+ * @param {Array} vertexList - List of vertices
+ * @param {Array} arcList - List of arcs
+ * @param {Array} remainingPath - Additional paths to include
+ * @return {Object} Processed vertex list object
+ */
+function processVertexListAndArcs(vertexList, arcList, remainingPath = []) {
     // Move the first vertex to the end of the list
     if (vertexList.length > 0) {
         const firstVertex = vertexList.shift();
         vertexList.push(firstVertex);
     }
-    assignVertexLabel(vertexList)
+    assignVertexLabel(vertexList);
 
     // remap the arc vertex
     function shiftV(v, vertexList) {
-        let id = v.match(/\d+/)[0]
-        id = id - 1 == 0 ? vertexList.length : id - 1
-        return `V${id}`
+        let id = v.match(/\d+/)[0];
+        id = id - 1 == 0 ? vertexList.length : id - 1;
+        return `V${id}`;
     }
     arcList.map(arc => {
-        arc.start = shiftV(arc.start, vertexList)
-        arc.end = shiftV(arc.end, vertexList)
-    })
-
-    const remainingPath = []
-    if (RootTopVertex.path.length > 1) {
-        remainingPath.push(...RootTopVertex.path.slice(-RootTopVertex.path.length + 1))
-    }
+        arc.start = shiftV(arc.start, vertexList);
+        arc.end = shiftV(arc.end, vertexList);
+    });
 
     return { path: [{ 'vertex': vertexList, 'arcs': [...arcList] }, ...remainingPath] };
+}
+
+/**
+ * Calculates vertices for Main Road with single arm (current implementation)
+ * @param {number} xHeight - X-height value
+ * @param {Array} routeList - List of routes
+ * @return {Object} Vertex list object
+ */
+function calcMainRoadVerticesSingleArm(xHeight, routeList) {
+    const length = xHeight / 4;
+    let RootBottom = routeList.filter(item => item.angle === 180)[0];
+    let RootTop = routeList.filter(item => item.angle !== 180)[0];
+
+    // Use common function to calculate pivot points
+    const { leftPivot, rightPivot, topVertex: RootTopVertex } = calculatePivotPoints(RootTop, RootBottom, length);
+
+    let RootBottomVertex = getSideRoadCoords(RootBottom, length);
+
+    const vertexList = [...RootTopVertex.path[0].vertex, rightPivot, ...RootBottomVertex.path[0].vertex, leftPivot];
+    const arcList = RootTopVertex.path[0].arcs;
+
+    const remainingPath = [];
+    if (RootTopVertex.path.length > 1) {
+        remainingPath.push(...RootTopVertex.path.slice(-RootTopVertex.path.length + 1));
+    }
+
+    return processVertexListAndArcs(vertexList, arcList, remainingPath);
+}
+
+/**
+ * Calculates vertices for Main Road with multiple arms
+ * @param {number} xHeight - X-height value
+ * @param {Array} routeList - List of routes
+ * @return {Object} Vertex list object
+ */
+function calcMainRoadVerticesMultipleArms(xHeight, routeList) {
+    const length = xHeight / 4;
+    let RootBottom = routeList.filter(item => item.angle === 180)[0];
+    let RootTops = routeList.filter(item => item.angle !== 180);
+
+    // For multiple arms, we need to calculate vertices for each arm and combine them
+    let allVertices = [];
+    let allArcs = [];
+    let lastRightPivot = null;
+
+    // Process each arm using the common pivot calculation function
+    RootTops.forEach((RootTop, index) => {
+        const { leftPivot, midPivot, rightPivot, topVertex: RootTopVertex } = calculatePivotPoints(RootTop, RootBottom, length);
+
+        // Add vertices for this arm
+        allVertices.push(...RootTopVertex.path[0].vertex);
+        if (index === RootTops.length - 1) {
+            // Only add right pivot after the last arm
+            allVertices.push(rightPivot);
+            lastRightPivot = rightPivot;
+        } else {
+            // Add mid pivot for all but the last arm
+            allVertices.push(midPivot);
+        }
+
+        // Collect arcs from this arm
+        allArcs.push(...RootTopVertex.path[0].arcs);
+    });
+
+    // Add bottom vertices
+    let RootBottomVertex = getSideRoadCoords(RootBottom, length);
+    allVertices.push(...RootBottomVertex.path[0].vertex);
+
+    // Add left pivot at the end (calculate based on first arm)
+    if (RootTops.length > 0) {
+        const { leftPivot } = calculatePivotPoints(RootTops[0], RootBottom, length);
+        allVertices.push(leftPivot);
+    }
+
+    return processVertexListAndArcs(allVertices, allArcs);
+}
+
+/**
+ * Calculates vertices for Main Road
+ * @param {number} xHeight - X-height value
+ * @param {Array} routeList - List of routes
+ * @return {Object} Vertex list object
+ */
+function calcMainRoadVertices(xHeight, routeList) {
+    const topRoutes = routeList.filter(item => item.angle !== 180);
+
+    if (topRoutes.length === 1) {
+        // Single arm - use existing implementation
+        return calcMainRoadVerticesSingleArm(xHeight, routeList);
+    } else {
+        // Multiple arms - use new implementation
+        return calcMainRoadVerticesMultipleArms(xHeight, routeList);
+    }
 }
 
 /**
@@ -417,17 +546,20 @@ class MainRoadSymbol extends BaseGroup {
         }
         const topList = this.routeList.filter(route => route.angle !== 180)[0];
         const bottomList = this.routeList.filter(route => route.angle === 180)[0];
-        const angleRad = topList.angle * Math.PI / 180;
+        const length = this.xHeight / 4;
 
-        let newBottom = topList.y + (Math.cos(angleRad) * topList.length + (topList.width / 2 * (1 - Math.cos(angleRad)) + bottomList.length)) * this.xHeight / 4;
         if (newSideRoad) {
             this.sideRoad.push(newSideRoad);
         }
 
+        // Use the extracted function to calculate the proper bottom Y coordinate
+        let newBottom = calculateMainRoadBottomY(topList, bottomList, length);
+
+        // Also consider side roads when calculating bottom position
         this.sideRoad.forEach(side => {
             const sideBottom = side.side ? side.basePolygon.vertex[4].y : side.basePolygon.vertex[3].y;
-            if (sideBottom + bottomList.length * this.xHeight / 4 > newBottom) {
-                newBottom = sideBottom + bottomList.length * this.xHeight / 4;
+            if (sideBottom + bottomList.length * length > newBottom) {
+                newBottom = sideBottom + bottomList.length * length;
             }
         });
 
@@ -449,6 +581,7 @@ class MainRoadSymbol extends BaseGroup {
         });
 
         this.replaceBasePolygon(newPolygon, false);
+        this.setCoords();
         //this.drawVertex(false);
         canvas.renderAll()
     }
@@ -569,7 +702,7 @@ class SideRoadSymbol extends BaseGroup {
         const mainVertex = mainRoad.basePolygon.vertex
         const leftPivot = mainVertex[mainVertex.length - 2].y
         const rightPivot = mainVertex[mainVertex.length - 6].y
-        const bottomPivotY = Math.max(leftPivot,rightPivot)
+        const bottomPivotY = Math.max(leftPivot, rightPivot)
 
         // Calculate vertices with current position
         let tempVertexList = calcSideRoadVertices(mainRoad.xHeight, mainRoad.routeList, routeList);
@@ -774,7 +907,10 @@ export {
     MainRoadSymbol,
     SideRoadSymbol,
     calcMainRoadVertices,
+    calcMainRoadVerticesSingleArm,
+    calcMainRoadVerticesMultipleArms,
     calcRoundaboutVertices,
     roadMapOnSelect,
     roadMapOnDeselect,
+    calculateMainRoadBottomY,
 };

@@ -4,13 +4,16 @@ import { CanvasGlobals } from '../canvas/canvas.js';
 import { MainRoadSymbol, SideRoadSymbol, } from '../objects/route.js';
 import { roadMapTemplate } from '../objects/template.js';
 
+// Import the calculateMainRoadBottomY function
+import { calculateMainRoadBottomY } from '../objects/route.js';
+
 const canvas = CanvasGlobals.canvas;
 const canvasObject = CanvasGlobals.canvasObject;
 
 let FormDrawMapComponent = {
   MapType: ['Main Line', 'Conventional Roundabout', 'Spiral Roundabout',],
-  MainEndShape: ['Arrow', 'Stub', 'RedBar', 'LaneDrop', 'Tee', 'Bifurcation'],
-  SideEndShape: ['Arrow', 'Stub',],
+  MainEndShape: ['Arrow', 'Stub', 'RedBar', 'LaneDrop', 'T-Junction', 'Y-Junction'],
+  SideEndShape: ['Arrow', 'Stub','RedBar'],
   RoundaboutFeatures: ['Normal', 'Auxiliary', 'U-turn'],
   permitAngle: [45, 60, 90],
   defaultRoute: [{ x: 0, y: 7, angle: 60, width: 4, shape: 'Arrow' }],
@@ -48,7 +51,7 @@ let FormDrawMapComponent = {
         routeList.forEach((route, index) => {
           var SideRoadParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
           const addRouteButton = GeneralHandler.createButton('button-addRoute', '+ Another Route Destination', SideRoadParamsContainer, 'input', FormDrawMapComponent.addRouteInput, 'click');
-          if (CanvasGlobals.canvas.getActiveObjects().length == 1 && CanvasGlobals.canvas.getActiveObject.functionalType === 'MainRoad') {
+          if (CanvasGlobals.canvas.getActiveObjects().length == 0 || CanvasGlobals.canvas.getActiveObject.functionalType !== 'MainRoad') {
             addRouteButton.classList.add('deactive'); // Set initial state to deactive
             addRouteButton.disabled = true;
           }
@@ -201,24 +204,24 @@ let FormDrawMapComponent = {
     const parentContainer = event.currentTarget.parentNode;
     // Find the angle display element within the same container
     const angleDisplay = document.getElementById('main-angle-display');
-    
+
     // Check if angleDisplay exists
     if (!angleDisplay) {
       console.error('Main angle display element not found');
       return;
     }
-    
+
     // Extract the current angle value
     const currentText = angleDisplay.innerText.slice(0, -1); // Remove the degree symbol
 
     // Define allowed angles for main road (can be different from side road angles)
     const mainRoadAngles = [-90, -60, -45, -30, 0, 30, 45, 60, 90];
     const angleIndex = mainRoadAngles.indexOf(parseInt(currentText));
-    
+
     // Determine if this is a left (counter-clockwise) or right (clockwise) button
     const isLeftButton = event.currentTarget.id.includes('rotate-left');
     const isRightButton = event.currentTarget.id.includes('rotate-right');
-    
+
     let newAngle;
     if (isLeftButton) {
       // Counter-clockwise: go to previous angle (or wrap to last)
@@ -230,7 +233,7 @@ let FormDrawMapComponent = {
       // Fallback to old behavior (clockwise)
       newAngle = mainRoadAngles[(angleIndex + 1) % mainRoadAngles.length];
     }
-    
+
     angleDisplay.innerText = newAngle + '°';
 
     // If we have a main road object being placed, update its angle
@@ -318,7 +321,12 @@ let FormDrawMapComponent = {
   createMainRoadObject: (options) => {
 
     // Calculate position based on angle
-    const mainAngle = options.mainAngle;
+    let mainAngle = options.mainAngle;
+    if (options.shape === 'T-Junction') {
+      mainAngle = -90;
+    } else if (options.shape === 'Y-Junction') {
+      mainAngle = -30;
+    }
     const angleRad = mainAngle * Math.PI / 180;
     let addRootwidth
     switch (Math.sign(mainAngle)) {
@@ -326,14 +334,14 @@ let FormDrawMapComponent = {
         addRootwidth = 0
         break
       case 1:
-        addRootwidth = -options.width / 2* options.xHeight / 4;
+        addRootwidth = -options.width / 2 * options.xHeight / 4;
         break
       case -1:
-        addRootwidth = options.width / 2* options.xHeight / 4;
+        addRootwidth = options.width / 2 * options.xHeight / 4;
         break
     }
 
-    // Create route list with angle applied
+    // Create initial route list with tip and preliminary bottom
     const routeList = [
       // tip
       {
@@ -344,7 +352,7 @@ let FormDrawMapComponent = {
         length: options.tipLength,
         shape: options.roadType == 'Main Line' ? options.shape : options.RAfeature
       },
-      // bottom
+      // bottom (preliminary position, will be corrected)
       {
         x: options.position.x - Math.sin(angleRad) * options.tipLength * options.xHeight / 4 + addRootwidth,
         y: options.position.y + (Math.cos(angleRad) * options.tipLength + (options.width / 2 * (1 - Math.cos(angleRad)) + options.rootLength)) * options.xHeight / 4,
@@ -354,6 +362,25 @@ let FormDrawMapComponent = {
         shape: options.roadType == 'Main Line' ? 'Stub' : options.RAfeature
       },
     ];
+
+    if (options.shape === 'T-Junction' || options.shape === 'Y-Junction') {
+      routeList.push({
+        x: options.position.x - 2 * Math.sin(angleRad) * options.tipLength * options.xHeight / 4 + addRootwidth * 2,
+        y: options.position.y,
+        angle: -mainAngle,
+        width: options.width,
+        length: options.tipLength,
+        shape: options.shape
+      });
+    }
+
+    // Use the extracted function to calculate the correct bottom Y coordinate
+    if (options.roadType === 'Main Line') {
+      const topRoute = routeList[0];
+      const bottomRoute = routeList[1];
+      const length = options.xHeight / 4;
+      bottomRoute.y = calculateMainRoadBottomY(topRoute, bottomRoute, length);
+    }
 
     // Create route options for the MainRoadSymbol
     const routeOptions = {

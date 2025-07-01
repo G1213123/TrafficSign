@@ -76,11 +76,13 @@ function activatePanelFromHash() {
   }
 }
 
+/*
 function updateHash(newHash) {
   if (window.location.hash !== `#${newHash}`) {
     window.location.hash = newHash;
   }
 }
+*/
 
 document.addEventListener('DOMContentLoaded', function () {
   // Initialize GeneralHandler first if needed (assuming it has an init function)
@@ -115,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Fallback for any `button.onclick = ` style handlers if not covered by initFn
             originalOnClick.call(this, event);
         }
-        updateHash(hashKey); // Update the hash
+        //updateHash(hashKey); // Update the hash
       });
     }
   });
