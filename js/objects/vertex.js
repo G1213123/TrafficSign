@@ -3,6 +3,7 @@
 
 import { CanvasGlobals } from "../canvas/canvas.js"
 import { globalAnchorTree, anchorShape } from './anchor.js';
+import { FormMeasureComponent } from '../sidebar/sb-measure.js'; // Import the event handler for sidebar toggling
 import { ShowHideSideBarEvent } from '../canvas/keyboardEvents.js'; // Import the event handler for sidebar toggling
 
 const canvas = CanvasGlobals.canvas; // Fabric.js canvas instance

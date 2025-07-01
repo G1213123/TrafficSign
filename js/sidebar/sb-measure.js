@@ -195,6 +195,9 @@ const FormMeasureComponent = {
   MeasureOnMouseClick: function (event) {
     if (event.e.button !== 0 && event.e.type !== 'touchend') return;
 
+    // clear selected objects to avoid interference
+    canvas.discardActiveObject();
+
     // If we have a snap target, use that vertex
     if (FormMeasureComponent.snapTarget) {
       // If this is the first click, store the vertex
@@ -210,7 +213,8 @@ const FormMeasureComponent = {
         // But create a new one with a different color
         FormMeasureComponent.clearSnapHighlight();
         FormMeasureComponent.addFirstVertexHighlight();
-      }      // If this is the second click, calculate and display measurement
+      }      
+      // If this is the second click, calculate and display measurement
       else {
         // Clear the dynamic line when second vertex is clicked
         FormMeasureComponent.clearDynamicLine();
@@ -247,7 +251,11 @@ const FormMeasureComponent = {
           To: ${secondVertex.label} (Object #${secondVertex.objectId})
           
           (Press Enter to continue)
-        `;        // Show measurement result and wait for Enter key
+        `;        
+        // Clear first vertex highlight
+        FormMeasureComponent.firstVertex = null;
+        
+        // Show measurement result and wait for Enter key
         showTextBox(measurementText, ' ', 'keydown', function handleKeyPress(event) {
           if (event.key === 'Enter') {
             hideTextBox();

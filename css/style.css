@@ -482,6 +482,9 @@ div.side-panel.close {
   font-size: 24px;
   border-radius: 4px;
   width: 25%;
+  cursor: pointer;
+  transition: background-color 0.4s;
+  border: none;
 }
 
 .rotate-right-button {
@@ -493,6 +496,9 @@ div.side-panel.close {
   font-size: 24px;
   border-radius: 4px;
   width: 25%;
+  cursor: pointer;
+  transition: background-color 0.4s;
+  border: none;
 }
 
 .rotate-left-button:hover,

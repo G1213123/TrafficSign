@@ -41,6 +41,9 @@ function calcMainRoadVertices(xHeight, routeList) {
     // Calculate right pivot: intersection from top right vertex (vertex[2]) to bottom at angle
     const topRightVertex = topVertices[topVertices.length - 1];
 
+    // Get the vertex with the minimum y value (topmost vertex)
+    const topVertex = topVertices.reduce((min, vertex) => vertex.y < min.y ? vertex : min, topVertices[0]);
+
     // For left pivot: line from top left vertex angled toward bottom
     const leftPivotX = RootBottom.x - RootBottom.width * length / 2;
     let leftPivotY;
@@ -55,8 +58,8 @@ function calcMainRoadVertices(xHeight, routeList) {
         leftPivotY = topLeftVertex.y;
         rightPivotY = topRightVertex.y;
     } else if (RootTop.angle == 0) {
-        leftPivotY = topLeftVertex.y + RootTop.length * length;
-        rightPivotY = topRightVertex.y + RootTop.length * length;
+        leftPivotY = topVertex.y + RootTop.length * length;
+        rightPivotY = topVertex.y + RootTop.length * length;
     }
     else {
         // Normal case: calculate intersection using tangent
@@ -446,7 +449,7 @@ class MainRoadSymbol extends BaseGroup {
         });
 
         this.replaceBasePolygon(newPolygon, false);
-        this.drawVertex(false);
+        //this.drawVertex(false);
         canvas.renderAll()
     }
 

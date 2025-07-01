@@ -20,16 +20,16 @@ const roadMapTemplate = {
     'RedBar': {
         path: [{
             'vertex': [
-                { x: -1, y: 2.667, label: 'V1', start: 0, display: 1 },
-                { x: 0, y: 2.667, label: 'V2', start: 1, display: 1 },
-                { x: 1, y: 2.667, label: 'V3', start: 0, display: 1 },
+                { x: -1, y: 0, label: 'V1', start: 0, display: 1 },
+                { x: 0, y: 0, label: 'V2', start: 1, display: 1 },
+                { x: 1, y: 0, label: 'V3', start: 0, display: 1 },
             ], 'arcs': []
         },{
             'vertex': [
-                { x: -3, y: 0, label: 'V4', start: 1, display: 1 },
-                { x: 3, y: 0, label: 'V5', start: 0, display: 1 },
-                { x: 3, y: 2, label: 'V6', start: 0, display: 1 },
-                { x: -3, y: 2, label: 'V7', start: 0, display: 1 },
+                { x: -3, y: -2.667, label: 'V14', start: 1, display: 1 },
+                { x: 3, y: -2.667, label: 'V15', start: 0, display: 1 },
+                { x: 3, y: -0.667, label: 'V16', start: 0, display: 1 },
+                { x: -3, y: -0.667, label: 'V17', start: 0, display: 1 },
             ], 'arcs': [], fill: 'rgb(224, 0, 0)'
         }],
     },
@@ -117,10 +117,10 @@ const roadMapTemplate = {
                 { x: -5, y: 0, label: 'V3', start: 0, display: 0 },
                 { x: -4.089, y: 0.244, label: 'V4', start: 0, display: 0 },
                 { x: 0, y: 7.327, label: 'V5', start: 0, display: 0, radius: 0.667 },
-                { x: 4.089, y: 0.244, label: 'V4', start: 0, display: 0 },
-                { x: 5, y: 0, label: 'V3', start: 0, display: 0 },
-                { x: 5.244, y: 0.911, label: 'V2', start: 0, display: 0 },
-                { x: 1, y: 8.262, label: 'V1', start: 1, display: 0, radius: 0.333 },
+                { x: 4.089, y: 0.244, label: 'V6', start: 0, display: 0 },
+                { x: 5, y: 0, label: 'V7', start: 0, display: 0 },
+                { x: 5.244, y: 0.911, label: 'V8', start: 0, display: 0 },
+                { x: 1, y: 8.262, label: 'V9', start: 0, display: 0, radius: 0.333 },
 
             ], 'arcs': [
             ]

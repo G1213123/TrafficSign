@@ -9,7 +9,7 @@ const canvasObject = CanvasGlobals.canvasObject;
 
 let FormDrawMapComponent = {
   MapType: ['Main Line', 'Conventional Roundabout', 'Spiral Roundabout',],
-  MainEndShape: ['Arrow', 'Stub', 'Left', 'Right', 'RedBar', 'Tee', 'LaneDrop', 'Bifurcation'],
+  MainEndShape: ['Arrow', 'Stub', 'RedBar', 'LaneDrop', 'Tee', 'Bifurcation'],
   SideEndShape: ['Arrow', 'Stub',],
   RoundaboutFeatures: ['Normal', 'Auxiliary', 'U-turn'],
   permitAngle: [45, 60, 90],
@@ -83,11 +83,12 @@ let FormDrawMapComponent = {
 
       // Add angle selector for main road using same structure as side road
       var mainAngleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, roadTypeSettingsContainer);
-      GeneralHandler.createButton(`main-rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', mainAngleContainer, null, FormDrawMapComponent.setMainAngle, 'click');
+      GeneralHandler.createButton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', mainAngleContainer, null, FormDrawMapComponent.setMainAngle, 'click');
       var mainAngleDisplay = GeneralHandler.createNode("div", { 'id': `main-angle-display`, 'class': 'angle-display' }, mainAngleContainer);
       mainAngleDisplay.innerText = '0°';
+      GeneralHandler.createButton(`rotate-right`, '<i class="fa-solid fa-rotate-right"></i>', mainAngleContainer, null, FormDrawMapComponent.setMainAngle, 'click');
 
-      GeneralHandler.createToggle(`Main Road Shape`, FormDrawMapComponent.MainEndShape, roadTypeSettingsContainer, 'Arrow', FormDrawMapComponent.drawMainRoadOnCursor, 4);
+      GeneralHandler.createToggle(`Main Road Shape`, FormDrawMapComponent.MainEndShape, roadTypeSettingsContainer, 'Arrow', FormDrawMapComponent.drawMainRoadOnCursor, 3);
     } else if (roadType === 'Conventional Roundabout') {
       // Placeholder for Conventional Roundabout settings
       GeneralHandler.createToggle(`Roundabout Type`, FormDrawMapComponent.RoundaboutFeatures, roadTypeSettingsContainer, 'Normal', FormDrawMapComponent.drawMainRoadOnCursor);
@@ -199,14 +200,37 @@ let FormDrawMapComponent = {
     // Find the parent container element
     const parentContainer = event.currentTarget.parentNode;
     // Find the angle display element within the same container
-    const angleDisplay = parentContainer.querySelector('[id^="main-angle-display"]');
+    const angleDisplay = document.getElementById('main-angle-display');
+    
+    // Check if angleDisplay exists
+    if (!angleDisplay) {
+      console.error('Main angle display element not found');
+      return;
+    }
+    
     // Extract the current angle value
     const currentText = angleDisplay.innerText.slice(0, -1); // Remove the degree symbol
 
     // Define allowed angles for main road (can be different from side road angles)
     const mainRoadAngles = [-90, -60, -45, -30, 0, 30, 45, 60, 90];
     const angleIndex = mainRoadAngles.indexOf(parseInt(currentText));
-    const newAngle = mainRoadAngles[(angleIndex + 1) % mainRoadAngles.length];
+    
+    // Determine if this is a left (counter-clockwise) or right (clockwise) button
+    const isLeftButton = event.currentTarget.id.includes('rotate-left');
+    const isRightButton = event.currentTarget.id.includes('rotate-right');
+    
+    let newAngle;
+    if (isLeftButton) {
+      // Counter-clockwise: go to previous angle (or wrap to last)
+      newAngle = angleIndex > 0 ? mainRoadAngles[angleIndex - 1] : mainRoadAngles[mainRoadAngles.length - 1];
+    } else if (isRightButton) {
+      // Clockwise: go to next angle (or wrap to first)
+      newAngle = angleIndex < mainRoadAngles.length - 1 ? mainRoadAngles[angleIndex + 1] : mainRoadAngles[0];
+    } else {
+      // Fallback to old behavior (clockwise)
+      newAngle = mainRoadAngles[(angleIndex + 1) % mainRoadAngles.length];
+    }
+    
     angleDisplay.innerText = newAngle + '°';
 
     // If we have a main road object being placed, update its angle
@@ -292,19 +316,10 @@ let FormDrawMapComponent = {
 
   // Create a function that returns a new MainRoadSymbol
   createMainRoadObject: (options) => {
-    let tipLength
-    if (options.shape == "Arrow" || options.shape == "Stub") {
-      tipLength = options.tipLength
-    } else {
-      const vertex = roadMapTemplate[options.shape].path[0].vertex
-      const shapeHeight = Math.max(...vertex.map(v => v.y))
-      tipLength = shapeHeight * options.width / 2
-    }
 
     // Calculate position based on angle
     const mainAngle = options.mainAngle;
     const angleRad = mainAngle * Math.PI / 180;
-    const totalLength = ( tipLength) * options.xHeight / 4;
     let addRootwidth
     switch (Math.sign(mainAngle)) {
       case 0:
@@ -331,8 +346,8 @@ let FormDrawMapComponent = {
       },
       // bottom
       {
-        x: options.position.x - Math.sin(angleRad) * totalLength + addRootwidth,
-        y: options.position.y + Math.cos(angleRad) * totalLength + (options.width / 2 * (1 - Math.cos(angleRad)) + options.rootLength) * options.xHeight / 4,
+        x: options.position.x - Math.sin(angleRad) * options.tipLength * options.xHeight / 4 + addRootwidth,
+        y: options.position.y + (Math.cos(angleRad) * options.tipLength + (options.width / 2 * (1 - Math.cos(angleRad)) + options.rootLength)) * options.xHeight / 4,
         angle: 180,
         width: options.width,
         length: options.rootLength,
@@ -346,7 +361,7 @@ let FormDrawMapComponent = {
       xHeight: options.xHeight,
       color: options.color,
       rootLength: options.rootLength,
-      tipLength: tipLength,
+      tipLength: options.tipLength,
       routeWidth: options.width,
       roadType: options.roadType,
       RAfeature: options.RAfeature,
