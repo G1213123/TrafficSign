@@ -33,7 +33,9 @@ let FormDrawMapComponent = {
 
       // Create a container for route parameters
       var MainRoadParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      GeneralHandler.createToggle('Main Road Type', FormDrawMapComponent.MapType, MainRoadParamsContainer, 'Main Line', FormDrawMapComponent.updateRoadTypeSettings);
+      
+      // Create the toggle
+      const roadTypeToggle = GeneralHandler.createToggle('Main Road Type', FormDrawMapComponent.MapType, MainRoadParamsContainer, 'Main Line', FormDrawMapComponent.updateRoadTypeSettings);
 
       // Create a container for road type-specific settings
       const roadTypeSettingsContainer = GeneralHandler.createNode("div", { 'class': 'road-type-settings' }, MainRoadParamsContainer);
@@ -80,9 +82,46 @@ let FormDrawMapComponent = {
     // Show settings based on road type
     if (roadType === 'Main Line') {
       // Main Line settings
+      const mainRoadShapeToggle = GeneralHandler.createToggle(`Main Road Shape`, FormDrawMapComponent.MainEndShape, roadTypeSettingsContainer, 'Arrow', FormDrawMapComponent.drawMainRoadOnCursor, 3);
+      
+      // Add help icon with SVG content to Main Road Shape toggle
+      setTimeout(() => {
+        try {
+          const toggleInputContainer = mainRoadShapeToggle.parentElement;
+          if (toggleInputContainer) {
+            const label = toggleInputContainer.querySelector('.placeholder');
+            if (label) {
+              // Create content with SVG image
+              const mainRoadShapeHelpContent = {
+                'Arrow': '<img src="images/main-road-shape-tooltip.svg" alt="Main Road Shape Guide" style="width: 300px; height: auto; display: block;">',
+                'Stub': '<img src="images/main-road-shape-tooltip.svg" alt="Main Road Shape Guide" style="width: 300px; height: auto; display: block;">',
+                'RedBar': '<img src="images/main-road-shape-tooltip.svg" alt="Main Road Shape Guide" style="width: 300px; height: auto; display: block;">',
+                'LaneDrop': '<img src="images/main-road-shape-tooltip.svg" alt="Main Road Shape Guide" style="width: 300px; height: auto; display: block;">',
+                'T-Junction': '<img src="images/main-road-shape-tooltip.svg" alt="Main Road Shape Guide" style="width: 300px; height: auto; display: block;">',
+                'Y-Junction': '<img src="images/main-road-shape-tooltip.svg" alt="Main Road Shape Guide" style="width: 300px; height: auto; display: block;">'
+              };
+              
+              const helpIcon = GeneralHandler.createHelpIconWithTooltip(
+                label, // Add to the label directly to be inline
+                'Main Road Shape-container', 
+                mainRoadShapeHelpContent,
+                { 
+                  position: 'right',    // Position to the right of sidebar
+                  scrollable: true, 
+                  showDelay: 150,       // Quick show for better responsiveness
+                  hideDelay: 1000       // Longer linger time for reading content
+                }
+              );
+            }
+          }
+        } catch (error) {
+          console.error('Error adding help icon to Main Road Shape:', error);
+        }
+      }, 50); // Small delay to ensure DOM is ready
+      
       GeneralHandler.createInput('main-width', 'Main Road Width', roadTypeSettingsContainer, 6, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
-      GeneralHandler.createInput('root-length', 'Main Road Root Length', roadTypeSettingsContainer, 7, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
-      GeneralHandler.createInput('tip-length', 'Main Road Tip Length', roadTypeSettingsContainer, 12, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
+      GeneralHandler.createInput('root-length', 'Main Road Approach Length', roadTypeSettingsContainer, 7, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
+      GeneralHandler.createInput('tip-length', 'Main Road Exit Length', roadTypeSettingsContainer, 12, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
 
       // Add angle selector for main road using same structure as side road
       var mainAngleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, roadTypeSettingsContainer);
@@ -91,7 +130,6 @@ let FormDrawMapComponent = {
       mainAngleDisplay.innerText = '0°';
       GeneralHandler.createButton(`rotate-right`, '<i class="fa-solid fa-rotate-right"></i>', mainAngleContainer, null, FormDrawMapComponent.setMainAngle, 'click');
 
-      GeneralHandler.createToggle(`Main Road Shape`, FormDrawMapComponent.MainEndShape, roadTypeSettingsContainer, 'Arrow', FormDrawMapComponent.drawMainRoadOnCursor, 3);
     } else if (roadType === 'Conventional Roundabout') {
       // Placeholder for Conventional Roundabout settings
       GeneralHandler.createToggle(`Roundabout Type`, FormDrawMapComponent.RoundaboutFeatures, roadTypeSettingsContainer, 'Normal', FormDrawMapComponent.drawMainRoadOnCursor);

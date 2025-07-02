@@ -1341,6 +1341,282 @@ div.side-panel.close {
 }
 
 
+/* Custom hints styling */
+.hints {
+  position: fixed; /* Changed from absolute to fixed for better positioning outside sidebar */
+  background-color: #333;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 16px;
+  z-index: 10000; /* Increased z-index to ensure it appears above sidebar */
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+  border: 2px solid white;
+  /* Added white border */
+  visibility: hidden; /* Start hidden */
+}
+
+/* Mobile responsive hints styling */
+@media (max-width: 768px) {
+  .hints {
+    white-space: normal; /* Allow text wrapping on mobile */
+    padding: 12px 16px; /* Larger padding for touch devices */
+    font-size: 14px; /* Slightly smaller font for mobile */
+    line-height: 1.4; /* Better line spacing */
+    border-radius: 8px; /* Larger border radius for mobile */
+    max-height: 80vh; /* Increased height for larger images */
+    overflow-y: auto; /* Allow scrolling if content is too long */
+  }
+  
+  .hints.scrollable {
+    max-height: 75vh; /* Reduce max height for scrollable hints on mobile */
+  }
+  
+  /* Mobile hints arrows - make them more prominent */
+  .hints.hints-arrow-bottom::before {
+    border-width: 8px; /* Larger arrow for mobile */
+    margin-left: -8px;
+  }
+  
+  .hints.hints-arrow-bottom::after {
+    border-width: 7px; /* Larger inner arrow for mobile */
+    margin-left: -7px;
+    margin-top: -2px;
+  }
+  
+  /* Ensure hints content is readable on mobile */
+  .hints h4 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 16px;
+  }
+  
+  .hints p {
+    margin-bottom: 8px;
+  }
+  
+  .hints ul {
+    margin-bottom: 8px;
+    padding-left: 20px;
+  }
+  
+  .hints li {
+    margin-bottom: 4px;
+  }
+  
+  /* Mobile image styling */
+  .hints img {
+    width: 90vw; /* Use most of screen width */
+    max-width: 500px; /* But not larger than 500px */
+    height: auto;
+    max-height: 60vh; /* Limit image height on mobile */
+    min-width: unset; /* Remove minimum width on mobile */
+  }
+}
+
+/* When hints is shown */
+.hints[style*="opacity: 1"] {
+  visibility: visible;
+}
+
+/* Scrollable hints styling */
+.hints.scrollable {
+  white-space: normal; /* Allow wrapping for scrollable hints */
+  max-width: 600px; /* Increased for images */
+  max-height: 400px; /* Increased for images */
+  overflow-y: auto;
+  word-wrap: break-word;
+}
+
+/* Help hints specific styling */
+.hints.help-hints {
+  font-family: Arial, sans-serif;
+  line-height: 1.4;
+}
+
+/* Image styling within hints */
+.hints img {
+  width: 500px; /* Fixed width for better readability */
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  border-radius: 4px;
+  min-width: 300px; /* Minimum width to ensure readability */
+}
+
+/* Help icon container */
+.help-icon-container {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  margin-bottom: 0;
+}
+
+/* Make placeholder labels flex to accommodate inline help icons */
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Help icon styling - matches sidebar design */
+.help-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #555;
+  border: 1px solid #777;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+  cursor: help;
+  transition: all 0.2s ease;
+  font-family: Arial, sans-serif;
+  flex-shrink: 0;
+}
+
+.help-icon:hover {
+  background-color: #6761A8;
+  border-color: #8f8f8f;
+  transform: scale(1.1);
+}
+
+/* Remove the default arrow completely */
+.hints::after {
+  display: none;
+}
+
+/* Add left-pointing arrow for right-positioned hints */
+.hints.hints-arrow-left::before {
+  /* Renamed from tooltip-right */
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -12px;
+  /* Adjusted for the border width */
+  margin-top: -6px;
+  /* Adjusted for slightly larger arrow */
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent white transparent transparent;
+  /* White border on arrow */
+}
+
+/* Add a second arrow inside the first to create the border effect on the arrow */
+.hints.hints-arrow-left::after {
+  /* Renamed from tooltip-right */
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -9px;
+  /* Position it inside the white border arrow */
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent #333 transparent transparent;
+  /* Inner arrow matches hints background */
+  display: block;
+  /* Override the previous display:none */
+}
+
+/* Add bottom-pointing arrow for top-positioned hints (mobile) */
+.hints.hints-arrow-bottom::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  /* Arrow at the bottom of the hints */
+  left: 50%;
+  margin-left: -6px;
+  /* Center the arrow */
+  border-width: 6px;
+  border-style: solid;
+  border-color: white transparent transparent transparent;
+  /* White border on arrow */
+}
+
+.hints.hints-arrow-bottom::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  /* Center the inner arrow */
+  margin-top: -2px;
+  /* Adjust to sit inside the border arrow, depends on border thickness */
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+  /* Inner arrow matches hints background */
+  display: block;
+}
+
+/* Add top-pointing arrow for bottom-positioned hints */
+.hints.hints-arrow-top::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  /* Arrow at the top of the hints */
+  left: 50%;
+  margin-left: -6px;
+  /* Center the arrow */
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent transparent white transparent;
+  /* White border on arrow */
+}
+
+.hints.hints-arrow-top::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  /* Center the inner arrow */
+  margin-bottom: -2px;
+  /* Adjust to sit inside the border arrow */
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #333 transparent;
+  /* Inner arrow matches hints background */
+  display: block;
+}
+
+/* Add right-pointing arrow for left-positioned hints (desktop fallback) */
+.hints.hints-arrow-right::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -12px;
+  /* Arrow on the right side */
+  margin-top: -6px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent transparent transparent white;
+  /* White border on arrow */
+}
+
+.hints.hints-arrow-right::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -9px;
+  /* Inner arrow on the right side */
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent transparent #333;
+  /* Inner arrow matches hints background */
+  display: block;
+}
+
+
 /* Unit display for text box in unit mode */
 .unit-display {
   position: absolute;

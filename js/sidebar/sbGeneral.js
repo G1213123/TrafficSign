@@ -458,6 +458,270 @@ let GeneralHandler = {
       CanvasGlobals.canvas.renderAll();
     }
   },
+
+  /**
+   * Creates a help icon with hints that displays content based on a toggle value
+   * @param {HTMLElement} parent - Parent container to attach the help icon
+   * @param {string} toggleContainerId - ID of the toggle container to monitor
+   * @param {Object} contentMap - Object mapping toggle values to help content
+   * @param {Object} options - Optional configuration {position: 'left'|'right'|'top'|'bottom', showDelay: number, hideDelay: number}
+   * @return {HTMLElement} The created help icon element
+   */
+  createHelpIconWithTooltip: function(parent, toggleContainerId, contentMap, options = {}) {
+    // Default options
+    const defaultOptions = {
+      position: 'left',   // Default hints position
+      scrollable: true,   // Make hints scrollable by default
+      showDelay: 200,     // Delay in milliseconds before showing hints
+      hideDelay: 800      // Delay in milliseconds before hiding hints (longer linger time)
+    };
+    const config = Object.assign(defaultOptions, options);
+
+    // Create help icon container
+    const helpContainer = GeneralHandler.createNode("div", { 
+      'class': 'help-icon-container' 
+    }, parent);
+
+    // Create the circled question mark
+    const helpIcon = GeneralHandler.createNode("div", { 
+      'class': 'help-icon',
+      'title': 'Hover for help' // Basic fallback hints
+    }, helpContainer);
+    helpIcon.innerHTML = '?';
+    
+    // Ensure the help icon has proper styles for interaction
+    helpIcon.style.pointerEvents = 'auto';
+    helpIcon.style.cursor = 'help';
+    helpIcon.style.zIndex = '1001';
+
+    // Create hints element
+    const hints = GeneralHandler.createNode("div", { 
+      'class': `hints help-hints ${config.scrollable ? 'scrollable' : ''}` 
+    }, document.body);
+    
+    // Store timeout references for showing and hiding hints
+    let showTimeout = null;
+    let hideTimeout = null;
+    let isHintsVisible = false;
+    
+    // Function to reposition hints on window resize
+    const repositionHints = () => {
+      if (isHintsVisible && hints.style.opacity === '1') {
+        GeneralHandler.positionTooltip(hints, helpIcon, config.position, true);
+      }
+    };
+    
+    // Add window resize listener for responsive repositioning
+    window.addEventListener('resize', GeneralHandler.debounce(repositionHints, 150));
+    
+    // Function to get current content based on toggle value
+    const getCurrentContent = () => {
+      const toggleContainer = document.getElementById(toggleContainerId);
+      if (!toggleContainer) return 'Help content not available';
+      
+      const activeValue = GeneralHandler.getToggleValue(toggleContainerId);
+      return contentMap[activeValue] || 'No help available for this option';
+    };
+
+    // Function to show hints with delay
+    const showHints = (event) => {
+      // Clear any pending hide timeout
+      if (hideTimeout) {
+        clearTimeout(hideTimeout);
+        hideTimeout = null;
+      }
+      
+      // Clear any existing show timeout
+      if (showTimeout) {
+        clearTimeout(showTimeout);
+      }
+      
+      // Set new timeout for showing
+      showTimeout = setTimeout(() => {
+        const content = getCurrentContent();
+        hints.innerHTML = content;
+        hints.style.visibility = 'visible';
+        hints.style.opacity = '1';
+        hints.style.pointerEvents = 'auto';
+        isHintsVisible = true;
+
+        // Position the hints
+        GeneralHandler.positionTooltip(hints, helpIcon, config.position, true); // true = outsideSidebar
+        showTimeout = null;
+      }, config.showDelay);
+    };
+
+    // Function to hide hints with delay
+    const hideHints = () => {
+      // Clear any pending show timeout
+      if (showTimeout) {
+        clearTimeout(showTimeout);
+        showTimeout = null;
+      }
+      
+      // Clear any existing hide timeout
+      if (hideTimeout) {
+        clearTimeout(hideTimeout);
+      }
+      
+      // Set new timeout for hiding
+      hideTimeout = setTimeout(() => {
+        hints.style.opacity = '0';
+        hints.style.pointerEvents = 'none';
+        isHintsVisible = false;
+        // Hide visibility after transition completes
+        setTimeout(() => {
+          if (hints.style.opacity === '0') {
+            hints.style.visibility = 'hidden';
+          }
+        }, 200); // Match the CSS transition duration
+        hideTimeout = null;
+      }, config.hideDelay);
+    };
+
+    // Function to cancel hide and show immediately (for when mouse enters hints)
+    const cancelHideAndShow = () => {
+      // Clear both timeouts
+      if (hideTimeout) {
+        clearTimeout(hideTimeout);
+        hideTimeout = null;
+      }
+      if (showTimeout) {
+        clearTimeout(showTimeout);
+        showTimeout = null;
+      }
+      
+      // Show immediately if not already visible
+      if (hints.style.opacity !== '1') {
+        const content = getCurrentContent();
+        hints.innerHTML = content;
+        hints.style.visibility = 'visible';
+        hints.style.opacity = '1';
+        hints.style.pointerEvents = 'auto';
+        isHintsVisible = true;
+        GeneralHandler.positionTooltip(hints, helpIcon, config.position, true); // true = outsideSidebar
+      }
+    };
+
+    // Function to hide immediately (for when mouse leaves hints)
+    const hideImmediately = () => {
+      // Clear show timeout if pending
+      if (showTimeout) {
+        clearTimeout(showTimeout);
+        showTimeout = null;
+      }
+      
+      // Hide with the configured delay
+      hideHints();
+    };
+
+    // Add event listeners for help icon with error handling
+    try {
+      helpIcon.addEventListener('mouseenter', showHints);
+      helpIcon.addEventListener('mouseleave', hideHints);
+      
+      // Add a click event as a fallback test
+      helpIcon.addEventListener('click', function(e) {
+        e.preventDefault();
+        // Show hints on click as fallback
+        showHints(e);
+      });
+    } catch (error) {
+      console.error('Error attaching help icon event listeners:', error);
+    }
+    
+    // Add event listeners for hints itself to prevent hiding when hovering over it
+    try {
+      hints.addEventListener('mouseenter', cancelHideAndShow);
+      hints.addEventListener('mouseleave', hideImmediately);
+    } catch (error) {
+      console.error('Error attaching hints event listeners:', error);
+    }
+
+    // Store reference to cleanup function
+    helpIcon.cleanupTooltip = () => {
+      if (showTimeout) {
+        clearTimeout(showTimeout);
+        showTimeout = null;
+      }
+      if (hideTimeout) {
+        clearTimeout(hideTimeout);
+        hideTimeout = null;
+      }
+      // Remove resize listener
+      window.removeEventListener('resize', repositionHints);
+      if (document.body.contains(hints)) {
+        document.body.removeChild(hints);
+      }
+    };
+
+    return helpIcon;
+  },
+
+  /**
+   * Positions a hints relative to a target element
+   * @param {HTMLElement} hints - The hints element
+   * @param {HTMLElement} target - The target element to position relative to
+   * @param {string} position - Position preference ('left', 'right', 'top', 'bottom')
+   * @param {boolean} outsideSidebar - Whether to position hints outside the sidebar
+   */
+  positionTooltip: function(hints, target, position = 'left', outsideSidebar = false) {
+    const targetRect = target.getBoundingClientRect();
+    const hintsRect = hints.getBoundingClientRect();
+    const viewport = {
+      width: window.innerWidth,
+      height: window.innerHeight
+    };
+
+    // Clear existing arrow classes
+    hints.classList.remove('hints-arrow-left', 'hints-arrow-right', 'hints-arrow-top', 'hints-arrow-bottom');
+
+    let left, top;
+
+    // Detect if we're in mobile layout (screen width < 768px or sidebar has mobile positioning)
+    const isMobile = viewport.width < 768;
+    const sidebar = document.getElementById('side-panel');
+    
+    // If outsideSidebar is true, position tooltip appropriately for desktop/mobile
+    if (outsideSidebar && sidebar) {
+      const sidebarRect = sidebar.getBoundingClientRect();
+      
+      if (isMobile) {
+        // Mobile: sidebar is at bottom, hints should be above it and span most of screen width
+        hints.style.maxWidth = `${Math.min(600, viewport.width - 40)}px`; // Larger max width for images
+        hints.style.width = `${Math.min(500, viewport.width - 40)}px`; // Larger responsive width
+        
+        // Position hints above the sidebar
+        left = 2; // 2px from left edge
+        const bottom = viewport.height - sidebarRect.top + 48; // Above sidebar with margin from bottom
+        hints.style.bottom = bottom + 'px';
+        hints.style.top = ''; // Clear any previous top value
+        
+        hints.classList.add('hints-arrow-bottom'); // Arrow pointing down to sidebar
+      } else {
+        // Desktop: sidebar is on left, hints to the right
+        left = sidebarRect.right + 70; // Reduced margin since hints is larger
+        const bottom = viewport.height - targetRect.top - hintsRect.height; // Position so hints top aligns with target top
+        hints.style.bottom = bottom + 'px';
+        hints.style.top = ''; // Clear any previous top value
+        hints.classList.add('hints-arrow-left');
+        
+        // Reset width for desktop
+        hints.style.width = '';
+        hints.style.maxWidth = '600px'; // Increased for larger images
+      }
+    } 
+    
+    // Ensure hints doesn't go off screen (check bottom bounds)
+    const currentBottom = parseInt(hints.style.bottom);
+    if (currentBottom < 10) {
+      hints.style.bottom = '10px';
+    } else if (currentBottom > viewport.height - 48) {
+      hints.style.bottom = (viewport.height - 48) + 'px';
+    }
+
+    hints.style.left = left + 'px';
+  },
   
   /**
    * Creates a new object and activates the snapping system for it
