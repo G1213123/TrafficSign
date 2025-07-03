@@ -102,7 +102,7 @@ const roadMapTemplate = {
             ], 'arcs': []
         }],
     },
-    'LaneDrop': {
+    /*'LaneDrop': {
         path: [{
             'vertex': [
                 { x: -1, y: 6.712, label: 'V1', start: 1, display: 0 },
@@ -116,6 +116,15 @@ const roadMapTemplate = {
                 { start: 'V1', end: 'V2', radius: 1, direction: 0, sweep: 0 },
                 { start: 'V6', end: 'V7', radius: 3, direction: 1, sweep: 0 },
             ]
+        }],
+    },*/
+    'LaneDrop': {
+        path: [{
+            'vertex': [
+                { x: -1, y: 1, label: 'V1', start: 1, display: 1 },
+                { x: 0, y: 0, label: 'V2', start: 0, display: 1 },
+                { x: 1, y: 1, label: 'V3', start: 0, display: 1 },
+            ], 'arcs': []
         }],
     },
     /*'Bifurcation': {

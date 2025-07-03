@@ -357,13 +357,18 @@ let FormDrawMapComponent = {
 
   // Create a function that returns a new MainRoadSymbol
   createMainRoadObject: (options) => {
-
+    let tipLength = options.tipLength
+    let rootLength = options.rootLength
     // Calculate position based on angle
     let mainAngle = options.mainAngle;
     if (options.shape === 'T-Junction') {
       mainAngle = -90;
     } else if (options.shape === 'Y-Junction') {
       mainAngle = -30;
+    } else if (options.shape === 'LaneDrop'){
+      mainAngle = -60
+      tipLength = 18.45
+      rootLength = 12
     }
     const angleRad = mainAngle * Math.PI / 180;
     let addRootwidth
@@ -387,13 +392,13 @@ let FormDrawMapComponent = {
         y: options.position.y,
         angle: mainAngle,
         width: options.width,
-        length: options.tipLength,
+        length: tipLength,
         shape: options.roadType == 'Main Line' ? options.shape : options.RAfeature
       },
       // bottom (preliminary position, will be corrected)
       {
-        x: options.position.x - Math.sin(angleRad) * options.tipLength * options.xHeight / 4 + addRootwidth,
-        y: options.position.y + (Math.cos(angleRad) * options.tipLength + (options.width / 2 * (1 - Math.cos(angleRad)) + options.rootLength)) * options.xHeight / 4,
+        x: options.position.x - Math.sin(angleRad) * tipLength * options.xHeight / 4 + addRootwidth,
+        y: options.position.y + (Math.cos(angleRad) * tipLength + (options.width / 2 * (1 - Math.cos(angleRad)) + options.rootLength)) * options.xHeight / 4,
         angle: 180,
         width: options.width,
         length: options.rootLength,
@@ -403,7 +408,7 @@ let FormDrawMapComponent = {
 
     if (options.shape === 'T-Junction' || options.shape === 'Y-Junction') {
       routeList.push({
-        x: options.position.x - 2 * Math.sin(angleRad) * options.tipLength * options.xHeight / 4 + addRootwidth * 2,
+        x: options.position.x - 2 * Math.sin(angleRad) * tipLength * options.xHeight / 4 + addRootwidth * 2,
         y: options.position.y,
         angle: -mainAngle,
         width: options.width,
