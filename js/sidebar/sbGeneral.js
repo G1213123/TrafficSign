@@ -701,9 +701,9 @@ let GeneralHandler = {
       } else {
         // Desktop: sidebar is on left, hints to the right
         left = sidebarRect.right + 70; // Reduced margin since hints is larger
-        const bottom = viewport.height - targetRect.top - hintsRect.height; // Position so hints top aligns with target top
-        hints.style.bottom = bottom + 'px';
-        hints.style.top = ''; // Clear any previous top value
+        const top =  targetRect.top; // Position so hints top aligns with target top
+        hints.style.top = top + 'px';
+        hints.style.bottom = ''; // Clear any previous bottom value
         hints.classList.add('hints-arrow-left');
         
         // Reset width for desktop

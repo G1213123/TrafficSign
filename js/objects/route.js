@@ -9,9 +9,9 @@ const canvas = CanvasGlobals.canvas;
 const canvasObject = CanvasGlobals.canvasObject;
 
 const calcVertexType = {
-    'Main Line': (xHeight, routeList) => calcMainRoadVertices(xHeight, routeList),
-    'Conventional Roundabout': (xHeight, routeList) => calcRoundaboutVertices('Conventional', xHeight, routeList),
-    'Spiral Roundabout': (xHeight, routeList) => calcRoundaboutVertices('Spiral', xHeight, routeList)
+    'Main Line': (xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) => calcMainRoadVertices(xHeight, routeList, innerCornerRadius, outerCornerRadius),
+    'Conventional Roundabout': (xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) => calcRoundaboutVertices('Conventional', xHeight, routeList),
+    'Spiral Roundabout': (xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) => calcRoundaboutVertices('Spiral', xHeight, routeList)
 }
 
 // Extract drawing functions from FormDrawMapComponent
@@ -61,9 +61,11 @@ function calculateMainRoadBottomY(RootTop, RootBottom, length) {
  * @param {Object} RootTop - Top route object
  * @param {Object} RootBottom - Bottom route object
  * @param {number} length - Calculated length (xHeight / 4)
+ * @param {number} innerCornerRadius - Inner corner radius value
+ * @param {number} outerCornerRadius - Outer corner radius value
  * @return {Object} Object containing left and right pivot points
  */
-function calculatePivotPoints(RootTop, RootBottom, length) {
+function calculatePivotPoints(RootTop, RootBottom, length, innerCornerRadius = null, outerCornerRadius = null) {
     let RootTopVertex = getSideRoadCoords(RootTop, length);
     const topVertices = RootTopVertex.path[0].vertex;
 
@@ -97,22 +99,42 @@ function calculatePivotPoints(RootTop, RootBottom, length) {
         rightPivotY = topRightVertex.y + (rightPivotX - topRightVertex.x) * Math.tan(-angleRad);
     }
 
-    // Calculate radii
+    // Calculate radii - use provided values if available, otherwise use default calculation
     let leftRadius = null;
     let rightRadius = null;
-    switch (Math.sign(RootTop.angle)) {
-        case 0:
-            leftRadius = null;
-            rightRadius = null;
-            break;
-        case 1:
-            leftRadius = 4 * length;
-            rightRadius = length;
-            break;
-        case -1:
-            leftRadius = length;
-            rightRadius = 4 * length;
-            break;
+    
+    if (innerCornerRadius !== null && outerCornerRadius !== null) {
+        // Use provided radius values
+        switch (Math.sign(RootTop.angle)) {
+            case 0:
+                leftRadius = null;
+                rightRadius = null;
+                break;
+            case 1:
+                leftRadius = outerCornerRadius * length;
+                rightRadius = innerCornerRadius * length;
+                break;
+            case -1:
+                leftRadius = innerCornerRadius * length;
+                rightRadius = outerCornerRadius * length;
+                break;
+        }
+    } else {
+        // Use default calculation
+        switch (Math.sign(RootTop.angle)) {
+            case 0:
+                leftRadius = null;
+                rightRadius = null;
+                break;
+            case 1:
+                leftRadius = 4 * length;
+                rightRadius = length;
+                break;
+            case -1:
+                leftRadius = length;
+                rightRadius = 4 * length;
+                break;
+        }
     }
 
     return {
@@ -159,13 +181,13 @@ function processVertexListAndArcs(vertexList, arcList, remainingPath = []) {
  * @param {Array} routeList - List of routes
  * @return {Object} Vertex list object
  */
-function calcMainRoadVerticesSingleArm(xHeight, routeList) {
+function calcMainRoadVerticesSingleArm(xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) {
     const length = xHeight / 4;
     let RootBottom = routeList.filter(item => item.angle === 180)[0];
     let RootTop = routeList.filter(item => item.angle !== 180)[0];
 
     // Use common function to calculate pivot points
-    const { leftPivot, rightPivot, topVertex: RootTopVertex } = calculatePivotPoints(RootTop, RootBottom, length);
+    const { leftPivot, rightPivot, topVertex: RootTopVertex } = calculatePivotPoints(RootTop, RootBottom, length, innerCornerRadius, outerCornerRadius);
 
     let RootBottomVertex = getSideRoadCoords(RootBottom, length);
 
@@ -186,7 +208,7 @@ function calcMainRoadVerticesSingleArm(xHeight, routeList) {
  * @param {Array} routeList - List of routes
  * @return {Object} Vertex list object
  */
-function calcMainRoadVerticesMultipleArms(xHeight, routeList) {
+function calcMainRoadVerticesMultipleArms(xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) {
     const length = xHeight / 4;
     let RootBottom = routeList.filter(item => item.angle === 180)[0];
     let RootTops = routeList.filter(item => item.angle !== 180);
@@ -198,7 +220,7 @@ function calcMainRoadVerticesMultipleArms(xHeight, routeList) {
 
     // Process each arm using the common pivot calculation function
     RootTops.forEach((RootTop, index) => {
-        const { leftPivot, midPivot, rightPivot, topVertex: RootTopVertex } = calculatePivotPoints(RootTop, RootBottom, length);
+        const { leftPivot, midPivot, rightPivot, topVertex: RootTopVertex } = calculatePivotPoints(RootTop, RootBottom, length, innerCornerRadius, outerCornerRadius);
 
         // Add vertices for this arm
         allVertices.push(...RootTopVertex.path[0].vertex);
@@ -221,7 +243,7 @@ function calcMainRoadVerticesMultipleArms(xHeight, routeList) {
 
     // Add left pivot at the end (calculate based on first arm)
     if (RootTops.length > 0) {
-        const { leftPivot } = calculatePivotPoints(RootTops[0], RootBottom, length);
+        const { leftPivot } = calculatePivotPoints(RootTops[0], RootBottom, length, innerCornerRadius, outerCornerRadius);
         allVertices.push(leftPivot);
     }
 
@@ -234,15 +256,15 @@ function calcMainRoadVerticesMultipleArms(xHeight, routeList) {
  * @param {Array} routeList - List of routes
  * @return {Object} Vertex list object
  */
-function calcMainRoadVertices(xHeight, routeList) {
+function calcMainRoadVertices(xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) {
     const topRoutes = routeList.filter(item => item.angle !== 180);
 
     if (topRoutes.length === 1) {
         // Single arm - use existing implementation
-        return calcMainRoadVerticesSingleArm(xHeight, routeList);
+        return calcMainRoadVerticesSingleArm(xHeight, routeList, innerCornerRadius, outerCornerRadius);
     } else {
         // Multiple arms - use new implementation
-        return calcMainRoadVerticesMultipleArms(xHeight, routeList);
+        return calcMainRoadVerticesMultipleArms(xHeight, routeList, innerCornerRadius, outerCornerRadius);
     }
 }
 
@@ -493,6 +515,8 @@ class MainRoadSymbol extends BaseGroup {
         this.roadType = options.roadType || 'Main Line';
         this.sideRoad = [];
         this.RAfeature = options.RAfeature || 'Conventional';
+        this.innerCornerRadius = options.innerCornerRadius || null;
+        this.outerCornerRadius = options.outerCornerRadius || null;
 
         this.initialize();
 
@@ -508,7 +532,7 @@ class MainRoadSymbol extends BaseGroup {
      * @return {MainRoadSymbol} - The initialized route
      */
     initialize() {
-        const vertexList = calcVertexType[this.roadType](this.xHeight, this.routeList)
+        const vertexList = calcVertexType[this.roadType](this.xHeight, this.routeList, this.innerCornerRadius, this.outerCornerRadius)
         const arrow = new GlyphPath();
         arrow.initialize(vertexList, {
             left: 0,
@@ -568,7 +592,7 @@ class MainRoadSymbol extends BaseGroup {
                 route.y = newBottom;
             }
         });
-        let newVertexList = calcVertexType[this.roadType](this.xHeight, this.routeList);
+        let newVertexList = calcVertexType[this.roadType](this.xHeight, this.routeList, this.innerCornerRadius, this.outerCornerRadius);
         const newPolygon = new GlyphPath();
         newPolygon.initialize(newVertexList, {
             left: 0,
@@ -910,6 +934,7 @@ export {
     calcMainRoadVerticesSingleArm,
     calcMainRoadVerticesMultipleArms,
     calcRoundaboutVertices,
+    calcVertexType,
     roadMapOnSelect,
     roadMapOnDeselect,
     calculateMainRoadBottomY,

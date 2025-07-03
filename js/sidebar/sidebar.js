@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // FormSettingsComponent.settingsPanelInit(); // Initialized by default or on first load
      settingsButton.addEventListener('click', () => { // Ensure hash updates
         FormSettingsComponent.settingsPanelInit(); // Redundant if already handled by generic setup, but safe
-        updateHash('settings');
+        //updateHash('settings');
     });
   }
   // Tracker needs special handling due to its instance-based setup

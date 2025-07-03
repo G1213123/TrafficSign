@@ -1344,19 +1344,20 @@ div.side-panel.close {
 /* Custom hints styling */
 .hints {
   position: fixed; /* Changed from absolute to fixed for better positioning outside sidebar */
-  background-color: #333;
+  background-color: rgba(45, 45, 45, 0.95);
   color: white;
-  padding: 8px 12px;
-  border-radius: 4px;
+  padding: 12px 16px;
+  border-radius: 12px;
   font-size: 16px;
   z-index: 10000; /* Increased z-index to ensure it appears above sidebar */
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.2s ease-in-out;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
   white-space: nowrap;
-  border: 2px solid white;
-  /* Added white border */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  /* Added backdrop blur for modern glass effect */
   visibility: hidden; /* Start hidden */
 }
 
@@ -1430,6 +1431,32 @@ div.side-panel.close {
   max-height: 400px; /* Increased for images */
   overflow-y: auto;
   word-wrap: break-word;
+}
+
+/* Custom scrollbar for hints */
+.hints.scrollable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.hints.scrollable::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.hints.scrollable::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.hints.scrollable::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Firefox scrollbar styling */
+.hints.scrollable {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1);
 }
 
 /* Help hints specific styling */

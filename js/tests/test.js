@@ -1412,7 +1412,7 @@ const RouteTest = {
     const branchTopY = sideRoadTopVertices.y;
 
     passed = passed && TestTracker.assertTrue(
-      branchTopY >= bottomPivotY,
+      Math.abs(branchTopY - bottomPivotY) < 1 ,
       `Side Road top (${branchTopY}) should not be above Main Road tip position (${bottomPivotY})`
     );
 

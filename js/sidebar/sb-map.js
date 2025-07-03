@@ -1,7 +1,7 @@
 /* Draw Map Panel */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
-import { MainRoadSymbol, SideRoadSymbol, } from '../objects/route.js';
+import { MainRoadSymbol, SideRoadSymbol, calcVertexType } from '../objects/route.js';
 import { roadMapTemplate } from '../objects/template.js';
 
 // Import the calculateMainRoadBottomY function
@@ -82,7 +82,7 @@ let FormDrawMapComponent = {
     // Show settings based on road type
     if (roadType === 'Main Line') {
       // Main Line settings
-      const mainRoadShapeToggle = GeneralHandler.createToggle(`Main Road Shape`, FormDrawMapComponent.MainEndShape, roadTypeSettingsContainer, 'Arrow', FormDrawMapComponent.drawMainRoadOnCursor, 3);
+      const mainRoadShapeToggle = GeneralHandler.createToggle(`Main Road Shape`, FormDrawMapComponent.MainEndShape, roadTypeSettingsContainer, 'Arrow', FormDrawMapComponent.onMainRoadShapeChange, 3);
       
       // Add help icon with SVG content to Main Road Shape toggle
       setTimeout(() => {
@@ -122,6 +122,11 @@ let FormDrawMapComponent = {
       GeneralHandler.createInput('main-width', 'Main Road Width', roadTypeSettingsContainer, 6, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
       GeneralHandler.createInput('root-length', 'Main Road Approach Length', roadTypeSettingsContainer, 7, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
       GeneralHandler.createInput('tip-length', 'Main Road Exit Length', roadTypeSettingsContainer, 12, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
+      
+      // Corner radius inputs container - initially hidden
+      const cornerRadiusContainer = GeneralHandler.createNode("div", { 'class': 'corner-radius-container', 'style': 'display: none;' }, roadTypeSettingsContainer);
+      GeneralHandler.createInput('inner-corner-radius', 'Inner Corner Radius', cornerRadiusContainer, 1, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
+      GeneralHandler.createInput('outer-corner-radius', 'Outer Corner Radius', cornerRadiusContainer, 4, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
 
       // Add angle selector for main road using same structure as side road
       var mainAngleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, roadTypeSettingsContainer);
@@ -129,6 +134,11 @@ let FormDrawMapComponent = {
       var mainAngleDisplay = GeneralHandler.createNode("div", { 'id': `main-angle-display`, 'class': 'angle-display' }, mainAngleContainer);
       mainAngleDisplay.innerText = '0°';
       GeneralHandler.createButton(`rotate-right`, '<i class="fa-solid fa-rotate-right"></i>', mainAngleContainer, null, FormDrawMapComponent.setMainAngle, 'click');
+
+      // Initial check for corner radius visibility (default is Arrow, so hide them)
+      setTimeout(() => {
+        FormDrawMapComponent.onMainRoadShapeChange();
+      }, 100);
 
     } else if (roadType === 'Conventional Roundabout') {
       // Placeholder for Conventional Roundabout settings
@@ -139,6 +149,27 @@ let FormDrawMapComponent = {
     }
   },
 
+  // Function to handle Main Road Shape changes
+  onMainRoadShapeChange: function() {
+    // Get the selected shape
+    const selectedShape = GeneralHandler.getToggleValue('Main Road Shape-container');
+    
+    // Find the corner radius container
+    const cornerRadiusContainer = document.querySelector('.corner-radius-container');
+    
+    if (cornerRadiusContainer) {
+      // Show corner radius inputs only for LaneDrop shape
+      if (selectedShape === 'LaneDrop') {
+        cornerRadiusContainer.style.display = 'block';
+      } else {
+        cornerRadiusContainer.style.display = 'none';
+      }
+    }
+    
+    // Call the original drawing function
+    FormDrawMapComponent.drawMainRoadOnCursor();
+  },
+
   gatherMainRoadParams: function () {
     const xHeight = parseInt(document.getElementById('input-xHeight').value);
     const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
@@ -147,6 +178,8 @@ let FormDrawMapComponent = {
     const rootLengthElement = document.getElementById('root-length');
     const tipLengthElement = document.getElementById('tip-length');
     const mainWidthElement = document.getElementById('main-width');
+    const innerCornerRadiusElement = document.getElementById('inner-corner-radius');
+    const outerCornerRadiusElement = document.getElementById('outer-corner-radius');
     const mainRoadShapeContainer = document.getElementById('Main Road Shape-container');
     const roundaboutFeaturesContainer = document.getElementById('Roundabout Type-container');
     const mainAngleDisplayElement = document.getElementById('main-angle-display');
@@ -155,6 +188,15 @@ let FormDrawMapComponent = {
     const tipLength = tipLengthElement ? parseInt(tipLengthElement.value) : null;
     const mainWidth = mainWidthElement ? parseInt(mainWidthElement.value) : null;
     const endShape = mainRoadShapeContainer ? GeneralHandler.getToggleValue('Main Road Shape-container') : null;
+    
+    // Only get radius values if LaneDrop is selected and inputs exist
+    let innerCornerRadius = null;
+    let outerCornerRadius = null;
+    if (endShape === 'LaneDrop') {
+      innerCornerRadius = innerCornerRadiusElement ? parseFloat(innerCornerRadiusElement.value) : null;
+      outerCornerRadius = outerCornerRadiusElement ? parseFloat(outerCornerRadiusElement.value) : null;
+    }
+    
     const roundaboutFeatures = roundaboutFeaturesContainer ? GeneralHandler.getToggleValue('Roundabout Type-container') : null;
     const mainAngle = mainAngleDisplayElement ? parseInt(mainAngleDisplayElement.innerText.slice(0, -1)) : 0;
 
@@ -165,6 +207,8 @@ let FormDrawMapComponent = {
       rootLength: rootLength,
       tipLength: tipLength,
       mainWidth: mainWidth,
+      innerCornerRadius: innerCornerRadius,
+      outerCornerRadius: outerCornerRadius,
       shape: endShape,
       width: mainWidth,
       RAfeature: roundaboutFeatures,
@@ -307,7 +351,7 @@ let FormDrawMapComponent = {
     document.addEventListener('keydown', FormDrawMapComponent.cancelDraw);
 
     // Get parameters either from DOM elements or provided params
-    let xHeight, rootLength, tipLength, color, width, shape, roadType, RAfeature, mainAngle;
+    let xHeight, rootLength, tipLength, color, width, shape, roadType, RAfeature, mainAngle, innerCornerRadius, outerCornerRadius;
 
     if (params) {
       xHeight = params.xHeight || 100;
@@ -319,6 +363,8 @@ let FormDrawMapComponent = {
       roadType = params.roadType || 'Main Line';
       RAfeature = params.RAfeature || 'Normal';
       mainAngle = params.mainAngle || 0;
+      innerCornerRadius = params.innerCornerRadius || null;
+      outerCornerRadius = params.outerCornerRadius || null;
     } else {
       return;
     }
@@ -341,7 +387,9 @@ let FormDrawMapComponent = {
         shape: shape,
         roadType: roadType,
         RAfeature: RAfeature,
-        mainAngle: mainAngle
+        mainAngle: mainAngle,
+        innerCornerRadius: innerCornerRadius,
+        outerCornerRadius: outerCornerRadius
       },
       FormDrawMapComponent.createMainRoadObject,
       FormDrawMapComponent, // Pass the component to store the created object
@@ -435,7 +483,9 @@ let FormDrawMapComponent = {
       routeWidth: options.width,
       roadType: options.roadType,
       RAfeature: options.RAfeature,
-      mainAngle: mainAngle
+      mainAngle: mainAngle,
+      innerCornerRadius: options.innerCornerRadius,
+      outerCornerRadius: options.outerCornerRadius
     };
 
     // Create and initialize the MainRoadSymbol
@@ -502,7 +552,7 @@ let FormDrawMapComponent = {
       }
 
       // Recalculate the vertices based on updated routeList
-      const vertexList = calcVertexType[mainRoad.roadType](mainRoad.xHeight, mainRoad.routeList);
+      const vertexList = calcVertexType[mainRoad.roadType](mainRoad.xHeight, mainRoad.routeList, mainRoad.innerCornerRadius, mainRoad.outerCornerRadius);
       if (mainRoad.basePolygon) {
         mainRoad.basePolygon.vertex = vertexList.path[0].vertex;
         mainRoad.basePolygon.path = vertexList.path;
@@ -973,7 +1023,7 @@ GeneralSettings.addListener(
             targetObject.mainRoad.receiveNewRoute();
           } else {
             // This is a main road - recreate vertex list
-            const vertexList = calcVertexType[targetObject.roadType](value, targetObject.routeList);
+            const vertexList = calcVertexType[targetObject.roadType](value, targetObject.routeList, targetObject.innerCornerRadius, targetObject.outerCornerRadius);
             targetObject.replaceBasePolygon && targetObject.replaceBasePolygon(vertexList);
           }
         }

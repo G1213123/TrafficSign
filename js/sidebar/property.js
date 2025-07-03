@@ -81,6 +81,13 @@ function showPropertyPanel(object) {
         targetObject.routeList.forEach(route => {
           route.width = numValue; // Update width for all routes
         });
+      } else if (prop.key === 'innerCornerRadius' || prop.key === 'outerCornerRadius') {
+        // Handle corner radius properties for MainRoad objects
+        if (!isNaN(numValue) && targetObject[prop.key] !== numValue) {
+          oldValue = targetObject[prop.key]; // Store old value
+          targetObject[prop.key] = numValue;
+          valueChanged = true;
+        }
       }
 
       // Check lockMovement for left/top
@@ -412,10 +419,18 @@ function showPropertyPanel(object) {
       ];
       if (object.roadType === 'Main Line') {
         specialProps.push(
-          { label: 'Root Length', key: 'rootLength', type: 'number', editable: true, step: 1, value: object.rootLength },
-          { label: 'Tip Length', key: 'tipLength', type: 'number', editable: true, step: 1, value: object.tipLength },
+          { label: 'Approach Length', key: 'rootLength', type: 'number', editable: true, step: 1, value: object.rootLength },
+          { label: 'Exit Length', key: 'tipLength', type: 'number', editable: true, step: 1, value: object.tipLength },
           { label: 'Route Width', key: 'routeWidth', type: 'number', editable: true, step: 1, value: object.routeWidth },
         );
+        
+        // Add corner radius inputs for LaneDrop shape
+        if (object.routeList && object.routeList[0] && object.routeList[0].shape === 'LaneDrop') {
+          specialProps.push(
+            { label: 'Inner Corner Radius', key: 'innerCornerRadius', type: 'number', editable: true, step: 0.1, value: object.innerCornerRadius || 1 },
+            { label: 'Outer Corner Radius', key: 'outerCornerRadius', type: 'number', editable: true, step: 0.1, value: object.outerCornerRadius || 4 }
+          );
+        }
       } /*else {
         specialProps.push(
           { label: 'Root Length', value: object.rootLength },
