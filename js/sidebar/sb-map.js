@@ -439,7 +439,7 @@ let FormDrawMapComponent = {
         x: options.position.x,
         y: options.position.y,
         angle: mainAngle,
-        width: options.width,
+        width: options.shape == 'Y-Junction' ? options.width / 3 * 2 : options.width,
         length: tipLength,
         shape: options.roadType == 'Main Line' ? options.shape : options.RAfeature
       },
@@ -459,7 +459,7 @@ let FormDrawMapComponent = {
         x: options.position.x - 2 * Math.sin(angleRad) * tipLength * options.xHeight / 4 + addRootwidth * 2,
         y: options.position.y,
         angle: -mainAngle,
-        width: options.width,
+        width: options.shape == 'Y-Junction' ? options.width / 3 * 2 : options.width,
         length: options.tipLength,
         shape: options.shape
       });
