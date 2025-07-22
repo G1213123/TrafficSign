@@ -12,7 +12,9 @@ let parsedFontHeavy = null;
 let parsedFontKorean = null; // Korean font has closer appearance to the true sign fonts
 let parsedFontChinese = null; // Chinese font for supplement for special characters
 let parsedFontKai = null;
+let parsedFontSans = null; // Sans serif fallback for punctuation characters
 let fontParsingPromise = null; // To store the promise
+
 
 /**
  * Calculate transformed points based on position and rotation
@@ -526,7 +528,18 @@ function parseFont() {
         } else {
           throw new Error("opentype.js not loaded. Cannot parse TW-MOE-Std-Kai-compact font.");
         }
-      }).catch(e => { console.error("Error fetching/parsing TW-MOE-Std-Kai-compact:", e); throw e; })
+      }).catch(e => { console.error("Error fetching/parsing TW-MOE-Std-Kai-compact:", e); throw e; }),
+
+    // Add Noto Sans as fallback for punctuation characters
+    fetch('https://fonts.gstatic.com/s/notosans/v39/o-0IIpQlx3QUlC5A4PNb4j5Ba_2c7A.ttf')
+      .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
+      .then(buffer => {
+        if (typeof opentype !== 'undefined') {
+          parsedFontSans = opentype.parse(buffer);
+        } else {
+          throw new Error("opentype.js not loaded. Cannot parse NotoSans font.");
+        }
+      }).catch(e => { console.error("Error fetching/parsing NotoSans:", e); throw e; })
   ]).then(() => {
     console.log("All fonts parsed successfully.");
     // Promise resolves with no value (void) upon success
@@ -563,9 +576,13 @@ function getFontPath(t) {
     case 'parsedFontChinese': // Fallback to Chinese font for special characters
       font = parsedFontChinese;
       break;
+    case 'parsedFontSans': // Fallback to Sans font for punctuation characters
+      font = parsedFontSans;
+      break;
     case 'parsedFontKorean': // Fallback to Korean font for special characters
       font = parsedFontKorean;
-      break;    default: // Check for custom fonts in window
+      break; 
+    default: // Check for custom fonts in window
       const windowFont = window[t.fontFamily];
       // Validate that it's actually a font object with getPath method
       if (windowFont && typeof windowFont.getPath === 'function') {
@@ -579,7 +596,7 @@ function getFontPath(t) {
   if (!font) {
     // Handle missing font using FontPriorityManager
     const fallbackFont = FontPriorityManager.handleMissingFont(t.fontFamily);
-    
+
     // Use the fallback font for this specific call
     switch (fallbackFont) {
       case 'TransportMedium':
@@ -597,11 +614,14 @@ function getFontPath(t) {
       case 'parsedFontKorean':
         font = parsedFontKorean;
         break;
+      case 'parsedFontSans':
+        font = parsedFontSans;
+        break;
       default:
         font = parsedFontKorean; // Final fallback
         break;
     }
-    
+
     if (!font) {
       console.error(`Critical error: No fonts available. Make sure parseFont() was called and completed successfully.`);
       return null;
@@ -609,17 +629,19 @@ function getFontPath(t) {
   }
   // Check if opentype.js is available and the font object has getPath
   if (typeof opentype === 'undefined' || typeof font.getPath !== 'function') {
-    console.error("opentype.js not loaded or font object is invalid.");    return null;  }  // Define font priority list for fallback
+    console.error("opentype.js not loaded or font object is invalid."); return null;
+  }  // Define font priority list for fallback
   let fontPriorityList = [];
-    // Get user-configured font priority list
+  // Get user-configured font priority list
   const getUserFontPriority = () => {
     try {
       // Try to get from FontPriorityManager
       const priorityNames = FontPriorityManager.getFontPriorityList();
       return priorityNames.map(name => {
-        switch(name) {
+        switch (name) {
           case 'parsedFontChinese': return parsedFontChinese;
           case 'parsedFontKorean': return parsedFontKorean;
+          case 'parsedFontSans': return parsedFontSans;
           default:
             // Handle custom fonts
             return window[name] || null;
@@ -627,16 +649,17 @@ function getFontPath(t) {
       }).filter(f => f !== null);
     } catch (e) {
       console.warn('Failed to load font priority from FontPriorityManager, falling back to localStorage');
-      
+
       // Fallback to localStorage
       try {
         const stored = localStorage.getItem('fontPriorityList');
         if (stored) {
           const priorityNames = JSON.parse(stored);
           return priorityNames.map(name => {
-            switch(name) {
+            switch (name) {
               case 'parsedFontChinese': return parsedFontChinese;
               case 'parsedFontKorean': return parsedFontKorean;
+              case 'parsedFontSans': return parsedFontSans;
               default:
                 // Handle custom fonts
                 return window[name] || null;
@@ -647,15 +670,15 @@ function getFontPath(t) {
         console.warn('Failed to load font priority from localStorage as well');
       }
     }
-    // Default fallback
-    return [parsedFontChinese, parsedFontKorean];
+    // Default fallback - include the new sans font for punctuation
+    return [parsedFontSans, parsedFontChinese, parsedFontKorean];
   };
-    // Generate and return the path object using opentype.js getPath method
+  // Generate and return the path object using opentype.js getPath method
   try {
     // Helper function to check if character exists in font
     const hasCharacter = (font, character) => {
       if (!font) return false;
-      
+
       // Method 1: Check using charToGlyph
       if (font.charToGlyph) {
         const glyph = font.charToGlyph(character);
@@ -663,7 +686,7 @@ function getFontPath(t) {
           return true;
         }
       }
-      
+
       // Method 2: Check using stringToGlyphs
       if (font.stringToGlyphs) {
         const glyphs = font.stringToGlyphs(character);
@@ -671,7 +694,7 @@ function getFontPath(t) {
           return true;
         }
       }
-      
+
       return false;
     };
 
@@ -682,7 +705,7 @@ function getFontPath(t) {
     } else {
       // Character not found in current font, try font priority list
       console.warn(`Character "${t.character}" not found in font ${t.fontFamily}, trying fallback fonts...`);
-      
+
       const fallbackFonts = getUserFontPriority();
       for (const fallbackFont of fallbackFonts) {
         if (hasCharacter(fallbackFont, t.character)) {
@@ -690,7 +713,7 @@ function getFontPath(t) {
           return fallbackFont.getPath(t.character, t.x, t.y, t.fontSize);
         }
       }
-      
+
       // If character not found in any font, try with the original font anyway (might render as missing character box)
       console.warn(`Character "${t.character}" not found in any available font, using original font`);
       return font.getPath(t.character, t.x, t.y, t.fontSize);
@@ -857,4 +880,5 @@ export {
   parsedFontChinese,
   parsedFontKorean,
   parsedFontKai,
+  parsedFontSans,
 };
