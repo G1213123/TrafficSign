@@ -490,7 +490,7 @@ const roadMapTemplate = {
 
 const symbolsPermittedAngle = {
     'StackArrow': [-135, -90, -45, -22.5, 0, 22.5, 45, 90, 135],
-    'Airport': [-90, -45, 0, 45, 90],
+    'Airport': [-90, -60, -45, 0, 45, 60, 90],
 
 };
 

@@ -1,4 +1,5 @@
 import { CanvasGlobals } from "../canvas/canvas.js";
+import { GeneralSettings } from "../sidebar/sbGeneral.js";
 const canvas = CanvasGlobals.canvas;
 
 // Class to handle engineering style dimension displays for border objects
@@ -79,7 +80,7 @@ class BorderDimensionDisplay {
     // Add dimension text
     const midX = (this.startX + this.endX) / 2;
     this.objects.push(new fabric.Text(
-      `${Math.round(distance)}mm`,
+      GeneralSettings.formatDimension(distance, 100), // Use 100 as default xHeight for border dimensions
       {
         left: midX,
         top: dimLineY - (8 / canvas.getZoom()),
@@ -144,7 +145,7 @@ class BorderDimensionDisplay {
 
     // Create text with rotation for vertical dimension
     this.objects.push(new fabric.Text(
-      `${Math.round(distance)}mm`,
+      GeneralSettings.formatDimension(distance, 100), // Use 100 as default xHeight for border dimensions
       {
         left: dimLineX - (15 / canvas.getZoom()),
         top: midY,
@@ -267,7 +268,7 @@ class RadiusDimensionDisplay {
     const textY = this.centerY - (this.radius * 0.2) * Math.sin(startAngleRad);
     
     this.objects.push(new fabric.Text(
-      `R${Math.round(this.radius)}mm`,
+      `R${GeneralSettings.formatDimension(this.radius, 100).replace('mm', '').replace('sw', '')}${GeneralSettings.dimensionUnit}`,
       {
         left: textX,
         top: textY,

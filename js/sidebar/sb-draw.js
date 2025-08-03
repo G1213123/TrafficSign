@@ -93,6 +93,8 @@ let FormDrawAddComponent = {
     // Add symbols to the grid - two in each row
     Object.keys(symbolsTemplate).forEach(async (symbol) => {
       const svg = await FormDrawAddComponent.createButtonSVG(symbol, 5, color);
+      
+      // Create the button
       const symbolBtn = GeneralHandler.createSVGButton(
         `button-${symbol}`,
         svg,
@@ -101,6 +103,14 @@ let FormDrawAddComponent = {
         FormDrawAddComponent.createSymbolObject,
         'click'
       );
+      
+      // Add tooltip functionality for all symbols
+      // This will attempt to load hints/symbols/{symbol}.html
+      GeneralHandler.createGeneralButtonTooltip(symbolBtn, `symbols/${symbol}`, {
+        position: 'top',
+        showDelay: 500,  // Slightly longer delay for symbols
+        hideDelay: 150
+      });
 
       // Store the symbol type as data attribute
       symbolBtn.setAttribute('data-symbol-type', symbol);
