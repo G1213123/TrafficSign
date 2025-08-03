@@ -2810,8 +2810,8 @@ div.side-panel.close {
   margin: 0 0 6px 0 !important;
   font-size: 14px;
   font-weight: 600;
-  color: #4FC3F7 !important; /* Light blue for section headers */
-  border-bottom: 1px solid rgba(79, 195, 247, 0.3);
+  color: #e0e0e0 !important; /* Light blue for section headers */
+  border-bottom: 1px solid rgba(198, 228, 241, 0.3);
   padding-bottom: 2px;
 }
 
@@ -2838,7 +2838,7 @@ div.side-panel.close {
 }
 
 .general-button-tooltip h4:first-child {
-  color: #FFD54F !important; /* Golden yellow for main title */
+  color: #e0e0e0 !important; /* Golden yellow for main title */
   font-size: 16px !important;
   font-weight: 700 !important;
   margin-bottom: 10px !important;
@@ -2848,7 +2848,7 @@ div.side-panel.close {
 }
 
 .general-button-tooltip p strong {
-  color: #81C784 !important; /* Light green for emphasis */
+  color: #e0e0e0 !important; /* Light green for emphasis */
   font-weight: 600 !important;
 }
 

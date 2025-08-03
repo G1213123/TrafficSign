@@ -1,0 +1,94 @@
+/* Hints CSS - Extracted from inline styles for better maintainability */
+
+/* Main heading styles */
+h4 {
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 8px;
+    border-bottom: 2px solid white;
+    padding-bottom: 4px;
+}
+
+/* Subtitle/reference styles */
+p.reference {
+    color: white;
+    font-size: 14px;
+    margin-bottom: 16px;
+    font-style: italic;
+}
+
+/* Section container */
+.placement-section {
+    margin-bottom: 20px;
+}
+
+/* Section headings */
+h5 {
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Image styles */
+.placement-example img {
+    width: 100%;
+    height: auto;
+    background: #2f2f2f;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+/* Special case for height-constrained images */
+.placement-example img.height-constrained {
+    width: auto;
+    height: 380px;
+}
+
+/* Default text styles for unstyled hints */
+body {
+    color: white;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+}
+
+h4:not([style]) {
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 8px;
+    border-bottom: 2px solid white;
+    padding-bottom: 4px;
+}
+
+h5:not([style]) {
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+p:not([style]) {
+    color: white;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+ul {
+    color: white;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+li {
+    margin-bottom: 4px;
+}
+
+.feature-list ul {
+    padding-left: 20px;
+}

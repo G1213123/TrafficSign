@@ -179,7 +179,7 @@ let FormBorderWrapComponent = {
         // Pass both objects and entered values to allow for fixed distance options
         const color = document.getElementById('input-color').value;
         const xHeight = parseInt(document.getElementById("input-xHeight").value);
-        new DividerObject({ dividerType: 'LaneLine', leftObjects: leftObject, rightObjects: rightObject, leftValue: leftValue, rightValue: rightValue, xHeight: xHeight, colorType: color, });
+        new DividerObject({ dividerType: 'VLane', leftObjects: leftObject, rightObjects: rightObject, leftValue: leftValue, rightValue: rightValue, xHeight: xHeight, colorType: color, });
       }, null, xHeight, 'mm');
     }, null, xHeight, 'mm');
   },

@@ -4043,22 +4043,25 @@ function VLaneTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
     const strokeSpacing = 4
     rounding.x /= length;
     rounding.y /= length;
-
-    const strokeCount = Math.max(2, Math.floor((BHeight - rounding.y / 2 - DividerMargin['VLane'].top - DividerMargin['VLane'].bottom + strokeSpacing) / (strokeHeight + strokeSpacing)));
+    const effHeight = Math.floor((BHeight - rounding.y / 2 - DividerMargin['VLane'].top - DividerMargin['VLane'].bottom + strokeSpacing) / (strokeHeight + strokeSpacing));
+    
+    const strokeCount = Math.max(2, effHeight);
+    const diminishedStroke = (BHeight - (strokeHeight + strokeSpacing) * strokeCount) - (strokeSpacing)
 
     let returnBorder = [{
         'vertex': [], 'arcs': [], 'fill': 'border'
     },];
 
-    for (let i = 0; i < strokeCount; i++) {
+    for (let i = 0; i < strokeCount + 1; i++) {
         returnBorder[0].vertex.push(...[
             { x: 0, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V1', start: 1 },
             { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V2', start: 0 },
-            { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: 'V3', start: 0 },
-            { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: 'V4', start: 0 },
+            { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - (i==0?diminishedStroke:strokeHeight), label: 'V3', start: 0 },
+            { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - (i==0?diminishedStroke:strokeHeight), label: 'V4', start: 0 },
             { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V5', start: 0 },
         ])
     }
+
 
     returnBorder.forEach(p => {
         p.vertex.forEach(vertex => {
