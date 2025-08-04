@@ -3928,166 +3928,185 @@ function FlagRightBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
     return { path: returnBorder };
 }
 
-
-const DividerScheme = {
-    'HDivider': HDividerTemplate,
-    'VDivider': VDividerTemplate,
-    'HLine': HLineTemplate,
-    'VLane': VLaneTemplate,
+function OvalRoundaboutTemplate(angle) {
+    const innerRadius = 7
+    const outerRadius = 12
+    const linkLength = 24
+    const cosA = Math.cos(angle * Math.PI() / 180)
+    const sinA = Math.sin(angle * Math.PI() / 180)
+    const innerCutStart = { x: innerRadius * Math.cos(60 * Math.PI() / 180), y: innerRadius * Math.sin(60 * Math.PI() / 180) }
+    const innerFirstArc = { x: - innerRadius * cosA, y: - innerRadius * sinA }
+    const innerFirstLine = { x: - innerRadius * cosA + linkLength * sinA, y: - innerRadius * sinA - linkLength * cosA }
+    const innerSecondArc = { x: innerRadius * cosA + linkLength * sinA, y: innerRadius * sinA - linkLength * cosA }
+    const innerSecondLine ={ x: innerRadius * cosA, y: innerRadius * sinA}
+    const innerCutEnd = { x: innerRadius * Math.cos(30 * Math.PI() / 180), y: innerRadius * Math.sin(30 * Math.PI() / 180)}
+    const outerCutStart = { x: outerRadius * Math.cos(30 * Math.PI() / 180), y: outerRadius * Math.sin(30 * Math.PI() / 180)}
+    const outerFirstArc = { x: outerRadius * cosA, y: outerRadius * sinA}
+    const outerFirstLine = { x: outerRadius * cosA + linkLength * sinA, y: outerRadius * sinA - linkLength * cosA }
+    const outerSecondArc = { x: - outerRadius * cosA + linkLength * sinA, y: - outerRadius * sinA - linkLength * cosA }
+    const outerSecondLine = { x: - outerRadius * cosA, y: - outerRadius * sinA }
+    const outerCutEnd = { x: outerRadius * Math.cos(60 * Math.PI() / 180), y: outerRadius * Math.sin(60 * Math.PI() / 180) }
 }
 
-const DividerMargin = {
-    'HDivider': { left: 0, top: 0, right: 0, bottom: 1 },
-    'VDivider': { left: 1, top: 0, right: 1, bottom: 0 },
-    'HLine': { left: 1.5, top: 1, right: 1.5, bottom: 1 },
-    'VLane': { left: 2.5, top: 1.5, right: 2.5, bottom: 1.5 },
-}
-
-function HDividerTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
-    const length = xHeight / 4;
-    const Xwidth = block.width / length;
-    rounding.x /= length;
-    rounding.y /= length;
-
-    const returnBorder = [{
-        'vertex': [
-            { x: 0, y: 0, label: 'V1', start: 1 },
-            { x: Xwidth / 2, y: 0, label: 'V2', radius: 1.5, start: 0 },
-            { x: Xwidth / 2, y: -1.5, label: 'V3', start: 0 },
-            { x: Xwidth / 2, y: 2.5, label: 'V4', start: 0 },
-            { x: Xwidth / 2, y: 1, label: 'V5', radius: 1.5, start: 0 },
-            { x: -Xwidth / 2, y: 1, label: 'V6', radius: 1.5, start: 0 },
-            { x: -Xwidth / 2, y: 2.5, label: 'V7', start: 0 },
-            { x: -Xwidth / 2, y: -1.5, label: 'V8', start: 0 },
-            { x: -Xwidth / 2, y: 0, label: 'V9', radius: 1.5, start: 0 },
-        ], 'arcs': [], 'fill': 'border'
-    },];
-
-    returnBorder.forEach(p => {
-        p.vertex.forEach(vertex => {
-            vertex.x *= length;
-            vertex.x += position.left + (Xwidth / 2) * length;
-            vertex.y *= length;
-            vertex.y += position.top + (1.5) * length;
-            if (vertex.radius) vertex.radius *= length;
-        });
-    });
-
-    return { path: returnBorder };
-}
-
-function VDividerTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
-    const length = xHeight / 4;
-    const Xwidth = block.height / length;
-    rounding.x /= length;
-    rounding.y /= length;
-
-    const returnBorder = [{
-        'vertex': [
-            { x: 0, y: 0, label: 'V1', start: 1 },
-            { x: 0, y: Xwidth / 2, label: 'V2', radius: 1.5, start: 0 },
-            { x: -1.5, y: Xwidth / 2, label: 'V3', start: 0 },
-            { x: 2.5, y: Xwidth / 2, label: 'V4', start: 0 },
-            { x: 1, y: Xwidth / 2, label: 'V5', radius: 1.5, start: 0 },
-            { x: 1, y: -Xwidth / 2, label: 'V6', radius: 1.5, start: 0 },
-            { x: 2.5, y: -Xwidth / 2, label: 'V7', start: 0 },
-            { x: -1.5, y: -Xwidth / 2, label: 'V8', start: 0 },
-            { x: 0, y: -Xwidth / 2, label: 'V9', radius: 1.5, start: 0 },
-        ], 'arcs': [], 'fill': 'border'
-    },];
-
-    returnBorder.forEach(p => {
-        p.vertex.forEach(vertex => {
-            vertex.x *= length;
-            vertex.x += position.left + (1.5) * length;
-            vertex.y *= length;
-            vertex.y += position.top + (Xwidth / 2) * length;
-            if (vertex.radius) vertex.radius *= length;
-        });
-    });
-    return { path: returnBorder };
-}
-
-function HLineTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
-    const length = xHeight / 4;
-    const Xwidth = block.width / length;
-    rounding.x /= length;
-    rounding.y /= length;
-
-    const returnBorder = [{
-        'vertex': [
-            { x: 0, y: 0, label: 'V1', start: 1 },
-            { x: Xwidth / 2 - 1.5, y: 0, label: 'V2', start: 0 },
-            { x: Xwidth / 2 - 1.5, y: 1, label: 'V3', start: 0 },
-            { x: -Xwidth / 2 + 1.5, y: 1, label: 'V4', start: 0 },
-            { x: -Xwidth / 2 + 1.5, y: 0, label: 'V5', start: 0 },
-        ], 'arcs': [], 'fill': 'border'
-    },];
-
-    returnBorder.forEach(p => {
-        p.vertex.forEach(vertex => {
-            vertex.x *= length;
-            vertex.x += position.left + (Xwidth / 2) * length;
-            vertex.y *= length;
-            vertex.y += position.top + (1) * length;
-        });
-    });
-
-    return { path: returnBorder };
-}
-
-function VLaneTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
-    const length = xHeight / 4;
-    const BHeight = block.height / length;
-    const strokeHeight = 8
-    const strokeSpacing = 4
-    rounding.x /= length;
-    rounding.y /= length;
-
-    const strokeCount = Math.max(2, Math.floor((BHeight - rounding.y / 2 - DividerMargin['VLane'].top - DividerMargin['VLane'].bottom + strokeSpacing) / (strokeHeight + strokeSpacing)));
-
-    let returnBorder = [{
-        'vertex': [], 'arcs': [], 'fill': 'border'
-    },];
-
-    for (let i = 0; i < strokeCount; i++) {
-        returnBorder[0].vertex.push(...[
-            { x: 0, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V1', start: 1 },
-            { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V2', start: 0 },
-            { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: 'V3', start: 0 },
-            { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: 'V4', start: 0 },
-            { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V5', start: 0 },
-        ])
+    const DividerScheme = {
+        'HDivider': HDividerTemplate,
+        'VDivider': VDividerTemplate,
+        'HLine': HLineTemplate,
+        'VLane': VLaneTemplate,
     }
 
-    returnBorder.forEach(p => {
-        p.vertex.forEach(vertex => {
-            vertex.x *= length;
-            vertex.x += position.left + 1.5 * length;
-            vertex.y *= length;
-            vertex.y += position.top;
-            if (vertex.radius) vertex.radius *= length;
-        });
-    });
-    return { path: returnBorder };
-}
+    const DividerMargin = {
+        'HDivider': { left: 0, top: 0, right: 0, bottom: 1 },
+        'VDivider': { left: 1, top: 0, right: 1, bottom: 0 },
+        'HLine': { left: 1.5, top: 1, right: 1.5, bottom: 1 },
+        'VLane': { left: 2.5, top: 1.5, right: 2.5, bottom: 1.5 },
+    }
 
-export {
-    BorderColorScheme,
-    BorderTypeScheme,
-    BorderFrameWidth,
-    DividerScheme,
-    DividerMargin,
-    HDividerTemplate,
-    VDividerTemplate,
-    HLineTemplate,
-    VLaneTemplate,
-    symbolsTemplate,
-    symbolsTemplateAlt,
-    symbolsPermittedAngle,
-    textWidthHeavy,
-    textWidthMedium,
-    roadMapTemplate,
-    EngDestinations,
-    ChtDestinations,
-}
+    function HDividerTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
+        const length = xHeight / 4;
+        const Xwidth = block.width / length;
+        rounding.x /= length;
+        rounding.y /= length;
+
+        const returnBorder = [{
+            'vertex': [
+                { x: 0, y: 0, label: 'V1', start: 1 },
+                { x: Xwidth / 2, y: 0, label: 'V2', radius: 1.5, start: 0 },
+                { x: Xwidth / 2, y: -1.5, label: 'V3', start: 0 },
+                { x: Xwidth / 2, y: 2.5, label: 'V4', start: 0 },
+                { x: Xwidth / 2, y: 1, label: 'V5', radius: 1.5, start: 0 },
+                { x: -Xwidth / 2, y: 1, label: 'V6', radius: 1.5, start: 0 },
+                { x: -Xwidth / 2, y: 2.5, label: 'V7', start: 0 },
+                { x: -Xwidth / 2, y: -1.5, label: 'V8', start: 0 },
+                { x: -Xwidth / 2, y: 0, label: 'V9', radius: 1.5, start: 0 },
+            ], 'arcs': [], 'fill': 'border'
+        },];
+
+        returnBorder.forEach(p => {
+            p.vertex.forEach(vertex => {
+                vertex.x *= length;
+                vertex.x += position.left + (Xwidth / 2) * length;
+                vertex.y *= length;
+                vertex.y += position.top + (1.5) * length;
+                if (vertex.radius) vertex.radius *= length;
+            });
+        });
+
+        return { path: returnBorder };
+    }
+
+    function VDividerTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
+        const length = xHeight / 4;
+        const Xwidth = block.height / length;
+        rounding.x /= length;
+        rounding.y /= length;
+
+        const returnBorder = [{
+            'vertex': [
+                { x: 0, y: 0, label: 'V1', start: 1 },
+                { x: 0, y: Xwidth / 2, label: 'V2', radius: 1.5, start: 0 },
+                { x: -1.5, y: Xwidth / 2, label: 'V3', start: 0 },
+                { x: 2.5, y: Xwidth / 2, label: 'V4', start: 0 },
+                { x: 1, y: Xwidth / 2, label: 'V5', radius: 1.5, start: 0 },
+                { x: 1, y: -Xwidth / 2, label: 'V6', radius: 1.5, start: 0 },
+                { x: 2.5, y: -Xwidth / 2, label: 'V7', start: 0 },
+                { x: -1.5, y: -Xwidth / 2, label: 'V8', start: 0 },
+                { x: 0, y: -Xwidth / 2, label: 'V9', radius: 1.5, start: 0 },
+            ], 'arcs': [], 'fill': 'border'
+        },];
+
+        returnBorder.forEach(p => {
+            p.vertex.forEach(vertex => {
+                vertex.x *= length;
+                vertex.x += position.left + (1.5) * length;
+                vertex.y *= length;
+                vertex.y += position.top + (Xwidth / 2) * length;
+                if (vertex.radius) vertex.radius *= length;
+            });
+        });
+        return { path: returnBorder };
+    }
+
+    function HLineTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
+        const length = xHeight / 4;
+        const Xwidth = block.width / length;
+        rounding.x /= length;
+        rounding.y /= length;
+
+        const returnBorder = [{
+            'vertex': [
+                { x: 0, y: 0, label: 'V1', start: 1 },
+                { x: Xwidth / 2 - 1.5, y: 0, label: 'V2', start: 0 },
+                { x: Xwidth / 2 - 1.5, y: 1, label: 'V3', start: 0 },
+                { x: -Xwidth / 2 + 1.5, y: 1, label: 'V4', start: 0 },
+                { x: -Xwidth / 2 + 1.5, y: 0, label: 'V5', start: 0 },
+            ], 'arcs': [], 'fill': 'border'
+        },];
+
+        returnBorder.forEach(p => {
+            p.vertex.forEach(vertex => {
+                vertex.x *= length;
+                vertex.x += position.left + (Xwidth / 2) * length;
+                vertex.y *= length;
+                vertex.y += position.top + (1) * length;
+            });
+        });
+
+        return { path: returnBorder };
+    }
+
+    function VLaneTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
+        const length = xHeight / 4;
+        const BHeight = block.height / length;
+        const strokeHeight = 8
+        const strokeSpacing = 4
+        rounding.x /= length;
+        rounding.y /= length;
+
+        const strokeCount = Math.max(2, Math.floor((BHeight - rounding.y / 2 - DividerMargin['VLane'].top - DividerMargin['VLane'].bottom + strokeSpacing) / (strokeHeight + strokeSpacing)));
+
+        let returnBorder = [{
+            'vertex': [], 'arcs': [], 'fill': 'border'
+        },];
+
+        for (let i = 0; i < strokeCount; i++) {
+            returnBorder[0].vertex.push(...[
+                { x: 0, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V1', start: 1 },
+                { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V2', start: 0 },
+                { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: 'V3', start: 0 },
+                { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: 'V4', start: 0 },
+                { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V5', start: 0 },
+            ])
+        }
+
+        returnBorder.forEach(p => {
+            p.vertex.forEach(vertex => {
+                vertex.x *= length;
+                vertex.x += position.left + 1.5 * length;
+                vertex.y *= length;
+                vertex.y += position.top;
+                if (vertex.radius) vertex.radius *= length;
+            });
+        });
+        return { path: returnBorder };
+    }
+
+    export {
+        BorderColorScheme,
+        BorderTypeScheme,
+        BorderFrameWidth,
+        DividerScheme,
+        DividerMargin,
+        HDividerTemplate,
+        VDividerTemplate,
+        HLineTemplate,
+        VLaneTemplate,
+        symbolsTemplate,
+        symbolsTemplateAlt,
+        symbolsPermittedAngle,
+        textWidthHeavy,
+        textWidthMedium,
+        roadMapTemplate,
+        EngDestinations,
+        ChtDestinations,
+    }
