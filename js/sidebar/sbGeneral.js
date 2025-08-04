@@ -617,12 +617,24 @@ let GeneralHandler = {
       hideHints();
     };
 
-    // Add event listeners for help icon with error handling
+    // Add event listeners for help icon with mobile compatibility
+    let helpIconListeners = null;
+    let hintsListeners = null;
+    
     try {
-      helpIcon.addEventListener('mouseenter', showHints);
-      helpIcon.addEventListener('mouseleave', hideHints);
+      // Add mobile-compatible tooltip listeners to help icon
+      helpIconListeners = GeneralHandler.addTooltipEventListeners(
+        helpIcon, 
+        showHints, 
+        hideHints,
+        {
+          longPressDelay: 400,  // Slightly shorter for help icons
+          hideDelay: 3000,      // Longer display time for help content
+          preventScroll: true
+        }
+      );
       
-      // Add a click event as a fallback test
+      // Add a click event as a fallback test (still useful for debugging)
       helpIcon.addEventListener('click', function(e) {
         e.preventDefault();
         // Show hints on click as fallback
@@ -632,10 +644,12 @@ let GeneralHandler = {
       console.error('Error attaching help icon event listeners:', error);
     }
     
-    // Add event listeners for hints itself to prevent hiding when hovering over it
+    // Add event listeners for hints itself to prevent hiding when hovering over it (desktop only)
     try {
-      hints.addEventListener('mouseenter', cancelHideAndShow);
-      hints.addEventListener('mouseleave', hideImmediately);
+      if (GeneralHandler.supportsHover()) {
+        hints.addEventListener('mouseenter', cancelHideAndShow);
+        hints.addEventListener('mouseleave', hideImmediately);
+      }
     } catch (error) {
       console.error('Error attaching hints event listeners:', error);
     }
@@ -650,6 +664,18 @@ let GeneralHandler = {
         clearTimeout(hideTimeout);
         hideTimeout = null;
       }
+      
+      // Cleanup mobile-compatible event listeners
+      if (helpIconListeners) {
+        helpIconListeners.cleanup();
+      }
+      
+      // Remove hints event listeners (desktop only)
+      if (GeneralHandler.supportsHover()) {
+        hints.removeEventListener('mouseenter', cancelHideAndShow);
+        hints.removeEventListener('mouseleave', hideImmediately);
+      }
+      
       // Remove resize listener
       window.removeEventListener('resize', repositionHints);
       if (document.body.contains(hints)) {
@@ -889,6 +915,165 @@ let GeneralHandler = {
       timeout = setTimeout(() => func.apply(context, args), wait);
     };
   },
+
+  /**
+   * Detects if the current device is mobile/touch device
+   * @return {boolean} True if mobile device
+   */
+  isMobileDevice: function() {
+    return (('ontouchstart' in window) ||
+            (navigator.maxTouchPoints > 0) ||
+            (navigator.msMaxTouchPoints > 0) ||
+            /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+  },
+
+  /**
+   * Detects if the current device supports hover interactions
+   * @return {boolean} True if device supports hover
+   */
+  supportsHover: function() {
+    return window.matchMedia('(hover: hover)').matches;
+  },
+
+  /**
+   * Adds mobile-compatible tooltip event listeners
+   * @param {HTMLElement} element - Element to attach listeners to
+   * @param {Function} showCallback - Function to call when showing tooltip
+   * @param {Function} hideCallback - Function to call when hiding tooltip
+   * @param {Object} options - Configuration options
+   * @return {Object} Object containing cleanup function and timeout references
+   */
+  addTooltipEventListeners: function(element, showCallback, hideCallback, options = {}) {
+    const config = {
+      longPressDelay: 500,    // Long press duration for mobile
+      hideDelay: 2000,        // Auto-hide delay for mobile
+      preventScroll: true,    // Prevent scrolling during long press
+      ...options
+    };
+
+    let longPressTimer = null;
+    let hideTimer = null;
+    let touchStartY = 0;
+    let isLongPress = false;
+    let isScrolling = false;
+
+    const isMobile = GeneralHandler.isMobileDevice();
+    const supportsHover = GeneralHandler.supportsHover();
+
+    // Mobile touch event handlers
+    const handleTouchStart = (e) => {
+      touchStartY = e.touches[0].clientY;
+      isScrolling = false;
+      isLongPress = false;
+
+      // Start long press timer
+      longPressTimer = setTimeout(() => {
+        if (!isScrolling) {
+          isLongPress = true;
+          showCallback(e);
+        }
+      }, config.longPressDelay);
+
+      // Clear any pending hide timer
+      if (hideTimer) {
+        clearTimeout(hideTimer);
+        hideTimer = null;
+      }
+    };
+
+    const handleTouchMove = (e) => {
+      const touchMoveY = e.touches[0].clientY;
+      const deltaY = Math.abs(touchMoveY - touchStartY);
+
+      // Detect scrolling (more than 10px movement)
+      if (deltaY > 10) {
+        isScrolling = true;
+        
+        // Cancel long press if scrolling
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+        }
+
+        // Hide tooltip if it's visible and user is scrolling
+        if (isLongPress) {
+          hideCallback();
+          isLongPress = false;
+        }
+      }
+    };
+
+    const handleTouchEnd = (e) => {
+      // Clear long press timer
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+
+      // If it was a long press (tooltip is showing), start hide timer
+      if (isLongPress && !isScrolling) {
+        hideTimer = setTimeout(() => {
+          hideCallback();
+          isLongPress = false;
+        }, config.hideDelay);
+      }
+
+      isScrolling = false;
+    };
+
+    // Desktop mouse event handlers
+    const handleMouseEnter = (e) => {
+      // Clear any pending hide timer
+      if (hideTimer) {
+        clearTimeout(hideTimer);
+        hideTimer = null;
+      }
+      showCallback(e);
+    };
+
+    const handleMouseLeave = (e) => {
+      hideCallback();
+    };
+
+    // Add appropriate event listeners based on device type
+    if (isMobile || !supportsHover) {
+      element.addEventListener('touchstart', handleTouchStart, { passive: false });
+      element.addEventListener('touchmove', handleTouchMove, { passive: false });
+      element.addEventListener('touchend', handleTouchEnd, { passive: true });
+    } else {
+      element.addEventListener('mouseenter', handleMouseEnter);
+      element.addEventListener('mouseleave', handleMouseLeave);
+    }
+
+    // Return cleanup function and state references
+    return {
+      cleanup: function() {
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+        }
+        if (hideTimer) {
+          clearTimeout(hideTimer);
+          hideTimer = null;
+        }
+
+        if (isMobile || !supportsHover) {
+          element.removeEventListener('touchstart', handleTouchStart);
+          element.removeEventListener('touchmove', handleTouchMove);
+          element.removeEventListener('touchend', handleTouchEnd);
+        } else {
+          element.removeEventListener('mouseenter', handleMouseEnter);
+          element.removeEventListener('mouseleave', handleMouseLeave);
+        }
+      },
+      isMobile: isMobile,
+      supportsHover: supportsHover,
+      timers: {
+        longPress: () => longPressTimer,
+        hide: () => hideTimer
+      }
+    };
+  },
   
   /**
    * Gets center coordinates accounting for canvas pan/zoom
@@ -1056,20 +1241,38 @@ let GeneralHandler = {
       hideTooltip();
     };
 
-    // Add event listeners to button
+    // Add event listeners to button with mobile compatibility
+    let buttonListeners = null;
+    let tooltipListeners = null;
+    
     try {
-      button.addEventListener('mouseenter', showTooltip);
-      button.addEventListener('mouseleave', hideTooltip);
-      button.addEventListener('focus', showTooltip); // Show on keyboard focus
-      button.addEventListener('blur', hideTooltip);  // Hide on blur
+      // Add mobile-compatible tooltip listeners to button
+      buttonListeners = GeneralHandler.addTooltipEventListeners(
+        button, 
+        showTooltip, 
+        hideTooltip,
+        {
+          longPressDelay: 500,  // Standard long press duration
+          hideDelay: 2500,      // Reasonable display time for button tooltips
+          preventScroll: true
+        }
+      );
+      
+      // Add focus/blur events for keyboard navigation (desktop only)
+      if (GeneralHandler.supportsHover()) {
+        button.addEventListener('focus', showTooltip); // Show on keyboard focus
+        button.addEventListener('blur', hideTooltip);  // Hide on blur
+      }
     } catch (error) {
       console.error('Error attaching general button tooltip listeners:', error);
     }
 
-    // Add event listeners to tooltip itself to prevent hiding when hovering over it
+    // Add event listeners to tooltip itself to prevent hiding when hovering over it (desktop only)
     try {
-      tooltip.addEventListener('mouseenter', cancelHideAndShow);
-      tooltip.addEventListener('mouseleave', hideImmediately);
+      if (GeneralHandler.supportsHover()) {
+        tooltip.addEventListener('mouseenter', cancelHideAndShow);
+        tooltip.addEventListener('mouseleave', hideImmediately);
+      }
     } catch (error) {
       console.error('Error attaching tooltip hover listeners:', error);
     }
@@ -1084,6 +1287,20 @@ let GeneralHandler = {
         clearTimeout(hideTimeout);
         hideTimeout = null;
       }
+      
+      // Cleanup mobile-compatible event listeners
+      if (buttonListeners) {
+        buttonListeners.cleanup();
+      }
+      
+      // Remove focus/blur listeners (desktop only)
+      if (GeneralHandler.supportsHover()) {
+        button.removeEventListener('focus', showTooltip);
+        button.removeEventListener('blur', hideTooltip);
+        tooltip.removeEventListener('mouseenter', cancelHideAndShow);
+        tooltip.removeEventListener('mouseleave', hideImmediately);
+      }
+      
       // Remove resize listener
       window.removeEventListener('resize', repositionTooltip);
       if (document.body.contains(tooltip)) {
