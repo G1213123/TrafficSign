@@ -57,7 +57,7 @@ class LockIcon {
       this.lines.push(new fabric.Line(
         [sourcePoint.x, sourcePoint.y, sourcePoint.x, dimLineY + extensionLineLength],
         {
-          stroke: 'green',
+          stroke: '#46C147',
           strokeWidth: lineWidth,
           selectable: false,
           functionalType: 'anchorLine'
@@ -67,7 +67,7 @@ class LockIcon {
       this.lines.push(new fabric.Line(
         [targetPoint.x, targetPoint.y, targetPoint.x, dimLineY + extensionLineLength],
         {
-          stroke: 'green',
+          stroke: '#46C147',
           strokeWidth: lineWidth,
           selectable: false,
           functionalType: 'anchorLine'
@@ -78,7 +78,7 @@ class LockIcon {
       this.lines.push(new fabric.Line(
         [sourcePoint.x, dimLineY, targetPoint.x, dimLineY],
         {
-          stroke: 'green',
+          stroke: '#46C147',
           strokeWidth: lineWidth,
           selectable: false,
           functionalType: 'anchorLine',
@@ -86,8 +86,8 @@ class LockIcon {
       ));
 
       // Add arrow endpoints
-      this.addArrow(sourcePoint.x, dimLineY, 'right', 'green', arrowSize);
-      this.addArrow(targetPoint.x, dimLineY, 'left', 'green', arrowSize);
+      this.addArrow(sourcePoint.x, dimLineY, 'right', '#46C147', arrowSize);
+      this.addArrow(targetPoint.x, dimLineY, 'left', '#46C147', arrowSize);
 
       // Calculate the midpoint for dimension text and icon
       const midX = (sourcePoint.x + targetPoint.x) / 2;
@@ -100,7 +100,7 @@ class LockIcon {
           left: midX,
           top: dimLineY + (25 / canvas.getZoom()),
           fontSize: fontSize,
-          fill: 'green',
+          fill: '#46C147',
           fontFamily: 'Arial',
           textAlign: 'center',
           originX: 'center',
@@ -259,20 +259,24 @@ class LockIcon {
 
   onHover(event) {
     const i = this.icons.indexOf(event.target)
-    this.icons[i].set('text', '\uf3c1');
-    this.icons[i].set('fill', 'brown');
-    this.dimensionTexts[i].set('fill', 'brown');
-    this.icons[i].set('hoverCursor', 'pointer')
-    canvas.renderAll();
+    if (i !== -1) {
+      this.icons[i].set('text', '\uf3c1');
+      this.icons[i].set('fill', 'brown');
+      this.dimensionTexts[i].set('fill', 'brown');
+      this.icons[i].set('hoverCursor', 'pointer')
+      canvas.renderAll();
+    }
   }
 
   onMouseOut(event) {
     const i = this.icons.indexOf(event.target)
-    this.icons[i].set('text', '\uf023');
-    this.icons[i].set('fill', 'gold');
-    this.dimensionTexts[i].set('fill', this.direction === 'x' ? 'green' : 'red');
-    this.icons[i].set('hoverCursor', 'default')
-    canvas.renderAll();
+    if (i !== -1) {
+      this.icons[i].set('text', '\uf023');
+      this.icons[i].set('fill', 'gold');
+      this.dimensionTexts[i].set('fill', this.direction === 'x' ? '#46C147' : 'red');
+      this.icons[i].set('hoverCursor', 'default')
+      canvas.renderAll();
+    }
   }
 
   onClick() {

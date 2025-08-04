@@ -30,14 +30,23 @@ Example symbol hint file (`symbols/Restaurant.html`):
 ```html
 <link rel="stylesheet" href="../hints.css">
 
-<h4>Restaurant Symbol</h4>
-<p>Add a restaurant symbol to indicate dining facilities on your directional sign.</p>
-<ul>
-    <li>Click to place the symbol</li>
-    <li>Use vertex controls for positioning</li>
-    <li>Customize size and color</li>
-</ul>
-<p><strong>Note:</strong> Standard dining facility indicator for highway signs.</p>
+<div class="hint-container">
+  <h4>Restaurant Symbol</h4>
+  <p>Add a restaurant symbol to indicate dining facilities on your directional sign.</p>
+  
+  <div class="hint-section">
+    <h5>Symbol Features:</h5>
+    <div class="hint-features">
+      <ul>
+        <li>Click to place the symbol</li>
+        <li>Use vertex controls for positioning</li>
+        <li>Customize size and color</li>
+      </ul>
+    </div>
+  </div>
+  
+  <p><strong>Note:</strong> Standard dining facility indicator for highway signs.</p>
+</div>
 ```
 
 ### For Other UI Elements

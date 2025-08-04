@@ -1474,7 +1474,7 @@ div.side-panel.close {
 
 .general-button-tooltip.tooltip-arrow-bottom::before {
   content: '';
-  position: absolute;
+  position: fixed;
   top: 100%;
   left: 50%;
   margin-left: -5px;
@@ -1485,7 +1485,7 @@ div.side-panel.close {
 
 .general-button-tooltip.tooltip-arrow-bottom::after {
   content: '';
-  position: absolute;
+  position: fixed;
   top: 100%;
   left: 50%;
   margin-left: -4px;

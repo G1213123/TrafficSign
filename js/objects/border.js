@@ -483,7 +483,7 @@ class BorderGroup extends BaseGroup {
           startX: innerBorder.left,
           startY: leftObjectRect.top + (leftObjectRect.height / 2),
           endX: leftObjectRect.left,
-          color: 'green',
+          color: '#46C147',
           offset: 30 / canvas.getZoom()
         });
         this.dimensionAnnotations.push(leftDimension);
@@ -499,7 +499,7 @@ class BorderGroup extends BaseGroup {
           startX: rightObjectRect.left + rightObjectRect.width,
           startY: rightObjectRect.top + (rightObjectRect.height / 2),
           endX: innerBorder.right,
-          color: 'green',
+          color: '#46C147',
           offset: 30 / canvas.getZoom()
         });
         this.dimensionAnnotations.push(rightDimension);
