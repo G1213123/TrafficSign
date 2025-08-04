@@ -4,10 +4,24 @@
 
 import { BaseGroup } from './draw.js';
 import { textWidthMedium, textWidthHeavy, } from './template.js';
-import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontKorean, parsedFontKai } from './path.js';
+import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontKorean, parsedFontKai, parsedFontSans } from './path.js';
 import { GeneralSettings } from '../sidebar/sbGeneral.js';
 import { FormTextAddComponent } from '../sidebar/sb-text.js';
 import { FontPriorityManager } from '../modal/md-font.js';
+
+
+// Special characters that are not available in Transport fonts and should use fallback
+const TRANSPORT_MISSING_CHARS = new Set([
+  '$', '@', '#', '*', '~', '`', 
+  '€', '£', '¥', '¢', '©', '®', '™', '§',
+  '¿', '¡', 'ñ', 'Ñ', 'ç', 'Ç', 'á', 'é', 'í', 'ó', 'ú',
+  'À', 'È', 'Ì', 'Ò', 'Ù', 'â', 'ê', 'î', 'ô', 'û',
+  'ä', 'ë', 'ï', 'ö', 'ü', 'Ä', 'Ë', 'Ï', 'Ö', 'Ü',
+  '±', '×', '÷', '≠', '≤', '≥', '∞', '∑', '∏', '√',
+  '°', 'µ', 'Ω', 'α', 'β', 'γ', 'δ', 'π', 'σ', 'τ',
+  '♠', '♣', '♥', '♦', '★', '☆', '♪', '♫', '☂', '☀',
+  '←', '→', '↑', '↓', '↔', '↕', '⇒', '⇐', '⇑', '⇓'
+]);
 
 class TextObject extends BaseGroup {
   constructor(options = {}) {
@@ -157,27 +171,60 @@ class TextObject extends BaseGroup {
   /**
    * Helper function to get character parameters based on type
    */
-  static _getCharacterParameters(textChar, containsNonAlphabetic, font, xHeight, previousChar) {
+  static _getCharacterParameters(textChar, containsNonAlphabetic, font, xHeight, previousChar, nextChar) {
     // Handle special character transformations
     let actualChar = textChar;
     if (textChar === ',' && containsNonAlphabetic) {
       actualChar = '、';
     }
 
+    // Check if character is missing from Transport fonts and force fallback
+    let effectiveFont = font;
+    if ((font === 'TransportMedium' || font === 'TransportHeavy') && TRANSPORT_MISSING_CHARS.has(textChar)) {
+      console.log(`Character "${textChar}" is not available in ${font}, switching to fallback font`);
+      effectiveFont = 'parsedFontSans'; // Use sans serif fallback for special characters
+    }
+
     if (containsNonAlphabetic) {
-      return this._getNonEnglishCharacterParams(actualChar, font, xHeight, previousChar);
+      return this._getNonEnglishCharacterParams(actualChar, effectiveFont, xHeight, previousChar);
     } else {
-      return this._getEnglishCharacterParams(textChar, font, xHeight, previousChar);
+      return this._getEnglishCharacterParams(textChar, effectiveFont, xHeight, previousChar, nextChar);
     }
   }
 
   /**
    * Helper function for English character parameters
    */
-  static _getEnglishCharacterParams(textChar, font, xHeight, previousChar) {
+  static _getEnglishCharacterParams(textChar, font, xHeight, previousChar, nextChar) {
     const isTransportHeavy = font === 'TransportHeavy';
     const fontWidth = isTransportHeavy ? textWidthHeavy : textWidthMedium;
-    const hasShortWidth = previousChar && ['T', 'U', 'V'].includes(previousChar);
+    
+    // Check if current character should use short width based on specific rules
+    let hasShortWidth = false;
+    
+    // Rule 1: Characters following T, U, V use short width
+    if (previousChar && ['T', 'U', 'V'].includes(previousChar)) {
+      hasShortWidth = true;
+    }
+    
+    // Rule 2: T, U, V use short width when followed by a character that has short width AND is lowercase
+    if (['T', 'U', 'V'].includes(textChar) && nextChar) {
+      const nextCharWidthObj = fontWidth.find(e => e.char === nextChar);
+      const nextCharHasShortWidth = nextCharWidthObj && nextCharWidthObj.shortWidth !== 0;
+      const nextCharIsLowercase = nextChar >= 'a' && nextChar <= 'z';
+      
+      if (nextCharHasShortWidth && nextCharIsLowercase) {
+        hasShortWidth = true;
+      }
+    }
+    
+    // Rule 3: W uses short width when followed by uppercase letter
+    if (textChar === 'W' && nextChar) {
+      const nextCharIsUppercase = nextChar >= 'A' && nextChar <= 'Z';
+      if (nextCharIsUppercase) {
+        hasShortWidth = true;
+      }
+    }
 
     const charWidthObj = fontWidth.find(e => e.char === textChar);
     const charWidth = charWidthObj ?
@@ -220,8 +267,18 @@ class TextObject extends BaseGroup {
    */
   static _getPunctuationParams(textChar, xHeight, previousChar) {
     const charWidthObj = textWidthHeavy.find(e => e.char === textChar);
-    const charWidth = charWidthObj.width || xHeight * 100 / 4;
-    const fontFamily = textChar === '、' ? 'TW-MOE-Std-Kai' : 'TransportHeavy';
+    const charWidth = charWidthObj?.width || xHeight * 100 / 4;
+    
+    // Check if this punctuation should use fallback font
+    let fontFamily;
+    if (textChar === '、') {
+      fontFamily = 'TW-MOE-Std-Kai';
+    } else if (TRANSPORT_MISSING_CHARS.has(textChar)) {
+      fontFamily = 'parsedFontSans'; // Use sans serif for special punctuation
+      console.log(`Punctuation "${textChar}" using fallback font`);
+    } else {
+      fontFamily = 'TransportHeavy';
+    }
 
     return {
       actualChar: textChar,
@@ -310,7 +367,7 @@ class TextObject extends BaseGroup {
   /**
    * Helper function to create character elements (path and frame)
    */
-  static _createCharacterElements(charParams, positioning, fontGlyphs, color, xHeight) {
+  static _createCharacterElements(charParams, positioning, fontGlyphs, color, xHeight, textChar, font, previousChar, nextChar) {
     // Access font metrics
     const fontMetrics = {
       unitsPerEm: fontGlyphs.unitsPerEm,
@@ -345,9 +402,58 @@ class TextObject extends BaseGroup {
 
     const minTop = Math.min(...charPath.commands.map(cmd => cmd.y));
 
+    // Calculate left position adjustment for short width characters
+    let leftAdjustment = 0;
+    
+    // Check if current character should use short width based on the same rules
+    let shouldUseShortWidth = false;
+    
+    // Rule 1: Characters following T, U, V use short width
+    if (previousChar && ['T', 'U', 'V'].includes(previousChar)) {
+      shouldUseShortWidth = true;
+    }
+    
+    // Rule 2: T, U, V use short width when followed by a character that has short width AND is lowercase
+    if (['T', 'U', 'V'].includes(textChar) && nextChar) {
+      const isTransportFont = font === 'TransportMedium' || font === 'TransportHeavy';
+      if (isTransportFont) {
+        const fontWidth = font === 'TransportHeavy' ? textWidthHeavy : textWidthMedium;
+        const nextCharWidthObj = fontWidth.find(e => e.char === nextChar);
+        const nextCharHasShortWidth = nextCharWidthObj && nextCharWidthObj.shortWidth !== 0;
+        const nextCharIsLowercase = nextChar >= 'a' && nextChar <= 'z';
+        
+        if (nextCharHasShortWidth && nextCharIsLowercase) {
+          shouldUseShortWidth = true;
+        }
+      }
+    }
+    
+    // Rule 3: W uses short width when followed by uppercase letter
+    if (textChar === 'W' && nextChar) {
+      const nextCharIsUppercase = nextChar >= 'A' && nextChar <= 'Z';
+      if (nextCharIsUppercase) {
+        shouldUseShortWidth = true;
+      }
+    }
+    
+    if (shouldUseShortWidth && !TRANSPORT_MISSING_CHARS.has(textChar)) {
+      // Check if short width was actually used for this character
+      const isTransportFont = font === 'TransportMedium' || font === 'TransportHeavy';
+      if (isTransportFont) {
+        const fontWidth = font === 'TransportHeavy' ? textWidthHeavy : textWidthMedium;
+        const charWidthObj = fontWidth.find(e => e.char === textChar);
+        
+        if (charWidthObj && charWidthObj.shortWidth !== 0 && charWidthObj.shortWidth < charWidthObj.width) {
+          // Calculate the width difference and center the character
+          const widthDifference = (charWidthObj.width - charWidthObj.shortWidth) * xHeight / 100;
+          leftAdjustment = widthDifference / 2;
+        }
+      }
+    }
+
     // Create a path from the font path data
     const txt_char = new fabric.Path(charSVG, {
-      left: (charParams.actualChar === '、' ? charGlyph.leftSideBearing - 800 : charGlyph.leftSideBearing) * fontScale + positioning.charLeftPos,
+      left: (charParams.actualChar === '、' ? charGlyph.leftSideBearing - 800 : charGlyph.leftSideBearing) * fontScale + positioning.charLeftPos - leftAdjustment,
       top: minTop + positioning.charTopPos - (charParams.actualChar === '、' ? 600 * fontScale : 0),
       fill: color,
       originX: 'left',
@@ -385,6 +491,8 @@ class TextObject extends BaseGroup {
       return parsedFontHeavy;
     } else if (fontFamily === 'TW-MOE-Std-Kai') {
       return parsedFontKai;
+    } else if (fontFamily === 'parsedFontSans') {
+      return parsedFontSans; // Return the sans serif fallback font
     } else if (fontFamily.startsWith('custom_')) {
       // Handle custom fonts - they should have their font object in window
       const customFont = window[fontFamily];
@@ -423,9 +531,10 @@ class TextObject extends BaseGroup {
     for (let i = 0; i < txt.length; i++) {
       let textChar = txt.charAt(i);
       const previousChar = i > 0 ? txt[i - 1] : null;
+      const nextChar = i < txt.length - 1 ? txt[i + 1] : null;
 
       // Get character parameters based on type
-      const charParams = this._getCharacterParameters(textChar, containsNonAlphabetic, font, xHeight, previousChar);
+      const charParams = this._getCharacterParameters(textChar, containsNonAlphabetic, font, xHeight, previousChar, nextChar);
       // Calculate positioning
       const positioning = this._calculateCharacterPositioning(left_pos, charParams, xHeight, previousChar);
 
@@ -438,7 +547,11 @@ class TextObject extends BaseGroup {
         positioning,
         fontGlyphs,
         color,
-        xHeight
+        xHeight,
+        textChar,
+        font,
+        previousChar,
+        nextChar
       );
 
       txtCharList.push(charElements.textPath);

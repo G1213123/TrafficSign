@@ -2,6 +2,8 @@
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { CanvasObjectInspector } from './sb-inspector.js';
 import { ShowHideSideBarEvent } from '../canvas/keyboardEvents.js'; // Import the event handler for keyboard events
+import { HintLoader } from '../utils/hintLoader.js'; // Import the hint loader utility
+
 // Handler registry for active sidebar component off-function
 let GeneralHandler = {
   // Currently registered teardown handler for the active sidebar component
@@ -903,7 +905,279 @@ let GeneralHandler = {
     const actualCenterY = (centerY - vpt[5]) / vpt[3];
     
     return { x: actualCenterX, y: actualCenterY };
-  }
+  },
+
+  /**
+   * Creates a hover tooltip for general buttons that loads hint content dynamically
+   * @param {HTMLElement} button - The button element to attach tooltip to
+   * @param {string} hintPath - Path to the hint file (e.g., 'symbols/Airport')
+   * @param {Object} options - Optional configuration {position: 'left'|'right'|'top'|'bottom', showDelay: number, hideDelay: number}
+   * @return {HTMLElement} The button element with tooltip attached
+   */
+  createGeneralButtonTooltip: function(button, hintPath, options = {}) {
+    // Default options
+    const defaultOptions = {
+      position: 'top',     // Default position for general button tooltips
+      showDelay: 300,      // Delay before showing
+      hideDelay: 100       // Quick hide for button tooltips
+    };
+    const config = Object.assign(defaultOptions, options);
+
+    // Create tooltip element with different class to avoid conflicts
+    const tooltip = GeneralHandler.createNode("div", { 
+      'class': 'general-button-tooltip' 
+    }, document.body);
+    
+    // Store timeout references
+    let showTimeout = null;
+    let hideTimeout = null;
+    let isTooltipVisible = false;
+    let hintContent = null; // Cache the loaded content
+    
+    // Function to reposition tooltip on window resize
+    const repositionTooltip = () => {
+      if (isTooltipVisible && tooltip.style.opacity === '1') {
+        GeneralHandler.positionGeneralTooltip(tooltip, button, config.position);
+      }
+    };
+    
+    // Add window resize listener
+    window.addEventListener('resize', GeneralHandler.debounce(repositionTooltip, 150));
+    
+    // Function to show tooltip with delay and dynamic loading
+    const showTooltip = async (event) => {
+      // Clear any pending hide timeout
+      if (hideTimeout) {
+        clearTimeout(hideTimeout);
+        hideTimeout = null;
+      }
+      
+      // Clear any existing show timeout
+      if (showTimeout) {
+        clearTimeout(showTimeout);
+      }
+      
+      // Set new timeout for showing
+      showTimeout = setTimeout(async () => {
+        try {
+          // Load hint content if not already cached
+          if (!hintContent) {
+            hintContent = await HintLoader.loadHint(hintPath);
+          }
+          
+          // If hint content is available, show tooltip
+          if (hintContent) {
+            tooltip.innerHTML = hintContent;
+            tooltip.style.visibility = 'visible';
+            tooltip.style.opacity = '1';
+            tooltip.style.pointerEvents = 'auto';
+            isTooltipVisible = true;
+
+            // Position the tooltip
+            GeneralHandler.positionGeneralTooltip(tooltip, button, config.position);
+          } else {
+            // No hint available, show a fallback message
+            tooltip.innerHTML = '<p><em>No help available for this item.</em></p>';
+            tooltip.style.visibility = 'visible';
+            tooltip.style.opacity = '1';
+            tooltip.style.pointerEvents = 'auto';
+            isTooltipVisible = true;
+            GeneralHandler.positionGeneralTooltip(tooltip, button, config.position);
+          }
+        } catch (error) {
+          console.warn('Failed to load hint content:', error);
+          // Show error message in tooltip
+          tooltip.innerHTML = '<p><em>Failed to load help content.</em></p>';
+          tooltip.style.visibility = 'visible';
+          tooltip.style.opacity = '1';
+          tooltip.style.pointerEvents = 'auto';
+          isTooltipVisible = true;
+          GeneralHandler.positionGeneralTooltip(tooltip, button, config.position);
+        }
+        showTimeout = null;
+      }, config.showDelay);
+    };
+
+    // Function to hide tooltip with delay
+    const hideTooltip = () => {
+      // Clear any pending show timeout
+      if (showTimeout) {
+        clearTimeout(showTimeout);
+        showTimeout = null;
+      }
+      
+      // Clear any existing hide timeout
+      if (hideTimeout) {
+        clearTimeout(hideTimeout);
+      }
+      
+      // Set new timeout for hiding
+      hideTimeout = setTimeout(() => {
+        tooltip.style.opacity = '0';
+        tooltip.style.pointerEvents = 'none';
+        isTooltipVisible = false;
+        // Hide visibility after transition completes
+        setTimeout(() => {
+          if (tooltip.style.opacity === '0') {
+            tooltip.style.visibility = 'hidden';
+          }
+        }, 200); // Match CSS transition duration
+        hideTimeout = null;
+      }, config.hideDelay);
+    };
+
+    // Function to cancel hide and show immediately (for when mouse enters tooltip)
+    const cancelHideAndShow = () => {
+      // Clear both timeouts
+      if (hideTimeout) {
+        clearTimeout(hideTimeout);
+        hideTimeout = null;
+      }
+      if (showTimeout) {
+        clearTimeout(showTimeout);
+        showTimeout = null;
+      }
+      
+      // Show immediately if not already visible
+      if (!isTooltipVisible) {
+        showTooltip();
+      }
+    };
+
+    // Function to hide immediately (for when mouse leaves tooltip)
+    const hideImmediately = () => {
+      // Clear show timeout if pending
+      if (showTimeout) {
+        clearTimeout(showTimeout);
+        showTimeout = null;
+      }
+      
+      // Hide with the configured delay
+      hideTooltip();
+    };
+
+    // Add event listeners to button
+    try {
+      button.addEventListener('mouseenter', showTooltip);
+      button.addEventListener('mouseleave', hideTooltip);
+      button.addEventListener('focus', showTooltip); // Show on keyboard focus
+      button.addEventListener('blur', hideTooltip);  // Hide on blur
+    } catch (error) {
+      console.error('Error attaching general button tooltip listeners:', error);
+    }
+
+    // Add event listeners to tooltip itself to prevent hiding when hovering over it
+    try {
+      tooltip.addEventListener('mouseenter', cancelHideAndShow);
+      tooltip.addEventListener('mouseleave', hideImmediately);
+    } catch (error) {
+      console.error('Error attaching tooltip hover listeners:', error);
+    }
+
+    // Store cleanup function on button
+    button.cleanupGeneralTooltip = () => {
+      if (showTimeout) {
+        clearTimeout(showTimeout);
+        showTimeout = null;
+      }
+      if (hideTimeout) {
+        clearTimeout(hideTimeout);
+        hideTimeout = null;
+      }
+      // Remove resize listener
+      window.removeEventListener('resize', repositionTooltip);
+      if (document.body.contains(tooltip)) {
+        document.body.removeChild(tooltip);
+      }
+    };
+
+    return button;
+  },
+
+  /**
+   * Positions a general button tooltip relative to a target button
+   * @param {HTMLElement} tooltip - The tooltip element
+   * @param {HTMLElement} target - The target button to position relative to
+   * @param {string} position - Position preference ('left', 'right', 'top', 'bottom')
+   */
+  positionGeneralTooltip: function(tooltip, target, position = 'top') {
+    const targetRect = target.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+    const viewport = {
+      width: window.innerWidth,
+      height: window.innerHeight
+    };
+
+    // Clear existing arrow classes
+    tooltip.classList.remove('tooltip-arrow-left', 'tooltip-arrow-right', 'tooltip-arrow-top', 'tooltip-arrow-bottom');
+
+    let left, top;
+    const margin = 8; // Space between tooltip and button
+
+    switch (position) {
+      case 'top':
+        left = targetRect.left + (targetRect.width - tooltipRect.width) / 2;
+        top = targetRect.top - tooltipRect.height - margin;
+        tooltip.classList.add('tooltip-arrow-bottom');
+        break;
+      case 'bottom':
+        left = targetRect.left + (targetRect.width - tooltipRect.width) / 2;
+        top = targetRect.bottom + margin;
+        tooltip.classList.add('tooltip-arrow-top');
+        break;
+      case 'left':
+        left = targetRect.left - tooltipRect.width - margin;
+        top = targetRect.top + (targetRect.height - tooltipRect.height) / 2;
+        tooltip.classList.add('tooltip-arrow-right');
+        break;
+      case 'right':
+        left = targetRect.right + margin;
+        top = targetRect.top + (targetRect.height - tooltipRect.height) / 2;
+        tooltip.classList.add('tooltip-arrow-left');
+        break;
+    }
+
+    // Ensure tooltip stays within viewport bounds
+    if (left < 10) {
+      left = 10;
+    } else if (left + tooltipRect.width > viewport.width - 10) {
+      left = viewport.width - tooltipRect.width - 10;
+    }
+
+    if (top < 10) {
+      top = 10;
+    } else if (top + tooltipRect.height > viewport.height - 10) {
+      top = viewport.height - tooltipRect.height - 10;
+    }
+
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = top + 'px';
+  },
+
+  /**
+   * Enhanced button creation that can automatically attach tooltip with dynamic hint loading
+   * @param {string} name - Button name/ID
+   * @param {string} labelTxt - Button label text
+   * @param {HTMLElement} parent - Parent container
+   * @param {string} container - Container class name
+   * @param {Function} callback - Click callback
+   * @param {string} event - Event type
+   * @param {Object} tooltipOptions - Tooltip configuration {hintPath: string, position: string, showDelay: number, hideDelay: number}
+   * @return {HTMLElement} The created button
+   */
+  createButtonWithTooltip: function (name, labelTxt, parent, container = 'input', callback = null, event = null, tooltipOptions = null) {
+    // Create the button using existing method
+    const button = GeneralHandler.createButton(name, labelTxt, parent, container, callback, event);
+    
+    // If tooltip options provided, attempt to add tooltip
+    if (tooltipOptions && tooltipOptions.hintPath) {
+      GeneralHandler.createGeneralButtonTooltip(button, tooltipOptions.hintPath, tooltipOptions);
+    }
+    
+    return button;
+  },
+
+  // ...existing code...
 }
 
 document.getElementById('show_hide').addEventListener('click', function (event) {
@@ -928,6 +1202,7 @@ const GeneralSettings = {
   runTestsOnStart: false,
   xHeight: 100,
   messageColor: 'White',
+  dimensionUnit: 'mm', // 'mm' or 'sw' (sign width units)
 
   // Event listeners for setting changes
   listeners: [],
@@ -969,7 +1244,8 @@ const GeneralSettings = {
       defaultExportScale: 2,
       runTestsOnStart: false,
       xHeight: 100,
-      messageColor: 'White'
+      messageColor: 'White',
+      dimensionUnit: 'mm'
     };
 
     // Apply all settings at once without triggering individual notifications
@@ -982,6 +1258,18 @@ const GeneralSettings = {
     
     // Notify listeners about a complete reset instead of individual properties
     this.notifyListeners('settingsReset', null);
+  },
+
+  // Method to format dimension values based on the current unit setting
+  formatDimension: function(value, xHeight = 100) {
+    if (this.dimensionUnit === 'sw') {
+      // Convert to sign width units (value / xHeight)
+      const swValue = (value / xHeight * 4).toFixed(1);
+      return `${swValue}sw`;
+    } else { 
+      // Return in millimeters (default)
+      return `${Math.round(value)}mm`;
+    }
   }
 };
 

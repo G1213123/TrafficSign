@@ -73,6 +73,11 @@ let FormSettingsComponent = {
         GeneralSettings.showAllVertices ? 'Yes' : 'No',
         FormSettingsComponent.toggleShowAllVertices);
 
+      // Dimension Unit toggle
+      GeneralHandler.createToggle('Dimension Unit', ['mm', 'sw'], visualSettingsContainer,
+        GeneralSettings.dimensionUnit || 'mm',
+        FormSettingsComponent.toggleDimensionUnit);
+
       //GeneralHandler.createToggle('Snap to Grid', ['Yes', 'No'], visualSettingsContainer, 
       //  GeneralSettings.snapToGrid ? 'Yes' : 'No', 
       //  FormSettingsComponent.toggleSnapToGrid);
@@ -190,6 +195,17 @@ let FormSettingsComponent = {
     const value = button.getAttribute('data-value') === 'Yes';
     GeneralSettings.showAllVertices = value;
     FormSettingsComponent.applyVertexDisplaySettings();
+    FormSettingsComponent.saveSettings(); // Auto-save settings
+  },
+
+  // Toggle handler for Dimension Unit
+  toggleDimensionUnit: function (button) {
+    const value = button.getAttribute('data-value');
+    GeneralSettings.dimensionUnit = value;
+    
+    // Refresh any visible dimension displays
+    FormSettingsComponent.refreshDimensionDisplays();
+    
     FormSettingsComponent.saveSettings(); // Auto-save settings
   },
 
@@ -551,6 +567,24 @@ let FormSettingsComponent = {
     updateToggle('Auto Save-container', GeneralSettings.autoSave);
     updateToggle('Run Tests on Start-container', GeneralSettings.runTestsOnStart);
 
+    // Handle dimension unit toggle separately (it's not a boolean)
+    const updateDimensionUnit = (id, value) => {
+      const container = document.getElementById(id);
+      if (!container) return;
+
+      const buttons = container.querySelectorAll('.toggle-button');
+      buttons.forEach(button => {
+        const isActive = button.getAttribute('data-value') === value;
+        if (isActive) {
+          button.classList.add('active');
+          container.selected = button;
+        } else {
+          button.classList.remove('active');
+        }
+      });
+    };
+    updateDimensionUnit('Dimension Unit-container', GeneralSettings.dimensionUnit);
+
     // Update color inputs
     const bgColorInput = document.getElementById('background-color');
     if (bgColorInput) bgColorInput.value = GeneralSettings.backgroundColor;
@@ -575,6 +609,25 @@ let FormSettingsComponent = {
     } else {
       console.error("Test runner not available. Make sure test.js is loaded.");
     }
+  },
+
+  // Refresh dimension displays when unit setting changes
+  refreshDimensionDisplays: function () {
+    // Refresh lock icon dimensions
+    if (CanvasGlobals.canvasObject) {
+      CanvasGlobals.canvasObject.forEach(obj => {
+        if (obj.lockIcons && obj.lockIcons.length > 0) {
+          obj.lockIcons.forEach(lockIcon => {
+            if (lockIcon.refreshDimensions && typeof lockIcon.refreshDimensions === 'function') {
+              lockIcon.refreshDimensions();
+            }
+          });
+        }
+      });
+    }
+    
+    // Force canvas re-render
+    CanvasGlobals.canvas.renderAll();
   }
 };
 

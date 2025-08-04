@@ -1,6 +1,7 @@
 import { globalAnchorTree } from "./anchor.js";
 import { canvasTracker } from "../canvas/Tracker.js";
 import { CanvasGlobals } from "../canvas/canvas.js";
+import { GeneralSettings } from "../sidebar/sbGeneral.js";
 const canvas = CanvasGlobals.canvas;
 
 class LockIcon {
@@ -94,7 +95,7 @@ class LockIcon {
 
       // Dimension text
       this.dimensionTexts.push(new fabric.Text(
-        (targetPoint.x - sourcePoint.x).toFixed() + 'mm',
+        GeneralSettings.formatDimension(targetPoint.x - sourcePoint.x, this.baseGroup.xHeight),
         {
           left: midX,
           top: dimLineY + (25 / canvas.getZoom()),
@@ -174,7 +175,7 @@ class LockIcon {
 
       // Dimension text
       this.dimensionTexts.push(new fabric.Text(
-        (targetPoint.y - sourcePoint.y).toFixed() + 'mm',
+        GeneralSettings.formatDimension(targetPoint.y - sourcePoint.y, this.baseGroup.xHeight),
         {
           left: midX + 45 / canvas.getZoom(),
           top: midY + 8 / canvas.getZoom(),
@@ -367,44 +368,38 @@ class LockIcon {
 
   // Add a method to serialize LockIcon state
   serializeToJSON() {
-    const serializedLockParam = {};
-    if (this.lockParam) {
-        // Serialize sourceObject and TargetObject by their canvasID
-        if (this.lockParam.sourceObject) {
-            serializedLockParam.sourceObject = this.lockParam.sourceObject.canvasID;
-        }
-        if (this.lockParam.TargetObject) {
-            serializedLockParam.TargetObject = this.lockParam.TargetObject.canvasID;
-        }
-        // Copy other primitive properties from lockParam
-        for (const key in this.lockParam) {
-            if (key !== 'sourceObject' && key !== 'TargetObject' && Object.prototype.hasOwnProperty.call(this.lockParam, key)) {
-                // Deep copy AnchorPoint objects if they exist
-                if ((key === 'sourcePoint' || key === 'targetPoint' || key === 'secondSourcePoint' || key === 'secondTargetPoint') && 
-                    this.lockParam[key] && typeof this.lockParam[key] === 'object') {
-                    serializedLockParam[key] = JSON.parse(JSON.stringify(this.lockParam[key]));
-                } else {
-                    serializedLockParam[key] = this.lockParam[key];
-                }
-            }
-        }
-         // Serialize secondSourceObject and secondTargetObject by their canvasID if they exist
-        if (this.lockParam.secondSourceObject) {
-            serializedLockParam.secondSourceObject = this.lockParam.secondSourceObject.canvasID;
-        }
-        if (this.lockParam.secondTargetObject) {
-            serializedLockParam.secondTargetObject = this.lockParam.secondTargetObject.canvasID;
-        }
-    }
-
     return {
-        objectType: this.objectType,
-        baseGroupCanvasID: this.baseGroup ? this.baseGroup.canvasID : null,
-        lockParam: serializedLockParam, // Serialized lockParam
-        direction: this.direction,
-        // Note: Fabric.js objects (lines, dimensionTexts, icons) are not serialized directly.
-        // They will be recreated by the constructor during deserialization.
+      objectType: this.objectType,
+      baseGroupCanvasID: this.baseGroup ? this.baseGroup.canvasID : null,
+      lockParam: this.lockParam ? {
+        TargetObject: this.lockParam.TargetObject ? this.lockParam.TargetObject.canvasID : null,
+        spacingX: this.lockParam.spacingX,
+        spacingY: this.lockParam.spacingY,
+        sourcePoint: this.lockParam.sourcePoint,
+        targetPoint: this.lockParam.targetPoint
+      } : null,
+      direction: this.direction
     };
+  }
+
+  // Method to refresh dimension text when unit setting changes
+  refreshDimensions() {
+    if (!this.dimensionTexts || this.dimensionTexts.length === 0) return;
+    
+    // Get the current spacing values
+    const sourcePoint = this.baseGroup.getBasePolygonVertex(this.lockParam.sourcePoint);
+    const targetPoint = this.lockParam.TargetObject.getBasePolygonVertex(this.lockParam.targetPoint);
+    
+    if (sourcePoint && targetPoint) {
+      // Update dimension text based on direction
+      this.dimensionTexts.forEach(text => {
+        if (this.direction === 'x') {
+          text.set('text', GeneralSettings.formatDimension(targetPoint.x - sourcePoint.x, this.baseGroup.xHeight));
+        } else {
+          text.set('text', GeneralSettings.formatDimension(targetPoint.y - sourcePoint.y, this.baseGroup.xHeight));
+        }
+      });
+    }
   }
 }
 
