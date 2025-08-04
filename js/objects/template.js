@@ -3938,10 +3938,10 @@ function OvalRoundaboutTemplate(angle) {
     const innerFirstArc = { x: - innerRadius * cosA, y: - innerRadius * sinA }
     const innerFirstLine = { x: - innerRadius * cosA + linkLength * sinA, y: - innerRadius * sinA - linkLength * cosA }
     const innerSecondArc = { x: innerRadius * cosA + linkLength * sinA, y: innerRadius * sinA - linkLength * cosA }
-    const innerSecondLine ={ x: innerRadius * cosA, y: innerRadius * sinA}
-    const innerCutEnd = { x: innerRadius * Math.cos(30 * Math.PI() / 180), y: innerRadius * Math.sin(30 * Math.PI() / 180)}
-    const outerCutStart = { x: outerRadius * Math.cos(30 * Math.PI() / 180), y: outerRadius * Math.sin(30 * Math.PI() / 180)}
-    const outerFirstArc = { x: outerRadius * cosA, y: outerRadius * sinA}
+    const innerSecondLine = { x: innerRadius * cosA, y: innerRadius * sinA }
+    const innerCutEnd = { x: innerRadius * Math.cos(30 * Math.PI() / 180), y: innerRadius * Math.sin(30 * Math.PI() / 180) }
+    const outerCutStart = { x: outerRadius * Math.cos(30 * Math.PI() / 180), y: outerRadius * Math.sin(30 * Math.PI() / 180) }
+    const outerFirstArc = { x: outerRadius * cosA, y: outerRadius * sinA }
     const outerFirstLine = { x: outerRadius * cosA + linkLength * sinA, y: outerRadius * sinA - linkLength * cosA }
     const outerSecondArc = { x: - outerRadius * cosA + linkLength * sinA, y: - outerRadius * sinA - linkLength * cosA }
     const outerSecondLine = { x: - outerRadius * cosA, y: - outerRadius * sinA }
@@ -4066,31 +4066,31 @@ function VLaneTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
 
     const strokeCount = Math.max(2, effHeight);
     const diminishedStroke = (BHeight - (strokeHeight + strokeSpacing) * strokeCount) - (strokeSpacing)
+    console.log(`Diminished stroke height: ${diminishedStroke}`)
 
     let returnBorder = [{
         'vertex': [], 'arcs': [], 'fill': 'border'
     },];
 
-    for (let i = 0; i < strokeCount; i++) {
-        returnBorder[0].vertex.push(...[
-            { x: 0, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V1', start: 1 },
-            { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V2', start: 0 },
-            { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: 'V3', start: 0 },
-            { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: 'V4', start: 0 },
-            { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V5', start: 0 },
-        ])
-    }
-
     for (let i = 0; i < strokeCount + 1; i++) {
-        returnBorder[0].vertex.push(...[
-            { x: 0, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V1', start: 1 },
-            { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V2', start: 0 },
-            { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - (i == 0 ? diminishedStroke : strokeHeight), label: 'V3', start: 0 },
-            { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - (i == 0 ? diminishedStroke : strokeHeight), label: 'V4', start: 0 },
-            { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V5', start: 0 },
-        ])
+        if (i == 0 && diminishedStroke > 0) {
+            returnBorder[0].vertex.push(...[
+                { x: 0, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V1', start: 1 },
+                { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V2', start: 0 },
+                { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - diminishedStroke, label: 'V3', start: 0 },
+                { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - diminishedStroke, label: 'V4', start: 0 },
+                { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V5', start: 0 },
+            ])
+        } else if (i != 0) {
+            returnBorder[0].vertex.push(...[
+                { x: 0, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V1', start: 1 },
+                { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V2', start: 0 },
+                { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: 'V3', start: 0 },
+                { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: 'V4', start: 0 },
+                { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V5', start: 0 },
+            ])
+        }
     }
-
 
     returnBorder.forEach(p => {
         p.vertex.forEach(vertex => {
