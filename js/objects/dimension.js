@@ -13,7 +13,7 @@ class BorderDimensionDisplay {
     this.color = options.color || 'blue';
     this.offset = options.offset || 30;
     this.objects = [];
-
+    this.baseObject = options.baseObject || null;
     this.createDimension();
   }
 
@@ -80,7 +80,7 @@ class BorderDimensionDisplay {
     // Add dimension text
     const midX = (this.startX + this.endX) / 2;
     this.objects.push(new fabric.Text(
-      GeneralSettings.formatDimension(distance, 100), // Use 100 as default xHeight for border dimensions
+      GeneralSettings.formatDimension(distance, this.baseObject ? this.baseObject.xHeight : 100), // Use 100 as default xHeight for border dimensions
       {
         left: midX,
         top: dimLineY - (8 / canvas.getZoom()),
@@ -145,7 +145,7 @@ class BorderDimensionDisplay {
 
     // Create text with rotation for vertical dimension
     this.objects.push(new fabric.Text(
-      GeneralSettings.formatDimension(distance, 100), // Use 100 as default xHeight for border dimensions
+      GeneralSettings.formatDimension(distance, this.baseObject ? this.baseObject.xHeight : 100), // Use 100 as default xHeight for border dimensions
       {
         left: dimLineX - (15 / canvas.getZoom()),
         top: midY,

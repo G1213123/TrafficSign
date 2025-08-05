@@ -445,7 +445,8 @@ class BaseGroup extends fabric.Group {
       startY: borderRect.top - 8 / canvas.getZoom(),
       endX: borderRect.left + borderRect.width,
       color: 'green',
-      offset: 30 / canvas.getZoom()
+      offset: 30 / canvas.getZoom(),
+      baseObject: this
     });
     this.dimensionAnnotations.push(leftDimension);
 
@@ -458,7 +459,8 @@ class BaseGroup extends fabric.Group {
       startY: borderRect.top,
       endY: borderRect.top + borderRect.height,
       color: 'red',
-      offset: 30 / canvas.getZoom()
+      offset: 30 / canvas.getZoom(),
+      baseObject: this
     });
     this.dimensionAnnotations.push(topDimension);
 

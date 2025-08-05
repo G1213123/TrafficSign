@@ -243,9 +243,9 @@ const FormMeasureComponent = {
         // Display measurement using the context menu text box
         const measurementText =
           ` Measurement Results:
-          ΔX: ${GeneralSettings.formatDimension(deltaX, 100)}
-          ΔY: ${GeneralSettings.formatDimension(deltaY, 100)}
-          Distance: ${GeneralSettings.formatDimension(distance, 100)}
+          ΔX: ${GeneralSettings.formatDimension(deltaX, GeneralSettings.xHeight)}
+          ΔY: ${GeneralSettings.formatDimension(deltaY, GeneralSettings.xHeight)}
+          Distance: ${GeneralSettings.formatDimension(distance, GeneralSettings.xHeight)}
           
           From: ${FormMeasureComponent.firstVertex.label} (Object #${FormMeasureComponent.firstVertex.objectId})
           To: ${secondVertex.label} (Object #${secondVertex.objectId})
@@ -482,7 +482,7 @@ const FormMeasureComponent = {
 
       // Dimension text
       FormMeasureComponent.dimensionLines.push(new fabric.Text(
-        GeneralSettings.formatDimension(deltaX, 100),
+        GeneralSettings.formatDimension(deltaX, GeneralSettings.xHeight),
         {
           left: midX,
           top: dimLineY - (25 / zoom),
@@ -547,7 +547,7 @@ const FormMeasureComponent = {
 
       // Dimension text
       FormMeasureComponent.dimensionLines.push(new fabric.Text(
-        GeneralSettings.formatDimension(deltaY, 100),
+        GeneralSettings.formatDimension(deltaY, GeneralSettings.xHeight),
         {
           left: dimLineX - 15 / zoom,
           top: midY,

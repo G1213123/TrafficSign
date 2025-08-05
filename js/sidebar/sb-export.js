@@ -625,6 +625,7 @@ let FormExportComponent = {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      FormExportComponent.showDonationOverlay();
     }
     return jsonString; // Return JSON string for further processing if needed
   },

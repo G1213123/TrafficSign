@@ -87,6 +87,33 @@ let FormDrawAddComponent = {
       });
     }
 
+    const hintMapping = {
+      'Route1':'Route',
+      'Route2':'Route',
+      'Route3':'Route',
+      'Route4':'Route',
+      'Route5':'Route',
+      'Route6':'Route',
+      'Route7':'Route',
+      'Route8':'Route',
+      'Route9':'Route',
+      'Route10':'Route',
+      'Route11':'Route',
+      'Route12':'Route',
+      'CHT':'Tunnel',
+      'EHC':'Tunnel',
+      'WHC':'Tunnel',
+      'MTR':'Tunnel',
+      'Hospital':'Tunnel',
+      'Disney':'Tunnel',
+      'Parking':'Tunnel',
+      'RightPedestrian':'LeftPedestrian',
+      'LeftDisabled':'LeftPedestrian',
+      'RightDisabled':'LeftPedestrian',
+      'LeftBike':'LeftPedestrian',
+      'RightBike':'LeftPedestrian',
+    }
+
     // Create a container for all symbols with the proper grid layout
     const symbolsContainer = GeneralHandler.createNode("div", { 'class': 'symbols-grid' }, parent);
 
@@ -106,7 +133,8 @@ let FormDrawAddComponent = {
       
       // Add tooltip functionality for all symbols
       // This will attempt to load hints/symbols/{symbol}.html
-      GeneralHandler.createGeneralButtonTooltip(symbolBtn, `symbols/${symbol}`, {
+      const hintSymbol = Object.keys(hintMapping).includes(symbol) ? hintMapping[symbol] : symbol;
+      GeneralHandler.createGeneralButtonTooltip(symbolBtn, `symbols/${hintSymbol}`, {
         position: 'top',
         showDelay: 500,  // Slightly longer delay for symbols
         hideDelay: 150

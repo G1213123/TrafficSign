@@ -1481,6 +1481,7 @@ const GeneralSettings = {
   formatDimension: function(value, xHeight = 100) {
     if (this.dimensionUnit === 'sw') {
       // Convert to sign width units (value / xHeight)
+      // Sign width units are calculated as dimension divided by x-height
       const swValue = (value / xHeight * 4).toFixed(1);
       return `${swValue}sw`;
     } else { 

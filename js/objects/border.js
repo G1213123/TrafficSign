@@ -467,7 +467,8 @@ class BorderGroup extends BaseGroup {
       startY: innerBorder.top,
       endY: innerBorder.top - frame,
       color: 'red',
-      offset: 30 / canvas.getZoom()
+      offset: 30 / canvas.getZoom(),
+      baseObject: this
     });
     this.dimensionAnnotations.push(frameDimension);
 
@@ -484,7 +485,8 @@ class BorderGroup extends BaseGroup {
           startY: leftObjectRect.top + (leftObjectRect.height / 2),
           endX: leftObjectRect.left,
           color: '#46C147',
-          offset: 30 / canvas.getZoom()
+          offset: 30 / canvas.getZoom(),
+          baseObject: this
         });
         this.dimensionAnnotations.push(leftDimension);
       }
@@ -500,7 +502,8 @@ class BorderGroup extends BaseGroup {
           startY: rightObjectRect.top + (rightObjectRect.height / 2),
           endX: innerBorder.right,
           color: '#46C147',
-          offset: 30 / canvas.getZoom()
+          offset: 30 / canvas.getZoom(),
+          baseObject: this
         });
         this.dimensionAnnotations.push(rightDimension);
       }
@@ -519,7 +522,8 @@ class BorderGroup extends BaseGroup {
           startY: innerBorder.top,
           endY: topObjectRect.top,
           color: 'red',
-          offset: 30 / canvas.getZoom()
+          offset: 30 / canvas.getZoom(),
+          baseObject: this
         });
         this.dimensionAnnotations.push(topDimension);
       }
@@ -535,7 +539,8 @@ class BorderGroup extends BaseGroup {
           startY: bottomObjectRect.top + bottomObjectRect.height,
           endY: innerBorder.bottom,
           color: 'red',
-          offset: 30 / canvas.getZoom()
+          offset: 30 / canvas.getZoom(),
+          baseObject: this
         });
         this.dimensionAnnotations.push(bottomDimension);
       }
