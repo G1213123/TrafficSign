@@ -3,6 +3,7 @@ import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { MainRoadSymbol, SideRoadSymbol, calcVertexType } from '../objects/route.js';
 import { roadMapTemplate } from '../objects/template.js';
+import { HintLoader } from '../utils/hintLoader.js';
 
 // Import the calculateMainRoadBottomY function
 import { calculateMainRoadBottomY } from '../objects/route.js';
@@ -28,6 +29,12 @@ let FormDrawMapComponent = {
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       parent.routeCount = 0
+      
+      // Set up button hint mappings for this panel
+      HintLoader.setButtonHintMappings({
+        'Main Road Shape-container': 'symbols/MainRoadShape'
+      });
+      
       // Create a container for basic parameters using the shared function
       GeneralHandler.createBasicParamsContainer(parent, FormDrawMapComponent);
 
@@ -91,20 +98,10 @@ let FormDrawMapComponent = {
           if (toggleInputContainer) {
             const label = toggleInputContainer.querySelector('.placeholder');
             if (label) {
-              // Create content with SVG image
-              const mainRoadShapeHelpContent = {
-                'Arrow': '<img src="images/main-road-shape-tooltip.svg" alt="Main Road Shape Guide" style="width: 300px; height: auto; display: block;">',
-                'Stub': '<img src="images/main-road-shape-tooltip.svg" alt="Main Road Shape Guide" style="width: 300px; height: auto; display: block;">',
-                'RedBar': '<img src="images/main-road-shape-tooltip.svg" alt="Main Road Shape Guide" style="width: 300px; height: auto; display: block;">',
-                'LaneDrop': '<img src="images/main-road-shape-tooltip.svg" alt="Main Road Shape Guide" style="width: 300px; height: auto; display: block;">',
-                'T-Junction': '<img src="images/main-road-shape-tooltip.svg" alt="Main Road Shape Guide" style="width: 300px; height: auto; display: block;">',
-                'Y-Junction': '<img src="images/main-road-shape-tooltip.svg" alt="Main Road Shape Guide" style="width: 300px; height: auto; display: block;">'
-              };
-              
-              const helpIcon = GeneralHandler.createHelpIconWithTooltip(
+              // Use HintLoader to load content from dedicated hint file
+              const helpIcon = GeneralHandler.createHelpIconWithHint(
                 label, // Add to the label directly to be inline
-                'Main Road Shape-container', 
-                mainRoadShapeHelpContent,
+                'symbols/MainRoadShape', // Path to the hint file
                 { 
                   position: 'right',    // Position to the right of sidebar
                   scrollable: true, 

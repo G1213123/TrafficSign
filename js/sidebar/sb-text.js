@@ -5,6 +5,7 @@ import { TextObject, containsNonEnglishCharacters } from '../objects/text.js';
 import { anchorShape } from '../objects/anchor.js';
 import { EngDestinations, ChtDestinations } from '../objects/template.js';
 import { FontPriorityManager } from '../modal/md-font.js';
+import { HintLoader } from '../utils/hintLoader.js';
 
 let FormTextAddComponent = {
   textFont: ['TransportMedium', 'TransportHeavy'],
@@ -47,6 +48,11 @@ let FormTextAddComponent = {
     var parent = GeneralHandler.PanelInit();
     GeneralHandler.setActiveComponentOff(FormTextAddComponent.TextHandlerOff);
     if (parent) {
+      // Set up button hint mappings for this panel
+      HintLoader.setButtonHintMappings({
+        'Text Font-container': 'symbols/TextFont'
+      });
+      
       // Create the basic parameters container using the shared function
       GeneralHandler.createBasicParamsContainer(parent, FormTextAddComponent, null, null, FormTextAddComponent.liveUpdateText, FormTextAddComponent.liveUpdateText);
 
@@ -55,7 +61,33 @@ let FormTextAddComponent = {
       const textInput = GeneralHandler.createInput('input-text', 'Add Text', textContentContainer, '', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler, 'input');
       // Add the info text div for 2Liner mode
       const twoLinerInfo = GeneralHandler.createNode("div", { 'id': 'two-liner-info', 'class': 'info-text', 'style': 'display: none;' }, textContentContainer);
-      twoLinerInfo.textContent = "Text input is disabled in 2Liner mode. Select a destination below.";      const fontToggle = GeneralHandler.createToggle('Text Font', FormTextAddComponent.textFont, textContentContainer, 'TransportMedium', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler);
+      twoLinerInfo.textContent = "Text input is disabled in 2Liner mode. Select a destination below.";      
+      const fontToggle = GeneralHandler.createToggle('Text Font', FormTextAddComponent.textFont, textContentContainer, 'TransportMedium', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler);
+      
+      // Add help icon to Text Font toggle
+      setTimeout(() => {
+        try {
+          const toggleInputContainer = fontToggle.parentElement;
+          if (toggleInputContainer) {
+            const label = toggleInputContainer.querySelector('.placeholder');
+            if (label) {
+              // Use HintLoader to load content from dedicated hint file
+              const helpIcon = GeneralHandler.createHelpIconWithHint(
+                label, // Add to the label directly to be inline
+                'symbols/TextFont', // Path to the hint file
+                { 
+                  position: 'right',    // Position to the right of sidebar
+                  scrollable: true, 
+                  showDelay: 150,       // Quick show for better responsiveness
+                  hideDelay: 1000       // Longer linger time for reading content
+                }
+              );
+            }
+          }
+        } catch (error) {
+          console.error('Error adding help icon to Text Font:', error);
+        }
+      }, 50); // Small delay to ensure DOM is ready
       
       // Add font priority management button for Chinese fonts
       const fontPriorityButton = GeneralHandler.createButton('font-priority-btn', 'Chinese Font Setting', textContentContainer, 'input', FontPriorityManager.showModal, 'click');
