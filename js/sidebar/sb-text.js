@@ -50,7 +50,8 @@ let FormTextAddComponent = {
     if (parent) {
       // Set up button hint mappings for this panel
       HintLoader.setButtonHintMappings({
-        'Text Font-container': 'symbols/TextFont'
+        'Text Font-container': 'symbols/TextFont',
+        'input-text-container': 'symbols/Text',
       });
       
       // Create the basic parameters container using the shared function
@@ -67,6 +68,7 @@ let FormTextAddComponent = {
       // Add help icon to Text Font toggle
       setTimeout(() => {
         try {
+          const textInputContainer = textInput.parentElement
           const toggleInputContainer = fontToggle.parentElement;
           if (toggleInputContainer) {
             const label = toggleInputContainer.querySelector('.placeholder');
@@ -75,6 +77,22 @@ let FormTextAddComponent = {
               const helpIcon = GeneralHandler.createHelpIconWithHint(
                 label, // Add to the label directly to be inline
                 'symbols/TextFont', // Path to the hint file
+                { 
+                  position: 'right',    // Position to the right of sidebar
+                  scrollable: true, 
+                  showDelay: 150,       // Quick show for better responsiveness
+                  hideDelay: 1000       // Longer linger time for reading content
+                }
+              );
+            }
+          }
+          if (textInputContainer) {
+            const label = textInputContainer.querySelector('.placeholder');
+            if (label) {
+              // Use HintLoader to load content from dedicated hint file
+              const helpIcon = GeneralHandler.createHelpIconWithHint(
+                label, // Add to the label directly to be inline
+                'symbols/Text', // Path to the hint file
                 { 
                   position: 'right',    // Position to the right of sidebar
                   scrollable: true, 
