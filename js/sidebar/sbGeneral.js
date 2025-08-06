@@ -61,6 +61,18 @@ let GeneralHandler = {
     GeneralHandler.PanelHandlerOff()
     if (document.getElementById("side-panel").className.indexOf("open") !== -1) {
       var parent = document.getElementById("input-form");
+      
+      // Clean up any existing general button tooltips before clearing the form
+      const buttonsWithTooltips = parent.querySelectorAll('button[data-tooltip], .tooltip-btn');
+      buttonsWithTooltips.forEach(button => {
+        if (button.cleanupGeneralTooltip) {
+          button.cleanupGeneralTooltip();
+        }
+      });
+      
+      // Also clean up any orphaned tooltips that may exist
+      GeneralHandler.cleanupOrphanedTooltips();
+      
       parent.innerHTML = ''
     }
     CanvasObjectInspector.createObjectListPanelInit()
@@ -926,8 +938,9 @@ let GeneralHandler = {
       height: window.innerHeight
     };
 
-    // Clear existing arrow classes
+    // Clear existing arrow classes (both hint and tooltip patterns)
     hints.classList.remove('hints-arrow-left', 'hints-arrow-right', 'hints-arrow-top', 'hints-arrow-bottom');
+    hints.classList.remove('tooltip-arrow-left', 'tooltip-arrow-right', 'tooltip-arrow-top', 'tooltip-arrow-bottom');
 
     let left, top;
 
@@ -950,14 +963,14 @@ let GeneralHandler = {
         hints.style.bottom = bottom + 'px';
         hints.style.top = ''; // Clear any previous top value
         
-        hints.classList.add('hints-arrow-bottom'); // Arrow pointing down to sidebar
+        hints.classList.add('tooltip-arrow-bottom'); // Arrow pointing down to sidebar
       } else {
         // Desktop: sidebar is on left, hints to the right
         left = sidebarRect.right + 70; // Reduced margin since hints is larger
         const top =  targetRect.top; // Position so hints top aligns with target top
         hints.style.top = top + 'px';
         hints.style.bottom = ''; // Clear any previous bottom value
-        hints.classList.add('hints-arrow-left');
+        hints.classList.add('tooltip-arrow-left');
         
         // Reset width for desktop
         hints.style.width = '';
@@ -1333,9 +1346,10 @@ let GeneralHandler = {
     };
     const config = Object.assign(defaultOptions, options);
 
-    // Create tooltip element with different class to avoid conflicts
+    // Create tooltip element with unified hints class
     const tooltip = GeneralHandler.createNode("div", { 
-      'class': 'general-button-tooltip' 
+      'class': 'hints',
+      'data-button-id': button.id || `button-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     }, document.body);
     
     // Store timeout references
@@ -1347,7 +1361,7 @@ let GeneralHandler = {
     // Function to reposition tooltip on window resize
     const repositionTooltip = () => {
       if (isTooltipVisible && tooltip.style.opacity === '1') {
-        GeneralHandler.positionGeneralTooltip(tooltip, button, config.position);
+        GeneralHandler.positionTooltip(tooltip, button, config.position, true);
       }
     };
     
@@ -1384,7 +1398,7 @@ let GeneralHandler = {
             isTooltipVisible = true;
 
             // Position the tooltip
-            GeneralHandler.positionGeneralTooltip(tooltip, button, config.position);
+            GeneralHandler.positionTooltip(tooltip, button, config.position, true);
           } else {
             // No hint available, show a fallback message
             tooltip.innerHTML = '<p><em>No help available for this item.</em></p>';
@@ -1392,7 +1406,7 @@ let GeneralHandler = {
             tooltip.style.opacity = '1';
             tooltip.style.pointerEvents = 'auto';
             isTooltipVisible = true;
-            GeneralHandler.positionGeneralTooltip(tooltip, button, config.position);
+            GeneralHandler.positionTooltip(tooltip, button, config.position, true);
           }
         } catch (error) {
           console.warn('Failed to load hint content:', error);
@@ -1402,7 +1416,7 @@ let GeneralHandler = {
           tooltip.style.opacity = '1';
           tooltip.style.pointerEvents = 'auto';
           isTooltipVisible = true;
-          GeneralHandler.positionGeneralTooltip(tooltip, button, config.position);
+          GeneralHandler.positionTooltip(tooltip, button, config.position, true);
         }
         showTimeout = null;
       }, config.showDelay);
@@ -1617,6 +1631,26 @@ let GeneralHandler = {
     }
     
     return button;
+  },
+
+  /**
+   * Cleanup utility to remove orphaned hints tooltips from the DOM
+   * Call this to clean up any tooltips that may have been left behind
+   */
+  cleanupOrphanedTooltips: function() {
+    const orphanedTooltips = document.querySelectorAll('.hints[data-button-id]');
+    orphanedTooltips.forEach(tooltip => {
+      // Check if the tooltip's parent button still exists in the DOM
+      const buttonId = tooltip.getAttribute('data-button-id');
+      const button = buttonId ? document.getElementById(buttonId) : null;
+      
+      if (!button || !document.body.contains(button)) {
+        // Button no longer exists, remove the orphaned tooltip
+        if (tooltip.parentNode) {
+          tooltip.parentNode.removeChild(tooltip);
+        }
+      }
+    });
   },
 
   // ...existing code...

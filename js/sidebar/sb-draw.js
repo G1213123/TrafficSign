@@ -135,7 +135,7 @@ let FormDrawAddComponent = {
       // This will attempt to load hints/symbols/{symbol}.html
       const hintSymbol = Object.keys(hintMapping).includes(symbol) ? hintMapping[symbol] : symbol;
       GeneralHandler.createGeneralButtonTooltip(symbolBtn, `symbols/${hintSymbol}`, {
-        position: 'top',
+        position: 'right',
         showDelay: 500,  // Slightly longer delay for symbols
         hideDelay: 150
       });
