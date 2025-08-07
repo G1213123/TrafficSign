@@ -379,7 +379,10 @@ class BorderGroup extends BaseGroup {
 
   drawBorder() {
     const rounding = JSON.parse(JSON.stringify(this.rounding)); // Deep copy rounding to avoid mutation
-    const block = { width: this.inbbox.right - this.inbbox.left, height: this.inbbox.bottom - this.inbbox.top };
+    const block = {
+      width: this.fixedWidth == ' ' ? this.inbbox.right - this.inbbox.left : parseFloat(this.fixedWidth),
+      height: this.fixedHeight == ' ' ? this.inbbox.bottom - this.inbbox.top: parseFloat(this.fixedHeight),
+    };
     const shapeMeta = BorderTypeScheme[this.borderType](this.xHeight, block, rounding);
     const baseGroup = [];
 
@@ -1070,10 +1073,10 @@ class BorderGroup extends BaseGroup {
       //this.rounding.y += this.innerPadding.y
     }
 
-    coords.left -= this.innerPadding.x / 2
-    coords.right += this.innerPadding.x / 2
-    coords.top -= this.innerPadding.y / 2
-    coords.bottom += this.innerPadding.y / 2
+    coords.left -= this.innerPadding.x / (this.VDivider.length + 1) / 2
+    coords.right += this.innerPadding.x / (this.VDivider.length + 1) / 2
+    coords.top -= this.innerPadding.y / (this.HDivider.length + 1) / 2
+    coords.bottom += this.innerPadding.y / (this.HDivider.length + 1) / 2
     this.inbbox = coords
 
   }
