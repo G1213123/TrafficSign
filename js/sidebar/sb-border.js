@@ -13,14 +13,6 @@ let FormBorderWrapComponent = {
     GeneralHandler.tabNum = 3;
     var parent = GeneralHandler.PanelInit()
     if (parent) {
-      // Set up button hint mappings for divider buttons
-      HintLoader.setButtonHintMappings({
-        'input-HDivider': 'symbols/StackDivider',
-        'input-VDivider': 'symbols/GantryDivider',
-        'input-HLine': 'symbols/GantryLine',
-        'input-VLane': 'symbols/LaneLine',
-      });
-
       // Create a container for border parameters
       var borderParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
       GeneralHandler.createInput('input-xHeight', 'x Height', borderParamsContainer, GeneralSettings.xHeight, FormBorderWrapComponent.handleXHeightChange, 'input')
@@ -31,15 +23,32 @@ let FormBorderWrapComponent = {
       // Create a container for border actions
       var borderActionsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
       //GeneralHandler.createButton('input-border', 'Select Objects for border', borderActionsContainer, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
-      GeneralHandler.createButton('input-HDivider', 'Add stack border divider', borderActionsContainer, 'input', FormBorderWrapComponent.StackDividerHandler, 'click')
-      GeneralHandler.createButton('input-VDivider', 'Add gantry border divider', borderActionsContainer, 'input', FormBorderWrapComponent.GantryDividerHandler, 'click')
-      GeneralHandler.createButton('input-HLine', 'Add gantry destination line', borderActionsContainer, 'input', FormBorderWrapComponent.GantryLineHandler, 'click')
-      GeneralHandler.createButton('input-VLane', 'Add lane separation line', borderActionsContainer, 'input', FormBorderWrapComponent.LaneLineHandler, 'click')
+      const stackDividerBtn = GeneralHandler.createButton('input-HDivider', 'Add stack border divider', borderActionsContainer, 'input', FormBorderWrapComponent.StackDividerHandler, 'click')
+      const gantryDividerBtn = GeneralHandler.createButton('input-VDivider', 'Add gantry border divider', borderActionsContainer, 'input', FormBorderWrapComponent.GantryDividerHandler, 'click')
+      const gantryLineBtn = GeneralHandler.createButton('input-HLine', 'Add gantry destination line', borderActionsContainer, 'input', FormBorderWrapComponent.GantryLineHandler, 'click')
+      const laneLineBtn = GeneralHandler.createButton('input-VLane', 'Add lane separation line', borderActionsContainer, 'input', FormBorderWrapComponent.LaneLineHandler, 'click')
 
-      // Add help icons to divider buttons
-      setTimeout(() => {
-        FormBorderWrapComponent.addDividerHints(borderActionsContainer);
-      }, 0);
+      // Add tooltips to divider buttons
+      GeneralHandler.createGeneralButtonTooltip(stackDividerBtn, 'symbols/StackDivider', {
+        position: 'right',
+        showDelay: 500,
+        hideDelay: 150
+      });
+      GeneralHandler.createGeneralButtonTooltip(gantryDividerBtn, 'symbols/GantryDivider', {
+        position: 'right',
+        showDelay: 500,
+        hideDelay: 150
+      });
+      GeneralHandler.createGeneralButtonTooltip(gantryLineBtn, 'symbols/GantryLine', {
+        position: 'right',
+        showDelay: 500,
+        hideDelay: 150
+      });
+      GeneralHandler.createGeneralButtonTooltip(laneLineBtn, 'symbols/LaneLine', {
+        position: 'right',
+        showDelay: 500,
+        hideDelay: 150
+      });
 
       // Create a container for border type selection with SVG buttons
       var borderTypeContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container', 'id': 'border-select-container' }, parent);
@@ -196,30 +205,6 @@ let FormBorderWrapComponent = {
         new DividerObject({ dividerType: 'VLane', leftObjects: leftObject, rightObjects: rightObject, leftValue: leftValue, rightValue: rightValue, xHeight: xHeight, colorType: color, });
       }, null, xHeight, 'mm');
     }, null, xHeight, 'mm');
-  },
-
-  // Add help icons to divider buttons
-  addDividerHints: function(container) {
-    const dividerButtons = [
-      { id: 'input-HDivider', hintPath: 'symbols/StackDivider' },
-      { id: 'input-VDivider', hintPath: 'symbols/GantryDivider' },
-      { id: 'input-HLine', hintPath: 'symbols/GantryLine' },
-      { id: 'input-VLane', hintPath: 'symbols/LaneLine' }
-    ];
-
-    dividerButtons.forEach(({ id, hintPath }) => {
-      const button = document.getElementById(id);
-      if (button) {
-        const buttonContainer = button.parentElement;
-        if (buttonContainer) {
-          // Add help icon to the button container
-          GeneralHandler.createHelpIconWithHint(buttonContainer, hintPath, {
-            position: 'right',
-            scrollable: true
-          });
-        }
-      }
-    });
   },
 }
 
