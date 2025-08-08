@@ -181,9 +181,9 @@ let FormDrawMapComponent = {
     const roundaboutFeaturesContainer = document.getElementById('Roundabout Type-container');
     const mainAngleDisplayElement = document.getElementById('main-angle-display');
 
-    const rootLength = rootLengthElement ? parseInt(rootLengthElement.value) : null;
-    const tipLength = tipLengthElement ? parseInt(tipLengthElement.value) : null;
-    const mainWidth = mainWidthElement ? parseInt(mainWidthElement.value) : null;
+    const rootLength = rootLengthElement ? parseFloat(rootLengthElement.value) : null;
+    const tipLength = tipLengthElement ? parseFloat(tipLengthElement.value) : null;
+    const mainWidth = mainWidthElement ? parseFloat(mainWidthElement.value) : null;
     const endShape = mainRoadShapeContainer ? GeneralHandler.getToggleValue('Main Road Shape-container') : null;
     
     // Only get radius values if LaneDrop is selected and inputs exist
