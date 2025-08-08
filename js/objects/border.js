@@ -1,7 +1,7 @@
 import { BaseGroup } from './draw.js';
 import { BorderDimensionDisplay, RadiusDimensionDisplay } from './dimension.js';
 import { globalAnchorTree, processUpdateCycle } from './anchor.js';
-import { BorderTypeScheme, BorderColorScheme, BorderFrameWidth, DividerMargin } from './template.js';
+import { BorderTypeScheme, BorderColorScheme, BorderFrameWidth, BorderPaddingWidth, DividerMargin } from './template.js';
 import { vertexToPath } from './path.js';
 import { CanvasGlobals, DrawGrid } from '../canvas/canvas.js';
 import { drawDivider } from './divider.js';
@@ -333,11 +333,16 @@ class BorderGroup extends BaseGroup {
     this.color = options.color;
     this.dimensionAnnotations = [];
     this.frame = BorderFrameWidth[this.borderType]; // Frame width for the border
+    this.defaultPadding = BorderPaddingWidth[this.borderType] || { left: 0, top: 0, right: 0, bottom: 0 };
     this.inbbox = null; // Inner border bounding box
     this.rounding = { x: 0, y: 0 }; // Rounding values for the border
     this.compartmentBboxes = []; // Array of compartment bounding boxes
-    this.VDivider = options.VDivider
-    this.HDivider = options.HDivider
+    this.VDivider = options.VDivider || [];
+    this.HDivider = options.HDivider || [];
+    
+    // Cache for fixed dimension coordinates
+    this.fixedWidthCoords = null;
+    this.fixedHeightCoords = null;
 
     // Add status flag to track border updates
     this.isUpdating = false; // Flag to track if the border is currently being updated
@@ -355,7 +360,7 @@ class BorderGroup extends BaseGroup {
   initialize() {
     if (this.inbbox == null) {
       this.filterBorderObjects();
-      this.calcfixedBboxes();
+      this.calcfixedBboxes(true); // true indicates this is initialization
       this.rounding = BorderUtilities.calcBorderRounding(this.borderType, this.xHeight, this.inbbox);
     }
 
@@ -364,7 +369,7 @@ class BorderGroup extends BaseGroup {
     this.RoundingToDivider()
     this.assignWidthToDivider();
     canvas.sendObjectToBack(this);
-    DrawGrid();
+    //DrawGrid();
 
     this.widthObjects.forEach(obj => {
       // Update the borderGroup reference in each width object
@@ -380,16 +385,16 @@ class BorderGroup extends BaseGroup {
   drawBorder() {
     const rounding = JSON.parse(JSON.stringify(this.rounding)); // Deep copy rounding to avoid mutation
     const block = {
-      width: this.fixedWidth == ' ' ? this.inbbox.right - this.inbbox.left : parseFloat(this.fixedWidth),
-      height: this.fixedHeight == ' ' ? this.inbbox.bottom - this.inbbox.top: parseFloat(this.fixedHeight),
+      width: this.inbbox.right - this.inbbox.left,
+      height: this.inbbox.bottom - this.inbbox.top,
     };
+    if (!isNaN(parseFloat(this.fixedWidth))) { rounding.x = 0 }
+    if (!isNaN(parseFloat(this.fixedHeight))) { rounding.y = 0 }
     const shapeMeta = BorderTypeScheme[this.borderType](this.xHeight, block, rounding);
     const baseGroup = [];
 
     // Create polygon with labeled vertices
     shapeMeta.path.forEach((p) => {
-      const vertexleft = -Math.min(...p.vertex.map(v => v.x));
-      const vertextop = -Math.min(...p.vertex.map(v => v.y));
 
       p.vertex.forEach((vertex) => {
         vertex.x = vertex.x + this.inbbox.left;
@@ -402,10 +407,15 @@ class BorderGroup extends BaseGroup {
         ? pathData.match(/d="([^"]+)"/)?.[1] || pathData
         : pathData;
 
+      const borderShift = p.fill == 'background' ? this.frame * this.xHeight / 4 : 0;
+
+      const vertexleft = Math.min(...p.vertex.map(v => v.x));
+      const vertextop = Math.min(...p.vertex.map(v => v.y));
+
       baseGroup.push(
         new fabric.Path(dValue, {
-          left: this.inbbox.left - vertexleft,
-          top: this.inbbox.top - vertextop,
+          left: vertexleft,
+          top: vertextop,
           fill: (p['fill'] == 'background') || (p['fill'] == 'symbol') || (p['fill'] == 'border') ? BorderColorScheme[this.color][p['fill']] : p['fill'],
           objectCaching: false,
           strokeWidth: 0,
@@ -704,6 +714,8 @@ class BorderGroup extends BaseGroup {
 
       // Check if divider has fixed distance values
       if (d.fixedLeftValue || d.fixedRightValue) {
+        let newLeft = d.fixedLeftValue ? this.left + d.fixedLeftValue : this.left + this.width - d.fixedRightValue
+        newLeft = newLeft - d.width / 2
 
         if (needsUpdate) {
           // Redraw the divider with the border's dimensions
@@ -718,8 +730,7 @@ class BorderGroup extends BaseGroup {
           if (d.fixedRightValue !== undefined) {
             // Anchor to right of border
             d.set({
-              left: borderSize.left + borderSize.width - frame - d.fixedRightValue -
-                DividerMargin[d.functionalType]['right'] * d.xHeight / 4
+              left: this.left + this.width - d.fixedRightValue - d.width / 2
             });
 
             // Remove any existing anchoring but don't trigger further updates
@@ -730,8 +741,7 @@ class BorderGroup extends BaseGroup {
           } else if (d.fixedLeftValue !== undefined) {
             // Anchor to left of border
             d.set({
-              left: borderSize.left + frame + d.fixedLeftValue +
-                DividerMargin[d.functionalType]['left'] * d.xHeight / 4
+              left: this.left + d.fixedLeftValue - d.width / 2
             });
           }
 
@@ -770,7 +780,6 @@ class BorderGroup extends BaseGroup {
 
       // Check if divider has fixed distance values
       if (d.fixedTopValue || d.fixedBottomValue) {
-
         if (needsUpdate) {
           // Redraw the divider with the border's dimensions
           const res = drawDivider(
@@ -778,7 +787,7 @@ class BorderGroup extends BaseGroup {
             d.color,
             {
               left: d.left,
-              top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4
+              top: d.top
             },
             this.inbbox,
             d.functionalType
@@ -792,8 +801,7 @@ class BorderGroup extends BaseGroup {
           if (d.fixedBottomValue !== undefined) {
             // Anchor to bottom of border
             d.set({
-              top: borderSize.top + borderSize.height - frame - d.fixedBottomValue -
-                DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4
+              top: this.top + this.height - d.fixedBottomValue - d.height / 2
             });
 
             // Remove any existing anchoring but don't trigger cascading updates
@@ -803,8 +811,7 @@ class BorderGroup extends BaseGroup {
           } else if (d.fixedTopValue !== undefined) {
             // Anchor to top of border
             d.set({
-              top: borderSize.top + frame + d.fixedTopValue +
-                DividerMargin[d.functionalType]['top'] * d.xHeight / 4
+              top: this.top + d.fixedTopValue - d.height / 2
             });
           }
 
@@ -1057,28 +1064,121 @@ class BorderGroup extends BaseGroup {
     this.HDivider = HDivider
   }
 
-  calcfixedBboxes() {
-    // Get the bounding box of the active selection 
-    let coords = BorderUtilities.getBorderObjectCoords(this.heightObjects, this.widthObjects)
-    this.innerPadding = { x: 0, y: 0 }
-
-    // handle roundings on borders and dividers
-    //this.rounding = BorderUtilities.calcBorderRounding(this.borderType, this.xHeight, coords)
-    if (!isNaN(parseInt(this.fixedWidth))) {
-      this.innerPadding.x = parseInt(this.fixedWidth) - coords.right + coords.left + this.xHeight / 2
-      //this.rounding.x += this.innerPadding.x
+  calcfixedBboxes(isInitialization = false) {
+    // Get the bounding box of the active selection for dynamic dimensions
+    let coords = BorderUtilities.getBorderObjectCoords(this.heightObjects, this.widthObjects);
+    
+    // Debug: check for NaN values in initial coords
+    if (isNaN(coords.left) || isNaN(coords.top) || isNaN(coords.right) || isNaN(coords.bottom)) {
+      console.error('calcfixedBboxes: Initial coords contain NaN values:', coords);
+      console.error('heightObjects:', this.heightObjects);
+      console.error('widthObjects:', this.widthObjects);
+      // Set default values to prevent further NaN propagation
+      coords = { left: 0, top: 0, right: 100, bottom: 100 };
     }
-    if (!isNaN(parseInt(this.fixedHeight))) {
-      this.innerPadding.y = parseInt(this.fixedHeight) - coords.bottom + coords.top + this.xHeight / 2
-      //this.rounding.y += this.innerPadding.y
+    
+    this.innerPadding = { x: 0, y: 0 };
+
+    // Apply inner padding
+    coords.left -= this.innerPadding.x / (this.VDivider.length + 1) / 2;
+    coords.right += this.innerPadding.x / (this.VDivider.length + 1) / 2;
+    coords.top -= this.innerPadding.y / (this.HDivider.length + 1) / 2;
+    coords.bottom += this.innerPadding.y / (this.HDivider.length + 1) / 2;
+
+    // Determine if width and height are fixed
+    const hasFixedWidth = !isNaN(parseInt(this.fixedWidth));
+    const hasFixedHeight = !isNaN(parseInt(this.fixedHeight));
+
+    // Handle width calculation
+    if (hasFixedWidth) {
+      if (isInitialization || !this.fixedWidthCoords) {
+        // Calculate fixed width coordinates only during initialization or if not cached
+        const borderCoords = canvas.calcViewportBoundaries();
+        
+        if (!borderCoords || !borderCoords.tl || !borderCoords.br) {
+          console.error('calcfixedBboxes: Invalid borderCoords:', borderCoords);
+        } else {
+          const centerX = (borderCoords.tl.x + borderCoords.br.x) / 2;
+          const leftPadding = (this.frame + this.defaultPadding.left) * this.xHeight / 4;
+          const rightPadding = (this.frame + this.defaultPadding.right) * this.xHeight / 4;
+          
+          this.fixedWidthCoords = {
+            left: centerX - parseInt(this.fixedWidth) / 2 + leftPadding,
+            right: centerX + parseInt(this.fixedWidth) / 2 - rightPadding
+          };
+          
+          // Debug: check for NaN in width calculations
+          if (isNaN(this.fixedWidthCoords.left) || isNaN(this.fixedWidthCoords.right)) {
+            console.error('calcfixedBboxes: NaN in width calculations:', {
+              centerX,
+              fixedWidth: this.fixedWidth,
+              frame: this.frame,
+              paddingLeft: this.defaultPadding.left,
+              paddingRight: this.defaultPadding.right,
+              xHeight: this.xHeight
+            });
+            this.fixedWidthCoords = { left: 0, right: 100 };
+          }
+        }
+      }
+      
+      // Use cached fixed width coordinates
+      if (this.fixedWidthCoords) {
+        coords.left = this.fixedWidthCoords.left;
+        coords.right = this.fixedWidthCoords.right;
+      }
     }
+    // If width is not fixed, use the calculated dynamic coordinates (already set above)
 
-    coords.left -= this.innerPadding.x / (this.VDivider.length + 1) / 2
-    coords.right += this.innerPadding.x / (this.VDivider.length + 1) / 2
-    coords.top -= this.innerPadding.y / (this.HDivider.length + 1) / 2
-    coords.bottom += this.innerPadding.y / (this.HDivider.length + 1) / 2
-    this.inbbox = coords
+    // Handle height calculation
+    if (hasFixedHeight) {
+      if (isInitialization || !this.fixedHeightCoords) {
+        // Calculate fixed height coordinates only during initialization or if not cached
+        const borderCoords = canvas.calcViewportBoundaries();
+        
+        if (!borderCoords || !borderCoords.tl || !borderCoords.br) {
+          console.error('calcfixedBboxes: Invalid borderCoords:', borderCoords);
+        } else {
+          const centerY = (borderCoords.tl.y + borderCoords.br.y) / 2;
+          const topPadding = (this.frame + this.defaultPadding.top) * this.xHeight / 4;
+          const bottomPadding = (this.frame + this.defaultPadding.bottom) * this.xHeight / 4;
+          
+          this.fixedHeightCoords = {
+            top: centerY - parseInt(this.fixedHeight) / 2 + topPadding,
+            bottom: centerY + parseInt(this.fixedHeight) / 2 - bottomPadding
+          };
+          
+          // Debug: check for NaN in height calculations
+          if (isNaN(this.fixedHeightCoords.top) || isNaN(this.fixedHeightCoords.bottom)) {
+            console.error('calcfixedBboxes: NaN in height calculations:', {
+              centerY,
+              fixedHeight: this.fixedHeight,
+              frame: this.frame,
+              paddingTop: this.defaultPadding.top,
+              paddingBottom: this.defaultPadding.bottom,
+              xHeight: this.xHeight
+            });
+            this.fixedHeightCoords = { top: 0, bottom: 100 };
+          }
+        }
+      }
+      
+      // Use cached fixed height coordinates
+      if (this.fixedHeightCoords) {
+        coords.top = this.fixedHeightCoords.top;
+        coords.bottom = this.fixedHeightCoords.bottom;
+      }
+    }
+    // If height is not fixed, use the calculated dynamic coordinates (already set above)
 
+    // Final check for NaN values before setting
+    if (isNaN(coords.left) || isNaN(coords.top) || isNaN(coords.right) || isNaN(coords.bottom)) {
+      console.error('calcfixedBboxes: Final coords contain NaN values:', coords);
+      // Set default values to prevent further issues
+      coords = { left: 0, top: 0, right: 100, bottom: 100 };
+    }
+    
+    this.inbbox = coords;
   }
 
   // Update the bbox property and compartmentBboxes array
@@ -1203,7 +1303,7 @@ class BorderGroup extends BaseGroup {
     BG.removeAll();
 
     // Get the bounding box of the active selection 
-    this.calcfixedBboxes();
+    this.calcfixedBboxes(false); // false indicates this is a refresh/resize
     this.rounding = BorderUtilities.calcBorderRounding(this.borderType, this.xHeight, this.inbbox);
 
     const borderObject = this.drawBorder();
@@ -1252,7 +1352,7 @@ class BorderGroup extends BaseGroup {
     };
 
     // Redraw vertices
-    BG.drawVertex();
+    //BG.drawVertex();
 
     canvas.renderAll();
 

@@ -5,6 +5,8 @@ import { BorderUtilities } from './border.js';
 import { anchorShape } from './anchor.js';
 import { showTextBox } from '../canvas/promptBox.js';
 
+const canvas = CanvasGlobals.canvas; // Access the global canvas object
+
 function drawDivider (xHeight, color, position, size, type) {
 
     // Choose the template based on the horizontal parameter
@@ -73,9 +75,9 @@ class DividerObject extends BaseGroup {
                 if (this.dividerType === 'HDivider' && !isNaN(parseInt(this.aboveValue))) {
                     hasFixedPrimary = true;
                     const fixedDistanceFromTop = parseInt(this.aboveValue);
-                    const borderCoords = this.canvas.vptCoords;
+                    const borderCoords = canvas.calcViewportBoundaries();
                     const centerX = CanvasGlobals.CenterCoord().x;
-                    aboveObject = { top: borderCoords.tl.y + fixedDistanceFromTop, left: centerX, getBoundingRect: () => false };
+                    aboveObject = { top: (borderCoords.tl.y + borderCoords.br.y) / 2, left: centerX, getBoundingRect: () => false };
                     this.fixedTopValue = fixedDistanceFromTop;
                 } else if (Array.isArray(this.aboveObjects) && this.aboveObjects.length) {
                     aboveObject = BorderUtilities.getBottomMostObject(this.aboveObjects);
@@ -86,9 +88,9 @@ class DividerObject extends BaseGroup {
                 if (this.dividerType === 'HDivider' && !isNaN(parseInt(this.belowValue))) {
                     hasFixedSecondary = true;
                     const fixedDistanceFromBottom = parseInt(this.belowValue);
-                    const borderCoords = this.canvas.vptCoords;
+                    const borderCoords = canvas.calcViewportBoundaries();
                     const centerX = CanvasGlobals.CenterCoord().x;
-                    belowObject = { top: borderCoords.bl.y - fixedDistanceFromBottom, left: centerX, getBoundingRect: () => false };
+                    belowObject = { top: (borderCoords.tl.y + borderCoords.br.y) / 2, left: centerX, getBoundingRect: () => false };
                     this.fixedBottomValue = fixedDistanceFromBottom;
                 } else if (Array.isArray(this.belowObjects) && this.belowObjects.length) {
                     belowObject = BorderUtilities.getTopMostObject(this.belowObjects);
@@ -150,9 +152,9 @@ class DividerObject extends BaseGroup {
                 if (!isNaN(parseInt(this.leftValue))) {
                     hasFixedPrimary = true;
                     const fixedDistanceFromLeft = parseInt(this.leftValue);
-                    const borderCoords = this.canvas.vptCoords;
+                    const borderCoords = canvas.calcViewportBoundaries();
                     const centerY = CanvasGlobals.CenterCoord().y;
-                    leftObject = { left: borderCoords.tl.x + fixedDistanceFromLeft, top: centerY, getBoundingRect: () => false };
+                    leftObject = { left: (borderCoords.tl.x + borderCoords.br.x) / 2, top: centerY, getBoundingRect: () => false };
                     this.fixedLeftValue = fixedDistanceFromLeft;
                 } else if (Array.isArray(this.leftObjects) && this.leftObjects.length) {
                     leftObject = BorderUtilities.getExtremeObject(this.leftObjects, 'left');
@@ -162,9 +164,9 @@ class DividerObject extends BaseGroup {
                 if (!isNaN(parseInt(this.rightValue))) {
                     hasFixedSecondary = true;
                     const fixedDistanceFromRight = parseInt(this.rightValue);
-                    const borderCoords = this.canvas.vptCoords;
+                    const borderCoords = canvas.calcViewportBoundaries();
                     const centerY = CanvasGlobals.CenterCoord().y;
-                    rightObject = { left: borderCoords.tr.x - fixedDistanceFromRight, top: centerY, getBoundingRect: () => false };
+                    rightObject = { left: (borderCoords.tl.x + borderCoords.br.x) / 2, top: centerY, getBoundingRect: () => false };
                     this.fixedRightValue = fixedDistanceFromRight;
                 } else if (Array.isArray(this.rightObjects) && this.rightObjects.length) {
                     rightObject = BorderUtilities.getExtremeObject(this.rightObjects, 'right');
