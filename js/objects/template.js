@@ -3629,6 +3629,41 @@ const BorderFrameWidth = {
     'rectangle': 0,
 }
 
+const BorderPaddingWidth = {
+    'stack': {
+        left: 2.5,
+        top: 2.5,
+        right: 2.5,
+        bottom: 1.5,
+    },
+    'flagLeft': null, //to be calculated in function
+    'flagRight': null,
+    'exit': {
+        left: 0.5,
+        top: 0.3,
+        right: 0.5,
+        bottom: 0,
+    },
+    'panel': {
+        left: 2.5,
+        top: 2.5,
+        right: 2.5,
+        bottom: 1.5,
+    },
+    'greenPanel': {
+        left: 2.5,
+        top: 2.5,
+        right: 2.5,
+        bottom: 1.5,
+    },
+    'rectangle': {
+        left: 1,
+        top: 1,
+        right: 1,
+        bottom: 1,
+    },
+}
+
 
 function applyLengthAndRounding(path, length) {
     path.vertex.forEach(vertex => {
@@ -4108,6 +4143,7 @@ export {
     BorderColorScheme,
     BorderTypeScheme,
     BorderFrameWidth,
+    BorderPaddingWidth,
     DividerScheme,
     DividerMargin,
     HDividerTemplate,

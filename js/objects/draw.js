@@ -481,7 +481,7 @@ class BaseGroup extends fabric.Group {
 
       this.basePolygon.insertPoint = this.basePolygon.vertex ? this.basePolygon.vertex[0] : null;
       const oldLeft = this.left; // Store old left position since symbols path have negative left values
-      canvas.remove(this.basePolygon);
+      //canvas.remove(this.basePolygon);
       this.add(this.basePolygon);
       if (this.functionalType== 'Symbol'){
         this.basePolygon.vertex.forEach((v) => {

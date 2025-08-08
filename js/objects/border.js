@@ -1,7 +1,7 @@
 import { BaseGroup } from './draw.js';
 import { BorderDimensionDisplay, RadiusDimensionDisplay } from './dimension.js';
 import { globalAnchorTree, processUpdateCycle } from './anchor.js';
-import { BorderTypeScheme, BorderColorScheme, BorderFrameWidth, DividerMargin } from './template.js';
+import { BorderTypeScheme, BorderColorScheme, BorderFrameWidth, BorderPaddingWidth, DividerMargin } from './template.js';
 import { vertexToPath } from './path.js';
 import { CanvasGlobals, DrawGrid } from '../canvas/canvas.js';
 import { drawDivider } from './divider.js';
@@ -333,6 +333,7 @@ class BorderGroup extends BaseGroup {
     this.color = options.color;
     this.dimensionAnnotations = [];
     this.frame = BorderFrameWidth[this.borderType]; // Frame width for the border
+    this.padding = BorderPaddingWidth[this.borderType] || { left: 0, top: 0, right: 0, bottom: 0 };
     this.inbbox = null; // Inner border bounding box
     this.rounding = { x: 0, y: 0 }; // Rounding values for the border
     this.compartmentBboxes = []; // Array of compartment bounding boxes
@@ -364,7 +365,7 @@ class BorderGroup extends BaseGroup {
     this.RoundingToDivider()
     this.assignWidthToDivider();
     canvas.sendObjectToBack(this);
-    DrawGrid();
+    //DrawGrid();
 
     this.widthObjects.forEach(obj => {
       // Update the borderGroup reference in each width object
@@ -380,9 +381,11 @@ class BorderGroup extends BaseGroup {
   drawBorder() {
     const rounding = JSON.parse(JSON.stringify(this.rounding)); // Deep copy rounding to avoid mutation
     const block = {
-      width: this.fixedWidth == ' ' ? this.inbbox.right - this.inbbox.left : parseFloat(this.fixedWidth),
-      height: this.fixedHeight == ' ' ? this.inbbox.bottom - this.inbbox.top: parseFloat(this.fixedHeight),
+      width: this.inbbox.right - this.inbbox.left,
+      height: this.inbbox.bottom - this.inbbox.top,
     };
+    if (!isNaN(parseFloat(this.fixedWidth))) { rounding.x = 0 }
+    if (!isNaN(parseFloat(this.fixedHeight))) { rounding.y = 0 }
     const shapeMeta = BorderTypeScheme[this.borderType](this.xHeight, block, rounding);
     const baseGroup = [];
 
@@ -402,10 +405,12 @@ class BorderGroup extends BaseGroup {
         ? pathData.match(/d="([^"]+)"/)?.[1] || pathData
         : pathData;
 
+      const borderShift = p.fill == 'background' ? this.frame * this.xHeight / 4 : 0;
+
       baseGroup.push(
         new fabric.Path(dValue, {
-          left: this.inbbox.left - vertexleft,
-          top: this.inbbox.top - vertextop,
+          left: isNaN(parseFloat(this.fixedWidth)) ? this.inbbox.left - vertexleft : this.left + borderShift,
+          top: isNaN(parseFloat(this.fixedHeight)) ? this.inbbox.top - vertextop : this.top + borderShift,
           fill: (p['fill'] == 'background') || (p['fill'] == 'symbol') || (p['fill'] == 'border') ? BorderColorScheme[this.color][p['fill']] : p['fill'],
           objectCaching: false,
           strokeWidth: 0,
@@ -704,6 +709,8 @@ class BorderGroup extends BaseGroup {
 
       // Check if divider has fixed distance values
       if (d.fixedLeftValue || d.fixedRightValue) {
+        let newLeft = d.fixedLeftValue ? this.left + d.fixedLeftValue : this.left + this.width - d.fixedRightValue
+        newLeft = newLeft - d.width / 2
 
         if (needsUpdate) {
           // Redraw the divider with the border's dimensions
@@ -718,8 +725,7 @@ class BorderGroup extends BaseGroup {
           if (d.fixedRightValue !== undefined) {
             // Anchor to right of border
             d.set({
-              left: borderSize.left + borderSize.width - frame - d.fixedRightValue -
-                DividerMargin[d.functionalType]['right'] * d.xHeight / 4
+              left: this.left + this.width - d.fixedRightValue - d.width / 2
             });
 
             // Remove any existing anchoring but don't trigger further updates
@@ -730,8 +736,7 @@ class BorderGroup extends BaseGroup {
           } else if (d.fixedLeftValue !== undefined) {
             // Anchor to left of border
             d.set({
-              left: borderSize.left + frame + d.fixedLeftValue +
-                DividerMargin[d.functionalType]['left'] * d.xHeight / 4
+              left: this.left + d.fixedLeftValue - d.width / 2
             });
           }
 
@@ -770,7 +775,6 @@ class BorderGroup extends BaseGroup {
 
       // Check if divider has fixed distance values
       if (d.fixedTopValue || d.fixedBottomValue) {
-
         if (needsUpdate) {
           // Redraw the divider with the border's dimensions
           const res = drawDivider(
@@ -778,7 +782,7 @@ class BorderGroup extends BaseGroup {
             d.color,
             {
               left: d.left,
-              top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4
+              top: d.top
             },
             this.inbbox,
             d.functionalType
@@ -792,8 +796,7 @@ class BorderGroup extends BaseGroup {
           if (d.fixedBottomValue !== undefined) {
             // Anchor to bottom of border
             d.set({
-              top: borderSize.top + borderSize.height - frame - d.fixedBottomValue -
-                DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4
+              top: this.top + this.height - d.fixedBottomValue - d.height / 2
             });
 
             // Remove any existing anchoring but don't trigger cascading updates
@@ -803,8 +806,7 @@ class BorderGroup extends BaseGroup {
           } else if (d.fixedTopValue !== undefined) {
             // Anchor to top of border
             d.set({
-              top: borderSize.top + frame + d.fixedTopValue +
-                DividerMargin[d.functionalType]['top'] * d.xHeight / 4
+              top: this.top + d.fixedTopValue - d.height / 2
             });
           }
 
@@ -1062,21 +1064,24 @@ class BorderGroup extends BaseGroup {
     let coords = BorderUtilities.getBorderObjectCoords(this.heightObjects, this.widthObjects)
     this.innerPadding = { x: 0, y: 0 }
 
-    // handle roundings on borders and dividers
-    //this.rounding = BorderUtilities.calcBorderRounding(this.borderType, this.xHeight, coords)
-    if (!isNaN(parseInt(this.fixedWidth))) {
-      this.innerPadding.x = parseInt(this.fixedWidth) - coords.right + coords.left + this.xHeight / 2
-      //this.rounding.x += this.innerPadding.x
-    }
-    if (!isNaN(parseInt(this.fixedHeight))) {
-      this.innerPadding.y = parseInt(this.fixedHeight) - coords.bottom + coords.top + this.xHeight / 2
-      //this.rounding.y += this.innerPadding.y
-    }
-
     coords.left -= this.innerPadding.x / (this.VDivider.length + 1) / 2
     coords.right += this.innerPadding.x / (this.VDivider.length + 1) / 2
     coords.top -= this.innerPadding.y / (this.HDivider.length + 1) / 2
     coords.bottom += this.innerPadding.y / (this.HDivider.length + 1) / 2
+
+    // handle roundings on borders and dividers
+    //this.rounding = BorderUtilities.calcBorderRounding(this.borderType, this.xHeight, coords)
+    const borderCoords = canvas.calcViewportBoundaries();
+    if (!isNaN(parseInt(this.fixedWidth))) {
+      coords.left = (borderCoords.tl.x + borderCoords.br.x - parseInt(this.fixedWidth)) / 2 + (this.frame + this.padding.left) * this.xHeight / 4
+      coords.right = (borderCoords.tl.x + borderCoords.br.x + parseInt(this.fixedWidth)) / 2 - (this.frame + this.padding.right) * this.xHeight / 4
+      //this.rounding.x += this.innerPadding.x
+    }
+    if (!isNaN(parseInt(this.fixedHeight))) {
+      coords.top = (borderCoords.tl.y + borderCoords.br.y - parseInt(this.fixedHeight)) / 2 + (this.frame + this.padding.top) * this.xHeight / 4
+      coords.bottom = (borderCoords.tl.y + borderCoords.br.y + parseInt(this.fixedHeight)) / 2 - (this.frame + this.padding.bottom) * this.xHeight / 4
+      //this.rounding.y += this.innerPadding.y
+    }
     this.inbbox = coords
 
   }
@@ -1252,7 +1257,7 @@ class BorderGroup extends BaseGroup {
     };
 
     // Redraw vertices
-    BG.drawVertex();
+    //BG.drawVertex();
 
     canvas.renderAll();
 
