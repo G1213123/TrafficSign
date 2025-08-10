@@ -76,7 +76,7 @@ let FormTextAddComponent = {
               // Use HintLoader to load content from dedicated hint file
               const helpIcon = GeneralHandler.createHelpIconWithHint(
                 label, // Add to the label directly to be inline
-                'symbols/TextFont', // Path to the hint file
+                'text/TextFont', // Path to the hint file
                 { 
                   position: 'right',    // Position to the right of sidebar
                   scrollable: true, 
@@ -92,7 +92,7 @@ let FormTextAddComponent = {
               // Use HintLoader to load content from dedicated hint file
               const helpIcon = GeneralHandler.createHelpIconWithHint(
                 label, // Add to the label directly to be inline
-                'symbols/Text', // Path to the hint file
+                'text/Text', // Path to the hint file
                 { 
                   position: 'right',    // Position to the right of sidebar
                   scrollable: true, 

@@ -29,22 +29,22 @@ let FormBorderWrapComponent = {
       const laneLineBtn = GeneralHandler.createButton('input-VLane', 'Add lane separation line', borderActionsContainer, 'input', FormBorderWrapComponent.LaneLineHandler, 'click')
 
       // Add tooltips to divider buttons
-      GeneralHandler.createGeneralButtonTooltip(stackDividerBtn, 'symbols/StackDivider', {
+      GeneralHandler.createGeneralButtonTooltip(stackDividerBtn, 'divider/StackDivider', {
         position: 'right',
         showDelay: 500,
         hideDelay: 150
       });
-      GeneralHandler.createGeneralButtonTooltip(gantryDividerBtn, 'symbols/GantryDivider', {
+      GeneralHandler.createGeneralButtonTooltip(gantryDividerBtn, 'divider/GantryDivider', {
         position: 'right',
         showDelay: 500,
         hideDelay: 150
       });
-      GeneralHandler.createGeneralButtonTooltip(gantryLineBtn, 'symbols/GantryLine', {
+      GeneralHandler.createGeneralButtonTooltip(gantryLineBtn, 'divider/GantryLine', {
         position: 'right',
         showDelay: 500,
         hideDelay: 150
       });
-      GeneralHandler.createGeneralButtonTooltip(laneLineBtn, 'symbols/LaneLine', {
+      GeneralHandler.createGeneralButtonTooltip(laneLineBtn, 'divider/LaneLine', {
         position: 'right',
         showDelay: 500,
         hideDelay: 150
@@ -105,7 +105,27 @@ let FormBorderWrapComponent = {
     Object.keys(BorderTypeScheme).forEach(async (borderType) => {
       const shapeMeta = BorderTypeScheme[borderType](xHeight, borderType == 'exit' ? bboxExit : bbox,);
       const svg = await FormBorderWrapComponent.createBorderSVG(shapeMeta,)
-      GeneralHandler.createSVGButton(`button-${borderType}`, svg, parent, 'border', FormBorderWrapComponent.BorderCreateHandler, 'click')
+      // Create the button first
+      const btn = GeneralHandler.createSVGButton(`button-${borderType}`, svg, parent, 'border', FormBorderWrapComponent.BorderCreateHandler, 'click');
+
+      // Map border types to their hint paths
+      const hintMap = {
+        panel: 'border/Panel',
+        greenPanel: 'border/GreenPanel',
+        stack: 'border/StackBorder',
+        flagLeft: 'border/FlagBorder',
+        flagRight: 'border/FlagBorder',
+        exit: 'border/ExitBorder',
+      };
+
+      const hintPath = hintMap[borderType];
+      if (hintPath) {
+        GeneralHandler.createGeneralButtonTooltip(btn, hintPath, {
+          position: 'right',
+          showDelay: 500,
+          hideDelay: 150
+        });
+      }
     });
   },
 

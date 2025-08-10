@@ -1,6 +1,6 @@
 import { BaseGroup, GlyphPath } from './draw.js';
 import { calculateTransformedPoints, getInsertOffset } from './path.js';
-import { roadMapTemplate } from './template.js';
+import { roadMapTemplate, roundelTemplate } from './template.js';
 import { calcSymbol } from './symbols.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { ShowHideSideBarEvent } from '../canvas/keyboardEvents.js';
@@ -302,7 +302,7 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
     const length = xHeight / 4
     const center = routeList[1] // use tip location
     const templateName = routeList[0].shape + ' ' + type
-    let roundel = JSON.parse(JSON.stringify(roadMapTemplate[templateName]))
+    let roundel =  roundelTemplate(templateName, routeList[1].length) 
     roundel = calcSymbol(roundel, length)
     roundel.path.map((p) => {
         let transformed = calculateTransformedPoints(p.vertex, {

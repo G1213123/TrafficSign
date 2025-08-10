@@ -2,7 +2,7 @@
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { MainRoadSymbol, SideRoadSymbol, calcVertexType } from '../objects/route.js';
-import { roadMapTemplate } from '../objects/template.js';
+import { roadMapTemplate , roundelTemplate} from '../objects/template.js';
 import { HintLoader } from '../utils/hintLoader.js';
 
 // Import the calculateMainRoadBottomY function
@@ -32,7 +32,7 @@ let FormDrawMapComponent = {
       
       // Set up button hint mappings for this panel
       HintLoader.setButtonHintMappings({
-        'Main Road Shape-container': 'symbols/MainRoadShape'
+        'Main Road Shape-container': 'route/MainRoadShape'
       });
       
       // Create a container for basic parameters using the shared function
@@ -101,7 +101,7 @@ let FormDrawMapComponent = {
               // Use HintLoader to load content from dedicated hint file
               const helpIcon = GeneralHandler.createHelpIconWithHint(
                 label, // Add to the label directly to be inline
-                'symbols/MainRoadShape', // Path to the hint file
+                'route/MainRoadShape', // Path to the hint file
                 { 
                   position: 'right',    // Position to the right of sidebar
                   scrollable: true, 
@@ -140,6 +140,7 @@ let FormDrawMapComponent = {
     } else if (roadType === 'Conventional Roundabout') {
       // Placeholder for Conventional Roundabout settings
       GeneralHandler.createToggle(`Roundabout Type`, FormDrawMapComponent.RoundaboutFeatures, roadTypeSettingsContainer, 'Normal', FormDrawMapComponent.drawMainRoadOnCursor);
+      GeneralHandler.createInput('root-length', 'Roundabout Approach Length', roadTypeSettingsContainer, 22.9, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
     } else if (roadType === 'Spiral Roundabout') {
       // Placeholder for Spiral Roundabout settings
       GeneralHandler.createToggle(`Roundabout Type`, FormDrawMapComponent.RoundaboutFeatures, roadTypeSettingsContainer, 'Normal', FormDrawMapComponent.drawMainRoadOnCursor);
