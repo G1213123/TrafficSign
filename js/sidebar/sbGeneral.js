@@ -557,6 +557,10 @@ let GeneralHandler = {
       showTimeout = setTimeout(() => {
         const content = getCurrentContent();
         hints.innerHTML = content;
+        
+        // Add close button to hints
+        GeneralHandler.addCloseButtonToHints(hints, hideHints);
+        
         hints.style.visibility = 'visible';
         hints.style.opacity = '1';
         hints.style.pointerEvents = 'auto';
@@ -612,6 +616,10 @@ let GeneralHandler = {
       if (hints.style.opacity !== '1') {
         const content = getCurrentContent();
         hints.innerHTML = content;
+        
+        // Add close button to hints
+        GeneralHandler.addCloseButtonToHints(hints, hideHints);
+        
         hints.style.visibility = 'visible';
         hints.style.opacity = '1';
         hints.style.pointerEvents = 'auto';
@@ -789,6 +797,10 @@ let GeneralHandler = {
       showTimeout = setTimeout(async () => {
         const content = await loadHintContent();
         hints.innerHTML = content;
+        
+        // Add close button to hints
+        GeneralHandler.addCloseButtonToHints(hints, hideHints);
+        
         hints.style.visibility = 'visible';
         hints.style.opacity = '1';
         hints.style.pointerEvents = 'auto';
@@ -844,6 +856,10 @@ let GeneralHandler = {
       if (hints.style.opacity !== '1') {
         const content = await loadHintContent();
         hints.innerHTML = content;
+        
+        // Add close button to hints
+        GeneralHandler.addCloseButtonToHints(hints, hideHints);
+        
         hints.style.visibility = 'visible';
         hints.style.opacity = '1';
         hints.style.pointerEvents = 'auto';
@@ -960,8 +976,7 @@ let GeneralHandler = {
 
       if (isMobile) {
         // Mobile: sidebar is at bottom, hints should be above it and span most of screen width
-        hints.style.maxWidth = `${Math.min(600, viewport.width - 40)}px`; // Larger max width for images
-        hints.style.width = `${Math.min(500, viewport.width - 40)}px`; // Larger responsive width
+        hints.style.maxWidth = `${Math.min(600, viewport.width - 34)}px`; // Larger max width for images
 
         // Position hints above the sidebar
         left = 2; // 2px from left edge
@@ -1441,6 +1456,10 @@ let GeneralHandler = {
           // If hint content is available, show tooltip
           if (hintContent) {
             tooltip.innerHTML = hintContent;
+            
+            // Add close button to tooltip
+            GeneralHandler.addCloseButtonToHints(tooltip, hideTooltip);
+            
             tooltip.style.visibility = 'visible';
             tooltip.style.opacity = '1';
             tooltip.style.pointerEvents = 'auto';
@@ -1451,6 +1470,10 @@ let GeneralHandler = {
           } else {
             // No hint available, show a fallback message
             tooltip.innerHTML = '<p><em>No help available for this item.</em></p>';
+            
+            // Add close button to tooltip
+            GeneralHandler.addCloseButtonToHints(tooltip, hideTooltip);
+            
             tooltip.style.visibility = 'visible';
             tooltip.style.opacity = '1';
             tooltip.style.pointerEvents = 'auto';
@@ -1461,6 +1484,10 @@ let GeneralHandler = {
           console.warn('Failed to load hint content:', error);
           // Show error message in tooltip
           tooltip.innerHTML = '<p><em>Failed to load help content.</em></p>';
+          
+          // Add close button to tooltip
+          GeneralHandler.addCloseButtonToHints(tooltip, hideTooltip);
+          
           tooltip.style.visibility = 'visible';
           tooltip.style.opacity = '1';
           tooltip.style.pointerEvents = 'auto';
@@ -1716,6 +1743,43 @@ let GeneralHandler = {
         }
       }, 200);
     });
+  },
+
+  /**
+   * Adds a close button to a hints container
+   * @param {HTMLElement} hintsElement - The hints container element
+   * @param {Function} hideCallback - Function to call when close button is clicked
+   * @return {HTMLElement} The created close button element
+   */
+  addCloseButtonToHints: function (hintsElement, hideCallback) {
+    // Add class to hints element for proper padding
+    hintsElement.classList.add('with-close-button');
+
+    // Create close button
+    const closeButton = GeneralHandler.createNode("button", {
+      'class': 'hints-close-button',
+      'type': 'button',
+      'aria-label': 'Close hint',
+      'title': 'Close'
+    }, hintsElement);
+    
+    closeButton.innerHTML = '&times;'; // × symbol
+    
+    // Add click handler to close button
+    closeButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      hideCallback();
+    });
+
+    // Add touch event handler for mobile
+    closeButton.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      hideCallback();
+    });
+
+    return closeButton;
   },
 
   // ...existing code...

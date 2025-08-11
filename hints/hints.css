@@ -38,6 +38,39 @@
   pointer-events: auto;
 }
 
+/* Close button for hints */
+.hints-close-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  z-index: 10001;
+  pointer-events: auto;
+  line-height: 1;
+}
+
+.hints-close-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.hints-close-button:active {
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(0.95);
+}
+
+
 /* Custom scrollbar for hints */
 .hints::-webkit-scrollbar {
   width: 6px;
