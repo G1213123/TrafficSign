@@ -612,6 +612,12 @@ let GeneralHandler = {
         showTimeout = null;
       }
 
+      // Also clear the mobile touch system timers if they exist
+      if (helpIconListeners && helpIconListeners.timers) {
+        helpIconListeners.timers.clearHide();
+        helpIconListeners.timers.clearLongPress();
+      }
+
       // Show immediately if not already visible
       if (hints.style.opacity !== '1') {
         const content = getCurrentContent();
@@ -634,6 +640,11 @@ let GeneralHandler = {
       if (showTimeout) {
         clearTimeout(showTimeout);
         showTimeout = null;
+      }
+
+      // Also clear mobile touch system timers if they exist
+      if (helpIconListeners && helpIconListeners.timers) {
+        helpIconListeners.timers.clearLongPress();
       }
 
       // Hide with the configured delay
@@ -852,6 +863,12 @@ let GeneralHandler = {
         showTimeout = null;
       }
 
+      // Also clear mobile touch system timers if they exist
+      if (helpIconListeners && helpIconListeners.timers) {
+        helpIconListeners.timers.clearHide();
+        helpIconListeners.timers.clearLongPress();
+      }
+
       // Show immediately if not already visible
       if (hints.style.opacity !== '1') {
         const content = await loadHintContent();
@@ -874,6 +891,11 @@ let GeneralHandler = {
       if (showTimeout) {
         clearTimeout(showTimeout);
         showTimeout = null;
+      }
+
+      // Also clear mobile touch system timers if they exist
+      if (helpIconListeners && helpIconListeners.timers) {
+        helpIconListeners.timers.clearLongPress();
       }
 
       // Hide with the configured delay
@@ -1372,7 +1394,19 @@ let GeneralHandler = {
       supportsHover: supportsHover,
       timers: {
         longPress: () => longPressTimer,
-        hide: () => hideTimer
+        hide: () => hideTimer,
+        clearHide: () => {
+          if (hideTimer) {
+            clearTimeout(hideTimer);
+            hideTimer = null;
+          }
+        },
+        clearLongPress: () => {
+          if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+          }
+        }
       }
     };
   },
@@ -1528,7 +1562,7 @@ let GeneralHandler = {
 
     // Function to cancel hide and show immediately (for when mouse enters tooltip)
     const cancelHideAndShow = () => {
-      // Clear both timeouts
+      // Clear both timeouts from the tooltip system
       if (hideTimeout) {
         clearTimeout(hideTimeout);
         hideTimeout = null;
@@ -1536,6 +1570,12 @@ let GeneralHandler = {
       if (showTimeout) {
         clearTimeout(showTimeout);
         showTimeout = null;
+      }
+
+      // Also clear the mobile touch system timers if they exist
+      if (buttonListeners && buttonListeners.timers) {
+        buttonListeners.timers.clearHide();
+        buttonListeners.timers.clearLongPress();
       }
 
       // Show immediately if not already visible
@@ -1550,6 +1590,11 @@ let GeneralHandler = {
       if (showTimeout) {
         clearTimeout(showTimeout);
         showTimeout = null;
+      }
+
+      // Also clear mobile touch system timers if they exist
+      if (buttonListeners && buttonListeners.timers) {
+        buttonListeners.timers.clearLongPress();
       }
 
       // Hide with the configured delay
@@ -1587,6 +1632,9 @@ let GeneralHandler = {
       if (GeneralHandler.supportsHover()) {
         tooltip.addEventListener('mouseenter', cancelHideAndShow);
         tooltip.addEventListener('mouseleave', hideImmediately);
+      } else if (GeneralHandler.isMobileDevice()) {
+        tooltip.addEventListener('touchstart', cancelHideAndShow, );
+        tooltip.addEventListener('touchend', hideImmediately,);
       }
     } catch (error) {
       console.error('Error attaching tooltip hover listeners:', error);
@@ -1614,6 +1662,9 @@ let GeneralHandler = {
         button.removeEventListener('blur', hideTooltip);
         tooltip.removeEventListener('mouseenter', cancelHideAndShow);
         tooltip.removeEventListener('mouseleave', hideImmediately);
+      } else if (GeneralHandler.isMobileDevice()) {
+        tooltip.removeEventListener('touchstart', cancelHideAndShow);
+        tooltip.removeEventListener('touchend', hideImmediately);
       }
 
       // Remove resize listener
