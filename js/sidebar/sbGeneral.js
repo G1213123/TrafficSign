@@ -1584,6 +1584,39 @@ let GeneralHandler = {
       }
     };
 
+    // Function to hide with delay for mobile (gives user time to touch again)
+    const hideWithDelay = () => {
+      // Clear show timeout if pending
+      if (showTimeout) {
+        clearTimeout(showTimeout);
+        showTimeout = null;
+      }
+
+      // Also clear mobile touch system timers if they exist
+      if (buttonListeners && buttonListeners.timers) {
+        buttonListeners.timers.clearLongPress();
+      }
+
+      // Start a delayed hide timer - gives user time to touch tooltip again
+      // This creates a grace period on mobile before the tooltip hides
+      if (hideTimeout) {
+        clearTimeout(hideTimeout);
+      }
+      
+      hideTimeout = setTimeout(() => {
+        tooltip.style.opacity = '0';
+        tooltip.style.pointerEvents = 'none';
+        isTooltipVisible = false;
+        // Hide visibility after transition completes
+        setTimeout(() => {
+          if (tooltip.style.opacity === '0') {
+            tooltip.style.visibility = 'hidden';
+          }
+        }, 200); // Match CSS transition duration
+        hideTimeout = null;
+      }, 1500); // 1.5 second grace period for mobile users
+    };
+
     // Function to hide immediately (for when mouse leaves tooltip)
     const hideImmediately = () => {
       // Clear show timeout if pending
@@ -1633,8 +1666,8 @@ let GeneralHandler = {
         tooltip.addEventListener('mouseenter', cancelHideAndShow);
         tooltip.addEventListener('mouseleave', hideImmediately);
       } else if (GeneralHandler.isMobileDevice()) {
-        tooltip.addEventListener('touchstart', cancelHideAndShow, );
-        tooltip.addEventListener('touchend', hideImmediately,);
+        tooltip.addEventListener('touchstart', cancelHideAndShow);
+        tooltip.addEventListener('touchend', hideWithDelay); // Use delay for mobile
       }
     } catch (error) {
       console.error('Error attaching tooltip hover listeners:', error);
@@ -1664,7 +1697,7 @@ let GeneralHandler = {
         tooltip.removeEventListener('mouseleave', hideImmediately);
       } else if (GeneralHandler.isMobileDevice()) {
         tooltip.removeEventListener('touchstart', cancelHideAndShow);
-        tooltip.removeEventListener('touchend', hideImmediately);
+        tooltip.removeEventListener('touchend', hideWithDelay);
       }
 
       // Remove resize listener
