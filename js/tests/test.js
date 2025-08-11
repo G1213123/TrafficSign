@@ -1,6 +1,7 @@
 import { TextObject } from '../objects/text.js';
 import { SymbolObject } from '../objects/symbols.js';
 import { anchorShape, globalAnchorTree } from '../objects/anchor.js';
+import { LockIcon } from '../objects/lock.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { DividerObject } from '../objects/divider.js';
 import { BorderUtilities, BorderGroup } from '../objects/border.js';
@@ -1412,7 +1413,7 @@ const RouteTest = {
     const branchTopY = sideRoadTopVertices.y;
 
     passed = passed && TestTracker.assertTrue(
-      Math.abs(branchTopY - bottomPivotY) < 1 ,
+      Math.abs(branchTopY - bottomPivotY) < 1,
       `Side Road top (${branchTopY}) should not be above Main Road tip position (${bottomPivotY})`
     );
 
@@ -1483,7 +1484,7 @@ const RoundaboutTest = {
     // Set up test parameters for roundabout
     const params = {
       xHeight: 100,
-      rootLength: 7,
+      rootLength: 30,
       tipLength: 12,
       color: 'white',
       width: 6,
@@ -1496,7 +1497,7 @@ const RoundaboutTest = {
     // Create a Roundabout directly using updated construction method
     const routeList = [
       { x: params.posx, y: params.posy + (params.rootLength + params.tipLength) * params.xHeight / 4, angle: 180, width: 6, shape: 'Normal' },
-      { x: params.posx, y: params.posy, angle: 0, width: 6, shape: 'Stub' }
+      { x: params.posx, y: params.posy, angle: 0, width: 6, length: 30, shape: 'Stub' }
     ];
 
     // Create route options for the MainRoadSymbol with Conventional Roundabout type
@@ -1849,7 +1850,7 @@ const ComplexSignTest = {
     // Create WHC on left
     new SymbolObject({
       symbolType: 'WHC',
-      left: 2700,
+      left: -435,
       top: 2500,
       xHeight: 200,
       angle: 0,
@@ -2064,6 +2065,14 @@ const ComplexSignTest = {
       vertexIndex2: 'E3',
       spacingX: -3650, // Add some spacing
       spacingY: 0
+    });
+
+    // reachor the right legend
+    anchorShape(overallBorderGroup, rightTopObj, { // Anchor rightArrow2 -> rightArrow3
+      vertexIndex1: 'E2',
+      vertexIndex2: 'C6',
+      spacingX: 0, // Add some spacing
+      spacingY: ''
     });
 
 

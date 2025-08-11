@@ -53,7 +53,7 @@ let FormTextAddComponent = {
         'Text Font-container': 'symbols/TextFont',
         'input-text-container': 'symbols/Text',
       });
-      
+
       // Create the basic parameters container using the shared function
       GeneralHandler.createBasicParamsContainer(parent, FormTextAddComponent, null, null, FormTextAddComponent.liveUpdateText, FormTextAddComponent.liveUpdateText);
 
@@ -62,51 +62,11 @@ let FormTextAddComponent = {
       const textInput = GeneralHandler.createInput('input-text', 'Add Text', textContentContainer, '', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler, 'input');
       // Add the info text div for 2Liner mode
       const twoLinerInfo = GeneralHandler.createNode("div", { 'id': 'two-liner-info', 'class': 'info-text', 'style': 'display: none;' }, textContentContainer);
-      twoLinerInfo.textContent = "Text input is disabled in 2Liner mode. Select a destination below.";      
+      twoLinerInfo.textContent = "Text input is disabled in 2Liner mode. Select the location in the destination panel.";
       const fontToggle = GeneralHandler.createToggle('Text Font', FormTextAddComponent.textFont, textContentContainer, 'TransportMedium', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler);
-      
-      // Add help icon to Text Font toggle
-      setTimeout(() => {
-        try {
-          const textInputContainer = textInput.parentElement
-          const toggleInputContainer = fontToggle.parentElement;
-          if (toggleInputContainer) {
-            const label = toggleInputContainer.querySelector('.placeholder');
-            if (label) {
-              // Use HintLoader to load content from dedicated hint file
-              const helpIcon = GeneralHandler.createHelpIconWithHint(
-                label, // Add to the label directly to be inline
-                'text/TextFont', // Path to the hint file
-                { 
-                  position: 'right',    // Position to the right of sidebar
-                  scrollable: true, 
-                  showDelay: 150,       // Quick show for better responsiveness
-                  hideDelay: 1000       // Longer linger time for reading content
-                }
-              );
-            }
-          }
-          if (textInputContainer) {
-            const label = textInputContainer.querySelector('.placeholder');
-            if (label) {
-              // Use HintLoader to load content from dedicated hint file
-              const helpIcon = GeneralHandler.createHelpIconWithHint(
-                label, // Add to the label directly to be inline
-                'text/Text', // Path to the hint file
-                { 
-                  position: 'right',    // Position to the right of sidebar
-                  scrollable: true, 
-                  showDelay: 150,       // Quick show for better responsiveness
-                  hideDelay: 1000       // Longer linger time for reading content
-                }
-              );
-            }
-          }
-        } catch (error) {
-          console.error('Error adding help icon to Text Font:', error);
-        }
-      }, 50); // Small delay to ensure DOM is ready
-      
+      const helpIcon1 = GeneralHandler.createHelpIconWithHint(textInput.parentElement, 'text/Text',);
+      const helpIcon2 = GeneralHandler.createHelpIconWithHint(fontToggle.parentElement, 'text/TextFont',);
+
       // Add font priority management button for Chinese fonts
       const fontPriorityButton = GeneralHandler.createButton('font-priority-btn', 'Chinese Font Setting', textContentContainer, 'input', FontPriorityManager.showModal, 'click');
 
@@ -260,7 +220,7 @@ let FormTextAddComponent = {
     const newColor = document.getElementById('Message Colour-container').selected.getAttribute('data-value');    // Check if text contains non-English characters and override font if needed
     const txt = document.getElementById('input-text').value;
     const containsNonEnglish = containsNonEnglishCharacters(txt);
-    
+
     if (containsNonEnglish) {
       // Get the primary font from FontPriorityManager for Chinese text
       try {
@@ -268,7 +228,7 @@ let FormTextAddComponent = {
         // Use the first font in the priority list for Chinese text
         const priorityFont = fontPriorityList.length > 0 ? fontPriorityList[0] : 'parsedFontKorean';
         // Convert font priority names to font family names
-        switch(priorityFont) {
+        switch (priorityFont) {
           case 'parsedFontKorean':
             newFont = 'TW-MOE-Std-Kai';
             break;
@@ -538,9 +498,9 @@ let FormTextAddComponent = {
     if (!txt || txt.trim() === '') return; // Don't create empty text
 
     const xHeight = options ? options.xHeight : parseInt(document.getElementById('input-xHeight').value);
-      // Check if text contains non-English characters
+    // Check if text contains non-English characters
     const containsNonEnglish = containsNonEnglishCharacters(txt);
-    
+
     // Get font - use Chinese font from FontPriorityManager if text contains non-English characters
     let font;
     if (options && options.font) {
@@ -561,7 +521,7 @@ let FormTextAddComponent = {
       // For English text, use the UI toggle value
       font = document.getElementById('Text Font-container').selected.getAttribute('data-value');
     }
-    
+
     const color = options ? options.color : document.getElementById('Message Colour-container').selected.getAttribute('data-value');
 
     // Check if we're using two-liner mode
@@ -710,7 +670,7 @@ let FormTextAddComponent = {
    * Initialize the text component settings listener
    * This should be called after all modules are loaded to avoid circular dependencies
    */
-  initializeSettingsListener: function() {
+  initializeSettingsListener: function () {
     // Replace the settings listener with the shared implementation
     GeneralSettings.addListener(
       GeneralHandler.createSettingsListener(2, function (setting, value) {

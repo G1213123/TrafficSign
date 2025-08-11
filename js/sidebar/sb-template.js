@@ -865,7 +865,7 @@ let FormTemplateComponent = {
       const routeOptions = {
         routeList: [
           { x: centerX, y: centerY + 5 * xHeight, angle: 180, width: 6, shape: 'Normal' },
-          { x: centerX, y: centerY, angle: 0, width: 6, shape: 'Stub' }
+          { x: centerX, y: centerY, angle: 0, width: 6, length:30, shape: 'Stub' }
         ],
         xHeight: xHeight,
         rootLength: 7,

@@ -35,11 +35,11 @@ let GeneralHandler = {
     document.getElementById('show_hide').childNodes[0].className = "fa fa-angle-double-right"
     GeneralHandler.panelOpened = false
     GeneralHandler.PanelHandlerOff()
-  },  
+  },
   /**
    * Invoke and clear the registered component off handler when closing the panel
    */
-  PanelHandlerOff: function() {
+  PanelHandlerOff: function () {
     if (typeof this.activeComponentOff === 'function') {
       try {
         this.activeComponentOff();
@@ -49,11 +49,11 @@ let GeneralHandler = {
       this.activeComponentOff = null;
     }
   },
-    /**
-   * Register the active component off handler
-   * @param {Function} handler
-   */
-  setActiveComponentOff: function(handler) {
+  /**
+ * Register the active component off handler
+ * @param {Function} handler
+ */
+  setActiveComponentOff: function (handler) {
     this.activeComponentOff = handler;
   },
   PanelInit: () => {
@@ -61,7 +61,7 @@ let GeneralHandler = {
     GeneralHandler.PanelHandlerOff()
     if (document.getElementById("side-panel").className.indexOf("open") !== -1) {
       var parent = document.getElementById("input-form");
-      
+
       // Clean up any existing general button tooltips before clearing the form
       const buttonsWithTooltips = parent.querySelectorAll('button[data-tooltip], .tooltip-btn');
       buttonsWithTooltips.forEach(button => {
@@ -69,10 +69,10 @@ let GeneralHandler = {
           button.cleanupGeneralTooltip();
         }
       });
-      
+
       // Also clean up any orphaned tooltips that may exist
       GeneralHandler.cleanupOrphanedTooltips();
-      
+
       parent.innerHTML = ''
     }
     CanvasObjectInspector.createObjectListPanelInit()
@@ -124,21 +124,21 @@ let GeneralHandler = {
     var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent)
     //var labelEdge = GeneralHandler.createNode("div", { 'class': 'cut' }, inputContainer)
     var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, inputContainer)
-    
+
     // Create a wrapper div for input field with units if needed
     var inputWrapperClass = unit ? 'input-wrapper' : '';
     var inputWrapper = unit ? GeneralHandler.createNode("div", { 'class': inputWrapperClass }, inputContainer) : inputContainer;
-    
+
     // Create the input element
     var inputClass = unit ? 'input with-unit' : 'input';
     var input = GeneralHandler.createNode("input", { 'type': 'text', 'class': inputClass, 'id': name, 'placeholder': ' ' }, inputWrapper, callback, event)
-    
+
     // Add unit span if unit is specified
     if (unit) {
       var unitSpan = GeneralHandler.createNode("span", { 'class': 'input-unit' }, inputWrapper)
       unitSpan.innerHTML = unit;
     }
-    
+
     label.innerHTML = labelTxt
     defaultV ? input.value = defaultV : input.value = ''
     return input
@@ -175,7 +175,7 @@ let GeneralHandler = {
 
     // Create a container for the toggle buttons
     var toggleContainer = GeneralHandler.createNode("div", { 'class': containerClass, 'id': name + '-container' }, inputContainer);
-    
+
     // If multi-row, set CSS custom property for items per row
     if (needsMultiRow) {
       toggleContainer.style.setProperty('--items-per-row', maxItemsPerRow);
@@ -256,16 +256,16 @@ let GeneralHandler = {
    * @param {Function} xHeightCallback - Optional callback for xHeight changes
    * @param {Function} colorCallback - Optional callback for color changes
    * @return {HTMLElement} The created container
-   */  createBasicParamsContainer: function(parent, componentContext, defaultXHeight = null, defaultColor = null, xHeightCallback = null, colorCallback = null) {
+   */  createBasicParamsContainer: function (parent, componentContext, defaultXHeight = null, defaultColor = null, xHeightCallback = null, colorCallback = null) {
     // Create a container for basic parameters
     const basicParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-    
+
     // Use provided defaults or fall back to GeneralSettings
     const xHeight = defaultXHeight !== null ? defaultXHeight : GeneralSettings.xHeight;
     const color = defaultColor !== null ? defaultColor : GeneralSettings.messageColor;
-    
+
     // Create wrapper function for xHeight that calls both handlers
-    const xHeightHandler = function(event) {
+    const xHeightHandler = function (event) {
       // Always call the universal handler first
       GeneralHandler.handleXHeightChange(event);
       // Then call the provided callback if it exists
@@ -273,9 +273,9 @@ let GeneralHandler = {
         xHeightCallback(event);
       }
     };
-    
+
     // Create wrapper function for color that calls both handlers  
-    const colorHandler = function(event) {
+    const colorHandler = function (event) {
       // Always call the universal handler first
       GeneralHandler.handleColorChange(event);
       // Then call the provided callback if it exists
@@ -283,20 +283,20 @@ let GeneralHandler = {
         colorCallback(event);
       }
     };
-    
+
     // Create xHeight input with combined handler and unit (mm)
-    const xHeightInput = GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer, 
+    const xHeightInput = GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer,
       xHeight, xHeightHandler, 'input', 'mm');
-      
+
     // Create color toggle with combined handler
-    GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, color, 
+    GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, color,
       colorHandler);
 
     // Add debounced event listener for real-time updates on xHeight input
     xHeightInput.addEventListener('input', GeneralHandler.debounce(function (e) {
       // The handleXHeightChange function will update GeneralSettings
     }, 300));
-      
+
     return basicParamsContainer;
   },
 
@@ -304,12 +304,12 @@ let GeneralHandler = {
    * Generic handler for xHeight changes that updates GeneralSettings and the relevant component
    * @param {Event} event - The input event
    */
-  handleXHeightChange: function(event) {
+  handleXHeightChange: function (event) {
     const xHeight = parseInt(event.target.value);
     if (!isNaN(xHeight) && xHeight > 0) {
       // Update GeneralSettings
       GeneralSettings.updateSetting('xHeight', xHeight);
-      
+
       // The specific component update logic will be handled by the listener in each component
     }
   },
@@ -318,31 +318,31 @@ let GeneralHandler = {
    * Generic handler for color changes that updates GeneralSettings and the relevant component
    * @param {Event} event - The button click event
    */
-  handleColorChange: function(event) {
+  handleColorChange: function (event) {
     const color = event.getAttribute('data-value');
     if (color) {
       // Update GeneralSettings
       GeneralSettings.updateSetting('messageColor', color);
-      
+
       // The specific component update logic will be handled by the listener in each component
     }
   },
-  
+
   /**
    * Creates a standard settings listener that updates UI elements when settings change
    * @param {number} tabNumber - The tab number for this panel
    * @param {Function} updateCallback - Optional callback for additional updates
    * @return {Function} The listener function
    */
-  createSettingsListener: function(tabNumber, updateCallback = null) {
-    return function(setting, value) {
+  createSettingsListener: function (tabNumber, updateCallback = null) {
+    return function (setting, value) {
       // Only update UI if we're in the correct panel
       if (GeneralHandler.tabNum === tabNumber) {
         if (setting === 'xHeight') {
           const xHeightInput = document.getElementById('input-xHeight');
           if (xHeightInput && xHeightInput.value !== value.toString()) {
             xHeightInput.value = value;
-            
+
             // Call the custom update callback if provided
             if (updateCallback) {
               updateCallback('xHeight', value);
@@ -361,7 +361,7 @@ let GeneralHandler = {
               }
             });
           }
-          
+
           // Call the custom update callback if provided
           if (updateCallback) {
             updateCallback('messageColor', value);
@@ -370,21 +370,21 @@ let GeneralHandler = {
       }
     };
   },
-  
+
   /**
    * Utility function to handle mouse move events for canvas objects
    * @param {Object} component - The sidebar component context 
    * @param {Event} event - The mouse move event
    */
-  handleObjectOnMouseMove: function(component, event) {
-    const objectKey = component.newTextObject ? 'newTextObject' : 
-                     component.newSymbolObject ? 'newSymbolObject' : 
-                     component.newMapObject ? 'newMapObject' : null;
-    
+  handleObjectOnMouseMove: function (component, event) {
+    const objectKey = component.newTextObject ? 'newTextObject' :
+      component.newSymbolObject ? 'newSymbolObject' :
+        component.newMapObject ? 'newMapObject' : null;
+
     if (!objectKey || !component[objectKey] || !CanvasGlobals.activeVertex) return;
-    
+
     const pointer = CanvasGlobals.canvas.getPointer(event.e);
-    
+
     // If we have an active vertex, let it handle the movement
     if (CanvasGlobals.activeVertex.handleMouseMoveRef) {
       // Simulate a mouse move event with the current pointer
@@ -403,7 +403,7 @@ let GeneralHandler = {
       CanvasGlobals.canvas.renderAll();
     }
   },
-  
+
   /**
    * Utility function to handle mouse click events for canvas objects
    * @param {Object} component - The sidebar component context
@@ -413,9 +413,9 @@ let GeneralHandler = {
    * @param {string} mouseClickHandlerName - Name of the mouse click handler function
    * @param {string} cancelHandlerName - Name of the cancel handler function
    */
-  handleObjectOnMouseClick: function(component, event, objectKey, mouseMoveHandlerName, mouseClickHandlerName, cancelHandlerName) {
+  handleObjectOnMouseClick: function (component, event, objectKey, mouseMoveHandlerName, mouseClickHandlerName, cancelHandlerName) {
     if (event.e.button !== 0 && event.e.type !== 'touchend') return;
-    
+
     // Complete the placement if we have an active object
     if (component[objectKey]) {
       // Complete the placement
@@ -440,7 +440,7 @@ let GeneralHandler = {
       CanvasGlobals.canvas.renderAll();
     }
   },
-  
+
   /**
    * Generic cancel handler for escape key
    * @param {Object} component - The sidebar component context
@@ -449,7 +449,7 @@ let GeneralHandler = {
    * @param {string} mouseMoveHandlerName - Name of the mouse move handler function
    * @param {string} mouseClickHandlerName - Name of the mouse click handler function
    */
-  handleCancelWithEscape: function(component, event, objectKey, mouseMoveHandlerName, mouseClickHandlerName) {
+  handleCancelWithEscape: function (component, event, objectKey, mouseMoveHandlerName, mouseClickHandlerName) {
     if (event.key === 'Escape') {
       // If there's a newly created object being placed, delete it
       if (component[objectKey] && CanvasGlobals.canvas.contains(component[objectKey])) {
@@ -481,7 +481,7 @@ let GeneralHandler = {
    * @param {Object} options - Optional configuration {position: 'left'|'right'|'top'|'bottom', showDelay: number, hideDelay: number}
    * @return {HTMLElement} The created help icon element
    */
-  createHelpIconWithTooltip: function(parent, toggleContainerId, contentMap, options = {}) {
+  createHelpIconWithTooltip: function (parent, toggleContainerId, contentMap, options = {}) {
     // Default options
     const defaultOptions = {
       position: 'left',   // Default hints position
@@ -492,47 +492,47 @@ let GeneralHandler = {
     const config = Object.assign(defaultOptions, options);
 
     // Create help icon container
-    const helpContainer = GeneralHandler.createNode("div", { 
-      'class': 'help-icon-container' 
+    const helpContainer = GeneralHandler.createNode("div", {
+      'class': 'help-icon-container'
     }, parent);
 
     // Create the circled question mark
-    const helpIcon = GeneralHandler.createNode("div", { 
+    const helpIcon = GeneralHandler.createNode("div", {
       'class': 'help-icon',
       'title': 'Hover for help' // Basic fallback hints
     }, helpContainer);
     helpIcon.innerHTML = '?';
-    
+
     // Ensure the help icon has proper styles for interaction
     helpIcon.style.pointerEvents = 'auto';
     helpIcon.style.cursor = 'help';
     helpIcon.style.zIndex = '1001';
 
     // Create hints element
-    const hints = GeneralHandler.createNode("div", { 
-      'class': `hints help-hints ${config.scrollable ? 'scrollable' : ''}` 
+    const hints = GeneralHandler.createNode("div", {
+      'class': `hints help-hints ${config.scrollable ? 'scrollable' : ''}`
     }, document.body);
-    
+
     // Store timeout references for showing and hiding hints
     let showTimeout = null;
     let hideTimeout = null;
     let isHintsVisible = false;
-    
+
     // Function to reposition hints on window resize
     const repositionHints = () => {
       if (isHintsVisible && hints.style.opacity === '1') {
         GeneralHandler.positionTooltip(hints, helpIcon, config.position, true);
       }
     };
-    
+
     // Add window resize listener for responsive repositioning
     window.addEventListener('resize', GeneralHandler.debounce(repositionHints, 150));
-    
+
     // Function to get current content based on toggle value
     const getCurrentContent = () => {
       const toggleContainer = document.getElementById(toggleContainerId);
       if (!toggleContainer) return 'Help content not available';
-      
+
       const activeValue = GeneralHandler.getToggleValue(toggleContainerId);
       return contentMap[activeValue] || 'No help available for this option';
     };
@@ -544,12 +544,12 @@ let GeneralHandler = {
         clearTimeout(hideTimeout);
         hideTimeout = null;
       }
-      
+
       // Clear any existing show timeout
       if (showTimeout) {
         clearTimeout(showTimeout);
       }
-      
+
       // Set new timeout for showing
       showTimeout = setTimeout(() => {
         const content = getCurrentContent();
@@ -572,12 +572,12 @@ let GeneralHandler = {
         clearTimeout(showTimeout);
         showTimeout = null;
       }
-      
+
       // Clear any existing hide timeout
       if (hideTimeout) {
         clearTimeout(hideTimeout);
       }
-      
+
       // Set new timeout for hiding
       hideTimeout = setTimeout(() => {
         hints.style.opacity = '0';
@@ -604,7 +604,7 @@ let GeneralHandler = {
         clearTimeout(showTimeout);
         showTimeout = null;
       }
-      
+
       // Show immediately if not already visible
       if (hints.style.opacity !== '1') {
         const content = getCurrentContent();
@@ -624,7 +624,7 @@ let GeneralHandler = {
         clearTimeout(showTimeout);
         showTimeout = null;
       }
-      
+
       // Hide with the configured delay
       hideHints();
     };
@@ -632,12 +632,12 @@ let GeneralHandler = {
     // Add event listeners for help icon with mobile compatibility
     let helpIconListeners = null;
     let hintsListeners = null;
-    
+
     try {
       // Add mobile-compatible tooltip listeners to help icon
       helpIconListeners = GeneralHandler.addTooltipEventListeners(
-        helpIcon, 
-        showHints, 
+        helpIcon,
+        showHints,
         hideHints,
         {
           longPressDelay: 400,  // Slightly shorter for help icons
@@ -645,9 +645,9 @@ let GeneralHandler = {
           preventScroll: true
         }
       );
-      
+
       // Add a click event as a fallback test (still useful for debugging)
-      helpIcon.addEventListener('click', function(e) {
+      helpIcon.addEventListener('click', function (e) {
         e.preventDefault();
         // Show hints on click as fallback
         showHints(e);
@@ -655,7 +655,7 @@ let GeneralHandler = {
     } catch (error) {
       console.error('Error attaching help icon event listeners:', error);
     }
-    
+
     // Add event listeners for hints itself to prevent hiding when hovering over it (desktop only)
     try {
       if (GeneralHandler.supportsHover()) {
@@ -676,18 +676,18 @@ let GeneralHandler = {
         clearTimeout(hideTimeout);
         hideTimeout = null;
       }
-      
+
       // Cleanup mobile-compatible event listeners
       if (helpIconListeners) {
         helpIconListeners.cleanup();
       }
-      
+
       // Remove hints event listeners (desktop only)
       if (GeneralHandler.supportsHover()) {
         hints.removeEventListener('mouseenter', cancelHideAndShow);
         hints.removeEventListener('mouseleave', hideImmediately);
       }
-      
+
       // Remove resize listener
       window.removeEventListener('resize', repositionHints);
       if (document.body.contains(hints)) {
@@ -705,54 +705,57 @@ let GeneralHandler = {
    * @param {Object} options - Configuration options for the tooltip
    * @return {HTMLElement} The created help icon element
    */
-  createHelpIconWithHint: function(parent, hintPath, options = {}) {
+  createHelpIconWithHint: function (parent, hintPath, options = {}) {
     // Default options
     const defaultOptions = {
-      position: 'left',   // Default hints position
+      position: 'right',   // Default hints position
       scrollable: true,   // Make hints scrollable by default
-      showDelay: 200,     // Delay in milliseconds before showing hints
-      hideDelay: 800      // Delay in milliseconds before hiding hints (longer linger time)
+      showDelay: 150,     // Delay in milliseconds before showing hints
+      hideDelay: 1000      // Delay in milliseconds before hiding hints (longer linger time)
     };
     const config = Object.assign(defaultOptions, options);
 
+    // Locate input label
+    const label = parent.querySelector('.placeholder');
+
     // Create help icon container
-    const helpContainer = GeneralHandler.createNode("div", { 
-      'class': 'help-icon-container' 
-    }, parent);
+    const helpContainer = GeneralHandler.createNode("div", {
+      'class': 'help-icon-container'
+    }, label);
 
     // Create the circled question mark
-    const helpIcon = GeneralHandler.createNode("div", { 
+    const helpIcon = GeneralHandler.createNode("div", {
       'class': 'help-icon',
       'title': 'Hover for help' // Basic fallback hints
     }, helpContainer);
     helpIcon.innerHTML = '?';
-    
+
     // Ensure the help icon has proper styles for interaction
     helpIcon.style.pointerEvents = 'auto';
     helpIcon.style.cursor = 'help';
     helpIcon.style.zIndex = '1001';
 
     // Create hints element
-    const hints = GeneralHandler.createNode("div", { 
-      'class': `hints help-hints ${config.scrollable ? 'scrollable' : ''}` 
+    const hints = GeneralHandler.createNode("div", {
+      'class': `hints help-hints ${config.scrollable ? 'scrollable' : ''}`
     }, document.body);
-    
+
     // Store timeout references for showing and hiding hints
     let showTimeout = null;
     let hideTimeout = null;
     let isHintsVisible = false;
     let hintContent = null;
-    
+
     // Function to reposition hints on window resize
     const repositionHints = () => {
       if (isHintsVisible && hints.style.opacity === '1') {
         GeneralHandler.positionTooltip(hints, helpIcon, config.position, true);
       }
     };
-    
+
     // Add window resize listener for responsive repositioning
     window.addEventListener('resize', GeneralHandler.debounce(repositionHints, 150));
-    
+
     // Function to load hint content
     const loadHintContent = async () => {
       if (hintContent === null) {
@@ -773,12 +776,12 @@ let GeneralHandler = {
         clearTimeout(hideTimeout);
         hideTimeout = null;
       }
-      
+
       // Clear any existing show timeout
       if (showTimeout) {
         clearTimeout(showTimeout);
       }
-      
+
       // Set new timeout for showing
       showTimeout = setTimeout(async () => {
         const content = await loadHintContent();
@@ -801,12 +804,12 @@ let GeneralHandler = {
         clearTimeout(showTimeout);
         showTimeout = null;
       }
-      
+
       // Clear any existing hide timeout
       if (hideTimeout) {
         clearTimeout(hideTimeout);
       }
-      
+
       // Set new timeout for hiding
       hideTimeout = setTimeout(() => {
         hints.style.opacity = '0';
@@ -833,7 +836,7 @@ let GeneralHandler = {
         clearTimeout(showTimeout);
         showTimeout = null;
       }
-      
+
       // Show immediately if not already visible
       if (hints.style.opacity !== '1') {
         const content = await loadHintContent();
@@ -853,19 +856,19 @@ let GeneralHandler = {
         clearTimeout(showTimeout);
         showTimeout = null;
       }
-      
+
       // Hide with the configured delay
       hideHints();
     };
 
     // Add event listeners for help icon with mobile compatibility
     let helpIconListeners = null;
-    
+
     try {
       // Add mobile-compatible tooltip listeners to help icon
       helpIconListeners = GeneralHandler.addTooltipEventListeners(
-        helpIcon, 
-        showHints, 
+        helpIcon,
+        showHints,
         hideHints,
         {
           longPressDelay: 400,  // Slightly shorter for help icons
@@ -873,9 +876,9 @@ let GeneralHandler = {
           preventScroll: true
         }
       );
-      
+
       // Add a click event as a fallback test (still useful for debugging)
-      helpIcon.addEventListener('click', function(e) {
+      helpIcon.addEventListener('click', function (e) {
         e.preventDefault();
         // Show hints on click as fallback
         showHints(e);
@@ -883,7 +886,7 @@ let GeneralHandler = {
     } catch (error) {
       console.error('Error attaching help icon event listeners:', error);
     }
-    
+
     // Add event listeners for hints itself to prevent hiding when hovering over it (desktop only)
     try {
       if (GeneralHandler.supportsHover()) {
@@ -904,17 +907,17 @@ let GeneralHandler = {
         clearTimeout(hideTimeout);
         hideTimeout = null;
       }
-      
+
       // Cleanup mobile-compatible event listeners
       if (helpIconListeners) {
         helpIconListeners.cleanup();
       }
-      
+
       // Remove hints element
       if (hints && hints.parentNode) {
         hints.parentNode.removeChild(hints);
       }
-      
+
       // Remove resize listener (this should be improved to only remove specific listener)
       // Note: This is a limitation - we can't remove specific debounced listeners easily
       // Consider using a more sophisticated event management system if needed
@@ -930,7 +933,7 @@ let GeneralHandler = {
    * @param {string} position - Position preference ('left', 'right', 'top', 'bottom')
    * @param {boolean} outsideSidebar - Whether to position hints outside the sidebar
    */
-  positionTooltip: function(hints, target, position = 'left', outsideSidebar = false) {
+  positionTooltip: function (hints, target, position = 'left', outsideSidebar = false) {
     const targetRect = target.getBoundingClientRect();
     const hintsRect = hints.getBoundingClientRect();
     const viewport = {
@@ -947,48 +950,49 @@ let GeneralHandler = {
     // Detect if we're in mobile layout (screen width < 768px or sidebar has mobile positioning)
     const isMobile = viewport.width < 768;
     const sidebar = document.getElementById('side-panel');
-    
+
     // If outsideSidebar is true, position tooltip appropriately for desktop/mobile
     if (outsideSidebar && sidebar) {
       const sidebarRect = sidebar.getBoundingClientRect();
-      
+
       if (isMobile) {
         // Mobile: sidebar is at bottom, hints should be above it and span most of screen width
         hints.style.maxWidth = `${Math.min(600, viewport.width - 40)}px`; // Larger max width for images
         hints.style.width = `${Math.min(500, viewport.width - 40)}px`; // Larger responsive width
-        
+
         // Position hints above the sidebar
         left = 2; // 2px from left edge
         const bottom = viewport.height - sidebarRect.top + 48; // Above sidebar with margin from bottom
         hints.style.bottom = bottom + 'px';
         hints.style.top = ''; // Clear any previous top value
-        
+        hints.style.height = viewport.height - bottom - 24 + 'px'
+
         hints.classList.add('tooltip-arrow-bottom'); // Arrow pointing down to sidebar
       } else {
         // Desktop: sidebar is on left, hints to the right
+        const height = 450
+        const margin = 24
+        hints.style.height = height + 'px'
         left = sidebarRect.right + 70; // Reduced margin since hints is larger
-        const top =  targetRect.top; // Position so hints top aligns with target top
-        hints.style.top = top + 'px';
-        hints.style.bottom = ''; // Clear any previous bottom value
+        const top = targetRect.top; // Position so hints top aligns with target top
+        if (top + height - margin > viewport.height) {
+          hints.style.top = '';
+          hints.style.bottom = margin + 'px'; // Clear any previous bottom value
+        } else {
+          hints.style.top = top + 'px';
+          hints.style.bottom = ''; // Clear any previous bottom value
+        }
         hints.classList.add('tooltip-arrow-left');
-        
+
         // Reset width for desktop
         hints.style.width = '';
         hints.style.maxWidth = '600px'; // Increased for larger images
       }
-    } 
-    
-    // Ensure hints doesn't go off screen (check bottom bounds)
-    const currentBottom = parseInt(hints.style.bottom);
-    if (currentBottom < 10) {
-      hints.style.bottom = '10px';
-    } else if (currentBottom > viewport.height - 48) {
-      hints.style.bottom = (viewport.height - 48) + 'px';
     }
 
     hints.style.left = left + 'px';
   },
-  
+
   /**
    * Creates a new object and activates the snapping system for it
    * @param {Object} options - Configuration for the object creation
@@ -1001,59 +1005,59 @@ let GeneralHandler = {
    * @param {Function} cancelHandler - Handler function for cancellation
    * @return {Promise<Object>} - A promise that resolves to the created object
    */
-  createObjectWithSnapping: function(options, createObjectFn, component, objectKey, vertexId, mouseMoveHandler, mouseClickHandler, cancelHandler) {
+  createObjectWithSnapping: function (options, createObjectFn, component, objectKey, vertexId, mouseMoveHandler, mouseClickHandler, cancelHandler) {
     // Clear any existing object being placed
     if (component[objectKey]) {
       CanvasGlobals.canvas.remove(component[objectKey]);
       component[objectKey] = null;
-      
+
       if (CanvasGlobals.activeVertex) {
         CanvasGlobals.activeVertex.cleanupDrag();
         CanvasGlobals.activeVertex = null;
       }
     }
-    
+
     // Remove standard event listeners and add component-specific ones
     document.removeEventListener('keydown', ShowHideSideBarEvent);
     document.addEventListener('keydown', cancelHandler);
-    
+
     // Get the center of the canvas viewport
     const vpt = CanvasGlobals.CenterCoord();
     const centerX = vpt.x;
     const centerY = vpt.y;
-    
+
     // Set position in options
     options.position = options.position || { x: centerX, y: centerY };
-    
+
     try {
       // Create the object - use await to handle both async and sync functions
       const newObject = createObjectFn(options);
-      
+
       // Store reference to the object
       component[objectKey] = newObject;
-      
+
       // Add mouse event handlers
       CanvasGlobals.canvas.on('mouse:move', mouseMoveHandler);
       CanvasGlobals.canvas.on('mouse:up', mouseClickHandler);
-      
+
       // Set up the object for snapping
       CanvasGlobals.canvas.setActiveObject(newObject);
       newObject.enterFocusMode();
       newObject.isTemporary = true;
-      
+
       // Activate the vertex control for snapping
       if (newObject.controls && newObject.controls[vertexId]) {
         // Get the vertex control
         CanvasGlobals.activeVertex = newObject.controls[vertexId];
         CanvasGlobals.activeVertex.isDown = true;
         CanvasGlobals.activeVertex.isDragging = true;
-        
+
         // Store original position info
         CanvasGlobals.activeVertex.originalPosition = {
           left: newObject.left,
           top: newObject.top
         };
-  
+
         // Get the vertex coordinates
         const vertex = newObject.getBasePolygonVertex(vertexId);
         if (vertex) {
@@ -1062,16 +1066,16 @@ let GeneralHandler = {
             x: vertex.x,
             y: vertex.y
           };
-          
+
           // Calculate offset from object center to vertex
           CanvasGlobals.activeVertex.vertexOffset = {
             x: vertex.x - newObject.left,
             y: vertex.y - newObject.top
           };
-          
+
         }
       }
-      
+
       CanvasGlobals.canvas.renderAll();
       return newObject;
     } catch (error) {
@@ -1082,7 +1086,7 @@ let GeneralHandler = {
       throw error; // Re-throw to allow caller to handle the error
     }
   },
-  
+
   /**
    * Generic panel handler off function to clean up when leaving a panel
    * @param {Object} component - The sidebar component context
@@ -1091,7 +1095,7 @@ let GeneralHandler = {
    * @param {string} mouseClickHandlerName - Name of the mouse click handler
    * @param {string} cancelHandlerName - Name of the cancel handler
    */
-  genericHandlerOff: function(component, objectKey, mouseMoveHandlerName, mouseClickHandlerName, cancelHandlerName) {
+  genericHandlerOff: function (component, objectKey, mouseMoveHandlerName, mouseClickHandlerName, cancelHandlerName) {
     // If there's a new object being placed, finalize its placement
     if (component[objectKey]) {
       if (CanvasGlobals.activeVertex) {
@@ -1109,7 +1113,7 @@ let GeneralHandler = {
     CanvasGlobals.canvas.renderAll();
   },
 
-  showToast: function(message, type = 'success', duration = 3000) {
+  showToast: function (message, type = 'success', duration = 3000) {
     const toastId = 'toast-notification';
     // Remove existing toast if any
     let existingToast = document.getElementById(toastId);
@@ -1138,16 +1142,16 @@ let GeneralHandler = {
       }, 500); // Corresponds to the animation duration
     }, duration);
   },
-  
+
   /**
    * Utility debounce function to limit rapid successive updates
    * @param {Function} func - Function to debounce
    * @param {number} wait - Wait time in milliseconds
    * @return {Function} Debounced function
    */
-  debounce: function(func, wait) {
+  debounce: function (func, wait) {
     let timeout;
-    return function(...args) {
+    return function (...args) {
       const context = this;
       clearTimeout(timeout);
       timeout = setTimeout(() => func.apply(context, args), wait);
@@ -1158,18 +1162,18 @@ let GeneralHandler = {
    * Detects if the current device is mobile/touch device
    * @return {boolean} True if mobile device
    */
-  isMobileDevice: function() {
+  isMobileDevice: function () {
     return (('ontouchstart' in window) ||
-            (navigator.maxTouchPoints > 0) ||
-            (navigator.msMaxTouchPoints > 0) ||
-            /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+      (navigator.maxTouchPoints > 0) ||
+      (navigator.msMaxTouchPoints > 0) ||
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
   },
 
   /**
    * Detects if the current device supports hover interactions
    * @return {boolean} True if device supports hover
    */
-  supportsHover: function() {
+  supportsHover: function () {
     return window.matchMedia('(hover: hover)').matches;
   },
 
@@ -1181,7 +1185,7 @@ let GeneralHandler = {
    * @param {Object} options - Configuration options
    * @return {Object} Object containing cleanup function and timeout references
    */
-  addTooltipEventListeners: function(element, showCallback, hideCallback, options = {}) {
+  addTooltipEventListeners: function (element, showCallback, hideCallback, options = {}) {
     const config = {
       longPressDelay: 500,    // Long press duration for mobile
       hideDelay: 2000,        // Auto-hide delay for mobile
@@ -1226,7 +1230,7 @@ let GeneralHandler = {
       // Detect scrolling (more than 10px movement)
       if (deltaY > 10) {
         isScrolling = true;
-        
+
         // Cancel long press if scrolling
         if (longPressTimer) {
           clearTimeout(longPressTimer);
@@ -1285,7 +1289,7 @@ let GeneralHandler = {
 
     // Return cleanup function and state references
     return {
-      cleanup: function() {
+      cleanup: function () {
         if (longPressTimer) {
           clearTimeout(longPressTimer);
           longPressTimer = null;
@@ -1312,12 +1316,12 @@ let GeneralHandler = {
       }
     };
   },
-  
+
   /**
    * Gets center coordinates accounting for canvas pan/zoom
    * @return {Object} Center coordinates {x, y}
    */
-  getCenterCoordinates: function() {
+  getCenterCoordinates: function () {
     // Center the object on the canvas viewport
     const centerX = CanvasGlobals.canvas.width / 2 / CanvasGlobals.canvas.getZoom();
     const centerY = CanvasGlobals.canvas.height / 2 / CanvasGlobals.canvas.getZoom();
@@ -1326,7 +1330,7 @@ let GeneralHandler = {
     const vpt = CanvasGlobals.canvas.viewportTransform;
     const actualCenterX = (centerX - vpt[4]) / vpt[0];
     const actualCenterY = (centerY - vpt[5]) / vpt[3];
-    
+
     return { x: actualCenterX, y: actualCenterY };
   },
 
@@ -1337,7 +1341,7 @@ let GeneralHandler = {
    * @param {Object} options - Optional configuration {position: 'left'|'right'|'top'|'bottom', showDelay: number, hideDelay: number}
    * @return {HTMLElement} The button element with tooltip attached
    */
-  createGeneralButtonTooltip: function(button, hintPath, options = {}) {
+  createGeneralButtonTooltip: function (button, hintPath, options = {}) {
     // Default options
     const defaultOptions = {
       position: 'top',     // Default position for general button tooltips
@@ -1347,27 +1351,27 @@ let GeneralHandler = {
     const config = Object.assign(defaultOptions, options);
 
     // Create tooltip element with unified hints class
-    const tooltip = GeneralHandler.createNode("div", { 
+    const tooltip = GeneralHandler.createNode("div", {
       'class': 'hints',
       'data-button-id': button.id || `button-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     }, document.body);
-    
+
     // Store timeout references
     let showTimeout = null;
     let hideTimeout = null;
     let isTooltipVisible = false;
     let hintContent = null; // Cache the loaded content
-    
+
     // Function to reposition tooltip on window resize
     const repositionTooltip = () => {
       if (isTooltipVisible && tooltip.style.opacity === '1') {
         GeneralHandler.positionTooltip(tooltip, button, config.position, true);
       }
     };
-    
+
     // Add window resize listener
     window.addEventListener('resize', GeneralHandler.debounce(repositionTooltip, 150));
-    
+
     // Function to show tooltip with delay and dynamic loading
     const showTooltip = async (event) => {
       // Clear any pending hide timeout
@@ -1375,12 +1379,12 @@ let GeneralHandler = {
         clearTimeout(hideTimeout);
         hideTimeout = null;
       }
-      
+
       // Clear any existing show timeout
       if (showTimeout) {
         clearTimeout(showTimeout);
       }
-      
+
       // Set new timeout for showing
       showTimeout = setTimeout(async () => {
         try {
@@ -1388,7 +1392,7 @@ let GeneralHandler = {
           if (!hintContent) {
             hintContent = await HintLoader.loadHint(hintPath);
           }
-          
+
           // If hint content is available, show tooltip
           if (hintContent) {
             tooltip.innerHTML = hintContent;
@@ -1429,12 +1433,12 @@ let GeneralHandler = {
         clearTimeout(showTimeout);
         showTimeout = null;
       }
-      
+
       // Clear any existing hide timeout
       if (hideTimeout) {
         clearTimeout(hideTimeout);
       }
-      
+
       // Set new timeout for hiding
       hideTimeout = setTimeout(() => {
         tooltip.style.opacity = '0';
@@ -1461,7 +1465,7 @@ let GeneralHandler = {
         clearTimeout(showTimeout);
         showTimeout = null;
       }
-      
+
       // Show immediately if not already visible
       if (!isTooltipVisible) {
         showTooltip();
@@ -1475,7 +1479,7 @@ let GeneralHandler = {
         clearTimeout(showTimeout);
         showTimeout = null;
       }
-      
+
       // Hide with the configured delay
       hideTooltip();
     };
@@ -1483,12 +1487,12 @@ let GeneralHandler = {
     // Add event listeners to button with mobile compatibility
     let buttonListeners = null;
     let tooltipListeners = null;
-    
+
     try {
       // Add mobile-compatible tooltip listeners to button
       buttonListeners = GeneralHandler.addTooltipEventListeners(
-        button, 
-        showTooltip, 
+        button,
+        showTooltip,
         hideTooltip,
         {
           longPressDelay: 500,  // Standard long press duration
@@ -1496,7 +1500,7 @@ let GeneralHandler = {
           preventScroll: true
         }
       );
-      
+
       // Add focus/blur events for keyboard navigation (desktop only)
       if (GeneralHandler.supportsHover()) {
         button.addEventListener('focus', showTooltip); // Show on keyboard focus
@@ -1526,12 +1530,12 @@ let GeneralHandler = {
         clearTimeout(hideTimeout);
         hideTimeout = null;
       }
-      
+
       // Cleanup mobile-compatible event listeners
       if (buttonListeners) {
         buttonListeners.cleanup();
       }
-      
+
       // Remove focus/blur listeners (desktop only)
       if (GeneralHandler.supportsHover()) {
         button.removeEventListener('focus', showTooltip);
@@ -1539,7 +1543,7 @@ let GeneralHandler = {
         tooltip.removeEventListener('mouseenter', cancelHideAndShow);
         tooltip.removeEventListener('mouseleave', hideImmediately);
       }
-      
+
       // Remove resize listener
       window.removeEventListener('resize', repositionTooltip);
       if (document.body.contains(tooltip)) {
@@ -1556,7 +1560,7 @@ let GeneralHandler = {
    * @param {HTMLElement} target - The target button to position relative to
    * @param {string} position - Position preference ('left', 'right', 'top', 'bottom')
    */
-  positionGeneralTooltip: function(tooltip, target, position = 'top') {
+  positionGeneralTooltip: function (tooltip, target, position = 'top') {
     const targetRect = target.getBoundingClientRect();
     const tooltipRect = tooltip.getBoundingClientRect();
     const viewport = {
@@ -1624,12 +1628,12 @@ let GeneralHandler = {
   createButtonWithTooltip: function (name, labelTxt, parent, container = 'input', callback = null, event = null, tooltipOptions = null) {
     // Create the button using existing method
     const button = GeneralHandler.createButton(name, labelTxt, parent, container, callback, event);
-    
+
     // If tooltip options provided, attempt to add tooltip
     if (tooltipOptions && tooltipOptions.hintPath) {
       GeneralHandler.createGeneralButtonTooltip(button, tooltipOptions.hintPath, tooltipOptions);
     }
-    
+
     return button;
   },
 
@@ -1637,13 +1641,13 @@ let GeneralHandler = {
    * Cleanup utility to remove orphaned hints tooltips from the DOM
    * Call this to clean up any tooltips that may have been left behind
    */
-  cleanupOrphanedTooltips: function() {
+  cleanupOrphanedTooltips: function () {
     const orphanedTooltips = document.querySelectorAll('.hints[data-button-id]');
     orphanedTooltips.forEach(tooltip => {
       // Check if the tooltip's parent button still exists in the DOM
       const buttonId = tooltip.getAttribute('data-button-id');
       const button = buttonId ? document.getElementById(buttonId) : null;
-      
+
       if (!button || !document.body.contains(button)) {
         // Button no longer exists, remove the orphaned tooltip
         if (tooltip.parentNode) {
@@ -1684,28 +1688,28 @@ const GeneralSettings = {
   listeners: [],
 
   // Method to register a listener for setting changes
-  addListener: function(callback) {
+  addListener: function (callback) {
     this.listeners.push(callback);
   },
 
   // Method to notify all listeners of setting changes
-  notifyListeners: function(setting, value) {
+  notifyListeners: function (setting, value) {
     this.listeners.forEach(callback => {
-      if (typeof callback === 'function'){
+      if (typeof callback === 'function') {
         callback(setting, value);
       }
     });
   },
 
   // Update a setting and notify listeners
-  updateSetting: function(setting, value) {
+  updateSetting: function (setting, value) {
     if (this.hasOwnProperty(setting)) {
       this[setting] = value;
       this.notifyListeners(setting, value);
     }
   },
 
-  resetSetting: function() {
+  resetSetting: function () {
     const defaultSetting = {
       showTextBorders: true,
       showObjectBorders: true,
@@ -1731,19 +1735,19 @@ const GeneralSettings = {
         this[key] = defaultSetting[key];
       }
     }
-    
+
     // Notify listeners about a complete reset instead of individual properties
     this.notifyListeners('settingsReset', null);
   },
 
   // Method to format dimension values based on the current unit setting
-  formatDimension: function(value, xHeight = 100) {
+  formatDimension: function (value, xHeight = 100) {
     if (this.dimensionUnit === 'sw') {
       // Convert to sign width units (value / xHeight)
       // Sign width units are calculated as dimension divided by x-height
       const swValue = (value / xHeight * 4).toFixed(1);
       return `${swValue}sw`;
-    } else { 
+    } else {
       // Return in millimeters (default)
       return `${Math.round(value)}mm`;
     }

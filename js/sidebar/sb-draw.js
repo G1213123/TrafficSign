@@ -88,30 +88,51 @@ let FormDrawAddComponent = {
     }
 
     const hintMapping = {
-      'Route1':'Route',
-      'Route2':'Route',
-      'Route3':'Route',
-      'Route4':'Route',
-      'Route5':'Route',
-      'Route6':'Route',
-      'Route7':'Route',
-      'Route8':'Route',
-      'Route9':'Route',
-      'Route10':'Route',
-      'Route11':'Route',
-      'Route12':'Route',
-      'CHT':'Tunnel',
-      'EHC':'Tunnel',
-      'WHC':'Tunnel',
-      'MTR':'Tunnel',
-      'Hospital':'Tunnel',
-      'Disney':'Tunnel',
-      'Parking':'Tunnel',
-      'RightPedestrian':'LeftPedestrian',
-      'LeftDisabled':'LeftPedestrian',
-      'RightDisabled':'LeftPedestrian',
-      'LeftBike':'LeftPedestrian',
-      'RightBike':'LeftPedestrian',
+      'Route1': 'Route',
+      'Route2': 'Route',
+      'Route3': 'Route',
+      'Route4': 'Route',
+      'Route5': 'Route',
+      'Route6': 'Route',
+      'Route7': 'Route',
+      'Route8': 'Route',
+      'Route9': 'Route',
+      'Route10': 'Route',
+      'Route11': 'Route',
+      'Route12': 'Route',
+      'CHT': 'Tunnel',
+      'EHC': 'Tunnel',
+      'WHC': 'Tunnel',
+      'MTR': 'Tunnel',
+      'Hospital': 'Tunnel',
+      'Disney': 'Tunnel',
+      'Parking': 'Tunnel',
+      'RightPedestrian': 'LeftPedestrian',
+      'LeftDisabled': 'LeftPedestrian',
+      'RightDisabled': 'LeftPedestrian',
+      'LeftBike': 'LeftPedestrian',
+      'RightBike': 'LeftPedestrian',
+      'NoEntry': 'Regulatory',
+      'AllVehProhibited': 'Regulatory',
+      'NoLeftTurn': 'Regulatory',
+      'NoRightTurn': 'Regulatory',
+      'NoUTurn': 'Regulatory',
+      '2.3WidthLimit': 'Regulatory',
+      '2.5WidthLimit': 'Regulatory',
+      '2.7WidthLimit': 'Regulatory',
+      '2.9WidthLimit': 'Regulatory',
+      '2HeightLimit': 'Regulatory',
+      '3HeightLimit': 'Regulatory',
+      '3.5HeightLimit': 'Regulatory',
+      '4HeightLimit': 'Regulatory',
+      '4.1HeightLimit': 'Regulatory',
+      '4.2HeightLimit': 'Regulatory',
+      '4.3HeightLimit': 'Regulatory',
+      '4.4HeightLimit': 'Regulatory',
+      '4.5HeightLimit': 'Regulatory',
+      '4.6HeightLimit': 'Regulatory',
+      '4.7HeightLimit': 'Regulatory',
+      '4.8HeightLimit': 'Regulatory',
     }
 
     // Create a container for all symbols with the proper grid layout
@@ -120,7 +141,7 @@ let FormDrawAddComponent = {
     // Add symbols to the grid - two in each row
     Object.keys(symbolsTemplate).forEach(async (symbol) => {
       const svg = await FormDrawAddComponent.createButtonSVG(symbol, 5, color);
-      
+
       // Create the button
       const symbolBtn = GeneralHandler.createSVGButton(
         `button-${symbol}`,
@@ -130,7 +151,7 @@ let FormDrawAddComponent = {
         FormDrawAddComponent.createSymbolObject,
         'click'
       );
-      
+
       // Add tooltip functionality for all symbols
       // This will attempt to load hints/symbols/{symbol}.html
       const hintSymbol = Object.keys(hintMapping).includes(symbol) ? hintMapping[symbol] : symbol;

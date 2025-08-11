@@ -20,11 +20,10 @@
   backdrop-filter: blur(10px);
   /* Added backdrop blur for modern glass effect */
   visibility: hidden; /* Start hidden */
-  max-width: 500px;
-  max-height: 450px;
   line-height: 1.3;
   overflow-y: auto;
   overflow-x: hidden;
+  /* width and height attribute refer to sbGeneral.js*/
 }
 
 /* Allow text wrapping for longer hints and make scrollable */
@@ -78,13 +77,9 @@
     font-size: 14px; /* Slightly smaller font for mobile */
     line-height: 1.4; /* Better line spacing */
     border-radius: 8px; /* Larger border radius for mobile */
-    max-height: 80vh; /* Increased height for larger images */
     overflow-y: auto; /* Allow scrolling if content is too long */
   }
   
-  .hints.scrollable {
-    max-height: 75vh; /* Reduce max height for scrollable hints on mobile */
-  }
 }
 
 /* Arrow styling for tooltips */
@@ -273,16 +268,8 @@
 }
 
 
-.hints.scrollable {
-  max-height: 650px;
-  overflow-y: auto;
-}
-
 /* Mobile specific scrollable styles */
 @media (max-width: 768px) {
-  .hints.scrollable {
-    max-height: 75vh;
-  }
   
   .hints.scrollable::-webkit-scrollbar {
     width: 8px;
