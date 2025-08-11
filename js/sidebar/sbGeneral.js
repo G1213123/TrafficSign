@@ -73,6 +73,9 @@ let GeneralHandler = {
       // Also clean up any orphaned tooltips that may exist
       GeneralHandler.cleanupOrphanedTooltips();
 
+      // Force hide any visible tooltips (especially useful for mobile)
+      GeneralHandler.hideAllTooltips();
+
       parent.innerHTML = ''
     }
     CanvasObjectInspector.createObjectListPanelInit()
@@ -1198,9 +1201,26 @@ let GeneralHandler = {
     let touchStartY = 0;
     let isLongPress = false;
     let isScrolling = false;
+    let globalTouchHandler = null;
 
     const isMobile = GeneralHandler.isMobileDevice();
     const supportsHover = GeneralHandler.supportsHover();
+
+    // Global touch handler to hide tooltip when touching outside
+    const handleGlobalTouch = (e) => {
+      // Check if the touch is outside the element and not on a tooltip
+      if (!element.contains(e.target) && !e.target.closest('.hints')) {
+        if (isLongPress) {
+          hideCallback();
+          isLongPress = false;
+        }
+        // Remove global handler after hiding
+        if (globalTouchHandler) {
+          document.removeEventListener('touchstart', globalTouchHandler, true);
+          globalTouchHandler = null;
+        }
+      }
+    };
 
     // Mobile touch event handlers
     const handleTouchStart = (e) => {
@@ -1213,6 +1233,15 @@ let GeneralHandler = {
         if (!isScrolling) {
           isLongPress = true;
           showCallback(e);
+          
+          // Add global touch handler to hide tooltip when touching outside
+          if (isMobile || !supportsHover) {
+            globalTouchHandler = handleGlobalTouch;
+            // Use setTimeout to add the listener after current touch event completes
+            setTimeout(() => {
+              document.addEventListener('touchstart', globalTouchHandler, true);
+            }, 50);
+          }
         }
       }, config.longPressDelay);
 
@@ -1241,6 +1270,11 @@ let GeneralHandler = {
         if (isLongPress) {
           hideCallback();
           isLongPress = false;
+          // Remove global handler when hiding due to scroll
+          if (globalTouchHandler) {
+            document.removeEventListener('touchstart', globalTouchHandler, true);
+            globalTouchHandler = null;
+          }
         }
       }
     };
@@ -1257,6 +1291,11 @@ let GeneralHandler = {
         hideTimer = setTimeout(() => {
           hideCallback();
           isLongPress = false;
+          // Remove global handler when auto-hiding
+          if (globalTouchHandler) {
+            document.removeEventListener('touchstart', globalTouchHandler, true);
+            globalTouchHandler = null;
+          }
         }, config.hideDelay);
       }
 
@@ -1297,6 +1336,12 @@ let GeneralHandler = {
         if (hideTimer) {
           clearTimeout(hideTimer);
           hideTimer = null;
+        }
+
+        // Remove global touch handler if it exists
+        if (globalTouchHandler) {
+          document.removeEventListener('touchstart', globalTouchHandler, true);
+          globalTouchHandler = null;
         }
 
         if (isMobile || !supportsHover) {
@@ -1657,10 +1702,28 @@ let GeneralHandler = {
     });
   },
 
+  /**
+   * Force hide all visible hint tooltips (useful for mobile when tooltips get stuck)
+   */
+  hideAllTooltips: function () {
+    const visibleTooltips = document.querySelectorAll('.hints[style*="opacity: 1"], .hints[style*="visibility: visible"]');
+    visibleTooltips.forEach(tooltip => {
+      tooltip.style.opacity = '0';
+      tooltip.style.pointerEvents = 'none';
+      setTimeout(() => {
+        if (tooltip.style.opacity === '0') {
+          tooltip.style.visibility = 'hidden';
+        }
+      }, 200);
+    });
+  },
+
   // ...existing code...
 }
 
 document.getElementById('show_hide').addEventListener('click', function (event) {
+  // Hide any visible tooltips when toggling sidebar
+  GeneralHandler.hideAllTooltips();
   GeneralHandler.ShowHideSideBar(event)
 }
 )
@@ -1753,6 +1816,32 @@ const GeneralSettings = {
     }
   }
 };
+
+// Global mobile tooltip management
+// Add a global touch handler to help hide tooltips on mobile devices
+if (typeof window !== 'undefined' && GeneralHandler.isMobileDevice()) {
+  let globalTouchHideTimeout = null;
+  
+  const globalTooltipHideHandler = (e) => {
+    // Clear any existing timeout
+    if (globalTouchHideTimeout) {
+      clearTimeout(globalTouchHideTimeout);
+    }
+    
+    // Set a timeout to hide tooltips if the touch is not on a tooltip or button with tooltip
+    globalTouchHideTimeout = setTimeout(() => {
+      const target = e.target;
+      const isTooltipElement = target.closest('.hints') || target.closest('[data-tooltip]') || target.classList.contains('help-icon');
+      
+      if (!isTooltipElement) {
+        GeneralHandler.hideAllTooltips();
+      }
+    }, 100); // Small delay to allow other touch handlers to process first
+  };
+  
+  // Add the global handler with passive: true for better performance
+  document.addEventListener('touchstart', globalTooltipHideHandler, { passive: true });
+}
 
 // Export GeneralHandler and GeneralSettings for ES module usage
 export { GeneralHandler, GeneralSettings };
