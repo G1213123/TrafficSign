@@ -7,7 +7,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin'); // Added
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin'); // Added
 require('dotenv').config(); // Load .env file
 
-module.exports = {  entry: {
+module.exports = {  
+  entry: {
     main: './js/main.js',
     homepage: './js/homepage.js',
     nav: './js/nav.js',
@@ -75,10 +76,12 @@ module.exports = {  entry: {
       title: 'Getting Started - Road Sign Factory',
       appVersion: require('./package.json').version || process.env.VERSION || 'dev',
       googleAdsClientId: process.env.GOOGLE_ADS_CLIENT_ID || 'ca-pub-0000000000000000'
-    }),new CopyWebpackPlugin({
+    }),    
+    new CopyWebpackPlugin({
       patterns: [
         { from: 'css', to: 'css' },
         { from: 'images', to: 'images' },
+        { from: 'hints', to: 'hints' }, // Copy hint files for the hint system
         // Include DXF bundle for publishing
         { from: 'js/exportUtils/dxf-bundle.js', to: 'js/exportUtils/dxf-bundle.js' },
         { from: 'ads.txt', to: 'ads.txt' }, // Ensure ads.txt is copied

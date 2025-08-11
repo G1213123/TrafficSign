@@ -24,6 +24,10 @@ handlers:
   static_dir: images
   secure: always
 
+- url: /hints
+  static_dir: hints
+  secure: always
+
 - url: /(.+\.(ico|jpg|jpeg|png|gif|svg|js|css|woff|woff2|ttf))$
   static_files: \1
   upload: (.+\.(ico|jpg|jpeg|png|gif|svg|js|css|woff|woff2|ttf))$
