@@ -123,10 +123,12 @@ let FormExportComponent = {
       visibleObjects.forEach(obj => {
         // Get the object's bounding rect in canvas coordinates
         const rect = obj.getBoundingRect();
-        minX = Math.min(minX, rect.left);
-        minY = Math.min(minY, rect.top);
-        maxX = Math.max(maxX, rect.left + rect.width);
-        maxY = Math.max(maxY, rect.top + rect.height);
+        if (!isNaN(rect.top) && !isNaN(rect.left)){
+          minX = Math.min(minX, rect.left);
+          minY = Math.min(minY, rect.top);
+          maxX = Math.max(maxX, rect.left + rect.width);
+          maxY = Math.max(maxY, rect.top + rect.height);
+        }
       });
 
       // Add padding around the objects
