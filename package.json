@@ -1,6 +1,6 @@
 {
   "name": "road-sign-factory",
-  "version": "1.2.3",
+  "version": "1.2.3a",
   "dependencies": {
     "dxf-writer": "^1.18.4",
     "env-cmd": "^10.1.0"
