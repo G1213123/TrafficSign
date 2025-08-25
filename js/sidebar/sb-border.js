@@ -15,10 +15,30 @@ let FormBorderWrapComponent = {
     if (parent) {
       // Create a container for border parameters
       var borderParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      GeneralHandler.createInput('input-xHeight', 'x Height', borderParamsContainer, GeneralSettings.xHeight, FormBorderWrapComponent.handleXHeightChange, 'input')
+      const xHeightInput = GeneralHandler.createInput('input-xHeight', 'x Height', borderParamsContainer, GeneralSettings.xHeight, FormBorderWrapComponent.handleXHeightChange, 'input')
+
+      // Attach x-height help icon (TPDM Table 3.2.5.1 guidance)
+      try {
+        const xhParent = xHeightInput && xHeightInput.parentElement ? xHeightInput.parentElement : borderParamsContainer;
+        if (xhParent) {
+          GeneralHandler.createHelpIconWithHint(xhParent, 'text/XHeight', { position: 'right' });
+        }
+      } catch (e) {
+        console.warn('Failed to attach x-height help icon in Border panel:', e);
+      }
 
       // Color scheme selection
-      GeneralHandler.createSelect('input-color', 'Select Color Scheme', Object.keys(BorderColorScheme), borderParamsContainer, null, FormBorderWrapComponent.handleColorChange, 'change')
+      const colorSelect = GeneralHandler.createSelect('input-color', 'Select Color Scheme', Object.keys(BorderColorScheme), borderParamsContainer, null, FormBorderWrapComponent.handleColorChange, 'change')
+
+      // Attach border color purpose help icon next to the color scheme label
+      try {
+        const colorParent = colorSelect && colorSelect.parentElement ? colorSelect.parentElement : borderParamsContainer;
+        if (colorParent) {
+          GeneralHandler.createHelpIconWithHint(colorParent, 'border/ColorPurpose', { position: 'right' });
+        }
+      } catch (e) {
+        console.warn('Failed to attach color purpose help icon in Border panel:', e);
+      }
 
       // Create a container for border actions
       var borderActionsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);

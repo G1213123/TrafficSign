@@ -38,6 +38,12 @@
   pointer-events: auto;
 }
 
+/* Extra padding when close button is present */
+.hints.with-close-button {
+  padding-top: 28px;   /* space for close button */
+  padding-right: 36px; /* avoid overlap at top-right */
+}
+
 /* Close button for hints */
 .hints-close-button {
   position: absolute;
@@ -368,6 +374,7 @@
     color: white;
     font-family: Arial, sans-serif;
     line-height: 1.6;
+  padding: 4px 2px; /* ensure content not flush to tooltip edge */
 }
 
 .hint-container p {
@@ -402,7 +409,7 @@
 
 .hint-container .font-table th,
 .hint-container .font-table td {
-    padding: 10px 12px;
+    padding: 10px 10px;
     text-align: left;
     border-bottom: 1px solid rgba(255, 255, 255, 0.15);
     color: white;
@@ -415,6 +422,11 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-size: 12px;
+}
+
+/* Add vertical separators between header columns for readability */
+.hint-container .font-table th:not(:last-child) {
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .hint-container .font-table tr:hover {

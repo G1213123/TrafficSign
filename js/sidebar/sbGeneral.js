@@ -291,9 +291,31 @@ let GeneralHandler = {
     const xHeightInput = GeneralHandler.createInput('input-xHeight', 'x Height', basicParamsContainer,
       xHeight, xHeightHandler, 'input', 'mm');
 
+    // Add help icon with hint for x-height guidance (TPDM reference)
+    try {
+      const xhParent = xHeightInput.parentElement && xHeightInput.parentElement.classList.contains('input-wrapper')
+        ? xHeightInput.parentElement.parentElement
+        : xHeightInput.parentElement || basicParamsContainer;
+      if (xhParent) {
+        GeneralHandler.createHelpIconWithHint(xhParent, 'text/XHeight', { position: 'right' });
+      }
+    } catch (e) {
+      console.warn('Failed to attach x-height help icon:', e);
+    }
+
     // Create color toggle with combined handler
-    GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, color,
+    const messageColorToggle = GeneralHandler.createToggle('Message Colour', ['Black', 'White'], basicParamsContainer, color,
       colorHandler);
+
+    // Add help icon with hint for message colour selection (based on panel/background)
+    try {
+      const toggleParent = messageColorToggle && messageColorToggle.parentElement ? messageColorToggle.parentElement : basicParamsContainer;
+      if (toggleParent) {
+        GeneralHandler.createHelpIconWithHint(toggleParent, 'text/MessageColor', { position: 'right' });
+      }
+    } catch (e) {
+      console.warn('Failed to attach message colour help icon:', e);
+    }
 
     // Add debounced event listener for real-time updates on xHeight input
     xHeightInput.addEventListener('input', GeneralHandler.debounce(function (e) {
