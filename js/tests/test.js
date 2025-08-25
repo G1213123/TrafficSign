@@ -2153,8 +2153,8 @@ const ComplexSignTest = {
     );
 
     passed = passed && TestTracker.assertTrue(
-      Math.abs((rightTopObj.left - initialRightTextLeft) - 100) < 5,
-      "Right text should move with overall border"
+      Math.abs((rightTopObj.left + rightTopObj.width / 2 - overallBorderGroup.getBasePolygonVertex('C6').x)) < 5,
+      "Right text should center horizontally with right half of border"
     );
 
     TestTracker.endTest(passed);
