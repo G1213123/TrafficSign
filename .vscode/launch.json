@@ -15,14 +15,17 @@
             ],
             "skipFiles": [
                 // Existing pattern
-                "*VM*",
+                "**VM**",
                 // Local dependencies
                 "${workspaceFolder}/node_modules/**",
                 // Paper.js (local copy if ever added) and CDN version
                 "**/paper-full.min.js",
                 "https://cdnjs.cloudflare.com/ajax/libs/paper.js/**",
                 // All Google ads / tag / measurement / quality helper scripts (consolidated)
-                "*google*",
+                "**/sodar2.js",
+                "**/adsbygoogle.js**",
+                "**/show_ads_**",
+                "*googlesyndication*",
                 // Eval / anonymous script frames
                 "<eval>/**",
                 // Specific VM eval chunks (e.g. <eval>/VM46947695)

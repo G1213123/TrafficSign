@@ -4116,12 +4116,12 @@ function VLaneTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
 
     const strokeCount = Math.max(2, effHeight);
     const diminishedStroke = (BHeight - (strokeHeight + strokeSpacing) * strokeCount) - (strokeSpacing)
-    console.log(`Diminished stroke height: ${diminishedStroke}`)
 
     let returnBorder = [{
         'vertex': [], 'arcs': [], 'fill': 'border'
     },];
 
+    let k = 0
     for (let i = 0; i < strokeCount + 1; i++) {
         if (i == 0 && diminishedStroke > 0) {
             returnBorder[0].vertex.push(...[
@@ -4131,17 +4131,20 @@ function VLaneTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
                 { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - diminishedStroke, label: 'V4', start: 0 , display: 1},
                 { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V5', start: 0 },
             ])
+            k++
         } else if (i != 0) {
-            const j = i * 5;
             returnBorder[0].vertex.push(...[
-                { x: 0, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: `V${j + 1}`, start: 1 },
-                { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: `V${j + 2}`, start: 0 },
-                { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: `V${j + 3}`, start: 0 },
-                { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: `V${j + 4}`, start: 0 },
-                { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: `V${j + 5}`, start: 0 },
+                { x: 0, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: `V${k*5 + 1}`, start: 1 },
+                { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: `V${k*5 + 2}`, start: 0 },
+                { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: `V${k*5 + 3}`, start: 0 },
+                { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: `V${k*5 + 4}`, start: 0 },
+                { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: `V${k*5 + 5}`, start: 0 },
             ])
+            k++
         }
     }
+
+    returnBorder[0].vertex.filter(v => v.label == 'V3' || v.label == `V4`).forEach(v => v.display = 1)
 
     returnBorder.forEach(p => {
         p.vertex.forEach(vertex => {

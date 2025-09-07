@@ -689,69 +689,12 @@ class BorderGroup extends BaseGroup {
     // Update bboxes first to ensure we have current border and compartment information
     this.updateBboxes();
 
-    // Use the bbox property instead of recalculating it
-    const borderSize = this.getBoundingRect();
-    const frame = 1.5 * this.xHeight / 4;
-
-
-    // Track which objects are updated to prevent recursive operations
-    const updatedObjects = new Set();
-    if (globalAnchorTree.updateInProgress) {
-      sourceList = sourceList || [];
-      updatedObjects.add(this.canvasID);
-    }
-
     // Handle VDividers
     for (const d of this.VDivider) {
-      // Skip if already updated in this cycle
-      if (updatedObjects.has(d.canvasID)) continue;
-      updatedObjects.add(d.canvasID);
 
       // Store initial positions
       const initialLeft = d.getEffectiveCoords()[0].x;
-      const initialTop = d.top;
-      const needsUpdate = !d.bbox || d.top !== this.inbbox.top || d.height !== this.inbbox.height;
 
-      /* Legacy
-      // Check if divider has fixed distance values
-      if (d.fixedLeftValue || d.fixedRightValue) {
-        let newLeft = d.fixedLeftValue ? this.left + d.fixedLeftValue : this.left + this.width - d.fixedRightValue
-        newLeft = newLeft - d.width / 2
-
-        if (needsUpdate) {
-          // Redraw the divider with the border's dimensions
-          const res = drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, this.inbbox, d.functionalType);
-          d.replaceBasePolygon(res);
-
-          // Position divider vertically same as before
-          d.set({ top: this.inbbox.bottom - d.height - DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4, });
-
-          // For fixed values, anchor to the border instead of objects
-          // Priority: use the right value if both are specified
-          if (d.fixedRightValue !== undefined) {
-            // Anchor to right of border
-            d.set({
-              left: this.left + this.width - d.fixedRightValue - d.width / 2
-            });
-
-            // Remove any existing anchoring but don't trigger further updates
-            if (d.lockXToPolygon && Object.keys(d.lockXToPolygon).length > 0) {
-              removeAnchor(d.lockXToPolygon.TargetObject, d);
-
-            }
-          } else if (d.fixedLeftValue !== undefined) {
-            // Anchor to left of border
-            d.set({
-              left: this.left + d.fixedLeftValue - d.width / 2
-            });
-          }
-
-          // Update positions without triggering further updates
-          this.updateDividerCoords(d);
-        }
-      } else if (needsUpdate) {
-        // Regular object-anchored divider
-        */
       const res = drawDivider(
         d.xHeight,
         d.color,
@@ -781,114 +724,10 @@ class BorderGroup extends BaseGroup {
 
     // Handle HDividers
     for (const d of this.HDivider) {
-      // Skip if already updated in this cycle
-      if (updatedObjects.has(d.canvasID)) continue;
-      updatedObjects.add(d.canvasID);
 
       // Store initial position
       const initialTop = d.getEffectiveCoords()[0].y;
-      const initialLeft = d.left;
-      const needsUpdate = !d.bbox || d.left !== this.inbbox.left || d.width !== this.inbbox.width;
-
-      /* Legacy
-    // Check if divider has fixed distance values
-    if (d.fixedTopValue || d.fixedBottomValue) {
-      if (needsUpdate) {
-        // Redraw the divider with the border's dimensions
-        const res = drawDivider(
-          d.xHeight,
-          d.color,
-          {
-            left: d.left,
-            top: d.top
-          },
-          this.inbbox,
-          d.functionalType
-        );
-        d.replaceBasePolygon(res);
-
-        // Position divider horizontally same as before
-        d.set({ left: this.inbbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
-
-        // For fixed values, anchor to the border instead of objects
-        if (d.fixedBottomValue !== undefined) {
-          // Anchor to bottom of border
-          d.set({
-            top: this.top + this.height - d.fixedBottomValue - d.height / 2
-          });
-
-          // Remove any existing anchoring but don't trigger cascading updates
-          if (d.lockYToPolygon && Object.keys(d.lockYToPolygon).length > 0) {
-            removeAnchor(d.lockYToPolygon.TargetObject, d);
-          }
-        } else if (d.fixedTopValue !== undefined) {
-          // Anchor to top of border
-          d.set({
-            top: this.top + d.fixedTopValue - d.height / 2
-          });
-        }
-
-        // Update positions without triggering further updates
-        this.updateDividerCoords(d);
-      }
-    } else if (needsUpdate) {
-
-      // For HLine dividers, check if there are vertical dividers and calculate the correct cell
-      if (d.functionalType === 'HLine' && this.compartmentBboxes.length > 1) {
-        // Find the compartment that contains the HLine's horizontal position
-        const hLinePosition = d.left + (d.width / 2);
-        const hLineVerticalPosition = d.top;
-
-        // Find the appropriate compartment
-        const matchingCompartments = this.compartmentBboxes.filter(cmp =>
-          hLinePosition >= cmp.left &&
-          hLinePosition <= cmp.right
-        );
-
-        if (matchingCompartments.length > 0) {
-
-          const cellBbox = matchingCompartments[0];
-
-          // Draw the HLine with the cell-specific bbox
-          const res = drawDivider(
-            d.xHeight,
-            d.color,
-            {
-              left: cellBbox.left,
-              top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4
-            },
-            cellBbox,
-            d.functionalType
-          );
-          d.replaceBasePolygon(res);
-
-
-        } else {
-
-          // No matching compartment found, use the border's bbox
-          const res = drawDivider(
-            d.xHeight,
-            d.color,
-            {
-              left: d.left,
-              top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4
-            },
-            this.inbbox,
-            d.functionalType
-          );
-
-          d.replaceBasePolygon(res);
-          d.set({
-            top: initialTop,
-            left: this.inbbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4
-          });
-        }
-
-      } else {
-        */
-      // Regular HDivider or HLine without VDividers
-
-
+     
       const res = drawDivider(d.xHeight, d.color, {
         left: d.left,
         top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4

@@ -1065,7 +1065,9 @@ class BaseGroup extends fabric.Group {
           if (idx > -1) arr.splice(idx, 1);
         }
       });
-      deleteObj.borderResize();
+      if (deleteObj.functionalType !== 'HDivider' && deleteObj.functionalType !== 'VDivider'){
+        deleteObj.borderResize();
+      }
     }
 
     // If this is a borderGroup

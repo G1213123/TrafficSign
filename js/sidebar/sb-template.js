@@ -479,7 +479,7 @@ let FormTemplateComponent = {
         vertexIndex1: 'E2',
         vertexIndex2: 'E6',
         spacingX: '',
-        spacingY: xHeight * 2 / 4
+        spacingY: xHeight / 4
       });
 
       // Create an overall green border containing all components (divider will be added after)
@@ -501,9 +501,44 @@ let FormTemplateComponent = {
       const verticalDivider = new DividerObject({ dividerType: 'VDivider', borderGroup: borderGroup, xHeight: xHeight, colorType: 'Green Background' });
 
       // Anchor leftBorder (left side) to divider and divider to one of the right side objects for relative positioning if not already constrained
-  anchorShape(leftBorder, verticalDivider, { vertexIndex1: 'E1', vertexIndex2: 'E3', spacingX: DividerMargin['VDivider'].right * xHeight / 4, spacingY: '' });
-  anchorShape(verticalDivider, rightChiText2, { vertexIndex1: 'E1', vertexIndex2: 'E3', spacingX: DividerMargin['VDivider'].left * xHeight / 4, spacingY: '' });
+      anchorShape(leftBorder, verticalDivider,
+        {
+          vertexIndex1: 'V1',
+          vertexIndex2: 'E4',
+          spacingX: 2.5 * xHeight / 4,
+          spacingY: ''
+        });
+        
+      anchorShape(verticalDivider, rightChiText2,
+        {
+          vertexIndex1: 'E1',
+          vertexIndex2: 'V6',
+          spacingX: 2.5 * xHeight / 4,
+          spacingY: ''
+        });
 
+      anchorShape(leftBorder, rightChiText2, {
+        vertexIndex1: 'E6',
+        vertexIndex2: 'E6',
+        spacingX: '',
+        spacingY: 0
+      });
+
+      anchorShape(rightChiText2, rightEngText2, {
+        vertexIndex1: 'E6',
+        vertexIndex2: 'E2',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      anchorShape(rightEngText2, rightEngText1, {
+        vertexIndex1: 'E6',
+        vertexIndex2: 'E2',
+        spacingX: 0,
+        spacingY: 0
+      });
+
+      // Anchor Gantry Arrows
       anchorShape(borderGroup, leftArrow, {
         vertexIndex1: 'E2',
         vertexIndex2: 'C2',
@@ -522,27 +557,6 @@ let FormTemplateComponent = {
         vertexIndex1: 'E1',
         vertexIndex2: 'E1',
         spacingX: '',
-        spacingY: 0
-      });
-
-      anchorShape(rightArrow, rightChiText2, {
-        vertexIndex1: 'E6',
-        vertexIndex2: 'E2',
-        spacingX: '',
-        spacingY: -xHeight * 1 / 4
-      });
-
-      anchorShape(rightChiText2, rightEngText2, {
-        vertexIndex1: 'E6',
-        vertexIndex2: 'E2',
-        spacingX: 0,
-        spacingY: 0
-      });
-
-      anchorShape(rightEngText2, rightEngText1, {
-        vertexIndex1: 'E6',
-        vertexIndex2: 'E2',
-        spacingX: 0,
         spacingY: 0
       });
 
@@ -707,8 +721,6 @@ let FormTemplateComponent = {
       });
       const airport = canvasObject[canvasObject.length - 1];
 
-  // (Divider will be created after the border)
-
       // Anchor text objects in pairs
       anchorShape(midDestinationText, midChineseText, {
         vertexIndex1: 'E1',
@@ -799,17 +811,11 @@ let FormTemplateComponent = {
       const borderGroup1 = BorderUtilities.BorderGroupCreate(
         'stack',
         topObjects,
-        botObjects,
+        topObjects,
         null,
         null,
-        { xHeight: xHeight, borderType: 'stack', colorType: 'Green Background' }
+        { xHeight: xHeight, borderType: 'stack', colorType: 'Blue Background' }
       );
-
-      // Create horizontal divider AFTER border so it is sized by assignWidthToDivider
-      const topDivider = new DividerObject({ dividerType: 'HDivider', borderGroup: borderGroup1, xHeight: xHeight, colorType: 'White Background' });
-      // Anchor the objects above and below to the divider to preserve vertical spacing
-  anchorShape(midChineseText, topDivider, { vertexIndex1: 'E2', vertexIndex2: 'E6', spacingX: '', spacingY: DividerMargin['HDivider'].top * xHeight / 4 });
-  anchorShape(topDivider, botDestinationText, { vertexIndex1: 'E2', vertexIndex2: 'E6', spacingX: '', spacingY: DividerMargin['HDivider'].bottom * xHeight / 4 });
 
       const borderGroup2 = BorderUtilities.BorderGroupCreate(
         'stack',
@@ -819,6 +825,25 @@ let FormTemplateComponent = {
         null,
         { xHeight: xHeight, borderType: 'stack', colorType: 'White Background' }
       );
+
+      // Create horizontal divider AFTER border so it is sized by assignWidthToDivider
+      const topDivider = new DividerObject({ dividerType: 'HDivider', borderGroup: borderGroup2, xHeight: xHeight, colorType: 'White Background' });
+      // Anchor the objects above and below to the divider to preserve vertical spacing
+      anchorShape(midChineseText, topDivider,
+        {
+          vertexIndex1: 'V1',
+          vertexIndex2: 'E6',
+          spacingX: '',
+          spacingY: 1.5 * xHeight / 4
+        });
+
+      anchorShape(topDivider, botDestinationText,
+        {
+          vertexIndex1: 'E2',
+          vertexIndex2: 'V6',
+          spacingX: '',
+          spacingY: 2.5 * xHeight / 4
+        });
 
       anchorShape(borderGroup2, midArrow, {
         vertexIndex1: 'E8',
@@ -871,7 +896,7 @@ let FormTemplateComponent = {
       const routeOptions = {
         routeList: [
           { x: centerX, y: centerY + 5 * xHeight, angle: 180, width: 6, shape: 'Normal' },
-          { x: centerX, y: centerY, angle: 0, width: 6, length:30, shape: 'Stub' }
+          { x: centerX, y: centerY, angle: 0, width: 6, length: 30, shape: 'Stub' }
         ],
         xHeight: xHeight,
         rootLength: 7,
@@ -1764,10 +1789,6 @@ let FormTemplateComponent = {
         spacingY: 0
       });
 
-      // Create lane dividers
-      new DividerObject({ dividerType: 'VLane', leftObjects: [chtSymbol], rightObjects: [rightLaneText1], leftValue: null, rightValue: null, xHeight: xHeight, colorType: 'Blue Background', });
-      const leftLaneDivider = canvasObject[canvasObject.length - 1];
-
       // Anchor text objects in pairs
       anchorShape(chtSymbol, leftLaneText1, {
         vertexIndex1: 'E3',
@@ -1853,7 +1874,6 @@ let FormTemplateComponent = {
         rightLaneText1, rightChineseText1, rightLaneText2, rightChineseText2,
         leftArrow, rightArrow,
         chtSymbol, ehcSymbol, routeSymbol,
-        leftLaneDivider
       ];
 
       const borderGroup = BorderUtilities.BorderGroupCreate(
@@ -1864,6 +1884,25 @@ let FormTemplateComponent = {
         null,
         { xHeight: xHeight, borderType: 'stack', colorType: 'Blue Background' }
       );
+
+
+      // Create lane dividers
+      new DividerObject({ dividerType: 'VLane', borderGroup: borderGroup, xHeight: xHeight, colorType: 'Blue Background', });
+      const leftLaneDivider = canvasObject[canvasObject.length - 1];
+
+      anchorShape(chtSymbol, leftLaneDivider, {
+        vertexIndex1: 'V4',
+        vertexIndex2: 'E3',
+        spacingX: 2.5 * xHeight / 4,
+        spacingY: ''
+      });
+
+      anchorShape(leftLaneDivider, rightLaneText1, {
+        vertexIndex1: 'E1',
+        vertexIndex2: 'V3',
+        spacingX: 2.5 * xHeight / 4,
+        spacingY: ''
+      });
 
       anchorShape(borderGroup, leftArrow, {
         vertexIndex1: 'E2',

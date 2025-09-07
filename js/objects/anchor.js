@@ -603,6 +603,17 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   const movingPoint = shape2.getBasePolygonVertex(vertexIndex1.toUpperCase())
   const targetPoint = shape1.getBasePolygonVertex(vertexIndex2.toUpperCase())
 
+  if (!movingPoint) {
+    alert(`Vertex ${vertexIndex1.toUpperCase()} not found in shape to be moved (ID: ${shape2._showName})`);
+    document.addEventListener('keydown', ShowHideSideBarEvent);
+    return Promise.reject('anchor_invalid_vertex1');
+  }
+  if (!targetPoint) {
+    alert(`Vertex ${vertexIndex2.toUpperCase()} not found in target shape (ID: ${shape1._showName})`);
+    document.addEventListener('keydown', ShowHideSideBarEvent);
+    return Promise.reject('anchor_invalid_vertex2');
+  }
+
   // Track anchor operations - prepare tracking params
   const anchorTrackParams = {
     type: 'Anchor',
@@ -630,7 +641,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   let appliedDeltaY = false;
 
   // Add X axis anchoring
-  if (!isNaN(parseInt(spacingX)) && !isHorizontalDivider) { // Skip X anchoring for horizontal dividers
+  if (!isNaN(parseInt(spacingX)) && spacingX !== '' && !isHorizontalDivider) { // Skip X anchoring for horizontal dividers
     if (globalAnchorTree.hasCircularDependency('x', shape2.canvasID, shape1.canvasID)) {
       alert("Cannot create anchor: would create a circular dependency in X axis");
     } else {
@@ -655,7 +666,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   }
 
   // Add Y axis anchoring
-  if (!isNaN(parseInt(spacingY)) && !isVerticalDivider) { // Skip Y anchoring for vertical dividers
+  if (!isNaN(parseInt(spacingY)) && spacingY !== '' && !isVerticalDivider) { // Skip Y anchoring for vertical dividers
     if (globalAnchorTree.hasCircularDependency('y', shape2.canvasID, shape1.canvasID)) {
       alert("Cannot create anchor: would create a circular dependency in Y axis");
     } else {

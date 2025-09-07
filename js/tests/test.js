@@ -2201,7 +2201,7 @@ const TemplateTest = {
     'Lane Sign': { width: 3950, height: 1600, left: -7606, top: 7998 }, // Placeholder values
     'Roundabout Sign': { width: 3800, height: 3250, left: -3488, top: 6019 }, // Placeholder values
     'Spiral Roundabout Sign': { width: 3800, height: 3250, left: 1794, top: 6230 }, // Placeholder values, may be null if not fully implemented
-    'Gantry Sign': { width: 7900, height: 2700, left: 7493, top: 7306 }, // Placeholder values
+    'Gantry Sign': { width: 7900, height: 2700, left: 7493, top: 7244 }, // Placeholder values
     'Diverge Sign ': { width: 2950, height: 5900, left: 17320, top: 7605 }, // Placeholder values
     // Add entries for any other templates
   },
