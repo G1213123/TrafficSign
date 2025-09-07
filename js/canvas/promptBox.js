@@ -216,25 +216,57 @@ function hideTextBox() {
   }, 1000); // Delay in milliseconds (e.g., 1000ms = 1 second)
 }
 
-async function selectObjectHandler(text, callback, options = null, xHeight = null, unit = 'mm') {
-  // prompt for user to select shape
-  const response = await showTextBox(text, ' ', 'keydown', null, xHeight, unit)
-  // Check if the response is null (user pressed 'Esc')
-  if (response === null) {
-    hideTextBox();
-    return;
+async function selectObjectHandler(text, callback, options = null, xHeight = null, unit = 'mm', skipTextBox = false, requiredTypes = null) {
+  /*
+    Parameters:
+      text: prompt text when textbox is shown
+      callback: function(selectedObjects, options, response, xHeight)
+      options, xHeight, unit: existing parameters
+      skipTextBox (bool): if true, do not show prompt/answer box
+      requiredTypes (string|array|null): acceptable functionalType(s); null means accept any
+
+    Behavior:
+      - If skipTextBox is true and there's a current active selection that matches requiredTypes, immediately invoke callback.
+      - Otherwise (or if no valid selection yet), optionally show textbox (unless skipTextBox) and start polling for a valid selection.
+      - When a selection exists, ensure every active object matches requiredTypes (or at least one? -> we choose ALL must match). If matches, trigger callback.
+  */
+
+  const matchesRequiredType = (obj) => {
+    if (!requiredTypes) return true; // no restriction
+    if (Array.isArray(requiredTypes)) return requiredTypes.includes(obj.functionalType);
+    return obj.functionalType === requiredTypes;
+  };
+
+  let response = '';
+
+  if (!skipTextBox) {
+    response = await showTextBox(text, ' ', 'keydown', null, xHeight, unit);
+    if (response === null) { // user cancelled
+      hideTextBox();
+      return;
+    }
+  } else {
+    // If skipping textbox, set a non-empty response token so downstream condition passes
+    response = 'skip';
+    const preActive = canvas.getActiveObjects();
+    if (preActive.length > 0 && preActive.every(matchesRequiredType)) {
+      // Immediately process existing selection
+      hideTextBox(); // no-op if not shown
+      const successSelected = [...preActive];
+      canvas.discardActiveObject();
+      canvas.renderAll();
+      callback(successSelected, options, response, xHeight);
+      return;
+    }
   }
-  // Update text box position to follow the cursor 
-  //cursorClickMode = 'select'
-  // Periodically check if shape is selected 
+
+  // Start polling for user selection (only if we haven't returned yet)
   const checkShapeInterval = setInterval(() => {
     const activeObjects = canvas.getActiveObjects();
-    if (activeObjects.length > 0 && response !== '') {
-      //cursorClickMode = 'normal'
-      clearInterval(checkShapeInterval)
-      hideTextBox()
-      const successSelected = canvas.getActiveObjects()
-      // Clear the selected object from active
+    if (activeObjects.length > 0 && response !== '' && activeObjects.every(matchesRequiredType)) {
+      clearInterval(checkShapeInterval);
+      hideTextBox();
+      const successSelected = [...activeObjects];
       canvas.discardActiveObject();
       canvas.renderAll();
       callback(successSelected, options, response, xHeight);

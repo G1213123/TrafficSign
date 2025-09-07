@@ -116,11 +116,11 @@ class GlyphPath extends fabric.Group {
           ascender: fontGlyphs.ascender,
           descender: fontGlyphs.descender,
         };
-        
+
         // Scale metrics to desired font size
         const fontScale = textElem.fontSize / fontMetrics.unitsPerEm;
         const scaledAscender = (fontMetrics.unitsPerEm - fontMetrics.ascender) * fontScale;
-        
+
         const yOffset = scaledAscender;
         textElem.y = textElem.y - yOffset;
         const charPath = getFontPath(textElem);
@@ -483,7 +483,7 @@ class BaseGroup extends fabric.Group {
       const oldLeft = this.left; // Store old left position since symbols path have negative left values
       //canvas.remove(this.basePolygon);
       this.add(this.basePolygon);
-      if (this.functionalType== 'Symbol'){
+      if (this.functionalType == 'Symbol') {
         this.basePolygon.vertex.forEach((v) => {
           v.x += oldLeft - this.left;
         })
@@ -539,11 +539,12 @@ class BaseGroup extends fabric.Group {
       this.basePolygon.vertex = this.basePolygon.vertex.filter(v => !v.label.startsWith('E'));
       let basePolygonCoords = Object.values(this.basePolygon.getCoords());
       basePolygonCoords.forEach((p, i) => {
-        this.basePolygon.vertex.push({ x: p.x, y: p.y, label: `E${i * 2 + 1}` });
+        this.basePolygon.vertex.push({ x: p.x, y: p.y, label: `E${i * 2 + 1}`, display: 1 });
         const midpoint = {
           x: (p.x + basePolygonCoords[(i + 1 === basePolygonCoords.length) ? 0 : i + 1].x) / 2,
           y: (p.y + basePolygonCoords[(i + 1 === basePolygonCoords.length) ? 0 : i + 1].y) / 2,
-          label: `E${(i + 1) * 2}`
+          label: `E${(i + 1) * 2}`,
+          display: 1
         };
         this.basePolygon.vertex.push(midpoint);
       });
@@ -579,7 +580,7 @@ class BaseGroup extends fabric.Group {
       }
       // Rule 5: Base on display property or default to showing vertex with labels
       else {
-        shouldDisplay = (v.display !== 0);
+        shouldDisplay = (v.display == 1);
       }
 
       // Update or create control for this vertex
@@ -809,7 +810,7 @@ class BaseGroup extends fabric.Group {
     // Check for route-specific methods
     if (this.onMove) {
       this.onMove();
-    } 
+    }
     if (canvas.getActiveObject() === this) {
       this.drawAnchorLinkage();
       this.showLockHighlights();
@@ -1074,6 +1075,17 @@ class BaseGroup extends fabric.Group {
     if (deleteObj.heightObjects) {
       deleteObj.heightObjects.forEach(obj => obj.borderGroup = null)
     }
+
+    // Copy arrays to avoid mutation during iteration
+    const allDividers = [
+      ...(deleteObj.HDivider ? [...deleteObj.HDivider] : []),
+      ...(deleteObj.VDivider ? [...deleteObj.VDivider] : [])
+    ];
+    allDividers.forEach(div => {
+      if (div && typeof div.deleteObject === 'function') {
+        div.deleteObject(null, div);
+      }
+    });
     canvas.remove(deleteObj);
     CanvasObjectInspector.createObjectListPanelInit()
     canvas.requestRenderAll();

@@ -339,7 +339,7 @@ class BorderGroup extends BaseGroup {
     this.compartmentBboxes = []; // Array of compartment bounding boxes
     this.VDivider = options.VDivider || [];
     this.HDivider = options.HDivider || [];
-    
+
     // Cache for fixed dimension coordinates
     this.fixedWidthCoords = null;
     this.fixedHeightCoords = null;
@@ -366,7 +366,7 @@ class BorderGroup extends BaseGroup {
 
     this.setBasePolygon(this.drawBorder());
 
-    this.RoundingToDivider()
+    //this.RoundingToDivider()
     this.assignWidthToDivider();
     canvas.sendObjectToBack(this);
     //DrawGrid();
@@ -712,6 +712,7 @@ class BorderGroup extends BaseGroup {
       const initialTop = d.top;
       const needsUpdate = !d.bbox || d.top !== this.inbbox.top || d.height !== this.inbbox.height;
 
+      /* Legacy
       // Check if divider has fixed distance values
       if (d.fixedLeftValue || d.fixedRightValue) {
         let newLeft = d.fixedLeftValue ? this.left + d.fixedLeftValue : this.left + this.width - d.fixedRightValue
@@ -750,21 +751,32 @@ class BorderGroup extends BaseGroup {
         }
       } else if (needsUpdate) {
         // Regular object-anchored divider
-        const res = drawDivider(d.xHeight, d.color, { left: d.left, top: d.top }, this.inbbox, d.functionalType);
-        d.replaceBasePolygon(res);
+        */
+      const res = drawDivider(
+        d.xHeight,
+        d.color,
+        {
+          left: d.left - DividerMargin[d.functionalType].left * d.xHeight / 4, // adjust for left margin similar to top adjustment in HDivider
+          top: d.top
+        },
+        this.inbbox,
+        d.functionalType
+      );
+      d.replaceBasePolygon(res, false);
 
-        d.set({
-          top: this.inbbox.bottom - d.height - DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4,
-          left: initialLeft
-        });
+      // Set placeholder then clamp left inside inner border just like horizontal logic (but axis swapped)
+      d.set({
+        top: this.inbbox.bottom - d.height - DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4,
+        left: undefined // placeholder, will be clamped below
+      });
+      const minLeft = this.inbbox.left + (this.frame) * d.xHeight / 4;
+      const maxLeft = this.inbbox.right - (this.frame) * d.xHeight / 4 - d.width;
+      const clampedLeft = maxLeft >= minLeft ? Math.min(Math.max(initialLeft, minLeft), maxLeft) : minLeft;
+      d.set({ left: clampedLeft });
 
-        // Update positions without triggering further updates
-        this.updateDividerCoords(d);
-
-      }
-      d.lockMovementX = true;
+      //d.lockMovementX = true;
       d.lockMovementY = true;
-      d.enterFocusMode();
+      //d.enterFocusMode();
     }
 
     // Handle HDividers
@@ -778,101 +790,82 @@ class BorderGroup extends BaseGroup {
       const initialLeft = d.left;
       const needsUpdate = !d.bbox || d.left !== this.inbbox.left || d.width !== this.inbbox.width;
 
-      // Check if divider has fixed distance values
-      if (d.fixedTopValue || d.fixedBottomValue) {
-        if (needsUpdate) {
-          // Redraw the divider with the border's dimensions
+      /* Legacy
+    // Check if divider has fixed distance values
+    if (d.fixedTopValue || d.fixedBottomValue) {
+      if (needsUpdate) {
+        // Redraw the divider with the border's dimensions
+        const res = drawDivider(
+          d.xHeight,
+          d.color,
+          {
+            left: d.left,
+            top: d.top
+          },
+          this.inbbox,
+          d.functionalType
+        );
+        d.replaceBasePolygon(res);
+
+        // Position divider horizontally same as before
+        d.set({ left: this.inbbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
+
+        // For fixed values, anchor to the border instead of objects
+        if (d.fixedBottomValue !== undefined) {
+          // Anchor to bottom of border
+          d.set({
+            top: this.top + this.height - d.fixedBottomValue - d.height / 2
+          });
+
+          // Remove any existing anchoring but don't trigger cascading updates
+          if (d.lockYToPolygon && Object.keys(d.lockYToPolygon).length > 0) {
+            removeAnchor(d.lockYToPolygon.TargetObject, d);
+          }
+        } else if (d.fixedTopValue !== undefined) {
+          // Anchor to top of border
+          d.set({
+            top: this.top + d.fixedTopValue - d.height / 2
+          });
+        }
+
+        // Update positions without triggering further updates
+        this.updateDividerCoords(d);
+      }
+    } else if (needsUpdate) {
+
+      // For HLine dividers, check if there are vertical dividers and calculate the correct cell
+      if (d.functionalType === 'HLine' && this.compartmentBboxes.length > 1) {
+        // Find the compartment that contains the HLine's horizontal position
+        const hLinePosition = d.left + (d.width / 2);
+        const hLineVerticalPosition = d.top;
+
+        // Find the appropriate compartment
+        const matchingCompartments = this.compartmentBboxes.filter(cmp =>
+          hLinePosition >= cmp.left &&
+          hLinePosition <= cmp.right
+        );
+
+        if (matchingCompartments.length > 0) {
+
+          const cellBbox = matchingCompartments[0];
+
+          // Draw the HLine with the cell-specific bbox
           const res = drawDivider(
             d.xHeight,
             d.color,
             {
-              left: d.left,
-              top: d.top
+              left: cellBbox.left,
+              top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4
             },
-            this.inbbox,
+            cellBbox,
             d.functionalType
           );
           d.replaceBasePolygon(res);
 
-          // Position divider horizontally same as before
-          d.set({ left: this.inbbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 });
-
-          // For fixed values, anchor to the border instead of objects
-          if (d.fixedBottomValue !== undefined) {
-            // Anchor to bottom of border
-            d.set({
-              top: this.top + this.height - d.fixedBottomValue - d.height / 2
-            });
-
-            // Remove any existing anchoring but don't trigger cascading updates
-            if (d.lockYToPolygon && Object.keys(d.lockYToPolygon).length > 0) {
-              removeAnchor(d.lockYToPolygon.TargetObject, d);
-            }
-          } else if (d.fixedTopValue !== undefined) {
-            // Anchor to top of border
-            d.set({
-              top: this.top + d.fixedTopValue - d.height / 2
-            });
-          }
-
-          // Update positions without triggering further updates
-          this.updateDividerCoords(d);
-        }
-      } else if (needsUpdate) {
-
-        // For HLine dividers, check if there are vertical dividers and calculate the correct cell
-        if (d.functionalType === 'HLine' && this.compartmentBboxes.length > 1) {
-          // Find the compartment that contains the HLine's horizontal position
-          const hLinePosition = d.left + (d.width / 2);
-          const hLineVerticalPosition = d.top;
-
-          // Find the appropriate compartment
-          const matchingCompartments = this.compartmentBboxes.filter(cmp =>
-            hLinePosition >= cmp.left &&
-            hLinePosition <= cmp.right
-          );
-
-          if (matchingCompartments.length > 0) {
-
-            const cellBbox = matchingCompartments[0];
-
-            // Draw the HLine with the cell-specific bbox
-            const res = drawDivider(
-              d.xHeight,
-              d.color,
-              {
-                left: cellBbox.left,
-                top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4
-              },
-              cellBbox,
-              d.functionalType
-            );
-            d.replaceBasePolygon(res);
-
-
-          } else {
-
-            // No matching compartment found, use the border's bbox
-            const res = drawDivider(
-              d.xHeight,
-              d.color,
-              {
-                left: d.left,
-                top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4
-              },
-              this.inbbox,
-              d.functionalType
-            );
-
-            d.replaceBasePolygon(res);
-            d.set({
-              top: initialTop,
-              left: this.inbbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4
-            });
-          }
 
         } else {
-          // Regular HDivider or HLine without VDividers
+
+          // No matching compartment found, use the border's bbox
           const res = drawDivider(
             d.xHeight,
             d.color,
@@ -883,20 +876,43 @@ class BorderGroup extends BaseGroup {
             this.inbbox,
             d.functionalType
           );
+
           d.replaceBasePolygon(res);
           d.set({
             top: initialTop,
             left: this.inbbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4
           });
-
         }
 
-        // Update positions without triggering further updates
-        this.updateDividerCoords(d);
-      }
+      } else {
+        */
+      // Regular HDivider or HLine without VDividers
+
+
+      const res = drawDivider(d.xHeight, d.color, {
+        left: d.left,
+        top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4
+      },
+        this.inbbox,
+        d.functionalType
+      );
+      d.replaceBasePolygon(res, false);
+
+      d.set({
+        // Ensure horizontal divider stays within inner border vertical bounds
+        // (variables declared before calling d.set)
+        top: undefined, // placeholder, will be overwritten below
+        left: this.inbbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4
+      });
+      // Compute clamped top AFTER initial set to use existing measurements
+      const minTop = this.inbbox.top + (this.frame) * d.xHeight / 4;
+      const maxTop = this.inbbox.bottom - (this.frame) * d.xHeight / 4 - d.height;
+      const clampedTop = maxTop >= minTop ? Math.min(Math.max(initialTop, minTop), maxTop) : minTop;
+      d.set({ top: clampedTop });
+
       d.lockMovementX = true;
-      d.lockMovementY = true;
-      d.enterFocusMode();
+      //d.lockMovementY = true;
+      //d.enterFocusMode();
     }
 
     // After all dividers are repositioned, update the bboxes again
@@ -1067,7 +1083,7 @@ class BorderGroup extends BaseGroup {
   calcfixedBboxes(isInitialization = false) {
     // Get the bounding box of the active selection for dynamic dimensions
     let coords = BorderUtilities.getBorderObjectCoords(this.heightObjects, this.widthObjects);
-    
+
     // Debug: check for NaN values in initial coords
     if (isNaN(coords.left) || isNaN(coords.top) || isNaN(coords.right) || isNaN(coords.bottom)) {
       console.error('calcfixedBboxes: Initial coords contain NaN values:', coords);
@@ -1076,7 +1092,7 @@ class BorderGroup extends BaseGroup {
       // Set default values to prevent further NaN propagation
       coords = { left: 0, top: 0, right: 100, bottom: 100 };
     }
-    
+
     this.innerPadding = { x: 0, y: 0 };
 
     // Apply inner padding
@@ -1094,19 +1110,19 @@ class BorderGroup extends BaseGroup {
       if (isInitialization || !this.fixedWidthCoords) {
         // Calculate fixed width coordinates only during initialization or if not cached
         const borderCoords = canvas.calcViewportBoundaries();
-        
+
         if (!borderCoords || !borderCoords.tl || !borderCoords.br) {
           console.error('calcfixedBboxes: Invalid borderCoords:', borderCoords);
         } else {
           const centerX = (borderCoords.tl.x + borderCoords.br.x) / 2;
           const leftPadding = (this.frame + this.defaultPadding.left) * this.xHeight / 4;
           const rightPadding = (this.frame + this.defaultPadding.right) * this.xHeight / 4;
-          
+
           this.fixedWidthCoords = {
             left: centerX - parseInt(this.fixedWidth) / 2 + leftPadding,
             right: centerX + parseInt(this.fixedWidth) / 2 - rightPadding
           };
-          
+
           // Debug: check for NaN in width calculations
           if (isNaN(this.fixedWidthCoords.left) || isNaN(this.fixedWidthCoords.right)) {
             console.error('calcfixedBboxes: NaN in width calculations:', {
@@ -1121,7 +1137,7 @@ class BorderGroup extends BaseGroup {
           }
         }
       }
-      
+
       // Use cached fixed width coordinates
       if (this.fixedWidthCoords) {
         coords.left = this.fixedWidthCoords.left;
@@ -1135,19 +1151,19 @@ class BorderGroup extends BaseGroup {
       if (isInitialization || !this.fixedHeightCoords) {
         // Calculate fixed height coordinates only during initialization or if not cached
         const borderCoords = canvas.calcViewportBoundaries();
-        
+
         if (!borderCoords || !borderCoords.tl || !borderCoords.br) {
           console.error('calcfixedBboxes: Invalid borderCoords:', borderCoords);
         } else {
           const centerY = (borderCoords.tl.y + borderCoords.br.y) / 2;
           const topPadding = (this.frame + this.defaultPadding.top) * this.xHeight / 4;
           const bottomPadding = (this.frame + this.defaultPadding.bottom) * this.xHeight / 4;
-          
+
           this.fixedHeightCoords = {
             top: centerY - parseInt(this.fixedHeight) / 2 + topPadding,
             bottom: centerY + parseInt(this.fixedHeight) / 2 - bottomPadding
           };
-          
+
           // Debug: check for NaN in height calculations
           if (isNaN(this.fixedHeightCoords.top) || isNaN(this.fixedHeightCoords.bottom)) {
             console.error('calcfixedBboxes: NaN in height calculations:', {
@@ -1162,7 +1178,7 @@ class BorderGroup extends BaseGroup {
           }
         }
       }
-      
+
       // Use cached fixed height coordinates
       if (this.fixedHeightCoords) {
         coords.top = this.fixedHeightCoords.top;
@@ -1177,7 +1193,7 @@ class BorderGroup extends BaseGroup {
       // Set default values to prevent further issues
       coords = { left: 0, top: 0, right: 100, bottom: 100 };
     }
-    
+
     this.inbbox = coords;
   }
 

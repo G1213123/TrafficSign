@@ -5,6 +5,7 @@ import { TextObject } from '../objects/text.js';
 import { SymbolObject } from '../objects/symbols.js';
 import { BorderUtilities } from '../objects/border.js';
 import { DividerObject } from '../objects/divider.js';
+import { DividerMargin } from '../objects/template.js';
 import { MainRoadSymbol, SideRoadSymbol } from '../objects/route.js';
 import { anchorShape } from '../objects/anchor.js';
 
@@ -481,15 +482,10 @@ let FormTemplateComponent = {
         spacingY: xHeight * 2 / 4
       });
 
-      // Create vertical divider between compartments
-      new DividerObject({ dividerType: 'VDivider', leftObjects: [leftBorder], rightObjects: [rightChiText2], leftValue: null, rightValue: null, xHeight: xHeight, colorType: 'Green Background', });
-      const verticalDivider = canvasObject[canvasObject.length - 1];
-
-      // Create an overall green border containing all components
+      // Create an overall green border containing all components (divider will be added after)
       const allObjects = [
         leftBorder,
-        rightEngText1, rightEngText2, rightChiText2, rightArrow,
-        verticalDivider
+        rightEngText1, rightEngText2, rightChiText2, rightArrow
       ];
 
       const borderGroup = BorderUtilities.BorderGroupCreate(
@@ -500,6 +496,13 @@ let FormTemplateComponent = {
         null,
         { xHeight: xHeight, borderType: 'stack', colorType: 'Green Background' }
       );
+
+      // Create vertical divider AFTER border so sizing logic runs inside border.assignWidthToDivider
+      const verticalDivider = new DividerObject({ dividerType: 'VDivider', borderGroup: borderGroup, xHeight: xHeight, colorType: 'Green Background' });
+
+      // Anchor leftBorder (left side) to divider and divider to one of the right side objects for relative positioning if not already constrained
+  anchorShape(leftBorder, verticalDivider, { vertexIndex1: 'E1', vertexIndex2: 'E3', spacingX: DividerMargin['VDivider'].right * xHeight / 4, spacingY: '' });
+  anchorShape(verticalDivider, rightChiText2, { vertexIndex1: 'E1', vertexIndex2: 'E3', spacingX: DividerMargin['VDivider'].left * xHeight / 4, spacingY: '' });
 
       anchorShape(borderGroup, leftArrow, {
         vertexIndex1: 'E2',
@@ -704,9 +707,7 @@ let FormTemplateComponent = {
       });
       const airport = canvasObject[canvasObject.length - 1];
 
-      // Create horizontal dividers
-      new DividerObject({ dividerType: 'HDivider', aboveObjects: [midChineseText], belowObjects: [botDestinationText], aboveValue: null, belowValue: null, xHeight: xHeight, colorType: 'White Background', });
-      const topDivider = canvasObject[canvasObject.length - 1];
+  // (Divider will be created after the border)
 
       // Anchor text objects in pairs
       anchorShape(midDestinationText, midChineseText, {
@@ -792,18 +793,23 @@ let FormTemplateComponent = {
       ];
       const botObjects = [
         midDestinationText, midChineseText, midArrow,
-        botDestinationText, botChineseText, botArrow,
-        topDivider
+        botDestinationText, botChineseText, botArrow
       ];
 
       const borderGroup1 = BorderUtilities.BorderGroupCreate(
         'stack',
         topObjects,
-        topObjects,
+        botObjects,
         null,
         null,
-        { xHeight: xHeight, borderType: 'stack', colorType: 'Blue Background' }
+        { xHeight: xHeight, borderType: 'stack', colorType: 'Green Background' }
       );
+
+      // Create horizontal divider AFTER border so it is sized by assignWidthToDivider
+      const topDivider = new DividerObject({ dividerType: 'HDivider', borderGroup: borderGroup1, xHeight: xHeight, colorType: 'White Background' });
+      // Anchor the objects above and below to the divider to preserve vertical spacing
+  anchorShape(midChineseText, topDivider, { vertexIndex1: 'E2', vertexIndex2: 'E6', spacingX: '', spacingY: DividerMargin['HDivider'].top * xHeight / 4 });
+  anchorShape(topDivider, botDestinationText, { vertexIndex1: 'E2', vertexIndex2: 'E6', spacingX: '', spacingY: DividerMargin['HDivider'].bottom * xHeight / 4 });
 
       const borderGroup2 = BorderUtilities.BorderGroupCreate(
         'stack',

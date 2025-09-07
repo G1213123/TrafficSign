@@ -236,7 +236,7 @@ class VertexControl extends fabric.Control {
 
                     // Apply the position update with the calculated offset, respecting lock properties
                     if (!this.baseGroup.lockMovementX) {
-                        
+
                         this.baseGroup.routeList[0].x = finalPointer.x + offsetX;
                     }
                     if (!this.baseGroup.lockMovementY) {
@@ -262,7 +262,7 @@ class VertexControl extends fabric.Control {
                 // Compare current branch root to main road tip (routeList[1])
                 const mainTipX = this.baseGroup.mainRoad.routeList[1].x;
                 this.baseGroup.side = this.baseGroup.routeList[0].x < mainTipX;
-                this.baseGroup.routeList[0].angle = this.baseGroup.side? -Math.abs(this.baseGroup.routeList[0].angle) : Math.abs(this.baseGroup.routeList[0].angle);
+                this.baseGroup.routeList[0].angle = this.baseGroup.side ? -Math.abs(this.baseGroup.routeList[0].angle) : Math.abs(this.baseGroup.routeList[0].angle);
             }
             // Process route changes in a single update cycle, but only for directions that aren't locked
             let updateX = !this.baseGroup.lockMovementX;
@@ -307,14 +307,16 @@ class VertexControl extends fabric.Control {
 
             // Check each vertex
             obj.basePolygon.vertex.forEach(vertex => {
-                const dx = vertex.x - (pointer.x);
-                const dy = vertex.y - (pointer.y);
-                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (vertex.display === 1) {
+                    const dx = vertex.x - (pointer.x);
+                    const dy = vertex.y - (pointer.y);
+                    const distance = Math.sqrt(dx * dx + dy * dy);
 
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    closestVertex = vertex;
-                    closestObject = obj;
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        closestVertex = vertex;
+                        closestObject = obj;
+                    }
                 }
             });
         });
@@ -409,21 +411,29 @@ class VertexControl extends fabric.Control {
 
             // Start the anchor process with the saved snap target
             setTimeout(() => {
-                anchorShape(
+                const self = this; // preserve context
+                const maybePromise = anchorShape(
                     savedSnapTarget.object,
                     savedBaseGroup,
                     {
                         vertexIndex1: savedVertex.label,
                         vertexIndex2: savedSnapTarget.vertex.label
                     }
-                ).then(() => {
-                    // Reset the flag after anchoring completes
-                    setTimeout(() => {
+                );
+                // If anchorShape returned a promise, attach handlers; else treat as cancelled
+                if (maybePromise && typeof maybePromise.then === 'function') {
+                    maybePromise.then(() => {
+                        setTimeout(() => { vertexSnapInProgress = false; }, 300);
+                    }).catch(() => {
+                        // Restore original position on cancellation/error
+                        self.restoreOriginalPosition();
                         vertexSnapInProgress = false;
-                    }, 300);
-                }).catch(() => {
+                    });
+                } else {
+                    // Cancellation occurred before promise creation (early return in anchorShape)
+                    self.restoreOriginalPosition();
                     vertexSnapInProgress = false;
-                });
+                }
             }, 100);
             return;
         }
@@ -470,21 +480,26 @@ class VertexControl extends fabric.Control {
 
                 // Start the anchor process
                 setTimeout(() => {
-                    anchorShape(
+                    const self = this;
+                    const maybePromise = anchorShape(
                         targetObject,
                         this.baseGroup,
                         {
                             vertexIndex1: this.vertex.label,
                             vertexIndex2: closestVertex.label
                         }
-                    ).then(() => {
-                        // Reset the flag after anchoring completes
-                        setTimeout(() => {
+                    );
+                    if (maybePromise && typeof maybePromise.then === 'function') {
+                        maybePromise.then(() => {
+                            setTimeout(() => { vertexSnapInProgress = false; }, 300);
+                        }).catch(() => {
+                            self.restoreOriginalPosition();
                             vertexSnapInProgress = false;
-                        }, 300);
-                    }).catch(() => {
+                        });
+                    } else {
+                        self.restoreOriginalPosition();
                         vertexSnapInProgress = false;
-                    });
+                    }
                 }, 100);
                 return;
             }

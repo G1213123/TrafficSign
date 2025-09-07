@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "type": "chrome",
             "request": "launch",
@@ -13,7 +14,20 @@
                 "--disable-web-security"
             ],
             "skipFiles": [
+                // Existing pattern
                 "*VM*",
+                // Local dependencies
+                "${workspaceFolder}/node_modules/**",
+                // Paper.js (local copy if ever added) and CDN version
+                "**/paper-full.min.js",
+                "https://cdnjs.cloudflare.com/ajax/libs/paper.js/**",
+                // All Google ads / tag / measurement / quality helper scripts (consolidated)
+                "*google*",
+                // Eval / anonymous script frames
+                "<eval>/**",
+                // Specific VM eval chunks (e.g. <eval>/VM46947695)
+                "<eval>/VM*",
+                "<anonymous>/**"
             ]
         },
         {
@@ -23,6 +37,16 @@
             "file": "${workspaceFolder}/dist/index.html",
             "runtimeArgs": [
                 "--disable-web-security"
+            ],
+            "skipFiles": [
+                "*VM*",
+                "${workspaceFolder}/node_modules/**",
+                "**/paper-full.min.js",
+                "https://cdnjs.cloudflare.com/ajax/libs/paper.js/**",
+                "*google*",
+                "<eval>/**",
+                "<eval>/VM*",
+                "<anonymous>/**"
             ]
         }
     ]

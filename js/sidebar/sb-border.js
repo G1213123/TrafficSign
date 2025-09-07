@@ -201,47 +201,46 @@ let FormBorderWrapComponent = {
 
   StackDividerHandler: function () {
     const xHeight = parseInt(document.getElementById("input-xHeight").value);
+    // Try to use currently selected Border without showing textbox; if none, waits for user selection
     selectObjectHandler('Select the border', function (borderObject, options,) {
+      if (!borderObject || borderObject.length === 0) return;
       const color = document.getElementById('input-color').value;
       const xHeight = parseInt(document.getElementById("input-xHeight").value);
       new DividerObject({ dividerType: 'HDivider', borderGroup: borderObject[0], xHeight: xHeight, colorType: color, });
-    }, null, xHeight, 'mm');
+    }, null, xHeight, 'mm', true, 'Border');
   },
 
   GantryDividerHandler: function () {
     const xHeight = parseInt(document.getElementById("input-xHeight").value);
-    selectObjectHandler('Select object left to divider or type in fixed distance to border left', function (leftObject, options, leftValue) {
-      selectObjectHandler('Select object right to divider or type in fixed distance to border right', function (rightObject, options, rightValue) {
-        // Pass both objects and entered values to allow for fixed distance options
-        const color = document.getElementById('input-color').value;
-        const xHeight = parseInt(document.getElementById("input-xHeight").value);
-        new DividerObject({ dividerType: 'VDivider', leftObjects: leftObject, rightObjects: rightObject, leftValue: leftValue, rightValue: rightValue, xHeight: xHeight, colorType: color, });
-      }, null, xHeight, 'mm');
-    }, null, xHeight, 'mm');
+    // Select (or reuse selected) border only; legacy left/right object selection removed
+    selectObjectHandler('Select the border for gantry divider', function (borderObject) {
+      if (!borderObject || !borderObject.length) return;
+      const color = document.getElementById('input-color').value;
+      const xHeight = parseInt(document.getElementById("input-xHeight").value);
+      new DividerObject({ dividerType: 'VDivider', borderGroup: borderObject[0], xHeight: xHeight, colorType: color });
+    }, null, xHeight, 'mm', true, 'Border');
   },
 
   GantryLineHandler: function () {
     const xHeight = parseInt(document.getElementById("input-xHeight").value);
-    selectObjectHandler('Select object above divider or type in fixed distance to border top', function (aboveObject, options, aboveValue) {
-      selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
-        // Pass both objects and entered values to allow for fixed distance options
-        const color = document.getElementById('input-color').value;
-        const xHeight = parseInt(document.getElementById("input-xHeight").value);
-        new DividerObject({ dividerType: 'HLine', aboveObjects: aboveObject, belowObjects: belowObject, aboveValue: aboveValue, belowValue: belowValue, xHeight: xHeight, colorType: color, });
-      }, null, xHeight, 'mm');
-    }, null, xHeight, 'mm');
+    // Select (or reuse selected) border only; legacy above/below selection removed
+    selectObjectHandler('Select the border for gantry line', function (borderObject) {
+      if (!borderObject || !borderObject.length) return;
+      const color = document.getElementById('input-color').value;
+      const xHeight = parseInt(document.getElementById("input-xHeight").value);
+      new DividerObject({ dividerType: 'HLine', borderGroup: borderObject[0], xHeight: xHeight, colorType: color });
+    }, null, xHeight, 'mm', true, 'Border');
   },
 
   LaneLineHandler: function () {
     const xHeight = parseInt(document.getElementById("input-xHeight").value);
-    selectObjectHandler('Select object left to lane or type in fixed distance to border left', function (leftObject, options, leftValue) {
-      selectObjectHandler('Select object right to lane or type in fixed distance to border right', function (rightObject, options, rightValue) {
-        // Pass both objects and entered values to allow for fixed distance options
-        const color = document.getElementById('input-color').value;
-        const xHeight = parseInt(document.getElementById("input-xHeight").value);
-        new DividerObject({ dividerType: 'VLane', leftObjects: leftObject, rightObjects: rightObject, leftValue: leftValue, rightValue: rightValue, xHeight: xHeight, colorType: color, });
-      }, null, xHeight, 'mm');
-    }, null, xHeight, 'mm');
+    // Select (or reuse selected) border only; legacy left/right selection removed
+    selectObjectHandler('Select the border for lane separator', function (borderObject) {
+      if (!borderObject || !borderObject.length) return;
+      const color = document.getElementById('input-color').value;
+      const xHeight = parseInt(document.getElementById("input-xHeight").value);
+      new DividerObject({ dividerType: 'VLane', borderGroup: borderObject[0], xHeight: xHeight, colorType: color });
+    }, null, xHeight, 'mm', true, 'Border');
   },
 }
 

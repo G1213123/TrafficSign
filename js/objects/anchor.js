@@ -563,23 +563,42 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
 
 
   const vertexIndex1 = options.vertexIndex1 ? options.vertexIndex1 : await showTextBox('Enter vertex index for First Polygon:', 'E1')
-  if (!vertexIndex1) { setInterval(document.addEventListener('keydown', ShowHideSideBarEvent), 1000); return }
+  if (!vertexIndex1) {
+    document.addEventListener('keydown', ShowHideSideBarEvent);
+    return Promise.reject('anchor_cancelled_vertex1');
+  }
   const vertexIndex2 = options.vertexIndex2 ? options.vertexIndex2 : await showTextBox('Enter vertex index for Second Polygon:', 'E1')
-  if (!vertexIndex2) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
+  if (!vertexIndex2) {
+    document.addEventListener('keydown', ShowHideSideBarEvent);
+    return Promise.reject('anchor_cancelled_vertex2');
+  }
 
   // Check if object is already anchored in X axis
-  const isAlreadyAnchoredInX = Object.keys(shape2.lockXToPolygon || {}).length > 0;
+  const horizontalDividerTypes = ['HDivider', 'HLine'];
+  const verticalDividerTypes = ['VDivider', 'VLane'];
+  const isHorizontalDivider = horizontalDividerTypes.includes(shape2.functionalType);
+  const isVerticalDivider = verticalDividerTypes.includes(shape2.functionalType);
+
+  let isAlreadyAnchoredInX = Object.keys(shape2.lockXToPolygon || {}).length > 0;
+  let isAlreadyAnchoredInY = Object.keys(shape2.lockYToPolygon || {}).length > 0;
+
+  // Horizontal dividers' X position is managed elsewhere; treat as anchored in X
+  if (isHorizontalDivider) {
+    isAlreadyAnchoredInX = true;
+  }
+  // Vertical dividers' Y position is managed elsewhere; treat as anchored in Y
+  if (isVerticalDivider) {
+    isAlreadyAnchoredInY = true;
+  }
+
   const spacingX = options.spacingX != null ? options.spacingX :
-    isAlreadyAnchoredInX ? '' :
-      await showTextBox('Enter spacing in X \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight)
-  if (spacingX == null) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
+    (isAlreadyAnchoredInX ? '' : await showTextBox('Enter spacing in X \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight));
+  if (spacingX == null) { document.addEventListener('keydown', ShowHideSideBarEvent); return Promise.reject('anchor_cancelled_spacingX'); }
 
   // Check if object is already anchored in Y axis
-  const isAlreadyAnchoredInY = Object.keys(shape2.lockYToPolygon || {}).length > 0;
   const spacingY = options.spacingY != null ? options.spacingY :
-    isAlreadyAnchoredInY ? '' :
-      await showTextBox('Enter spacing in Y \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight)
-  if (spacingY == null) { document.addEventListener('keydown', ShowHideSideBarEvent); return }
+    (isAlreadyAnchoredInY ? '' : await showTextBox('Enter spacing in Y \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight));
+  if (spacingY == null) { document.addEventListener('keydown', ShowHideSideBarEvent); return Promise.reject('anchor_cancelled_spacingY'); }
 
   const movingPoint = shape2.getBasePolygonVertex(vertexIndex1.toUpperCase())
   const targetPoint = shape1.getBasePolygonVertex(vertexIndex2.toUpperCase())
@@ -611,7 +630,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   let appliedDeltaY = false;
 
   // Add X axis anchoring
-  if (!isNaN(parseInt(spacingX))) {
+  if (!isNaN(parseInt(spacingX)) && !isHorizontalDivider) { // Skip X anchoring for horizontal dividers
     if (globalAnchorTree.hasCircularDependency('x', shape2.canvasID, shape1.canvasID)) {
       alert("Cannot create anchor: would create a circular dependency in X axis");
     } else {
@@ -636,7 +655,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   }
 
   // Add Y axis anchoring
-  if (!isNaN(parseInt(spacingY))) {
+  if (!isNaN(parseInt(spacingY)) && !isVerticalDivider) { // Skip Y anchoring for vertical dividers
     if (globalAnchorTree.hasCircularDependency('y', shape2.canvasID, shape1.canvasID)) {
       alert("Cannot create anchor: would create a circular dependency in Y axis");
     } else {

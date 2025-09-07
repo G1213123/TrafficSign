@@ -63,18 +63,27 @@ class DividerObject extends BaseGroup {
     }
 
     initialize() {
+        // placeholder meta, resize in border assignWidthToDivider
+        const objectBBox = { left: 0, top: 0, right: 0, bottom: 0 };
+        const objectSize = { width: 0, height: 0 };
+        const basePoly = drawDivider(this.xHeight, this.color, objectBBox, objectSize, this.dividerType);
+        this.setBasePolygon(basePoly, false);
         switch (this.dividerType) {
             case 'HDivider':
             case 'HLine': {
-                const objectBBox = { left: this.borderGroup.inbbox.left, top: this.borderGroup.inbbox.top, };
-                const objectSize = { width: this.borderGroup.inbbox.right - this.borderGroup.inbbox.left };
-                const basePoly = drawDivider(this.xHeight, this.color, objectBBox, objectSize, this.dividerType);
-                this.setBasePolygon(basePoly);
-                this.set({lockMovementX: true,})
                 this.borderGroup.HDivider.push(this);
                 break;
             }
+            case 'VDivider':
+            case 'VLane': {
+                this.borderGroup.VDivider.push(this);
+                break;
+            }
+            default:
+                console.error('Unknown divider type:', this.dividerType);
+                return this;
         }
+        this.borderGroup.assignWidthToDivider();
 
         this.setCoords();
         this.updateAllCoord();
