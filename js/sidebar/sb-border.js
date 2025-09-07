@@ -201,13 +201,10 @@ let FormBorderWrapComponent = {
 
   StackDividerHandler: function () {
     const xHeight = parseInt(document.getElementById("input-xHeight").value);
-    selectObjectHandler('Select object above divider or type in fixed distance to border top', function (aboveObject, options, aboveValue) {
-      selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
-        // Pass both objects and entered values to allow for fixed distance options
-        const color = document.getElementById('input-color').value;
-        const xHeight = parseInt(document.getElementById("input-xHeight").value);
-        new DividerObject({ dividerType: 'HDivider', aboveObjects: aboveObject, belowObjects: belowObject, aboveValue: aboveValue, belowValue: belowValue, xHeight: xHeight, colorType: color, });
-      }, null, xHeight, 'mm');
+    selectObjectHandler('Select the border', function (borderObject, options,) {
+      const color = document.getElementById('input-color').value;
+      const xHeight = parseInt(document.getElementById("input-xHeight").value);
+      new DividerObject({ dividerType: 'HDivider', borderGroup: borderObject[0], xHeight: xHeight, colorType: color, });
     }, null, xHeight, 'mm');
   },
 

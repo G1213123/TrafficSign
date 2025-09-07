@@ -7,7 +7,7 @@ import { showTextBox } from '../canvas/promptBox.js';
 
 const canvas = CanvasGlobals.canvas; // Access the global canvas object
 
-function drawDivider (xHeight, color, position, size, type) {
+function drawDivider(xHeight, color, position, size, type) {
 
     // Choose the template based on the horizontal parameter
     let dividerTemplate = DividerScheme[type](xHeight, position, size, { x: 0, y: 0 }).path;
@@ -35,10 +35,13 @@ class DividerObject extends BaseGroup {
         super(null, options.dividerType, 'DividerObject', options); // Call BaseGroup constructor
 
         // Store divider-specific properties
-        this.xHeight = options.xHeight ;
-        this.colorType = options.colorType ;
+        this.xHeight = options.xHeight;
+        this.colorType = options.colorType;
         this.color = BorderColorScheme[this.colorType]['border'];
         this.dividerType = options.dividerType; // 'VDivider', 'HDivider', 'HLine', 'VLane'
+        this.borderGroup = options.borderGroup || null;
+
+        // Legacy properties for compatibility with existing create functions
         this.leftObjects = options.leftObjects || [];
         this.rightObjects = options.rightObjects || [];
         this.aboveObjects = options.aboveObjects || [];
@@ -60,6 +63,26 @@ class DividerObject extends BaseGroup {
     }
 
     initialize() {
+        switch (this.dividerType) {
+            case 'HDivider':
+            case 'HLine': {
+                const objectBBox = { left: this.borderGroup.inbbox.left, top: this.borderGroup.inbbox.top, };
+                const objectSize = { width: this.borderGroup.inbbox.right - this.borderGroup.inbbox.left };
+                const basePoly = drawDivider(this.xHeight, this.color, objectBBox, objectSize, this.dividerType);
+                this.setBasePolygon(basePoly);
+                this.set({lockMovementX: true,})
+                this.borderGroup.HDivider.push(this);
+                break;
+            }
+        }
+
+        this.setCoords();
+        this.updateAllCoord();
+        // } // tempGroup is no longer used
+        return this;
+    }
+
+    SS_initialize() { // Save the original initialize method
         let objectBBox;
         let objectSize;
         let primaryAnchorObject, secondaryAnchorObject;
@@ -214,12 +237,12 @@ class DividerObject extends BaseGroup {
         }
 
         // if (tempGroup) { // tempGroup is no longer used
-            // Copy properties from the created group to this instance
-            // this.setBasePolygon(tempGroup.basePolygon); // Assuming basePolygon is the visual element
-            // All visual setup and property setting is now done directly on 'this'
+        // Copy properties from the created group to this instance
+        // this.setBasePolygon(tempGroup.basePolygon); // Assuming basePolygon is the visual element
+        // All visual setup and property setting is now done directly on 'this'
 
-            this.setCoords();
-            this.updateAllCoord();
+        this.setCoords();
+        this.updateAllCoord();
         // } // tempGroup is no longer used
         return this;
     }
