@@ -662,22 +662,22 @@ class BorderGroup extends BaseGroup {
 
       // Add midpoint on top edge
       if (compartment.top == bbox.top) {
-        this.basePolygon.vertex.push({ x: midX, y: compartment.top, label: `C${i += 1}` });
+        this.basePolygon.vertex.push({ x: midX, y: compartment.top, label: `C${i += 1}` , display: 1 });
       }
 
       // Add midpoint on right edge
       if (compartment.right == bbox.right) {
-        this.basePolygon.vertex.push({ x: compartment.right, y: midY, label: `C${i += 1}` });
+        this.basePolygon.vertex.push({ x: compartment.right, y: midY, label: `C${i += 1}`, display: 1 });
       }
 
       // Add midpoint on bottom edge
       if (compartment.bottom == bbox.bottom) {
-        this.basePolygon.vertex.push({ x: midX, y: compartment.bottom, label: `C${i += 1}` });
+        this.basePolygon.vertex.push({ x: midX, y: compartment.bottom, label: `C${i += 1}`, display: 1 });
       }
 
       // Add midpoint on left edge
       if (compartment.left == bbox.left) {
-        this.basePolygon.vertex.push({ x: compartment.left, y: midY, label: `C${i += 1}` });
+        this.basePolygon.vertex.push({ x: compartment.left, y: midY, label: `C${i += 1}`, display: 1 });
       }
     });
   }
@@ -1068,32 +1068,30 @@ class BorderGroup extends BaseGroup {
   calculateCompartments() {
     // Get sorted dividers
     const sortedVDividers = this.VDivider.length > 0 ?
-      [...this.VDivider].sort((a, b) => a.getEffectiveCoords()[0].x - b.getEffectiveCoords()[0].x) :
+      [...this.VDivider].sort((a, b) => (a.getEffectiveCoords()[0].x + a.width / 2) - (b.getEffectiveCoords()[0].x + b.width / 2)) :
       [];
 
     const sortedHDividers = this.HDivider.length > 0 ?
-      [...this.HDivider].sort((a, b) => a.getEffectiveCoords()[0].y - b.getEffectiveCoords()[0].y) :
+      [...this.HDivider].sort((a, b) => (a.getEffectiveCoords()[0].y + a.height / 2) - (b.getEffectiveCoords()[0].y + b.height / 2)) :
       [];
 
     // Get divider positions, only considering them as position points, not actual width
     const xPositions = [this.inbbox.left];
     const yPositions = [this.inbbox.top];
 
-    // Add all vertical divider positions - discount the divider width
+    // Add all vertical divider center positions
     for (const vd of sortedVDividers) {
-      const dividerX = vd.getEffectiveCoords()[0].x;
-
-      // Add the divider's position (center point), not its edges
-      xPositions.push(dividerX);
+      const leftX = vd.getEffectiveCoords()[0].x; // top-left x
+      const centerX = leftX + vd.width / 2;
+      xPositions.push(centerX);
     }
     xPositions.push(this.inbbox.right);
 
-    // Add all horizontal divider positions - discount the divider height
+    // Add all horizontal divider center positions
     for (const hd of sortedHDividers) {
-      const dividerY = hd.getEffectiveCoords()[0].y;
-
-      // Add the divider's position (center point), not its edges  
-      yPositions.push(dividerY);
+      const topY = hd.getEffectiveCoords()[0].y; // top-left y
+      const centerY = topY + hd.height / 2;
+      yPositions.push(centerY);
     }
     yPositions.push(this.inbbox.bottom);
 
@@ -1112,29 +1110,22 @@ class BorderGroup extends BaseGroup {
         let right = xPositions[i + 1];
         let bottom = yPositions[j + 1];
 
-        // Apply shadowWidth for each divider if present (only in the correct compartment)
+        // Adjust boundaries using half divider thickness if shadowWidth provided (centerline scheme)
         if (rightDivider && rightDivider.shadowWidth) {
-          // Apply shadowWidth.x from the right divider to the left side of the compartment
           const shadowX = rightDivider.shadowWidth.x * rightDivider.xHeight / 4;
-          right += shadowX;
+          right += shadowX / 2; // extend to include half of right divider's shadow influence
         }
-
         if (leftDivider && leftDivider.shadowWidth) {
-          // Apply shadowWidth.x from the left divider to the right side of the compartment
           const shadowX = leftDivider.shadowWidth.x * leftDivider.xHeight / 4;
-          left += leftDivider.width - shadowX;
+          left -= shadowX / 2; // retract to include half of left divider's shadow influence
         }
-
         if (bottomDivider && bottomDivider.shadowWidth) {
-          // Apply shadowWidth.y from the bottom divider to the top of the compartment
           const shadowY = bottomDivider.shadowWidth.y * bottomDivider.xHeight / 4;
-          bottom += shadowY;
+          bottom += shadowY / 2;
         }
-
         if (topDivider && topDivider.shadowWidth) {
-          // Apply shadowWidth.y from the top divider to the bottom of the compartment
           const shadowY = topDivider.shadowWidth.y * topDivider.xHeight / 4;
-          top += topDivider.height - shadowY;
+          top -= shadowY / 2;
         }
 
         // Add the compartment with adjusted dimensions

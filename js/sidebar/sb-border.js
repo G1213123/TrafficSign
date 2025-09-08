@@ -5,7 +5,7 @@ import { BorderUtilities, BorderGroup } from '../objects/border.js';
 import { DividerObject } from '../objects/divider.js';
 import { BorderColorScheme, BorderFrameWidth, BorderTypeScheme } from '../objects/template.js';
 import { vertexToPath } from '../objects/path.js';
-import { selectObjectHandler } from '../canvas/promptBox.js';
+import { selectObjectHandler, showTextBox, hideTextBox } from '../canvas/promptBox.js';
 import { HintLoader } from '../utils/hintLoader.js';
 
 let FormBorderWrapComponent = {
@@ -200,48 +200,159 @@ let FormBorderWrapComponent = {
   },
 
   StackDividerHandler: function () {
-    const xHeight = parseInt(document.getElementById("input-xHeight").value);
-    // Try to use currently selected Border without showing textbox; if none, waits for user selection
-    selectObjectHandler('Select the border', function (borderObject, options,) {
-      if (!borderObject || borderObject.length === 0) return;
-      const color = document.getElementById('input-color').value;
-      const xHeight = parseInt(document.getElementById("input-xHeight").value);
-      new DividerObject({ dividerType: 'HDivider', borderGroup: borderObject[0], xHeight: xHeight, colorType: color, });
-    }, null, xHeight, 'mm', true, 'Border');
+    FormBorderWrapComponent.startDividerHoverMode('HDivider');
   },
 
   GantryDividerHandler: function () {
-    const xHeight = parseInt(document.getElementById("input-xHeight").value);
-    // Select (or reuse selected) border only; legacy left/right object selection removed
-    selectObjectHandler('Select the border for gantry divider', function (borderObject) {
-      if (!borderObject || !borderObject.length) return;
-      const color = document.getElementById('input-color').value;
-      const xHeight = parseInt(document.getElementById("input-xHeight").value);
-      new DividerObject({ dividerType: 'VDivider', borderGroup: borderObject[0], xHeight: xHeight, colorType: color });
-    }, null, xHeight, 'mm', true, 'Border');
+    FormBorderWrapComponent.startDividerHoverMode('VDivider');
   },
 
   GantryLineHandler: function () {
-    const xHeight = parseInt(document.getElementById("input-xHeight").value);
-    // Select (or reuse selected) border only; legacy above/below selection removed
-    selectObjectHandler('Select the border for gantry line', function (borderObject) {
-      if (!borderObject || !borderObject.length) return;
-      const color = document.getElementById('input-color').value;
-      const xHeight = parseInt(document.getElementById("input-xHeight").value);
-      new DividerObject({ dividerType: 'HLine', borderGroup: borderObject[0], xHeight: xHeight, colorType: color });
-    }, null, xHeight, 'mm', true, 'Border');
+    FormBorderWrapComponent.startDividerHoverMode('HLine');
   },
 
   LaneLineHandler: function () {
-    const xHeight = parseInt(document.getElementById("input-xHeight").value);
-    // Select (or reuse selected) border only; legacy left/right selection removed
-    selectObjectHandler('Select the border for lane separator', function (borderObject) {
-      if (!borderObject || !borderObject.length) return;
-      const color = document.getElementById('input-color').value;
-      const xHeight = parseInt(document.getElementById("input-xHeight").value);
-      new DividerObject({ dividerType: 'VLane', borderGroup: borderObject[0], xHeight: xHeight, colorType: color });
-    }, null, xHeight, 'mm', true, 'Border');
+    FormBorderWrapComponent.startDividerHoverMode('VLane');
   },
+  
+  // Start hover mode: user hovers a border to show compartments, then clicks to place divider
+  startDividerHoverMode: function(dividerType){
+    // End any existing mode first
+    FormBorderWrapComponent._exitDividerPlacementMode(true);
+    const canvas = CanvasGlobals.canvas;
+    FormBorderWrapComponent._dividerPlacementMode = { active: true, dividerType };
+    // Instruction prompt (ESC to cancel)
+    showTextBox('Click on a border compartment to place divider', null, 'keydown', (e)=>{
+      if(e.key === 'Escape'){
+        FormBorderWrapComponent._exitDividerPlacementMode();
+      }
+    });
+
+    // Hover handler to detect border under pointer
+    FormBorderWrapComponent._dividerPlacementHoverHandler = function(opt){
+      if(!FormBorderWrapComponent._dividerPlacementMode?.active) return;
+      const target = opt.target;
+      if(target && target.functionalType === 'Border'){
+        // If overlay already for this border, skip
+        if(FormBorderWrapComponent._compartmentOverlay && FormBorderWrapComponent._compartmentOverlay.border === target) return;
+        // Show overlay for new border
+        if (!target.compartmentBboxes || target.compartmentBboxes.length===0){
+          target.updateBboxes();
+        }
+        FormBorderWrapComponent._showCompartmentOverlay(target, dividerType);
+      } else {
+        // Moved away from any border: remove overlay but keep mode
+        if(FormBorderWrapComponent._compartmentOverlay){
+          FormBorderWrapComponent._removeCompartmentOverlay();
+        }
+      }
+    };
+    canvas.on('mouse:move', FormBorderWrapComponent._dividerPlacementHoverHandler);
+  },
+
+  _showCompartmentOverlay: function(border, dividerType){
+    const canvas = CanvasGlobals.canvas;
+    // Remove existing overlay if any
+    if (FormBorderWrapComponent._compartmentOverlay){
+      FormBorderWrapComponent._removeCompartmentOverlay();
+    }
+    const overlays = [];
+    const majorColor = 'rgba(0,150,255,0.25)';
+    const dimColor = 'rgba(0,150,255,0.08)';
+    const strokeColor = 'rgba(0,150,255,0.5)';
+    const zoom = canvas.getZoom ? canvas.getZoom() : 1;
+    const strokeWidth = 1/zoom;
+
+    const onMouseMove = (opt)=>{
+      const pointer = canvas.getPointer(opt.e);
+      overlays.forEach(o=>{
+        const b = o._metaBox;
+        const inside = pointer.x>=b.left && pointer.x<=b.right && pointer.y>=b.top && pointer.y<=b.bottom;
+        o.set('fill', inside ? majorColor : dimColor);
+      });
+      canvas.requestRenderAll();
+    };
+
+    const color = document.getElementById('input-color').value;
+
+    const onClick = (opt)=>{
+      const pointer = canvas.getPointer(opt.e);
+      let chosen=null;
+      overlays.forEach(o=>{
+        const b = o._metaBox;
+        if(pointer.x>=b.left && pointer.x<=b.right && pointer.y>=b.top && pointer.y<=b.bottom){
+          chosen=b;
+        }
+      });
+      if (chosen){
+        // Remove overlay first
+        FormBorderWrapComponent._removeCompartmentOverlay();
+        const dividerOptions = { dividerType: dividerType, borderGroup: border, xHeight: border.xHeight, colorType: color };
+        const divider = new DividerObject(dividerOptions);
+        // Position divider roughly at compartment center initially
+        const centerX = (chosen.left+chosen.right)/2;
+        const centerY = (chosen.top+chosen.bottom)/2;
+        if(dividerType==='HDivider' || dividerType==='HLine'){
+          divider.set({ top: centerY - divider.height/2 });
+        } else {
+          divider.set({ left: centerX - divider.width/2 });
+        }
+        divider.setCoords();
+        canvas.requestRenderAll();
+        // Exit placement mode after successful placement
+        FormBorderWrapComponent._exitDividerPlacementMode();
+      }
+    };
+
+    border.compartmentBboxes.forEach((b,idx)=>{
+      const rect = new fabric.Rect({
+        left: b.left,
+        top: b.top,
+        width: b.right - b.left,
+        height: b.bottom - b.top,
+        fill: dimColor,
+        stroke: strokeColor,
+        strokeWidth: strokeWidth,
+        selectable: false,
+        evented: false,
+        objectCaching: false
+      });
+      rect._metaBox = b;
+      overlays.push(rect);
+      canvas.add(rect);
+    });
+
+    FormBorderWrapComponent._compartmentOverlay = { overlays, border, onMouseMove, onClick };
+    canvas.on('mouse:move', onMouseMove);
+    canvas.on('mouse:down', onClick);
+    canvas.requestRenderAll();
+  },
+
+  _removeCompartmentOverlay: function(){
+    const canvas = CanvasGlobals.canvas;
+    const overlay = FormBorderWrapComponent._compartmentOverlay;
+    if(!overlay) return;
+    overlay.overlays.forEach(o=> canvas.remove(o));
+    canvas.off('mouse:move', overlay.onMouseMove);
+    canvas.off('mouse:down', overlay.onClick);
+    FormBorderWrapComponent._compartmentOverlay = null;
+    canvas.requestRenderAll();
+  },
+
+  _exitDividerPlacementMode: function(silent=false){
+    const canvas = CanvasGlobals.canvas;
+    if(FormBorderWrapComponent._dividerPlacementHoverHandler){
+      canvas.off('mouse:move', FormBorderWrapComponent._dividerPlacementHoverHandler);
+      FormBorderWrapComponent._dividerPlacementHoverHandler = null;
+    }
+    if(FormBorderWrapComponent._compartmentOverlay){
+      FormBorderWrapComponent._removeCompartmentOverlay();
+    }
+    if(!silent){
+      hideTextBox();
+    }
+    FormBorderWrapComponent._dividerPlacementMode = null;
+  }
 }
 
 // Add listener for GeneralSettings changes

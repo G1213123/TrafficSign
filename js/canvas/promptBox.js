@@ -138,7 +138,7 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
         cleanupListeners();
       };
 
-      const handleKeyDown = function(event) {
+      const handleKeyDown = function (event) {
         if (event.key === 'Enter' || event.key === ' ') {
           let result = answerBox.value;
           // Convert units if in unit mode
@@ -257,6 +257,12 @@ async function selectObjectHandler(text, callback, options = null, xHeight = nul
       canvas.renderAll();
       callback(successSelected, options, response, xHeight);
       return;
+    } else {
+      response = await showTextBox(text, ' ', 'keydown', null, xHeight, unit);
+      if (response === null) { // user cancelled
+        hideTextBox();
+        return;
+      }
     }
   }
 

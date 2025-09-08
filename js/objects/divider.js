@@ -259,6 +259,22 @@ class DividerObject extends BaseGroup {
     // It might be beneficial to move the logic from VDividerCreate, HDividerCreate, etc.
     // into methods of this class, e.g., createVDividerVisuals(), createHDividerVisuals().
     // For now, the existing functions are leveraged.
+
+    updateAllCoord(event, _sourceList = [], _selfOnly = false) {
+        // Call base implementation for normal coordinate / anchor updates
+        super.updateAllCoord(event, _sourceList, _selfOnly);
+
+        // After divider movement/update, refresh its border group's compartment + midpoints
+        const bg = this.borderGroup;
+        if (bg && !bg.isUpdating && typeof bg.updateBboxes === 'function' && typeof bg.addMidPointToDivider === 'function') {
+            try {
+                bg.updateBboxes();
+                bg.addMidPointToDivider();
+            } catch (e) {
+                console.warn('DividerObject.updateAllCoord borderGroup refresh failed:', e);
+            }
+        }
+    }
 }
 
 export { drawDivider, DividerObject };
