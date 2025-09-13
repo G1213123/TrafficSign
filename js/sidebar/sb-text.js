@@ -669,6 +669,8 @@ let FormTextAddComponent = {
           spacingY: options.xHeight / 4
         });
       }, 100);
+
+      textObject.underline = underlineObject
     }
   },
 

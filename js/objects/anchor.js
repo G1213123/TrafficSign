@@ -574,7 +574,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   }
 
   // Check if object is already anchored in X axis
-  const horizontalDividerTypes = ['HDivider', 'HLine'];
+  const horizontalDividerTypes = ['HDivider', ];
   const verticalDividerTypes = ['VDivider', 'VLane'];
   const isHorizontalDivider = horizontalDividerTypes.includes(shape2.functionalType);
   const isVerticalDivider = verticalDividerTypes.includes(shape2.functionalType);

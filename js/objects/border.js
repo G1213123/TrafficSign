@@ -662,7 +662,7 @@ class BorderGroup extends BaseGroup {
 
       // Add midpoint on top edge
       if (compartment.top == bbox.top) {
-        this.basePolygon.vertex.push({ x: midX, y: compartment.top, label: `C${i += 1}` , display: 1 });
+        this.basePolygon.vertex.push({ x: midX, y: compartment.top, label: `C${i += 1}`, display: 1 });
       }
 
       // Add midpoint on right edge
@@ -1112,9 +1112,85 @@ class BorderGroup extends BaseGroup {
 
     // Refresh compartments & midpoints after reposition
     this.updateBboxes();
+    this.assignWidthToUnderline();
     this.addMidPointToDivider();
     this.drawVertex();
     this.isUpdating = false;
+  }
+
+  assignWidthToUnderline() {
+    // Collect unique text objects that have an underline DividerObject attached
+    const textsWithUnderline = new Set();
+    this.widthObjects.forEach(obj => {
+      if (obj.functionalType === 'Text' && obj.underline) textsWithUnderline.add(obj);
+    });
+    this.heightObjects.forEach(obj => {
+      if (obj.functionalType === 'Text' && obj.underline) textsWithUnderline.add(obj);
+    });
+
+    // Helper to get left/right X from an object's effective coords
+    const getLeftRightX = (obj) => {
+      const coords = obj.getEffectiveCoords();
+      const xs = [coords[0].x, coords[1].x, coords[2].x, coords[3].x];
+      return { left: Math.min(...xs), right: Math.max(...xs) };
+    };
+
+    // Only consider actual vertical dividers for boundaries
+    const verticalDividers = (this.VDivider || []).filter(d => d.functionalType === 'VDivider');
+
+    textsWithUnderline.forEach(textObj => {
+      const underline = textObj.underline; // DividerObject of type 'HLine'
+      if (!underline) return;
+
+      // One stroke width in canvas units (length = xHeight/4)
+      const stroke = underline.xHeight / 4;
+
+      // Determine the search reference from the text's bounds
+      const { left: textLeft, right: textRight } = getLeftRightX(textObj);
+
+      // Find nearest left VDivider (use its right edge), else border inner left
+      let leftBoundary = this.inbbox.left;
+      let maxRightEdgeLeftOfText = -Infinity;
+      verticalDividers.forEach(vd => {
+        const vdCoords = vd.getEffectiveCoords();
+        const vdLeft = Math.min(vdCoords[0].x, vdCoords[1].x, vdCoords[2].x, vdCoords[3].x);
+        const vdRight = Math.max(vdCoords[0].x, vdCoords[1].x, vdCoords[2].x, vdCoords[3].x);
+        if (vdRight <= textLeft && vdRight > maxRightEdgeLeftOfText) {
+          maxRightEdgeLeftOfText = vdRight;
+        }
+      });
+      if (maxRightEdgeLeftOfText !== -Infinity) leftBoundary = maxRightEdgeLeftOfText;
+
+      // Find nearest right VDivider (use its left edge), else border inner right
+      let rightBoundary = this.inbbox.right;
+      let minLeftEdgeRightOfText = Infinity;
+      verticalDividers.forEach(vd => {
+        const vdCoords = vd.getEffectiveCoords();
+        const vdLeft = Math.min(vdCoords[0].x, vdCoords[1].x, vdCoords[2].x, vdCoords[3].x);
+        if (vdLeft >= textRight && vdLeft < minLeftEdgeRightOfText) {
+          minLeftEdgeRightOfText = vdLeft;
+        }
+      });
+      if (minLeftEdgeRightOfText !== Infinity) rightBoundary = minLeftEdgeRightOfText;
+
+      // Inset by one stroke width from both boundaries
+      const targetLeft = leftBoundary + stroke;
+      const targetRight = rightBoundary - stroke;
+      const targetWidth = Math.max(0, targetRight - targetLeft);
+
+      // Redraw and position the underline to span the computed width
+      const res = drawDivider(
+        underline.xHeight,
+        underline.color,
+        { left: targetLeft, top: underline.top },
+        { width: targetWidth, height: stroke },
+        'HLine'
+      );
+      underline.replaceBasePolygon(res, false);
+      underline.set({ left: targetLeft });
+      underline.setCoords();
+    });
+
   }
 
   // Optimized method to process border resize without causing infinite loops

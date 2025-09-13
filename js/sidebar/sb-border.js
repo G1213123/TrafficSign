@@ -45,7 +45,7 @@ let FormBorderWrapComponent = {
       //GeneralHandler.createButton('input-border', 'Select Objects for border', borderActionsContainer, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
       const stackDividerBtn = GeneralHandler.createButton('input-HDivider', 'Add stack border divider', borderActionsContainer, 'input', FormBorderWrapComponent.StackDividerHandler, 'click')
       const gantryDividerBtn = GeneralHandler.createButton('input-VDivider', 'Add gantry border divider', borderActionsContainer, 'input', FormBorderWrapComponent.GantryDividerHandler, 'click')
-      const gantryLineBtn = GeneralHandler.createButton('input-HLine', 'Add gantry destination line', borderActionsContainer, 'input', FormBorderWrapComponent.GantryLineHandler, 'click')
+      //const gantryLineBtn = GeneralHandler.createButton('input-HLine', 'Add gantry destination line', borderActionsContainer, 'input', FormBorderWrapComponent.GantryLineHandler, 'click')
       const laneLineBtn = GeneralHandler.createButton('input-VLane', 'Add lane separation line', borderActionsContainer, 'input', FormBorderWrapComponent.LaneLineHandler, 'click')
 
       // Add tooltips to divider buttons

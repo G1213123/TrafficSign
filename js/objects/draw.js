@@ -912,8 +912,8 @@ class BaseGroup extends fabric.Group {
     }
 
     // Check if border resize is needed
-    const firstXBorder = globalAnchorTree.starterObjectX !== null ? canvasObject[globalAnchorTree.starterObjectX].borderGroup : null;
-    const firstYBorder = globalAnchorTree.starterObjectY !== null ? canvasObject[globalAnchorTree.starterObjectY].borderGroup : null;
+    const firstXBorder = globalAnchorTree.starterObjectX !== null ? canvasObject[globalAnchorTree.starterObjectX] == null ? null : canvasObject[globalAnchorTree.starterObjectX].borderGroup : null;
+    const firstYBorder = globalAnchorTree.starterObjectY !== null ? canvasObject[globalAnchorTree.starterObjectY] == null ? null : canvasObject[globalAnchorTree.starterObjectY].borderGroup : null;
     if (
       (this.borderGroup !== firstXBorder ||
         this.canvasID == globalAnchorTree.starterObjectX
