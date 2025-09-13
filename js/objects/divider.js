@@ -63,9 +63,9 @@ class DividerObject extends BaseGroup {
     }
 
     initialize() {
-        // placeholder meta, resize in border assignWidthToDivider
-        const objectBBox = { left: 0, top: 0, right: 0, bottom: 0 };
-        const objectSize = { width: 0, height: 0 };
+        // placeholder meta, resize later in border assignWidthToDivider; if compartmentBox supplied, seed with its center
+        let objectBBox = { left: 0, top: 0, right: 0, bottom: 0 };
+        let objectSize = { width: 0, height: 0 };
         const basePoly = drawDivider(this.xHeight, this.color, objectBBox, objectSize, this.dividerType);
         this.setBasePolygon(basePoly, false);
         switch (this.dividerType) {

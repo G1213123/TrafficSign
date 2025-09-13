@@ -681,88 +681,6 @@ class BorderGroup extends BaseGroup {
       }
     });
   }
-  // Assign width to divider
-  assignWidthToDivider() {
-    // Set the updating flag to indicate border is being updated
-    this.isUpdating = true;
-
-    // Update bboxes first to ensure we have current border and compartment information
-    this.updateBboxes();
-
-    // Handle VDividers
-    for (const d of this.VDivider) {
-
-      // Store initial positions
-      const initialLeft = d.getEffectiveCoords()[0].x;
-
-      const res = drawDivider(
-        d.xHeight,
-        d.color,
-        {
-          left: d.left - DividerMargin[d.functionalType].left * d.xHeight / 4, // adjust for left margin similar to top adjustment in HDivider
-          top: d.top
-        },
-        this.inbbox,
-        d.functionalType
-      );
-      d.replaceBasePolygon(res, false);
-
-      // Set placeholder then clamp left inside inner border just like horizontal logic (but axis swapped)
-      d.set({
-        top: this.inbbox.bottom - d.height - DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4,
-        left: undefined // placeholder, will be clamped below
-      });
-      const minLeft = this.inbbox.left + (this.frame) * d.xHeight / 4;
-      const maxLeft = this.inbbox.right - (this.frame) * d.xHeight / 4 - d.width;
-      const clampedLeft = maxLeft >= minLeft ? Math.min(Math.max(initialLeft, minLeft), maxLeft) : minLeft;
-      d.set({ left: clampedLeft });
-
-      //d.lockMovementX = true;
-      d.lockMovementY = true;
-      //d.enterFocusMode();
-    }
-
-    // Handle HDividers
-    for (const d of this.HDivider) {
-
-      // Store initial position
-      const initialTop = d.getEffectiveCoords()[0].y;
-     
-      const res = drawDivider(d.xHeight, d.color, {
-        left: d.left,
-        top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4
-      },
-        this.inbbox,
-        d.functionalType
-      );
-      d.replaceBasePolygon(res, false);
-
-      d.set({
-        // Ensure horizontal divider stays within inner border vertical bounds
-        // (variables declared before calling d.set)
-        top: undefined, // placeholder, will be overwritten below
-        left: this.inbbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4
-      });
-      // Compute clamped top AFTER initial set to use existing measurements
-      const minTop = this.inbbox.top + (this.frame) * d.xHeight / 4;
-      const maxTop = this.inbbox.bottom - (this.frame) * d.xHeight / 4 - d.height;
-      const clampedTop = maxTop >= minTop ? Math.min(Math.max(initialTop, minTop), maxTop) : minTop;
-      d.set({ top: clampedTop });
-
-      d.lockMovementX = true;
-      //d.lockMovementY = true;
-      //d.enterFocusMode();
-    }
-
-    // After all dividers are repositioned, update the bboxes again
-    this.updateBboxes();    // Update mid points
-    this.addMidPointToDivider();
-
-    this.drawVertex();
-
-    // Clear the updating flag to indicate border update is complete
-    this.isUpdating = false;
-  }
 
   RoundingToDivider() {
     // No longer need sourceList parameter
@@ -1142,66 +1060,86 @@ class BorderGroup extends BaseGroup {
     }
   }
 
+  // Assign width / position to dividers using border inner bbox only
+  assignWidthToDivider() {
+    this.isUpdating = true;
+    // Always rebuild bboxes and compartments first
+    this.updateBboxes();
+
+    // Vertical dividers
+    for (const d of this.VDivider) {
+      const initialLeft = d.getEffectiveCoords()[0].x;
+      const res = drawDivider(
+        d.xHeight,
+        d.color,
+        { left: d.left - DividerMargin[d.functionalType].left * d.xHeight / 4, top: d.top },
+        this.inbbox,
+        d.functionalType
+      );
+      d.replaceBasePolygon(res, false);
+      d.set({
+        top: this.inbbox.bottom - d.height - DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4,
+        left: undefined
+      });
+      const minLeft = this.inbbox.left + (this.frame) * d.xHeight / 4;
+      const maxLeft = this.inbbox.right - (this.frame) * d.xHeight / 4 - d.width;
+      const clampedLeft = maxLeft >= minLeft ? Math.min(Math.max(initialLeft, minLeft), maxLeft) : minLeft;
+      d.set({ left: clampedLeft });
+      d.lockMovementY = true;
+    }
+
+    // Horizontal dividers
+    for (const d of this.HDivider) {
+      const initialTop = d.getEffectiveCoords()[0].y;
+      const res = drawDivider(
+        d.xHeight,
+        d.color,
+        { left: d.left, top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4 },
+        this.inbbox,
+        d.functionalType
+      );
+      d.replaceBasePolygon(res, false);
+      d.set({
+        top: undefined,
+        left: this.inbbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4
+      });
+      const minTop = this.inbbox.top + (this.frame) * d.xHeight / 4;
+      const maxTop = this.inbbox.bottom - (this.frame) * d.xHeight / 4 - d.height;
+      const clampedTop = maxTop >= minTop ? Math.min(Math.max(initialTop, minTop), maxTop) : minTop;
+      d.set({ top: clampedTop });
+      d.lockMovementX = true;
+    }
+
+    // Refresh compartments & midpoints after reposition
+    this.updateBboxes();
+    this.addMidPointToDivider();
+    this.drawVertex();
+    this.isUpdating = false;
+  }
+
   // Optimized method to process border resize without causing infinite loops
   processResize() {
-    const BG = this
-    // Could not use baseGroup replaceBasePolygon as it would not update anchored to border objects
+    const BG = this;
     BG.removeAll();
-
-    // Get the bounding box of the active selection 
-    this.calcfixedBboxes(false); // false indicates this is a refresh/resize
+    this.calcfixedBboxes(false);
     this.rounding = BorderUtilities.calcBorderRounding(this.borderType, this.xHeight, this.inbbox);
-
     const borderObject = this.drawBorder();
-
     BG.add(borderObject);
     BG.basePolygon = borderObject;
     BG.assignWidthToDivider();
-
-    // Track if we started update cycles that need to be closed
     let startedXCycle = false;
     let startedYCycle = false;
-
     try {
-      // Start update cycles for the border group to be updated properly
-      if (!globalAnchorTree.updateInProgressX) {
-        globalAnchorTree.startUpdateCycle('x', BG.canvasID);
-        startedXCycle = true;
-      }
-
-      if (!globalAnchorTree.updateInProgressY) {
-        globalAnchorTree.startUpdateCycle('y', BG.canvasID);
-        startedYCycle = true;
-      }
-
-      // Mark the border group as already updated to prevent cycles
-      //globalAnchorTree.updatedObjectsX.add(BG.canvasID);
-      //globalAnchorTree.updatedObjectsY.add(BG.canvasID);
-
+      if (!globalAnchorTree.updateInProgressX) { globalAnchorTree.startUpdateCycle('x', BG.canvasID); startedXCycle = true; }
+      if (!globalAnchorTree.updateInProgressY) { globalAnchorTree.startUpdateCycle('y', BG.canvasID); startedYCycle = true; }
       BG.updateAllCoord(null, [], false);
       BG.drawVertex();
     } finally {
-      // Always end update cycles if we started them, even if an error occurs
-      if (startedXCycle) {
-        globalAnchorTree.endUpdateCycle('x');
-      }
-
-      if (startedYCycle) {
-        globalAnchorTree.endUpdateCycle('y');
-      }
+      if (startedXCycle) globalAnchorTree.endUpdateCycle('x');
+      if (startedYCycle) globalAnchorTree.endUpdateCycle('y');
     }
-
-    // Update reference points and vertices
-    BG.refTopLeft = {
-      top: BG.basePolygon.getCoords()[0].y,
-      left: BG.basePolygon.getCoords()[0].x
-    };
-
-    // Redraw vertices
-    //BG.drawVertex();
-
+    BG.refTopLeft = { top: BG.basePolygon.getCoords()[0].y, left: BG.basePolygon.getCoords()[0].x };
     canvas.renderAll();
-
   }
 
   // Override updateAllCoord - need to make sure trees are updated correctly
