@@ -59,11 +59,6 @@ let FormBorderWrapComponent = {
         showDelay: 500,
         hideDelay: 150
       });
-      GeneralHandler.createGeneralButtonTooltip(gantryLineBtn, 'divider/GantryLine', {
-        position: 'right',
-        showDelay: 500,
-        hideDelay: 150
-      });
       GeneralHandler.createGeneralButtonTooltip(laneLineBtn, 'divider/LaneLine', {
         position: 'right',
         showDelay: 500,
@@ -259,8 +254,10 @@ let FormBorderWrapComponent = {
       // Position divider near click point, will be clamped by assignWidthToDivider
       if(dividerType==='HDivider' || dividerType==='HLine'){
         divider.set({ top: pointer.y - divider.height/2 });
+        border.HDivider.push(divider)
       } else {
         divider.set({ left: pointer.x - divider.width/2 });
+        border.VDivider.push(divider)
       }
       divider.setCoords();
       // Clamp based on border inbbox using standard sizing logic

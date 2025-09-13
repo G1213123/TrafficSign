@@ -853,10 +853,10 @@ class BorderGroup extends BaseGroup {
     this.innerPadding = { x: 0, y: 0 };
 
     // Apply inner padding
-    coords.left -= this.innerPadding.x / (this.VDivider.length + 1) / 2;
-    coords.right += this.innerPadding.x / (this.VDivider.length + 1) / 2;
-    coords.top -= this.innerPadding.y / (this.HDivider.length + 1) / 2;
-    coords.bottom += this.innerPadding.y / (this.HDivider.length + 1) / 2;
+    //coords.left -= this.innerPadding.x / (this.VDivider.length + 1) / 2;
+    //coords.right += this.innerPadding.x / (this.VDivider.length + 1) / 2;
+    //coords.top -= this.innerPadding.y / (this.HDivider.length + 1) / 2;
+    //coords.bottom += this.innerPadding.y / (this.HDivider.length + 1) / 2;
 
     // Determine if width and height are fixed
     const hasFixedWidth = !isNaN(parseInt(this.fixedWidth));

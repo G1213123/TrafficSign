@@ -6,6 +6,7 @@ import { anchorShape } from '../objects/anchor.js';
 import { EngDestinations, ChtDestinations } from '../objects/template.js';
 import { FontPriorityManager } from '../modal/md-font.js';
 import { HintLoader } from '../utils/hintLoader.js';
+import { DividerObject } from '../objects/divider.js';
 
 let FormTextAddComponent = {
   textFont: ['TransportMedium', 'TransportHeavy'],
@@ -64,8 +65,10 @@ let FormTextAddComponent = {
       const twoLinerInfo = GeneralHandler.createNode("div", { 'id': 'two-liner-info', 'class': 'info-text', 'style': 'display: none;' }, textContentContainer);
       twoLinerInfo.textContent = "Text input is disabled in 2Liner mode. Select the location in the destination panel.";
       const fontToggle = GeneralHandler.createToggle('Text Font', FormTextAddComponent.textFont, textContentContainer, 'TransportMedium', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler);
+      const lineToggle = GeneralHandler.createToggle('Underline', ['Yes', 'No'], textContentContainer, 'No', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler);
       const helpIcon1 = GeneralHandler.createHelpIconWithHint(textInput.parentElement, 'text/Text',);
       const helpIcon2 = GeneralHandler.createHelpIconWithHint(fontToggle.parentElement, 'text/TextFont',);
+      const helpIcon3 = GeneralHandler.createHelpIconWithHint(lineToggle.parentElement, 'divider/GantryLine',);
 
       // Add font priority management button for Chinese fonts
       const fontPriorityButton = GeneralHandler.createButton('font-priority-btn', 'Chinese Font Setting', textContentContainer, 'input', FontPriorityManager.showModal, 'click');
@@ -206,7 +209,8 @@ let FormTextAddComponent = {
           text: selectedLocation,
           xHeight: parseInt(document.getElementById('input-xHeight').value),
           font: document.getElementById('Text Font-container').selected.getAttribute('data-value'),
-          color: document.getElementById('Message Colour-container').selected.getAttribute('data-value')
+          color: document.getElementById('Message Colour-container').selected.getAttribute('data-value'),
+          underline: document.getElementById('Underline-container').selected.getAttribute('data-value') == 'Yes'
         });
       }
     }
@@ -526,7 +530,6 @@ let FormTextAddComponent = {
 
     // Check if we're using two-liner mode
     const isTwoLiner = FormTextAddComponent.textLineInput === 2;
-    const justification = FormTextAddComponent.justification || 'Left';
 
     // If we already have a new text object being placed, just update it instead of creating another
     if (FormTextAddComponent.newTextObject && CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
@@ -541,43 +544,6 @@ let FormTextAddComponent = {
         // Get corresponding Chinese text using the helper function
         const chtText = FormTextAddComponent.findCorrespondingChineseText(txt);
 
-        // Use the general object creation with snapping function
-        const createTwoLinerText = (options) => {
-          // Create English text object (top one)
-          const engTextObject = new TextObject({
-            text: options.text,
-            xHeight: options.xHeight,
-            font: options.font,
-            color: options.color,
-            left: options.position.x,
-            top: options.position.y - options.xHeight * 0.6 // Position it higher for the top line
-          });
-          engTextObject.isTemporary = true;
-
-          // Create Chinese text object (bottom one)
-          const chtTextObject = new TextObject({
-            text: options.translatedText,
-            xHeight: options.xHeight,
-            font: options.font,
-            color: options.color,
-            left: options.position.x,
-            top: options.position.y + options.xHeight * 0.6 // Position it lower for the bottom line
-          });
-          chtTextObject.isTemporary = true;
-
-          // Anchor Chinese text to English text using the justification points
-          setTimeout(() => {
-            anchorShape(engTextObject, chtTextObject, {
-              vertexIndex1: { 'Left': 'E1', 'Middle': 'E2', 'Right': 'E3' }[justification],
-              vertexIndex2: { 'Left': 'E7', 'Middle': 'E6', 'Right': 'E5' }[justification],
-              spacingX: 0,
-              spacingY: 0
-            });
-          }, 100);
-
-          return engTextObject; // Return the top object as the main one
-        };
-
         // Use the general object creation function for two-liner text
         await GeneralHandler.createObjectWithSnapping(
           {
@@ -587,7 +553,7 @@ let FormTextAddComponent = {
             font: font,
             color: color
           },
-          createTwoLinerText,
+          FormTextAddComponent.createTwoLinerText,
           FormTextAddComponent,
           'newTextObject',
           'E1',
@@ -615,6 +581,7 @@ let FormTextAddComponent = {
           FormTextAddComponent.cancelInput
         );
       }
+
     } catch (error) {
       console.error('Error creating text object:', error);
     }
@@ -625,7 +592,7 @@ let FormTextAddComponent = {
   // For regular single-line text, use our standard pattern
   // Create a function that returns a new TextObject
   createTextObject: (options) => {
-    return new TextObject({
+    const text = new TextObject({
       text: options.text,
       xHeight: options.xHeight,
       font: options.font,
@@ -633,6 +600,76 @@ let FormTextAddComponent = {
       left: options.position.x,
       top: options.position.y
     });
+
+    FormTextAddComponent.createUnderline(text, options)
+    return text
+  },
+
+  // Use the general object creation with snapping function
+  createTwoLinerText: (options) => {
+
+    const justification = FormTextAddComponent.justification || 'Left';
+
+    // Create English text object (top one)
+    const engTextObject = new TextObject({
+      text: options.text,
+      xHeight: options.xHeight,
+      font: options.font,
+      color: options.color,
+      left: options.position.x,
+      top: options.position.y - options.xHeight * 0.6 // Position it higher for the top line
+    });
+    engTextObject.isTemporary = true;
+
+    // Create Chinese text object (bottom one)
+    const chtTextObject = new TextObject({
+      text: options.translatedText,
+      xHeight: options.xHeight,
+      font: options.font,
+      color: options.color,
+      left: options.position.x,
+      top: options.position.y + options.xHeight * 0.6 // Position it lower for the bottom line
+    });
+    chtTextObject.isTemporary = true;
+
+    // Anchor Chinese text to English text using the justification points
+    setTimeout(() => {
+      anchorShape(engTextObject, chtTextObject, {
+        vertexIndex1: { 'Left': 'E1', 'Middle': 'E2', 'Right': 'E3' }[justification],
+        vertexIndex2: { 'Left': 'E7', 'Middle': 'E6', 'Right': 'E5' }[justification],
+        spacingX: 0,
+        spacingY: 0
+      });
+    }, 100);
+
+    FormTextAddComponent.createUnderline(chtTextObject, options)
+
+    return engTextObject; // Return the top object as the main one
+  },
+
+  createUnderline: (textObject, options) => {
+    const isUnderline = options.underline ? options.underline : document.getElementById('Underline-container').selected.getAttribute('data-value') == 'Yes'
+
+    if (isUnderline) {
+      // Create underline
+      const underlineObject = new DividerObject({
+        xHeight: options.xHeight,
+        color: options.color,
+        dividerType: 'HLine',
+        textObject: textObject
+      });
+      underlineObject.isTemporary = true;
+
+      // Anchor Chinese text to English text using the justification points
+      setTimeout(() => {
+        anchorShape(textObject, underlineObject, {
+          vertexIndex1: 'V1',
+          vertexIndex2: 'E6',
+          spacingX: 0,
+          spacingY: options.xHeight / 4
+        });
+      }, 100);
+    }
   },
 
   TextOnMouseMove: function (event) {

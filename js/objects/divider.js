@@ -37,9 +37,12 @@ class DividerObject extends BaseGroup {
         // Store divider-specific properties
         this.xHeight = options.xHeight;
         this.colorType = options.colorType;
-        this.color = BorderColorScheme[this.colorType]['border'];
+        this.color = options.color || BorderColorScheme[this.colorType]['border'];
         this.dividerType = options.dividerType; // 'VDivider', 'HDivider', 'HLine', 'VLane'
         this.borderGroup = options.borderGroup || null;
+
+        // HLine divider adhere to text
+        this.textObject = options.textObject || null;
 
         // Legacy properties for compatibility with existing create functions
         this.leftObjects = options.leftObjects || [];
@@ -63,27 +66,33 @@ class DividerObject extends BaseGroup {
     }
 
     initialize() {
-        // placeholder meta, resize later in border assignWidthToDivider; if compartmentBox supplied, seed with its center
-        let objectBBox = { left: 0, top: 0, right: 0, bottom: 0 };
-        let objectSize = { width: 0, height: 0 };
-        const basePoly = drawDivider(this.xHeight, this.color, objectBBox, objectSize, this.dividerType);
-        this.setBasePolygon(basePoly, false);
-        switch (this.dividerType) {
-            case 'HDivider':
-            case 'HLine': {
-                this.borderGroup.HDivider.push(this);
-                break;
+        if (this.dividerType !== 'HLine') {
+            // placeholder meta, resize later in border assignWidthToDivider; if compartmentBox supplied, seed with its center
+            let objectBBox = { left: 0, top: 0, right: 0, bottom: 0 };
+            let objectSize = { width: 0, height: 0 };
+            const basePoly = drawDivider(this.xHeight, this.color, objectBBox, objectSize, this.dividerType);
+            this.setBasePolygon(basePoly, false);
+            switch (this.dividerType) {
+                case 'HDivider': {
+                    this.borderGroup.HDivider.push(this);
+                    break;
+                }
+                case 'VDivider':
+                case 'VLane': {
+                    this.borderGroup.VDivider.push(this);
+                    break;
+                }
+                default:
+                    console.error('Unknown divider type:', this.dividerType);
+                    return this;
             }
-            case 'VDivider':
-            case 'VLane': {
-                this.borderGroup.VDivider.push(this);
-                break;
-            }
-            default:
-                console.error('Unknown divider type:', this.dividerType);
-                return this;
+            this.borderGroup.assignWidthToDivider();
+        } else {
+            let objectBBox = { left: this.textObject.left, top: 0, right: 0, bottom: 0 };
+            let objectSize = { width: this.textObject.width, height: this.xHeight / 4 };
+            const basePoly = drawDivider(this.xHeight, this.color, objectBBox, objectSize, this.dividerType);
+            this.setBasePolygon(basePoly, false);
         }
-        this.borderGroup.assignWidthToDivider();
 
         this.setCoords();
         this.updateAllCoord();

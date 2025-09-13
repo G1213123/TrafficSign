@@ -604,12 +604,12 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   const targetPoint = shape1.getBasePolygonVertex(vertexIndex2.toUpperCase())
 
   if (!movingPoint) {
-    alert(`Vertex ${vertexIndex1.toUpperCase()} not found in shape to be moved (ID: ${shape2._showName})`);
+    //alert(`Vertex ${vertexIndex1.toUpperCase()} not found in shape to be moved (ID: ${shape2._showName})`);
     document.addEventListener('keydown', ShowHideSideBarEvent);
     return Promise.reject('anchor_invalid_vertex1');
   }
   if (!targetPoint) {
-    alert(`Vertex ${vertexIndex2.toUpperCase()} not found in target shape (ID: ${shape1._showName})`);
+    //alert(`Vertex ${vertexIndex2.toUpperCase()} not found in target shape (ID: ${shape1._showName})`);
     document.addEventListener('keydown', ShowHideSideBarEvent);
     return Promise.reject('anchor_invalid_vertex2');
   }
