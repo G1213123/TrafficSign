@@ -40,6 +40,8 @@ let FormBorderWrapComponent = {
         console.warn('Failed to attach color purpose help icon in Border panel:', e);
       }
 
+  // (moved) Fixed width/height inputs will be added inside borderTypeContainer for better layout
+
       // Create a container for border actions
       var borderActionsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
       //GeneralHandler.createButton('input-border', 'Select Objects for border', borderActionsContainer, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
@@ -69,6 +71,24 @@ let FormBorderWrapComponent = {
       var borderTypeContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container', 'id': 'border-select-container' }, parent);
       const borderTypeHeader = GeneralHandler.createNode("div", { 'class': 'placeholder' }, borderTypeContainer);
       borderTypeHeader.innerHTML = "Select Border Type";
+
+      // Fixed width/height inputs inside the border type container, aligned in one row
+      try {
+        const fixedRow = GeneralHandler.createNode('div', { 'class': 'input-row' }, borderTypeContainer);
+        // inline styles to guarantee side-by-side layout without relying on external CSS
+        fixedRow.style.display = 'flex';
+        fixedRow.style.gap = '8px';
+        fixedRow.style.alignItems = 'flex-end';
+        fixedRow.style.marginBottom = '8px';
+
+        const fw = GeneralHandler.createInput('input-fixedWidth', 'Fixed Width (mm) — optional', fixedRow, '', null, 'input');
+        const fh = GeneralHandler.createInput('input-fixedHeight', 'Fixed Height (mm) — optional', fixedRow, '', null, 'input');
+        // Make each input block share the row evenly
+        if (fw && fw.parentElement) fw.parentElement.style.flex = '1 1 0';
+        if (fh && fh.parentElement) fh.parentElement.style.flex = '1 1 0';
+      } catch(e) {
+        console.warn('Failed to attach fixed width/height inputs:', e);
+      }
       FormBorderWrapComponent.createBorderButtons()
     }
   },
@@ -178,20 +198,61 @@ let FormBorderWrapComponent = {
     const borderType = event.currentTarget.id.replace('button-', '');
     const xHeight = parseInt(document.getElementById("input-xHeight").value);
     const colorType = document.getElementById('input-color').value;
-    selectObjectHandler('Select shape to calculate border width,\nor input fix width and then press Enter', function (widthObjects, options, widthText) {
-      selectObjectHandler('Select shape to calculate border height,\nor input fix height and then press Enter', function (heightObjects, options, heightText) {
-        new BorderGroup({
-          borderType: borderType,
-          widthObjects: [...widthObjects],
-          heightObjects: [...heightObjects],
-          fixedWidth: widthText,
-          fixedHeight: heightText,
-          xHeight: xHeight,
-          color: colorType,
-          frame: BorderFrameWidth[borderType],
-        });
+
+    // Read fixed width/height from sidebar
+    const fixedWidthRaw = (document.getElementById('input-fixedWidth')?.value || '').trim();
+    const fixedHeightRaw = (document.getElementById('input-fixedHeight')?.value || '').trim();
+    const fixedWidth = fixedWidthRaw !== '' ? parseFloat(fixedWidthRaw) : null;
+    const fixedHeight = fixedHeightRaw !== '' ? parseFloat(fixedHeightRaw) : null;
+
+    const createBorder = (widthObjects=[], heightObjects=[])=>{
+      new BorderGroup({
+        borderType: borderType,
+        widthObjects: [...widthObjects],
+        heightObjects: [...heightObjects],
+        fixedWidth: fixedWidth,
+        fixedHeight: fixedHeight,
+        xHeight: xHeight,
+        color: colorType,
+        frame: BorderFrameWidth[borderType],
+      });
+    };
+
+    // If both fixed values provided, skip object selection entirely
+    if (fixedWidth !== null && !isNaN(fixedWidth) && fixedHeight !== null && !isNaN(fixedHeight)) {
+      createBorder();
+      return;
+    }
+
+    // If one or both missing, prompt only for the missing ones
+    const needWidth = !(fixedWidth !== null && !isNaN(fixedWidth));
+    const needHeight = !(fixedHeight !== null && !isNaN(fixedHeight));
+
+    if (needWidth && needHeight) {
+      selectObjectHandler('Select shape(s) to calculate border width', function (widthObjects) {
+        selectObjectHandler('Select shape(s) to calculate border height', function (heightObjects) {
+          createBorder(widthObjects, heightObjects);
+        }, null, xHeight, 'mm');
       }, null, xHeight, 'mm');
-    }, null, xHeight, 'mm');
+      return;
+    }
+
+    if (needWidth && !needHeight) {
+      selectObjectHandler('Select shape(s) to calculate border width', function (widthObjects) {
+        createBorder(widthObjects, []);
+      }, null, xHeight, 'mm');
+      return;
+    }
+
+    if (!needWidth && needHeight) {
+      selectObjectHandler('Select shape(s) to calculate border height', function (heightObjects) {
+        createBorder([], heightObjects);
+      }, null, xHeight, 'mm');
+      return;
+    }
+
+    // Fallback (should not reach): both provided
+    createBorder();
   },
 
   StackDividerHandler: function () {
