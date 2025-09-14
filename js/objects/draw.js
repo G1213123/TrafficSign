@@ -340,7 +340,7 @@ class BaseGroup extends fabric.Group {
 
 
     // Serialize references to other BaseGroup objects by their canvasID
-    const propertiesToSerializeById = ['borderGroup', 'mainRoad'];
+    const propertiesToSerializeById = ['borderGroup', 'mainRoad', 'textObject'];
     propertiesToSerializeById.forEach(propName => {
       if (this[propName] && typeof this[propName].canvasID !== 'undefined') {
         dataToSerialize[propName] = this[propName].canvasID;
@@ -730,7 +730,7 @@ class BaseGroup extends fabric.Group {
 
   // Method to call for border resizing
   borderResize(_sourceList = []) {
-    if (this.borderGroup && !globalAnchorTree.updatedObjectsX.has(this.borderGroup.canvasID) &&
+    if (this.borderGroup && this.borderGroup.canvasID && !globalAnchorTree.updatedObjectsX.has(this.borderGroup.canvasID) &&
       !globalAnchorTree.updatedObjectsY.has(this.borderGroup.canvasID)) {
 
       this.borderGroup.processResize()

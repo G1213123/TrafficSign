@@ -1079,7 +1079,6 @@ class BorderGroup extends BaseGroup {
       d.replaceBasePolygon(res, false);
       d.set({
         top: this.inbbox.bottom - d.height - DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4,
-        left: undefined
       });
       const minLeft = this.inbbox.left + (this.frame) * d.xHeight / 4;
       const maxLeft = this.inbbox.right - (this.frame) * d.xHeight / 4 - d.width;
@@ -1100,7 +1099,6 @@ class BorderGroup extends BaseGroup {
       );
       d.replaceBasePolygon(res, false);
       d.set({
-        top: undefined,
         left: this.inbbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4
       });
       const minTop = this.inbbox.top + (this.frame) * d.xHeight / 4;
@@ -1153,9 +1151,9 @@ class BorderGroup extends BaseGroup {
       let maxRightEdgeLeftOfText = -Infinity;
       verticalDividers.forEach(vd => {
         const vdCoords = vd.getEffectiveCoords();
-        const vdLeft = Math.min(vdCoords[0].x, vdCoords[1].x, vdCoords[2].x, vdCoords[3].x);
         const vdRight = Math.max(vdCoords[0].x, vdCoords[1].x, vdCoords[2].x, vdCoords[3].x);
-        if (vdRight <= textLeft && vdRight > maxRightEdgeLeftOfText) {
+        const vdMargin = DividerMargin[vd.functionalType].right * d.xHeight / 4
+        if (vdRight - vdMargin <= textLeft && vdRight - vdMargin > maxRightEdgeLeftOfText) {
           maxRightEdgeLeftOfText = vdRight;
         }
       });
@@ -1167,27 +1165,29 @@ class BorderGroup extends BaseGroup {
       verticalDividers.forEach(vd => {
         const vdCoords = vd.getEffectiveCoords();
         const vdLeft = Math.min(vdCoords[0].x, vdCoords[1].x, vdCoords[2].x, vdCoords[3].x);
-        if (vdLeft >= textRight && vdLeft < minLeftEdgeRightOfText) {
+        const vdMargin = DividerMargin[vd.functionalType].left * d.xHeight / 4
+        if (vdLeft + vdMargin >= textRight && vdLeft + vdMargin < minLeftEdgeRightOfText) {
           minLeftEdgeRightOfText = vdLeft;
         }
       });
       if (minLeftEdgeRightOfText !== Infinity) rightBoundary = minLeftEdgeRightOfText;
 
       // Inset by one stroke width from both boundaries
-      const targetLeft = leftBoundary + stroke;
-      const targetRight = rightBoundary - stroke;
+      const targetLeft = leftBoundary;
+      const targetRight = rightBoundary;
       const targetWidth = Math.max(0, targetRight - targetLeft);
 
       // Redraw and position the underline to span the computed width
       const res = drawDivider(
         underline.xHeight,
         underline.color,
-        { left: targetLeft, top: underline.top },
+        { left: targetLeft + 1.5 * stroke, top: textObj.top + textObj.height + stroke },
         { width: targetWidth, height: stroke },
         'HLine'
       );
       underline.replaceBasePolygon(res, false);
-      underline.set({ left: targetLeft });
+      underline.set({ left: targetLeft + 1.5 * stroke, top: textObj.top + textObj.height + stroke });
+      underline.drawVertex(false)
       underline.setCoords();
     });
 

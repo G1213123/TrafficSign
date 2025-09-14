@@ -7,6 +7,7 @@ import { EngDestinations, ChtDestinations } from '../objects/template.js';
 import { FontPriorityManager } from '../modal/md-font.js';
 import { HintLoader } from '../utils/hintLoader.js';
 import { DividerObject } from '../objects/divider.js';
+import { BorderGroup } from '../objects/border.js';
 
 let FormTextAddComponent = {
   textFont: ['TransportMedium', 'TransportHeavy'],
@@ -656,7 +657,8 @@ let FormTextAddComponent = {
         xHeight: options.xHeight,
         color: options.color,
         dividerType: 'HLine',
-        textObject: textObject
+        textObject: textObject,
+        BorderGroup: null,
       });
       underlineObject.isTemporary = true;
 

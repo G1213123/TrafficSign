@@ -15,11 +15,13 @@ let FormBorderWrapComponent = {
     if (parent) {
       // Create a container for border parameters
       var borderParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      const xHeightInput = GeneralHandler.createInput('input-xHeight', 'x Height', borderParamsContainer, GeneralSettings.xHeight, FormBorderWrapComponent.handleXHeightChange, 'input')
+      const xHeightInput = GeneralHandler.createInput('input-xHeight', 'x Height', borderParamsContainer, GeneralSettings.xHeight, FormBorderWrapComponent.handleXHeightChange, 'input', 'mm')
 
       // Attach x-height help icon (TPDM Table 3.2.5.1 guidance)
       try {
-        const xhParent = xHeightInput && xHeightInput.parentElement ? xHeightInput.parentElement : borderParamsContainer;
+        const xhParent = xHeightInput.parentElement && xHeightInput.parentElement.classList.contains('input-wrapper')
+          ? xHeightInput.parentElement.parentElement
+          : xHeightInput.parentElement || basicParamsContainer;
         if (xhParent) {
           GeneralHandler.createHelpIconWithHint(xhParent, 'text/XHeight', { position: 'right' });
         }
@@ -40,7 +42,7 @@ let FormBorderWrapComponent = {
         console.warn('Failed to attach color purpose help icon in Border panel:', e);
       }
 
-  // (moved) Fixed width/height inputs will be added inside borderTypeContainer for better layout
+      // (moved) Fixed width/height inputs will be added inside borderTypeContainer for better layout
 
       // Create a container for border actions
       var borderActionsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
@@ -77,16 +79,33 @@ let FormBorderWrapComponent = {
         const fixedRow = GeneralHandler.createNode('div', { 'class': 'input-row' }, borderTypeContainer);
         // inline styles to guarantee side-by-side layout without relying on external CSS
         fixedRow.style.display = 'flex';
-        fixedRow.style.gap = '8px';
+        fixedRow.style.gap = '0px';
         fixedRow.style.alignItems = 'flex-end';
-        fixedRow.style.marginBottom = '8px';
 
-        const fw = GeneralHandler.createInput('input-fixedWidth', 'Fixed Width (mm) — optional', fixedRow, '', null, 'input');
-        const fh = GeneralHandler.createInput('input-fixedHeight', 'Fixed Height (mm) — optional', fixedRow, '', null, 'input');
+        const fw = GeneralHandler.createInput('input-fixedWidth', 'Fixed Width', fixedRow, '', null, 'input', '(optional) mm');
+        const fh = GeneralHandler.createInput('input-fixedHeight', 'Fixed Height', fixedRow, '', null, 'input', '(optional) mm');
         // Make each input block share the row evenly
         if (fw && fw.parentElement) fw.parentElement.style.flex = '1 1 0';
         if (fh && fh.parentElement) fh.parentElement.style.flex = '1 1 0';
-      } catch(e) {
+
+        // Update unit span to remove '(optional)' when a value is present
+        const updateUnitSpan = (inputEl) => {
+          if (!inputEl || !inputEl.parentElement) return;
+          const unitSpan = inputEl.parentElement.querySelector('.input-unit');
+          if (!unitSpan) return;
+          const hasValue = inputEl.value && inputEl.value.toString().trim() !== '';
+          unitSpan.textContent = hasValue ? 'mm' : '(optional) mm';
+        };
+
+        if (fw) {
+          ['input', 'change', 'blur'].forEach(evt => fw.addEventListener(evt, () => updateUnitSpan(fw)));
+          updateUnitSpan(fw);
+        }
+        if (fh) {
+          ['input', 'change', 'blur'].forEach(evt => fh.addEventListener(evt, () => updateUnitSpan(fh)));
+          updateUnitSpan(fh);
+        }
+      } catch (e) {
         console.warn('Failed to attach fixed width/height inputs:', e);
       }
       FormBorderWrapComponent.createBorderButtons()
@@ -205,7 +224,7 @@ let FormBorderWrapComponent = {
     const fixedWidth = fixedWidthRaw !== '' ? parseFloat(fixedWidthRaw) : null;
     const fixedHeight = fixedHeightRaw !== '' ? parseFloat(fixedHeightRaw) : null;
 
-    const createBorder = (widthObjects=[], heightObjects=[])=>{
+    const createBorder = (widthObjects = [], heightObjects = []) => {
       new BorderGroup({
         borderType: borderType,
         widthObjects: [...widthObjects],
@@ -270,25 +289,25 @@ let FormBorderWrapComponent = {
   LaneLineHandler: function () {
     FormBorderWrapComponent.startDividerHoverMode('VLane');
   },
-  
+
   // Start hover mode: user hovers a border to show compartments, then clicks to place divider
-  startDividerHoverMode: function(dividerType){
+  startDividerHoverMode: function (dividerType) {
     // End any existing mode first
     FormBorderWrapComponent._exitDividerPlacementMode(true);
     const canvas = CanvasGlobals.canvas;
     FormBorderWrapComponent._dividerPlacementMode = { active: true, dividerType };
     // Instruction prompt (ESC to cancel)
-    showTextBox('Click inside the border to place divider', null, 'keydown', (e)=>{
-      if(e.key === 'Escape'){
+    showTextBox('Click inside the border to place divider', null, 'keydown', (e) => {
+      if (e.key === 'Escape') {
         FormBorderWrapComponent._exitDividerPlacementMode();
       }
     });
 
     // Hover handler to detect border under pointer (no overlay)
-    FormBorderWrapComponent._dividerPlacementHoverHandler = function(opt){
-      if(!FormBorderWrapComponent._dividerPlacementMode?.active) return;
+    FormBorderWrapComponent._dividerPlacementHoverHandler = function (opt) {
+      if (!FormBorderWrapComponent._dividerPlacementMode?.active) return;
       const target = opt.target;
-      if(target && target.functionalType === 'Border'){
+      if (target && target.functionalType === 'Border') {
         FormBorderWrapComponent._hoveredBorder = target;
         // Show or update a subtle hover overlay over the border's inner area
         FormBorderWrapComponent._showBorderHoverOverlay(target);
@@ -300,11 +319,11 @@ let FormBorderWrapComponent = {
     canvas.on('mouse:move', FormBorderWrapComponent._dividerPlacementHoverHandler);
 
     // Click to place divider inside the border under pointer
-    FormBorderWrapComponent._dividerPlacementClickHandler = function(opt){
-      if(!FormBorderWrapComponent._dividerPlacementMode?.active) return;
+    FormBorderWrapComponent._dividerPlacementClickHandler = function (opt) {
+      if (!FormBorderWrapComponent._dividerPlacementMode?.active) return;
       const target = opt.target;
       const border = (target && target.functionalType === 'Border') ? target : FormBorderWrapComponent._hoveredBorder;
-      if(!border) return;
+      if (!border) return;
       border.updateBboxes();
       const pointer = canvas.getPointer(opt.e);
       const bbox = border.inbbox;
@@ -313,11 +332,11 @@ let FormBorderWrapComponent = {
       const dividerOptions = { dividerType, borderGroup: border, xHeight: border.xHeight, colorType: color, compartmentBox: bbox };
       const divider = new DividerObject(dividerOptions);
       // Position divider near click point, will be clamped by assignWidthToDivider
-      if(dividerType==='HDivider' || dividerType==='HLine'){
-        divider.set({ top: pointer.y - divider.height/2 });
+      if (dividerType === 'HDivider' || dividerType === 'HLine') {
+        divider.set({ top: pointer.y - divider.height / 2 });
         border.HDivider.push(divider)
       } else {
-        divider.set({ left: pointer.x - divider.width/2 });
+        divider.set({ left: pointer.x - divider.width / 2 });
         border.VDivider.push(divider)
       }
       divider.setCoords();
@@ -331,10 +350,10 @@ let FormBorderWrapComponent = {
     canvas.on('mouse:down', FormBorderWrapComponent._dividerPlacementClickHandler);
   },
 
-  _showCompartmentOverlay: function(border, dividerType){
+  _showCompartmentOverlay: function (border, dividerType) {
     const canvas = CanvasGlobals.canvas;
     // Remove existing overlay if any
-    if (FormBorderWrapComponent._compartmentOverlay){
+    if (FormBorderWrapComponent._compartmentOverlay) {
       FormBorderWrapComponent._removeCompartmentOverlay();
     }
     const overlays = [];
@@ -342,13 +361,13 @@ let FormBorderWrapComponent = {
     const dimColor = 'rgba(0,150,255,0.08)';
     const strokeColor = 'rgba(0,150,255,0.5)';
     const zoom = canvas.getZoom ? canvas.getZoom() : 1;
-    const strokeWidth = 1/zoom;
+    const strokeWidth = 1 / zoom;
 
-    const onMouseMove = (opt)=>{
+    const onMouseMove = (opt) => {
       const pointer = canvas.getPointer(opt.e);
-      overlays.forEach(o=>{
+      overlays.forEach(o => {
         const b = o._metaBox;
-        const inside = pointer.x>=b.left && pointer.x<=b.right && pointer.y>=b.top && pointer.y<=b.bottom;
+        const inside = pointer.x >= b.left && pointer.x <= b.right && pointer.y >= b.top && pointer.y <= b.bottom;
         o.set('fill', inside ? majorColor : dimColor);
       });
       canvas.requestRenderAll();
@@ -356,16 +375,16 @@ let FormBorderWrapComponent = {
 
     const color = document.getElementById('input-color').value;
 
-    const onClick = (opt)=>{
+    const onClick = (opt) => {
       const pointer = canvas.getPointer(opt.e);
-      let chosen=null;
-      overlays.forEach(o=>{
+      let chosen = null;
+      overlays.forEach(o => {
         const b = o._metaBox;
-        if(pointer.x>=b.left && pointer.x<=b.right && pointer.y>=b.top && pointer.y<=b.bottom){
-          chosen=b;
+        if (pointer.x >= b.left && pointer.x <= b.right && pointer.y >= b.top && pointer.y <= b.bottom) {
+          chosen = b;
         }
       });
-      if (chosen){
+      if (chosen) {
         // Remove overlay first
         FormBorderWrapComponent._removeCompartmentOverlay();
         // Capture the compartment dimensions (width/height limits) so the divider can clamp within this compartment
@@ -377,20 +396,20 @@ let FormBorderWrapComponent = {
           right: chosen.right,
           bottom: chosen.bottom
         };
-  // Determine compartment order indices
-  const columns = [...new Set(border.compartmentBboxes.map(b=>b.left))].sort((a,b)=>a-b);
-  const rows = [...new Set(border.compartmentBboxes.map(b=>b.top))].sort((a,b)=>a-b);
-  const compartmentColumn = columns.indexOf(chosen.left);
-  const compartmentRow = rows.indexOf(chosen.top);
-  const dividerOptions = { dividerType: dividerType, borderGroup: border, xHeight: border.xHeight, colorType: color, compartmentBox, compartmentColumn, compartmentRow };
+        // Determine compartment order indices
+        const columns = [...new Set(border.compartmentBboxes.map(b => b.left))].sort((a, b) => a - b);
+        const rows = [...new Set(border.compartmentBboxes.map(b => b.top))].sort((a, b) => a - b);
+        const compartmentColumn = columns.indexOf(chosen.left);
+        const compartmentRow = rows.indexOf(chosen.top);
+        const dividerOptions = { dividerType: dividerType, borderGroup: border, xHeight: border.xHeight, colorType: color, compartmentBox, compartmentColumn, compartmentRow };
         const divider = new DividerObject(dividerOptions);
         // Position divider roughly at compartment center initially
-        const centerX = (chosen.left+chosen.right)/2;
-        const centerY = (chosen.top+chosen.bottom)/2;
-        if(dividerType==='HDivider' || dividerType==='HLine'){
-          divider.set({ top: centerY - divider.height/2 });
+        const centerX = (chosen.left + chosen.right) / 2;
+        const centerY = (chosen.top + chosen.bottom) / 2;
+        if (dividerType === 'HDivider' || dividerType === 'HLine') {
+          divider.set({ top: centerY - divider.height / 2 });
         } else {
-          divider.set({ left: centerX - divider.width/2 });
+          divider.set({ left: centerX - divider.width / 2 });
         }
         divider.setCoords();
         canvas.requestRenderAll();
@@ -399,7 +418,7 @@ let FormBorderWrapComponent = {
       }
     };
 
-    border.compartmentBboxes.forEach((b,idx)=>{
+    border.compartmentBboxes.forEach((b, idx) => {
       const rect = new fabric.Rect({
         left: b.left,
         top: b.top,
@@ -423,14 +442,14 @@ let FormBorderWrapComponent = {
     canvas.requestRenderAll();
   },
 
-  _showBorderHoverOverlay: function(border){
+  _showBorderHoverOverlay: function (border) {
     const canvas = CanvasGlobals.canvas;
     // Remove any existing overlay first
-    if (FormBorderWrapComponent._borderHoverOverlay){
+    if (FormBorderWrapComponent._borderHoverOverlay) {
       FormBorderWrapComponent._removeBorderHoverOverlay();
     }
     // Ensure latest inbbox
-    if (!border.inbbox){
+    if (!border.inbbox) {
       border.updateBboxes();
     }
     const bbox = border.inbbox;
@@ -442,7 +461,7 @@ let FormBorderWrapComponent = {
       height: bbox.bottom - bbox.top,
       fill: 'rgba(238, 255, 0, 0.6)',
       stroke: 'rgba(0,150,255,0.35)',
-      strokeWidth: 1/zoom,
+      strokeWidth: 1 / zoom,
       selectable: false,
       evented: false,
       objectCaching: false
@@ -452,43 +471,43 @@ let FormBorderWrapComponent = {
     canvas.requestRenderAll();
   },
 
-  _removeBorderHoverOverlay: function(){
+  _removeBorderHoverOverlay: function () {
     const canvas = CanvasGlobals.canvas;
     const overlay = FormBorderWrapComponent._borderHoverOverlay;
-    if(!overlay) return;
+    if (!overlay) return;
     canvas.remove(overlay.rect);
     FormBorderWrapComponent._borderHoverOverlay = null;
     canvas.requestRenderAll();
   },
 
-  _removeCompartmentOverlay: function(){
+  _removeCompartmentOverlay: function () {
     const canvas = CanvasGlobals.canvas;
     const overlay = FormBorderWrapComponent._compartmentOverlay;
-    if(!overlay) return;
-    overlay.overlays.forEach(o=> canvas.remove(o));
+    if (!overlay) return;
+    overlay.overlays.forEach(o => canvas.remove(o));
     canvas.off('mouse:move', overlay.onMouseMove);
     canvas.off('mouse:down', overlay.onClick);
     FormBorderWrapComponent._compartmentOverlay = null;
     canvas.requestRenderAll();
   },
 
-  _exitDividerPlacementMode: function(silent=false){
+  _exitDividerPlacementMode: function (silent = false) {
     const canvas = CanvasGlobals.canvas;
-    if(FormBorderWrapComponent._dividerPlacementHoverHandler){
+    if (FormBorderWrapComponent._dividerPlacementHoverHandler) {
       canvas.off('mouse:move', FormBorderWrapComponent._dividerPlacementHoverHandler);
       FormBorderWrapComponent._dividerPlacementHoverHandler = null;
     }
-    if(FormBorderWrapComponent._dividerPlacementClickHandler){
+    if (FormBorderWrapComponent._dividerPlacementClickHandler) {
       canvas.off('mouse:down', FormBorderWrapComponent._dividerPlacementClickHandler);
       FormBorderWrapComponent._dividerPlacementClickHandler = null;
     }
-    if(FormBorderWrapComponent._borderHoverOverlay){
+    if (FormBorderWrapComponent._borderHoverOverlay) {
       FormBorderWrapComponent._removeBorderHoverOverlay();
     }
-    if(FormBorderWrapComponent._compartmentOverlay){
+    if (FormBorderWrapComponent._compartmentOverlay) {
       FormBorderWrapComponent._removeCompartmentOverlay();
     }
-    if(!silent){
+    if (!silent) {
       hideTextBox();
     }
     FormBorderWrapComponent._dividerPlacementMode = null;

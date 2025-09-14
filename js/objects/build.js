@@ -162,8 +162,8 @@ async function buildObjectsFromJSON(jsonStringsArray) {
     const allDeserializedObjectsMap = {}; // Maps originalID -> new FabricObject
     const finalReconstructedObjects = []; // Stores the fabric objects in the order they are fully processed
 
-    const propertiesToRemapById = ['borderGroup', 'mainRoad'];
-    const arrayPropertiesToRemapItemsById = ['anchoredPolygon', 'sideRoad', 'widthObjects', 'heightObjects', 'leftObjects', 'aboveObjects', 'rightObjects', 'belowObjects', 'VDivider', 'HDivider'];
+    const propertiesToRemapById = ['borderGroup', 'mainRoad', 'textObject'];
+    const arrayPropertiesToRemapItemsById = ['anchoredPolygon', 'sideRoad', 'widthObjects', 'heightObjects',  'leftObjects', 'aboveObjects', 'rightObjects', 'belowObjects', 'VDivider', 'HDivider'];
 
     // First pass: Create all objects and store them in the map
     for (const data of allDeserializedData) {
