@@ -340,7 +340,7 @@ class BaseGroup extends fabric.Group {
 
 
     // Serialize references to other BaseGroup objects by their canvasID
-    const propertiesToSerializeById = ['borderGroup', 'mainRoad', 'textObject'];
+    const propertiesToSerializeById = ['borderGroup', 'mainRoad', 'textObject', 'underline'];
     propertiesToSerializeById.forEach(propName => {
       if (this[propName] && typeof this[propName].canvasID !== 'undefined') {
         dataToSerialize[propName] = this[propName].canvasID;
@@ -350,7 +350,7 @@ class BaseGroup extends fabric.Group {
       }
     });
 
-    const arrayPropertiesToSerializeById = ['underline', 'anchoredPolygon', 'sideRoad', 'widthObjects', 'heightObjects', 'leftObjects', 'aboveObjects', 'rightObjects', 'belowObjects', 'VDivider', 'HDivider'];
+    const arrayPropertiesToSerializeById = ['anchoredPolygon', 'sideRoad', 'widthObjects', 'heightObjects', 'leftObjects', 'aboveObjects', 'rightObjects', 'belowObjects', 'VDivider', 'HDivider'];
     arrayPropertiesToSerializeById.forEach(propName => {
       if (this[propName] && Array.isArray(this[propName])) {
         dataToSerialize[propName] = this[propName].map(item => {
@@ -1077,7 +1077,7 @@ class BaseGroup extends fabric.Group {
 
     // Copy arrays to avoid mutation during iteration
     const allDividers = [
-      ...(deleteObj.HDivider ? [...deleteObj.HDivider] : []),
+      ...(deleteObj.HDivider ? [...deleteObj.HDivider.filter(obj => obj.functionalType !== 'HLine')] : []),
       ...(deleteObj.VDivider ? [...deleteObj.VDivider] : [])
     ];
     allDividers.forEach(div => {

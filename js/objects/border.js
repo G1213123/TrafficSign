@@ -1113,13 +1113,11 @@ class BorderGroup extends BaseGroup {
 
   assignWidthToUnderline() {
     // Collect unique text objects that have an underline DividerObject attached
-    const textsWithUnderline = new Set();
-    this.widthObjects.forEach(obj => {
-      if (obj.functionalType === 'Text' && obj.underline) textsWithUnderline.add(obj);
+    const underlineObjects = new Set();
+    this.HDivider.forEach(obj => {
+      if (obj.functionalType === 'HLine') underlineObjects.add(obj);
     });
-    this.heightObjects.forEach(obj => {
-      if (obj.functionalType === 'Text' && obj.underline) textsWithUnderline.add(obj);
-    });
+
 
     // Helper to get left/right X from an object's effective coords
     const getLeftRightX = (obj) => {
@@ -1131,40 +1129,40 @@ class BorderGroup extends BaseGroup {
     // Only consider actual vertical dividers for boundaries
     const verticalDividers = (this.VDivider || []).filter(d => d.functionalType === 'VDivider');
 
-    textsWithUnderline.forEach(textObj => {
-      const underline = textObj.underline; // DividerObject of type 'HLine'
-      if (!underline) return;
+    underlineObjects.forEach(underline => {
 
       // One stroke width in canvas units (length = xHeight/4)
       const stroke = underline.xHeight / 4;
+      const initialTop = underline.getEffectiveCoords()[0].y;
 
       // Determine the search reference from the text's bounds
-      const { left: textLeft, right: textRight } = getLeftRightX(textObj);
+      const { left: textLeft, right: textRight } = getLeftRightX(underline.textObject);
 
-      // Find nearest left VDivider (use its right edge), else border inner left
+      // Find nearest left/right VDivider in a single pass
       let leftBoundary = this.inbbox.left;
-      let maxRightEdgeLeftOfText = -Infinity;
-      verticalDividers.forEach(vd => {
-        const vdCoords = vd.getEffectiveCoords();
-        const vdRight = Math.max(vdCoords[0].x, vdCoords[1].x, vdCoords[2].x, vdCoords[3].x);
-        const vdMargin = DividerMargin[vd.functionalType].right * d.xHeight / 4
-        if (vdRight - vdMargin <= textLeft && vdRight - vdMargin > maxRightEdgeLeftOfText) {
-          maxRightEdgeLeftOfText = vdRight;
-        }
-      });
-      if (maxRightEdgeLeftOfText !== -Infinity) leftBoundary = maxRightEdgeLeftOfText;
-
-      // Find nearest right VDivider (use its left edge), else border inner right
       let rightBoundary = this.inbbox.right;
+      let maxRightEdgeLeftOfText = -Infinity;
       let minLeftEdgeRightOfText = Infinity;
       verticalDividers.forEach(vd => {
         const vdCoords = vd.getEffectiveCoords();
         const vdLeft = Math.min(vdCoords[0].x, vdCoords[1].x, vdCoords[2].x, vdCoords[3].x);
-        const vdMargin = DividerMargin[vd.functionalType].left * d.xHeight / 4
-        if (vdLeft + vdMargin >= textRight && vdLeft + vdMargin < minLeftEdgeRightOfText) {
-          minLeftEdgeRightOfText = vdLeft;
+        const vdRight = Math.max(vdCoords[0].x, vdCoords[1].x, vdCoords[2].x, vdCoords[3].x);
+
+        // Consider margins when determining adjacency
+        const rightMargin = DividerMargin[vd.functionalType].right * vd.xHeight / 4;
+        const leftMargin = DividerMargin[vd.functionalType].left * vd.xHeight / 4;
+
+        // Candidate for left boundary: nearest right edge to the left of text
+        if (vdRight - rightMargin <= textLeft && vdRight - rightMargin > maxRightEdgeLeftOfText) {
+          maxRightEdgeLeftOfText = vdRight - rightMargin;
+        }
+
+        // Candidate for right boundary: nearest left edge to the right of text
+        if (vdLeft + leftMargin >= textRight && vdLeft + leftMargin < minLeftEdgeRightOfText) {
+          minLeftEdgeRightOfText = vdLeft + leftMargin;
         }
       });
+      if (maxRightEdgeLeftOfText !== -Infinity) leftBoundary = maxRightEdgeLeftOfText;
       if (minLeftEdgeRightOfText !== Infinity) rightBoundary = minLeftEdgeRightOfText;
 
       // Inset by one stroke width from both boundaries
@@ -1176,12 +1174,12 @@ class BorderGroup extends BaseGroup {
       const res = drawDivider(
         underline.xHeight,
         underline.color,
-        { left: targetLeft + 1.5 * stroke, top: textObj.top + textObj.height },
+        { left: targetLeft, top: initialTop - stroke },
         { width: targetWidth, height: stroke },
         'HLine'
       );
       underline.replaceBasePolygon(res, false);
-      underline.set({ left: targetLeft + 1.5 * stroke,  });
+      //underline.set({ left: targetLeft + 1.5 * stroke,  });
       underline.drawVertex(false)
       underline.setCoords();
     });
