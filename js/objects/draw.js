@@ -350,7 +350,7 @@ class BaseGroup extends fabric.Group {
       }
     });
 
-    const arrayPropertiesToSerializeById = ['anchoredPolygon', 'sideRoad', 'widthObjects', 'heightObjects', 'leftObjects', 'aboveObjects', 'rightObjects', 'belowObjects', 'VDivider', 'HDivider'];
+    const arrayPropertiesToSerializeById = ['underline', 'anchoredPolygon', 'sideRoad', 'widthObjects', 'heightObjects', 'leftObjects', 'aboveObjects', 'rightObjects', 'belowObjects', 'VDivider', 'HDivider'];
     arrayPropertiesToSerializeById.forEach(propName => {
       if (this[propName] && Array.isArray(this[propName])) {
         dataToSerialize[propName] = this[propName].map(item => {

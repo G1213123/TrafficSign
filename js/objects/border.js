@@ -209,10 +209,6 @@ const BorderUtilities = {
         HDividerObject.push(obj);
         return false; // Remove the object from original array
       }
-      else if (obj.borderGroup) {
-        borderedObjects.push(obj);
-        return false; // Prevent nested border update
-      }
       return true; // Keep the object in original array
     });
 
@@ -220,10 +216,7 @@ const BorderUtilities = {
       if (obj.functionalType == 'VDivider' || obj.functionalType == 'VLane') {
         VDividerObject.push(obj);
         return false; // Remove the object from original array
-      } else if (obj.borderGroup) {
-        borderedObjects.push(obj);
-        return false; // Prevent nested border update
-      }
+      } 
       return true; // Keep the object in original array
     });
     return [fheightObjects, fwidthObjects, VDividerObject, HDividerObject, borderedObjects]
@@ -833,8 +826,8 @@ class BorderGroup extends BaseGroup {
     const [fheightObjects, fwidthObjects, VDivider, HDivider, bordered] = BorderUtilities.FilterDivider(this.heightObjects, this.widthObjects, this.VDivider, this.HDivider)
     this.widthObjects = fwidthObjects
     this.heightObjects = fheightObjects
-    //this.VDivider = VDivider
-    //this.HDivider = HDivider
+    this.VDivider = VDivider
+    this.HDivider = HDivider
   }
 
   calcfixedBboxes(isInitialization = false) {
@@ -1089,23 +1082,25 @@ class BorderGroup extends BaseGroup {
 
     // Horizontal dividers
     for (const d of this.HDivider) {
-      const initialTop = d.getEffectiveCoords()[0].y;
-      const res = drawDivider(
-        d.xHeight,
-        d.color,
-        { left: d.left, top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4 },
-        this.inbbox,
-        d.functionalType
-      );
-      d.replaceBasePolygon(res, false);
-      d.set({
-        left: this.inbbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4
-      });
-      const minTop = this.inbbox.top + (this.frame) * d.xHeight / 4;
-      const maxTop = this.inbbox.bottom - (this.frame) * d.xHeight / 4 - d.height;
-      const clampedTop = maxTop >= minTop ? Math.min(Math.max(initialTop, minTop), maxTop) : minTop;
-      d.set({ top: clampedTop });
-      d.lockMovementX = true;
+      if (d.functionalType !== 'HLine'){
+        const initialTop = d.getEffectiveCoords()[0].y;
+        const res = drawDivider(
+          d.xHeight,
+          d.color,
+          { left: d.left, top: d.top - DividerMargin[d.functionalType].top * d.xHeight / 4 },
+          this.inbbox,
+          d.functionalType
+        );
+        d.replaceBasePolygon(res, false);
+        d.set({
+          left: this.inbbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4
+        });
+        const minTop = this.inbbox.top + (this.frame) * d.xHeight / 4;
+        const maxTop = this.inbbox.bottom - (this.frame) * d.xHeight / 4 - d.height;
+        const clampedTop = maxTop >= minTop ? Math.min(Math.max(initialTop, minTop), maxTop) : minTop;
+        d.set({ top: clampedTop });
+        d.lockMovementX = true;
+      }
     }
 
     // Refresh compartments & midpoints after reposition
@@ -1181,12 +1176,12 @@ class BorderGroup extends BaseGroup {
       const res = drawDivider(
         underline.xHeight,
         underline.color,
-        { left: targetLeft + 1.5 * stroke, top: textObj.top + textObj.height + stroke },
+        { left: targetLeft + 1.5 * stroke, top: textObj.top + textObj.height },
         { width: targetWidth, height: stroke },
         'HLine'
       );
       underline.replaceBasePolygon(res, false);
-      underline.set({ left: targetLeft + 1.5 * stroke, top: textObj.top + textObj.height + stroke });
+      underline.set({ left: targetLeft + 1.5 * stroke,  });
       underline.drawVertex(false)
       underline.setCoords();
     });

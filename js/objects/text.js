@@ -37,6 +37,7 @@ class TextObject extends BaseGroup {
     this.containsNonAlphabetic = false;
     this.txtCharList = [];
     this.txtFrameList = [];
+    this.underline = options.underline || null;
     this.containsNonAlphabetic = containsNonEnglishCharacters(this.text);
 
     // Determine the correct font based on text content and priority system
