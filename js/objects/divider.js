@@ -44,14 +44,15 @@ class DividerObject extends BaseGroup {
         // HLine divider adhere to text
         this.textObject = options.textObject || null;
 
+        this.leftValue = options.left;
+        this.aboveValue = options.top;
+
         // Legacy properties for compatibility with existing create functions
         this.leftObjects = options.leftObjects || [];
         this.rightObjects = options.rightObjects || [];
         this.aboveObjects = options.aboveObjects || [];
         this.belowObjects = options.belowObjects || [];
-        this.leftValue = options.leftValue;
         this.rightValue = options.rightValue;
-        this.aboveValue = options.aboveValue;
         this.belowValue = options.belowValue;
 
         // Properties to be set by the respective create functions
@@ -68,7 +69,7 @@ class DividerObject extends BaseGroup {
     initialize() {
         if (this.dividerType !== 'HLine') {
             // placeholder meta, resize later in border assignWidthToDivider; if compartmentBox supplied, seed with its center
-            let objectBBox = { left: 0, top: 0, right: 0, bottom: 0 };
+            let objectBBox = { left: this.leftValue, top: this.aboveValue,  };
             let objectSize = { width: 0, height: 0 };
             const basePoly = drawDivider(this.xHeight, this.color, objectBBox, objectSize, this.dividerType);
             this.setBasePolygon(basePoly, false);

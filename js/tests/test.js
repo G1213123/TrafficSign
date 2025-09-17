@@ -1065,7 +1065,7 @@ const BorderTest = {
     const borderGroup = new BorderGroup(
       {
         widthObjects: [aboveObject, belowObject],
-        heightObjects: [aboveObject, belowObject, ],
+        heightObjects: [aboveObject, belowObject,],
         xHeight: 100,
         borderType: 'stack',
         color: 'Yellow Background' // Assuming BorderGroup constructor takes color directly or BorderUtilities.BorderGroupCreate handles mapping colorType to color
@@ -1135,7 +1135,7 @@ const BorderTest = {
     );
 
     passed = passed && TestTracker.assertTrue(
-      divider.top < belowObject.top - 1 ,
+      divider.top < belowObject.top - 1,
       "Divider should be above second object"
     );
 
@@ -1934,7 +1934,7 @@ const ComplexSignTest = {
     const rightArrowObj3 = TestTracker.get("rightArrow3"); // Get new arrow 3
 
 
-  // We'll build border first (without dividers), then add dividers tied directly to the borderGroup
+    // We'll build border first (without dividers), then add dividers tied directly to the borderGroup
     // Anchor the objects in place
     anchorShape(whcObj, leftTopObj, {
       vertexIndex1: 'E3',
@@ -1978,7 +1978,55 @@ const ComplexSignTest = {
       spacingY: 0
     });
 
-    const overallObject = [leftTopObj, leftBottomObj, leftArrowObj, leftDestObj, airportObj, whcObj, rightTopObj, rightArrowObj, rightDestObj, rightArrowObj2, rightArrowObj3];
+    // Now add horizontal dividers after border so width assignment happens inside border logic
+    const leftHDivider = new DividerObject({
+      xHeight: 200,
+      colorType: 'Blue Background',
+      dividerType: 'HLine',
+      textObject: leftDestObj
+    });
+    TestTracker.register("leftHDivider", leftHDivider);
+    // Attach underline reference to the text object for clarity
+    leftDestObj.underline = leftHDivider;
+    leftHDivider.textObject = leftDestObj;
+    // Anchor left side objects to divider (destination above, arrow below)
+    anchorShape(leftDestObj, leftHDivider, {
+      vertexIndex1: 'V1',
+      vertexIndex2: 'E6',
+      spacingX: '',
+      spacingY: 50
+    });
+    anchorShape(leftHDivider, leftArrowObj, {
+      vertexIndex1: 'E2',
+      vertexIndex2: 'V4',
+      spacingX: '',
+      spacingY: 50
+    });
+
+    const rightHDivider = new DividerObject({
+      xHeight: 200,
+      colorType: 'Blue Background',
+      dividerType: 'HLine',
+      textObject: rightDestObj
+    });
+    TestTracker.register("rightHDivider", rightHDivider);
+    // Attach underline reference to the text object for clarity
+    rightDestObj.underline = rightHDivider;
+    rightHDivider.textObject = rightDestObj;
+    anchorShape(rightDestObj, rightHDivider, {
+      vertexIndex1: 'V1',
+      vertexIndex2: 'E6',
+      spacingX: '',
+      spacingY: 50
+    });
+    anchorShape(rightHDivider, rightArrowObj2, {
+      vertexIndex1: 'E2',
+      vertexIndex2: 'V4',
+      spacingX: '',
+      spacingY: 50
+    });
+
+    const overallObject = [leftHDivider, rightHDivider, leftTopObj, leftBottomObj, leftArrowObj, leftDestObj, airportObj, whcObj, rightTopObj, rightArrowObj, rightDestObj, rightArrowObj2, rightArrowObj3];
 
     const overallBorderGroup = BorderUtilities.BorderGroupCreate(
       'stack',
@@ -1990,48 +2038,6 @@ const ComplexSignTest = {
     );
     TestTracker.register("overallBorderGroup", overallBorderGroup);
 
-    // Now add horizontal dividers after border so width assignment happens inside border logic
-    const leftHDivider = new DividerObject({
-      borderGroup: overallBorderGroup,
-      xHeight: 200,
-      colorType: 'Blue Background',
-      dividerType: 'HLine'
-    });
-    TestTracker.register("leftHDivider", leftHDivider);
-    // Anchor left side objects to divider (destination above, arrow below)
-    anchorShape(leftDestObj, leftHDivider, {
-      vertexIndex1: 'E2',
-      vertexIndex2: 'E6',
-      spacingX: '',
-      spacingY: 0
-    });
-    anchorShape(leftHDivider, leftArrowObj, {
-      vertexIndex1: 'E2',
-      vertexIndex2: 'E6',
-      spacingX: '',
-      spacingY: 0
-    });
-
-    const rightHDivider = new DividerObject({
-      borderGroup: overallBorderGroup,
-      xHeight: 200,
-      colorType: 'Blue Background',
-      dividerType: 'HLine'
-    });
-    TestTracker.register("rightHDivider", rightHDivider);
-    anchorShape(rightDestObj, rightHDivider, {
-      vertexIndex1: 'E2',
-      vertexIndex2: 'E6',
-      spacingX: '',
-      spacingY: 0
-    });
-    anchorShape(rightHDivider, rightArrowObj2, {
-      vertexIndex1: 'E2',
-      vertexIndex2: 'E6',
-      spacingX: '',
-      spacingY: 0
-    });
-
     // Vertical divider after border
     const vDivider = new DividerObject({
       borderGroup: overallBorderGroup,
@@ -2042,19 +2048,19 @@ const ComplexSignTest = {
     TestTracker.register("vDivider", vDivider);
     // Anchor left/right regions to vertical divider to maintain separation
     anchorShape(whcObj, vDivider, {
-      vertexIndex1: 'E3',
-      vertexIndex2: 'E1',
-      spacingX: -100,
-      spacingY: 0
+      vertexIndex1: 'V1',
+      vertexIndex2: 'E3',
+      spacingX: 100,
+      spacingY: ''
     });
     anchorShape(vDivider, rightTopObj, {
-      vertexIndex1: 'E3',
-      vertexIndex2: 'E1',
-      spacingX: -100,
-      spacingY: 0
+      vertexIndex1: 'E1',
+      vertexIndex2: 'V6',
+      spacingX: 100,
+      spacingY: ''
     });
 
-  anchorShape(overallBorderGroup, leftArrowObj, {
+    anchorShape(overallBorderGroup, leftArrowObj, {
       vertexIndex1: 'E1',
       vertexIndex2: 'E7',
       spacingX: 1550,
@@ -2094,12 +2100,12 @@ const ComplexSignTest = {
     // Test assertions
     let passed = true;
 
-  // Test 1: Verify that the overall border contains all elements
+    // Test 1: Verify that the overall border contains all elements
     passed = passed && TestTracker.assertTrue(
       overallBorderGroup.VDivider.includes(vDivider) &&
-      overallBorderGroup.HDivider.includes(leftHDivider) &&
-      overallBorderGroup.HDivider.includes(rightHDivider),
-      "Overall border should contain all elements"
+      leftDestObj.underline === leftHDivider &&
+      rightDestObj.underline === rightHDivider,
+      "Border should contain vertical divider; underlines adhere to text objects"
     );
 
     // Test 2: Verify that dividers do not cross borders

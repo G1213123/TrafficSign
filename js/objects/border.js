@@ -1189,8 +1189,20 @@ class BorderGroup extends BaseGroup {
   // Optimized method to process border resize without causing infinite loops
   processResize() {
     const BG = this;
-    BG.removeAll();
+    const prevInbbox = this.inbbox ? { left: this.inbbox.left, top: this.inbbox.top, right: this.inbbox.right, bottom: this.inbbox.bottom } : null;
+    // Compute potential new bbox first
     this.calcfixedBboxes(false);
+    const newInbbox = this.inbbox;
+    const noChange = prevInbbox &&
+      prevInbbox.left === newInbbox.left &&
+      prevInbbox.top === newInbbox.top &&
+      prevInbbox.right === newInbbox.right &&
+      prevInbbox.bottom === newInbbox.bottom;
+    if (noChange) {
+      return; // Skip expensive resize if dimensions unchanged
+    }
+
+    BG.removeAll();
     this.rounding = BorderUtilities.calcBorderRounding(this.borderType, this.xHeight, this.inbbox);
     const borderObject = this.drawBorder();
     BG.add(borderObject);
