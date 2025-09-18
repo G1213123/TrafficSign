@@ -341,8 +341,12 @@ class BorderGroup extends BaseGroup {
     this.isUpdating = false; // Flag to track if the border is currently being updated
 
     // Lock movement for border
-    this.lockMovementX = true;
-    this.lockMovementY = true;
+    if (this.fixedWidth == null) {
+      this.lockMovementX = true;
+    }
+    if (this.fixedHeight == null) {
+      this.lockMovementY = true;
+    }
 
     this.initialize(); // Call the initialize method to set up the border
 
@@ -857,6 +861,8 @@ class BorderGroup extends BaseGroup {
 
     // Handle width calculation
     if (hasFixedWidth) {
+      const leftPadding = (this.frame + this.defaultPadding.left) * this.xHeight / 4;
+      const rightPadding = (this.frame + this.defaultPadding.right) * this.xHeight / 4;
       if (isInitialization || !this.fixedWidthCoords) {
         // Calculate fixed width coordinates only during initialization or if not cached
         const borderCoords = canvas.calcViewportBoundaries();
@@ -865,8 +871,6 @@ class BorderGroup extends BaseGroup {
           console.error('calcfixedBboxes: Invalid borderCoords:', borderCoords);
         } else {
           const centerX = (borderCoords.tl.x + borderCoords.br.x) / 2;
-          const leftPadding = (this.frame + this.defaultPadding.left) * this.xHeight / 4;
-          const rightPadding = (this.frame + this.defaultPadding.right) * this.xHeight / 4;
 
           this.fixedWidthCoords = {
             left: centerX - parseInt(this.fixedWidth) / 2 + leftPadding,
@@ -886,6 +890,12 @@ class BorderGroup extends BaseGroup {
             this.fixedWidthCoords = { left: 0, right: 100 };
           }
         }
+      } else {
+        // For non-initialization calls, ensure coords are updated to current fixed values
+        if (this.fixedWidthCoords) {
+          this.fixedWidthCoords.left = this.left + leftPadding;
+          this.fixedWidthCoords.right = this.left + this.width - rightPadding;
+        }
       }
 
       // Use cached fixed width coordinates
@@ -898,6 +908,9 @@ class BorderGroup extends BaseGroup {
 
     // Handle height calculation
     if (hasFixedHeight) {
+      const topPadding = (this.frame + this.defaultPadding.top) * this.xHeight / 4;
+      const bottomPadding = (this.frame + this.defaultPadding.bottom) * this.xHeight / 4;
+
       if (isInitialization || !this.fixedHeightCoords) {
         // Calculate fixed height coordinates only during initialization or if not cached
         const borderCoords = canvas.calcViewportBoundaries();
@@ -906,8 +919,6 @@ class BorderGroup extends BaseGroup {
           console.error('calcfixedBboxes: Invalid borderCoords:', borderCoords);
         } else {
           const centerY = (borderCoords.tl.y + borderCoords.br.y) / 2;
-          const topPadding = (this.frame + this.defaultPadding.top) * this.xHeight / 4;
-          const bottomPadding = (this.frame + this.defaultPadding.bottom) * this.xHeight / 4;
 
           this.fixedHeightCoords = {
             top: centerY - parseInt(this.fixedHeight) / 2 + topPadding,
@@ -926,6 +937,12 @@ class BorderGroup extends BaseGroup {
             });
             this.fixedHeightCoords = { top: 0, bottom: 100 };
           }
+        }
+      } else {
+        // For non-initialization calls, ensure coords are updated to current fixed values
+        if (this.fixedHeightCoords) {
+          this.fixedHeightCoords.top = this.top + topPadding;
+          this.fixedHeightCoords.bottom = this.top + this.height - bottomPadding;
         }
       }
 

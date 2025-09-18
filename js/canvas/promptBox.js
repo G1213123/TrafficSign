@@ -290,6 +290,7 @@ function selectObjectHandler(text, callback, options = null, xHeight = null, uni
   let isDragging = false;
   let processed = false;
   let dragDebounceTimer = null;
+  let checkInterval = null;
 
   const cleanup = () => {
     if (processed) return;
@@ -299,6 +300,7 @@ function selectObjectHandler(text, callback, options = null, xHeight = null, uni
   const removeListeners = () => {
     canvas.off('object:moving', onObjectMoving);
     canvas.off('mouse:up', onMouseUp);
+    document.removeEventListener('keydown', onKeyDown);
     if (dragDebounceTimer) {
       clearTimeout(dragDebounceTimer);
       dragDebounceTimer = null;
@@ -340,10 +342,19 @@ function selectObjectHandler(text, callback, options = null, xHeight = null, uni
   // Attach listeners
   canvas.on('object:moving', onObjectMoving);
   canvas.on('mouse:up', onMouseUp);
+  const onKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      processed = true;
+      removeListeners();
+      hideTextBox();
+      // Do not invoke callback; ESC acts as cancel
+    }
+  };
+  document.addEventListener('keydown', onKeyDown);
 
   // If there is already an active selection and user isn't dragging,
   // process it after a brief idle delay as a fallback.
-  const checkInterval = setInterval(() => {
+  checkInterval = setInterval(() => {
     if (!isDragging) {
       processSelection();
     }
