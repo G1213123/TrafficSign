@@ -2539,3 +2539,16 @@ div.side-panel.close {
 .general-button-tooltip .feature-list li::marker {
   color: #4FC3F7;
 }
+
+/* Emphasis for important prompt keywords (high-contrast, no color) */
+#cursorTextBox .prompt-keyword {
+  font-weight: 800;
+  color: #000; /* Black text for yellow bg */
+  padding: 0 2px;
+  border-radius: 2px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  outline: 2px solid rgba(0,0,0,0.2);
+  outline-offset: 2px;
+  background: transparent;
+}

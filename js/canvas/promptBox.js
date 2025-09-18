@@ -4,6 +4,42 @@ import { cursorClickMode } from "./contexMenu.js";
 
 const canvas = CanvasGlobals.canvas; // Access the global canvas object
 
+// Configurable prompt keyword emphasis
+const PromptHighlight = {
+  terms: new Set(["width", "height"]),
+  set(terms) {
+    this.terms = new Set((terms || []).map((s) => String(s).toLowerCase()));
+  },
+  add(...terms) {
+    terms.forEach((t) => this.terms.add(String(t).toLowerCase()));
+  },
+  clear() {
+    this.terms.clear();
+  },
+};
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function emphasizePromptText(s) {
+  if (!s) return "";
+  const escaped = escapeHtml(s);
+  if (!PromptHighlight.terms || PromptHighlight.terms.size === 0) {
+    return escaped;
+  }
+  const pattern = Array.from(PromptHighlight.terms)
+    .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("|");
+  const regex = new RegExp(`\\b(${pattern})\\b`, "gi");
+  return escaped.replace(regex, (m) => `<span class="prompt-keyword">${m.toUpperCase()}</span>`);
+}
+
 function updatePosition(event) {
   const promptBox = document.getElementById('cursorBoxContainer');
   const promptText = document.getElementById('cursorTextBox');
@@ -56,7 +92,8 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
   const enterButton = document.getElementById('cursorEnterButton');
   const cancelButton = document.getElementById('cursorCancelButton');
 
-  promptBox.innerText = text;
+  // Emphasize configured keywords (defaults to WIDTH/HEIGHT)
+  promptBox.innerHTML = emphasizePromptText(text);
   promptBox.style.display = 'block';
   document.removeEventListener('keydown', ShowHideSideBarEvent);
 
@@ -216,68 +253,104 @@ function hideTextBox() {
   }, 1000); // Delay in milliseconds (e.g., 1000ms = 1 second)
 }
 
-async function selectObjectHandler(text, callback, options = null, xHeight = null, unit = 'mm', skipTextBox = false, requiredTypes = null) {
+function selectObjectHandler(text, callback, options = null, xHeight = null, unit = 'mm', skipTextBox = true, requiredTypes = null) {
   /*
-    Parameters:
-      text: prompt text when textbox is shown
-      callback: function(selectedObjects, options, response, xHeight)
-      options, xHeight, unit: existing parameters
-      skipTextBox (bool): if true, do not show prompt/answer box
-      requiredTypes (string|array|null): acceptable functionalType(s); null means accept any
-
-    Behavior:
-      - If skipTextBox is true and there's a current active selection that matches requiredTypes, immediately invoke callback.
-      - Otherwise (or if no valid selection yet), optionally show textbox (unless skipTextBox) and start polling for a valid selection.
-      - When a selection exists, ensure every active object matches requiredTypes (or at least one? -> we choose ALL must match). If matches, trigger callback.
+    Simplified behavior:
+      - Do not wait for Enter/textbox input.
+      - When there are active objects, wait for the user to release any dragging,
+        then pass the active objects to the callback.
+      - Filter by requiredTypes if provided (all active objects must match).
   */
 
+  // Show prompt message near cursor without answer box
+  try {
+    const promptTextEl = document.getElementById('cursorTextBox');
+    const answerBoxEl = document.getElementById('cursorAnswerBox');
+    const enterBtn = document.getElementById('cursorEnterButton');
+    const cancelBtn = document.getElementById('cursorCancelButton');
+    if (promptTextEl) {
+      promptTextEl.innerHTML = emphasizePromptText(text || 'Select object(s)');
+      promptTextEl.style.display = 'block';
+    }
+    if (answerBoxEl) answerBoxEl.style.display = 'none';
+    if (enterBtn) enterBtn.style.display = 'none';
+    if (cancelBtn) cancelBtn.style.display = 'none';
+    // Pause sidebar toggle while prompt is visible
+    document.removeEventListener('keydown', ShowHideSideBarEvent);
+  } catch (e) {
+    // Non-fatal if UI elements are missing
+  }
+
   const matchesRequiredType = (obj) => {
-    if (!requiredTypes) return true; // no restriction
+    if (!requiredTypes) return true;
     if (Array.isArray(requiredTypes)) return requiredTypes.includes(obj.functionalType);
     return obj.functionalType === requiredTypes;
   };
 
-  let response = '';
+  let isDragging = false;
+  let processed = false;
+  let dragDebounceTimer = null;
 
-  if (!skipTextBox) {
-    response = await showTextBox(text, ' ', 'keydown', null, xHeight, unit);
-    if (response === null) { // user cancelled
-      hideTextBox();
-      return;
+  const cleanup = () => {
+    if (processed) return;
+    // no-op; actual cleanup happens after processing
+  };
+
+  const removeListeners = () => {
+    canvas.off('object:moving', onObjectMoving);
+    canvas.off('mouse:up', onMouseUp);
+    if (dragDebounceTimer) {
+      clearTimeout(dragDebounceTimer);
+      dragDebounceTimer = null;
     }
-  } else {
-    // If skipping textbox, set a non-empty response token so downstream condition passes
-    response = 'skip';
-    const preActive = canvas.getActiveObjects();
-    if (preActive.length > 0 && preActive.every(matchesRequiredType)) {
-      // Immediately process existing selection
-      hideTextBox(); // no-op if not shown
-      const successSelected = [...preActive];
+    if (checkInterval) {
+      clearInterval(checkInterval);
+    }
+  };
+
+  const processSelection = () => {
+    if (processed) return;
+    const active = canvas.getActiveObjects();
+    if (active && active.length > 0 && active.every(matchesRequiredType)) {
+      processed = true;
+      removeListeners();
+      hideTextBox();
+      const successSelected = [...active];
       canvas.discardActiveObject();
       canvas.renderAll();
-      callback(successSelected, options, response, xHeight);
-      return;
-    } else {
-      response = await showTextBox(text, ' ', 'keydown', null, xHeight, unit);
-      if (response === null) { // user cancelled
-        hideTextBox();
-        return;
-      }
+      // response is not used anymore; pass null for backward compatibility
+      callback(successSelected, options, null, xHeight);
     }
-  }
+  };
 
-  // Start polling for user selection (only if we haven't returned yet)
-  const checkShapeInterval = setInterval(() => {
-    const activeObjects = canvas.getActiveObjects();
-    if (activeObjects.length > 0 && response !== '' && activeObjects.every(matchesRequiredType)) {
-      clearInterval(checkShapeInterval);
-      hideTextBox();
-      const successSelected = [...activeObjects];
-      canvas.discardActiveObject();
-      canvas.renderAll();
-      callback(successSelected, options, response, xHeight);
+  const onObjectMoving = () => {
+    isDragging = true;
+    if (dragDebounceTimer) {
+      clearTimeout(dragDebounceTimer);
+      dragDebounceTimer = null;
     }
-  }, 100); // Check every 100ms
+  };
+
+  const onMouseUp = () => {
+    isDragging = false;
+    // Small delay to allow fabric to finalize selection geometry
+    dragDebounceTimer = setTimeout(processSelection, 80);
+  };
+
+  // Attach listeners
+  canvas.on('object:moving', onObjectMoving);
+  canvas.on('mouse:up', onMouseUp);
+
+  // If there is already an active selection and user isn't dragging,
+  // process it after a brief idle delay as a fallback.
+  const checkInterval = setInterval(() => {
+    if (!isDragging) {
+      processSelection();
+    }
+  }, 150);
 }
 
 export { showTextBox, hideTextBox, selectObjectHandler };
+// Optional API to configure emphasized terms at runtime
+export const setPromptHighlightTerms = (terms) => PromptHighlight.set(terms);
+export const addPromptHighlightTerms = (...terms) => PromptHighlight.add(...terms);

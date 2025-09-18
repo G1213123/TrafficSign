@@ -223,6 +223,7 @@ class BaseGroup extends fabric.Group {
     CanvasObjectInspector.createObjectListPanelInit();
 
     this.on('selected', () => {
+      if (canvas.getActiveObjects().length > 2) return;
       this.drawAnchorLinkage();
       CanvasObjectInspector.SetActiveObjectList(this);
       this.showLockHighlights();
