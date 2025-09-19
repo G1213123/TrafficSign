@@ -3,6 +3,8 @@ import { symbolsPermittedAngle, BorderColorScheme } from '../objects/template.js
 import { FontPriorityManager } from '../modal/md-font.js';
 import { containsNonEnglishCharacters } from '../objects/text.js';
 import { canvasTracker } from '../canvas/Tracker.js';
+import { DividerObject } from '../objects/divider.js';
+import { anchorShape } from '../objects/anchor.js';
 
 // Add handler for 'Property' context-menu action
 const propertyMenuItem = document.getElementById('property');
@@ -166,7 +168,53 @@ function showPropertyPanel(object) {
     let valueChanged = false;
     let oldValue; // Store old value for tracking
 
-    if (prop.key === 'color' || prop.key === 'fill') {
+    // Special handling: Text underline toggle
+    if (prop.key === 'underline' && targetObject.functionalType === 'Text') {
+      const wantUnderline = newValue === 'Yes';
+      const currentlyUnderlined = !!targetObject.underline;
+      if (wantUnderline === currentlyUnderlined) return; // No change
+
+      oldValue = currentlyUnderlined ? 'Yes' : 'No';
+      try {
+        if (wantUnderline) {
+          const underlineObject = new DividerObject({
+            xHeight: targetObject.xHeight,
+            color: targetObject.color,
+            dividerType: 'HLine',
+            textObject: targetObject,
+            borderGroup: null,
+          });
+          underlineObject.isTemporary = true;
+          // Anchor underline to text: V1 of text to E6 of underline, gap = xHeight/4
+          anchorShape(targetObject, underlineObject, {
+            vertexIndex1: 'V1',
+            vertexIndex2: 'E6',
+            spacingX: 0,
+            spacingY: targetObject.xHeight / 4,
+          });
+          targetObject.underline = underlineObject;
+          if (targetObject.borderGroup) {
+            const border = targetObject.borderGroup;
+            border.HDivider.push(underlineObject);
+            border.heightObjects.push(underlineObject);
+            underlineObject.borderGroup = border;
+          }
+        } else {
+          if (targetObject.underline && typeof targetObject.underline.deleteObject === 'function') {
+            const u = targetObject.underline;
+            targetObject.underline = null;
+            u.deleteObject(null, u);
+          } else {
+            targetObject.underline = null;
+          }
+        }
+        valueChanged = true;
+      } catch (err) {
+        console.error('Failed to toggle underline:', err);
+      }
+
+    }
+    else if (prop.key === 'color' || prop.key === 'fill') {
       if (targetObject[prop.key] !== newValue) {
         oldValue = targetObject[prop.key]; // Store old value
         targetObject[prop.key] = newValue; // Direct assignment for color/fill
@@ -396,7 +444,8 @@ function showPropertyPanel(object) {
       const fontOptions = FontPriorityManager.getAllAvailableFonts(hasNonEnglish);
       specialProps = [
         { label: 'Text', key: 'text', type: 'text', editable: true, value: object.text },
-        { label: 'Font', key: 'font', type: 'select', options: fontOptions.map(f => f.value), editable: true, value: object.font }
+        { label: 'Font', key: 'font', type: 'select', options: fontOptions.map(f => f.value), editable: true, value: object.font },
+        { label: 'Underline', key: 'underline', type: 'select', options: ['Yes','No'], editable: true, value: object.underline ? 'Yes' : 'No' }
       ];
       break;
     case 'Symbol':
