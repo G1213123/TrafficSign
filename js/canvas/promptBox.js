@@ -1,6 +1,7 @@
 import { CanvasGlobals } from "./canvas.js";
 import { ShowHideSideBarEvent } from "./keyboardEvents.js";
 import { cursorClickMode } from "./contexMenu.js";
+import { i18n } from '../i18n/i18n.js';
 
 const canvas = CanvasGlobals.canvas; // Access the global canvas object
 
@@ -56,7 +57,12 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
   const enterButton = document.getElementById('cursorEnterButton');
   const cancelButton = document.getElementById('cursorCancelButton');
 
-  promptBox.innerText = text;
+  // Support passing translation keys or raw text; i18n.t falls back to the same string if key missing
+  try {
+    promptBox.innerText = i18n.t(text);
+  } catch (_) {
+    promptBox.innerText = text;
+  }
   promptBox.style.display = 'block';
   document.removeEventListener('keydown', ShowHideSideBarEvent);
 

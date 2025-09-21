@@ -1,5 +1,6 @@
 /* Text panel component */
 import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
+import { i18n } from '../i18n/i18n.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { TextObject, containsNonEnglishCharacters } from '../objects/text.js';
 import { anchorShape } from '../objects/anchor.js';
@@ -61,8 +62,7 @@ let FormTextAddComponent = {
       const textContentContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
       const textInput = GeneralHandler.createInput('input-text', 'Add Text', textContentContainer, '', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler, 'input');
       // Add the info text div for 2Liner mode
-      const twoLinerInfo = GeneralHandler.createNode("div", { 'id': 'two-liner-info', 'class': 'info-text', 'style': 'display: none;' }, textContentContainer);
-      twoLinerInfo.textContent = "Text input is disabled in 2Liner mode. Select the location in the destination panel.";
+      const twoLinerInfo = GeneralHandler.createI18nNode('div', { 'id': 'two-liner-info', 'class': 'info-text', 'style': 'display: none;' }, textContentContainer, 'Text input is disabled in 2Liner mode. Select the location in the destination panel.', 'text');
       const fontToggle = GeneralHandler.createToggle('Text Font', FormTextAddComponent.textFont, textContentContainer, 'TransportMedium', editingTextObject ? FormTextAddComponent.liveUpdateText : FormTextAddComponent.TextInputHandler);
       const helpIcon1 = GeneralHandler.createHelpIconWithHint(textInput.parentElement, 'text/Text',);
       const helpIcon2 = GeneralHandler.createHelpIconWithHint(fontToggle.parentElement, 'text/TextFont',);
@@ -72,8 +72,7 @@ let FormTextAddComponent = {
 
       // Create a container for location selection
       const locationContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      const regionLabel = GeneralHandler.createNode("div", { 'class': 'placeholder' }, locationContainer);
-      regionLabel.innerHTML = "Add New Destination";
+      const regionLabel = GeneralHandler.createI18nNode('div', { 'class': 'placeholder' }, locationContainer, 'Add New Destination', 'text');
 
       // Extract region names from destinations array
       const regionNames = EngDestinations.map(region => Object.keys(region)[0]);
@@ -95,8 +94,11 @@ let FormTextAddComponent = {
       // Create the select element for locations
       const locationSelect = GeneralHandler.createNode("select", { 'class': 'input', 'id': 'location-select' }, locationDropdownContainer, FormTextAddComponent.locationSelected, 'change');
 
-      // Initialize the location dropdown with locations from the first region
-      FormTextAddComponent.populateLocationDropdown(regionNames[0], "English");
+  // Initialize the location dropdown with locations from the first region
+  FormTextAddComponent.populateLocationDropdown(regionNames[0], "English");
+
+  // Apply translations so Region toggle options and labels render in the current locale
+  try { i18n.applyTranslations(parent); } catch (_) {}
     }
   },
 
@@ -156,6 +158,7 @@ let FormTextAddComponent = {
     // Add a default empty option
     const defaultOption = document.createElement('option');
     defaultOption.value = '';
+    defaultOption.setAttribute('data-i18n', '-- Select Location --');
     defaultOption.text = '-- Select Location --';
     locationSelect.appendChild(defaultOption);
 

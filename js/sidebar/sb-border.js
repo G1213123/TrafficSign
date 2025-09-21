@@ -7,6 +7,7 @@ import { BorderColorScheme, BorderFrameWidth, BorderTypeScheme } from '../object
 import { vertexToPath } from '../objects/path.js';
 import { selectObjectHandler } from '../canvas/promptBox.js';
 import { HintLoader } from '../utils/hintLoader.js';
+import { i18n } from '../i18n/i18n.js';
 
 let FormBorderWrapComponent = {
   BorderPanelInit: function () {
@@ -14,8 +15,8 @@ let FormBorderWrapComponent = {
     var parent = GeneralHandler.PanelInit()
     if (parent) {
       // Create a container for border parameters
-      var borderParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      const xHeightInput = GeneralHandler.createInput('input-xHeight', 'x Height', borderParamsContainer, GeneralSettings.xHeight, FormBorderWrapComponent.handleXHeightChange, 'input')
+  var borderParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+  const xHeightInput = GeneralHandler.createInput('input-xHeight', 'x Height', borderParamsContainer, GeneralSettings.xHeight, FormBorderWrapComponent.handleXHeightChange, 'input')
 
       // Attach x-height help icon (TPDM Table 3.2.5.1 guidance)
       try {
@@ -28,7 +29,8 @@ let FormBorderWrapComponent = {
       }
 
       // Color scheme selection
-      const colorSelect = GeneralHandler.createSelect('input-color', 'Select Color Scheme', Object.keys(BorderColorScheme), borderParamsContainer, null, FormBorderWrapComponent.handleColorChange, 'change')
+  const colorOptions = Object.keys(BorderColorScheme).map(key => ({ value: key, label: key }));
+  const colorSelect = GeneralHandler.createSelect('input-color', 'Select Color Scheme', colorOptions, borderParamsContainer, null, FormBorderWrapComponent.handleColorChange, 'change')
 
       // Attach border color purpose help icon next to the color scheme label
       try {
@@ -41,12 +43,12 @@ let FormBorderWrapComponent = {
       }
 
       // Create a container for border actions
-      var borderActionsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      //GeneralHandler.createButton('input-border', 'Select Objects for border', borderActionsContainer, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
-      const stackDividerBtn = GeneralHandler.createButton('input-HDivider', 'Add stack border divider', borderActionsContainer, 'input', FormBorderWrapComponent.StackDividerHandler, 'click')
-      const gantryDividerBtn = GeneralHandler.createButton('input-VDivider', 'Add gantry border divider', borderActionsContainer, 'input', FormBorderWrapComponent.GantryDividerHandler, 'click')
-      const gantryLineBtn = GeneralHandler.createButton('input-HLine', 'Add gantry destination line', borderActionsContainer, 'input', FormBorderWrapComponent.GantryLineHandler, 'click')
-      const laneLineBtn = GeneralHandler.createButton('input-VLane', 'Add lane separation line', borderActionsContainer, 'input', FormBorderWrapComponent.LaneLineHandler, 'click')
+  var borderActionsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+  //GeneralHandler.createButton('input-border', 'Select Objects for border', borderActionsContainer, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
+  const stackDividerBtn = GeneralHandler.createButton('input-HDivider', 'Add Stack Divider', borderActionsContainer, 'input', FormBorderWrapComponent.StackDividerHandler, 'click')
+  const gantryDividerBtn = GeneralHandler.createButton('input-VDivider', 'Add Gantry Divider', borderActionsContainer, 'input', FormBorderWrapComponent.GantryDividerHandler, 'click')
+  const gantryLineBtn = GeneralHandler.createButton('input-HLine', 'Add Gantry Line', borderActionsContainer, 'input', FormBorderWrapComponent.GantryLineHandler, 'click')
+  const laneLineBtn = GeneralHandler.createButton('input-VLane', 'Add Lane Line', borderActionsContainer, 'input', FormBorderWrapComponent.LaneLineHandler, 'click')
 
       // Add tooltips to divider buttons
       GeneralHandler.createGeneralButtonTooltip(stackDividerBtn, 'divider/StackDivider', {
@@ -72,8 +74,7 @@ let FormBorderWrapComponent = {
 
       // Create a container for border type selection with SVG buttons
       var borderTypeContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container', 'id': 'border-select-container' }, parent);
-      const borderTypeHeader = GeneralHandler.createNode("div", { 'class': 'placeholder' }, borderTypeContainer);
-      borderTypeHeader.innerHTML = "Select Border Type";
+      const borderTypeHeader = GeneralHandler.createI18nNode("div", { 'class': 'placeholder' }, borderTypeContainer, 'Select Border Type', 'text');
       FormBorderWrapComponent.createBorderButtons()
     }
   },
@@ -183,8 +184,8 @@ let FormBorderWrapComponent = {
     const borderType = event.currentTarget.id.replace('button-', '');
     const xHeight = parseInt(document.getElementById("input-xHeight").value);
     const colorType = document.getElementById('input-color').value;
-    selectObjectHandler('Select shape to calculate border width,\nor input fix width and then press Enter', function (widthObjects, options, widthText) {
-      selectObjectHandler('Select shape to calculate border height,\nor input fix height and then press Enter', function (heightObjects, options, heightText) {
+    selectObjectHandler(i18n.t('Select shape to calculate border width,\nor input fix width and then press Enter'), function (widthObjects, options, widthText) {
+      selectObjectHandler(i18n.t('Select shape to calculate border height,\nor input fix height and then press Enter'), function (heightObjects, options, heightText) {
         new BorderGroup({
           borderType: borderType,
           widthObjects: [...widthObjects],
@@ -201,8 +202,8 @@ let FormBorderWrapComponent = {
 
   StackDividerHandler: function () {
     const xHeight = parseInt(document.getElementById("input-xHeight").value);
-    selectObjectHandler('Select object above divider or type in fixed distance to border top', function (aboveObject, options, aboveValue) {
-      selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
+    selectObjectHandler(i18n.t('Select object above divider or type in fixed distance to border top'), function (aboveObject, options, aboveValue) {
+      selectObjectHandler(i18n.t('Select object below divider or type in fixed distance to border bottom'), function (belowObject, options, belowValue) {
         // Pass both objects and entered values to allow for fixed distance options
         const color = document.getElementById('input-color').value;
         const xHeight = parseInt(document.getElementById("input-xHeight").value);
@@ -213,8 +214,8 @@ let FormBorderWrapComponent = {
 
   GantryDividerHandler: function () {
     const xHeight = parseInt(document.getElementById("input-xHeight").value);
-    selectObjectHandler('Select object left to divider or type in fixed distance to border left', function (leftObject, options, leftValue) {
-      selectObjectHandler('Select object right to divider or type in fixed distance to border right', function (rightObject, options, rightValue) {
+    selectObjectHandler(i18n.t('Select object left to divider or type in fixed distance to border left'), function (leftObject, options, leftValue) {
+      selectObjectHandler(i18n.t('Select object right to divider or type in fixed distance to border right'), function (rightObject, options, rightValue) {
         // Pass both objects and entered values to allow for fixed distance options
         const color = document.getElementById('input-color').value;
         const xHeight = parseInt(document.getElementById("input-xHeight").value);
@@ -225,8 +226,8 @@ let FormBorderWrapComponent = {
 
   GantryLineHandler: function () {
     const xHeight = parseInt(document.getElementById("input-xHeight").value);
-    selectObjectHandler('Select object above divider or type in fixed distance to border top', function (aboveObject, options, aboveValue) {
-      selectObjectHandler('Select object below divider or type in fixed distance to border bottom', function (belowObject, options, belowValue) {
+    selectObjectHandler(i18n.t('Select object above divider or type in fixed distance to border top'), function (aboveObject, options, aboveValue) {
+      selectObjectHandler(i18n.t('Select object below divider or type in fixed distance to border bottom'), function (belowObject, options, belowValue) {
         // Pass both objects and entered values to allow for fixed distance options
         const color = document.getElementById('input-color').value;
         const xHeight = parseInt(document.getElementById("input-xHeight").value);
@@ -237,8 +238,8 @@ let FormBorderWrapComponent = {
 
   LaneLineHandler: function () {
     const xHeight = parseInt(document.getElementById("input-xHeight").value);
-    selectObjectHandler('Select object left to lane or type in fixed distance to border left', function (leftObject, options, leftValue) {
-      selectObjectHandler('Select object right to lane or type in fixed distance to border right', function (rightObject, options, rightValue) {
+    selectObjectHandler(i18n.t('Select object left to lane or type in fixed distance to border left'), function (leftObject, options, leftValue) {
+      selectObjectHandler(i18n.t('Select object right to lane or type in fixed distance to border right'), function (rightObject, options, rightValue) {
         // Pass both objects and entered values to allow for fixed distance options
         const color = document.getElementById('input-color').value;
         const xHeight = parseInt(document.getElementById("input-xHeight").value);

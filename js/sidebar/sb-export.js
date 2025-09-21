@@ -3,6 +3,7 @@ import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { buildObjectsFromJSON } from '../objects/build.js';
 import { ImportManager } from '../modal/md-import.js';
+import { i18n } from '../i18n/i18n.js';
 import { collectPathObjects, processPathForDXF } from '../exportUtils/export.js';
 
 let FormExportComponent = {
@@ -60,10 +61,10 @@ let FormExportComponent = {
       }, 'input');
 
     // Create toggle for including/excluding grid
-    GeneralHandler.createToggle('Include Grid', ['No', 'Yes'], exportContainer, 'No');
+  GeneralHandler.createToggle('Include Grid', ['No', 'Yes'], exportContainer, 'No');
 
     // Create toggle for including/excluding background
-    GeneralHandler.createToggle('Include Background', ['No', 'Yes'], exportContainer, 'No');
+  GeneralHandler.createToggle('Include Background', ['No', 'Yes'], exportContainer, 'No');
 
     // Create export buttons
     const buttonContainer = GeneralHandler.createNode("div", { 'class': 'export-buttons-container' }, exportContainer);
@@ -88,13 +89,15 @@ let FormExportComponent = {
     GeneralHandler.createButton('export-json', 'Export as JSON', buttonContainer, 'input',
       async () => await FormExportComponent.exportCanvasToJSON(), 'click');
 
-    // JSON Import
+  // JSON Import
     const importButtonContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent); // Create a new container for import elements, child of the main parent
 
     const importJsonInput = GeneralHandler.createButton('import-json', 'Import JSON file', importButtonContainer, 'input',
       async () => await FormExportComponent.importCanvasFromJSON(), 'click'); // Changed parent to importButtonContainer    // New button for importing JSON from text
     const importJsonTextButton = GeneralHandler.createButton('import-json-text', 'Import JSON text', importButtonContainer, 'input',
       () => ImportManager.showImportJSONTextModal(FormExportComponent.importCanvasFromJSONText), 'click');
+
+    try { i18n.applyTranslations(parent); } catch (_) {}
 
   },
 
@@ -208,7 +211,10 @@ let FormExportComponent = {
   showLoadingOverlay: function (exportType) {
     const overlay = document.getElementById('loading-overlay');
     const loadingText = overlay.querySelector('.loading-text');
-    loadingText.textContent = `Exporting ${exportType}...`;
+    if (loadingText) {
+      loadingText.setAttribute('data-i18n', 'Exporting');
+      try { loadingText.textContent = `${i18n.t('Exporting')} ${exportType}...`; } catch (_) { loadingText.textContent = `Exporting ${exportType}...`; }
+    }
     overlay.style.display = 'flex';
 
     // Force browser to render the overlay before continuing
@@ -240,18 +246,20 @@ let FormExportComponent = {
       messageContainer.className = 'donation-container';
 
       // Create the title
-      const title = document.createElement('h2');
-      title.textContent = 'Thank you for using Road Sign Factory!';
+  const title = document.createElement('h2');
+  title.setAttribute('data-i18n', 'Donation Thanks Title');
+  title.textContent = i18n && i18n.t ? i18n.t('Donation Thanks Title') : 'Thank you for using Road Sign Factory!';
 
       // Create the message
-      const message = document.createElement('p');
-      message.textContent = 'If you find this tool helpful, please consider supporting its continued development and new features.';
+  const message = document.createElement('p');
+  message.setAttribute('data-i18n', 'Donation Message');
+  message.textContent = i18n && i18n.t ? i18n.t('Donation Message') : 'If you find this tool helpful, please consider supporting its continued development and new features.';
 
       // Create button container
       const buttonContainer = document.createElement('div');
       buttonContainer.className = 'button-container';
       // Create the donation link with Buy Me Coffee logo
-      const donateButton = document.createElement('a');
+  const donateButton = document.createElement('a');
       donateButton.href = 'https://www.buymeacoffee.com/g1213123';
       donateButton.target = '_blank';
       donateButton.className = 'donate-button';

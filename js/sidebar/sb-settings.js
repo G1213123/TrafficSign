@@ -5,6 +5,7 @@ import { runTests, testToRun } from '../tests/test.js';
 import { FormExportComponent } from './sb-export.js';
 import { buildObjectsFromJSON } from '../objects/build.js';
 import { FontPriorityManager } from '../modal/md-font.js';
+import { i18n } from '../i18n/i18n.js';
 
 // Define shortcuts in a constant object
 const KEYBOARD_SHORTCUTS = {
@@ -32,8 +33,7 @@ let FormSettingsComponent = {
       var shortcutsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container shortcut-list-container' }, parent);
 
       // Create heading for shortcuts
-      const heading = GeneralHandler.createNode("h3", { 'class': 'panel-subheading' }, shortcutsContainer);
-      heading.textContent = "Keyboard Shortcuts";
+  GeneralHandler.createI18nNode("h3", { 'class': 'panel-subheading' }, shortcutsContainer, 'Keyboard Shortcuts', 'text');
 
       // Create the list element
       const list = GeneralHandler.createNode("ul", { 'class': 'shortcut-list' }, shortcutsContainer);
@@ -52,12 +52,18 @@ let FormSettingsComponent = {
 
           // Create description span
           const descriptionSpan = GeneralHandler.createNode("span", { 'class': 'shortcut-description' }, listItem);
+          descriptionSpan.setAttribute('data-i18n', description);
           descriptionSpan.textContent = description;
         }
       }
 
       // Create a container for visual settings
       var visualSettingsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+
+      // App Language toggle
+      GeneralHandler.createToggle('App Language', ['English', 'Chinese'], visualSettingsContainer,
+        (GeneralSettings.locale === 'zh') ? 'Chinese' : 'English',
+        FormSettingsComponent.toggleAppLanguage);
 
       // Add toggle switches for visibility settings
       GeneralHandler.createToggle('Show Text Borders', ['Yes', 'No'], visualSettingsContainer,
@@ -168,6 +174,19 @@ let FormSettingsComponent = {
   },
 
   // Visual settings toggle handlers
+  toggleAppLanguage: function (button) {
+    const value = button.getAttribute('data-value');
+    const locale = (value === 'Chinese') ? 'zh' : 'en';
+    GeneralSettings.locale = locale;
+    FormSettingsComponent.saveSettings();
+    try {
+      i18n.setLocale(locale);
+      i18n.applyTranslations(document);
+    } catch (e) {
+      console.warn('Failed to apply translations:', e);
+    }
+  },
+
   toggleTextBorders: function (button) {
     const value = button.getAttribute('data-value') === 'Yes';
     GeneralSettings.showTextBorders = value;
@@ -566,6 +585,18 @@ let FormSettingsComponent = {
     updateToggle('Show All Vertices-container', GeneralSettings.showAllVertices);
     updateToggle('Auto Save-container', GeneralSettings.autoSave);
     updateToggle('Run Tests on Start-container', GeneralSettings.runTestsOnStart);
+
+    // Update App Language toggle
+    const langContainer = document.getElementById('App Language-container');
+    if (langContainer) {
+      const buttons = langContainer.querySelectorAll('.toggle-button');
+      const desired = GeneralSettings.locale === 'zh' ? 'Chinese' : 'English';
+      buttons.forEach(btn => {
+        const isActive = btn.getAttribute('data-value') === desired;
+        btn.classList.toggle('active', isActive);
+        if (isActive) { langContainer.selected = btn; }
+      });
+    }
 
     // Handle dimension unit toggle separately (it's not a boolean)
     const updateDimensionUnit = (id, value) => {

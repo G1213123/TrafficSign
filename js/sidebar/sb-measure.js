@@ -8,6 +8,7 @@ import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { ShowHideSideBarEvent } from '../canvas/keyboardEvents.js'; // Import the event handler for sidebar toggling
 import { showTextBox, hideTextBox } from '../canvas/promptBox.js'; // Import prompt box functions
+import { i18n } from '../i18n/i18n.js';
 
 const canvas = CanvasGlobals.canvas; // Reference to the main canvas
 const canvasObject = CanvasGlobals.canvasObject; // Reference to the canvas objects
@@ -30,21 +31,18 @@ const FormMeasureComponent = {
     if (!parent) return;
 
     // Create the title using consistent styling
-    GeneralHandler.createNode("h2", { 'class': 'panel-heading' }, parent).innerHTML = "Measure Tool";
+  GeneralHandler.createI18nNode("h2", { 'class': 'panel-heading' }, parent, 'Measure Tool', 'text');
 
     // Create a container for instructions with proper styling
-    const instructionsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-    const instructionsLabel = GeneralHandler.createNode("div", { 'class': 'input-group-label' }, instructionsContainer);
-    instructionsLabel.innerHTML = "Instructions";
+  const instructionsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+  const instructionsLabel = GeneralHandler.createI18nNode("div", { 'class': 'input-group-label' }, instructionsContainer, 'Instructions', 'text');
 
     const instructionsContent = GeneralHandler.createNode("div", { 'class': 'input-group-content' }, instructionsContainer);
-    GeneralHandler.createNode("p", { 'class': 'instruction-text' }, instructionsContent).innerHTML =
-      "Click on vertices to measure distances. First click selects the starting vertex, second click measures to the end vertex.";
+    GeneralHandler.createI18nNode("p", { 'class': 'instruction-text' }, instructionsContent, 'Click on vertices to measure distances. First click selects the starting vertex, second click measures to the end vertex.', 'text');
 
     // Create a container for the measurement controls with proper styling
-    const controlsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-    const controlsLabel = GeneralHandler.createNode("div", { 'class': 'input-group-label' }, controlsContainer);
-    controlsLabel.innerHTML = "Measurement Control";
+  const controlsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+  const controlsLabel = GeneralHandler.createI18nNode("div", { 'class': 'input-group-label' }, controlsContainer, 'Measurement Control', 'text');
 
     const controlsContent = GeneralHandler.createNode("div", { 'class': 'input-group-content' }, controlsContainer);
 
@@ -53,6 +51,7 @@ const FormMeasureComponent = {
       FormMeasureComponent.activeMeasurement ? 'Stop Measuring' : 'Start Measuring',
       controlsContent, 'input',
       FormMeasureComponent.toggleMeasurementMode, 'click');
+    try { i18n.applyTranslations(parent); } catch (_) {}
   },
 
   /**
@@ -67,14 +66,14 @@ const FormMeasureComponent = {
 
       // Update button text
       const toggleButton = document.getElementById('toggle-measure');
-      if (toggleButton) toggleButton.value = 'Stop Measuring';
+      if (toggleButton) { toggleButton.value = i18n.t('Stop Measuring'); toggleButton.setAttribute('data-i18n', 'Stop Measuring'); }
     } else {
       // Disable measuring mode
       FormMeasureComponent.stopMeasuring();
 
       // Update button text
       const toggleButton = document.getElementById('toggle-measure');
-      if (toggleButton) toggleButton.value = 'Start Measuring';
+      if (toggleButton) { toggleButton.value = i18n.t('Start Measuring'); toggleButton.setAttribute('data-i18n', 'Start Measuring'); }
     }
   },
 
@@ -242,15 +241,15 @@ const FormMeasureComponent = {
 
         // Display measurement using the context menu text box
         const measurementText =
-          ` Measurement Results:
+          ` ${i18n.t('Measurement Results')}:
           ΔX: ${GeneralSettings.formatDimension(deltaX, GeneralSettings.xHeight)}
           ΔY: ${GeneralSettings.formatDimension(deltaY, GeneralSettings.xHeight)}
-          Distance: ${GeneralSettings.formatDimension(distance, GeneralSettings.xHeight)}
+          ${i18n.t('Distance')}: ${GeneralSettings.formatDimension(distance, GeneralSettings.xHeight)}
           
-          From: ${FormMeasureComponent.firstVertex.label} (Object #${FormMeasureComponent.firstVertex.objectId})
-          To: ${secondVertex.label} (Object #${secondVertex.objectId})
+          ${i18n.t('From')}: ${FormMeasureComponent.firstVertex.label} (Object #${FormMeasureComponent.firstVertex.objectId})
+          ${i18n.t('To')}: ${secondVertex.label} (Object #${secondVertex.objectId})
           
-          (Press Enter to continue)
+          (${i18n.t('Press Enter to continue')})
         `;        
         // Clear first vertex highlight
         FormMeasureComponent.firstVertex = null;

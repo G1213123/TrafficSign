@@ -1,10 +1,12 @@
 /* Canvas Tracker UI Component */
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { canvasTracker } from '../canvas/Tracker.js';
+import { i18n } from '../i18n/i18n.js';
 
 class CanvasTrackerUI {
   constructor() {
-    this.initialized = false;    this.actionsMap = {
+    this.initialized = false;
+    this.actionsMap = {
       'createObject': 'Created',
       'deleteObject': 'Deleted',
       'modifyObject': 'Modified',
@@ -71,8 +73,8 @@ class CanvasTrackerUI {
     form.innerHTML = `
         <div class="section-content">
           <div class="history-controls">
-            <button type="button" id="clearHistory" class="primary-button">Clear History</button>
-            <button type="button" id="toggleUndoMode" class="secondary-button">Undo Mode: Off</button>
+            <button type="button" id="clearHistory" class="primary-button" data-i18n="Clear History">${i18n.t('Clear History')}</button>
+            <button type="button" id="toggleUndoMode" class="secondary-button" data-i18n="Undo Mode: Off">${i18n.t('Undo Mode: Off')}</button>
           </div>
           <div id="historyList" class="history-list"></div>
         </div>
@@ -87,12 +89,14 @@ class CanvasTrackerUI {
     const toggleButton = document.getElementById('toggleUndoMode');
     toggleButton.addEventListener('click', () => {
       this.undoMode = !this.undoMode;
-      toggleButton.textContent = `Undo Mode: ${this.undoMode ? 'On' : 'Off'}`;
+      toggleButton.textContent = this.undoMode ? i18n.t('Undo Mode: On') : i18n.t('Undo Mode: Off');
+      toggleButton.setAttribute('data-i18n', this.undoMode ? 'Undo Mode: On' : 'Undo Mode: Off');
       this.updateHistoryList();
     });
 
     this.initialized = true;
-    this.updateHistoryList();
+  this.updateHistoryList();
+  try { i18n.applyTranslations(form); } catch (_) {}
 
     // Store references to our UI container
     this.trackerContainer = form.innerHTML;
@@ -114,10 +118,12 @@ class CanvasTrackerUI {
     // Restore the toggle button state
     const toggleButton = document.getElementById('toggleUndoMode');
     if (toggleButton) {
-      toggleButton.textContent = `Undo Mode: ${this.undoMode ? 'On' : 'Off'}`;
+      toggleButton.textContent = this.undoMode ? i18n.t('Undo Mode: On') : i18n.t('Undo Mode: Off');
+      toggleButton.setAttribute('data-i18n', this.undoMode ? 'Undo Mode: On' : 'Undo Mode: Off');
       toggleButton.addEventListener('click', () => {
         this.undoMode = !this.undoMode;
-        toggleButton.textContent = `Undo Mode: ${this.undoMode ? 'On' : 'Off'}`;
+        toggleButton.textContent = this.undoMode ? i18n.t('Undo Mode: On') : i18n.t('Undo Mode: Off');
+        toggleButton.setAttribute('data-i18n', this.undoMode ? 'Undo Mode: On' : 'Undo Mode: Off');
         this.updateHistoryList();
       });
     }
@@ -169,7 +175,7 @@ class CanvasTrackerUI {
     historyList.innerHTML = '';
 
     if (canvasTracker.history.length === 0) {
-      historyList.innerHTML = '<div class="empty-history">No actions recorded yet</div>';
+      historyList.innerHTML = `<div class="empty-history" data-i18n="No actions recorded yet">${i18n.t('No actions recorded yet')}</div>`;
       return;
     }
 
@@ -192,13 +198,13 @@ class CanvasTrackerUI {
       let itemContent = '';      
       switch (entry.action) {
         case 'createObject':
-          itemContent = `${this.actionsMap[entry.action]} ${params.functionalType} (ID: ${params.id})`;
+          itemContent = `${i18n.t(this.actionsMap[entry.action])} ${params.functionalType} (ID: ${params.id})`;
           break;
         case 'deleteObject':
-          itemContent = `${this.actionsMap[entry.action]} ${params.functionalType} (ID: ${params.id})`;
+          itemContent = `${i18n.t(this.actionsMap[entry.action])} ${params.functionalType} (ID: ${params.id})`;
           break;
         case 'modifyObject':
-          itemContent = `${this.actionsMap[entry.action]} ${params.functionalType} (ID: ${params.id}) - moved (${params.deltaX.toFixed(1)}, ${params.deltaY.toFixed(1)})`;
+          itemContent = `${i18n.t(this.actionsMap[entry.action])} ${params.functionalType} (ID: ${params.id}) - moved (${params.deltaX.toFixed(1)}, ${params.deltaY.toFixed(1)})`;
           // Add chain symbol for linked movements
           if (entry.chainId && entry.chainObjects && entry.chainObjects.length > 1) {
             itemContent = `${this.createChainSymbol(entry)} ${itemContent}`;
@@ -206,11 +212,11 @@ class CanvasTrackerUI {
           break;
         case 'propertyChanged':
           // Display property changes
-          itemContent = `${this.actionsMap[entry.action]} ${params.functionalType} (ID: ${params.id}) - ${params.propertyKey}: "${params.oldValue}" → "${params.newValue}"`;
+          itemContent = `${i18n.t(this.actionsMap[entry.action])} ${params.functionalType} (ID: ${params.id}) - ${params.propertyKey}: "${params.oldValue}" \u2192 "${params.newValue}"`;
           break;
         case 'unlockObject':
           // Simpler display for unlock operations
-          itemContent = `Unlocked ${params.functionalType} (ID: ${params.id}) - ${params.direction.toUpperCase()} axis`;
+          itemContent = `${i18n.t('Unlocked')} ${params.functionalType} (ID: ${params.id}) - ${params.direction.toUpperCase()} axis`;
           break;
         case 'anchorObject':
           if (params.type === 'Anchor') {
@@ -227,7 +233,7 @@ class CanvasTrackerUI {
               directions.push('Y');
             }
 
-            itemContent = `${this.actionsMap[entry.action]} ${sourceObj.functionalType} #${sourceObj.id} to #${targetObj.id} [${directions.join('+')}]`;
+            itemContent = `${i18n.t(this.actionsMap[entry.action])} ${sourceObj.functionalType} #${sourceObj.id} to #${targetObj.id} [${directions.join('+')}]`;
           } else if (params.type === 'EqualAnchor') {
             // Equal-distance anchor operation - simplified display
             const axis = params.axis === 'x' ? 'X' : 'Y';

@@ -60,12 +60,16 @@
                 <span>Road Sign Factory</span>
             </a>
             <div class="nav-menu">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="getting-started.html" class="nav-link">Getting Started</a>
-                <a href="about.html" class="nav-link active">About</a>
-                <a href="changelog.html" class="nav-link">Changelog</a>
-                <a href="https://github.com/G1213123/TrafficSign" class="nav-link" target="_blank">GitHub</a>
-                <a href="design.html" class="nav-button">Launch App</a>
+                <a href="index.html" class="nav-link" data-i18n="Home">Home</a>
+                <a href="getting-started.html" class="nav-link" data-i18n="Getting Started">Getting Started</a>
+                <a href="about.html" class="nav-link active" data-i18n="About">About</a>
+                <a href="changelog.html" class="nav-link" data-i18n="Changelog">Changelog</a>
+                <a href="https://github.com/G1213123/TrafficSign" class="nav-link" target="_blank" data-i18n="GitHub">GitHub</a>
+                <a href="design.html" class="nav-button" data-i18n="Launch App">Launch App</a>
+                <div class="nav-lang" aria-label="Language">
+                    <button id="lang-en" class="lang-btn" aria-label="English">EN</button>
+                    <button id="lang-zh" class="lang-btn" aria-label="中文">中</button>
+                </div>
             </div>
             <div class="nav-toggle">
                 <span></span>
@@ -80,52 +84,44 @@
         <div class="container">
             <div class="about-content">
                 <div class="about-text">
-                    <h1 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--text-primary);">About Road Sign
-                        Factory</h1>
+                    <h1 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--text-primary);" data-i18n="About Road Sign Factory">About Road Sign Factory</h1>
                     <div class="intro-text">
-                        <p>Road Sign Factory provides traffic engineers, designers, and enthusiasts with a
-                            standards-compliant tool for creating professional road signage. It is a web service built
-                            and served to meet the modern needs for generating quality
-                            designs.
-                        </p>
+                        <p data-i18n="About Intro Text">Road Sign Factory provides traffic engineers, designers, and enthusiasts with a standards-compliant tool for creating professional road signage. It is a web service built and served to meet the modern needs for generating quality designs.</p>
                     </div>
 
                     <div class="about-intro-section">
                         <div class="about-intro-content">
 
 
-                            <h3> Key features: </h3>
+                            <h3 data-i18n="Key features:">Key features:</h3>
                             <div class="about-features">
                                 <div class="about-feature">
                                     <i class="fas fa-check-circle"></i>
-                                    <span>Comply to Hong Kong <span class="tpdm-tooltip"
-                                            data-tooltip="Transport Planning and Design Manual">TPDM</span> </span>
+                                    <span data-i18n-html="feature_comply_tpdm_html">Comply to Hong Kong <span class="tpdm-tooltip" data-tooltip="Transport Planning and Design Manual">TPDM</span></span>
                                 </div>
                                 <div class="about-feature">
                                     <i class="fas fa-check-circle"></i>
-                                    <span>Professional Export Quality</span>
+                                    <span data-i18n="feature_export_quality">Professional Export Quality</span>
                                 </div>
                                 <div class="about-feature">
                                     <i class="fas fa-check-circle"></i>
-                                    <span>No Installation Required</span>
+                                    <span data-i18n="feature_no_install">No Installation Required</span>
                                 </div>
                                 <div class="about-feature">
                                     <i class="fas fa-check-circle"></i>
-                                    <span>Interactive and Responsive <span class="tpdm-tooltip"
-                                            data-tooltip="User Interface / User Experience">UI/UX</span></span>
+                                    <span data-i18n-html="feature_interactive_uiux_html">Interactive and Responsive <span class="tpdm-tooltip" data-tooltip="User Interface / User Experience">UI/UX</span></span>
                                 </div>
                                 <div class="about-feature">
                                     <i class="fas fa-check-circle"></i>
-                                    <span><span class="tpdm-tooltip" data-tooltip="Computer Aided Design">CAD</span>
-                                        Tool Grade Functionality</span>
+                                    <span data-i18n-html="feature_cad_html"><span class="tpdm-tooltip" data-tooltip="Computer Aided Design">CAD</span> Tool Grade Functionality</span>
                                 </div>
                                 <div class="about-feature">
                                     <i class="fas fa-check-circle"></i>
-                                    <span>Open Source & Free</span>
+                                    <span data-i18n="feature_open_source">Open Source & Free</span>
                                 </div>
                                 <div class="about-feature">
                                     <i class="fas fa-check-circle"></i>
-                                    <span>Save & Load with Auto-Save</span>
+                                    <span data-i18n="feature_save_autosave">Save & Load with Auto-Save</span>
                                 </div>
                             </div>
                         </div>
@@ -137,21 +133,9 @@
                     </div>
 
                     <div class="timeline-section">
-                        <h3>Development Timeline</h3>
+                        <h3 data-i18n="Development Timeline">Development Timeline</h3>
                         <div class="timeline-intro">
-                            <p>
-                                Traditionally, traffic signs are designed by professional engineers as a package of a
-                                roadworks project with <span class="tpdm-tooltip"
-                                    data-tooltip="Computer Aided Design">CAD</span>. While
-                                <span class="tpdm-tooltip" data-tooltip="Computer Aided Design">CAD</span> is powerful
-                                in generating detailed drawings, characters and symbols must still be drawn carefully
-                                block by block, stroke by stroke. Sign making was like a renaissance of old technology
-                                <a href="https://en.wikipedia.org/wiki/Movable_type"> Movable
-                                    Printing Press</a> in modern times. A need to speed up the design process within a
-                                tight project timeframe is called. This
-                                application is the result of seeking a modern and streamlined workflow for road sign
-                                design.
-                            </p>
+                            <p data-i18n-html="Timeline Intro Text">Traditionally, traffic signs are designed by professional engineers as a package of a roadworks project with <span class="tpdm-tooltip" data-tooltip="Computer Aided Design">CAD</span>. While <span class="tpdm-tooltip" data-tooltip="Computer Aided Design">CAD</span> is powerful in generating detailed drawings, characters and symbols must still be drawn carefully block by block, stroke by stroke. Sign making was like a renaissance of old technology <a href="https://en.wikipedia.org/wiki/Movable_type"> Movable Printing Press</a> in modern times. A need to speed up the design process within a tight project timeframe is called. This application is the result of seeking a modern and streamlined workflow for road sign design.</p>
                             <div class="timeline-image">
                                 <img src="images/timeline-banner.png"
                                     alt="Traditional engineering drawing for traffic sign" loading="lazy">
@@ -163,17 +147,11 @@
                                     <i class="fas fa-lightbulb"></i>
                                 </div>
                                 <div class="timeline-content timeline-left">
-                                    <div class="timeline-year">
-                                        April 2022
-                                        <span class="timeline-status status-concept">Initial Idea</span>
+                                    <div class="timeline-year">April 2022
+                                        <span class="timeline-status status-concept" data-i18n="Initial Idea">Initial Idea</span>
                                     </div>
-                                    <div class="timeline-title">First Concept</div>
-                                    <div class="timeline-description">
-                                        The original idea for Road Sign Factory was conceived as a solution for creating
-                                        professional traffic signage with modern web technologies. The project was
-                                        shelved after prototyping due to the technical difficulties encounter when
-                                        prototyping.
-                                    </div>
+                                    <div class="timeline-title" data-i18n="First Concept">First Concept</div>
+                                    <div class="timeline-description" data-i18n="Timeline Apr 2022 Desc">The original idea for Road Sign Factory was conceived as a solution for creating professional traffic signage with modern web technologies. The project was shelved after prototyping due to the technical difficulties encounter when prototyping.</div>
                                     <div class="timeline-image"
                                         data-tooltip="Early concept sketches and planning documents showing the initial vision for a web-based traffic sign design tool">
                                         <img src="images/timeline-apr2024.png"
@@ -187,16 +165,11 @@
                                     <i class="fas fa-search"></i>
                                 </div>
                                 <div class="timeline-content timeline-left">
-                                    <div class="timeline-year">
-                                        May 2024
-                                        <span class="timeline-status status-research">TPDM Release</span>
+                                    <div class="timeline-year">May 2024
+                                        <span class="timeline-status status-research" data-i18n="TPDM Release">TPDM Release</span>
                                     </div>
-                                    <div class="timeline-title">HKSAR TPDM Public Release</div>
-                                    <div class="timeline-description">
-                                        Transport Department of HKSAR publicly released the Traffic Signs and Road
-                                        Markings Manual (TPDM), providing comprehensive standards and guidelines that
-                                        became the foundation for professional traffic sign design.
-                                    </div>
+                                    <div class="timeline-title" data-i18n="HKSAR TPDM Public Release">HKSAR TPDM Public Release</div>
+                                    <div class="timeline-description" data-i18n="Timeline May 2024 Desc">Transport Department of HKSAR publicly released the Traffic Signs and Road Markings Manual (TPDM), providing comprehensive standards and guidelines that became the foundation for professional traffic sign design.</div>
                                 </div>
                             </div> <!-- 2025 Jan - Project Restart -->
                             <div class="timeline-item">
@@ -204,14 +177,11 @@
                                     <i class="fas fa-code"></i>
                                 </div>
                                 <div class="timeline-content timeline-right">
-                                    <div class="timeline-year">
-                                        January 2025
-                                        <span class="timeline-status status-development">Restart</span>
+                                    <div class="timeline-year">January 2025
+                                        <span class="timeline-status status-development" data-i18n="Restart">Restart</span>
                                     </div>
-                                    <div class="timeline-title">Project Revival & Development</div>
-                                    <div class="timeline-description">
-                                        After a period of dormancy, the project was restarted with renewed focus and
-                                        intensive development efforts to build the complete application. </div>
+                                    <div class="timeline-title" data-i18n="Project Revival & Development">Project Revival & Development</div>
+                                    <div class="timeline-description" data-i18n="Timeline Jan 2025 Desc">After a period of dormancy, the project was restarted with renewed focus and intensive development efforts to build the complete application.</div>
                                 </div>
                             </div> <!-- 2025 Feb - AI Boom -->
                             <div class="timeline-item">
@@ -219,16 +189,11 @@
                                     <i class="fas fa-robot"></i>
                                 </div>
                                 <div class="timeline-content timeline-left">
-                                    <div class="timeline-year">
-                                        February 2025
-                                        <span class="timeline-status status-innovation">AI Boom</span>
+                                    <div class="timeline-year">February 2025
+                                        <span class="timeline-status status-innovation" data-i18n="AI Boom">AI Boom</span>
                                     </div>
-                                    <div class="timeline-title">AI-Powered Vibe Coding Era</div>
-                                    <div class="timeline-description">
-                                        The AI revolution transformed development workflows with advanced coding
-                                        assistants, enabling rapid prototyping and intuitive "vibe-based" programming
-                                        approaches that accelerated the project significantly.
-                                    </div>
+                                    <div class="timeline-title" data-i18n="AI-Powered Vibe Coding Era">AI-Powered Vibe Coding Era</div>
+                                    <div class="timeline-description" data-i18n="Timeline Feb 2025 Desc">The AI revolution transformed development workflows with advanced coding assistants, enabling rapid prototyping and intuitive "vibe-based" programming approaches that accelerated the project significantly.</div>
                                 </div>
                             </div> <!-- 2025 May - First Public Prototype -->
                             <div class="timeline-item">
@@ -236,15 +201,11 @@
                                     <i class="fas fa-rocket"></i>
                                 </div>
                                 <div class="timeline-content timeline-left">
-                                    <div class="timeline-year">
-                                        May 2025
-                                        <span class="timeline-status status-beta">Public Prototype</span>
+                                    <div class="timeline-year">May 2025
+                                        <span class="timeline-status status-beta" data-i18n="Public Prototype">Public Prototype</span>
                                     </div>
-                                    <div class="timeline-title">First Public Release</div>
-                                    <div class="timeline-description">
-                                        The first public prototype was released, marking a major milestone with a
-                                        functional traffic sign design tool available to users worldwide.
-                                    </div>
+                                    <div class="timeline-title" data-i18n="First Public Release">First Public Release</div>
+                                    <div class="timeline-description" data-i18n="Timeline May 2025 Desc">The first public prototype was released, marking a major milestone with a functional traffic sign design tool available to users worldwide.</div>
                                     <div class="timeline-image"
                                         data-tooltip="First public prototype interface showing the basic sign design functionality, symbol library, and export features">
                                         <img src="images/timeline-may2025.png"
@@ -258,56 +219,35 @@
                                     <i class="fas fa-infinity"></i>
                                 </div>
                                 <div class="timeline-content timeline-left">
-                                    <div class="timeline-year">
-                                        Future
-                                        <span class="timeline-status status-future">Ongoing</span>
+                                    <div class="timeline-year" data-i18n="Future">Future
+                                        <span class="timeline-status status-future" data-i18n="Ongoing">Ongoing</span>
                                     </div>
-                                    <div class="timeline-title">Continuous Enhancement</div>
-                                    <div class="timeline-description">
-                                        Ongoing development with regular updates, new features, and improvements based
-                                        on user feedback. See our <a href="changelog.html#upcoming">planned feature
-                                            list</a>.
-                                    </div>
+                                    <div class="timeline-title" data-i18n="Continuous Enhancement">Continuous Enhancement</div>
+                                    <div class="timeline-description" data-i18n-html="Timeline Future Desc">Ongoing development with regular updates, new features, and improvements based on user feedback. See our <a href="changelog.html#upcoming">planned feature list</a>.</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="about-detailed">
-                        <h3>Technical Information</h3>
-                        <p>Road Sign Factory is built using modern web technologies including HTML5 Canvas, JavaScript
-                            ES6+, and responsive CSS. The application uses the <a href="https://fabricjs.com/"
-                                target="_blank" rel="noopener noreferrer">Fabric.js</a> library for advanced canvas
-                            manipulation and supports vector graphics export through SVG generation.</p>
-                        <p>The application features an intelligent save system that automatically stores your work in
-                            the browser's local storage, preventing data loss. Additionally, manual save and load
-                            functionality allows you to manage multiple projects and create backups of your designs.</p>
-                        <p>The export function supports multiple file formats including PNG (raster), SVG (vector), PDF
-                            (document), and DXF (CAD). PDF export is handled using the <a
-                                href="https://github.com/MrRio/jsPDF" target="_blank"
-                                rel="noopener noreferrer">jsPDF</a> library, which converts the canvas content to
-                            high-quality PDF documents suitable for printing and sharing. DXF export is powered by the
-                            <a href="https://github.com/tarikjabiri/js-dxf" target="_blank"
-                                rel="noopener noreferrer">dxf-writer</a> library, with the aids of <a
-                                href="http://paperjs.org/" target="_blank" rel="noopener noreferrer">paper.js</a> for
-                            path processing,
-                            enabling seamless integration with
-                            professional CAD software and engineering workflows.
-                        </p>
+                        <h3 data-i18n="Technical Information">Technical Information</h3>
+                        <p data-i18n-html="Tech Info P1">Road Sign Factory is built using modern web technologies including HTML5 Canvas, JavaScript ES6+, and responsive CSS. The application uses the <a href="https://fabricjs.com/" target="_blank" rel="noopener noreferrer">Fabric.js</a> library for advanced canvas manipulation and supports vector graphics export through SVG generation.</p>
+                        <p data-i18n="Tech Info P2">The application features an intelligent save system that automatically stores your work in the browser's local storage, preventing data loss. Additionally, manual save and load functionality allows you to manage multiple projects and create backups of your designs.</p>
+                        <p data-i18n-html="Tech Info P3">The export function supports multiple file formats including PNG (raster), SVG (vector), PDF (document), and DXF (CAD). PDF export is handled using the <a href="https://github.com/MrRio/jsPDF" target="_blank" rel="noopener noreferrer">jsPDF</a> library, which converts the canvas content to high-quality PDF documents suitable for printing and sharing. DXF export is powered by the <a href="https://github.com/tarikjabiri/js-dxf" target="_blank" rel="noopener noreferrer">dxf-writer</a> library, with the aids of <a href="http://paperjs.org/" target="_blank" rel="noopener noreferrer">paper.js</a> for path processing, enabling seamless integration with professional CAD software and engineering workflows.</p>
                     </div>
 
                     <div class="about-buttons">
                         <a href="https://github.com/G1213123/TrafficSign" class="btn btn-outline" target="_blank">
                             <i class="fab fa-github"></i>
-                            View on GitHub
+                            <span data-i18n="View on GitHub">View on GitHub</span>
                         </a>
                         <a href="mailto:enquiry@g1213123.info" class="btn btn-outline">
                             <i class="fas fa-envelope"></i>
-                            Contact Us
+                            <span data-i18n="Contact Us">Contact Us</span>
                         </a>
                         <a href="design.html" class="btn btn-primary">
                             <i class="fas fa-play"></i>
-                            Launch Application
+                            <span data-i18n="Launch Application">Launch Application</span>
                         </a>
                     </div>
                 </div>
@@ -320,8 +260,8 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>Road Sign Factory</h3>
-                    <p>Professional traffic sign design tool for modern web browsers.</p>
+                    <h3 data-i18n="Road Sign Factory">Road Sign Factory</h3>
+                    <p data-i18n="Professional traffic sign design tool for modern web browsers.">Professional traffic sign design tool for modern web browsers.</p>
                     <div class="social-links">
                         <a href="https://github.com/G1213123/TrafficSign" target="_blank" aria-label="GitHub">
                             <i class="fab fa-github"></i>
@@ -335,31 +275,31 @@
                     </div>
                 </div>
                 <div class="footer-section">
-                    <h4>Quick Links</h4>
+                    <h4 data-i18n="Quick Links">Quick Links</h4>
                     <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="getting-started.html">Getting Started</a></li>
-                        <li><a href="about.html">About</a></li>
-                        <li><a href="changelog.html">Changelog</a></li>
-                        <li><a href="https://github.com/G1213123/TrafficSign" target="_blank">GitHub</a></li>
-                        <li><a href="design.html" class="footer-launch-link">Launch App</a></li>
+                        <li><a href="index.html" data-i18n="Home">Home</a></li>
+                        <li><a href="getting-started.html" data-i18n="Getting Started">Getting Started</a></li>
+                        <li><a href="about.html" data-i18n="About">About</a></li>
+                        <li><a href="changelog.html" data-i18n="Changelog">Changelog</a></li>
+                        <li><a href="https://github.com/G1213123/TrafficSign" target="_blank" data-i18n="GitHub">GitHub</a></li>
+                        <li><a href="design.html" class="footer-launch-link" data-i18n="Launch App">Launch App</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h4>Resources</h4>
+                    <h4 data-i18n="Resources">Resources</h4>
                     <ul>
                         <li><a href="https://www.td.gov.hk/en/publications_and_press_releases/publications/tpdm/index.html"
-                                target="_blank">HK TPDM Guidelines</a></li>
-                        <li><a href="https://www.gov.uk/government/publications/traffic-signs-manual" target="_blank">UK
+                                target="_blank" data-i18n="HK TPDM Guidelines">HK TPDM Guidelines</a></li>
+                        <li><a href="https://www.gov.uk/government/publications/traffic-signs-manual" target="_blank" data-i18n="UK Traffic Signs Manual">UK
                                 Traffic Signs Manual</a></li>
-                        <li><a href="changelog.html">Changelog</a>
+                        <li><a href="changelog.html" data-i18n="Changelog">Changelog</a>
                         </li>
                     </ul>
                 </div>
 
                 <div class="footer-section">
-                    <h4>Support</h4>
-                    <p>Help support this project:</p>
+                    <h4 data-i18n="Support">Support</h4>
+                    <p data-i18n="Help support this project:">Help support this project:</p>
                     <a href="https://www.buymeacoffee.com/G1213123" target="_blank" class="coffee-button">
                         <img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee"
                             height="32">
@@ -376,6 +316,7 @@
             </div>
         </div>
     </footer>
+    <script type="module" src="js/nav.js"></script>
     <script src="js/animation.js"></script>
 </body>
 
