@@ -154,6 +154,9 @@ let FormSettingsComponent = {
       GeneralHandler.createToggle('Run Tests on Start', ['Yes', 'No'], testingContainer,
         GeneralSettings.runTestsOnStart ? 'Yes' : 'No',
         FormSettingsComponent.toggleRunTestsOnStart);
+
+      // Apply translations for all elements created in this panel
+      try { i18n.applyTranslations(parent); } catch (_) {}
     }
   },
 

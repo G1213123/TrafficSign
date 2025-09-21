@@ -143,8 +143,16 @@ let GeneralHandler = {
       var inputContainer = GeneralHandler.createNode("div", { 'class': `${container}-container` }, parent)
     }
     var input = GeneralHandler.createNode("button", { 'type': 'button', 'class': `${container ? container : name}-button`, 'id': name, 'placeholder': ' ' }, inputContainer ? inputContainer : parent, callback, event)
-    input.setAttribute('data-i18n', labelTxt)
-    input.innerHTML = labelTxt
+
+    // If label contains HTML (e.g., <i class="fa ..."></i>), render as HTML and skip i18n text replacement
+    const containsHTML = /<[^>]+>/.test(String(labelTxt));
+    if (containsHTML) {
+      input.innerHTML = labelTxt;
+    } else {
+      input.setAttribute('data-i18n', labelTxt);
+      // Set initial text; i18n.applyTranslations may update later
+      try { input.textContent = i18n.t(labelTxt); } catch (_) { input.textContent = String(labelTxt); }
+    }
     return input
   },
 
@@ -175,8 +183,8 @@ let GeneralHandler = {
   createInput: function (name, labelTxt, parent, defaultV = null, callback = null, event = null, unit = null) {
     var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent)
     //var labelEdge = GeneralHandler.createNode("div", { 'class': 'cut' }, inputContainer)
-  var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, inputContainer)
-  label.setAttribute('data-i18n', labelTxt)
+    var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, inputContainer)
+    label.setAttribute('data-i18n', labelTxt)
 
     // Create a wrapper div for input field with units if needed
     var inputWrapperClass = unit ? 'input-wrapper' : '';
@@ -186,10 +194,16 @@ let GeneralHandler = {
     var inputClass = unit ? 'input with-unit' : 'input';
     var input = GeneralHandler.createNode("input", { 'type': 'text', 'class': inputClass, 'id': name, 'placeholder': ' ' }, inputWrapper, callback, event)
 
-    // Add unit span if unit is specified
+    // Add unit span if unit is specified (with i18n support)
     if (unit) {
       var unitSpan = GeneralHandler.createNode("span", { 'class': 'input-unit' }, inputWrapper)
-      unitSpan.innerHTML = unit;
+      // Apply i18n translation and attribute; fallback to raw string
+      try {
+        unitSpan.setAttribute('data-i18n', unit);
+        unitSpan.textContent = i18n.t(unit);
+      } catch (_) {
+        unitSpan.textContent = String(unit);
+      }
     }
 
     label.innerHTML = labelTxt
@@ -199,8 +213,8 @@ let GeneralHandler = {
 
   createSelect: function (name, labelTxt, options, parent, defaultV = null, callback = null, event = 'change') {
     var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent)
-  var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, inputContainer)
-  label.setAttribute('data-i18n', labelTxt)
+    var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, inputContainer)
+    label.setAttribute('data-i18n', labelTxt)
     var input = GeneralHandler.createNode("select", { 'class': 'input', 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
     label.innerHTML = labelTxt
     for (var i = 0; i < options.length; i++) {
@@ -233,8 +247,8 @@ let GeneralHandler = {
 
     // Create the label
     var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, inputContainer);
-  label.setAttribute('data-i18n', name);
-  label.innerHTML = name;
+    label.setAttribute('data-i18n', name);
+    label.innerHTML = name;
 
     // Determine if we need multi-row layout
     const needsMultiRow = maxItemsPerRow && options.length > maxItemsPerRow;
@@ -261,8 +275,8 @@ let GeneralHandler = {
         'data-value': option
       }, toggleContainer);
 
-  button.setAttribute('data-i18n', option);
-  button.innerHTML = option;
+      button.setAttribute('data-i18n', option);
+      button.innerHTML = option;
       toggleButtons.push(button);
 
       // Add click event to handle toggle behavior
@@ -644,10 +658,10 @@ let GeneralHandler = {
       showTimeout = setTimeout(() => {
         const content = getCurrentContent();
         hints.innerHTML = content;
-        
+
         // Add close button to hints
         GeneralHandler.addCloseButtonToHints(hints, hideHints);
-        
+
         hints.style.visibility = 'visible';
         hints.style.opacity = '1';
         hints.style.pointerEvents = 'auto';
@@ -709,10 +723,10 @@ let GeneralHandler = {
       if (hints.style.opacity !== '1') {
         const content = getCurrentContent();
         hints.innerHTML = content;
-        
+
         // Add close button to hints
         GeneralHandler.addCloseButtonToHints(hints, hideHints);
-        
+
         hints.style.visibility = 'visible';
         hints.style.opacity = '1';
         hints.style.pointerEvents = 'auto';
@@ -895,10 +909,10 @@ let GeneralHandler = {
       showTimeout = setTimeout(async () => {
         const content = await loadHintContent();
         hints.innerHTML = content;
-        
+
         // Add close button to hints
         GeneralHandler.addCloseButtonToHints(hints, hideHints);
-        
+
         hints.style.visibility = 'visible';
         hints.style.opacity = '1';
         hints.style.pointerEvents = 'auto';
@@ -960,10 +974,10 @@ let GeneralHandler = {
       if (hints.style.opacity !== '1') {
         const content = await loadHintContent();
         hints.innerHTML = content;
-        
+
         // Add close button to hints
         GeneralHandler.addCloseButtonToHints(hints, hideHints);
-        
+
         hints.style.visibility = 'visible';
         hints.style.opacity = '1';
         hints.style.pointerEvents = 'auto';
@@ -1357,7 +1371,7 @@ let GeneralHandler = {
         if (!isScrolling) {
           isLongPress = true;
           showCallback(e);
-          
+
           // Add global touch handler to hide tooltip when touching outside
           if (isMobile || !supportsHover) {
             globalTouchHandler = handleGlobalTouch;
@@ -1577,10 +1591,10 @@ let GeneralHandler = {
           // If hint content is available, show tooltip
           if (hintContent) {
             tooltip.innerHTML = hintContent;
-            
+
             // Add close button to tooltip
             GeneralHandler.addCloseButtonToHints(tooltip, hideTooltip);
-            
+
             tooltip.style.visibility = 'visible';
             tooltip.style.opacity = '1';
             tooltip.style.pointerEvents = 'auto';
@@ -1591,10 +1605,10 @@ let GeneralHandler = {
           } else {
             // No hint available, show a fallback message
             tooltip.innerHTML = '<p><em>No help available for this item.</em></p>';
-            
+
             // Add close button to tooltip
             GeneralHandler.addCloseButtonToHints(tooltip, hideTooltip);
-            
+
             tooltip.style.visibility = 'visible';
             tooltip.style.opacity = '1';
             tooltip.style.pointerEvents = 'auto';
@@ -1605,10 +1619,10 @@ let GeneralHandler = {
           console.warn('Failed to load hint content:', error);
           // Show error message in tooltip
           tooltip.innerHTML = '<p><em>Failed to load help content.</em></p>';
-          
+
           // Add close button to tooltip
           GeneralHandler.addCloseButtonToHints(tooltip, hideTooltip);
-          
+
           tooltip.style.visibility = 'visible';
           tooltip.style.opacity = '1';
           tooltip.style.pointerEvents = 'auto';
@@ -1689,7 +1703,7 @@ let GeneralHandler = {
       if (hideTimeout) {
         clearTimeout(hideTimeout);
       }
-      
+
       hideTimeout = setTimeout(() => {
         tooltip.style.opacity = '0';
         tooltip.style.pointerEvents = 'none';
@@ -1933,9 +1947,9 @@ let GeneralHandler = {
       'aria-label': 'Close hint',
       'title': 'Close'
     }, hintsElement);
-    
+
     closeButton.innerHTML = '&times;'; // × symbol
-    
+
     // Add click handler to close button
     closeButton.addEventListener('click', (e) => {
       e.preventDefault();
@@ -2058,24 +2072,24 @@ const GeneralSettings = {
 // Add a global touch handler to help hide tooltips on mobile devices
 if (typeof window !== 'undefined' && GeneralHandler.isMobileDevice()) {
   let globalTouchHideTimeout = null;
-  
+
   const globalTooltipHideHandler = (e) => {
     // Clear any existing timeout
     if (globalTouchHideTimeout) {
       clearTimeout(globalTouchHideTimeout);
     }
-    
+
     // Set a timeout to hide tooltips if the touch is not on a tooltip or button with tooltip
     globalTouchHideTimeout = setTimeout(() => {
       const target = e.target;
       const isTooltipElement = target.closest('.hints') || target.closest('[data-tooltip]') || target.classList.contains('help-icon');
-      
+
       if (!isTooltipElement) {
         GeneralHandler.hideAllTooltips();
       }
     }, 100); // Small delay to allow other touch handlers to process first
   };
-  
+
   // Add the global handler with passive: true for better performance
   document.addEventListener('touchstart', globalTooltipHideHandler, { passive: true });
 }

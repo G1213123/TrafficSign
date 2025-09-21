@@ -46,13 +46,14 @@ let FormBorderWrapComponent = {
 
       // (moved) Fixed width/height inputs will be added inside borderTypeContainer for better layout
 
-      // Create a container for border actions
+  // Create a container for border actions
       var borderActionsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      //GeneralHandler.createButton('input-border', 'Select Objects for border', borderActionsContainer, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
-      const stackDividerBtn = GeneralHandler.createButton('input-HDivider', 'Add stack border divider', borderActionsContainer, 'input', FormBorderWrapComponent.StackDividerHandler, 'click')
-      const gantryDividerBtn = GeneralHandler.createButton('input-VDivider', 'Add gantry border divider', borderActionsContainer, 'input', FormBorderWrapComponent.GantryDividerHandler, 'click')
-      //const gantryLineBtn = GeneralHandler.createButton('input-HLine', 'Add gantry destination line', borderActionsContainer, 'input', FormBorderWrapComponent.GantryLineHandler, 'click')
-      const laneLineBtn = GeneralHandler.createButton('input-VLane', 'Add lane separation line', borderActionsContainer, 'input', FormBorderWrapComponent.LaneLineHandler, 'click')
+  //GeneralHandler.createButton('input-border', 'Select Border', borderActionsContainer, 'input', FormBorderWrapComponent.BorderCreateHandler, 'click')
+  // Use i18n keys that exist in dictionaries
+  const stackDividerBtn = GeneralHandler.createButton('input-HDivider', 'Add Stack Divider', borderActionsContainer, 'input', FormBorderWrapComponent.StackDividerHandler, 'click')
+  const gantryDividerBtn = GeneralHandler.createButton('input-VDivider', 'Add Gantry Divider', borderActionsContainer, 'input', FormBorderWrapComponent.GantryDividerHandler, 'click')
+  //const gantryLineBtn = GeneralHandler.createButton('input-HLine', 'Add Gantry Line', borderActionsContainer, 'input', FormBorderWrapComponent.GantryLineHandler, 'click')
+  const laneLineBtn = GeneralHandler.createButton('input-VLane', 'Add Lane Line', borderActionsContainer, 'input', FormBorderWrapComponent.LaneLineHandler, 'click')
 
       // Add tooltips to divider buttons
       GeneralHandler.createGeneralButtonTooltip(stackDividerBtn, 'divider/StackDivider', {
@@ -72,9 +73,9 @@ let FormBorderWrapComponent = {
       });
 
       // Create a container for border type selection with SVG buttons
-      var borderTypeContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container', 'id': 'border-select-container' }, parent);
-      const borderTypeHeader = GeneralHandler.createNode("div", { 'class': 'placeholder' }, borderTypeContainer);
-      borderTypeHeader.innerHTML = "Select Border Type";
+  var borderTypeContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container', 'id': 'border-select-container' }, parent);
+  // i18n-enabled header for border type selection
+  GeneralHandler.createI18nNode("div", { 'class': 'placeholder' }, borderTypeContainer, 'Select Border Type', 'text');
 
       // Fixed width/height inputs inside the border type container, aligned in one row
       try {
@@ -110,7 +111,9 @@ let FormBorderWrapComponent = {
       } catch (e) {
         console.warn('Failed to attach fixed width/height inputs:', e);
       }
-      FormBorderWrapComponent.createBorderButtons()
+  FormBorderWrapComponent.createBorderButtons()
+  // Apply translations for all newly created elements in this panel
+  try { i18n.applyTranslations(parent); } catch (_) {}
     }
   },
 
