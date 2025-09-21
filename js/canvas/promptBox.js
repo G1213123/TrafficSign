@@ -93,8 +93,7 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
   const enterButton = document.getElementById('cursorEnterButton');
   const cancelButton = document.getElementById('cursorCancelButton');
 
-  // Emphasize configured keywords (defaults to WIDTH/HEIGHT)
-  promptBox.innerHTML = emphasizePromptText(i18n.t(text));
+  promptBox.innerText = text;
   promptBox.style.display = 'block';
   document.removeEventListener('keydown', ShowHideSideBarEvent);
 
