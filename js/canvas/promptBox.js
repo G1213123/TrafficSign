@@ -1,6 +1,7 @@
 import { CanvasGlobals } from "./canvas.js";
 import { ShowHideSideBarEvent } from "./keyboardEvents.js";
 import { cursorClickMode } from "./contexMenu.js";
+import { i18n } from '../i18n/i18n.js';
 
 const canvas = CanvasGlobals.canvas; // Access the global canvas object
 
@@ -93,7 +94,7 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
   const cancelButton = document.getElementById('cursorCancelButton');
 
   // Emphasize configured keywords (defaults to WIDTH/HEIGHT)
-  promptBox.innerHTML = emphasizePromptText(text);
+  promptBox.innerHTML = emphasizePromptText(i18n.t(text));
   promptBox.style.display = 'block';
   document.removeEventListener('keydown', ShowHideSideBarEvent);
 

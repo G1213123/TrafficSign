@@ -128,7 +128,7 @@
             </div>
             <!-- End Static Info Panel Content -->
             <form id="input-form" class="input-form"></form>
-            <div class="object-list-heading">
+            <div class="object-list-heading" data-i18n="Canvas Objects">
                 Canvas Objects
                 <i id="toggle-object-list" class="fa fa-chevron-down rotated"></i>
             </div>
@@ -137,44 +137,44 @@
             </div>
         </div>
         <div data-position="left" class="side-bar" id="side-bar">
-            <div class="item" id="btn_draw" data-tooltip="Draw Symbol"><i class="fa-solid fa-road"></i></div>
-            <div class="item" id="btn_text" data-tooltip="Add Text"><i class="fa-solid fa-font"></i></div>
-            <div class="item" id="btn_border" data-tooltip="Add Border"><i class="fa fa-vector-square"></i></div>
-            <div class="item" id="btn_map" data-tooltip="Add Route Map"><i class="fa fa-location-arrow"></i></div>
-            <div class="item" id="btn_measure" data-tooltip="Measure Tool"><i class="fa-solid fa-ruler"></i></div>
-            <div class="item" id="btn_template" data-tooltip="Template Signs"><i class="fa-solid fa-signs-post"></i>
+            <div class="item" id="btn_draw" data-i18n-tooltip="Draw Symbol" data-tooltip="Draw Symbol"><i class="fa-solid fa-road"></i></div>
+            <div class="item" id="btn_text" data-i18n-tooltip="Add Text" data-tooltip="Add Text"><i class="fa-solid fa-font"></i></div>
+            <div class="item" id="btn_border" data-i18n-tooltip="Add Border" data-tooltip="Add Border"><i class="fa fa-vector-square"></i></div>
+            <div class="item" id="btn_map" data-i18n-tooltip="Add Route Map" data-tooltip="Add Route Map"><i class="fa fa-location-arrow"></i></div>
+            <div class="item" id="btn_measure" data-i18n-tooltip="Measure Tool" data-tooltip="Measure Tool"><i class="fa-solid fa-ruler"></i></div>
+            <div class="item" id="btn_template" data-i18n-tooltip="Template Signs" data-tooltip="Template Signs"><i class="fa-solid fa-signs-post"></i>
             </div>
-            <div class="item" id="btn_export" data-tooltip="Import/Export"><i class="fa-solid fa-file-export"></i></div>
-            <div class="item" id="btn_tracker" data-tooltip="History Tracker"><i class="fa fa-history"></i></div>
-            <div class="item" id="btn_info" data-tooltip="Information"><i class="fa fa-circle-info"></i></div>
-            <div class="item" id="btn_settings" data-tooltip="Settings"><i class="fa fa-gear"></i></div>
+            <div class="item" id="btn_export" data-i18n-tooltip="Import/Export" data-tooltip="Import/Export"><i class="fa-solid fa-file-export"></i></div>
+            <div class="item" id="btn_tracker" data-i18n-tooltip="History Tracker" data-tooltip="History Tracker"><i class="fa fa-history"></i></div>
+            <div class="item" id="btn_info" data-i18n-tooltip="Information" data-tooltip="Information"><i class="fa fa-circle-info"></i></div>
+            <div class="item" id="btn_settings" data-i18n-tooltip="Settings" data-tooltip="Settings"><i class="fa fa-gear"></i></div>
 
-            <div class="item bottom" id="show_hide" data-tooltip="Toggle Sidebar"><i
+            <div class="item bottom" id="show_hide" data-i18n-tooltip="Toggle Sidebar" data-tooltip="Toggle Sidebar"><i
                     class="fa fa-angle-double-right"></i></div>
         </div>
     </div>
     <div id="loading-overlay">
         <div class="spinner"></div>
-        <div class="loading-text">Loading resources...</div>
+    <div class="loading-text" data-i18n="Loading resources...">Loading resources...</div>
     </div>
     <div id="canvas-container">
         <canvas id="canvas"></canvas>
     </div>
     <div id="context-menu">
         <ul>
-            <li id="set-anchor">Set Anchor</li>
-            <li id="pivot-anchor">Pivot Anchor</li>
-            <li id="edit-object">Edit</li>
-            <li id="delete-object">Delete</li>
-            <li id="property">Property</li>
+            <li id="set-anchor" data-i18n="Set Anchor">Set Anchor</li>
+            <li id="pivot-anchor" data-i18n="Pivot Anchor">Pivot Anchor</li>
+            <li id="edit-object" data-i18n="Edit">Edit</li>
+            <li id="delete-object" data-i18n="Delete">Delete</li>
+            <li id="property" data-i18n="Property">Property</li>
         </ul>
     </div>
     <div id="property-panel" class="property-panel"></div>
     <div id="cursorBoxContainer" class="cursor-box-contained">
-        <div id="cursorTextBox" class="cursor-box">Follow the cursor</div>
+    <div id="cursorTextBox" class="cursor-box" data-i18n="Follow the cursor">Follow the cursor</div>
         <input type="text" id="cursorAnswerBox" class="cursor-box" value=0 />
-        <button id="cursorEnterButton" class="cursor-box-button mobile-only">Enter</button>
-        <button id="cursorCancelButton" class="cursor-box-button mobile-only">Cancel</button>
+    <button id="cursorEnterButton" class="cursor-box-button mobile-only" data-i18n="Enter">Enter</button>
+    <button id="cursorCancelButton" class="cursor-box-button mobile-only" data-i18n="Cancel">Cancel</button>
     </div>
 
     <!-- Modular development: load only the main entry point as a module -->

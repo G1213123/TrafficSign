@@ -19,6 +19,7 @@ import { CanvasTrackerUI } from './sb-tracker.js';
 // Assuming CanvasObjectInspector might be needed, import if necessary
 import { CanvasObjectInspector } from './sb-inspector.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
+import { i18n } from '../i18n/i18n.js';
 
 
 window.GeneralSettings = GeneralSettings; // Make GeneralSettings globally accessible
@@ -118,6 +119,8 @@ document.addEventListener('DOMContentLoaded', function () {
             originalOnClick.call(this, event);
         }
         //updateHash(hashKey); // Update the hash
+        // Apply translations for any newly created panel content
+        try { i18n.applyTranslations(document.getElementById('input-form')); } catch (_) {}
       });
     }
   });

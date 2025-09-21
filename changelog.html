@@ -53,12 +53,16 @@
                 <span>Road Sign Factory</span>
             </a>
             <div class="nav-menu">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="getting-started.html" class="nav-link">Getting Started</a>
-                <a href="about.html" class="nav-link">About</a>
-                <a href="changelog.html" class="nav-link active">Changelog</a>
-                <a href="https://github.com/G1213123/TrafficSign" class="nav-link" target="_blank">GitHub</a>
-                <a href="design.html" class="nav-button">Launch App</a>
+                <a href="index.html" class="nav-link" data-i18n="Home">Home</a>
+                <a href="getting-started.html" class="nav-link" data-i18n="Getting Started">Getting Started</a>
+                <a href="about.html" class="nav-link" data-i18n="About">About</a>
+                <a href="changelog.html" class="nav-link active" data-i18n="Changelog">Changelog</a>
+                <a href="https://github.com/G1213123/TrafficSign" class="nav-link" target="_blank" data-i18n="GitHub">GitHub</a>
+                <a href="design.html" class="nav-button" data-i18n="Launch App">Launch App</a>
+                <div class="nav-lang" aria-label="Language">
+                    <button id="lang-en" class="lang-btn" aria-label="English">EN</button>
+                    <button id="lang-zh" class="lang-btn" aria-label="中文">中</button>
+                </div>
             </div>
             <div class="nav-toggle">
                 <span></span>
@@ -66,7 +70,7 @@
                 <span></span>
             </div>
         </div>
-    </nav>
+        </nav>
 
     <!-- Main Content -->
     <main> <!-- Changelog Content -->
@@ -74,10 +78,8 @@
             <div class="container">
                 <div class="changelog-content"> <!-- Introduction -->
                     <div class="changelog-intro">
-                        <h1>Release History</h1>
-                        <p>Here you'll find detailed information about all the updates, new features, bug fixes, and
-                            improvements made to Road Sign Factory. Each entry includes a short summary of what's
-                            changed.</p>
+                        <h1 data-i18n="Release History">Release History</h1>
+                        <p data-i18n="Changelog Intro Text">Here you'll find detailed information about all the updates, new features, bug fixes, and improvements made to Road Sign Factory. Each entry includes a short summary of what's changed.</p>
                     </div>                    <!-- Changelog Entries -->
                     <div class="changelog-entries"> <!-- Version 1.2.3 Release -->
                         <article class="changelog-entry">
@@ -410,15 +412,14 @@
 
                     <!-- Call to Action -->
                     <div class="changelog-cta">
-                        <h3>Stay Updated</h3>
-                        <p>Want to be notified about new releases? Follow our development on GitHub or check back here
-                            regularly for the latest updates.</p>
+                        <h3 data-i18n="Stay Updated">Stay Updated</h3>
+                        <p data-i18n="Stay Updated Description">Want to be notified about new releases? Follow our development on GitHub or check back here regularly for the latest updates.</p>
                         <div class="cta-buttons">
                             <a href="https://github.com/G1213123/TrafficSign" target="_blank" class="btn btn-primary">
-                                <i class="fab fa-github"></i> Follow on GitHub
+                                <i class="fab fa-github"></i> <span data-i18n="Follow on GitHub">Follow on GitHub</span>
                             </a>
                             <a href="design.html" class="btn btn-secondary">
-                                <i class="fas fa-rocket"></i> Try the App
+                                <i class="fas fa-rocket"></i> <span data-i18n="Try the App">Try the App</span>
                             </a>
                         </div>
                     </div>
@@ -432,8 +433,8 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>Road Sign Factory</h3>
-                    <p>Professional traffic sign design tool for modern web browsers.</p>
+                    <h3 data-i18n="Road Sign Factory">Road Sign Factory</h3>
+                    <p data-i18n="Professional traffic sign design tool for modern web browsers.">Professional traffic sign design tool for modern web browsers.</p>
                     <div class="social-links">
                         <a href="https://github.com/G1213123/TrafficSign" target="_blank" aria-label="GitHub">
                             <i class="fab fa-github"></i>
@@ -447,31 +448,31 @@
                     </div>
                 </div>
                 <div class="footer-section">
-                    <h4>Quick Links</h4>
+                    <h4 data-i18n="Quick Links">Quick Links</h4>
                     <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="getting-started.html">Getting Started</a></li>
-                        <li><a href="about.html">About</a></li>
-                        <li><a href="changelog.html">Changelog</a></li>
-                        <li><a href="https://github.com/G1213123/TrafficSign" target="_blank">GitHub</a></li>
-                        <li><a href="design.html" class="footer-launch-link">Launch App</a></li>
+                        <li><a href="index.html" data-i18n="Home">Home</a></li>
+                        <li><a href="getting-started.html" data-i18n="Getting Started">Getting Started</a></li>
+                        <li><a href="about.html" data-i18n="About">About</a></li>
+                        <li><a href="changelog.html" data-i18n="Changelog">Changelog</a></li>
+                        <li><a href="https://github.com/G1213123/TrafficSign" target="_blank" data-i18n="GitHub">GitHub</a></li>
+                        <li><a href="design.html" class="footer-launch-link" data-i18n="Launch App">Launch App</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h4>Resources</h4>
+                    <h4 data-i18n="Resources">Resources</h4>
                     <ul>
                         <li><a href="https://www.td.gov.hk/en/publications_and_press_releases/publications/tpdm/index.html"
-                                target="_blank">HK TPDM Guidelines</a></li>
-                        <li><a href="https://www.gov.uk/government/publications/traffic-signs-manual" target="_blank">UK
+                                target="_blank" data-i18n="HK TPDM Guidelines">HK TPDM Guidelines</a></li>
+                        <li><a href="https://www.gov.uk/government/publications/traffic-signs-manual" target="_blank" data-i18n="UK Traffic Signs Manual">UK
                                 Traffic Signs Manual</a></li>
-                        <li><a href="changelog.html">Changelog</a>
+                        <li><a href="changelog.html" data-i18n="Changelog">Changelog</a>
                         </li>
                     </ul>
                 </div>
 
                 <div class="footer-section">
-                    <h4>Support</h4>
-                    <p>Help support this project:</p>
+                    <h4 data-i18n="Support">Support</h4>
+                    <p data-i18n="Help support this project:">Help support this project:</p>
                     <a href="https://www.buymeacoffee.com/G1213123" target="_blank" class="coffee-button">
                         <img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee"
                             height="32">
@@ -489,6 +490,7 @@
         </div>
     </footer>
     <script src="js/animation.js"></script>
+    <script type="module" src="js/nav.js"></script>
 </body>
 
 </html>

@@ -1,8 +1,19 @@
 // Homepage JavaScript - Interactive Elements and Animations
 import { DemoCanvas } from './demo/demo-canvas.js';
+import { i18n } from './i18n/i18n.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Homepage DOM loaded');
+    // Initialize locale from saved settings (shared with app)
+    try {
+        const savedSettings = localStorage.getItem('appSettings');
+        const locale = savedSettings ? (JSON.parse(savedSettings).locale || 'en') : 'en';
+        i18n.setLocale(locale);
+        i18n.applyTranslations(document);
+    } catch (_) {
+        i18n.setLocale('en');
+        i18n.applyTranslations(document);
+    }
     // Initialize all homepage functionality
     initNavigation();
     initScrollAnimations();
@@ -16,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initMobileNavigation();
     initSVGRoulette();
     initTpdmTooltip();
+    initLanguageSwitcher();
     console.log('All homepage functions initialized');
 });
 
@@ -33,6 +45,33 @@ function initNavigation() {
             navbar.style.boxShadow = 'none';
         }
     });
+}
+
+// Language switcher in navbar
+function initLanguageSwitcher() {
+    const btnEn = document.getElementById('lang-en');
+    const btnZh = document.getElementById('lang-zh');
+    const updateActive = () => {
+        const loc = i18n.getLocale();
+        if (btnEn && btnZh) {
+            btnEn.classList.toggle('active', loc === 'en');
+            btnZh.classList.toggle('active', loc === 'zh');
+        }
+    };
+    const setLocaleAndPersist = (loc) => {
+        i18n.setLocale(loc);
+        try {
+            const saved = localStorage.getItem('appSettings');
+            const obj = saved ? JSON.parse(saved) : {};
+            obj.locale = loc;
+            localStorage.setItem('appSettings', JSON.stringify(obj));
+        } catch (_) {}
+        i18n.applyTranslations(document);
+        updateActive();
+    };
+    if (btnEn) btnEn.addEventListener('click', () => setLocaleAndPersist('en'));
+    if (btnZh) btnZh.addEventListener('click', () => setLocaleAndPersist('zh'));
+    updateActive();
 }
 
 // Mobile navigation

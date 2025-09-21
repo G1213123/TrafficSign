@@ -76,9 +76,8 @@ let FormTemplateComponent = {
 
     if (parent) {
       // Create heading for templates
-      const templateHeader = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      const heading = GeneralHandler.createNode("div", { 'class': 'placeholder' }, templateHeader);
-      heading.innerHTML = "Select Template";
+  const templateHeader = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+  GeneralHandler.createI18nNode("div", { 'class': 'placeholder' }, templateHeader, 'Select Template', 'text');
 
       // Create templates grid - using FormTemplateComponent as context
       FormTemplateComponent.createTemplatesGrid(parent);
@@ -114,6 +113,7 @@ let FormTemplateComponent = {
       );
 
       // Add description tooltip
+      templateBtn.setAttribute('data-i18n-tooltip', template.description);
       templateBtn.title = template.description;
     });
   },

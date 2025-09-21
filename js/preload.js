@@ -6,6 +6,7 @@ import { FormSettingsComponent } from './sidebar/sb-settings.js'; // Import Form
 import { FormTextAddComponent } from './sidebar/sb-text.js'; // Import FormTextAddComponent for initialization
 import { DrawGrid } from './canvas/canvas.js'; // Import DrawGrid if needed
 import { activatePanelFromHash } from './sidebar/sidebar.js'; // Import activatePanelFromHash if needed
+import { i18n } from './i18n/i18n.js';
 
 
 // --- Initialization ---
@@ -22,6 +23,17 @@ async function preload() {
         // Any initialization code that depends on fonts being loaded can go here.        await FormSettingsComponent.loadSettings();
         await FormSettingsComponent.loadCanvasState();
         await FormSettingsComponent.loadSettings();
+
+        // Initialize i18n locale from saved settings (if available)
+        try {
+            const savedSettings = localStorage.getItem('appSettings');
+            const locale = savedSettings ? (JSON.parse(savedSettings).locale || 'en') : 'en';
+            i18n.setLocale(locale);
+            i18n.applyTranslations(document);
+        } catch (_) {
+            i18n.setLocale('en');
+            i18n.applyTranslations(document);
+        }
 
         // Initialize text component settings listener after all modules are loaded
         FormTextAddComponent.initializeSettingsListener();

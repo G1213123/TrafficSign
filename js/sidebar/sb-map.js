@@ -7,6 +7,7 @@ import { HintLoader } from '../utils/hintLoader.js';
 
 // Import the calculateMainRoadBottomY function
 import { calculateMainRoadBottomY } from '../objects/route.js';
+import { i18n } from '../i18n/i18n.js';
 
 const canvas = CanvasGlobals.canvas;
 const canvasObject = CanvasGlobals.canvasObject;
@@ -41,8 +42,8 @@ let FormDrawMapComponent = {
       // Create a container for route parameters
       var MainRoadParamsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
 
-      // Create the toggle
-      const roadTypeToggle = GeneralHandler.createToggle('Main Road Type', FormDrawMapComponent.MapType, MainRoadParamsContainer, 'Main Line', FormDrawMapComponent.updateRoadTypeSettings);
+  // Create the toggle
+  const roadTypeToggle = GeneralHandler.createToggle('Main Road Type', FormDrawMapComponent.MapType, MainRoadParamsContainer, 'Main Line', FormDrawMapComponent.updateRoadTypeSettings);
 
       // Create a container for road type-specific settings
       const roadTypeSettingsContainer = GeneralHandler.createNode("div", { 'class': 'road-type-settings' }, MainRoadParamsContainer);
@@ -51,7 +52,7 @@ let FormDrawMapComponent = {
       FormDrawMapComponent.updateRoadTypeSettings(roadTypeSettingsContainer);
 
       // Create the Draw Map button
-      const drawMapButton = GeneralHandler.createButton('button-DrawMap', 'Draw Main Road Symbol', MainRoadParamsContainer, 'input', FormDrawMapComponent.gatherMainRoadParams, 'click');
+  const drawMapButton = GeneralHandler.createButton('button-DrawMap', 'Draw Main Road Symbol', MainRoadParamsContainer, 'input', FormDrawMapComponent.gatherMainRoadParams, 'click');
 
       const existingRoute = CanvasGlobals.canvas.getActiveObjects().length == 1 && CanvasGlobals.canvas.getActiveObject.functionalType == 'MainRoute' ? CanvasGlobals.canvas.getActiveObjects()[0] : null
       const routeList = existingRoute ? existingRoute.routeList : FormDrawMapComponent.defaultRoute
@@ -74,6 +75,7 @@ let FormDrawMapComponent = {
           parent.routeCount += 1
         })
       }
+      try { i18n.applyTranslations(parent); } catch (_) {}
     }
   },
 
@@ -87,19 +89,19 @@ let FormDrawMapComponent = {
     const roadType = GeneralHandler.getToggleValue('Main Road Type-container');
 
     // Show settings based on road type
-    if (roadType === 'Main Line') {
+  if (roadType === 'Main Line') {
       // Main Line settings
-      const mainRoadShapeToggle = GeneralHandler.createToggle(`Main Road Shape`, FormDrawMapComponent.MainEndShape, roadTypeSettingsContainer, 'Arrow', FormDrawMapComponent.onMainRoadShapeChange, 3);
+  const mainRoadShapeToggle = GeneralHandler.createToggle(`Main Road Shape`, FormDrawMapComponent.MainEndShape, roadTypeSettingsContainer, 'Arrow', FormDrawMapComponent.onMainRoadShapeChange, 3);
       const helpIcon = GeneralHandler.createHelpIconWithHint(mainRoadShapeToggle.parentElement, 'route/MainRoadShape',);
 
-      GeneralHandler.createInput('main-width', 'Main Road Width', roadTypeSettingsContainer, 6, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
-      GeneralHandler.createInput('root-length', 'Main Road Approach Length', roadTypeSettingsContainer, 7, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
-      GeneralHandler.createInput('tip-length', 'Main Road Exit Length', roadTypeSettingsContainer, 12, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
+  GeneralHandler.createInput('main-width', 'Main Road Width', roadTypeSettingsContainer, 6, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
+  GeneralHandler.createInput('root-length', 'Main Road Approach Length', roadTypeSettingsContainer, 7, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
+  GeneralHandler.createInput('tip-length', 'Main Road Exit Length', roadTypeSettingsContainer, 12, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
 
       // Corner radius inputs container - initially hidden
       const cornerRadiusContainer = GeneralHandler.createNode("div", { 'class': 'corner-radius-container', 'style': 'display: none;' }, roadTypeSettingsContainer);
-      GeneralHandler.createInput('inner-corner-radius', 'Inner Corner Radius', cornerRadiusContainer, 1, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
-      GeneralHandler.createInput('outer-corner-radius', 'Outer Corner Radius', cornerRadiusContainer, 4, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
+  GeneralHandler.createInput('inner-corner-radius', 'Inner Corner Radius', cornerRadiusContainer, 1, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
+  GeneralHandler.createInput('outer-corner-radius', 'Outer Corner Radius', cornerRadiusContainer, 4, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
 
       // Add angle selector for main road using same structure as side road
       var mainAngleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container' }, roadTypeSettingsContainer);
@@ -122,6 +124,8 @@ let FormDrawMapComponent = {
       // Placeholder for Spiral Roundabout settings
       GeneralHandler.createToggle(`Roundabout Type`, FormDrawMapComponent.RoundaboutFeatures, roadTypeSettingsContainer, 'Normal', FormDrawMapComponent.drawMainRoadOnCursor);
     }
+
+    try { i18n.applyTranslations(roadTypeSettingsContainer.parentElement); } catch (_) {}
   },
 
   // Function to handle Main Road Shape changes

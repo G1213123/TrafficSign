@@ -3,6 +3,8 @@
  * This module provides shared functions for modal creation and management
  */
 
+import { i18n } from '../i18n/i18n.js';
+
 const ModalUtils = {
   /**
    * Create a basic modal structure
@@ -26,12 +28,13 @@ const ModalUtils = {
     modalContent.className = 'modal-content';
 
     // Modal Title
-    const titleElement = document.createElement('h3');
-    titleElement.textContent = title;
+  const titleElement = document.createElement('h3');
+  titleElement.setAttribute('data-i18n', title);
+  titleElement.textContent = i18n.t(title);
 
     // Close button
-    const closeButton = document.createElement('button');
-    closeButton.textContent = '×';
+  const closeButton = document.createElement('button');
+  closeButton.textContent = '×';
     closeButton.className = 'close-button';
     closeButton.onclick = () => modal.remove();
 
@@ -52,7 +55,8 @@ const ModalUtils = {
    */
   createButton: function (text, className, onClick) {
     const button = document.createElement('button');
-    button.textContent = text;
+    button.setAttribute('data-i18n', text);
+    button.textContent = i18n.t(text);
     button.className = className;
     if (onClick) {
       button.onclick = onClick;
@@ -83,7 +87,8 @@ const ModalUtils = {
    */
   createInfoText: function (text) {
     const infoText = document.createElement('p');
-    infoText.textContent = text;
+    infoText.setAttribute('data-i18n', text);
+    infoText.textContent = i18n.t(text);
     infoText.className = 'info-text';
     return infoText;
   },
@@ -96,7 +101,16 @@ const ModalUtils = {
    */
   createTextArea: function (id, placeholder) {
     const textArea = document.createElement('textarea');
-    textArea.id = id;    textArea.placeholder = placeholder;
+    textArea.id = id;
+    if (placeholder) {
+      try {
+        textArea.setAttribute('data-i18n-placeholder', placeholder);
+        // Use i18n if available
+        textArea.placeholder = i18n.t(placeholder);
+      } catch (_) {
+        textArea.placeholder = placeholder;
+      }
+    }
     return textArea;
   },
 
@@ -155,6 +169,8 @@ const ModalUtils = {
     };
 
     document.body.appendChild(modal);
+    // Apply translations to any new modal content
+    try { i18n.applyTranslations(modal); } catch (_) {}
     if (focusElement) {
       focusElement.focus();
     }

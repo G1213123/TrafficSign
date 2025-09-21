@@ -5,6 +5,7 @@ import { containsNonEnglishCharacters } from '../objects/text.js';
 import { canvasTracker } from '../canvas/Tracker.js';
 import { DividerObject } from '../objects/divider.js';
 import { anchorShape } from '../objects/anchor.js';
+import { i18n } from '../i18n/i18n.js';
 
 // Add handler for 'Property' context-menu action
 const propertyMenuItem = document.getElementById('property');
@@ -53,7 +54,13 @@ function showPropertyPanel(object) {
   // Title
   const title = document.createElement('div');
   title.className = 'property-title';
-  title.innerText = object._showName || object.type || 'Object Properties';
+  // If we fall back to generic title, translate it; otherwise use object-specific name
+  if (object && (object._showName || object.type)) {
+    title.innerText = object._showName || object.type;
+  } else {
+    title.setAttribute('data-i18n', 'Object Properties');
+    title.innerText = i18n.t('Object Properties');
+  }
   panel.appendChild(title);
 
   const PREDEFINED_COLORS = ['black', 'white',];
@@ -281,7 +288,8 @@ function showPropertyPanel(object) {
     box.className = 'input-group-container';
     const header = document.createElement('div');
     header.className = 'property-title';
-    header.innerText = name;
+    header.setAttribute('data-i18n', name);
+    header.innerText = i18n.t(name);
     box.appendChild(header);
 
     props.forEach(prop => {
@@ -289,7 +297,9 @@ function showPropertyPanel(object) {
       item.className = 'property-item';
 
       const labelSpan = document.createElement('span');
-      labelSpan.innerText = `${prop.label}: `;
+      // Mark label for translation
+      labelSpan.setAttribute('data-i18n', prop.label);
+      labelSpan.innerText = `${i18n.t(prop.label)}: `;
       item.appendChild(labelSpan);
 
       if (prop.editable && targetObject) {
@@ -319,10 +329,16 @@ function showPropertyPanel(object) {
           });
         } else if (prop.type === 'select') {
           inputElement = document.createElement('select');
-          prop.options.forEach(opt => { // opt is a color name e.g. 'Primary', 'white'
+          prop.options.forEach(opt => { // opt is a color/name e.g. 'Primary', 'white'
             const option = document.createElement('option');
             option.value = opt;
-            option.text = opt;
+            // Translate option text when possible
+            if (typeof opt === 'string') {
+              option.setAttribute('data-i18n', opt);
+              option.text = i18n.t(opt);
+            } else {
+              option.text = String(opt);
+            }
             inputElement.appendChild(option);
           });
 
@@ -382,11 +398,16 @@ function showPropertyPanel(object) {
         const numericValue = parseFloat(displayValue);
 
         // Check if it's a number or a string that purely represents a number
-        if (!isNaN(numericValue) && typeof displayValue !== 'boolean' && (typeof displayValue === 'number' || (typeof displayValue === 'string' && /^-?\\d+(\\.\\d+)?$/.test(displayValue.trim())))) {
+        if (!isNaN(numericValue) && typeof displayValue !== 'boolean' && (typeof displayValue === 'number' || (typeof displayValue === 'string' && /^-?\d+(\.\d+)?$/.test(displayValue.trim())))) {
           valueSpan.innerText = numericValue.toFixed(1);
         } else {
           // Otherwise, display as is (e.g., color names, text, boolean values)
-          valueSpan.innerText = displayValue;
+          if (typeof displayValue === 'string') {
+            valueSpan.setAttribute('data-i18n', displayValue);
+            valueSpan.innerText = i18n.t(displayValue);
+          } else {
+            valueSpan.innerText = displayValue;
+          }
         }
         item.appendChild(valueSpan);
       }
@@ -398,12 +419,12 @@ function showPropertyPanel(object) {
   // Prepare Geometry properties
   const isNonMovable = object.functionalType === 'Border' || object.functionalType === 'HDivider' || object.functionalType === 'VDivider' || object.functionalType === 'VLane' || object.functionalType === 'HLine';
   const geometryProps = [
-    { label: 'Left', key: 'left', type: 'number', editable: !isNonMovable && !object.lockMovementX, step: 1, value: object.left },
-    { label: 'Top', key: 'top', type: 'number', editable: !isNonMovable && !object.lockMovementY, step: 1, value: object.top },
-    { label: 'Right', value: Math.round(object.left + (object.width * (object.scaleX || 1))) },
-    { label: 'Bottom', value: Math.round(object.top + (object.height * (object.scaleY || 1))) },
-    { label: 'Width', value: Math.round((object.width || 0) * (object.scaleX || 1)) },
-    { label: 'Height', value: Math.round((object.height || 0) * (object.scaleY || 1)) }
+    { label: 'Left (geom)', key: 'left', type: 'number', editable: !isNonMovable && !object.lockMovementX, step: 1, value: object.left },
+    { label: 'Top (geom)', key: 'top', type: 'number', editable: !isNonMovable && !object.lockMovementY, step: 1, value: object.top },
+    { label: 'Right (geom)', value: Math.round(object.left + (object.width * (object.scaleX || 1))) },
+    { label: 'Bottom (geom)', value: Math.round(object.top + (object.height * (object.scaleY || 1))) },
+    { label: 'Width (geom)', value: Math.round((object.width || 0) * (object.scaleX || 1)) },
+    { label: 'Height (geom)', value: Math.round((object.height || 0) * (object.scaleY || 1)) }
   ];
 
   // Prepare Basic properties (xHeight, Color)
@@ -415,7 +436,8 @@ function showPropertyPanel(object) {
     object.functionalType === 'HLine';
 
   if (object.hasOwnProperty('xHeight')) {
-    basicProps.push({ label: 'xHeight', key: 'xHeight', type: 'number', editable: true, step: 0.1, value: object.xHeight });
+    // Use the existing translation key 'x Height'
+    basicProps.push({ label: 'x Height', key: 'xHeight', type: 'number', editable: true, step: 0.1, value: object.xHeight });
   }
 
   if (object.hasOwnProperty('color')) {
@@ -432,7 +454,7 @@ function showPropertyPanel(object) {
       else if (object.color === '#000000') initialSelectValue = 'black';
       // else initialSelectValue remains object.color if not hex white/black
     }
-    basicProps.push({ label: 'Color', key: 'color', type: 'select', options: colorOptions, editable: true, value: initialSelectValue });
+  basicProps.push({ label: 'Color', key: 'color', type: 'select', options: colorOptions, editable: true, value: initialSelectValue });
 
   }
 
@@ -519,6 +541,9 @@ function showPropertyPanel(object) {
   renderCategory('Geometry', geometryProps, object); // Pass object
   renderCategory('Basic', basicProps, object);       // Pass object
   renderCategory(object.functionalType || 'Special', specialProps, object); // Pass object, provide default name
+
+  // Apply translations to the freshly built panel
+  try { i18n.applyTranslations(panel); } catch (_) {}
 }
 
 

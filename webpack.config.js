@@ -54,7 +54,7 @@ module.exports = {
       template: './changelog.html', // Path to your changelog.html
       filename: 'changelog.html',   // Output filename
       chunks: ['nav'],              // Include nav bundle for navigation functionality
-      inject: true,                 // Inject scripts into the changelog
+      inject: false,                 // Use manual script tags in source HTML (Option A)
       title: 'Changelog - Road Sign Factory',
       appVersion: require('./package.json').version || process.env.VERSION || 'dev',
       googleAdsClientId: process.env.GOOGLE_ADS_CLIENT_ID || 'ca-pub-0000000000000000'
@@ -63,7 +63,7 @@ module.exports = {
       template: './about.html',     // Path to your about.html
       filename: 'about.html',       // Output filename
       chunks: ['nav'], // Include nav and animation bundles
-      inject: true,                 // Inject scripts into the about page
+      inject: false,                 // Use manual script tags in source HTML (Option A)
       title: 'About - Road Sign Factory',
       appVersion: require('./package.json').version || process.env.VERSION || 'dev',
       googleAdsClientId: process.env.GOOGLE_ADS_CLIENT_ID || 'ca-pub-0000000000000000'
@@ -72,7 +72,7 @@ module.exports = {
       template: './getting-started.html', // Path to your getting-started.html
       filename: 'getting-started.html',   // Output filename
       chunks: ['nav'],                    // Include nav bundle for navigation functionality
-      inject: true,                       // Inject scripts into the getting started page
+      inject: false,                       // Use manual script tags in source HTML (Option A)
       title: 'Getting Started - Road Sign Factory',
       appVersion: require('./package.json').version || process.env.VERSION || 'dev',
       googleAdsClientId: process.env.GOOGLE_ADS_CLIENT_ID || 'ca-pub-0000000000000000'

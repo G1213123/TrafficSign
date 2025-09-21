@@ -1,5 +1,6 @@
 /* General Sidebar Panel */
 import { CanvasGlobals } from '../canvas/canvas.js';
+import { i18n } from '../i18n/i18n.js';
 import { CanvasObjectInspector } from './sb-inspector.js';
 import { ShowHideSideBarEvent } from '../canvas/keyboardEvents.js'; // Import the event handler for keyboard events
 import { HintLoader } from '../utils/hintLoader.js'; // Import the hint loader utility
@@ -92,11 +93,57 @@ let GeneralHandler = {
     }
     return node
   },
+  /**
+   * Create a DOM node with i18n support and append to parent
+   * @param {string} type - Element tag name (e.g., 'div', 'label')
+   * @param {Object} attribute - Attributes to set on the element
+   * @param {HTMLElement} parent - Parent to append to
+   * @param {string} key - Translation key or raw text
+   * @param {('text'|'html'|'placeholder'|'tooltip')} mode - How to apply translation; default 'text'
+   * @returns {HTMLElement}
+   */
+  createI18nNode: function (type, attribute, parent, key, mode = 'text') {
+    const node = document.createElement(type);
+    for (const [attrKey, value] of Object.entries(attribute || {})) {
+      node.setAttribute(attrKey, value);
+    }
+
+    try {
+      switch (mode) {
+        case 'html':
+          node.setAttribute('data-i18n-html', key);
+          node.innerHTML = i18n.t(key);
+          break;
+        case 'placeholder':
+          node.setAttribute('data-i18n-placeholder', key);
+          node.setAttribute('placeholder', i18n.t(key));
+          break;
+        case 'tooltip':
+          node.setAttribute('data-i18n-tooltip', key);
+          const val = i18n.t(key);
+          node.setAttribute('data-tooltip', val);
+          node.setAttribute('title', val);
+          break;
+        case 'text':
+        default:
+          node.setAttribute('data-i18n', key);
+          node.textContent = i18n.t(key);
+          break;
+      }
+    } catch (_) {
+      // Fallback: set plain text/attrs even if i18n fails
+      if (mode === 'html') node.innerHTML = key; else if (mode === 'placeholder') node.setAttribute('placeholder', key); else node.textContent = key;
+    }
+
+    parent.appendChild(node);
+    return node;
+  },
   createButton: function (name, labelTxt, parent, container = 'input', callback = null, event = null) {
     if (container) {
       var inputContainer = GeneralHandler.createNode("div", { 'class': `${container}-container` }, parent)
     }
     var input = GeneralHandler.createNode("button", { 'type': 'button', 'class': `${container ? container : name}-button`, 'id': name, 'placeholder': ' ' }, inputContainer ? inputContainer : parent, callback, event)
+    input.setAttribute('data-i18n', labelTxt)
     input.innerHTML = labelTxt
     return input
   },
@@ -118,7 +165,9 @@ let GeneralHandler = {
     // Add text label
     const textLabel = document.createElement('div');
     textLabel.className = 'symbol-label';
-    textLabel.innerText = name.replace('button-', '');
+    const labelKey = name.replace('button-', '');
+    textLabel.setAttribute('data-i18n', labelKey);
+    try { textLabel.innerText = i18n.t(labelKey); } catch (_) { textLabel.innerText = labelKey; }
     input.appendChild(textLabel);
 
     return input
@@ -126,7 +175,8 @@ let GeneralHandler = {
   createInput: function (name, labelTxt, parent, defaultV = null, callback = null, event = null, unit = null) {
     var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent)
     //var labelEdge = GeneralHandler.createNode("div", { 'class': 'cut' }, inputContainer)
-    var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, inputContainer)
+  var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, inputContainer)
+  label.setAttribute('data-i18n', labelTxt)
 
     // Create a wrapper div for input field with units if needed
     var inputWrapperClass = unit ? 'input-wrapper' : '';
@@ -149,13 +199,26 @@ let GeneralHandler = {
 
   createSelect: function (name, labelTxt, options, parent, defaultV = null, callback = null, event = 'change') {
     var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent)
-    var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, inputContainer)
+  var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, inputContainer)
+  label.setAttribute('data-i18n', labelTxt)
     var input = GeneralHandler.createNode("select", { 'class': 'input', 'id': name, 'placeholder': ' ' }, inputContainer, callback, event)
     label.innerHTML = labelTxt
     for (var i = 0; i < options.length; i++) {
+      var optionDef = options[i];
       var option = document.createElement("option");
-      option.value = options[i];
-      option.text = options[i];
+      // Support both string and object option definitions
+      if (typeof optionDef === 'object' && optionDef !== null) {
+        const value = optionDef.value != null ? optionDef.value : optionDef.label;
+        const label = optionDef.label != null ? optionDef.label : String(value);
+        option.value = value;
+        option.setAttribute('data-i18n', label);
+        // Use i18n translated text if available, else fallback
+        try { option.text = i18n.t(label); } catch (_) { option.text = label; }
+      } else {
+        option.value = optionDef;
+        option.setAttribute('data-i18n', optionDef);
+        try { option.text = i18n.t(optionDef); } catch (_) { option.text = String(optionDef); }
+      }
       input.appendChild(option);
     }
     if (defaultV !== null) {
@@ -170,7 +233,8 @@ let GeneralHandler = {
 
     // Create the label
     var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, inputContainer);
-    label.innerHTML = name;
+  label.setAttribute('data-i18n', name);
+  label.innerHTML = name;
 
     // Determine if we need multi-row layout
     const needsMultiRow = maxItemsPerRow && options.length > maxItemsPerRow;
@@ -197,7 +261,8 @@ let GeneralHandler = {
         'data-value': option
       }, toggleContainer);
 
-      button.innerHTML = option;
+  button.setAttribute('data-i18n', option);
+  button.innerHTML = option;
       toggleButtons.push(button);
 
       // Add click event to handle toggle behavior
@@ -1916,6 +1981,7 @@ const GeneralSettings = {
   xHeight: 100,
   messageColor: 'White',
   dimensionUnit: 'mm', // 'mm' or 'sw' (sign width units)
+  locale: 'en', // UI language code
 
   // Event listeners for setting changes
   listeners: [],
@@ -1958,7 +2024,8 @@ const GeneralSettings = {
       runTestsOnStart: false,
       xHeight: 100,
       messageColor: 'White',
-      dimensionUnit: 'mm'
+      dimensionUnit: 'mm',
+      locale: 'en'
     };
 
     // Apply all settings at once without triggering individual notifications

@@ -93,12 +93,16 @@
                 <span>Road Sign Factory</span>
             </a>
             <div class="nav-menu">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="getting-started.html" class="nav-link">Getting Started</a>
-                <a href="about.html" class="nav-link">About</a>
-                <a href="changelog.html" class="nav-link">Changelog</a>
-                <a href="https://github.com/G1213123/TrafficSign" class="nav-link" target="_blank">GitHub</a>
-                <a href="design.html" class="nav-button">Launch App</a>
+                <a href="index.html" class="nav-link" data-i18n="Home">Home</a>
+                <a href="getting-started.html" class="nav-link" data-i18n="Getting Started">Getting Started</a>
+                <a href="about.html" class="nav-link" data-i18n="About">About</a>
+                <a href="changelog.html" class="nav-link" data-i18n="Changelog">Changelog</a>
+                <a href="https://github.com/G1213123/TrafficSign" class="nav-link" target="_blank" data-i18n="GitHub">GitHub</a>
+                <a href="design.html" class="nav-button" data-i18n="Launch App">Launch App</a>
+                <div class="nav-lang" aria-label="Language">
+                    <button id="lang-en" class="lang-btn" aria-label="English">EN</button>
+                    <button id="lang-zh" class="lang-btn" aria-label="中文">中</button>
+                </div>
             </div>
             <div class="nav-toggle">
                 <span></span>
@@ -118,19 +122,16 @@
                         report any issues on <a href="https://github.com/G1213123/TrafficSign"
                             target="_blank">GitHub</a>. </span>
                 </div>
-                <h1 class="hero-title">
+                <h1 class="hero-title" data-i18n="Professional Directional Sign Design Tool">
                     Professional Directional Sign Design Tool
                 </h1>
-                <p class="hero-subtitle">Create, customize, and export professional directional signs online. Built with
-                    Hong
-                    Kong <span class="tpdm-tooltip" data-tooltip="Transport Planning and Design Manual">TPDM</span>
-                    standards for precision and compliance.</p>
+                <p class="hero-subtitle" data-i18n-html="hero_subtitle_html">Create, customize, and export professional directional signs online. Built with Hong Kong <span class="tpdm-tooltip" data-tooltip="Transport Planning and Design Manual">TPDM</span> standards for precision and compliance.</p>
 
                 <!-- Buttons Container -->
                 <div class="hero-buttons">
                     <!-- Primary Action Group (Launch + Version) -->
                     <div class="primary-action-group">
-                        <a href="design.html" class="btn btn-primary">
+                        <a href="design.html" class="btn btn-primary" data-i18n="Launch Application">
                             <i class="fas fa-play"></i>
                             Launch Application
                         </a>
@@ -138,7 +139,7 @@
                             <span class="version-number">
                                 <%= htmlWebpackPlugin.options.appVersion %>
                             </span>
-                            <span class="version-label">Current Build</span>
+                            <span class="version-label" data-i18n="Current Build">Current Build</span>
                         </div>
                     </div>
                 </div>
@@ -147,19 +148,19 @@
                 <div class="hero-stats">
                     <div class="stat">
                         <span class="stat-number">10+</span>
-                        <span class="stat-label">Sign Templates</span>
+                        <span class="stat-label" data-i18n="Sign Templates">Sign Templates</span>
                     </div>
                     <div class="stat">
                         <span class="stat-number">30+</span>
-                        <span class="stat-label">Symbols</span>
+                        <span class="stat-label" data-i18n="Symbols">Symbols</span>
                     </div>
                     <div class="stat">
                         <span class="stat-number">200+</span>
-                        <span class="stat-label">Destination Names</span>
+                        <span class="stat-label" data-i18n="Destination Names">Destination Names</span>
                     </div>
                     <div class="stat">
                         <span class="stat-number">100%</span>
-                        <span class="stat-label">Web-Based</span>
+                        <span class="stat-label" data-i18n="Web-Based">Web-Based</span>
                     </div>
                 </div>
             </div>

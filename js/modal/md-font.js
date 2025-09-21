@@ -6,6 +6,7 @@
 import { ModalUtils } from './mdGeneral.js';
 import { GeneralHandler } from '../sidebar/sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
+import { i18n } from '../i18n/i18n.js';
 
 const FontPriorityManager = {
   fontPriorityList: ['parsedFontKorean', 'parsedFontChinese'], // Default priority
@@ -22,10 +23,10 @@ const FontPriorityManager = {
    */
   showModal: function () {
     const modalId = 'font-priority-modal';
-    const { modal, modalContent } = ModalUtils.createModal(modalId, 'Chinese Font Priority Management');
+  const { modal, modalContent } = ModalUtils.createModal(modalId, 'Chinese Font Priority Management');
 
     // Info text
-    const infoText = ModalUtils.createInfoText('Fonts are tried in order from top to bottom.');
+  const infoText = ModalUtils.createInfoText('Fonts are tried in order from top to bottom.');
 
     // Font list container
     const fontListContainer = document.createElement('div');
@@ -36,49 +37,54 @@ const FontPriorityManager = {
     FontPriorityManager.updateFontListDisplay(fontListContainer);
 
     // Upload font section
-    const uploadSection = ModalUtils.createSection('upload-section');
+  const uploadSection = ModalUtils.createSection('upload-section');
 
-    const uploadTitle = document.createElement('h4');
-    uploadTitle.textContent = 'Upload Custom Font';
+  const uploadTitle = document.createElement('h4');
+  uploadTitle.setAttribute('data-i18n', 'Upload Custom Font');
+  uploadTitle.textContent = i18n.t('Upload Custom Font');
     const uploadInput = document.createElement('input');
     uploadInput.type = 'file';
     uploadInput.accept = '.ttf,.otf,.woff';
     uploadInput.className = 'font-upload-input';
     uploadInput.onchange = FontPriorityManager.handleFontUpload;
 
-    const uploadButton = ModalUtils.createButton('Choose Font File', 'upload-button', () => uploadInput.click());
+  const uploadButton = ModalUtils.createButton('Choose Font File', 'upload-button', () => uploadInput.click());
 
     uploadSection.appendChild(uploadTitle);
     uploadSection.appendChild(uploadButton);
     uploadSection.appendChild(uploadInput);
 
     // Character Override section
-    const overrideSection = ModalUtils.createSection('upload-section');
+  const overrideSection = ModalUtils.createSection('upload-section');
 
-    const overrideTitle = document.createElement('h4');
-    overrideTitle.textContent = 'Character Override Settings';
-    const overrideInfo = ModalUtils.createInfoText('Specify characters that should use a specific font. Enter characters directly without spaces or commas.');
+  const overrideTitle = document.createElement('h4');
+  overrideTitle.setAttribute('data-i18n', 'Character Override Settings');
+  overrideTitle.textContent = i18n.t('Character Override Settings');
+  const overrideInfo = ModalUtils.createInfoText('Specify characters that should use a specific font. Enter characters directly without spaces or commas.');
 
     const overrideContainer = document.createElement('div');
     overrideContainer.className = 'override-container';
 
     // Font selection for override
-    const fontSelectLabel = document.createElement('label');
-    fontSelectLabel.textContent = 'Override Font:';
+  const fontSelectLabel = document.createElement('label');
+  fontSelectLabel.setAttribute('data-i18n', 'Override Font:');
+  fontSelectLabel.textContent = i18n.t('Override Font:');
     fontSelectLabel.className = 'override-label';
 
     const fontSelect = document.createElement('select');
     fontSelect.className = 'font-select';
     fontSelect.id = 'override-font-select';
     FontPriorityManager.populateFontSelect(fontSelect);    // Character input
-    const charInputLabel = document.createElement('label');
-    charInputLabel.textContent = 'Characters:';
+  const charInputLabel = document.createElement('label');
+  charInputLabel.setAttribute('data-i18n', 'Characters:');
+  charInputLabel.textContent = i18n.t('Characters:');
     charInputLabel.className = 'override-label';
     const charInput = document.createElement('input');
     charInput.type = 'text';
     charInput.className = 'char-input';
     charInput.id = 'override-char-input';
-    charInput.placeholder = 'e.g., 屯門元朗天水圍';
+  charInput.setAttribute('data-i18n-placeholder', 'e.g., 屯門元朗天水圍');
+  charInput.placeholder = i18n.t('e.g., 屯門元朗天水圍');
     charInput.value = FontPriorityManager.getSpecialCharacters();
     overrideContainer.appendChild(fontSelectLabel);
     overrideContainer.appendChild(fontSelect);

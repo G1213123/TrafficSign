@@ -7,6 +7,7 @@ import { BorderColorScheme, BorderFrameWidth, BorderTypeScheme } from '../object
 import { vertexToPath } from '../objects/path.js';
 import { selectObjectHandler, showTextBox, hideTextBox } from '../canvas/promptBox.js';
 import { HintLoader } from '../utils/hintLoader.js';
+import { i18n } from '../i18n/i18n.js';
 
 let FormBorderWrapComponent = {
   BorderPanelInit: function () {
@@ -30,7 +31,8 @@ let FormBorderWrapComponent = {
       }
 
       // Color scheme selection
-      const colorSelect = GeneralHandler.createSelect('input-color', 'Select Color Scheme', Object.keys(BorderColorScheme), borderParamsContainer, null, FormBorderWrapComponent.handleColorChange, 'change')
+  const colorOptions = Object.keys(BorderColorScheme).map(key => ({ value: key, label: key }));
+  const colorSelect = GeneralHandler.createSelect('input-color', 'Select Color Scheme', colorOptions, borderParamsContainer, null, FormBorderWrapComponent.handleColorChange, 'change')
 
       // Attach border color purpose help icon next to the color scheme label
       try {
