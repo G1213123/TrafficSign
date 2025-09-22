@@ -7,7 +7,7 @@ const canvas = CanvasGlobals.canvas; // Access the global canvas object
 
 // Configurable prompt keyword emphasis
 const PromptHighlight = {
-  terms: new Set(["width", "height"]),
+  terms: new Set(["width", "height", "寬度", "高度"]),
   set(terms) {
     this.terms = new Set((terms || []).map((s) => String(s).toLowerCase()));
   },
@@ -30,15 +30,15 @@ function escapeHtml(str) {
 
 function emphasizePromptText(s) {
   if (!s) return "";
-  const escaped = escapeHtml(s);
+  const escaped = i18n.t(escapeHtml(s));
   if (!PromptHighlight.terms || PromptHighlight.terms.size === 0) {
     return escaped;
   }
   const pattern = Array.from(PromptHighlight.terms)
     .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
     .join("|");
-  const regex = new RegExp(`\\b(${pattern})\\b`, "gi");
-  return escaped.replace(regex, (m) => `<span class="prompt-keyword">${m.toUpperCase()}</span>`);
+  const regex = new RegExp(pattern, "gi");
+  return escaped.replace(escaped.match(regex), (m) => `<span class="prompt-keyword">${m.toUpperCase()}</span>`);
 }
 
 function updatePosition(event) {
@@ -254,7 +254,8 @@ function hideTextBox() {
   }, 1000); // Delay in milliseconds (e.g., 1000ms = 1 second)
 }
 
-function selectObjectHandler(text, callback, options = null, xHeight = null, unit = 'mm', skipTextBox = true, requiredTypes = null) {
+function selectObjectHandler(text, callback, options = null, xHeight = null, unit = 'mm', 
+  skipTextBox = true, requiredTypes = null) {
   /*
     Simplified behavior:
       - Do not wait for Enter/textbox input.
