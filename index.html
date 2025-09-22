@@ -181,8 +181,8 @@
     <!-- Features Section -->
     <section id="features" class="features">
         <div class="container">
-            <h2 class="section-title">Professional Design Features</h2>
-            <p class="section-subtitle">Comprehensive tools for creating standards-compliant traffic signs</p>
+            <h2 class="section-title" data-i18n="Professional Design Features">Professional Design Features</h2>
+            <p class="section-subtitle" data-i18n="Comprehensive tools for creating standards-compliant traffic signs">Comprehensive tools for creating standards-compliant traffic signs</p>
 
             <div class="features-grid">
 
@@ -190,8 +190,8 @@
                     <div class="feature-icon">
                         <i class="fas fa-font"></i>
                     </div>
-                    <h3>Destination Text</h3>
-                    <p>Choose destinations from a comprehensive list of common districts, or type in
+                    <h3 data-i18n="Destination Text">Destination Text</h3>
+                    <p data-i18n="feature_destination_text">Choose destinations from a comprehensive list of common districts, or type in
                         names with authentic fonts.</p>
                 </div>
 
@@ -199,8 +199,8 @@
                     <div class="feature-icon">
                         <i class="fas fa-shapes"></i>
                     </div>
-                    <h3>Symbol Library</h3>
-                    <p>Access a comprehensive library of traffic symbols and glyphs. No hassle for drawing points and
+                    <h3 data-i18n="Symbol Library">Symbol Library</h3>
+                    <p data-i18n="feature_symbols_text">Access a comprehensive library of traffic symbols and glyphs. No hassle for drawing points and
                         shapes.</p>
                 </div>
 
@@ -208,51 +208,51 @@
                     <div class="feature-icon">
                         <i class="fas fa-vector-square"></i>
                     </div>
-                    <h3>Vector Graphics</h3>
-                    <p>Create scalable signs using vector graphics that maintain quality at any size.</p>
+                    <h3 data-i18n="Vector Graphics">Vector Graphics</h3>
+                    <p data-i18n="feature_vector_text">Create scalable signs using vector graphics that maintain quality at any size.</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-file-export"></i>
                     </div>
-                    <h3>Multiple Export Formats</h3>
-                    <p>Export your designs as PNG, SVG, DXF, or PDF for professional use.</p>
+                    <h3 data-i18n="Multiple Export Formats">Multiple Export Formats</h3>
+                    <p data-i18n="feature_export_text">Export your designs as PNG, SVG, DXF, or PDF for professional use.</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-ruler"></i>
                     </div>
-                    <h3>Precision Tools</h3>
-                    <p>Built-in measurement tools and grid system for accurate sign dimensions.</p>
+                    <h3 data-i18n="Precision Tools">Precision Tools</h3>
+                    <p data-i18n="feature_precision_text">Built-in measurement tools and grid system for accurate sign dimensions.</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-save"></i>
                     </div>
-                    <h3>Save & Load</h3>
-                    <p>Automatic save to browser storage and manual save/load functionality to preserve your work.</p>
+                    <h3 data-i18n="Save & Load">Save & Load</h3>
+                    <p data-i18n="feature_save_text">Automatic save to browser storage and manual save/load functionality to preserve your work.</p>
                 </div>
             </div>
         </div>
     </section> <!-- Demo Section -->
     <section id="demo" class="demo">
         <div class="container">
-            <h2 class="section-title">See It In Action</h2>
-            <p class="section-subtitle">Interactive demonstration of key features</p>
+            <h2 class="section-title" data-i18n="See It In Action">See It In Action</h2>
+            <p class="section-subtitle" data-i18n="Interactive demonstration of key features">Interactive demonstration of key features</p>
 
             <div class="demo-container"> <!-- Main Demo Canvas -->
                 <div class="main-demo-canvas" id="main-demo-canvas">
                     <div class="demo-sign-canvas">
                         <canvas id="demo-canvas"></canvas>
                         <div class="demo-placeholder-overlay" id="demo-placeholder-overlay">
-                            <div class="demo-placeholder-text">Click any button below to see the feature in action</div>
+                            <div class="demo-placeholder-text" data-i18n="demo_click_hint">Click any button below to see the feature in action</div>
                         </div>
                         <!-- Demo Cursor Box for Snap Prompts -->
                         <div id="demo-cursor-box-container" class="demo-cursor-box-container">
-                            <div id="demo-cursor-text-box" class="demo-cursor-text-box">Snap prompt</div>
+                            <div id="demo-cursor-text-box" class="demo-cursor-text-box" data-i18n="Snap prompt">Snap prompt</div>
                             <input type="text" id="demo-cursor-answer-box" class="demo-cursor-answer-box" value="0" />
                         </div>
                     </div>
@@ -262,23 +262,23 @@
                 <div class="demo-controls">
                     <button class="demo-btn" data-demo="symbol">
                         <i class="fas fa-plus-circle"></i>
-                        <span>Add Symbol</span>
+                        <span data-i18n="Add Symbol">Add Symbol</span>
                     </button>
                     <button class="demo-btn" data-demo="text">
                         <i class="fas fa-font"></i>
-                        <span>Add Text</span>
+                        <span data-i18n="Add Text">Add Text</span>
                     </button>
                     <button class="demo-btn" data-demo="snap">
                         <i class="fas fa-arrows-alt"></i>
-                        <span>Drag & Snap</span>
+                        <span data-i18n="Drag & Snap">Drag & Snap</span>
                     </button>
                     <button class="demo-btn" data-demo="border">
                         <i class="fas fa-border-style"></i>
-                        <span>Add Border</span>
+                        <span data-i18n="Add Border">Add Border</span>
                     </button>
                     <button class="demo-btn" data-demo="reset">
                         <i class="fas fa-undo"></i>
-                        <span>Reset</span>
+                        <span data-i18n="Reset">Reset</span>
                     </button>
                 </div>
             </div>
@@ -286,7 +286,7 @@
             <div class="demo-cta">
                 <a href="design.html" class="btn btn-primary btn-large">
                     <i class="fas fa-play"></i>
-                    Launch Application - Free
+                    <span data-i18n="Launch Application - Free">Launch Application - Free</span>
                 </a>
             </div>
         </div>
@@ -295,8 +295,8 @@
     <!-- SVG Gallery Roulette Section -->
     <section id="gallery" class="svg-gallery">
         <div class="container">
-            <h2 class="section-title">Example Signs Gallery</h2>
-            <p class="section-subtitle">Browse through various traffic sign examples</p>
+            <h2 class="section-title" data-i18n="Example Signs Gallery">Example Signs Gallery</h2>
+            <p class="section-subtitle" data-i18n="Browse through various traffic sign examples">Browse through various traffic sign examples</p>
             <div class="roulette-container">
                 <div class="roulette-track-container">
                     <div class="roulette-track" id="roulette-track">
@@ -373,8 +373,8 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>Road Sign Factory</h3>
-                    <p>Professional traffic sign design tool for modern web browsers.</p>
+                    <h3 data-i18n="Road Sign Factory">Road Sign Factory</h3>
+                    <p data-i18n="Professional traffic sign design tool for modern web browsers.">Professional traffic sign design tool for modern web browsers.</p>
                     <div class="social-links">
                         <a href="https://github.com/G1213123/TrafficSign" target="_blank" aria-label="GitHub">
                             <i class="fab fa-github"></i>
@@ -388,31 +388,31 @@
                     </div>
                 </div>
                 <div class="footer-section">
-                    <h4>Quick Links</h4>
+                    <h4 data-i18n="Quick Links">Quick Links</h4>
                     <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="getting-started.html">Getting Started</a></li>
-                        <li><a href="about.html">About</a></li>
-                        <li><a href="changelog.html">Changelog</a></li>
-                        <li><a href="https://github.com/G1213123/TrafficSign" target="_blank">GitHub</a></li>
-                        <li><a href="design.html" class="footer-launch-link">Launch App</a></li>
+                        <li><a href="index.html" data-i18n="Home">Home</a></li>
+                        <li><a href="getting-started.html" data-i18n="Getting Started">Getting Started</a></li>
+                        <li><a href="about.html" data-i18n="About">About</a></li>
+                        <li><a href="changelog.html" data-i18n="Changelog">Changelog</a></li>
+                        <li><a href="https://github.com/G1213123/TrafficSign" target="_blank" data-i18n="GitHub">GitHub</a></li>
+                        <li><a href="design.html" class="footer-launch-link" data-i18n="Launch App">Launch App</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h4>Resources</h4>
+                    <h4 data-i18n="Resources">Resources</h4>
                     <ul>
                         <li><a href="https://www.td.gov.hk/en/publications_and_press_releases/publications/tpdm/index.html"
-                                target="_blank">HK TPDM Guidelines</a></li>
-                        <li><a href="https://www.gov.uk/government/publications/traffic-signs-manual" target="_blank">UK
+                                target="_blank" data-i18n="HK TPDM Guidelines">HK TPDM Guidelines</a></li>
+                        <li><a href="https://www.gov.uk/government/publications/traffic-signs-manual" target="_blank" data-i18n="UK Traffic Signs Manual">UK
                                 Traffic Signs Manual</a></li>
-                        <li><a href="changelog.html">Changelog</a>
+                        <li><a href="changelog.html" data-i18n="Changelog">Changelog</a>
                         </li>
                     </ul>
                 </div>
 
                 <div class="footer-section">
-                    <h4>Support</h4>
-                    <p>Help support this project:</p>
+                    <h4 data-i18n="Support">Support</h4>
+                    <p data-i18n="Help support this project:">Help support this project:</p>
                     <a href="https://www.buymeacoffee.com/G1213123" target="_blank" class="coffee-button">
                         <img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee"
                             height="32">
