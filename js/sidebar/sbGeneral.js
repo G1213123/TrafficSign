@@ -245,10 +245,13 @@ let GeneralHandler = {
     // Create a container for the toggle including its label
     var inputContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent);
 
-    // Create the label
+    // Create the label with i18n (supports HTML like <br>)
     var label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, inputContainer);
-    label.setAttribute('data-i18n', name);
-    label.innerHTML = name;
+
+    const translatedLabel = i18n.t(name);
+    label.setAttribute('data-i18n-html', name);
+    label.innerHTML = translatedLabel;
+
 
     // Determine if we need multi-row layout
     const needsMultiRow = maxItemsPerRow && options.length > maxItemsPerRow;
@@ -267,16 +270,29 @@ let GeneralHandler = {
 
     // Create a button for each option
     options.forEach((option, index) => {
+      const value = (typeof option === 'object' && option !== null) ? (option.value ?? option.label ?? '') : option;
+      const labelKey = (typeof option === 'object' && option !== null) ? (option.label ?? option.value ?? '') : option;
+
       let buttonId = `${name}-${index}`;
       let button = GeneralHandler.createNode("button", {
         'type': 'button',
         'class': 'toggle-button',
         'id': buttonId,
-        'data-value': option
+        'data-value': value
       }, toggleContainer);
 
-      button.setAttribute('data-i18n', option);
-      button.innerHTML = option;
+      try {
+        const translated = i18n.t(labelKey);
+        if (/<[^>]+>/.test(translated)) {
+          button.setAttribute('data-i18n-html', labelKey);
+          button.innerHTML = translated;
+        } else {
+          button.setAttribute('data-i18n', labelKey);
+          button.textContent = translated;
+        }
+      } catch (_) {
+        button.textContent = String(labelKey);
+      }
       toggleButtons.push(button);
 
       // Add click event to handle toggle behavior
@@ -297,7 +313,7 @@ let GeneralHandler = {
       });
 
       // Set default selected button
-      if (defaultSelected !== null && option === defaultSelected) {
+      if (defaultSelected !== null && value === defaultSelected) {
         button.classList.add('active');
         toggleContainer.selected = button;
       } else if (defaultSelected === null && index === 0) {
@@ -840,6 +856,10 @@ let GeneralHandler = {
 
     // Locate input label
     const label = parent.querySelector('.placeholder');
+    // Prepare label so i18n updates don't wipe help icon
+    if (label) {
+      GeneralHandler.prepareLabelForHelpIcon(label);
+    }
 
     // Create help icon container
     const helpContainer = GeneralHandler.createNode("div", {
@@ -1066,6 +1086,61 @@ let GeneralHandler = {
     };
 
     return helpIcon;
+  },
+
+  /**
+   * Ensure label keeps help icon after i18n updates by moving i18n attrs
+   * from the label element to an inner span that holds the text/HTML.
+   * @param {HTMLElement} label
+   */
+  prepareLabelForHelpIcon: function (label) {
+    if (!label) return;
+    // If already prepared, do nothing
+    if (label.querySelector('.label-i18n')) return;
+
+    const hasI18n = label.hasAttribute('data-i18n');
+    const hasI18nHtml = label.hasAttribute('data-i18n-html');
+    const hasI18nPlaceholder = label.hasAttribute('data-i18n-placeholder');
+
+    if (!(hasI18n || hasI18nHtml || hasI18nPlaceholder)) return;
+
+    const span = document.createElement('span');
+    span.className = 'label-i18n';
+
+    // Move i18n attributes to the span
+    if (hasI18n) {
+      const key = label.getAttribute('data-i18n');
+      span.setAttribute('data-i18n', key);
+      // Set initial text using i18n if available
+      try { span.textContent = i18n.t(key); } catch (_) { span.textContent = key || label.textContent; }
+      label.removeAttribute('data-i18n');
+    } else if (hasI18nHtml) {
+      const key = label.getAttribute('data-i18n-html');
+      span.setAttribute('data-i18n-html', key);
+      try { span.innerHTML = i18n.t(key); } catch (_) { span.innerHTML = key || label.innerHTML; }
+      label.removeAttribute('data-i18n-html');
+    } else if (hasI18nPlaceholder) {
+      const key = label.getAttribute('data-i18n-placeholder');
+      span.setAttribute('data-i18n-placeholder', key);
+      try { span.setAttribute('placeholder', i18n.t(key)); } catch (_) { span.setAttribute('placeholder', key || ''); }
+      label.removeAttribute('data-i18n-placeholder');
+    }
+
+    // Preserve existing textual content if no translation applied above
+    if (!span.textContent && !span.innerHTML) {
+      span.textContent = label.textContent || '';
+    }
+
+    // Clear label content but keep any existing non-text nodes not related to help icon (rare)
+    // Safer approach: remove only text nodes
+    Array.from(label.childNodes).forEach(n => {
+      if (n.nodeType === Node.TEXT_NODE) {
+        label.removeChild(n);
+      }
+    });
+
+    // Insert span as first child for flex layout with help icon
+    label.insertBefore(span, label.firstChild);
   },
 
   /**
