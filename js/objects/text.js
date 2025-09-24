@@ -645,7 +645,8 @@ class TextObject extends BaseGroup {
     this.containsNonAlphabetic = containsNonAlphabetic;
 
     // Update the name for the object inspector
-    this._showName = `<Group ${this.canvasID}> Text - ${newText}`; this.canvas.renderAll();
+    this._showName = `<Group ${this.canvasID}> Text - ${newText}`; 
+    //this.canvas.renderAll();
   }
 }
 
