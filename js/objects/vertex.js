@@ -305,6 +305,9 @@ class VertexControl extends fabric.Control {
             // Skip the current object and objects without basePolygon
             if (obj === this.baseGroup || !obj.basePolygon || !obj.basePolygon.vertex) return;
 
+            // If current object is part of a two-liner pair, also skip its partner
+            if (this.baseGroup.isTwoLiner && this.baseGroup.twoLinerPartner && obj === this.baseGroup.twoLinerPartner) return;
+
             // Check each vertex
             obj.basePolygon.vertex.forEach(vertex => {
                 if (vertex.display === 1) {

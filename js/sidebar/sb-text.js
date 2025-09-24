@@ -636,6 +636,12 @@ let FormTextAddComponent = {
     });
     chtTextObject.isTemporary = true;
 
+    // Mark both objects as part of a 2-liner pair and store partner reference
+    engTextObject.isTwoLiner = true;
+    chtTextObject.isTwoLiner = true;
+    engTextObject.twoLinerPartner = chtTextObject;
+    chtTextObject.twoLinerPartner = engTextObject;
+
     // Anchor Chinese text to English text using the justification points
     setTimeout(() => {
       anchorShape(engTextObject, chtTextObject, {
