@@ -4,6 +4,8 @@
 // This lets us skip a full "en" dictionary and use keys-as-English for simple labels.
 const base = {
   'dev_notice_html': '<strong>Development Version</strong> - This application is under active development. Please report any issues on <a href="https://github.com/G1213123/TrafficSign" target="_blank">GitHub</a>.',
+  'migration_notice_html': "We're moving from <strong>g1213123.info</strong> to <strong><a href=\"https://roadsignfactory.hk\" target=\"_blank\" class=\"migration-link\">roadsignfactory.hk</a></strong><br>Please update your bookmarks to ensure continued access to our services.",
+  'Site Migration Notice': 'Site Migration Notice',
   'hero_subtitle_html': 'Create, customize, and export professional directional signs online. Built with Hong Kong <span class="tpdm-tooltip" data-tooltip="Transport Planning and Design Manual">TPDM</span> standards for precision and compliance.',
   'feature_destination_text': 'Choose destinations from a comprehensive list of common districts, or type in names with authentic fonts.',
   'feature_symbols_text': 'Access a comprehensive library of traffic symbols and glyphs. No hassle for drawing points and shapes.',
@@ -46,14 +48,36 @@ const base = {
   // Export/donation overlay
   'Donation Thanks Title': 'Thank you for using Road Sign Factory!',
   'Donation Message': 'If you find this tool helpful, please consider supporting its continued development and new features.',
+  'Diverge Sign': 'Diverge Sign',
+  'Flag Sign': 'Flag Sign',
+  'Gantry Sign': 'Gantry Sign',
+  'Lane Sign': 'Lane Sign',
+  'Roundabout Sign': 'Roundabout Sign',
+  'Spiral Sign': 'Spiral Sign',
+  'Stack Sign': 'Stack Sign',
+  'Open Full App': 'Open Full App',
+  'Footer Disclaimer 1': '© 2025 Road Sign Factory. Open source project.',
+  'Footer Disclaimer 2': 'This application is under development and not affiliated with government authorities. Users are responsible for ensuring compliance with local regulations.',
   // Region labels (note: key has a typo kept for compatibility)
   'New Terriitories': 'New Territories',
 };
 
 const dictionaries = {
   zh: {
-    'dev_notice_html': '<strong>開發版本</strong>－本應用仍在積極開發中。如有問題，請到 <a href="https://github.com/G1213123/TrafficSign" target="_blank">GitHub</a> 回報。',
-    'hero_subtitle_html': '線上建立、客製與匯出專業方向指示標誌。採用香港運輸策劃及設計手冊標準。',
+  'dev_notice_html': '<strong>開發版本</strong>－本應用仍在積極開發中。如有問題，請到 <a href="https://github.com/G1213123/TrafficSign" target="_blank">GitHub</a> 回報。',
+  'migration_notice_html': '本網站正從 <strong>g1213123.info</strong> 遷移至 <strong><a href="https://roadsignfactory.hk" target="_blank" class="migration-link">roadsignfactory.hk</a></strong><br>請更新你的書籤以持續存取服務。',
+  'Site Migration Notice': '網站遷移通知',
+  'hero_subtitle_html': '線上建立、客製與匯出專業方向指示標誌。採用香港運輸策劃及設計手冊標準。',
+  'Diverge Sign': '分岔標誌',
+  'Flag Sign': '旗形標誌',
+  'Gantry Sign': '門架標誌',
+  'Lane Sign': '車道標誌',
+  'Roundabout Sign': '迴旋處標誌',
+  'Spiral Sign': '螺旋迴旋處標誌',
+  'Stack Sign': '疊式標誌',
+  'Open Full App': '開啟完整應用',
+  'Footer Disclaimer 1': '© 2025 Road Sign Factory．開源專案。',
+  'Footer Disclaimer 2': '此應用仍在開發中，與政府機構無關；使用者需自行確保符合法規。',
     'feature_destination_text': '從常見地區清單中選擇目的地，或使用真實字型自行輸入。',
     'feature_symbols_text': '提供完整的交通符號與圖標庫，免去繪圖的麻煩。',
     'feature_vector_text': '使用可擴放向量圖，任何尺寸都能維持圖像品質。',
@@ -201,6 +225,7 @@ const dictionaries = {
     'Follow the cursor': '跟隨游標',
     'Enter': '確定',
     'Cancel': '取消',
+    'Canvas Objects': '畫布物件',
     // Context menu
     'Set Anchor': '鎖定圖形',
     'Pivot Anchor': '交換鎖定點',
