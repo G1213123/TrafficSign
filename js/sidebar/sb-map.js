@@ -547,7 +547,7 @@ let FormDrawMapComponent = {
 
     // Update coordinates and render
     mainRoad.setCoords();
-    mainRoad.drawVertex();
+    mainRoad.drawVertex(false);
     canvas.renderAll();
   },
 
