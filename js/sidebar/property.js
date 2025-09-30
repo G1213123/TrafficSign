@@ -295,11 +295,23 @@ function showPropertyPanel(object) {
     props.forEach(prop => {
       const item = document.createElement('div');
       item.className = 'property-item';
+      // Align rows in a two-column grid where the control/value hugs the right edge
+      item.style.display = 'grid';
+      item.style.gridTemplateColumns = '1fr auto';
+      item.style.columnGap = '8px';
+      item.style.alignItems = 'center';
 
       const labelSpan = document.createElement('span');
-      // Mark label for translation
-      labelSpan.setAttribute('data-i18n', prop.label);
-      labelSpan.innerText = `${i18n.t(prop.label)}: `;
+      labelSpan.style.minWidth = '0';
+      labelSpan.style.justifySelf = 'start';
+      labelSpan.style.textAlign = 'left';
+      // Separate i18n label text from colon so colon isn't overridden by i18n.applyTranslations
+      const labelTextSpan = document.createElement('span');
+      labelTextSpan.setAttribute('data-i18n', prop.label);
+      labelTextSpan.innerText = i18n.t(prop.label);
+      const colonNode = document.createTextNode(':');
+      labelSpan.appendChild(labelTextSpan);
+      labelSpan.appendChild(colonNode);
       item.appendChild(labelSpan);
 
       if (prop.editable && targetObject) {
@@ -316,6 +328,8 @@ function showPropertyPanel(object) {
             inputElement.step = prop.step || '1';
           }
           inputElement.style.width = '80px';
+          inputElement.style.maxWidth = '100%';
+          inputElement.style.justifySelf = 'end';
           inputElement.addEventListener('change', (e) => {
             handleNumericInputChange(e, prop, targetObject);
           });
@@ -323,12 +337,17 @@ function showPropertyPanel(object) {
           inputElement = document.createElement('input');
           inputElement.type = 'text';
           inputElement.value = targetObject[prop.key] || '';
-          //inputElement.style.width = '400px'; // Adjust width to match other inputs
+          inputElement.style.width = '200px';
+          inputElement.style.maxWidth = '100%';
+          inputElement.style.justifySelf = 'end';
           inputElement.addEventListener('change', (e) => {
             handleTextInputChange(e, prop, targetObject);
           });
         } else if (prop.type === 'select') {
           inputElement = document.createElement('select');
+          inputElement.style.width = '200px';
+          inputElement.style.maxWidth = '100%';
+          inputElement.style.justifySelf = 'end';
           prop.options.forEach(opt => { // opt is a color/name e.g. 'Primary', 'white'
             const option = document.createElement('option');
             option.value = opt;
@@ -384,6 +403,9 @@ function showPropertyPanel(object) {
       } else {
         const valueSpan = document.createElement('span');
         let displayValue = prop.value; // prop.value is now guaranteed for geometry & basic
+        valueSpan.style.justifySelf = 'end';
+        valueSpan.style.textAlign = 'right';
+        valueSpan.style.maxWidth = '100%';
 
         // Handle color name conversion for display
         if (typeof displayValue === 'string' && (prop.label === 'Color' || prop.label === 'Fill Color')) {
@@ -454,7 +476,7 @@ function showPropertyPanel(object) {
       else if (object.color === '#000000') initialSelectValue = 'black';
       // else initialSelectValue remains object.color if not hex white/black
     }
-  basicProps.push({ label: 'Color', key: 'color', type: 'select', options: colorOptions, editable: true, value: initialSelectValue });
+    basicProps.push({ label: 'Color', key: 'color', type: 'select', options: colorOptions, editable: true, value: initialSelectValue });
 
   }
 
@@ -467,7 +489,7 @@ function showPropertyPanel(object) {
       specialProps = [
         { label: 'Text', key: 'text', type: 'text', editable: true, value: object.text },
         { label: 'Font', key: 'font', type: 'select', options: fontOptions.map(f => f.value), editable: true, value: object.font },
-        { label: 'Underline', key: 'underline', type: 'select', options: ['Yes','No'], editable: true, value: object.underline ? 'Yes' : 'No' }
+        { label: 'Underline', key: 'underline', type: 'select', options: ['Yes', 'No'], editable: true, value: object.underline ? 'Yes' : 'No' }
       ];
       break;
     case 'Symbol':
@@ -494,7 +516,7 @@ function showPropertyPanel(object) {
           { label: 'Exit Length', key: 'tipLength', type: 'number', editable: true, step: 1, value: object.tipLength },
           { label: 'Route Width', key: 'routeWidth', type: 'number', editable: true, step: 1, value: object.routeWidth },
         );
-        
+
         // Add corner radius inputs for LaneDrop shape
         if (object.routeList && object.routeList[0] && object.routeList[0].shape === 'LaneDrop') {
           specialProps.push(
@@ -543,7 +565,7 @@ function showPropertyPanel(object) {
   renderCategory(object.functionalType || 'Special', specialProps, object); // Pass object, provide default name
 
   // Apply translations to the freshly built panel
-  try { i18n.applyTranslations(panel); } catch (_) {}
+  try { i18n.applyTranslations(panel); } catch (_) { }
 }
 
 
