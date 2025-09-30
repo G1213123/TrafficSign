@@ -135,7 +135,7 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
 
   // Set the unit display text and make it visible
   unitDisplay.textContent = currentUnit;
-  unitDisplay.classList.add('visible');
+  unitDisplay.style.display = 'inline-block';
 
       // Initial setup
       inputValue = withAnswerBox;
@@ -164,7 +164,7 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
           }
         }
         if (unitDisplay) {
-          unitDisplay.classList.remove('visible');
+          unitDisplay.style.display = 'none';
         }
         resolve(result);
         hideTextBox();
@@ -173,7 +173,7 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
 
       const handleCancelClick = () => {
         if (unitDisplay) {
-          unitDisplay.classList.remove('visible');
+          unitDisplay.style.display = 'none';
         }
         resolve(null);
         hideTextBox();
@@ -191,14 +191,14 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
             }
           }
           if (unitDisplay) {
-            unitDisplay.classList.remove('visible');
+            unitDisplay.style.display = 'none';
           }
           resolve(result);
           hideTextBox();
           cleanupListeners();
         } else if (event.key === 'Escape') {
           if (unitDisplay) {
-            unitDisplay.classList.remove('visible');
+            unitDisplay.style.display = 'none';
           }
           resolve(null);
           hideTextBox();
@@ -246,12 +246,17 @@ function hideTextBox() {
   const answerBox = document.getElementById('cursorAnswerBox');
   const enterButton = document.getElementById('cursorEnterButton');
   const cancelButton = document.getElementById('cursorCancelButton');
+  const unitDisplay = document.getElementById('unit-display');
 
   promptBox.style.display = 'none';
   answerBox.style.display = 'none';
   if (enterButton && cancelButton) {
     enterButton.style.display = 'none';
     cancelButton.style.display = 'none';
+  }
+  // Hide unit display badge if present
+  if (unitDisplay) {
+    unitDisplay.style.display = 'none';
   }
   setTimeout(() => {
     document.addEventListener('keydown', ShowHideSideBarEvent);

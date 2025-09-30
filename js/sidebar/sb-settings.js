@@ -164,7 +164,9 @@ let FormSettingsComponent = {
   createColorPicker: function (id, label, parent, defaultValue, changeCallback) {
     const container = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent);
     const labelEl = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': id }, container);
-    labelEl.innerHTML = label;
+    // Apply i18n to label
+    labelEl.setAttribute('data-i18n', label);
+    labelEl.innerText = i18n.t(label);
 
     const input = GeneralHandler.createNode("input", {
       'type': 'color',

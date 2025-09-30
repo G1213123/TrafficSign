@@ -159,12 +159,12 @@ let FormTextAddComponent = {
     // Clear existing options
     locationSelect.innerHTML = '';
 
-    // Add a default empty option
-    const defaultOption = document.createElement('option');
-    defaultOption.value = '';
-    defaultOption.setAttribute('data-i18n', '-- Select Location --');
-    defaultOption.text = '-- Select Location --';
-    locationSelect.appendChild(defaultOption);
+  // Add a default empty option (translate immediately and mark for future locale switches)
+  const defaultOption = document.createElement('option');
+  defaultOption.value = '';
+  defaultOption.setAttribute('data-i18n', '-- Select Location --');
+  defaultOption.text = i18n.t('-- Select Location --');
+  locationSelect.appendChild(defaultOption);
 
     // Find the selected region in the destinations array
     const languageSet = language == "English" ? EngDestinations : ChtDestinations
@@ -181,6 +181,9 @@ let FormTextAddComponent = {
       option.text = location;
       locationSelect.appendChild(option);
     });
+
+    // Re-apply translations for the newly created dropdown (safe-guard if locale changed later)
+    try { i18n.applyTranslations(locationSelect); } catch (_) {}
   },
 
   /**
