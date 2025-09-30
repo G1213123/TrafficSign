@@ -119,19 +119,23 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
     answerBox.select();
 
     // Set up unit display if xHeight is provided
-    if (xHeight !== null) {
+      if (xHeight !== null) {
       // Create or get unit display element
       unitDisplay = document.getElementById('unit-display');
-      if (!unitDisplay) {
+        if (!unitDisplay) {
         unitDisplay = document.createElement('span');
         unitDisplay.id = 'unit-display';
-        unitDisplay.className = 'unit-display'; // Use the class from CSS
-        answerBox.parentElement.appendChild(unitDisplay);
+          unitDisplay.className = 'unit-display'; // Use the class from CSS
+          const parent = answerBox.parentElement;
+          if (parent) {
+            parent.classList?.add('unit-wrapper');
+            parent.appendChild(unitDisplay);
+          }
       }
 
-      // Set the unit display text and make it visible
-      unitDisplay.innerText = currentUnit;
-      unitDisplay.style.display = 'block';
+  // Set the unit display text and make it visible
+  unitDisplay.textContent = currentUnit;
+  unitDisplay.classList.add('visible');
 
       // Initial setup
       inputValue = withAnswerBox;
@@ -160,7 +164,7 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
           }
         }
         if (unitDisplay) {
-          unitDisplay.style.display = 'none';
+          unitDisplay.classList.remove('visible');
         }
         resolve(result);
         hideTextBox();
@@ -169,7 +173,7 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
 
       const handleCancelClick = () => {
         if (unitDisplay) {
-          unitDisplay.style.display = 'none';
+          unitDisplay.classList.remove('visible');
         }
         resolve(null);
         hideTextBox();
@@ -187,14 +191,14 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
             }
           }
           if (unitDisplay) {
-            unitDisplay.style.display = 'none';
+            unitDisplay.classList.remove('visible');
           }
           resolve(result);
           hideTextBox();
           cleanupListeners();
         } else if (event.key === 'Escape') {
           if (unitDisplay) {
-            unitDisplay.style.display = 'none';
+            unitDisplay.classList.remove('visible');
           }
           resolve(null);
           hideTextBox();
