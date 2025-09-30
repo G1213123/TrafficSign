@@ -68,7 +68,6 @@ const dictionaries = {
   'migration_notice_html': '本網站正從 <strong>g1213123.info</strong> 遷移至 <strong><a href="https://roadsignfactory.hk" target="_blank" class="migration-link">roadsignfactory.hk</a></strong><br>請更新你的書籤以持續存取服務。',
   'Site Migration Notice': '網站遷移通知',
   'hero_subtitle_html': '線上建立、客製與匯出專業方向指示標誌。採用香港運輸策劃及設計手冊標準。',
-  'Diverge Sign': '分岔標誌',
   'Flag Sign': '旗型標誌',
   'Gantry Sign': '門架標誌',
   'Lane Sign': '車道標誌',

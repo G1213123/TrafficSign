@@ -56,7 +56,7 @@ let FormTemplateComponent = {
         return `<div class="template-thumbnail"><img src="images/gantry.svg" alt="Gantry Sign" /></div>`;
       }
     },
-    'Diverge Sign ': {
+    'Diverge Sign': {
       description: 'Complex interchange direction sign with multiple destinations',
       thumbnail: function () {
         // Load SVG image from images folder in a standardized thumbnail container
