@@ -376,6 +376,9 @@ const dictionaries = {
     'Select Template': '選擇範本',
     'Select shape(s) to calculate border width': '選擇圖形用以計算邊框 寬度',
     'Select shape(s) to calculate border height': '選擇圖形用以計算邊框 高度',
+  // New border selection and divider placement prompts
+  'Select shape(s) to contain inside the border': '選擇要包含於邊框內的圖形',
+  'Click inside the border to place divider': '在邊框內點擊以放置分隔線',
     // Border color scheme labels
     'Blue Background': '藍底',
     'Green Background': '綠底',

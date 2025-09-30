@@ -828,8 +828,8 @@ class BorderGroup extends BaseGroup {
 
   filterBorderObjects() {
     const [fheightObjects, fwidthObjects, VDivider, HDivider, bordered] = BorderUtilities.FilterDivider(this.heightObjects, this.widthObjects, this.VDivider, this.HDivider)
-    this.widthObjects = fwidthObjects
-    this.heightObjects = fheightObjects
+    this.widthObjects = fwidthObjects.filter(obj => obj.borderGroup == null);
+    this.heightObjects = fheightObjects.filter(obj => obj.borderGroup == null);
     this.VDivider = VDivider
     this.HDivider = HDivider
   }

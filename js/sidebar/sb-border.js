@@ -233,7 +233,8 @@ let FormBorderWrapComponent = {
       new BorderGroup({
         borderType: borderType,
         widthObjects: [...widthObjects],
-        heightObjects: [...heightObjects],
+        // heightObjects kept for legacy; mirror widthObjects if empty
+        heightObjects: (heightObjects && heightObjects.length) ? [...heightObjects] : [...widthObjects],
         fixedWidth: fixedWidth,
         fixedHeight: fixedHeight,
         xHeight: xHeight,
@@ -248,34 +249,16 @@ let FormBorderWrapComponent = {
       return;
     }
 
-    // If one or both missing, prompt only for the missing ones
-    const needWidth = !(fixedWidth !== null && !isNaN(fixedWidth));
-    const needHeight = !(fixedHeight !== null && !isNaN(fixedHeight));
-
-    if (needWidth && needHeight) {
-      selectObjectHandler('Select shape(s) to calculate border width', function (widthObjects) {
-        selectObjectHandler('Select shape(s) to calculate border height', function (heightObjects) {
-          createBorder(widthObjects, heightObjects);
-        }, null, xHeight, 'mm');
+    // New behavior: we only need one containment selection for both width and height.
+    const needAnySelection = !(fixedWidth !== null && !isNaN(fixedWidth) && fixedHeight !== null && !isNaN(fixedHeight));
+    if (needAnySelection) {
+      selectObjectHandler('Select shape(s) to contain inside the border', function (objects) {
+        createBorder(objects, objects);
       }, null, xHeight, 'mm');
       return;
     }
 
-    if (needWidth && !needHeight) {
-      selectObjectHandler('Select shape(s) to calculate border width', function (widthObjects) {
-        createBorder(widthObjects, []);
-      }, null, xHeight, 'mm');
-      return;
-    }
-
-    if (!needWidth && needHeight) {
-      selectObjectHandler('Select shape(s) to calculate border height', function (heightObjects) {
-        createBorder([], heightObjects);
-      }, null, xHeight, 'mm');
-      return;
-    }
-
-    // Fallback (should not reach): both provided
+    // Fallback: both fixed provided
     createBorder();
   },
 
