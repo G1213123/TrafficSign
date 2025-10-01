@@ -2038,6 +2038,8 @@ const ComplexSignTest = {
     );
     TestTracker.register("overallBorderGroup", overallBorderGroup);
 
+    overallBorderGroup.set({ left: -6700 });
+
     // Vertical divider after border
     const vDivider = new DividerObject({
       borderGroup: overallBorderGroup,
