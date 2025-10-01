@@ -102,7 +102,7 @@ function calculatePivotPoints(RootTop, RootBottom, length, innerCornerRadius = n
     // Calculate radii - use provided values if available, otherwise use default calculation
     let leftRadius = null;
     let rightRadius = null;
-    
+
     if (innerCornerRadius !== null && outerCornerRadius !== null) {
         // Use provided radius values
         switch (Math.sign(RootTop.angle)) {
@@ -302,7 +302,7 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
     const length = xHeight / 4
     const center = routeList[1] // use tip location
     const templateName = routeList[0].shape + ' ' + type
-    let roundel =  roundelTemplate(templateName, routeList[1].length) 
+    let roundel = roundelTemplate(templateName, routeList[1].length)
     roundel = calcSymbol(roundel, length)
     roundel.path.map((p) => {
         let transformed = calculateTransformedPoints(p.vertex, {
@@ -377,34 +377,39 @@ function getSideRoadCoords(route, length, left, right) {
  */
 function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle, center) {
 
-    let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]))
+    let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]));
     if (route.shape !== 'UArrow Conventional') {
-        const width = route.width
-        arrowTipPath.path[0].vertex.map((v) => { v.x *= width / 2; v.y *= width / 2 })
-        let arrowTipVertex = arrowTipPath.path[0].vertex
+        const width = route.width;
+        // Scale vertices for all paths
+        arrowTipPath.path.forEach(p => {
+            p.vertex.forEach(v => { v.x *= width / 2; v.y *= width / 2; });
+        });
 
-        // for Stub
-        //const ic = { x: width / 2, y: Math.sqrt(radius ** 2 - (width / 2) ** 2) }
-        const trimCenter = { x: width / 2 + 1, y: Math.sqrt((radius + 1) ** 2 - (width / 2 + 1) ** 2) }
-        const tCenterAngle = Math.atan2(trimCenter.y, trimCenter.x)
-        const i2 = { x: width / 2, y: arm / length - trimCenter.y, display: 0 }
-        const i3 = { x: trimCenter.x - Math.cos(tCenterAngle), y: arm / length - trimCenter.y + Math.sin(tCenterAngle), display: 0 }
-        const i0 = { x: -i3.x, y: i3.y, display: 0 }
-        const i1 = { x: -i2.x, y: i2.y, display: 0 }
-        arrowTipVertex = [...arrowTipVertex, i2, i3, i0, i1,]
-        arrowTipVertex.push(arrowTipVertex.shift())
-        assignVertexLabel(arrowTipVertex)
+        // Compute trimming/extension points based on geometry
+        const trimCenter = { x: width / 2 + 1, y: Math.sqrt((radius + 1) ** 2 - (width / 2 + 1) ** 2) };
+        const tCenterAngle = Math.atan2(trimCenter.y, trimCenter.x);
+        const i2 = { x: width / 2, y: arm / length - trimCenter.y, display: 0 };
+        const i3 = { x: trimCenter.x - Math.cos(tCenterAngle), y: arm / length - trimCenter.y + Math.sin(tCenterAngle), display: 0 };
+        const i0 = { x: -i3.x, y: i3.y, display: 0 };
+        const i1 = { x: -i2.x, y: i2.y, display: 0 };
 
+        // Modify the first path with additional vertices/arcs, keep others intact
+        if (arrowTipPath.path.length > 0) {
+            let vtx = arrowTipPath.path[0].vertex;
+            vtx = [...vtx, i2, i3, i0, i1];
+            vtx.push(vtx.shift()); // rotate start point
+            assignVertexLabel(vtx);
+            arrowTipPath.path[0].vertex = vtx;
 
-        arrowTipPath.path[0].arcs.push(...[
-            { start: 'V3', end: 'V4', radius: 1, direction: 0, sweep: 0 },
-            { start: 'V4', end: 'V5', radius: 12, direction: 0, sweep: 0 },
-            { start: 'V5', end: 'V6', radius: 1, direction: 0, sweep: 0 },
-        ])
-        arrowTipPath.path[0].vertex = arrowTipVertex
+            arrowTipPath.path[0].arcs.push(
+                { start: 'V3', end: 'V4', radius: 1, direction: 0, sweep: 0 },
+                { start: 'V4', end: 'V5', radius: 12, direction: 0, sweep: 0 },
+                { start: 'V5', end: 'V6', radius: 1, direction: 0, sweep: 0 },
+            );
+        }
     }
 
-    arrowTipPath = calcSymbol(arrowTipPath, length)
+    arrowTipPath = calcSymbol(arrowTipPath, length);
     const transform = route.shape !== 'UArrow Conventional' ? {
         x: route.x,
         y: route.y,
@@ -413,10 +418,13 @@ function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle, center)
         x: center.x,
         y: center.y,
         angle: 0
-    }
-    arrowTipPath.path[0].vertex = calculateTransformedPoints(arrowTipPath, transform)
+    };
+    // Apply transform to all paths
+    arrowTipPath.path.forEach((p) => {
+        p.vertex = calculateTransformedPoints(p.vertex, transform);
+    });
 
-    return arrowTipPath
+    return arrowTipPath;
 }
 /**
  * Gets coordinates for side road endpoints
@@ -428,13 +436,8 @@ function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle, center)
  */
 function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
 
-    let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]))
-    //const width = route.width
-    //arrowTipPath.path[0].vertex.map((v) => { v.x *= width / 2; v.y *= width / 2 })
-    //arrowTipVertex = arrowTipPath.path[0].vertex
-
-
-    arrowTipPath = calcSymbol(arrowTipPath, length)
+    let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]));
+    arrowTipPath = calcSymbol(arrowTipPath, length);
     const transform = route.shape !== 'UArrow Spiral' ? {
         x: route.x,
         y: route.y,
@@ -443,9 +446,12 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
         x: center.x,
         y: center.y,
         angle: 0
-    }
-    arrowTipPath.path[0].vertex = calculateTransformedPoints(arrowTipPath, transform)
-    return arrowTipPath
+    };
+    // Apply transform to all paths
+    arrowTipPath.path.forEach((p) => {
+        p.vertex = calculateTransformedPoints(p.vertex, transform);
+    });
+    return arrowTipPath;
 }
 
 function addUTurnToMainRoad(mainRoad) {
@@ -607,7 +613,7 @@ class MainRoadSymbol extends BaseGroup {
         this.replaceBasePolygon(newPolygon, false);
         this.setCoords();
         //this.drawVertex(false);
-    CanvasGlobals.scheduleRender()
+        CanvasGlobals.scheduleRender()
     }
 
     /**
@@ -755,7 +761,7 @@ class SideRoadSymbol extends BaseGroup {
     applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeight) {
         // Horizontal constraint based on side
         const radius = 12
-        const minBranchShapeXDelta = (routeList[0].shape == 'Stub' ? 4 : radius);
+        const minBranchShapeXDelta = (routeList[0].shape == 'Arrow' ? radius : 4);
         const minBranchXDelta = (minBranchShapeXDelta + radius) * xHeight / 4;
         const center = mainRoad.routeList[1]
         const length = xHeight / 4
