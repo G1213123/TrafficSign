@@ -382,7 +382,7 @@ class CanvasTrackerUI {
     // Remove this entry and all newer entries
     canvasTracker.history = canvasTracker.history.slice(0, lowestIndexToRemove);
     this.updateHistoryList();
-    CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
   }
 }
 

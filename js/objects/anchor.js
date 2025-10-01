@@ -493,7 +493,7 @@ document.getElementById('pivot-anchor').addEventListener('click', function (e) {
       obj.updateAllCoord(); // Update dependencies first
     }
     obj.setCoords(); // Update the object itself
-    canvas.renderAll();
+    CanvasGlobals.scheduleRender();
 
     // Optional: Fire a modified event if needed for other parts of your app
     canvas.fire('object:modified', { target: obj });
@@ -574,7 +574,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   }
 
   // Check if object is already anchored in X axis
-  const horizontalDividerTypes = ['HDivider', ];
+  const horizontalDividerTypes = ['HDivider',];
   const verticalDividerTypes = ['VDivider', 'VLane'];
   const isHorizontalDivider = horizontalDividerTypes.includes(shape2.functionalType);
   const isVerticalDivider = verticalDividerTypes.includes(shape2.functionalType);
@@ -738,7 +738,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
 
   document.addEventListener('keydown', ShowHideSideBarEvent);
 
-  canvas.renderAll();
+  CanvasGlobals.scheduleRender();
 
   // Track the regular anchoring operation in history
   // Only track if both X and Y aren't "EQ" (those are tracked separately)

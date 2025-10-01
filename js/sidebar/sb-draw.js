@@ -274,7 +274,7 @@ let FormDrawAddComponent = {
       FormDrawAddComponent.updateSymbol(currentSymbol, { angle: FormDrawAddComponent.symbolAngle });
     }
 
-    CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
   },
 
   DrawHandlerOff: function (event) {
@@ -449,7 +449,7 @@ let FormDrawAddComponent = {
       }
     }
 
-    CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
 
     //return newSymbolObject;
   },

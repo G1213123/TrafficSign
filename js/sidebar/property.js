@@ -134,7 +134,7 @@ function showPropertyPanel(object) {
           console.error(`Error calling ${targetObject.type}.initialize() for ${prop.key} change:`, initError);
         }
       }
-      CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
       canvasTracker.isDragging = false; // Reset dragging state
       showPropertyPanel(targetObject); // Refresh panel
     }
@@ -164,7 +164,7 @@ function showPropertyPanel(object) {
       } catch (initError) {
         console.error(`Error calling ${targetObject.type}.initialize() for ${prop.key} change:`, initError);
       }
-      CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
       canvasTracker.isDragging = false; // Reset dragging state
       showPropertyPanel(targetObject); // Refresh panel
     }
@@ -274,7 +274,7 @@ function showPropertyPanel(object) {
           console.error(`Error calling ${targetObject.type}.initialize() for ${prop.key} change:`, initError);
         }
       }
-      CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
       canvasTracker.isDragging = false; // Reset dragging state
       showPropertyPanel(targetObject); // Refresh panel
     }

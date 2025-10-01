@@ -136,7 +136,7 @@ const FormMeasureComponent = {
     if (FormMeasureComponent.dynamicLine) {
       canvas.remove(FormMeasureComponent.dynamicLine);
       FormMeasureComponent.dynamicLine = null;
-      canvas.renderAll();
+  CanvasGlobals.scheduleRender();
     }
   },
 
@@ -149,7 +149,7 @@ const FormMeasureComponent = {
         canvas.remove(obj);
       });
       FormMeasureComponent.dimensionLines = [];
-      canvas.renderAll();
+  CanvasGlobals.scheduleRender();
     }
   },
   /**
@@ -185,7 +185,7 @@ const FormMeasureComponent = {
 
       // Add the line to the canvas
       canvas.add(FormMeasureComponent.dynamicLine);
-      canvas.renderAll();
+  CanvasGlobals.scheduleRender();
     }
   },
   /**
@@ -271,7 +271,7 @@ const FormMeasureComponent = {
             document.removeEventListener('keydown', handleKeyPress);
 
             // Force a final render to ensure clean canvas
-            canvas.renderAll();
+            CanvasGlobals.scheduleRender();
           }
         });
       }
@@ -364,7 +364,7 @@ const FormMeasureComponent = {
 
       // Add the highlight to the canvas
       canvas.add(FormMeasureComponent.snapHighlight);
-      canvas.renderAll();
+  CanvasGlobals.scheduleRender();
     }
   },
 
@@ -394,7 +394,7 @@ const FormMeasureComponent = {
 
       // Add the highlight to the canvas
       canvas.add(FormMeasureComponent.firstVertexHighlight);
-      canvas.renderAll();
+  CanvasGlobals.scheduleRender();
     }
   },
 
@@ -412,7 +412,7 @@ const FormMeasureComponent = {
       FormMeasureComponent.firstVertexHighlight = null;
     }
 
-    canvas.renderAll();
+  CanvasGlobals.scheduleRender();
   },  /**
    * Create dimension lines to visualize the measurement
    */
@@ -571,7 +571,7 @@ const FormMeasureComponent = {
       canvas.add(obj);
     });
 
-    canvas.renderAll();
+  CanvasGlobals.scheduleRender();
   },
 
   /**

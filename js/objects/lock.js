@@ -264,7 +264,7 @@ class LockIcon {
       this.icons[i].set('fill', 'brown');
       this.dimensionTexts[i].set('fill', 'brown');
       this.icons[i].set('hoverCursor', 'pointer')
-      canvas.renderAll();
+  CanvasGlobals.scheduleRender();
     }
   }
 
@@ -275,7 +275,7 @@ class LockIcon {
       this.icons[i].set('fill', 'gold');
       this.dimensionTexts[i].set('fill', this.direction === 'x' ? '#46C147' : 'red');
       this.icons[i].set('hoverCursor', 'default')
-      canvas.renderAll();
+  CanvasGlobals.scheduleRender();
     }
   }
 
@@ -367,7 +367,7 @@ class LockIcon {
     // Reshow the vertexes and dimensions
     this.baseGroup.focusMode = false;
 
-    canvas.renderAll();
+  CanvasGlobals.scheduleRender();
   }
 
   // Add a method to serialize LockIcon state

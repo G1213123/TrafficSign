@@ -83,7 +83,7 @@ function handleArrowKeys(event) {
   });
 
   if (moved) {
-    CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
   }
 }
 

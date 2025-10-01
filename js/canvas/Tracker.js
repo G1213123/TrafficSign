@@ -296,7 +296,7 @@ class CanvasTracker {
         }
 
         // Re-render the canvas
-        CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
 
         console.log('Canvas state restored successfully');
         this.isCapturingState = false;
@@ -398,7 +398,7 @@ class CanvasTracker {
         canvasObj.processResize();
       }
 
-      CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
       showPropertyPanel(canvasObj); // Refresh panel
 
       console.log(`Undid property change: ${propertyKey} restored to ${oldValue} on object ${id}`);

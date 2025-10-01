@@ -330,7 +330,7 @@ function selectObjectHandler(text, callback, options = null, xHeight = null, uni
       hideTextBox();
       const successSelected = [...active];
       canvas.discardActiveObject();
-      canvas.renderAll();
+  CanvasGlobals.scheduleRender();
       // response is not used anymore; pass null for backward compatibility
       callback(successSelected, options, null, xHeight);
     }

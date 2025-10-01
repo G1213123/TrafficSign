@@ -332,7 +332,7 @@ let FormBorderWrapComponent = {
       if (border && typeof border.assignWidthToDivider === 'function') {
         border.assignWidthToDivider();
       }
-      canvas.requestRenderAll();
+  CanvasGlobals.scheduleRender();
       FormBorderWrapComponent._exitDividerPlacementMode();
     };
     canvas.on('mouse:down', FormBorderWrapComponent._dividerPlacementClickHandler);
@@ -358,7 +358,7 @@ let FormBorderWrapComponent = {
         const inside = pointer.x >= b.left && pointer.x <= b.right && pointer.y >= b.top && pointer.y <= b.bottom;
         o.set('fill', inside ? majorColor : dimColor);
       });
-      canvas.requestRenderAll();
+  CanvasGlobals.scheduleRender();
     };
 
     const color = document.getElementById('input-color').value;
@@ -400,7 +400,7 @@ let FormBorderWrapComponent = {
           divider.set({ left: centerX - divider.width / 2 });
         }
         divider.setCoords();
-        canvas.requestRenderAll();
+  CanvasGlobals.scheduleRender();
         // Exit placement mode after successful placement
         FormBorderWrapComponent._exitDividerPlacementMode();
       }
@@ -427,7 +427,7 @@ let FormBorderWrapComponent = {
     FormBorderWrapComponent._compartmentOverlay = { overlays, border, onMouseMove, onClick };
     canvas.on('mouse:move', onMouseMove);
     canvas.on('mouse:down', onClick);
-    canvas.requestRenderAll();
+  CanvasGlobals.scheduleRender();
   },
 
   _showBorderHoverOverlay: function (border) {
@@ -456,7 +456,7 @@ let FormBorderWrapComponent = {
     });
     FormBorderWrapComponent._borderHoverOverlay = { rect, border };
     canvas.add(rect);
-    canvas.requestRenderAll();
+  CanvasGlobals.scheduleRender();
   },
 
   _removeBorderHoverOverlay: function () {
@@ -465,7 +465,7 @@ let FormBorderWrapComponent = {
     if (!overlay) return;
     canvas.remove(overlay.rect);
     FormBorderWrapComponent._borderHoverOverlay = null;
-    canvas.requestRenderAll();
+  CanvasGlobals.scheduleRender();
   },
 
   _removeCompartmentOverlay: function () {
@@ -476,7 +476,7 @@ let FormBorderWrapComponent = {
     canvas.off('mouse:move', overlay.onMouseMove);
     canvas.off('mouse:down', overlay.onClick);
     FormBorderWrapComponent._compartmentOverlay = null;
-    canvas.requestRenderAll();
+  CanvasGlobals.scheduleRender();
   },
 
   _exitDividerPlacementMode: function (silent = false) {

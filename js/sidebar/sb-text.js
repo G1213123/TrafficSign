@@ -134,7 +134,7 @@ let FormTextAddComponent = {
     FormTextAddComponent.populateLocationDropdown(regionName, language);
     if (FormTextAddComponent.newTextObject && CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
       FormTextAddComponent.liveUpdateText();
-      CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
     }
   },
 
@@ -204,7 +204,7 @@ let FormTextAddComponent = {
       // If we already have a new text object being placed, update it
       if (FormTextAddComponent.newTextObject && CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
         FormTextAddComponent.liveUpdateText();
-        CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
       }
       // If we're editing an existing text object
       else if (activeObject && activeObject.functionalType === 'Text') {
@@ -326,7 +326,7 @@ let FormTextAddComponent = {
                 spacingX: 0,
                 spacingY: 0
               });
-              CanvasGlobals.canvas.renderAll();
+              CanvasGlobals.scheduleRender();
             }, 100);
           }
         } else {
@@ -369,7 +369,7 @@ let FormTextAddComponent = {
                 spacingX: 0,
                 spacingY: 0
               });
-              CanvasGlobals.canvas.renderAll();
+              CanvasGlobals.scheduleRender();
             }, 100);
           }
         }
@@ -541,7 +541,7 @@ let FormTextAddComponent = {
     // If we already have a new text object being placed, just update it instead of creating another
     if (FormTextAddComponent.newTextObject && CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
       FormTextAddComponent.newTextObject.updateText(txt, xHeight, font, color);
-      CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
       return;
     }
 
@@ -593,7 +593,7 @@ let FormTextAddComponent = {
       console.error('Error creating text object:', error);
     }
 
-    CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
   },
 
   // For regular single-line text, use our standard pattern

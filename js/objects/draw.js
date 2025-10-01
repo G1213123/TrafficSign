@@ -267,7 +267,7 @@ class BaseGroup extends fabric.Group {
       } else {
         Object.values(this.controls).forEach(control => { if (control.onMouseOut) { control.onMouseOut() } })
       }
-      canvas.renderAll();
+  CanvasGlobals.scheduleRender();
     });
 
 
@@ -276,7 +276,7 @@ class BaseGroup extends fabric.Group {
         opacity: 1
       });
       Object.values(this.controls).forEach(control => { if (control.onMouseOut) { control.onMouseOut() } })
-      canvas.renderAll();
+  CanvasGlobals.scheduleRender();
     });
 
 
@@ -525,7 +525,7 @@ class BaseGroup extends fabric.Group {
   replaceBasePolygon(newBasePolygon, calcVertex = true) {
     this.removeAll();
     this.setBasePolygon(newBasePolygon, calcVertex);
-    canvas.renderAll();
+  CanvasGlobals.scheduleRender();
   }
 
   drawVertex(calc = true) {
@@ -774,7 +774,7 @@ class BaseGroup extends fabric.Group {
         o.set('opacity', opacity);
       })
     });
-    canvas.renderAll();
+  CanvasGlobals.scheduleRender();
 
   }
   // Method to update coordinates and emit delta
@@ -924,7 +924,7 @@ class BaseGroup extends fabric.Group {
       this.borderResize();
     }
     this.setCoords();
-    canvas.renderAll();
+  CanvasGlobals.scheduleRender();
   }
 
   // Method to update coordinates
@@ -1088,7 +1088,7 @@ class BaseGroup extends fabric.Group {
     });
     canvas.remove(deleteObj);
     CanvasObjectInspector.createObjectListPanelInit()
-    canvas.requestRenderAll();
+  CanvasGlobals.scheduleRender();
   }
 
   renderIcon(ctx, left, top, _styleOverride, fabricObject) {
@@ -1217,7 +1217,7 @@ class BaseGroup extends fabric.Group {
     this.focusMode = true;
     //this.hideDimensions();
     //this.drawVertex(false);
-    canvas.renderAll();
+  CanvasGlobals.scheduleRender();
   }
 
   // New method to exit focus mode
@@ -1227,7 +1227,7 @@ class BaseGroup extends fabric.Group {
     //if (canvas.getActiveObject() === this) {
     //  this.showDimensions();
     //}
-    canvas.renderAll();
+  CanvasGlobals.scheduleRender();
   }
 }
 

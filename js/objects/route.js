@@ -607,7 +607,7 @@ class MainRoadSymbol extends BaseGroup {
         this.replaceBasePolygon(newPolygon, false);
         this.setCoords();
         //this.drawVertex(false);
-        canvas.renderAll()
+    CanvasGlobals.scheduleRender()
     }
 
     /**

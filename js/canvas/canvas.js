@@ -7,6 +7,21 @@ canvas.isDragging = false;
 canvas.lastPosX = 0;
 canvas.lastPosY = 0;
 
+// Global render scheduler to prevent excessive renderAll calls
+let __renderQueued = false;
+function scheduleRender() {
+  if (__renderQueued) return;
+  __renderQueued = true;
+  requestAnimationFrame(() => {
+    __renderQueued = false;
+    if (canvas && typeof canvas.requestRenderAll === 'function') {
+      canvas.requestRenderAll();
+    } else if (canvas && typeof canvas.renderAll === 'function') {
+      canvas.renderAll();
+    }
+  });
+}
+
 //window.canvas = canvas; // Expose canvas to the global scope for debugging
 
 canvas.setZoom(0.2);
@@ -27,7 +42,8 @@ function resizeCanvas() {
   const canvasContainer = document.getElementById('canvas-container')
   canvas.setDimensions({ width: canvasContainer.clientWidth, height: canvasContainer.clientHeight })
   canvas.absolutePan({ x: -canvas.width / 2, y: -canvas.height / 2 })
-  canvas.renderAll();
+  // Prefer scheduled render to coalesce redraws
+  scheduleRender();
   DrawGrid()
 }
 
@@ -175,7 +191,6 @@ function CenterCoord() {
 
 resizeCanvas();
 
-
 const CanvasGlobals = {
   canvas: canvas,
   ctx: ctx,
@@ -183,6 +198,7 @@ const CanvasGlobals = {
   activeVertex: activeVertex,
   canvasObject: canvasObject,
   CenterCoord: CenterCoord,
+  scheduleRender: scheduleRender,
 }
 
 export { CanvasGlobals, DrawGrid }

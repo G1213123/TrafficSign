@@ -23,7 +23,7 @@ canvas.on('mouse:move', function (opt) {
     const vpt = this.viewportTransform;
     vpt[4] += e.clientX - canvas.lastPosX;
     vpt[5] += e.clientY - canvas.lastPosY;
-    canvas.requestRenderAll();
+  CanvasGlobals.scheduleRender();
     canvas.lastPosX = e.clientX;
     canvas.lastPosY = e.clientY;
     DrawGrid()
@@ -76,7 +76,7 @@ canvas.on('mouse:wheel', function (opt) {
   canvas.getObjects().forEach(obj => {
     obj.setCoords();
   });
-  canvas.requestRenderAll();
+  CanvasGlobals.scheduleRender();
 })
 
 canvas.on({
