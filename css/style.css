@@ -1510,19 +1510,20 @@ div.side-panel.close {
 }
 
 
-/* Unit display for text box in unit mode */
+/* Unit display for prompt answer box (badge inside input area) */
 .unit-display {
   position: absolute;
+  right: 8px;
+  top: 52px;
+  transform: translateY(-50%);
+  z-index: 2147483647; /* stay above prompt background */
   pointer-events: none;
-  background-color: transparent;
-  color: #333333;
-  padding: 2px;
-  text-align: right;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.25);
+  color: #0e0e0e;
   font-family: Arial, sans-serif;
   font-size: 14px;
-  right: 8px;
-  top: 68px;
-  transform: translateY(-50%);
   user-select: none;
 }
 
@@ -1689,6 +1690,44 @@ div.side-panel.close {
 #property-panel .property-item {
   margin: 0;
   line-height: 1.4;
+  /* Align to two columns: label | control/value */
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 8px;
+  align-items: center;
+}
+
+/* Label cell: first child span */
+#property-panel .property-item > span:first-child {
+  white-space: nowrap;
+  justify-self: start;
+  text-align: left;
+}
+
+/* Inputs and selects align to the right edge with sane widths */
+#property-panel .property-item input[type="number"] {
+  width: 80px;
+  max-width: 100%;
+  justify-self: end;
+}
+
+#property-panel .property-item input[type="text"] {
+  width: 240px;
+  max-width: 100%;
+  justify-self: end;
+}
+
+#property-panel .property-item select {
+  width: 180px;
+  max-width: 100%;
+  justify-self: end;
+}
+
+/* Non-editable value cell */
+#property-panel .property-item span:last-child {
+  justify-self: end;
+  text-align: right;
+  max-width: 100%;
 }
 
 #property-title {

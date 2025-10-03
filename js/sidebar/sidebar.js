@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Assuming 'canvas' is a global or accessible variable
   if (typeof canvas !== 'undefined' && canvas.renderAll) {
-    canvas.renderAll();
+  CanvasGlobals.scheduleRender();
   }
 });
 

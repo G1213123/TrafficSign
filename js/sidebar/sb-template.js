@@ -56,7 +56,7 @@ let FormTemplateComponent = {
         return `<div class="template-thumbnail"><img src="images/gantry.svg" alt="Gantry Sign" /></div>`;
       }
     },
-    'Diverge Sign ': {
+    'Diverge Sign': {
       description: 'Complex interchange direction sign with multiple destinations',
       thumbnail: function () {
         // Load SVG image from images folder in a standardized thumbnail container
@@ -173,7 +173,7 @@ let FormTemplateComponent = {
       case 'Roundabout Sign':
         return this.createRoundaboutDirections(centerX, centerY, 100, 'white');
 
-      case 'Diverge Sign ':
+      case 'Diverge Sign':
         return this.createInterchangeDirections(centerX, centerY, 250, 'white');
 
       case 'Lane Sign':
@@ -346,7 +346,7 @@ let FormTemplateComponent = {
         { xHeight: xHeight, borderType: 'flag', colorType: 'Blue Background' }
       );
 
-      CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
       console.log('Basic Gantry template created successfully');
 
       // Return dimensions and position
@@ -585,7 +585,7 @@ let FormTemplateComponent = {
       );
 
       //
-      canvas.renderAll();
+  CanvasGlobals.scheduleRender();
       console.log('Gantry Sign template created successfully');
 
       // Return dimensions and position of the main border group
@@ -865,7 +865,7 @@ let FormTemplateComponent = {
       });
 
 
-      canvas.renderAll();
+  CanvasGlobals.scheduleRender();
       console.log('Stack Sign template created successfully');
 
       // Since there are two main border groups, we might return info about both,
@@ -1343,7 +1343,7 @@ let FormTemplateComponent = {
         { xHeight: xHeight, borderType: 'stack', colorType: 'Blue Background' }
       );
 
-      canvas.renderAll();
+  CanvasGlobals.scheduleRender();
       console.log('Roundabout Directions template created successfully');
 
       // Return dimensions and position of the final border group
@@ -1636,7 +1636,7 @@ let FormTemplateComponent = {
         { xHeight: xHeight, borderType: 'stack', colorType: 'Green Background' }
       );
 
-      canvas.renderAll();
+  CanvasGlobals.scheduleRender();
       console.log('Interchange Directions template created successfully');
 
       // Return dimensions and position of the final border group
@@ -1919,7 +1919,7 @@ let FormTemplateComponent = {
       });
 
 
-      canvas.renderAll();
+  CanvasGlobals.scheduleRender();
       console.log('Multi-Lane Exit template created successfully');
 
       // Return dimensions and position of the final border group
@@ -2384,7 +2384,7 @@ let FormTemplateComponent = {
         { xHeight: xHeight, borderType: 'stack', colorType: 'Blue Background' }
       );
 
-      canvas.renderAll();
+  CanvasGlobals.scheduleRender();
       console.log('Spiral Roundabout Sign template created successfully');
 
       return {

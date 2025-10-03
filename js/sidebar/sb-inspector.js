@@ -21,7 +21,7 @@ let CanvasObjectInspector = {
         // Add 'selected' class to the clicked item
         div.classList.add('selected');
         CanvasGlobals.canvas.setActiveObject(obj);
-        CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
         // Scroll the parent container to the clicked item
         div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       });

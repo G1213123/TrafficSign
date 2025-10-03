@@ -119,19 +119,23 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
     answerBox.select();
 
     // Set up unit display if xHeight is provided
-    if (xHeight !== null) {
+      if (xHeight !== null) {
       // Create or get unit display element
       unitDisplay = document.getElementById('unit-display');
-      if (!unitDisplay) {
+        if (!unitDisplay) {
         unitDisplay = document.createElement('span');
         unitDisplay.id = 'unit-display';
-        unitDisplay.className = 'unit-display'; // Use the class from CSS
-        answerBox.parentElement.appendChild(unitDisplay);
+          unitDisplay.className = 'unit-display'; // Use the class from CSS
+          const parent = answerBox.parentElement;
+          if (parent) {
+            parent.classList?.add('unit-wrapper');
+            parent.appendChild(unitDisplay);
+          }
       }
 
-      // Set the unit display text and make it visible
-      unitDisplay.innerText = currentUnit;
-      unitDisplay.style.display = 'block';
+  // Set the unit display text and make it visible
+  unitDisplay.textContent = currentUnit;
+  unitDisplay.style.display = 'inline-block';
 
       // Initial setup
       inputValue = withAnswerBox;
@@ -242,12 +246,17 @@ function hideTextBox() {
   const answerBox = document.getElementById('cursorAnswerBox');
   const enterButton = document.getElementById('cursorEnterButton');
   const cancelButton = document.getElementById('cursorCancelButton');
+  const unitDisplay = document.getElementById('unit-display');
 
   promptBox.style.display = 'none';
   answerBox.style.display = 'none';
   if (enterButton && cancelButton) {
     enterButton.style.display = 'none';
     cancelButton.style.display = 'none';
+  }
+  // Hide unit display badge if present
+  if (unitDisplay) {
+    unitDisplay.style.display = 'none';
   }
   setTimeout(() => {
     document.addEventListener('keydown', ShowHideSideBarEvent);
@@ -321,7 +330,7 @@ function selectObjectHandler(text, callback, options = null, xHeight = null, uni
       hideTextBox();
       const successSelected = [...active];
       canvas.discardActiveObject();
-      canvas.renderAll();
+  CanvasGlobals.scheduleRender();
       // response is not used anymore; pass null for backward compatibility
       callback(successSelected, options, null, xHeight);
     }

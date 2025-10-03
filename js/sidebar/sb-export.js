@@ -180,7 +180,7 @@ let FormExportComponent = {
       });
     }
 
-    CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
     return originalState;
   },
 
@@ -204,7 +204,7 @@ let FormExportComponent = {
       }
     });
 
-    CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
   },
 
   // Helper function to show loading overlay during export
@@ -333,7 +333,7 @@ let FormExportComponent = {
       const originalState = FormExportComponent.prepareCanvasForExport();
 
       // Generate the export
-      CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
       const dataURL = CanvasGlobals.canvas.toDataURL(options);
 
       // Restore canvas
@@ -556,7 +556,7 @@ let FormExportComponent = {
         compress: true
       });
 
-      CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
 
       // Get PNG data URL from canvas
       const dataURL = CanvasGlobals.canvas.toDataURL({
@@ -679,7 +679,7 @@ let FormExportComponent = {
       // but that would also remove the grid unless handled separately.
       // The current approach relies on the existing pattern of obj.deleteObject().
 
-      CanvasGlobals.canvas.renderAll(); // Render after clearing
+  CanvasGlobals.scheduleRender(); // Render after clearing
 
       if (typeof buildObjectsFromJSON === 'function') {
         await buildObjectsFromJSON(objectsToLoad, CanvasGlobals.canvas);

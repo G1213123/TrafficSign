@@ -520,7 +520,7 @@ let GeneralHandler = {
         top: pointer.y
       });
       component[objectKey].setCoords();
-      CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
     }
   },
 
@@ -557,7 +557,7 @@ let GeneralHandler = {
       document.removeEventListener('keydown', component[cancelHandlerName]);
       document.addEventListener('keydown', ShowHideSideBarEvent);
 
-      CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
     }
   },
 
@@ -589,7 +589,7 @@ let GeneralHandler = {
       document.removeEventListener('keydown', component.cancelInput || component.cancelDraw);
       document.addEventListener('keydown', ShowHideSideBarEvent);
 
-      CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
     }
   },
 
@@ -1292,7 +1292,7 @@ let GeneralHandler = {
         }
       }
 
-      CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
       return newObject;
     } catch (error) {
       console.error('Error creating object with snapping:', error);
@@ -1326,7 +1326,7 @@ let GeneralHandler = {
     document.removeEventListener('keydown', component[cancelHandlerName]);
     document.addEventListener('keydown', ShowHideSideBarEvent);
 
-    CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
   },
 
   showToast: function (message, type = 'success', duration = 3000) {

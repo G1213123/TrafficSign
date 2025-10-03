@@ -2038,6 +2038,8 @@ const ComplexSignTest = {
     );
     TestTracker.register("overallBorderGroup", overallBorderGroup);
 
+    overallBorderGroup.set({ left: -6700 });
+
     // Vertical divider after border
     const vDivider = new DividerObject({
       borderGroup: overallBorderGroup,
@@ -2208,7 +2210,7 @@ const TemplateTest = {
     'Roundabout Sign': { width: 3800, height: 3250, left: -3488, top: 6019 }, // Placeholder values
     'Spiral Roundabout Sign': { width: 3800, height: 3250, left: 1794, top: 6230 }, // Placeholder values, may be null if not fully implemented
     'Gantry Sign': { width: 7900, height: 2700, left: 7493, top: 7244 }, // Placeholder values
-    'Diverge Sign ': { width: 2950, height: 5900, left: 17320, top: 7605 }, // Placeholder values
+    'Diverge Sign': { width: 2950, height: 5900, left: 17320, top: 7605 }, // Placeholder values
     // Add entries for any other templates
   },
 

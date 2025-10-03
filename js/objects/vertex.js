@@ -126,7 +126,7 @@ class VertexControl extends fabric.Control {
             document.addEventListener('keydown', this.cancelDragRef);
             canvas.on('mouse:move', this.handleMouseMoveRef);
 
-            canvas.renderAll();
+            CanvasGlobals.scheduleRender();
 
             this.baseGroup.enterFocusMode();
             setTimeout(() => {
@@ -287,7 +287,7 @@ class VertexControl extends fabric.Control {
             }
         }
 
-        canvas.renderAll();
+        CanvasGlobals.scheduleRender();
     }
 
     checkForSnapTargets(pointer) {
@@ -360,7 +360,7 @@ class VertexControl extends fabric.Control {
             canvas.add(this.snapHighlight);
 
             // Force a render to update vertex appearance
-            canvas.renderAll();
+            CanvasGlobals.scheduleRender();
         }
     }
 
@@ -370,7 +370,7 @@ class VertexControl extends fabric.Control {
         if (this.snapHighlight) {
             canvas.remove(this.snapHighlight);
             this.snapHighlight = null;
-            canvas.renderAll();
+            CanvasGlobals.scheduleRender();
         }
     }
 
@@ -518,7 +518,7 @@ class VertexControl extends fabric.Control {
         // Reset the flag after a delay to prevent new clicks
         setTimeout(() => {
             vertexSnapInProgress = false;
-            canvas.renderAll();
+            CanvasGlobals.scheduleRender();
         }, 300);
     }
 
@@ -561,7 +561,7 @@ class VertexControl extends fabric.Control {
         }
 
         CanvasGlobals.activeVertex = null;
-        canvas.renderAll();
+        CanvasGlobals.scheduleRender();
     }
 
 
@@ -577,7 +577,7 @@ class VertexControl extends fabric.Control {
 
         this.cleanupDrag();
         CanvasGlobals.activeVertex = null;
-        canvas.renderAll();
+        CanvasGlobals.scheduleRender();
     }
 
     cancelDrag(event) {
@@ -611,12 +611,12 @@ class VertexControl extends fabric.Control {
 
     onHover() {
         this.hover = true;
-        canvas.renderAll();
+        CanvasGlobals.scheduleRender();
     }
 
     onMouseOut() {
         this.hover = false;
-        canvas.renderAll();
+        CanvasGlobals.scheduleRender();
     }
 }
 
@@ -760,7 +760,7 @@ document.addEventListener('keydown', function (event) {
                         canvas.defaultCursor = 'move';
 
                         // Render the updated canvas
-                        canvas.renderAll();
+                        CanvasGlobals.scheduleRender();
                     } catch (err) {
                         console.error("Error during vertex cycling:", err);
 
@@ -773,7 +773,7 @@ document.addEventListener('keydown', function (event) {
                         // Restore default behavior
                         document.addEventListener('keydown', ShowHideSideBarEvent);
                         canvas.defaultCursor = 'default';
-                        canvas.renderAll();
+                        CanvasGlobals.scheduleRender();
                     }
                 }
             }

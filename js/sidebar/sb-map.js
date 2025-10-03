@@ -548,7 +548,7 @@ let FormDrawMapComponent = {
     // Update coordinates and render
     mainRoad.setCoords();
     mainRoad.drawVertex(false);
-    canvas.renderAll();
+    CanvasGlobals.scheduleRender();
   },
 
   /**
@@ -850,7 +850,7 @@ let FormDrawMapComponent = {
     sideRoad.drawVertex();
     mainRoad.setCoords();
 
-    canvas.renderAll();
+    CanvasGlobals.scheduleRender();
   },
 
 
@@ -930,7 +930,7 @@ let FormDrawMapComponent = {
     document.addEventListener('keydown', FormDrawMapComponent.ShowHideSideBarEvent);
 
     // Force a final render to clean up any visual artifacts
-    canvas.renderAll();
+    CanvasGlobals.scheduleRender();
   },
 
   /**
@@ -1007,7 +1007,7 @@ GeneralSettings.addListener(
           }
         }
 
-        CanvasGlobals.canvas.renderAll();
+        CanvasGlobals.scheduleRender();
       } else if (setting === 'messageColor' && targetObject.color !== undefined) {
         targetObject.color = value.toLowerCase();
 
@@ -1016,7 +1016,7 @@ GeneralSettings.addListener(
           targetObject.basePolygon.set('fill', value.toLowerCase());
         }
 
-        CanvasGlobals.canvas.renderAll();
+        CanvasGlobals.scheduleRender();
       }
     }
   })

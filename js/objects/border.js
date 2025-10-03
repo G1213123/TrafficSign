@@ -828,8 +828,8 @@ class BorderGroup extends BaseGroup {
 
   filterBorderObjects() {
     const [fheightObjects, fwidthObjects, VDivider, HDivider, bordered] = BorderUtilities.FilterDivider(this.heightObjects, this.widthObjects, this.VDivider, this.HDivider)
-    this.widthObjects = fwidthObjects
-    this.heightObjects = fheightObjects
+    this.widthObjects = fwidthObjects.filter(obj => obj.borderGroup == null);
+    this.heightObjects = fheightObjects.filter(obj => obj.borderGroup == null);
     this.VDivider = VDivider
     this.HDivider = HDivider
   }
@@ -1237,7 +1237,7 @@ class BorderGroup extends BaseGroup {
       if (startedYCycle) globalAnchorTree.endUpdateCycle('y');
     }
     BG.refTopLeft = { top: BG.basePolygon.getCoords()[0].y, left: BG.basePolygon.getCoords()[0].x };
-    canvas.renderAll();
+  CanvasGlobals.scheduleRender();
   }
 
   // Override updateAllCoord - need to make sure trees are updated correctly

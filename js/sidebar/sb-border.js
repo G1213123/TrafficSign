@@ -233,7 +233,8 @@ let FormBorderWrapComponent = {
       new BorderGroup({
         borderType: borderType,
         widthObjects: [...widthObjects],
-        heightObjects: [...heightObjects],
+        // heightObjects kept for legacy; mirror widthObjects if empty
+        heightObjects: (heightObjects && heightObjects.length) ? [...heightObjects] : [...widthObjects],
         fixedWidth: fixedWidth,
         fixedHeight: fixedHeight,
         xHeight: xHeight,
@@ -248,34 +249,16 @@ let FormBorderWrapComponent = {
       return;
     }
 
-    // If one or both missing, prompt only for the missing ones
-    const needWidth = !(fixedWidth !== null && !isNaN(fixedWidth));
-    const needHeight = !(fixedHeight !== null && !isNaN(fixedHeight));
-
-    if (needWidth && needHeight) {
-      selectObjectHandler('Select shape(s) to calculate border width', function (widthObjects) {
-        selectObjectHandler('Select shape(s) to calculate border height', function (heightObjects) {
-          createBorder(widthObjects, heightObjects);
-        }, null, xHeight, 'mm');
+    // New behavior: we only need one containment selection for both width and height.
+    const needAnySelection = !(fixedWidth !== null && !isNaN(fixedWidth) && fixedHeight !== null && !isNaN(fixedHeight));
+    if (needAnySelection) {
+      selectObjectHandler('Select shape(s) to contain inside the border', function (objects) {
+        createBorder(objects, objects);
       }, null, xHeight, 'mm');
       return;
     }
 
-    if (needWidth && !needHeight) {
-      selectObjectHandler('Select shape(s) to calculate border width', function (widthObjects) {
-        createBorder(widthObjects, []);
-      }, null, xHeight, 'mm');
-      return;
-    }
-
-    if (!needWidth && needHeight) {
-      selectObjectHandler('Select shape(s) to calculate border height', function (heightObjects) {
-        createBorder([], heightObjects);
-      }, null, xHeight, 'mm');
-      return;
-    }
-
-    // Fallback (should not reach): both provided
+    // Fallback: both fixed provided
     createBorder();
   },
 
@@ -349,7 +332,7 @@ let FormBorderWrapComponent = {
       if (border && typeof border.assignWidthToDivider === 'function') {
         border.assignWidthToDivider();
       }
-      canvas.requestRenderAll();
+  CanvasGlobals.scheduleRender();
       FormBorderWrapComponent._exitDividerPlacementMode();
     };
     canvas.on('mouse:down', FormBorderWrapComponent._dividerPlacementClickHandler);
@@ -375,7 +358,7 @@ let FormBorderWrapComponent = {
         const inside = pointer.x >= b.left && pointer.x <= b.right && pointer.y >= b.top && pointer.y <= b.bottom;
         o.set('fill', inside ? majorColor : dimColor);
       });
-      canvas.requestRenderAll();
+  CanvasGlobals.scheduleRender();
     };
 
     const color = document.getElementById('input-color').value;
@@ -417,7 +400,7 @@ let FormBorderWrapComponent = {
           divider.set({ left: centerX - divider.width / 2 });
         }
         divider.setCoords();
-        canvas.requestRenderAll();
+  CanvasGlobals.scheduleRender();
         // Exit placement mode after successful placement
         FormBorderWrapComponent._exitDividerPlacementMode();
       }
@@ -444,7 +427,7 @@ let FormBorderWrapComponent = {
     FormBorderWrapComponent._compartmentOverlay = { overlays, border, onMouseMove, onClick };
     canvas.on('mouse:move', onMouseMove);
     canvas.on('mouse:down', onClick);
-    canvas.requestRenderAll();
+  CanvasGlobals.scheduleRender();
   },
 
   _showBorderHoverOverlay: function (border) {
@@ -473,7 +456,7 @@ let FormBorderWrapComponent = {
     });
     FormBorderWrapComponent._borderHoverOverlay = { rect, border };
     canvas.add(rect);
-    canvas.requestRenderAll();
+  CanvasGlobals.scheduleRender();
   },
 
   _removeBorderHoverOverlay: function () {
@@ -482,7 +465,7 @@ let FormBorderWrapComponent = {
     if (!overlay) return;
     canvas.remove(overlay.rect);
     FormBorderWrapComponent._borderHoverOverlay = null;
-    canvas.requestRenderAll();
+  CanvasGlobals.scheduleRender();
   },
 
   _removeCompartmentOverlay: function () {
@@ -493,7 +476,7 @@ let FormBorderWrapComponent = {
     canvas.off('mouse:move', overlay.onMouseMove);
     canvas.off('mouse:down', overlay.onClick);
     FormBorderWrapComponent._compartmentOverlay = null;
-    canvas.requestRenderAll();
+  CanvasGlobals.scheduleRender();
   },
 
   _exitDividerPlacementMode: function (silent = false) {

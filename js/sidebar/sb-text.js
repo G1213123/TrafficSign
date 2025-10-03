@@ -134,7 +134,7 @@ let FormTextAddComponent = {
     FormTextAddComponent.populateLocationDropdown(regionName, language);
     if (FormTextAddComponent.newTextObject && CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
       FormTextAddComponent.liveUpdateText();
-      CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
     }
   },
 
@@ -159,12 +159,12 @@ let FormTextAddComponent = {
     // Clear existing options
     locationSelect.innerHTML = '';
 
-    // Add a default empty option
-    const defaultOption = document.createElement('option');
-    defaultOption.value = '';
-    defaultOption.setAttribute('data-i18n', '-- Select Location --');
-    defaultOption.text = '-- Select Location --';
-    locationSelect.appendChild(defaultOption);
+  // Add a default empty option (translate immediately and mark for future locale switches)
+  const defaultOption = document.createElement('option');
+  defaultOption.value = '';
+  defaultOption.setAttribute('data-i18n', '-- Select Location --');
+  defaultOption.text = i18n.t('-- Select Location --');
+  locationSelect.appendChild(defaultOption);
 
     // Find the selected region in the destinations array
     const languageSet = language == "English" ? EngDestinations : ChtDestinations
@@ -181,6 +181,9 @@ let FormTextAddComponent = {
       option.text = location;
       locationSelect.appendChild(option);
     });
+
+    // Re-apply translations for the newly created dropdown (safe-guard if locale changed later)
+    try { i18n.applyTranslations(locationSelect); } catch (_) {}
   },
 
   /**
@@ -201,7 +204,7 @@ let FormTextAddComponent = {
       // If we already have a new text object being placed, update it
       if (FormTextAddComponent.newTextObject && CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
         FormTextAddComponent.liveUpdateText();
-        CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
       }
       // If we're editing an existing text object
       else if (activeObject && activeObject.functionalType === 'Text') {
@@ -323,7 +326,7 @@ let FormTextAddComponent = {
                 spacingX: 0,
                 spacingY: 0
               });
-              CanvasGlobals.canvas.renderAll();
+              CanvasGlobals.scheduleRender();
             }, 100);
           }
         } else {
@@ -366,7 +369,7 @@ let FormTextAddComponent = {
                 spacingX: 0,
                 spacingY: 0
               });
-              CanvasGlobals.canvas.renderAll();
+              CanvasGlobals.scheduleRender();
             }, 100);
           }
         }
@@ -538,7 +541,7 @@ let FormTextAddComponent = {
     // If we already have a new text object being placed, just update it instead of creating another
     if (FormTextAddComponent.newTextObject && CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
       FormTextAddComponent.newTextObject.updateText(txt, xHeight, font, color);
-      CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
       return;
     }
 
@@ -590,7 +593,7 @@ let FormTextAddComponent = {
       console.error('Error creating text object:', error);
     }
 
-    CanvasGlobals.canvas.renderAll();
+  CanvasGlobals.scheduleRender();
   },
 
   // For regular single-line text, use our standard pattern

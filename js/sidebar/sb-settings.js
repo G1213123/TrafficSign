@@ -33,7 +33,7 @@ let FormSettingsComponent = {
       var shortcutsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container shortcut-list-container' }, parent);
 
       // Create heading for shortcuts
-  GeneralHandler.createI18nNode("h3", { 'class': 'panel-subheading' }, shortcutsContainer, 'Keyboard Shortcuts', 'text');
+      GeneralHandler.createI18nNode("h3", { 'class': 'panel-subheading' }, shortcutsContainer, 'Keyboard Shortcuts', 'text');
 
       // Create the list element
       const list = GeneralHandler.createNode("ul", { 'class': 'shortcut-list' }, shortcutsContainer);
@@ -116,17 +116,17 @@ let FormSettingsComponent = {
 
       // Create a container for performance settings
       var performanceSettingsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-      
+
       // Auto-save toggle
-      GeneralHandler.createToggle('Auto Save', ['Yes', 'No'], performanceSettingsContainer, 
-        GeneralSettings.autoSave ? 'Yes' : 'No', 
+      GeneralHandler.createToggle('Auto Save', ['Yes', 'No'], performanceSettingsContainer,
+        GeneralSettings.autoSave ? 'Yes' : 'No',
         FormSettingsComponent.toggleAutoSave);
-      
+
       // Auto-save interval
-      GeneralHandler.createInput('auto-save-interval', 'Auto Save Interval (seconds)', performanceSettingsContainer, 
+      GeneralHandler.createInput('auto-save-interval', 'Auto Save Interval (seconds)', performanceSettingsContainer,
         GeneralSettings.autoSaveInterval,
         FormSettingsComponent.changeAutoSaveInterval, 'input');
-      
+
       // Add save/reset buttons
       const buttonContainer = GeneralHandler.createNode("div", { 'class': 'settings-buttons-container' }, performanceSettingsContainer);
 
@@ -156,7 +156,7 @@ let FormSettingsComponent = {
         FormSettingsComponent.toggleRunTestsOnStart);
 
       // Apply translations for all elements created in this panel
-      try { i18n.applyTranslations(parent); } catch (_) {}
+      try { i18n.applyTranslations(parent); } catch (_) { }
     }
   },
 
@@ -164,7 +164,9 @@ let FormSettingsComponent = {
   createColorPicker: function (id, label, parent, defaultValue, changeCallback) {
     const container = GeneralHandler.createNode("div", { 'class': 'input-container' }, parent);
     const labelEl = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': id }, container);
-    labelEl.innerHTML = label;
+    // Apply i18n to label
+    labelEl.setAttribute('data-i18n', label);
+    labelEl.innerText = i18n.t(label);
 
     const input = GeneralHandler.createNode("input", {
       'type': 'color',
@@ -224,10 +226,10 @@ let FormSettingsComponent = {
   toggleDimensionUnit: function (button) {
     const value = button.getAttribute('data-value');
     GeneralSettings.dimensionUnit = value;
-    
+
     // Refresh any visible dimension displays
     FormSettingsComponent.refreshDimensionDisplays();
-    
+
     FormSettingsComponent.saveSettings(); // Auto-save settings
   },
 
@@ -242,7 +244,7 @@ let FormSettingsComponent = {
   changeBackgroundColor: function (event) {
     GeneralSettings.backgroundColor = event.target.value;
     CanvasGlobals.canvas.backgroundColor = event.target.value;
-    CanvasGlobals.canvas.renderAll();
+    CanvasGlobals.scheduleRender();
     FormSettingsComponent.saveSettings(); // Auto-save settings
   },
 
@@ -339,7 +341,7 @@ let FormSettingsComponent = {
       console.log('Canvas state and objects auto-saved', new Date());
       // Optionally, provide user feedback about the save
       // For example, using a toast notification or a status message
-      GeneralHandler.showToast("Canvas state saved!"); 
+      GeneralHandler.showToast("Canvas state saved!");
     } catch (e) {
       console.error('Failed to auto-save canvas state', e);
       GeneralHandler.showToast("Error saving canvas state.", "error");
@@ -418,7 +420,7 @@ let FormSettingsComponent = {
           }
         }
 
-        CanvasGlobals.canvas.renderAll();
+        CanvasGlobals.scheduleRender();
         console.log('Canvas state loaded from localStorage');
         return true;
       }
@@ -503,7 +505,7 @@ let FormSettingsComponent = {
       FormSettingsComponent.stopAutoSaveTimer();
     }
 
-    CanvasGlobals.canvas.renderAll();
+    CanvasGlobals.scheduleRender();
   },
 
   applyTextBorderSettings: function () {
@@ -514,7 +516,7 @@ let FormSettingsComponent = {
         })
       }
     });
-    CanvasGlobals.canvas.renderAll();
+    CanvasGlobals.scheduleRender();
   },
 
 
@@ -538,7 +540,7 @@ let FormSettingsComponent = {
       }
     });
 
-    CanvasGlobals.canvas.renderAll();
+    CanvasGlobals.scheduleRender();
   },
 
   generateSnapPoints: function () {
@@ -659,9 +661,9 @@ let FormSettingsComponent = {
         }
       });
     }
-    
+
     // Force canvas re-render
-    CanvasGlobals.canvas.renderAll();
+    CanvasGlobals.scheduleRender();
   }
 };
 

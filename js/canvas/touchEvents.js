@@ -42,7 +42,7 @@ canvas.on('mouse:move', function(opt) {
   lastTouchDistanceNative = currentDistance;
   lastTouchCenterNative = currentCenter;
 
-  canvas.requestRenderAll();
+  CanvasGlobals.scheduleRender();
   opt.e.preventDefault();
 });
 
