@@ -310,6 +310,18 @@ body {
     box-sizing: border-box;
 }
 
+/* Prevent Google Ads (auto ads / injected iframes) from displaying inside hero container */
+.hero-container ins.adsbygoogle,
+.hero-container .adsbygoogle,
+.hero-container iframe[id^="google_ads_iframe"],
+.hero-container iframe[src*="ads"],
+.hero-container [style*="google_ads_iframe"],
+.hero-container [data-ad-client],
+.hero-container [data-ad-slot] {
+    display: none !important;
+    visibility: hidden !important;
+}
+
 .hero-title {
     font-size: 3.5rem;
     font-weight: 800;

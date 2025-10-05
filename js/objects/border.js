@@ -249,6 +249,9 @@ const BorderUtilities = {
         xHeight: xHeight,
         color: colorType,
         frame: BorderFrameWidth[borderType],
+        initialized: false // ensure key present for metadata capture
+        , fixedWidthCoords: null
+        , fixedHeightCoords: null
       });
 
 
@@ -325,6 +328,8 @@ class BorderGroup extends BaseGroup {
     this.xHeight = options.xHeight || 100;
     this.color = options.color;
     this.dimensionAnnotations = [];
+    // initialized: follow pattern of fixedWidth/fixedHeight by keeping it in options
+    this.initialized = options.initialized || false;
     this.frame = BorderFrameWidth[this.borderType]; // Frame width for the border
     this.defaultPadding = BorderPaddingWidth[this.borderType] || { left: 0, top: 0, right: 0, bottom: 0 };
     this.inbbox = null; // Inner border bounding box
@@ -334,8 +339,8 @@ class BorderGroup extends BaseGroup {
     this.HDivider = options.HDivider || [];
 
     // Cache for fixed dimension coordinates
-    this.fixedWidthCoords = null;
-    this.fixedHeightCoords = null;
+    this.fixedWidthCoords = options.fixedWidthCoords || null;
+    this.fixedHeightCoords = options.fixedHeightCoords || null;
 
     // Add status flag to track border updates
     this.isUpdating = false; // Flag to track if the border is currently being updated
@@ -357,8 +362,18 @@ class BorderGroup extends BaseGroup {
   initialize() {
     if (this.inbbox == null) {
       this.filterBorderObjects();
-      this.calcfixedBboxes(true); // true indicates this is initialization
+      this.calcfixedBboxes(); // true indicates this is initialization
       this.rounding = BorderUtilities.calcBorderRounding(this.borderType, this.xHeight, this.inbbox);
+      this.initialized = true;
+    }
+
+    // If cached coord objects were provided (e.g., from deserialization) but not yet part of metadata,
+    // ensure they get included by registering keys that now exist on the instance.
+    if (this.fixedWidthCoords && !this._metadataKeys.includes('fixedWidthCoords')) {
+      this.registerMetadataKeys('fixedWidthCoords');
+    }
+    if (this.fixedHeightCoords && !this._metadataKeys.includes('fixedHeightCoords')) {
+      this.registerMetadataKeys('fixedHeightCoords');
     }
 
     this.setBasePolygon(this.drawBorder());
@@ -834,7 +849,7 @@ class BorderGroup extends BaseGroup {
     this.HDivider = HDivider
   }
 
-  calcfixedBboxes(isInitialization = false, overrideLeft = null, overrideTop = null) {
+  calcfixedBboxes() {
     // Get the bounding box of the active selection for dynamic dimensions (content-driven)
     let coords = BorderUtilities.getBorderObjectCoords(this.heightObjects, this.widthObjects);
 
@@ -863,7 +878,7 @@ class BorderGroup extends BaseGroup {
     if (hasFixedWidth) {
       const leftPadding = (this.frame + this.defaultPadding.left) * this.xHeight / 4;
       const rightPadding = (this.frame + this.defaultPadding.right) * this.xHeight / 4;
-      if ((isInitialization && overrideLeft === null) || !this.fixedWidthCoords) {
+      if (!this.initialized) {
         // Calculate fixed width coordinates only during initialization or if not cached
         const borderCoords = canvas.calcViewportBoundaries();
 
@@ -877,24 +892,16 @@ class BorderGroup extends BaseGroup {
             right: centerX + parseInt(this.fixedWidth) / 2 - rightPadding
           };
 
-          // Debug: check for NaN in width calculations
-          if (isNaN(this.fixedWidthCoords.left) || isNaN(this.fixedWidthCoords.right)) {
-            console.error('calcfixedBboxes: NaN in width calculations:', {
-              centerX,
-              fixedWidth: this.fixedWidth,
-              frame: this.frame,
-              paddingLeft: this.defaultPadding.left,
-              paddingRight: this.defaultPadding.right,
-              xHeight: this.xHeight
-            });
-            this.fixedWidthCoords = { left: 0, right: 100 };
-          }
         }
-      } else if (overrideLeft === null) {
+      } else {
+        this.fixedWidthCoords = {
+          left: 0,
+          right: 0
+        };
         // For non-initialization calls, ensure coords are updated to current fixed values
         if (this.fixedWidthCoords) {
           this.fixedWidthCoords.left = this.left + leftPadding;
-          this.fixedWidthCoords.right = this.left + this.width - rightPadding;
+          this.fixedWidthCoords.right = this.left + this.fixedWidth - rightPadding;
         }
       }
 
@@ -911,7 +918,7 @@ class BorderGroup extends BaseGroup {
       const topPadding = (this.frame + this.defaultPadding.top) * this.xHeight / 4;
       const bottomPadding = (this.frame + this.defaultPadding.bottom) * this.xHeight / 4;
 
-      if ((isInitialization && overrideTop === null) || !this.fixedHeightCoords) {
+      if (!this.initialized) {
         // Calculate fixed height coordinates only during initialization or if not cached
         const borderCoords = canvas.calcViewportBoundaries();
 
@@ -925,24 +932,12 @@ class BorderGroup extends BaseGroup {
             bottom: centerY + parseInt(this.fixedHeight) / 2 - bottomPadding
           };
 
-          // Debug: check for NaN in height calculations
-          if (isNaN(this.fixedHeightCoords.top) || isNaN(this.fixedHeightCoords.bottom)) {
-            console.error('calcfixedBboxes: NaN in height calculations:', {
-              centerY,
-              fixedHeight: this.fixedHeight,
-              frame: this.frame,
-              paddingTop: this.defaultPadding.top,
-              paddingBottom: this.defaultPadding.bottom,
-              xHeight: this.xHeight
-            });
-            this.fixedHeightCoords = { top: 0, bottom: 100 };
-          }
         }
-      } else if (overrideTop === null) {
+      } else {
         // For non-initialization calls, ensure coords are updated to current fixed values
         if (this.fixedHeightCoords) {
           this.fixedHeightCoords.top = this.top + topPadding;
-          this.fixedHeightCoords.bottom = this.top + this.height - bottomPadding;
+          this.fixedHeightCoords.bottom = this.top + this.fixedHeight - bottomPadding;
         }
       }
 
@@ -954,14 +949,6 @@ class BorderGroup extends BaseGroup {
       }
     }
     // If height is not fixed, use the calculated dynamic coordinates (already set above)
-
-    // If user supplies explicit left/top (through property panel), shift coords to anchor new inbbox origin
-    if (overrideLeft !== null || overrideTop !== null) {
-      const dx = (overrideLeft !== null) ? (overrideLeft - coords.left) : 0;
-      const dy = (overrideTop !== null) ? (overrideTop - coords.top) : 0;
-      coords.left += dx; coords.right += dx;
-      coords.top += dy; coords.bottom += dy;
-    }
 
     // Final check for NaN values before setting
     if (isNaN(coords.left) || isNaN(coords.top) || isNaN(coords.right) || isNaN(coords.bottom)) {
@@ -1253,6 +1240,7 @@ class BorderGroup extends BaseGroup {
   updateAllCoord(event, _sourceList = [], _selfOnly = false) {
     // Call parent implementation first
     super.updateAllCoord(event, _sourceList, _selfOnly);
+    this.updateBboxes();
 
     // Mark that a border update is in progress
     this.isUpdating = true;
@@ -1306,6 +1294,7 @@ class BorderGroup extends BaseGroup {
       this.isUpdating = false;
     }
   }
+
 }
 
 

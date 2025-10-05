@@ -92,6 +92,11 @@ async function reconstructSingleObjectInternal(data, fabricCanvas, allDeserializ
     delete constructorOptions.basePolygonVertex; // Handled separately
     delete constructorOptions.objectType; // Used by factory
 
+    // Backward compatibility: older exports won't have 'initialized'; default false
+    if (typeof constructorOptions.initialized === 'undefined') {
+        constructorOptions.initialized = false;
+    }
+
 
     // originalCanvasID is not an option for constructor, but useful for map
     const originalCanvasID = data.canvasID;
@@ -138,6 +143,13 @@ async function reconstructSingleObjectInternal(data, fabricCanvas, allDeserializ
     }
 
     // newFabricObject.setCoords(); // Called by setBasePolygon, or should be called after all props set.
+
+    // If this is a BorderGroup and we have cached coords / rounding, restore them after construction
+    if (newFabricObject instanceof BorderGroup) {
+        if (data.fixedWidthCoords) newFabricObject.fixedWidthCoords = { ...data.fixedWidthCoords };
+        if (data.fixedHeightCoords) newFabricObject.fixedHeightCoords = { ...data.fixedHeightCoords };
+        if (data.rounding) newFabricObject.rounding = { ...data.rounding }; // Use stored rounding to avoid drift
+    }
 
     return newFabricObject;
 }

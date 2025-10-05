@@ -115,13 +115,11 @@ function showPropertyPanel(object) {
 
     // Reinitialize fixed width/height of borders
     if (isBorder && (prop.key === 'fixedWidth' || prop.key === 'fixedHeight')) {
-      targetObject.calcfixedBboxes(true, null, null);
+      targetObject.calcfixedBboxes();
     }
     // If user moved left/top for border with fixed dimensions, update inbbox anchor using overrides
     if (isBorder && (prop.key === 'left' || prop.key === 'top')) {
-      const overrideLeft = (prop.key === 'left') ? numValue : null;
-      const overrideTop = (prop.key === 'top') ? numValue : null;
-      targetObject.calcfixedBboxes(false, overrideLeft, overrideTop);
+      targetObject.calcfixedBboxes();
     }
 
     if (valueChanged) {
@@ -470,7 +468,7 @@ function showPropertyPanel(object) {
     label: 'Top (geom)',
     key: 'top',
     type: 'number',
-    editable: (!isNonMovable && !object.lockMovementY),
+    editable: (hasEditableFixedHeight && !object.lockMovementY) || (!isNonMovable && !object.lockMovementY),
     step: 1,
     value: object.top
   });
