@@ -149,8 +149,10 @@ async function reconstructSingleObjectInternal(data, fabricCanvas, allDeserializ
  * IMPORTANT: Assumes `jsonStringsArray` is ordered such that dependencies appear before
  * the objects that depend on them.
  *
- * @param {Array<string>} jsonStringsArray - Array of JSON strings, each representing an object.
- *                                           MUST BE IN DEPENDENCY ORDER.
+ * @param {Array<object|string>} jsonStringsArray - Array of serialized objects.
+ *   New format: array of plain objects (already deserialized).
+ *   Legacy format: array of JSON strings (each an object), possibly double-stringified.
+ *   MUST BE IN DEPENDENCY ORDER.
  * @returns {Promise<Array<fabric.Object>>} A promise resolving to an array of the top-level reconstructed Fabric objects.
  */
 async function buildObjectsFromJSON(jsonStringsArray) {
@@ -158,7 +160,25 @@ async function buildObjectsFromJSON(jsonStringsArray) {
     // It's assumed that BaseGroup's constructor (and similar for other types)
     // adds the object to CanvasGlobals.canvasObject and the fabricCanvas.
 
-    const allDeserializedData = jsonStringsArray.map(s => JSON.parse(s));
+    // Normalize items (simple version):
+    // - If already an object, use it.
+    // - If a string, parse once; if result is a string, parse again.
+    const allDeserializedData = [];
+    for (const entry of jsonStringsArray) {
+        if (!entry) continue;
+        if (typeof entry === 'object') {
+            allDeserializedData.push(entry);
+            continue;
+        }
+        if (typeof entry === 'string') {
+            try {
+                let parsed = JSON.parse(entry);
+                if (parsed && typeof parsed === 'object') {
+                    allDeserializedData.push(parsed);
+                }
+            } catch (_) { /* ignore invalid entries */ }
+        }
+    }
     const allDeserializedObjectsMap = {}; // Maps originalID -> new FabricObject
     const finalReconstructedObjects = []; // Stores the fabric objects in the order they are fully processed
 

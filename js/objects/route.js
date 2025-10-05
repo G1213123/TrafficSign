@@ -346,15 +346,15 @@ function getSideRoadCoords(route, length, left, right) {
     let arrowTipVertex = arrowTipPath.path[0].vertex
     if (route.angle != 0 && route.angle != 180) {
         if (route.x < left) {
-            const i1 = { x: left, y: arrowTipVertex[0].y - (left - arrowTipVertex[0].x) / Math.tan(route.angle / 180 * Math.PI), radius: length, display: 0 }
-            const i2 = { x: left, y: arrowTipVertex[2].y - (left - arrowTipVertex[2].x) / Math.tan(route.angle / 180 * Math.PI), radius: length, display: 0 }
+            const i1 = { x: left, y: arrowTipVertex[0].y - (left - arrowTipVertex[0].x) / Math.tan(route.angle / 180 * Math.PI), radius: length, display: 1 }
+            const i2 = { x: left, y: arrowTipVertex[2].y - (left - arrowTipVertex[2].x) / Math.tan(route.angle / 180 * Math.PI), radius: length, display: 1 }
             const offsetDistance = Math.tan(Math.abs(route.angle * Math.PI / 180) / 2);
             const i0 = { x: left, y: i1.y + offsetDistance * length, display: 0 }
             const i3 = { x: left, y: i2.y - offsetDistance * length, display: 0 }
             arrowTipVertex = [i0, i1, ...arrowTipVertex, i2, i3]
         } else if (route.x > right) {
-            const i1 = { x: right, y: arrowTipVertex[0].y + (arrowTipVertex[0].x - right) / Math.tan(route.angle / 180 * Math.PI), radius: length, display: 0 }
-            const i2 = { x: right, y: arrowTipVertex[2].y + (arrowTipVertex[2].x - right) / Math.tan(route.angle / 180 * Math.PI), radius: length, display: 0 }
+            const i1 = { x: right, y: arrowTipVertex[0].y + (arrowTipVertex[0].x - right) / Math.tan(route.angle / 180 * Math.PI), radius: length, display: 1 }
+            const i2 = { x: right, y: arrowTipVertex[2].y + (arrowTipVertex[2].x - right) / Math.tan(route.angle / 180 * Math.PI), radius: length, display: 1 }
             const offsetDistance = Math.tan(Math.abs(route.angle * Math.PI / 180) / 2);
             const i0 = { x: right, y: i1.y - offsetDistance * length, display: 0 }
             const i3 = { x: right, y: i2.y + offsetDistance * length, display: 0 }
@@ -389,8 +389,8 @@ function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle, center)
         const trimCenter = { x: width / 2 + 1, y: Math.sqrt((radius + 1) ** 2 - (width / 2 + 1) ** 2) };
         const tCenterAngle = Math.atan2(trimCenter.y, trimCenter.x);
         const i2 = { x: width / 2, y: arm / length - trimCenter.y, display: 0 };
-        const i3 = { x: trimCenter.x - Math.cos(tCenterAngle), y: arm / length - trimCenter.y + Math.sin(tCenterAngle), display: 0 };
-        const i0 = { x: -i3.x, y: i3.y, display: 0 };
+        const i3 = { x: trimCenter.x - Math.cos(tCenterAngle), y: arm / length - trimCenter.y + Math.sin(tCenterAngle), display: 1 };
+        const i0 = { x: -i3.x, y: i3.y, display: 1 };
         const i1 = { x: -i2.x, y: i2.y, display: 0 };
 
         // Modify the first path with additional vertices/arcs, keep others intact

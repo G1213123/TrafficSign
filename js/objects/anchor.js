@@ -606,12 +606,12 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   if (!movingPoint) {
     //alert(`Vertex ${vertexIndex1.toUpperCase()} not found in shape to be moved (ID: ${shape2._showName})`);
     document.addEventListener('keydown', ShowHideSideBarEvent);
-    return Promise.reject('anchor_invalid_vertex1');
+    return Promise.reject($`anchor_invalid_vertex1, Shape ID: ${shape2._showName}, Vertex: ${vertexIndex1.toUpperCase()}`);
   }
   if (!targetPoint) {
     //alert(`Vertex ${vertexIndex2.toUpperCase()} not found in target shape (ID: ${shape1._showName})`);
     document.addEventListener('keydown', ShowHideSideBarEvent);
-    return Promise.reject('anchor_invalid_vertex2');
+    return Promise.reject($`anchor_invalid_vertex2, Shape ID: ${shape1._showName}, Vertex: ${vertexIndex2.toUpperCase()}`);
   }
 
   // Track anchor operations - prepare tracking params

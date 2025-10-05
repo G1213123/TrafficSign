@@ -5,27 +5,839 @@
     "exportDate": "2025-09-24T01:45:59.983Z"
   },
   "objects": [
-    "{\"functionalType\":\"Text\",\"className\":\"TextObject\",\"canvasID\":0,\"text\":\"Diamond Hill\",\"xHeight\":50,\"font\":\"TransportMedium\",\"color\":\"White\",\"left\":460.2006404550657,\"top\":-701.0477374351087,\"objectType\":\"TextObject\",\"refTopLeft\":{\"top\":-701.0477374351087,\"left\":460.2006404550657},\"borderGroup\":21,\"anchoredPolygon\":[1],\"LockXInfo\":{\"TargetObjectID\":1,\"sourcePoint\":\"E6\",\"targetPoint\":\"E2\",\"spacingX\":0},\"LockYInfo\":{\"TargetObjectID\":1,\"sourcePoint\":\"E7\",\"targetPoint\":\"E1\",\"spacingY\":0},\"width\":610,\"height\":100,\"angle\":0}",
-    "{\"functionalType\":\"Text\",\"className\":\"TextObject\",\"canvasID\":1,\"text\":\"鑽石山\",\"xHeight\":50,\"font\":\"TransportMedium\",\"color\":\"White\",\"left\":558.9506404550657,\"top\":-601.0477374351087,\"objectType\":\"TextObject\",\"refTopLeft\":{\"top\":-601.0477374351087,\"left\":558.9506404550657},\"borderGroup\":21,\"anchoredPolygon\":[2],\"LockXInfo\":{\"TargetObjectID\":2,\"sourcePoint\":\"E6\",\"targetPoint\":\"E2\",\"spacingX\":0},\"LockYInfo\":{\"TargetObjectID\":2,\"sourcePoint\":\"E6\",\"targetPoint\":\"E2\",\"spacingY\":0},\"width\":412.5,\"height\":142.5,\"angle\":0}",
-    "{\"functionalType\":\"Text\",\"className\":\"TextObject\",\"canvasID\":2,\"text\":\"Tsz Wan Shan\",\"xHeight\":50,\"font\":\"TransportMedium\",\"color\":\"#ffffff\",\"left\":446.4506404550657,\"top\":-458.54773743510873,\"objectType\":\"TextObject\",\"refTopLeft\":{\"top\":-458.54773743510873,\"left\":446.4506404550657},\"borderGroup\":21,\"anchoredPolygon\":[3],\"LockXInfo\":{\"TargetObjectID\":3,\"sourcePoint\":\"E6\",\"targetPoint\":\"E2\",\"spacingX\":0},\"LockYInfo\":{\"TargetObjectID\":3,\"sourcePoint\":\"E6\",\"targetPoint\":\"E2\",\"spacingY\":0},\"width\":637.5,\"height\":100,\"angle\":0}",
-    "{\"functionalType\":\"Text\",\"className\":\"TextObject\",\"canvasID\":3,\"text\":\"慈雲山\",\"xHeight\":50,\"font\":\"TW-MOE-Std-Kai\",\"color\":\"White\",\"left\":558.9506404550657,\"top\":-358.54773743510873,\"objectType\":\"TextObject\",\"refTopLeft\":{\"top\":-358.54773743510873,\"left\":558.9506404550657},\"borderGroup\":21,\"anchoredPolygon\":[],\"LockXInfo\":{\"TargetObjectID\":19,\"sourcePoint\":\"E6\",\"targetPoint\":\"V1\",\"spacingX\":0},\"LockYInfo\":{\"TargetObjectID\":19,\"sourcePoint\":\"E6\",\"targetPoint\":\"V1\",\"spacingY\":0},\"width\":412.5,\"height\":142.5,\"angle\":0}",
-    "{\"functionalType\":\"Text\",\"className\":\"TextObject\",\"canvasID\":4,\"text\":\"Chuk Yuen\",\"xHeight\":50,\"font\":\"TransportMedium\",\"color\":\"White\",\"left\":98.24936383190993,\"top\":124.56764718027586,\"objectType\":\"TextObject\",\"refTopLeft\":{\"top\":124.56764718027586,\"left\":98.24936383190993},\"borderGroup\":21,\"anchoredPolygon\":[5],\"LockXInfo\":{\"TargetObjectID\":18,\"sourcePoint\":\"E3\",\"targetPoint\":\"E5\",\"spacingX\":-25},\"LockYInfo\":{\"TargetObjectID\":18,\"sourcePoint\":\"E3\",\"targetPoint\":\"E5\",\"spacingY\":6},\"width\":496,\"height\":100,\"angle\":0}",
-    "{\"functionalType\":\"Text\",\"className\":\"TextObject\",\"canvasID\":5,\"text\":\"竹園\",\"xHeight\":50,\"font\":\"TransportMedium\",\"color\":\"White\",\"left\":98.24936383190993,\"top\":224.5676471802759,\"objectType\":\"TextObject\",\"refTopLeft\":{\"top\":224.5676471802759,\"left\":98.24936383190993},\"borderGroup\":21,\"anchoredPolygon\":[6],\"LockXInfo\":{\"TargetObjectID\":4,\"sourcePoint\":\"E1\",\"targetPoint\":\"E7\",\"spacingX\":0},\"LockYInfo\":{\"TargetObjectID\":4,\"sourcePoint\":\"E2\",\"targetPoint\":\"E6\",\"spacingY\":0},\"width\":275,\"height\":142.5,\"angle\":0}",
-    "{\"functionalType\":\"Text\",\"className\":\"TextObject\",\"canvasID\":6,\"text\":\"Sha Tin\",\"xHeight\":50,\"font\":\"TransportMedium\",\"color\":\"#ffffff\",\"left\":98.24936383190993,\"top\":367.0676471802759,\"objectType\":\"TextObject\",\"refTopLeft\":{\"top\":367.0676471802759,\"left\":98.24936383190993},\"borderGroup\":21,\"anchoredPolygon\":[7],\"LockXInfo\":{\"TargetObjectID\":5,\"sourcePoint\":\"E1\",\"targetPoint\":\"E7\",\"spacingX\":0},\"LockYInfo\":{\"TargetObjectID\":5,\"sourcePoint\":\"E1\",\"targetPoint\":\"E7\",\"spacingY\":0},\"width\":342.5,\"height\":100,\"angle\":0}",
-    "{\"functionalType\":\"Text\",\"className\":\"TextObject\",\"canvasID\":7,\"text\":\"沙田\",\"xHeight\":50,\"font\":\"parsedFontKorean\",\"color\":\"#ffffff\",\"left\":98.24936383190993,\"top\":467.067647180276,\"objectType\":\"TextObject\",\"refTopLeft\":{\"top\":467.067647180276,\"left\":98.24936383190993},\"borderGroup\":21,\"anchoredPolygon\":[],\"LockXInfo\":{\"TargetObjectID\":6,\"sourcePoint\":\"E1\",\"targetPoint\":\"E7\",\"spacingX\":0},\"LockYInfo\":{\"TargetObjectID\":6,\"sourcePoint\":\"E1\",\"targetPoint\":\"E7\",\"spacingY\":0},\"width\":275,\"height\":142.5,\"angle\":0}",
-    "{\"functionalType\":\"Text\",\"className\":\"TextObject\",\"canvasID\":8,\"text\":\"San Po Kong\",\"xHeight\":50,\"font\":\"TransportMedium\",\"color\":\"#ffffff\",\"left\":894.0468904550657,\"top\":192.19226256489128,\"objectType\":\"TextObject\",\"refTopLeft\":{\"top\":192.19226256489128,\"left\":894.0468904550657},\"borderGroup\":21,\"anchoredPolygon\":[9],\"LockXInfo\":{\"TargetObjectID\":17,\"sourcePoint\":\"E1\",\"targetPoint\":\"E3\",\"spacingX\":25},\"LockYInfo\":{\"TargetObjectID\":17,\"sourcePoint\":\"E1\",\"targetPoint\":\"E3\",\"spacingY\":0},\"width\":595,\"height\":100,\"angle\":0}",
-    "{\"functionalType\":\"Text\",\"className\":\"TextObject\",\"canvasID\":9,\"text\":\"新蒲崗\",\"xHeight\":50,\"font\":\"parsedFontKorean\",\"color\":\"#ffffff\",\"left\":894.0468904550657,\"top\":292.1922625648915,\"objectType\":\"TextObject\",\"refTopLeft\":{\"top\":292.1922625648915,\"left\":894.0468904550657},\"borderGroup\":21,\"anchoredPolygon\":[10],\"LockXInfo\":{\"TargetObjectID\":8,\"sourcePoint\":\"E1\",\"targetPoint\":\"E7\",\"spacingX\":0},\"LockYInfo\":{\"TargetObjectID\":8,\"sourcePoint\":\"E1\",\"targetPoint\":\"E7\",\"spacingY\":0},\"width\":412.5,\"height\":142.5,\"angle\":0}",
-    "{\"functionalType\":\"Text\",\"className\":\"TextObject\",\"canvasID\":10,\"text\":\"Kwun Tong\",\"xHeight\":50,\"font\":\"TransportMedium\",\"color\":\"#ffffff\",\"left\":894.0468904550657,\"top\":434.6922625648916,\"objectType\":\"TextObject\",\"refTopLeft\":{\"top\":434.6922625648916,\"left\":894.0468904550657},\"borderGroup\":21,\"anchoredPolygon\":[11],\"LockXInfo\":{\"TargetObjectID\":9,\"sourcePoint\":\"E1\",\"targetPoint\":\"E7\",\"spacingX\":0},\"LockYInfo\":{\"TargetObjectID\":9,\"sourcePoint\":\"E1\",\"targetPoint\":\"E7\",\"spacingY\":0},\"width\":502,\"height\":100,\"angle\":0}",
-    "{\"functionalType\":\"Text\",\"className\":\"TextObject\",\"canvasID\":11,\"text\":\"觀塘\",\"xHeight\":50,\"font\":\"parsedFontKorean\",\"color\":\"#ffffff\",\"left\":894.0468904550657,\"top\":534.6922625648921,\"objectType\":\"TextObject\",\"refTopLeft\":{\"top\":534.6922625648921,\"left\":894.0468904550657},\"borderGroup\":21,\"anchoredPolygon\":[12],\"LockXInfo\":{\"TargetObjectID\":10,\"sourcePoint\":\"E1\",\"targetPoint\":\"E7\",\"spacingX\":0},\"LockYInfo\":{\"TargetObjectID\":10,\"sourcePoint\":\"E1\",\"targetPoint\":\"E7\",\"spacingY\":0},\"width\":275,\"height\":142.5,\"angle\":0}",
-    "{\"functionalType\":\"Text\",\"className\":\"TextObject\",\"canvasID\":12,\"text\":\"Sai Kung\",\"xHeight\":50,\"font\":\"TransportMedium\",\"color\":\"#ffffff\",\"left\":894.0468904550657,\"top\":677.192262564892,\"objectType\":\"TextObject\",\"refTopLeft\":{\"top\":677.192262564892,\"left\":894.0468904550657},\"borderGroup\":21,\"anchoredPolygon\":[13],\"LockXInfo\":{\"TargetObjectID\":11,\"sourcePoint\":\"E1\",\"targetPoint\":\"E7\",\"spacingX\":0},\"LockYInfo\":{\"TargetObjectID\":11,\"sourcePoint\":\"E1\",\"targetPoint\":\"E7\",\"spacingY\":0},\"width\":415.5,\"height\":100,\"angle\":0}",
-    "{\"functionalType\":\"Text\",\"className\":\"TextObject\",\"canvasID\":13,\"text\":\"西貢\",\"xHeight\":50,\"font\":\"parsedFontKorean\",\"color\":\"#ffffff\",\"left\":894.0468904550657,\"top\":777.1922625648922,\"objectType\":\"TextObject\",\"refTopLeft\":{\"top\":777.1922625648922,\"left\":894.0468904550657},\"borderGroup\":21,\"anchoredPolygon\":[14],\"LockXInfo\":{\"TargetObjectID\":12,\"sourcePoint\":\"E1\",\"targetPoint\":\"E7\",\"spacingX\":0},\"LockYInfo\":{\"TargetObjectID\":12,\"sourcePoint\":\"E1\",\"targetPoint\":\"E7\",\"spacingY\":0},\"width\":275,\"height\":142.5,\"angle\":0}",
-    "{\"functionalType\":\"Text\",\"className\":\"TextObject\",\"canvasID\":14,\"text\":\"Kwai Chung\",\"xHeight\":50,\"font\":\"TransportMedium\",\"color\":\"#ffffff\",\"left\":894.0468904550657,\"top\":919.692262564892,\"objectType\":\"TextObject\",\"refTopLeft\":{\"top\":919.692262564892,\"left\":894.0468904550657},\"borderGroup\":21,\"anchoredPolygon\":[15,20],\"LockXInfo\":{\"TargetObjectID\":13,\"sourcePoint\":\"E1\",\"targetPoint\":\"E7\",\"spacingX\":0},\"LockYInfo\":{\"TargetObjectID\":13,\"sourcePoint\":\"E1\",\"targetPoint\":\"E7\",\"spacingY\":0},\"width\":550.5,\"height\":100,\"angle\":0}",
-    "{\"functionalType\":\"Text\",\"className\":\"TextObject\",\"canvasID\":15,\"text\":\"葵涌\",\"xHeight\":50,\"font\":\"parsedFontKorean\",\"color\":\"#ffffff\",\"left\":894.0468904550657,\"top\":1019.6922625648926,\"objectType\":\"TextObject\",\"refTopLeft\":{\"top\":1019.6922625648926,\"left\":894.0468904550657},\"borderGroup\":21,\"anchoredPolygon\":[],\"LockXInfo\":{\"TargetObjectID\":14,\"sourcePoint\":\"E1\",\"targetPoint\":\"E7\",\"spacingX\":0},\"LockYInfo\":{\"TargetObjectID\":14,\"sourcePoint\":\"E1\",\"targetPoint\":\"E7\",\"spacingY\":0},\"width\":275,\"height\":142.5,\"angle\":0}",
-    "{\"functionalType\":\"MainRoad\",\"className\":\"MainRoadSymbol\",\"canvasID\":16,\"routeList\":[{\"x\":765.2006404550657,\"y\":-202.29773743510873,\"angle\":0,\"width\":6,\"length\":null,\"shape\":\"U-turn\"},{\"x\":765.2006404550657,\"y\":83.95226256489127,\"angle\":180,\"width\":6,\"length\":22.9,\"shape\":\"U-turn\"}],\"xHeight\":50,\"color\":\"white\",\"rootLength\":22.9,\"tipLength\":12,\"routeWidth\":6,\"roadType\":\"Conventional Roundabout\",\"RAfeature\":\"U-turn\",\"innerCornerRadius\":null,\"outerCornerRadius\":null,\"objectType\":\"MainRoadSymbol\",\"left\":615.2006404550037,\"top\":-66.04773743710416,\"refTopLeft\":{\"top\":-66.04773743710416,\"left\":615.2006404550037},\"borderGroup\":21,\"anchoredPolygon\":[],\"sideRoad\":[17,17,18,19],\"width\":300.0078464160704,\"height\":712.5000000019954,\"angle\":0}",
-    "{\"functionalType\":\"SideRoad\",\"className\":\"SideRoadSymbol\",\"canvasID\":17,\"mainRoad\":16,\"color\":\"white\",\"routeList\":[{\"x\":781.5,\"y\":732.65,\"angle\":0,\"shape\":\"UArrow Conventional\",\"width\":4}],\"xHeight\":50,\"objectType\":\"SideRoadSymbol\",\"left\":799.8156404550657,\"top\":192.19226256489128,\"refTopLeft\":{\"top\":192.19226256489128,\"left\":799.8156404550657},\"borderGroup\":21,\"anchoredPolygon\":[8],\"width\":69.23125000000005,\"height\":309.26,\"angle\":0}",
-    "{\"functionalType\":\"SideRoad\",\"className\":\"SideRoadSymbol\",\"canvasID\":18,\"routeList\":[{\"x\":465.2006404550657,\"y\":83.95226256489123,\"angle\":-60,\"shape\":\"Arrow\",\"width\":\"4\"}],\"xHeight\":50,\"color\":\"white\",\"mainRoad\":16,\"side\":true,\"branchIndex\":3,\"objectType\":\"SideRoadSymbol\",\"left\":465.2006404550657,\"top\":49.33687794950664,\"refTopLeft\":{\"top\":49.336877949506615,\"left\":465.2006404550657},\"borderGroup\":21,\"anchoredPolygon\":[4],\"width\":154.048723376844,\"height\":69.23076923076925,\"angle\":0}",
-    "{\"functionalType\":\"SideRoad\",\"className\":\"SideRoadSymbol\",\"canvasID\":19,\"routeList\":[{\"x\":765.2006404550657,\"y\":-216.04773743510873,\"angle\":60,\"shape\":\"Arrow\",\"width\":\"4\"}],\"xHeight\":50,\"color\":\"white\",\"mainRoad\":16,\"side\":false,\"branchIndex\":4,\"objectType\":\"SideRoadSymbol\",\"left\":730.5852558396809,\"top\":-216.04773743510873,\"refTopLeft\":{\"top\":-216.04773743510873,\"left\":730.5852558396809},\"borderGroup\":21,\"anchoredPolygon\":[3],\"width\":69.23076923076951,\"height\":154.048723376844,\"angle\":0}",
-    "{\"functionalType\":\"Symbol\",\"className\":\"SymbolObject\",\"canvasID\":20,\"symbolType\":\"Airport\",\"xHeight\":50,\"symbolAngle\":0,\"color\":\"white\",\"objectType\":\"SymbolObject\",\"left\":1194.2968904550657,\"top\":1044.6922625648926,\"refTopLeft\":{\"top\":1044.6922625648926,\"left\":1194.2968904550657},\"borderGroup\":21,\"anchoredPolygon\":[],\"LockXInfo\":{\"TargetObjectID\":14,\"sourcePoint\":\"E1\",\"targetPoint\":\"E6\",\"spacingX\":25},\"LockYInfo\":{\"TargetObjectID\":14,\"sourcePoint\":\"E1\",\"targetPoint\":\"E6\",\"spacingY\":25},\"width\":225,\"height\":225,\"angle\":0}",
-    "{\"functionalType\":\"Border\",\"className\":\"BorderGroup\",\"canvasID\":21,\"borderType\":\"stack\",\"widthObjects\":[0,3,2,1,4,7,6,5,8,10,9,12,11,15,13,16,18,17,20,14,19],\"heightObjects\":[0,3,2,1,4,7,6,5,8,10,9,12,11,15,13,16,18,17,20,14,19],\"fixedWidth\":null,\"fixedHeight\":null,\"xHeight\":50,\"color\":\"Blue Background\",\"frame\":1.5,\"objectType\":\"BorderGroup\",\"left\":43.64812714348784,\"top\":-746.9277374351079,\"refTopLeft\":{\"top\":-746.9277374351079,\"left\":43.64812714348784},\"anchoredPolygon\":[],\"VDivider\":[],\"HDivider\":[],\"width\":1500,\"height\":2050,\"angle\":0}"
+    {
+      "functionalType": "Text",
+      "className": "TextObject",
+      "canvasID": 0,
+      "text": "Diamond Hill",
+      "xHeight": 50,
+      "font": "TransportMedium",
+      "color": "#ffffff",
+      "left": 460.2006404550657,
+      "top": -701.0477374351087,
+      "refTopLeft": {
+        "top": -701.0477374351087,
+        "left": 460.2006404550657
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [],
+      "width": 610,
+      "height": 100,
+      "angle": 0,
+      "objectType": "TextObject",
+      "LockXInfo": {
+        "TargetObjectID": 1,
+        "sourcePoint": "E6",
+        "targetPoint": "E2",
+        "spacingX": 0
+      },
+      "LockYInfo": {
+        "TargetObjectID": 1,
+        "sourcePoint": "E7",
+        "targetPoint": "E1",
+        "spacingY": 0
+      }
+    },
+    {
+      "functionalType": "Text",
+      "className": "TextObject",
+      "canvasID": 1,
+      "text": "鑽石山",
+      "xHeight": 50,
+      "font": "parsedFontKorean",
+      "color": "#ffffff",
+      "left": 558.9506404550657,
+      "top": -601.0477374351087,
+      "refTopLeft": {
+        "top": -601.0477374351087,
+        "left": 558.9506404550657
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [
+        0
+      ],
+      "width": 412.5,
+      "height": 142.5,
+      "angle": 0,
+      "objectType": "TextObject",
+      "LockXInfo": {
+        "TargetObjectID": 2,
+        "sourcePoint": "E6",
+        "targetPoint": "E2",
+        "spacingX": 0
+      },
+      "LockYInfo": {
+        "TargetObjectID": 2,
+        "sourcePoint": "E6",
+        "targetPoint": "E2",
+        "spacingY": 0
+      }
+    },
+    {
+      "functionalType": "Text",
+      "className": "TextObject",
+      "canvasID": 2,
+      "text": "Tsz Wan Shan",
+      "xHeight": 50,
+      "font": "TransportMedium",
+      "color": "#ffffff",
+      "left": 446.4506404550657,
+      "top": -458.54773743510873,
+      "refTopLeft": {
+        "top": -458.54773743510873,
+        "left": 446.4506404550657
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [
+        1
+      ],
+      "width": 637.5,
+      "height": 100,
+      "angle": 0,
+      "objectType": "TextObject",
+      "LockXInfo": {
+        "TargetObjectID": 3,
+        "sourcePoint": "E6",
+        "targetPoint": "E2",
+        "spacingX": 0
+      },
+      "LockYInfo": {
+        "TargetObjectID": 3,
+        "sourcePoint": "E6",
+        "targetPoint": "E2",
+        "spacingY": 0
+      }
+    },
+    {
+      "functionalType": "Text",
+      "className": "TextObject",
+      "canvasID": 3,
+      "text": "慈雲山",
+      "xHeight": 50,
+      "font": "parsedFontKorean",
+      "color": "#ffffff",
+      "left": 558.9506404550657,
+      "top": -358.54773743510873,
+      "refTopLeft": {
+        "top": -358.54773743510873,
+        "left": 558.9506404550657
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [
+        2
+      ],
+      "width": 412.5,
+      "height": 142.5,
+      "angle": 0,
+      "objectType": "TextObject",
+      "LockXInfo": {
+        "TargetObjectID": 20,
+        "sourcePoint": "E6",
+        "targetPoint": "V1",
+        "spacingX": 0
+      },
+      "LockYInfo": {
+        "TargetObjectID": 20,
+        "sourcePoint": "E6",
+        "targetPoint": "V1",
+        "spacingY": 0
+      }
+    },
+    {
+      "functionalType": "Text",
+      "className": "TextObject",
+      "canvasID": 4,
+      "text": "Chuk Yuen",
+      "xHeight": 50,
+      "font": "TransportMedium",
+      "color": "#ffffff",
+      "left": 98.2493638319097,
+      "top": 124.56764718027586,
+      "refTopLeft": {
+        "top": 124.56764718027586,
+        "left": 98.2493638319097
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [
+        5
+      ],
+      "width": 496,
+      "height": 100,
+      "angle": 0,
+      "objectType": "TextObject",
+      "LockXInfo": {
+        "TargetObjectID": 19,
+        "sourcePoint": "E3",
+        "targetPoint": "V5",
+        "spacingX": -25
+      },
+      "LockYInfo": {
+        "TargetObjectID": 19,
+        "sourcePoint": "E3",
+        "targetPoint": "V5",
+        "spacingY": 6
+      }
+    },
+    {
+      "functionalType": "Text",
+      "className": "TextObject",
+      "canvasID": 5,
+      "text": "竹園",
+      "xHeight": 50,
+      "font": "parsedFontKorean",
+      "color": "#ffffff",
+      "left": 98.2493638319097,
+      "top": 224.56764718027586,
+      "refTopLeft": {
+        "top": 224.56764718027586,
+        "left": 98.2493638319097
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [
+        6
+      ],
+      "width": 275,
+      "height": 142.5,
+      "angle": 0,
+      "objectType": "TextObject",
+      "LockXInfo": {
+        "TargetObjectID": 4,
+        "sourcePoint": "E1",
+        "targetPoint": "E7",
+        "spacingX": 0
+      },
+      "LockYInfo": {
+        "TargetObjectID": 4,
+        "sourcePoint": "E2",
+        "targetPoint": "E6",
+        "spacingY": 0
+      }
+    },
+    {
+      "functionalType": "Text",
+      "className": "TextObject",
+      "canvasID": 6,
+      "text": "Sha Tin",
+      "xHeight": 50,
+      "font": "TransportMedium",
+      "color": "#ffffff",
+      "left": 98.2493638319097,
+      "top": 367.06764718027586,
+      "refTopLeft": {
+        "top": 367.06764718027586,
+        "left": 98.2493638319097
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [
+        7
+      ],
+      "width": 342.5,
+      "height": 100,
+      "angle": 0,
+      "objectType": "TextObject",
+      "LockXInfo": {
+        "TargetObjectID": 5,
+        "sourcePoint": "E1",
+        "targetPoint": "E7",
+        "spacingX": 0
+      },
+      "LockYInfo": {
+        "TargetObjectID": 5,
+        "sourcePoint": "E1",
+        "targetPoint": "E7",
+        "spacingY": 0
+      }
+    },
+    {
+      "functionalType": "Text",
+      "className": "TextObject",
+      "canvasID": 7,
+      "text": "沙田",
+      "xHeight": 50,
+      "font": "parsedFontKorean",
+      "color": "#ffffff",
+      "left": 98.2493638319097,
+      "top": 467.0676471802759,
+      "refTopLeft": {
+        "top": 467.0676471802759,
+        "left": 98.2493638319097
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [],
+      "width": 275,
+      "height": 142.5,
+      "angle": 0,
+      "objectType": "TextObject",
+      "LockXInfo": {
+        "TargetObjectID": 6,
+        "sourcePoint": "E1",
+        "targetPoint": "E7",
+        "spacingX": 0
+      },
+      "LockYInfo": {
+        "TargetObjectID": 6,
+        "sourcePoint": "E1",
+        "targetPoint": "E7",
+        "spacingY": 0
+      }
+    },
+    {
+      "functionalType": "Text",
+      "className": "TextObject",
+      "canvasID": 8,
+      "text": "San Po Kong",
+      "xHeight": 50,
+      "font": "TransportMedium",
+      "color": "#ffffff",
+      "left": 890.2006404550657,
+      "top": 201.21226256489126,
+      "refTopLeft": {
+        "top": 201.21226256489126,
+        "left": 890.2006404550657
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [
+        9
+      ],
+      "width": 595,
+      "height": 100,
+      "angle": 0,
+      "objectType": "TextObject",
+      "LockXInfo": {
+        "TargetObjectID": 17,
+        "sourcePoint": "E1",
+        "targetPoint": "V33",
+        "spacingX": 25
+      },
+      "LockYInfo": {
+        "TargetObjectID": 17,
+        "sourcePoint": "E1",
+        "targetPoint": "V33",
+        "spacingY": 0
+      }
+    },
+    {
+      "functionalType": "Text",
+      "className": "TextObject",
+      "canvasID": 9,
+      "text": "新蒲崗",
+      "xHeight": 50,
+      "font": "parsedFontKorean",
+      "color": "#ffffff",
+      "left": 890.2006404550657,
+      "top": 301.21226256489126,
+      "refTopLeft": {
+        "top": 301.21226256489126,
+        "left": 890.2006404550657
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [
+        10
+      ],
+      "width": 412.5,
+      "height": 142.5,
+      "angle": 0,
+      "objectType": "TextObject",
+      "LockXInfo": {
+        "TargetObjectID": 8,
+        "sourcePoint": "E1",
+        "targetPoint": "E7",
+        "spacingX": 0
+      },
+      "LockYInfo": {
+        "TargetObjectID": 8,
+        "sourcePoint": "E1",
+        "targetPoint": "E7",
+        "spacingY": 0
+      }
+    },
+    {
+      "functionalType": "Text",
+      "className": "TextObject",
+      "canvasID": 10,
+      "text": "Kwun Tong",
+      "xHeight": 50,
+      "font": "TransportMedium",
+      "color": "#ffffff",
+      "left": 890.2006404550657,
+      "top": 443.71226256489126,
+      "refTopLeft": {
+        "top": 443.71226256489126,
+        "left": 890.2006404550657
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [
+        11
+      ],
+      "width": 502,
+      "height": 100,
+      "angle": 0,
+      "objectType": "TextObject",
+      "LockXInfo": {
+        "TargetObjectID": 9,
+        "sourcePoint": "E1",
+        "targetPoint": "E7",
+        "spacingX": 0
+      },
+      "LockYInfo": {
+        "TargetObjectID": 9,
+        "sourcePoint": "E1",
+        "targetPoint": "E7",
+        "spacingY": 0
+      }
+    },
+    {
+      "functionalType": "Text",
+      "className": "TextObject",
+      "canvasID": 11,
+      "text": "觀塘",
+      "xHeight": 50,
+      "font": "parsedFontKorean",
+      "color": "#ffffff",
+      "left": 890.2006404550657,
+      "top": 543.7122625648913,
+      "refTopLeft": {
+        "top": 543.7122625648913,
+        "left": 890.2006404550657
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [
+        12
+      ],
+      "width": 275,
+      "height": 142.5,
+      "angle": 0,
+      "objectType": "TextObject",
+      "LockXInfo": {
+        "TargetObjectID": 10,
+        "sourcePoint": "E1",
+        "targetPoint": "E7",
+        "spacingX": 0
+      },
+      "LockYInfo": {
+        "TargetObjectID": 10,
+        "sourcePoint": "E1",
+        "targetPoint": "E7",
+        "spacingY": 0
+      }
+    },
+    {
+      "functionalType": "Text",
+      "className": "TextObject",
+      "canvasID": 12,
+      "text": "Sai Kung",
+      "xHeight": 50,
+      "font": "TransportMedium",
+      "color": "#ffffff",
+      "left": 890.2006404550657,
+      "top": 686.2122625648913,
+      "refTopLeft": {
+        "top": 686.2122625648913,
+        "left": 890.2006404550657
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [
+        13
+      ],
+      "width": 415.5,
+      "height": 100,
+      "angle": 0,
+      "objectType": "TextObject",
+      "LockXInfo": {
+        "TargetObjectID": 11,
+        "sourcePoint": "E1",
+        "targetPoint": "E7",
+        "spacingX": 0
+      },
+      "LockYInfo": {
+        "TargetObjectID": 11,
+        "sourcePoint": "E1",
+        "targetPoint": "E7",
+        "spacingY": 0
+      }
+    },
+    {
+      "functionalType": "Text",
+      "className": "TextObject",
+      "canvasID": 13,
+      "text": "西貢",
+      "xHeight": 50,
+      "font": "parsedFontKorean",
+      "color": "#ffffff",
+      "left": 890.2006404550657,
+      "top": 786.2122625648913,
+      "refTopLeft": {
+        "top": 786.2122625648913,
+        "left": 890.2006404550657
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [
+        14
+      ],
+      "width": 275,
+      "height": 142.5,
+      "angle": 0,
+      "objectType": "TextObject",
+      "LockXInfo": {
+        "TargetObjectID": 12,
+        "sourcePoint": "E1",
+        "targetPoint": "E7",
+        "spacingX": 0
+      },
+      "LockYInfo": {
+        "TargetObjectID": 12,
+        "sourcePoint": "E1",
+        "targetPoint": "E7",
+        "spacingY": 0
+      }
+    },
+    {
+      "functionalType": "Text",
+      "className": "TextObject",
+      "canvasID": 14,
+      "text": "Kwai Chung",
+      "xHeight": 50,
+      "font": "TransportMedium",
+      "color": "#ffffff",
+      "left": 890.2006404550657,
+      "top": 928.7122625648913,
+      "refTopLeft": {
+        "top": 928.7122625648913,
+        "left": 890.2006404550657
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [
+        15,
+        21
+      ],
+      "width": 550.5,
+      "height": 100,
+      "angle": 0,
+      "objectType": "TextObject",
+      "LockXInfo": {
+        "TargetObjectID": 13,
+        "sourcePoint": "E1",
+        "targetPoint": "E7",
+        "spacingX": 0
+      },
+      "LockYInfo": {
+        "TargetObjectID": 13,
+        "sourcePoint": "E1",
+        "targetPoint": "E7",
+        "spacingY": 0
+      }
+    },
+    {
+      "functionalType": "Text",
+      "className": "TextObject",
+      "canvasID": 15,
+      "text": "葵涌",
+      "xHeight": 50,
+      "font": "parsedFontKorean",
+      "color": "#ffffff",
+      "left": 890.2006404550657,
+      "top": 1028.7122625648913,
+      "refTopLeft": {
+        "top": 1028.7122625648913,
+        "left": 890.2006404550657
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [],
+      "width": 275,
+      "height": 142.5,
+      "angle": 0,
+      "objectType": "TextObject",
+      "LockXInfo": {
+        "TargetObjectID": 14,
+        "sourcePoint": "E1",
+        "targetPoint": "E7",
+        "spacingX": 0
+      },
+      "LockYInfo": {
+        "TargetObjectID": 14,
+        "sourcePoint": "E1",
+        "targetPoint": "E7",
+        "spacingY": 0
+      }
+    },
+    {
+      "functionalType": "MainRoad",
+      "className": "MainRoadSymbol",
+      "canvasID": 16,
+      "routeList": [
+        {
+          "x": 765.2006404550657,
+          "y": -202.29773743510873,
+          "angle": 0,
+          "width": 6,
+          "length": null,
+          "shape": "U-turn"
+        },
+        {
+          "x": 765.2006404550657,
+          "y": 83.95226256489127,
+          "angle": 180,
+          "width": 6,
+          "length": 22.9,
+          "shape": "U-turn"
+        }
+      ],
+      "xHeight": 50,
+      "color": "white",
+      "rootLength": 22.9,
+      "tipLength": 12,
+      "routeWidth": 6,
+      "roadType": "Conventional Roundabout",
+      "RAfeature": "U-turn",
+      "innerCornerRadius": null,
+      "outerCornerRadius": null,
+      "left": 615.2006404550038,
+      "top": -66.04773743510873,
+      "refTopLeft": {
+        "top": -66.04773743510873,
+        "left": 615.2006404550038
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [],
+      "sideRoad": [
+        17,
+        17,
+        18,
+        19,
+        20
+      ],
+      "width": 300.0000000001237,
+      "height": 712.5,
+      "angle": 0,
+      "objectType": "MainRoadSymbol"
+    },
+    {
+      "functionalType": "SideRoad",
+      "className": "SideRoadSymbol",
+      "canvasID": 17,
+      "mainRoad": 16,
+      "color": "white",
+      "routeList": [
+        {
+          "x": 771.2006404550657,
+          "y": 117.35226256489128,
+          "angle": 0,
+          "shape": "UArrow Conventional",
+          "width": 4
+        }
+      ],
+      "xHeight": 50,
+      "objectType": "SideRoadSymbol",
+      "left": 799.8156404550657,
+      "top": 192.19226256489128,
+      "refTopLeft": {
+        "top": 192.19226256489128,
+        "left": 799.8156404550657
+      },
+      "anchoredPolygon": [
+        8
+      ],
+      "width": 69.23125000000005,
+      "height": 309.26,
+      "angle": 0
+    },
+    {
+      "functionalType": "SideRoad",
+      "className": "SideRoadSymbol",
+      "canvasID": 18,
+      "mainRoad": 16,
+      "color": "white",
+      "routeList": [
+        {
+          "x": 781.5,
+          "y": 732.65,
+          "angle": 0,
+          "shape": "UArrow Conventional",
+          "width": 4
+        }
+      ],
+      "xHeight": 50,
+      "left": 799.8156404550657,
+      "top": 192.19226256489128,
+      "refTopLeft": {
+        "top": 192.19226256489128,
+        "left": 799.8156404550657
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [],
+      "width": 69.23125000000005,
+      "height": 309.26,
+      "angle": 0,
+      "objectType": "SideRoadSymbol"
+    },
+    {
+      "functionalType": "SideRoad",
+      "className": "SideRoadSymbol",
+      "canvasID": 19,
+      "routeList": [
+        {
+          "x": 465.2006404550657,
+          "y": 83.95226256489123,
+          "angle": -60,
+          "shape": "Arrow",
+          "width": "4"
+        }
+      ],
+      "xHeight": 50,
+      "color": "white",
+      "mainRoad": 16,
+      "side": true,
+      "branchIndex": 3,
+      "left": 465.2006404550657,
+      "top": 49.336877949506615,
+      "refTopLeft": {
+        "top": 49.336877949506615,
+        "left": 465.2006404550657
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [
+        4
+      ],
+      "width": 154.048723376844,
+      "height": 69.23076923076925,
+      "angle": 0,
+      "objectType": "SideRoadSymbol"
+    },
+    {
+      "functionalType": "SideRoad",
+      "className": "SideRoadSymbol",
+      "canvasID": 20,
+      "routeList": [
+        {
+          "x": 765.2006404550657,
+          "y": -216.04773743510873,
+          "angle": 60,
+          "shape": "Arrow",
+          "width": "4"
+        }
+      ],
+      "xHeight": 50,
+      "color": "white",
+      "mainRoad": 16,
+      "side": false,
+      "branchIndex": 4,
+      "left": 730.5852558396809,
+      "top": -216.04773743510873,
+      "refTopLeft": {
+        "top": -216.04773743510873,
+        "left": 730.5852558396809
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [
+        3
+      ],
+      "width": 69.23076923076951,
+      "height": 154.048723376844,
+      "angle": 0,
+      "objectType": "SideRoadSymbol"
+    },
+    {
+      "functionalType": "Symbol",
+      "className": "SymbolObject",
+      "canvasID": 21,
+      "symbolType": "Airport",
+      "xHeight": 50,
+      "symbolAngle": 0,
+      "color": "white",
+      "left": 1190.4506404550657,
+      "top": 1053.7122625648913,
+      "refTopLeft": {
+        "top": 1053.7122625648913,
+        "left": 1190.4506404550657
+      },
+      "borderGroup": 22,
+      "anchoredPolygon": [],
+      "width": 225,
+      "height": 225,
+      "angle": 0,
+      "objectType": "SymbolObject",
+      "LockXInfo": {
+        "TargetObjectID": 14,
+        "sourcePoint": "E1",
+        "targetPoint": "E6",
+        "spacingX": 25
+      },
+      "LockYInfo": {
+        "TargetObjectID": 14,
+        "sourcePoint": "E1",
+        "targetPoint": "E6",
+        "spacingY": 25
+      }
+    },
+    {
+      "functionalType": "Border",
+      "className": "BorderGroup",
+      "canvasID": 22,
+      "borderType": "stack",
+      "widthObjects": [
+        0,
+        3,
+        2,
+        1,
+        4,
+        7,
+        6,
+        5,
+        8,
+        10,
+        9,
+        12,
+        11,
+        15,
+        13,
+        16,
+        19,
+        18,
+        21,
+        14,
+        20
+      ],
+      "heightObjects": [
+        0,
+        3,
+        2,
+        1,
+        4,
+        7,
+        6,
+        5,
+        8,
+        10,
+        9,
+        12,
+        11,
+        15,
+        13,
+        16,
+        19,
+        18,
+        21,
+        14,
+        20
+      ],
+      "fixedWidth": null,
+      "fixedHeight": null,
+      "xHeight": 50,
+      "color": "Blue Background",
+      "frame": 1.5,
+      "left": 41.7250021434877,
+      "top": -742.4177374351086,
+      "refTopLeft": {
+        "top": -742.4177374351086,
+        "left": 41.7250021434877
+      },
+      "anchoredPolygon": [],
+      "VDivider": [],
+      "HDivider": [],
+      "width": 1500,
+      "height": 2050,
+      "angle": 0,
+      "objectType": "BorderGroup"
+    }
   ]
 }

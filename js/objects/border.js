@@ -216,7 +216,7 @@ const BorderUtilities = {
       if (obj.functionalType == 'VDivider' || obj.functionalType == 'VLane') {
         VDividerObject.push(obj);
         return false; // Remove the object from original array
-      } 
+      }
       return true; // Keep the object in original array
     });
     return [fheightObjects, fwidthObjects, VDividerObject, HDividerObject, borderedObjects]
@@ -834,8 +834,8 @@ class BorderGroup extends BaseGroup {
     this.HDivider = HDivider
   }
 
-  calcfixedBboxes(isInitialization = false) {
-    // Get the bounding box of the active selection for dynamic dimensions
+  calcfixedBboxes(isInitialization = false, overrideLeft = null, overrideTop = null) {
+    // Get the bounding box of the active selection for dynamic dimensions (content-driven)
     let coords = BorderUtilities.getBorderObjectCoords(this.heightObjects, this.widthObjects);
 
     // Debug: check for NaN values in initial coords
@@ -863,7 +863,7 @@ class BorderGroup extends BaseGroup {
     if (hasFixedWidth) {
       const leftPadding = (this.frame + this.defaultPadding.left) * this.xHeight / 4;
       const rightPadding = (this.frame + this.defaultPadding.right) * this.xHeight / 4;
-      if (isInitialization || !this.fixedWidthCoords) {
+      if ((isInitialization && overrideLeft === null) || !this.fixedWidthCoords) {
         // Calculate fixed width coordinates only during initialization or if not cached
         const borderCoords = canvas.calcViewportBoundaries();
 
@@ -890,7 +890,7 @@ class BorderGroup extends BaseGroup {
             this.fixedWidthCoords = { left: 0, right: 100 };
           }
         }
-      } else {
+      } else if (overrideLeft === null) {
         // For non-initialization calls, ensure coords are updated to current fixed values
         if (this.fixedWidthCoords) {
           this.fixedWidthCoords.left = this.left + leftPadding;
@@ -911,7 +911,7 @@ class BorderGroup extends BaseGroup {
       const topPadding = (this.frame + this.defaultPadding.top) * this.xHeight / 4;
       const bottomPadding = (this.frame + this.defaultPadding.bottom) * this.xHeight / 4;
 
-      if (isInitialization || !this.fixedHeightCoords) {
+      if ((isInitialization && overrideTop === null) || !this.fixedHeightCoords) {
         // Calculate fixed height coordinates only during initialization or if not cached
         const borderCoords = canvas.calcViewportBoundaries();
 
@@ -938,13 +938,14 @@ class BorderGroup extends BaseGroup {
             this.fixedHeightCoords = { top: 0, bottom: 100 };
           }
         }
-      } else {
+      } else if (overrideTop === null) {
         // For non-initialization calls, ensure coords are updated to current fixed values
         if (this.fixedHeightCoords) {
           this.fixedHeightCoords.top = this.top + topPadding;
           this.fixedHeightCoords.bottom = this.top + this.height - bottomPadding;
         }
       }
+
 
       // Use cached fixed height coordinates
       if (this.fixedHeightCoords) {
@@ -953,6 +954,14 @@ class BorderGroup extends BaseGroup {
       }
     }
     // If height is not fixed, use the calculated dynamic coordinates (already set above)
+
+    // If user supplies explicit left/top (through property panel), shift coords to anchor new inbbox origin
+    if (overrideLeft !== null || overrideTop !== null) {
+      const dx = (overrideLeft !== null) ? (overrideLeft - coords.left) : 0;
+      const dy = (overrideTop !== null) ? (overrideTop - coords.top) : 0;
+      coords.left += dx; coords.right += dx;
+      coords.top += dy; coords.bottom += dy;
+    }
 
     // Final check for NaN values before setting
     if (isNaN(coords.left) || isNaN(coords.top) || isNaN(coords.right) || isNaN(coords.bottom)) {
@@ -1099,7 +1108,7 @@ class BorderGroup extends BaseGroup {
 
     // Horizontal dividers
     for (const d of this.HDivider) {
-      if (d.functionalType !== 'HLine'){
+      if (d.functionalType !== 'HLine') {
         const initialTop = d.getEffectiveCoords()[0].y;
         const res = drawDivider(
           d.xHeight,
@@ -1237,7 +1246,7 @@ class BorderGroup extends BaseGroup {
       if (startedYCycle) globalAnchorTree.endUpdateCycle('y');
     }
     BG.refTopLeft = { top: BG.basePolygon.getCoords()[0].y, left: BG.basePolygon.getCoords()[0].x };
-  CanvasGlobals.scheduleRender();
+    CanvasGlobals.scheduleRender();
   }
 
   // Override updateAllCoord - need to make sure trees are updated correctly

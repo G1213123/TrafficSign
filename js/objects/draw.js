@@ -324,8 +324,9 @@ class BaseGroup extends fabric.Group {
   }
 
   /**
-   * Serializes the BaseGroup object to a JSON string based on its metadata.
-   * @returns {string} JSON string representation of the object.
+   * Serializes the BaseGroup object based on its metadata and returns a plain object.
+   * (Exporter will stringify; this method never returns a string.)
+   * @returns {Object}
    */
   serializeToJSON() {
     const meta = this.getMetadata();
@@ -399,17 +400,17 @@ class BaseGroup extends fabric.Group {
     // Consider if sub-objects (like those in anchoredPolygon) need their own serializeToJSON methods.
     delete dataToSerialize['lockXToPolygon']
     delete dataToSerialize['lockYToPolygon']
-
-    return JSON.stringify(dataToSerialize, (key, value) => {
-      // Custom replacer to handle circular references or complex objects if any remain
+    const replacer = (key, value) => {
+      // Handle fabric object references safely
       if (value instanceof fabric.Object && value !== this.basePolygon) {
-        // Avoid serializing full fabric objects unless explicitly handled (like basePolygon)
-        // This is a safeguard. Ideally, all fabric objects are handled above.
-        if (typeof value.canvasID !== 'undefined') return `ref:${value.canvasID}`; // or just its ID
-        return `fabricObject:${value.type}`; // Or some other placeholder
+        if (typeof value.canvasID !== 'undefined') return `ref:${value.canvasID}`;
+        return `fabricObject:${value.type}`;
       }
       return value;
-    });
+    };
+
+    // Return a plain object with fabric references replaced so that the exporter can stringify once.
+    return JSON.parse(JSON.stringify(dataToSerialize, replacer));
   }
 
   // Show border dimensions when selected

@@ -194,8 +194,8 @@ const roadMapTemplate = {
             'vertex': [
                 { x: 2.092, y: 0.091, label: 'V1', start: 1, display: 1 },
                 { x: 3.917, y: 2.266, label: 'V2', start: 0, display: 1 },
-                { x: 0.841, y: 10.025, label: 'V3', start: 0, display: 0 },
-                { x: -6.949, y: 11.846, label: 'V4', start: 0, display: 0 },
+                { x: 0.841, y: 10.025, label: 'V3', start: 0, display: 1 },
+                { x: -6.949, y: 11.846, label: 'V4', start: 0, display: 1 },
                 { x: -0.075, y: 1.909, label: 'V5', start: 0, display: 1 },
             ], 'arcs': [
                 { start: 'V2', end: 'V3', radius: 18, direction: 1, sweep: 0 },

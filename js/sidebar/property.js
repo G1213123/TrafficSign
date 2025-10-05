@@ -70,7 +70,8 @@ function showPropertyPanel(object) {
     let numValue;
     let oldValue; // Track old value for undo
 
-    if (prop.key === 'xHeight') {
+  const isBorder = targetObject.functionalType === 'Border';
+  if (prop.key === 'xHeight') {
       numValue = parseFloat(e.target.value);
       if (!isNaN(numValue) && targetObject.xHeight !== numValue) {
         oldValue = targetObject.xHeight; // Store old value
@@ -100,9 +101,9 @@ function showPropertyPanel(object) {
       }
 
       // Check lockMovement for left/top
-      if (prop.key === 'left' && targetObject.lockMovementX) {
+      if (prop.key === 'left' && targetObject.lockMovementX && !targetObject.hasOwnProperty('fixedWidth')) {
         // Do not change value if movement is locked
-      } else if (prop.key === 'top' && targetObject.lockMovementY) {
+      } else if (prop.key === 'top' && targetObject.lockMovementY && !targetObject.hasOwnProperty('fixedHeight')) {
         // Do not change value if movement is locked
       }
       else if (!isNaN(numValue) && targetObject[prop.key] !== numValue) {
@@ -110,6 +111,17 @@ function showPropertyPanel(object) {
         targetObject.set(prop.key, numValue);
         valueChanged = true;
       }
+    }
+
+    // Reinitialize fixed width/height of borders
+    if (isBorder && (prop.key === 'fixedWidth' || prop.key === 'fixedHeight')) {
+      targetObject.calcfixedBboxes(true, null, null);
+    }
+    // If user moved left/top for border with fixed dimensions, update inbbox anchor using overrides
+    if (isBorder && (prop.key === 'left' || prop.key === 'top')) {
+      const overrideLeft = (prop.key === 'left') ? numValue : null;
+      const overrideTop = (prop.key === 'top') ? numValue : null;
+      targetObject.calcfixedBboxes(false, overrideLeft, overrideTop);
     }
 
     if (valueChanged) {
@@ -134,7 +146,7 @@ function showPropertyPanel(object) {
           console.error(`Error calling ${targetObject.type}.initialize() for ${prop.key} change:`, initError);
         }
       }
-  CanvasGlobals.scheduleRender();
+      CanvasGlobals.scheduleRender();
       canvasTracker.isDragging = false; // Reset dragging state
       showPropertyPanel(targetObject); // Refresh panel
     }
@@ -164,7 +176,7 @@ function showPropertyPanel(object) {
       } catch (initError) {
         console.error(`Error calling ${targetObject.type}.initialize() for ${prop.key} change:`, initError);
       }
-  CanvasGlobals.scheduleRender();
+      CanvasGlobals.scheduleRender();
       canvasTracker.isDragging = false; // Reset dragging state
       showPropertyPanel(targetObject); // Refresh panel
     }
@@ -274,7 +286,7 @@ function showPropertyPanel(object) {
           console.error(`Error calling ${targetObject.type}.initialize() for ${prop.key} change:`, initError);
         }
       }
-  CanvasGlobals.scheduleRender();
+      CanvasGlobals.scheduleRender();
       canvasTracker.isDragging = false; // Reset dragging state
       showPropertyPanel(targetObject); // Refresh panel
     }
@@ -440,14 +452,43 @@ function showPropertyPanel(object) {
 
   // Prepare Geometry properties
   const isNonMovable = object.functionalType === 'Border' || object.functionalType === 'HDivider' || object.functionalType === 'VDivider' || object.functionalType === 'VLane' || object.functionalType === 'HLine';
-  const geometryProps = [
-    { label: 'Left (geom)', key: 'left', type: 'number', editable: !isNonMovable && !object.lockMovementX, step: 1, value: object.left },
-    { label: 'Top (geom)', key: 'top', type: 'number', editable: !isNonMovable && !object.lockMovementY, step: 1, value: object.top },
-    { label: 'Right (geom)', value: Math.round(object.left + (object.width * (object.scaleX || 1))) },
-    { label: 'Bottom (geom)', value: Math.round(object.top + (object.height * (object.scaleY || 1))) },
-    { label: 'Width (geom)', value: Math.round((object.width || 0) * (object.scaleX || 1)) },
-    { label: 'Height (geom)', value: Math.round((object.height || 0) * (object.scaleY || 1)) }
-  ];
+  const hasEditableFixedWidth = object.functionalType === 'Border' && object.hasOwnProperty('fixedWidth') && object.fixedWidth != null;
+  const hasEditableFixedHeight = object.functionalType === 'Border' && object.hasOwnProperty('fixedHeight') && object.fixedHeight != null;
+
+  const geometryProps = [];
+  // Left
+  geometryProps.push({
+    label: 'Left (geom)',
+    key: 'left',
+    type: 'number',
+    editable: (hasEditableFixedWidth && !object.lockMovementX) || (!isNonMovable && !object.lockMovementX),
+    step: 1,
+    value: object.left
+  });
+  // Top remains same rules
+  geometryProps.push({
+    label: 'Top (geom)',
+    key: 'top',
+    type: 'number',
+    editable: (!isNonMovable && !object.lockMovementY),
+    step: 1,
+    value: object.top
+  });
+  // Right / Bottom display only
+  geometryProps.push({ label: 'Right (geom)', value: Math.round(object.left + (object.width * (object.scaleX || 1))) });
+  geometryProps.push({ label: 'Bottom (geom)', value: Math.round(object.top + (object.height * (object.scaleY || 1))) });
+  // Width editable via fixedWidth if present, else display actual width
+  if (hasEditableFixedWidth) {
+    geometryProps.push({ label: 'Width (geom)', key: 'fixedWidth', type: 'number', editable: true, step: 1, value: object.fixedWidth });
+  } else {
+    geometryProps.push({ label: 'Width (geom)', value: Math.round((object.width || 0) * (object.scaleX || 1)) });
+  }
+  // Height editable via fixedHeight if present, else display height
+  if (hasEditableFixedHeight) {
+    geometryProps.push({ label: 'Height (geom)', key: 'fixedHeight', type: 'number', editable: true, step: 1, value: object.fixedHeight });
+  } else {
+    geometryProps.push({ label: 'Height (geom)', value: Math.round((object.height || 0) * (object.scaleY || 1)) });
+  }
 
   // Prepare Basic properties (xHeight, Color)
   const basicProps = [];
