@@ -327,6 +327,8 @@ class BorderGroup extends BaseGroup {
     this.borderType = options.borderType;
     this.xHeight = options.xHeight || 100;
     this.color = options.color;
+    this.left = options.left || 0;
+    this.top = options.top ||0;
     this.dimensionAnnotations = [];
     // initialized: follow pattern of fixedWidth/fixedHeight by keeping it in options
     this.initialized = options.initialized || false;
@@ -365,15 +367,6 @@ class BorderGroup extends BaseGroup {
       this.calcfixedBboxes(); // true indicates this is initialization
       this.rounding = BorderUtilities.calcBorderRounding(this.borderType, this.xHeight, this.inbbox);
       this.initialized = true;
-    }
-
-    // If cached coord objects were provided (e.g., from deserialization) but not yet part of metadata,
-    // ensure they get included by registering keys that now exist on the instance.
-    if (this.fixedWidthCoords && !this._metadataKeys.includes('fixedWidthCoords')) {
-      this.registerMetadataKeys('fixedWidthCoords');
-    }
-    if (this.fixedHeightCoords && !this._metadataKeys.includes('fixedHeightCoords')) {
-      this.registerMetadataKeys('fixedHeightCoords');
     }
 
     this.setBasePolygon(this.drawBorder());
@@ -878,7 +871,7 @@ class BorderGroup extends BaseGroup {
     if (hasFixedWidth) {
       const leftPadding = (this.frame + this.defaultPadding.left) * this.xHeight / 4;
       const rightPadding = (this.frame + this.defaultPadding.right) * this.xHeight / 4;
-      if (!this.initialized) {
+      if (!this.fixedWidthCoords) {
         // Calculate fixed width coordinates only during initialization or if not cached
         const borderCoords = canvas.calcViewportBoundaries();
 
@@ -894,15 +887,10 @@ class BorderGroup extends BaseGroup {
 
         }
       } else {
-        this.fixedWidthCoords = {
-          left: 0,
-          right: 0
-        };
         // For non-initialization calls, ensure coords are updated to current fixed values
-        if (this.fixedWidthCoords) {
-          this.fixedWidthCoords.left = this.left + leftPadding;
-          this.fixedWidthCoords.right = this.left + this.fixedWidth - rightPadding;
-        }
+        this.fixedWidthCoords.left = this.left + leftPadding;
+        this.fixedWidthCoords.right = this.left + this.fixedWidth - rightPadding;
+
       }
 
       // Use cached fixed width coordinates
@@ -918,7 +906,7 @@ class BorderGroup extends BaseGroup {
       const topPadding = (this.frame + this.defaultPadding.top) * this.xHeight / 4;
       const bottomPadding = (this.frame + this.defaultPadding.bottom) * this.xHeight / 4;
 
-      if (!this.initialized) {
+      if (!this.fixedHeightCoords) {
         // Calculate fixed height coordinates only during initialization or if not cached
         const borderCoords = canvas.calcViewportBoundaries();
 
@@ -935,10 +923,9 @@ class BorderGroup extends BaseGroup {
         }
       } else {
         // For non-initialization calls, ensure coords are updated to current fixed values
-        if (this.fixedHeightCoords) {
-          this.fixedHeightCoords.top = this.top + topPadding;
-          this.fixedHeightCoords.bottom = this.top + this.fixedHeight - bottomPadding;
-        }
+        this.fixedHeightCoords.top = this.top + topPadding;
+        this.fixedHeightCoords.bottom = this.top + this.fixedHeight - bottomPadding;
+
       }
 
 
@@ -974,6 +961,20 @@ class BorderGroup extends BaseGroup {
       width: borderSize.width - (2 * frame),
       height: borderSize.height - (2 * frame)
     };
+
+    if (this.fixedHeight !== null) {
+      const topPadding = (this.frame + this.defaultPadding.top) * this.xHeight / 4;
+      const bottomPadding = (this.frame + this.defaultPadding.bottom) * this.xHeight / 4;
+      this.fixedWidthCoords.top = this.top + topPadding;
+      this.fixedWidthCoords.bottom = this.top + this.fixedWidth - bottomPadding;
+    }
+
+    if (this.fixedWidth !== null) {
+      const leftPadding = (this.frame + this.defaultPadding.left) * this.xHeight / 4;
+      const rightPadding = (this.frame + this.defaultPadding.right) * this.xHeight / 4;
+      this.fixedWidthCoords.left = this.left + leftPadding;
+      this.fixedWidthCoords.right = this.left + this.fixedWidth - rightPadding;
+    }
 
     // Reset compartment bboxes
     this.compartmentBboxes = [];
