@@ -467,14 +467,35 @@ class AnchorTree {
 const globalAnchorTree = new AnchorTree();
 
 document.getElementById('set-anchor').addEventListener('click', function (event) {
-  const selectedArrow = event.target.parentElement.parentElement.selectedArrow;
-  if (selectedArrow) {
-    this.parentElement.parentElement.style.display = 'none';
-    // Implement vertex selection logic here
-    document.removeEventListener('keydown', ShowHideSideBarEvent);
-    selectObjectHandler('Select shape to anchor to', anchorShape, selectedArrow)
-    //renumberVertexLabels(shape1); // Renumber vertex labels after selection
-  }
+  const selectedArrow = event.target.parentElement.parentElement.selectedArrow; // The object we want to MOVE (shape2)
+  if (!selectedArrow) return;
+
+  // Hide context menu (container is parentElement.parentElement per existing code)
+  this.parentElement.parentElement.style.display = 'none';
+  document.removeEventListener('keydown', ShowHideSideBarEvent);
+
+  // Wrapper to adapt selectObjectHandler's callback signature to anchorShape(expected: targetShape, movingShape)
+  const handleAnchorSelection = (selectedTargets, movingShape /* comes from options param */) => {
+    if (!selectedTargets || selectedTargets.length === 0) return; // nothing selected
+
+    // Use first selected object as target (shape1). selectObjectHandler returns an array.
+    const targetShape = Array.isArray(selectedTargets) ? selectedTargets[0] : selectedTargets;
+
+    // Prevent anchoring an object to itself.
+    if (targetShape === movingShape) {
+      // Simply re-enable sidebar key listener and exit; could add user feedback if desired.
+      document.addEventListener('keydown', ShowHideSideBarEvent);
+      return;
+    }
+
+    // Call original anchorShape with (targetShape, movingShape)
+    anchorShape(targetShape, movingShape)
+  };
+
+  // Invoke selection flow. selectObjectHandler will pass (successSelectedArray, optionsSelectedArrow, ...)
+  // First clear any existing active selection so user makes a fresh target choice.
+    canvas.discardActiveObject();
+  selectObjectHandler('Select shape to anchor to', handleAnchorSelection, selectedArrow);
 });
 
 document.getElementById('pivot-anchor').addEventListener('click', function (e) {

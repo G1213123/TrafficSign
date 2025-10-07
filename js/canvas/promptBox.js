@@ -119,23 +119,23 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
     answerBox.select();
 
     // Set up unit display if xHeight is provided
-      if (xHeight !== null) {
+    if (xHeight !== null) {
       // Create or get unit display element
       unitDisplay = document.getElementById('unit-display');
-        if (!unitDisplay) {
+      if (!unitDisplay) {
         unitDisplay = document.createElement('span');
         unitDisplay.id = 'unit-display';
-          unitDisplay.className = 'unit-display'; // Use the class from CSS
-          const parent = answerBox.parentElement;
-          if (parent) {
-            parent.classList?.add('unit-wrapper');
-            parent.appendChild(unitDisplay);
-          }
+        unitDisplay.className = 'unit-display'; // Use the class from CSS
+        const parent = answerBox.parentElement;
+        if (parent) {
+          parent.classList?.add('unit-wrapper');
+          parent.appendChild(unitDisplay);
+        }
       }
 
-  // Set the unit display text and make it visible
-  unitDisplay.textContent = currentUnit;
-  unitDisplay.style.display = 'inline-block';
+      // Set the unit display text and make it visible
+      unitDisplay.textContent = currentUnit;
+      unitDisplay.style.display = 'inline-block';
 
       // Initial setup
       inputValue = withAnswerBox;
@@ -263,7 +263,7 @@ function hideTextBox() {
   }, 1000); // Delay in milliseconds (e.g., 1000ms = 1 second)
 }
 
-function selectObjectHandler(text, callback, options = null, xHeight = null, unit = 'mm', 
+function selectObjectHandler(text, callback, options = null, xHeight = null, unit = 'mm',
   skipTextBox = true, requiredTypes = null) {
   /*
     Simplified behavior:
@@ -330,7 +330,7 @@ function selectObjectHandler(text, callback, options = null, xHeight = null, uni
       hideTextBox();
       const successSelected = [...active];
       canvas.discardActiveObject();
-  CanvasGlobals.scheduleRender();
+      CanvasGlobals.scheduleRender();
       // response is not used anymore; pass null for backward compatibility
       callback(successSelected, options, null, xHeight);
     }

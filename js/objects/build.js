@@ -92,11 +92,6 @@ async function reconstructSingleObjectInternal(data, fabricCanvas, allDeserializ
     delete constructorOptions.basePolygonVertex; // Handled separately
     delete constructorOptions.objectType; // Used by factory
 
-    // Backward compatibility: older exports won't have 'initialized'; default false
-    if (typeof constructorOptions.initialized === 'undefined') {
-        constructorOptions.initialized = false;
-    }
-
 
     // originalCanvasID is not an option for constructor, but useful for map
     const originalCanvasID = data.canvasID;
