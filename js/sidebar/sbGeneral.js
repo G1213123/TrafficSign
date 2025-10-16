@@ -927,8 +927,10 @@ let GeneralHandler = {
 
       // Set new timeout for showing
       showTimeout = setTimeout(async () => {
-        const content = await loadHintContent();
-        hints.innerHTML = content;
+  const content = await loadHintContent();
+  hints.innerHTML = content;
+  // Apply i18n translations to dynamically loaded hint content
+  try { i18n.applyTranslations(hints); } catch (_) {}
 
         // Add close button to hints
         GeneralHandler.addCloseButtonToHints(hints, hideHints);
@@ -992,8 +994,10 @@ let GeneralHandler = {
 
       // Show immediately if not already visible
       if (hints.style.opacity !== '1') {
-        const content = await loadHintContent();
-        hints.innerHTML = content;
+  const content = await loadHintContent();
+  hints.innerHTML = content;
+  // Apply i18n translations to dynamically loaded hint content
+  try { i18n.applyTranslations(hints); } catch (_) {}
 
         // Add close button to hints
         GeneralHandler.addCloseButtonToHints(hints, hideHints);
@@ -1666,6 +1670,8 @@ let GeneralHandler = {
           // If hint content is available, show tooltip
           if (hintContent) {
             tooltip.innerHTML = hintContent;
+            // Apply i18n translations to dynamically loaded tooltip content
+            try { i18n.applyTranslations(tooltip); } catch (_) {}
 
             // Add close button to tooltip
             GeneralHandler.addCloseButtonToHints(tooltip, hideTooltip);
@@ -1679,7 +1685,8 @@ let GeneralHandler = {
             GeneralHandler.positionTooltip(tooltip, button, config.position, true);
           } else {
             // No hint available, show a fallback message
-            tooltip.innerHTML = '<p><em>No help available for this item.</em></p>';
+            tooltip.innerHTML = '<p data-i18n-html="No help available for this item."><em>No help available for this item.</em></p>';
+            try { i18n.applyTranslations(tooltip); } catch (_) {}
 
             // Add close button to tooltip
             GeneralHandler.addCloseButtonToHints(tooltip, hideTooltip);
@@ -1693,7 +1700,8 @@ let GeneralHandler = {
         } catch (error) {
           console.warn('Failed to load hint content:', error);
           // Show error message in tooltip
-          tooltip.innerHTML = '<p><em>Failed to load help content.</em></p>';
+          tooltip.innerHTML = '<p data-i18n-html="Failed to load help content."><em>Failed to load help content.</em></p>';
+          try { i18n.applyTranslations(tooltip); } catch (_) {}
 
           // Add close button to tooltip
           GeneralHandler.addCloseButtonToHints(tooltip, hideTooltip);
