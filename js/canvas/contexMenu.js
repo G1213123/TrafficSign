@@ -14,6 +14,9 @@ function clickModelHandler(event) {
         contextMenu.style.top = `${event.e.clientY}px`;
         contextMenu.style.left = `${event.e.clientX}px`;
         contextMenu.style.display = 'block';
+        // Reset potential submenu flip state when showing
+        const pivotItem = document.getElementById('pivot-anchor');
+        if (pivotItem) pivotItem.classList.remove('open-left');
         contextMenu.selectedArrow = event.target;
       } else {
         contextMenu.style.display = 'none';
@@ -64,5 +67,25 @@ editMenuItem.addEventListener('click', function (e) {
     showPropertyPanel(obj);
   }
 });
+
+// Dynamically flip submenu to left if it would overflow the viewport on the right
+const pivotMenuItem = document.getElementById('pivot-anchor');
+if (pivotMenuItem) {
+  pivotMenuItem.addEventListener('mouseenter', () => {
+    const submenu = pivotMenuItem.querySelector('.context-submenu');
+    if (!submenu) return;
+
+    // Compute after hover shows submenu (CSS handles display); delay a tick if needed
+    requestAnimationFrame(() => {
+      const submenuRect = submenu.getBoundingClientRect();
+      const overflowRight = submenuRect.right > (window.innerWidth - 4);
+      if (overflowRight) {
+        pivotMenuItem.classList.add('open-left');
+      } else {
+        pivotMenuItem.classList.remove('open-left');
+      }
+    });
+  });
+}
 
 export {cursorClickMode}

@@ -90,6 +90,7 @@ document.addEventListener('mouseup', answerBoxFocus);
 function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = null, xHeight = null, unit = 'sw') {
   const promptBox = document.getElementById('cursorTextBox');
   const answerBox = document.getElementById('cursorAnswerBox');
+  const answerWrapper = document.getElementById('cursorAnswerWrapper');
   const enterButton = document.getElementById('cursorEnterButton');
   const cancelButton = document.getElementById('cursorCancelButton');
 
@@ -104,6 +105,7 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
   let inputValue = '';
 
   if (withAnswerBox !== null) {
+    if (answerWrapper) answerWrapper.style.display = 'inline-flex';
     answerBox.style.display = 'block';
     if (enterButton && cancelButton) {
       if (window.innerWidth <= 600) { // Check for mobile screen width
@@ -120,23 +122,11 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
 
     // Set up unit display if xHeight is provided
     if (xHeight !== null) {
-      // Create or get unit display element
       unitDisplay = document.getElementById('unit-display');
-      if (!unitDisplay) {
-        unitDisplay = document.createElement('span');
-        unitDisplay.id = 'unit-display';
-        unitDisplay.className = 'unit-display'; // Use the class from CSS
-        const parent = answerBox.parentElement;
-        if (parent) {
-          parent.classList?.add('unit-wrapper');
-          parent.appendChild(unitDisplay);
-        }
+      if (unitDisplay) {
+        unitDisplay.textContent = currentUnit;
+        unitDisplay.style.display = 'inline-block';
       }
-
-      // Set the unit display text and make it visible
-      unitDisplay.textContent = currentUnit;
-      unitDisplay.style.display = 'inline-block';
-
       // Initial setup
       inputValue = withAnswerBox;
     }
@@ -232,6 +222,7 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
       }
     });
   } else {
+    if (answerWrapper) answerWrapper.style.display = 'none';
     answerBox.style.display = 'none';
     if (enterButton && cancelButton) {
       enterButton.style.display = 'none';
@@ -244,12 +235,14 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
 function hideTextBox() {
   const promptBox = document.getElementById('cursorTextBox');
   const answerBox = document.getElementById('cursorAnswerBox');
+  const answerWrapper = document.getElementById('cursorAnswerWrapper');
   const enterButton = document.getElementById('cursorEnterButton');
   const cancelButton = document.getElementById('cursorCancelButton');
   const unitDisplay = document.getElementById('unit-display');
 
   promptBox.style.display = 'none';
   answerBox.style.display = 'none';
+  if (answerWrapper) answerWrapper.style.display = 'none';
   if (enterButton && cancelButton) {
     enterButton.style.display = 'none';
     cancelButton.style.display = 'none';

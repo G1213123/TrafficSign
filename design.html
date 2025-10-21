@@ -163,19 +163,28 @@
     <div id="context-menu">
         <ul>
             <li id="set-anchor" data-i18n="Set Anchor">Set Anchor</li>
-            <li id="pivot-anchor" data-i18n="Pivot Anchor">Pivot Anchor</li>
+            <li id="pivot-anchor"><span data-i18n="Pivot Anchor">Pivot Anchor</span>
+                <ul class="context-submenu">
+                    <li id="pivot-anchor-x" data-i18n="X-axis">X-axis</li>
+                    <li id="pivot-anchor-y" data-i18n="Y-axis">Y-axis</li>
+                    <li id="pivot-anchor-both" data-i18n="Both">Both</li>
+                </ul>
+            </li>
             <li id="edit-object" data-i18n="Edit">Edit</li>
             <li id="delete-object" data-i18n="Delete">Delete</li>
             <li id="property" data-i18n="Property">Property</li>
         </ul>
     </div>
     <div id="property-panel" class="property-panel"></div>
-    <div id="cursorBoxContainer" class="cursor-box-contained">
-    <div id="cursorTextBox" class="cursor-box" data-i18n="Follow the cursor">Follow the cursor</div>
-        <input type="text" id="cursorAnswerBox" class="cursor-box" value=0 />
-    <button id="cursorEnterButton" class="cursor-box-button mobile-only" data-i18n="Enter">Enter</button>
-    <button id="cursorCancelButton" class="cursor-box-button mobile-only" data-i18n="Cancel">Cancel</button>
-    </div>
+        <div id="cursorBoxContainer" class="cursor-box-contained">
+            <div id="cursorTextBox" class="cursor-box" data-i18n="Follow the cursor">Follow the cursor</div>
+            <div id="cursorAnswerWrapper" class="unit-wrapper" style="display:none;">
+                <input type="text" id="cursorAnswerBox" class="cursor-box" value="0" />
+                <span id="unit-display" class="unit-display" style="display:none;"></span>
+            </div>
+            <button id="cursorEnterButton" class="cursor-box-button mobile-only" data-i18n="Enter">Enter</button>
+            <button id="cursorCancelButton" class="cursor-box-button mobile-only" data-i18n="Cancel">Cancel</button>
+        </div>
 
     <!-- Modular development: load only the main entry point as a module -->
     <script type="module" src="js/main.js"></script>

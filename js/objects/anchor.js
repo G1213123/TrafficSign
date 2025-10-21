@@ -498,33 +498,36 @@ document.getElementById('set-anchor').addEventListener('click', function (event)
   selectObjectHandler('Select shape to anchor to', handleAnchorSelection, selectedArrow);
 });
 
-document.getElementById('pivot-anchor').addEventListener('click', function (e) {
+// Parent "Pivot Anchor" acts only as hover target to open submenu; no click action
+
+function handlePivot(axis) {
   const contextMenu = document.getElementById('context-menu');
-  contextMenu.style.display = 'none'; // Hide the context menu
+  contextMenu.style.display = 'none';
   const obj = contextMenu.selectedArrow;
-
-  // Check if the object and anchorTree exist
-  if (obj && obj.canvasID && typeof globalAnchorTree !== 'undefined') {
-    // Call the reverse function for both axes
-    globalAnchorTree.reverseAnchorChain('x', obj.canvasID);
-    globalAnchorTree.reverseAnchorChain('y', obj.canvasID);
-
-    // Update coordinates and render
-    if (typeof obj.updateAllCoord === 'function') {
-      obj.updateAllCoord(); // Update dependencies first
+  if (obj && typeof globalAnchorTree !== 'undefined') {
+    if (axis === 'x' || axis === 'both') {
+      globalAnchorTree.reverseAnchorChain('x', obj.canvasID);
     }
-    obj.setCoords(); // Update the object itself
+    if (axis === 'y' || axis === 'both') {
+      globalAnchorTree.reverseAnchorChain('y', obj.canvasID);
+    }
+    if (typeof obj.updateAllCoord === 'function') obj.updateAllCoord();
+    obj.setCoords();
     CanvasGlobals.scheduleRender();
-
-    // Optional: Fire a modified event if needed for other parts of your app
     canvas.fire('object:modified', { target: obj });
-
   } else {
-    if (!obj || !obj.canvasID) {
-      console.warn('Pivot Anchor: Target object or canvasID not found.');
-    }
+    console.warn('Pivot Anchor: Target object or canvasID not found.');
   }
-});
+}
+
+// Submenu handlers
+const pivotX = document.getElementById('pivot-anchor-x');
+const pivotY = document.getElementById('pivot-anchor-y');
+const pivotBoth = document.getElementById('pivot-anchor-both');
+
+if (pivotX) pivotX.addEventListener('click', () => handlePivot('x'));
+if (pivotY) pivotY.addEventListener('click', () => handlePivot('y'));
+if (pivotBoth) pivotBoth.addEventListener('click', () => handlePivot('both'));
 
 
 // Helper function to process anchor updates for a specific axis

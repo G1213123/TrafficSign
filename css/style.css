@@ -761,7 +761,7 @@ div.side-panel.close {
 #context-menu {
   display: none;
   position: absolute;
-  background-color: white;
+  background-color: lightyellow;
   border: 1px solid black;
   z-index: 1000;
 }
@@ -781,12 +781,75 @@ div.side-panel.close {
   background-color: #ddd;
 }
 
+/* Context menu submenu */
+#context-menu li {
+  position: relative;
+}
+
+#context-menu li > .context-submenu {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 100%;
+  background: lightyellow;
+  border: 1px solid #000;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  min-width: 60px; /* reduce submenu width */
+  z-index: 1001; /* above parent */
+}
+
+#context-menu li:hover > .context-submenu {
+  display: block;
+}
+
+#context-menu .context-submenu li {
+  padding: 8px;
+  white-space: nowrap;
+}
+
+#context-menu .context-submenu li:hover {
+  background-color: #eee;
+}
+
+/* Flip submenu to left when parent has class */
+#context-menu li.open-left > .context-submenu {
+  left: auto;
+  right: 100%;
+}
+
+/* Arrow indicator for submenu presence */
+#context-menu li#pivot-anchor {
+  /* Reserve space on the right for the arrow indicator */
+  padding: 8px 28px 8px 8px;
+}
+
+#context-menu li#pivot-anchor > span {
+  display: block; /* Ensure text respects the right padding space */
+}
+
+#context-menu li#pivot-anchor > span::after {
+  content: '▶';
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #555;
+  pointer-events: none; /* Avoid interfering with hover/click */
+}
+
+#context-menu li#pivot-anchor.open-left > span::after {
+  content: '◀';
+}
+
 .cursor-box {
   background-color: lightyellow;
   padding: 5px;
   border: 1px solid black;
   display: none;
   margin-bottom: 5px;
+  width: 100%;
   /* Initially hidden */
 }
 
@@ -794,7 +857,7 @@ div.side-panel.close {
   position: absolute;
   display: flex;
   flex-direction: column;
-  align-items: left;
+  align-items: flex-start; /* ensure children don't stretch and allow wrapping */
 }
 
 .cursor-box-button {
@@ -811,6 +874,15 @@ div.side-panel.close {
 .mobile-only {
   display: none;
   /* Hidden by default */
+}
+
+/* Prevent prompt text from overflowing horizontally */
+#cursorTextBox {
+  max-width: min(60vw, 420px);
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  box-sizing: border-box; /* include padding in width */
 }
 
 /* Canvas Tracker UI Styles */
@@ -1514,7 +1586,7 @@ div.side-panel.close {
 .unit-display {
   position: absolute;
   right: 8px;
-  top: 52px;
+  top: 50%;
   transform: translateY(-50%);
   z-index: 2147483647; /* stay above prompt background */
   pointer-events: none;
@@ -1530,6 +1602,18 @@ div.side-panel.close {
 #cursorAnswerBox {
   padding-right: 30px;
   /* Make space for the unit display on the right */
+}
+
+/* Wrapper around cursor answer box and unit badge for alignment */
+.unit-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Prevent wrapper from shrinking the input; keep a reasonable minimum */
+#cursorAnswerBox {
+  min-width: 130px;
 }
 
 /* Measure Tool Panel Styling */

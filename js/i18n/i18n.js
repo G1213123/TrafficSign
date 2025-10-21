@@ -229,6 +229,9 @@ const dictionaries = {
     // Context menu
     'Set Anchor': '鎖定圖形',
     'Pivot Anchor': '交換鎖定點',
+    'X-axis': 'X 軸',
+    'Y-axis': 'Y 軸',
+    'Both': '兩者',
     'Edit': '編輯',
     'Delete': '刪除',
     'Property': '屬性',
