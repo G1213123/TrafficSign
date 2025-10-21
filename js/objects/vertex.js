@@ -140,6 +140,13 @@ class VertexControl extends fabric.Control {
 
         const pointer = canvas.getPointer(event.e);
 
+        // If Shift key is held, allow snap target detection/highlight, but don't move the group
+        if (event && event.e && event.e.shiftKey) {
+            this.checkForSnapTargets(pointer);
+            CanvasGlobals.scheduleRender();
+            return;
+        }
+
         // Find nearest vertex for snapping
         this.checkForSnapTargets(pointer);
 
