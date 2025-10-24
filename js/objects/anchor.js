@@ -583,7 +583,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
 
   const shape1 = Array.isArray(inputShape1) ? inputShape1[0] : inputShape1
   const shape2 = Array.isArray(inputShape2) ? inputShape2[0] : inputShape2
-  const xHeight = shape1.xHeight || shape2.xHeight || parseInt(document.getElementById("input-xHeight").value)
+  const xHeight = shape2.xHeight || shape1.xHeight || parseInt(document.getElementById("input-xHeight").value)
 
 
   const vertexIndex1 = options.vertexIndex1 ? options.vertexIndex1 : await showTextBox('Enter vertex index for First Polygon:', 'E1')
