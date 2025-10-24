@@ -587,7 +587,7 @@ class MainRoadSymbol extends BaseGroup {
 
         // Also consider side roads when calculating bottom position
         this.sideRoad.forEach(side => {
-            const sideBottom = side.side ? side.basePolygon.vertex[4].y : side.basePolygon.vertex[3].y;
+            const sideBottom = side.side ? side.basePolygon.vertex[5].y : side.basePolygon.vertex[2].y;
             if (sideBottom + bottomList.length * length > newBottom) {
                 newBottom = sideBottom + bottomList.length * length;
             }
