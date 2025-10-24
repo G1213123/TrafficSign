@@ -4,7 +4,7 @@
 
 import { BaseGroup } from './draw.js';
 import { textWidthMedium, textWidthHeavy, } from './template.js';
-import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontKorean, parsedFontKai, parsedFontSans } from './path.js';
+import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontKorean, parsedFontKai, parsedFontSans, ensureOpenTypePatched } from './path.js';
 import { GeneralSettings } from '../sidebar/sbGeneral.js';
 import { FormTextAddComponent } from '../sidebar/sb-text.js';
 import { FontPriorityManager } from '../modal/md-font.js';
@@ -398,6 +398,8 @@ class TextObject extends BaseGroup {
     // Get the font path
     const charPath = getFontPath(pathParams);
     charPath.fill = color;
+    // Ensure opentype rounding patch is applied at point of use in TextObject
+    ensureOpenTypePatched();
     const charSVG = charPath.toPathData({ flipY: false });
     const charGlyph = fontGlyphs.charToGlyph(charParams.actualChar);
 

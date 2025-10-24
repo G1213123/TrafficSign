@@ -28,7 +28,16 @@ function handleSelection(event) {
   const panel = document.getElementById('property-panel');
   // Only update panel if it was opened via context-menu
   if (panel.style.display !== 'block') return;
-  const obj = event.target || (Array.isArray(event.selected) ? event.selected[0] : null);
+  // Prefer active objects from canvas to reliably detect multi-selection
+  let active = [];
+  try {
+    active = CanvasGlobals.canvas.getActiveObjects ? CanvasGlobals.canvas.getActiveObjects() : [];
+  } catch (_) { /* noop */ }
+  if (active && active.length > 1) {
+    showPropertyPanel(active);
+    return;
+  }
+  const obj = event?.target || (Array.isArray(event?.selected) ? event.selected[0] : active[0]);
   if (obj) showPropertyPanel(obj);
 }
 
@@ -51,15 +60,66 @@ function showPropertyPanel(object) {
 
   panel.style.display = 'block';
 
-  // Title
+  // Helper: normalize display name for an object
+  const getObjDisplayName = (obj, idx) => {
+    const base = obj?._showName || obj?.type || `#${idx + 1}`;
+    const idHint = obj?.canvasID != null ? ` (${obj.canvasID})` : '';
+    return `${base}${idHint}`;
+  };
+
+  // Title (supports multi-select with dropdown)
   const title = document.createElement('div');
   title.className = 'property-title';
-  // If we fall back to generic title, translate it; otherwise use object-specific name
-  if (object && (object._showName || object.type)) {
-    title.innerText = object._showName || object.type;
+
+  const isMulti = Array.isArray(object) && object.length > 1;
+  if (isMulti) {
+    // Build dropdown in title: first option is Group summary
+    const select = document.createElement('select');
+    // Style to match single-title appearance via CSS; keep minimal inline sizing
+    select.className = 'property-title-select';
+    select.style.maxWidth = '80%';
+    const groupOption = document.createElement('option');
+    groupOption.value = 'group';
+    groupOption.setAttribute('data-i18n', 'Group');
+    groupOption.text = `${i18n.t('Group')} (${object.length})`;
+    select.appendChild(groupOption);
+    object.forEach((obj, idx) => {
+      const opt = document.createElement('option');
+      // value by canvasID if available, else index
+      opt.value = obj?.canvasID != null ? String(obj.canvasID) : `idx:${idx}`;
+      opt.text = getObjDisplayName(obj, idx);
+      opt.setAttribute('background', '#444'); // Dark background for visibility
+      select.appendChild(opt);
+    });
+    select.value = 'group';
+    select.addEventListener('change', (e) => {
+      const v = e.target.value;
+      if (v === 'group') {
+        showPropertyPanel(object);
+        return;
+      }
+      const chosen = object.find((o, idx) => String(o.canvasID) === v || `idx:${idx}` === v);
+      if (chosen) {
+        // Optionally focus this object on canvas
+        try {
+          if (CanvasGlobals.canvas && CanvasGlobals.canvas.setActiveObject) {
+            CanvasGlobals.canvas.discardActiveObject();
+            CanvasGlobals.canvas.setActiveObject(chosen);
+            CanvasGlobals.canvas.requestRenderAll && CanvasGlobals.canvas.requestRenderAll();
+          }
+        } catch (_) { /* noop */ }
+        showPropertyPanel(chosen);
+      }
+    });
+    title.appendChild(select);
   } else {
-    title.setAttribute('data-i18n', 'Object Properties');
-    title.innerText = i18n.t('Object Properties');
+    // If we fall back to generic title, translate it; otherwise use object-specific name
+    if (object && (object._showName || object.type)) {
+      title.innerText = object._showName || object.type;
+    } else {
+      title.setAttribute('data-i18n', 'Object Properties');
+      title.innerText = i18n.t('Object Properties');
+    }
   }
   panel.appendChild(title);
 
@@ -147,6 +207,73 @@ function showPropertyPanel(object) {
       CanvasGlobals.scheduleRender();
       canvasTracker.isDragging = false; // Reset dragging state
       showPropertyPanel(targetObject); // Refresh panel
+    }
+  }
+  // Group-edit helpers for multi-select
+  function isBorderType(obj) {
+    return obj && obj.functionalType === 'Border';
+  }
+  function isDividerType(obj) {
+    const ft = obj && obj.functionalType;
+    return ft === 'HDivider' || ft === 'VDivider' || ft === 'VLane' || ft === 'HLine' || (typeof ft === 'string' && ft.includes('Divider'));
+  }
+  function rebuildObject(obj, changedKey) {
+    if (typeof obj.initialize === 'function') {
+      try {
+        obj.removeAll();
+        obj.initialize();
+        obj.updateAllCoord();
+        if (obj.functionalType === 'Border' && (changedKey === 'color' || changedKey === 'fill' || changedKey === 'fixedWidth' || changedKey === 'fixedHeight')) {
+          obj.processResize();
+        }
+      } catch (err) {
+        console.error(`Error rebuilding ${obj.type} after ${changedKey} change:`, err);
+      }
+    }
+  }
+  function handleGroupNumericChange(e, prop, selectedObjects) {
+    const val = parseFloat(e.target.value);
+    if (isNaN(val)) return;
+    const changes = [];
+    selectedObjects.forEach(o => {
+      if (!o) return;
+      if (prop.key === 'xHeight' && o.hasOwnProperty('xHeight')) {
+        if (o.xHeight !== val) {
+          const oldValue = o.xHeight;
+          o.xHeight = val;
+          changes.push({ functionalType: o.functionalType, id: o.canvasID, propertyKey: prop.key, oldValue, newValue: val });
+          rebuildObject(o, prop.key);
+        }
+      }
+    });
+    if (changes.length) {
+      try { canvasTracker.track('propertyChanged', changes); } catch (_) { }
+      CanvasGlobals.scheduleRender();
+      canvasTracker.isDragging = false;
+      showPropertyPanel(selectedObjects);
+    }
+  }
+  function handleGroupSelectChange(e, prop, selectedObjects) {
+    const newValue = e.target.value;
+    const changes = [];
+    selectedObjects.forEach(o => {
+      if (!o) return;
+      if (prop.key === 'color') {
+        // Skip Border and Divider types for color
+        if (isBorderType(o) || isDividerType(o)) return;
+        if (o.hasOwnProperty('color') && o.color !== newValue) {
+          const oldValue = o.color;
+          o.color = newValue;
+          changes.push({ functionalType: o.functionalType, id: o.canvasID, propertyKey: prop.key, oldValue, newValue });
+          rebuildObject(o, prop.key);
+        }
+      }
+    });
+    if (changes.length) {
+      try { canvasTracker.track('propertyChanged', changes); } catch (_) { }
+      CanvasGlobals.scheduleRender();
+      canvasTracker.isDragging = false;
+      showPropertyPanel(selectedObjects);
     }
   }
   function handleTextInputChange(e, prop, targetObject) {
@@ -292,7 +419,7 @@ function showPropertyPanel(object) {
   // --- End of helper functions ---
 
   // Helper to render a category box
-  function renderCategory(name, props, targetObject) { // Added targetObject parameter
+  function renderCategory(name, props, targetObject) { // targetObject can be undefined or an array for group summaries
     if (!props.length) return;
     const box = document.createElement('div');
     box.className = 'input-group-container';
@@ -324,7 +451,7 @@ function showPropertyPanel(object) {
       labelSpan.appendChild(colonNode);
       item.appendChild(labelSpan);
 
-      if (prop.editable && targetObject) {
+      if (prop.editable && targetObject && !Array.isArray(targetObject)) {
         let inputElement;
         if (prop.type === 'number') {
           inputElement = document.createElement('input');
@@ -410,6 +537,55 @@ function showPropertyPanel(object) {
         if (inputElement) {
           item.appendChild(inputElement);
         }
+      } else if (prop.editable && Array.isArray(targetObject)) {
+        // Group-editable (multi-select) controls
+        let inputElement;
+        if (prop.type === 'number') {
+          inputElement = document.createElement('input');
+          inputElement.type = 'number';
+          if (prop.value === 'varies') {
+            inputElement.placeholder = i18n.t('varies');
+          } else {
+            inputElement.value = (prop.value !== undefined ? parseFloat(prop.value) : 0).toFixed(0);
+          }
+          inputElement.step = prop.step || '1';
+          inputElement.style.width = '80px';
+          inputElement.style.maxWidth = '100%';
+          inputElement.style.justifySelf = 'end';
+          inputElement.addEventListener('change', (e) => {
+            handleGroupNumericChange(e, prop, targetObject);
+          });
+        } else if (prop.type === 'select') {
+          inputElement = document.createElement('select');
+          inputElement.style.width = '200px';
+          inputElement.style.maxWidth = '100%';
+          inputElement.style.justifySelf = 'end';
+          // If varies, include a disabled placeholder first option
+          const hasVaries = prop.value === 'varies';
+          if (hasVaries) {
+            const placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.disabled = true;
+            placeholder.selected = true;
+            placeholder.setAttribute('data-i18n', 'varies');
+            placeholder.text = i18n.t('varies');
+            inputElement.appendChild(placeholder);
+          }
+          (prop.options || []).forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt;
+            option.setAttribute('data-i18n', opt);
+            option.text = i18n.t(opt);
+            inputElement.appendChild(option);
+          });
+          if (!hasVaries) inputElement.value = prop.value;
+          inputElement.addEventListener('change', (e) => {
+            handleGroupSelectChange(e, prop, targetObject);
+          });
+        }
+        if (inputElement) {
+          item.appendChild(inputElement);
+        }
       } else {
         const valueSpan = document.createElement('span');
         let displayValue = prop.value; // prop.value is now guaranteed for geometry & basic
@@ -448,79 +624,144 @@ function showPropertyPanel(object) {
     panel.appendChild(box);
   }
 
-  // Prepare Geometry properties
-  const isNonMovable = object.functionalType === 'Border' || object.functionalType === 'HDivider' || object.functionalType === 'VDivider' || object.functionalType === 'VLane' || object.functionalType === 'HLine';
-  const hasEditableFixedWidth = object.functionalType === 'Border' && object.hasOwnProperty('fixedWidth') && object.fixedWidth != null;
-  const hasEditableFixedHeight = object.functionalType === 'Border' && object.hasOwnProperty('fixedHeight') && object.fixedHeight != null;
+  // Helpers for bounds and common/basic comparisons
+  const getBounds = (obj) => {
+    const left = obj.left || 0;
+    const top = obj.top || 0;
+    const w = Math.round((obj.width || 0) * (obj.scaleX || 1));
+    const h = Math.round((obj.height || 0) * (obj.scaleY || 1));
+    return { left, top, right: left + w, bottom: top + h, width: w, height: h };
+  };
+  const normColor = (val, isBorderRel) => {
+    if (!val) return val;
+    if (isBorderRel) return val; // Border-related use color scheme names
+    if (val === '#ffffff') return 'white';
+    if (val === '#000000') return 'black';
+    return val;
+  };
 
-  const geometryProps = [];
-  // Left
-  geometryProps.push({
-    label: 'Left (geom)',
-    key: 'left',
-    type: 'number',
-    editable: (hasEditableFixedWidth && !object.lockMovementX) || (!isNonMovable && !object.lockMovementX),
-    step: 1,
-    value: object.left
-  });
-  // Top remains same rules
-  geometryProps.push({
-    label: 'Top (geom)',
-    key: 'top',
-    type: 'number',
-    editable: (hasEditableFixedHeight && !object.lockMovementY) || (!isNonMovable && !object.lockMovementY),
-    step: 1,
-    value: object.top
-  });
-  // Right / Bottom display only
-  geometryProps.push({ label: 'Right (geom)', value: Math.round(object.left + (object.width * (object.scaleX || 1))) });
-  geometryProps.push({ label: 'Bottom (geom)', value: Math.round(object.top + (object.height * (object.scaleY || 1))) });
-  // Width editable via fixedWidth if present, else display actual width
-  if (hasEditableFixedWidth) {
-    geometryProps.push({ label: 'Width (geom)', key: 'fixedWidth', type: 'number', editable: true, step: 1, value: object.fixedWidth });
-  } else {
-    geometryProps.push({ label: 'Width (geom)', value: Math.round((object.width || 0) * (object.scaleX || 1)) });
-  }
-  // Height editable via fixedHeight if present, else display height
-  if (hasEditableFixedHeight) {
-    geometryProps.push({ label: 'Height (geom)', key: 'fixedHeight', type: 'number', editable: true, step: 1, value: object.fixedHeight });
-  } else {
-    geometryProps.push({ label: 'Height (geom)', value: Math.round((object.height || 0) * (object.scaleY || 1)) });
-  }
+  // Prepare Geometry and Basic properties depending on single vs multi
+  let geometryProps = [];
+  let basicProps = [];
 
-  // Prepare Basic properties (xHeight, Color)
-  const basicProps = [];
-  const isBorderRelatedType = object.functionalType === 'Border' ||
-    object.functionalType === 'HDivider' ||
-    object.functionalType === 'VDivider' ||
-    object.functionalType === 'VLane' ||
-    object.functionalType === 'HLine';
+  const isMultiSelect = Array.isArray(object) && object.length > 1;
+  if (isMultiSelect) {
+    // Geometry: show Left, Top, Width, Height (display-only; values are group bounds)
+    let minL = Infinity, minT = Infinity, maxR = -Infinity, maxB = -Infinity;
+    object.forEach(o => {
+      const b = getBounds(o);
+      if (b.left < minL) minL = b.left;
+      if (b.top < minT) minT = b.top;
+      if (b.right > maxR) maxR = b.right;
+      if (b.bottom > maxB) maxB = b.bottom;
+    });
+    geometryProps.push({ label: 'Left (geom)', value: Math.round(minL) });
+    geometryProps.push({ label: 'Top (geom)', value: Math.round(minT) });
+    geometryProps.push({ label: 'Right (geom)', value: Math.round(maxR) });
+    geometryProps.push({ label: 'Bottom (geom)', value: Math.round(maxB) });
+    geometryProps.push({ label: 'Width (geom)', value: Math.round(maxR - minL) });
+    geometryProps.push({ label: 'Height (geom)', value: Math.round(maxB - minT) });
 
-  if (object.hasOwnProperty('xHeight')) {
-    // Use the existing translation key 'x Height'
-    basicProps.push({ label: 'x Height', key: 'xHeight', type: 'number', editable: true, step: 0.1, value: object.xHeight });
-  }
-
-  if (object.hasOwnProperty('color')) {
-    let colorOptions;
-    let initialSelectValue = object.color; // Actual color value (hex or name like 'white')
-
-    if (isBorderRelatedType) {
-      colorOptions = Object.keys(BorderColorScheme);
-      const colorNameFromScheme = Object.keys(BorderColorScheme).find(name => name === object.color);
-      initialSelectValue = colorNameFromScheme || (colorOptions.length > 0 ? colorOptions[0] : object.color);
-    } else {
-      colorOptions = PREDEFINED_COLORS;
-      if (object.color === '#ffffff') initialSelectValue = 'white';
-      else if (object.color === '#000000') initialSelectValue = 'black';
-      // else initialSelectValue remains object.color if not hex white/black
+    // Basic: editable in group; if all same, show value; else show 'varies'
+    const allHaveXHeight = object.every(o => o.hasOwnProperty('xHeight'));
+    if (allHaveXHeight) {
+      const first = object[0].xHeight;
+      const same = object.every(o => o.xHeight === first);
+      basicProps.push({ label: 'x Height', key: 'xHeight', type: 'number', editable: true, step: 0.1, value: same ? first : 'varies' });
     }
-    basicProps.push({ label: 'Color', key: 'color', type: 'select', options: colorOptions, editable: true, value: initialSelectValue });
 
+    const allHaveColor = object.every(o => o.hasOwnProperty('color'));
+    if (allHaveColor) {
+      // Determine if all are border-related types
+      const isBorderRel = object.every(o => (
+        o.functionalType === 'Border' ||
+        o.functionalType === 'HDivider' ||
+        o.functionalType === 'VDivider' ||
+        o.functionalType === 'VLane' ||
+        o.functionalType === 'HLine'
+      ));
+      const first = normColor(object[0].color, isBorderRel);
+      const same = object.every(o => normColor(o.color, isBorderRel) === first);
+      // For group editing, provide a select for color, but applying will skip Border/Divider objects
+      basicProps.push({ label: 'Color', key: 'color', type: 'select', options: PREDEFINED_COLORS, editable: true, value: same ? first : 'varies' });
+    }
+  } else {
+    // Single object path (existing behavior)
+    const obj = object;
+
+    // Prepare Geometry properties
+    const isNonMovable = obj.functionalType === 'Border' || obj.functionalType === 'HDivider' || obj.functionalType === 'VDivider' || obj.functionalType === 'VLane' || obj.functionalType === 'HLine';
+    const hasEditableFixedWidth = obj.functionalType === 'Border' && obj.hasOwnProperty('fixedWidth') && obj.fixedWidth != null;
+    const hasEditableFixedHeight = obj.functionalType === 'Border' && obj.hasOwnProperty('fixedHeight') && obj.fixedHeight != null;
+
+    // Left
+    geometryProps.push({
+      label: 'Left (geom)',
+      key: 'left',
+      type: 'number',
+      editable: (hasEditableFixedWidth && !obj.lockMovementX) || (!isNonMovable && !obj.lockMovementX),
+      step: 1,
+      value: obj.left
+    });
+    // Top remains same rules
+    geometryProps.push({
+      label: 'Top (geom)',
+      key: 'top',
+      type: 'number',
+      editable: (hasEditableFixedHeight && !obj.lockMovementY) || (!isNonMovable && !obj.lockMovementY),
+      step: 1,
+      value: obj.top
+    });
+    // Right / Bottom display only
+    geometryProps.push({ label: 'Right (geom)', value: Math.round(obj.left + (obj.width * (obj.scaleX || 1))) });
+    geometryProps.push({ label: 'Bottom (geom)', value: Math.round(obj.top + (obj.height * (obj.scaleY || 1))) });
+    // Width editable via fixedWidth if present, else display actual width
+    if (hasEditableFixedWidth) {
+      geometryProps.push({ label: 'Width (geom)', key: 'fixedWidth', type: 'number', editable: true, step: 1, value: obj.fixedWidth });
+    } else {
+      geometryProps.push({ label: 'Width (geom)', value: Math.round((obj.width || 0) * (obj.scaleX || 1)) });
+    }
+    // Height editable via fixedHeight if present, else display height
+    if (hasEditableFixedHeight) {
+      geometryProps.push({ label: 'Height (geom)', key: 'fixedHeight', type: 'number', editable: true, step: 1, value: obj.fixedHeight });
+    } else {
+      geometryProps.push({ label: 'Height (geom)', value: Math.round((obj.height || 0) * (obj.scaleY || 1)) });
+    }
+
+    // Prepare Basic properties (xHeight, Color)
+    const isBorderRelatedType = obj.functionalType === 'Border' ||
+      obj.functionalType === 'HDivider' ||
+      obj.functionalType === 'VDivider' ||
+      obj.functionalType === 'VLane' ||
+      obj.functionalType === 'HLine';
+
+    if (obj.hasOwnProperty('xHeight')) {
+      // Use the existing translation key 'x Height'
+      basicProps.push({ label: 'x Height', key: 'xHeight', type: 'number', editable: true, step: 0.1, value: obj.xHeight });
+    }
+
+    if (obj.hasOwnProperty('color')) {
+      let colorOptions;
+      let initialSelectValue = obj.color; // Actual color value (hex or name like 'white')
+
+      if (isBorderRelatedType) {
+        colorOptions = Object.keys(BorderColorScheme);
+        const colorNameFromScheme = Object.keys(BorderColorScheme).find(name => name === obj.color);
+        initialSelectValue = colorNameFromScheme || (colorOptions.length > 0 ? colorOptions[0] : obj.color);
+      } else {
+        colorOptions = PREDEFINED_COLORS;
+        if (obj.color === '#ffffff') initialSelectValue = 'white';
+        else if (obj.color === '#000000') initialSelectValue = 'black';
+        // else initialSelectValue remains obj.color if not hex white/black
+      }
+      basicProps.push({ label: 'Color', key: 'color', type: 'select', options: colorOptions, editable: true, value: initialSelectValue });
+
+    }
   }
 
   // Prepare special properties (remains display-only as per current structure)
-  let specialProps = []; switch (object.functionalType) {
+  let specialProps = [];
+  if (!isMultiSelect) switch (object.functionalType) {
     case 'Text':
       // Check if text contains non-English characters to determine appropriate font options
       const hasNonEnglish = containsNonEnglishCharacters(object.text);
@@ -599,9 +840,15 @@ function showPropertyPanel(object) {
   }
 
   // Render categories
-  renderCategory('Geometry', geometryProps, object); // Pass object
-  renderCategory('Basic', basicProps, object);       // Pass object
-  renderCategory(object.functionalType || 'Special', specialProps, object); // Pass object, provide default name
+  // Render categories
+  if (isMultiSelect) {
+    renderCategory('Geometry', geometryProps); // display-only
+    renderCategory('Basic', basicProps, object); // group-editable for Basic
+  } else {
+    renderCategory('Geometry', geometryProps, object);
+    renderCategory('Basic', basicProps, object);
+    renderCategory(object.functionalType || 'Special', specialProps, object);
+  }
 
   // Apply translations to the freshly built panel
   try { i18n.applyTranslations(panel); } catch (_) { }

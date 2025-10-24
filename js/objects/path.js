@@ -14,6 +14,99 @@ let parsedFontChinese = null; // Chinese font for supplement for special charact
 let parsedFontKai = null;
 let parsedFontSans = null; // Sans serif fallback for punctuation characters
 let fontParsingPromise = null; // To store the promise
+let opentypePatched = false; // Track whether we've patched opentype.js rounding
+
+// Safe rounding function to replace/override opentype.js roundDecimal behavior
+// Fixes import/rounding issues (see opentype.js PR #797) and avoids -0 results
+function safeRoundDecimal(value, decimals = 3) {
+  if (!Number.isFinite(value)) return 0;
+  const factor = Math.pow(10, decimals);
+  // Add tiny epsilon to mitigate floating point artifacts
+  const n = Math.round((value + Number.EPSILON) * factor) / factor;
+  // Normalize negative zero to zero for cleaner SVG output
+  return Object.is(n, -0) ? 0 : n;
+}
+
+// Patch opentype.js to ensure it uses our safe rounder. If the library exposes
+// roundDecimal, override it; otherwise, override Path.prototype.toPathData to
+// build the SVG path string using our own rounding. This is done lazily when
+// opentype is available in the global scope.
+function ensureOpenTypePatched() {
+  if (opentypePatched) return;
+  if (typeof opentype === 'undefined') return; // Not yet loaded
+
+  try {
+    // If roundDecimal is exposed, override it directly
+    if (opentype && typeof opentype.roundDecimal === 'function') {
+      opentype.roundDecimal = safeRoundDecimal;
+    }
+
+    // Always ensure Path.prototype.toPathData uses our rounding logic to be safe
+    if (opentype.Path && opentype.Path.prototype && typeof opentype.Path.prototype.toPathData === 'function') {
+      const proto = opentype.Path.prototype;
+
+      if (!proto._toPathDataOriginal) {
+        // Keep original around for debugging if needed
+        proto._toPathDataOriginal = proto.toPathData;
+      }
+
+      // Re-implement toPathData to avoid relying on internal roundDecimal imports
+      proto.toPathData = function toPathData(options = {}) {
+        const decimals = (options.decimals ?? options.precision ?? 3);
+        const flipY = !!options.flipY; // default false in our usage
+        const r = (v) => safeRoundDecimal(v, decimals);
+
+        let d = '';
+        for (const cmd of this.commands || []) {
+          switch (cmd.type) {
+            case 'M': {
+              const x = r(cmd.x);
+              const y = r(flipY ? -cmd.y : cmd.y);
+              d += `M ${x} ${y} `;
+              break;
+            }
+            case 'L': {
+              const x = r(cmd.x);
+              const y = r(flipY ? -cmd.y : cmd.y);
+              d += `L ${x} ${y} `;
+              break;
+            }
+            case 'C': {
+              const x1 = r(cmd.x1);
+              const y1 = r(flipY ? -cmd.y1 : cmd.y1);
+              const x2 = r(cmd.x2);
+              const y2 = r(flipY ? -cmd.y2 : cmd.y2);
+              const x = r(cmd.x);
+              const y = r(flipY ? -cmd.y : cmd.y);
+              d += `C ${x1} ${y1} ${x2} ${y2} ${x} ${y} `;
+              break;
+            }
+            case 'Q': {
+              const x1 = r(cmd.x1);
+              const y1 = r(flipY ? -cmd.y1 : cmd.y1);
+              const x = r(cmd.x);
+              const y = r(flipY ? -cmd.y : cmd.y);
+              d += `Q ${x1} ${y1} ${x} ${y} `;
+              break;
+            }
+            case 'Z':
+              d += 'Z ';
+              break;
+            default:
+              // Ignore unsupported command types to be resilient across versions
+              break;
+          }
+        }
+        return d.trim();
+      };
+    }
+
+    opentypePatched = true;
+    console.log('opentype.js rounding patched (roundDecimal/toPathData)');
+  } catch (e) {
+    console.warn('Failed to patch opentype.js rounding; continuing without patch.', e);
+  }
+}
 
 
 /**
@@ -881,4 +974,5 @@ export {
   parsedFontKorean,
   parsedFontKai,
   parsedFontSans,
+  ensureOpenTypePatched,
 };
