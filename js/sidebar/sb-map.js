@@ -13,13 +13,119 @@ const canvas = CanvasGlobals.canvas;
 const canvasObject = CanvasGlobals.canvasObject;
 
 let FormDrawMapComponent = {
-  MapType: ['Main Line', 'Conventional Roundabout', 'Spiral Roundabout',],
-  MainEndShape: ['Arrow', 'Stub', 'RedBar', 'LaneDrop', 'T-Junction', 'Y-Junction'],
+  MapType: ['Main Line', 'Roundabout'],
+  MainEndShape: [{ value: 'Arrow', label: 'Arrow', image: 'arrow.svg' },
+  { value: 'Stub', label: 'Stub', image: 'stub.svg' },
+  { value: 'RedBar', label: 'RedBar', image: 'redbar.svg' },
+  { value: 'LaneDrop', label: 'LaneDrop', image: 'lanedrop.svg' },
+  { value: 'T-Junction', label: 'T-Junction', image: 'tjunction.svg' },
+  { value: 'Y-Junction', label: 'Y-Junction', image: 'yjunction.svg' }],
   SideEndShape: ['Arrow', 'Stub', 'RedBar'],
-  RoundaboutFeatures: ['Normal', 'Auxiliary', 'U-turn'],
+  RoundaboutFeatures: {
+    'Conventional': [
+      { value: 'Normal', label: 'Normal', image: 'roundabout-normal.svg' },
+      { value: 'Auxiliary', label: 'Auxiliary', image: 'roundabout-auxiliary.svg' },
+      { value: 'U-turn', label: 'U-turn', image: 'roundabout-uturn.svg' }
+    ],
+    'Spiral': [
+      { value: 'Normal', label: 'Normal', image: 'roundabout-spiral-normal.svg' },
+      { value: 'Auxiliary', label: 'Auxiliary', image: 'roundabout-spiral-auxiliary.svg' },
+      { value: 'U-turn', label: 'U-turn', image: 'roundabout-spiral-uturn.svg' }
+    ]
+  },
   permitAngle: [45, 60, 90],
   defaultRoute: [{ x: 0, y: 7, angle: 60, width: 4, shape: 'Arrow' }],
   newMapObject: null,
+
+  /**
+   * Creates a custom dropdown with image support
+   * @param {string} name - Name/ID of the dropdown
+   * @param {Array} options - Array of strings or objects {value, label, image}
+   * @param {HTMLElement} parent - Parent element
+   * @param {string} defaultVal - Default selected value
+   * @param {Function} callback - Callback function on change
+   */
+  createImageDropdown: function (name, options, parent, defaultVal, callback) {
+    const container = GeneralHandler.createNode("div", { 'class': 'input-container custom-dropdown-container', 'id': `${name}-container` }, parent);
+
+    // Label
+    const label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, container);
+    label.setAttribute('data-i18n', name);
+    label.innerText = name;
+
+    // Dropdown wrapper
+    const wrapper = GeneralHandler.createNode("div", { 'class': 'custom-select-wrapper', 'id': name }, container);
+
+    // Selected item display
+    const selectedDisplay = GeneralHandler.createNode("div", { 'class': 'custom-select-trigger' }, wrapper);
+    const selectedText = GeneralHandler.createNode("span", {}, selectedDisplay);
+
+    // Arrow icon
+    const arrow = GeneralHandler.createNode("div", { 'class': 'arrow' }, selectedDisplay);
+
+    // Options list
+    const optionsList = GeneralHandler.createNode("div", { 'class': 'custom-options' }, wrapper);
+
+    // Set initial value
+    let currentValue = defaultVal;
+    container.setAttribute('data-value', currentValue);
+    selectedText.innerText = currentValue; // Initial text
+
+    // Create options
+    options.forEach(opt => {
+      const val = typeof opt === 'object' ? opt.value : opt;
+      const txt = typeof opt === 'object' ? opt.label : opt;
+
+      const optionDiv = GeneralHandler.createNode("div", { 'class': 'custom-option', 'data-value': val }, optionsList);
+
+      // Image placeholder
+      const imgPlaceholder = GeneralHandler.createNode("div", { 'class': 'option-image-placeholder' }, optionDiv);
+
+      // If image path is provided, use it
+      if (opt.image) {
+        const img = GeneralHandler.createNode("img", { 'src': 'images/' + opt.image, 'alt': txt }, imgPlaceholder);
+      }
+
+      const textSpan = GeneralHandler.createNode("span", {}, optionDiv);
+      textSpan.innerText = txt;
+
+      if (val === currentValue) {
+        optionDiv.classList.add('selected');
+        selectedText.innerText = txt;
+      }
+
+      optionDiv.addEventListener('click', function (e) {
+        e.stopPropagation();
+        currentValue = val;
+        container.setAttribute('data-value', currentValue);
+        selectedText.innerText = txt;
+
+        // Update selected class
+        const allOptions = optionsList.querySelectorAll('.custom-option');
+        allOptions.forEach(o => o.classList.remove('selected'));
+        optionDiv.classList.add('selected');
+
+        wrapper.classList.remove('open');
+
+        if (callback) callback();
+      });
+    });
+
+    // Toggle dropdown
+    selectedDisplay.addEventListener('click', function (e) {
+      wrapper.classList.toggle('open');
+      e.stopPropagation();
+    });
+
+    // Close on click outside
+    document.addEventListener('click', function (e) {
+      if (!wrapper.contains(e.target)) {
+        wrapper.classList.remove('open');
+      }
+    });
+
+    return container;
+  },
 
   /**
    * Initializes the map drawing panel with input fields and buttons
@@ -91,8 +197,14 @@ let FormDrawMapComponent = {
     // Show settings based on road type
     if (roadType === 'Main Line') {
       // Main Line settings
-      const mainRoadShapeToggle = GeneralHandler.createToggle(`Main Road Shape`, FormDrawMapComponent.MainEndShape, roadTypeSettingsContainer, 'Arrow', FormDrawMapComponent.onMainRoadShapeChange, 3);
-      const helpIcon = GeneralHandler.createHelpIconWithHint(mainRoadShapeToggle.parentElement, 'route/MainRoadShape',);
+      // Use custom image dropdown for Main Road Shape
+      FormDrawMapComponent.createImageDropdown('Main Road Shape', FormDrawMapComponent.MainEndShape, roadTypeSettingsContainer, 'Arrow', FormDrawMapComponent.onMainRoadShapeChange);
+
+      // Add help icon (need to find the label or container)
+      const shapeContainer = document.getElementById('Main Road Shape-container');
+      if (shapeContainer) {
+        GeneralHandler.createHelpIconWithHint(shapeContainer, 'route/MainRoadShape');
+      }
 
       GeneralHandler.createInput('main-width', 'Main Road Width', roadTypeSettingsContainer, 6, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
       GeneralHandler.createInput('root-length', 'Main Road Approach Length', roadTypeSettingsContainer, 7, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
@@ -115,23 +227,61 @@ let FormDrawMapComponent = {
         FormDrawMapComponent.onMainRoadShapeChange();
       }, 100);
 
-    } else if (roadType === 'Conventional Roundabout') {
-      // Placeholder for Conventional Roundabout settings
-      const roundaboutToggle = GeneralHandler.createToggle(`Roundabout Type`, FormDrawMapComponent.RoundaboutFeatures, roadTypeSettingsContainer, 'Normal', FormDrawMapComponent.drawMainRoadOnCursor);
-      const helpIcon = GeneralHandler.createHelpIconWithHint(roundaboutToggle.parentElement, 'route/Roundabout',);
+    } else if (roadType === 'Roundabout') {
+      // Roundabout settings
+
+      // 1. Roundel Type Toggle (Conventional vs Spiral)
+      const roundelToggle = GeneralHandler.createToggle('Roundel', ['Conventional', 'Spiral'], roadTypeSettingsContainer, 'Conventional', FormDrawMapComponent.onRoundelTypeChange);
+
+      // Use custom image dropdown for Roundabout Shape
+      FormDrawMapComponent.createImageDropdown('Main Road Shape', FormDrawMapComponent.RoundaboutFeatures['Conventional'], roadTypeSettingsContainer, 'Normal', FormDrawMapComponent.drawMainRoadOnCursor);
+
+      const shapeContainer = document.getElementById('Main Road Shape-container');
+      if (shapeContainer) {
+        GeneralHandler.createHelpIconWithHint(shapeContainer, 'route/Roundabout');
+      }
+
       GeneralHandler.createInput('root-length', 'Roundabout Approach Length', roadTypeSettingsContainer, 22.9, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
-    } else if (roadType === 'Spiral Roundabout') {
-      // Placeholder for Spiral Roundabout settings
-      GeneralHandler.createToggle(`Roundabout Type`, FormDrawMapComponent.RoundaboutFeatures, roadTypeSettingsContainer, 'Normal', FormDrawMapComponent.drawMainRoadOnCursor);
     }
 
     try { i18n.applyTranslations(roadTypeSettingsContainer.parentElement); } catch (_) { }
   },
 
+  // Function to handle Roundel Type changes
+  onRoundelTypeChange: function () {
+    const roundelType = GeneralHandler.getToggleValue('Roundel-container');
+    const features = FormDrawMapComponent.RoundaboutFeatures[roundelType];
+    
+    // Find existing dropdown container
+    const container = document.getElementById('Main Road Shape-container');
+    if (container) {
+      const parent = container.parentNode;
+      const nextSibling = container.nextSibling;
+      
+      // Remove old container
+      parent.removeChild(container);
+      
+      // Create new dropdown (appends to parent)
+      const newDropdown = FormDrawMapComponent.createImageDropdown('Main Road Shape', features, parent, 'Normal', FormDrawMapComponent.drawMainRoadOnCursor);
+      
+      // Move to correct position if needed
+      if (nextSibling) {
+        parent.insertBefore(newDropdown, nextSibling);
+      }
+      
+      // Re-add help icon
+      GeneralHandler.createHelpIconWithHint(newDropdown, 'route/Roundabout');
+    }
+    
+    // Trigger draw update
+    FormDrawMapComponent.drawMainRoadOnCursor();
+  },
+
   // Function to handle Main Road Shape changes
   onMainRoadShapeChange: function () {
-    // Get the selected shape
-    const selectedShape = GeneralHandler.getToggleValue('Main Road Shape-container');
+    // Get the selected shape from custom dropdown
+    const container = document.getElementById('Main Road Shape-container');
+    const selectedShape = container ? container.getAttribute('data-value') : null;
 
     // Find the corner radius container
     const cornerRadiusContainer = document.querySelector('.corner-radius-container');
@@ -152,7 +302,7 @@ let FormDrawMapComponent = {
   gatherMainRoadParams: function () {
     const xHeight = parseInt(document.getElementById('input-xHeight').value);
     const color = document.getElementById('Message Colour-container').selected.getAttribute('data-value');
-    const roadType = GeneralHandler.getToggleValue('Main Road Type-container');
+    let roadType = GeneralHandler.getToggleValue('Main Road Type-container');
 
     const rootLengthElement = document.getElementById('root-length');
     const tipLengthElement = document.getElementById('tip-length');
@@ -160,13 +310,24 @@ let FormDrawMapComponent = {
     const innerCornerRadiusElement = document.getElementById('inner-corner-radius');
     const outerCornerRadiusElement = document.getElementById('outer-corner-radius');
     const mainRoadShapeContainer = document.getElementById('Main Road Shape-container');
-    const roundaboutFeaturesContainer = document.getElementById('Roundabout Type-container');
+    const roundelContainer = document.getElementById('Roundel-container');
     const mainAngleDisplayElement = document.getElementById('main-angle-display');
 
     const rootLength = rootLengthElement ? parseFloat(rootLengthElement.value) : null;
     const tipLength = tipLengthElement ? parseFloat(tipLengthElement.value) : null;
     const mainWidth = mainWidthElement ? parseFloat(mainWidthElement.value) : null;
-    const endShape = mainRoadShapeContainer ? GeneralHandler.getToggleValue('Main Road Shape-container') : null;
+
+    // Get shape from custom dropdown
+    let endShape = mainRoadShapeContainer ? mainRoadShapeContainer.getAttribute('data-value') : null;
+    let roundaboutFeatures = null;
+
+    // Handle Roundabout logic
+    if (roadType === 'Roundabout') {
+      const roundelType = roundelContainer ? GeneralHandler.getToggleValue('Roundel-container') : 'Conventional';
+
+      roadType = roundelType + ' Roundabout';
+      roundaboutFeatures = endShape; // Normal, Auxiliary, or U-turn
+    }
 
     // Only get radius values if LaneDrop is selected and inputs exist
     let innerCornerRadius = null;
@@ -176,7 +337,7 @@ let FormDrawMapComponent = {
       outerCornerRadius = outerCornerRadiusElement ? parseFloat(outerCornerRadiusElement.value) : null;
     }
 
-    const roundaboutFeatures = roundaboutFeaturesContainer ? GeneralHandler.getToggleValue('Roundabout Type-container') : null;
+    // const roundaboutFeatures = roundaboutFeaturesContainer ? GeneralHandler.getToggleValue('Roundabout Type-container') : null; // Removed
     const mainAngle = mainAngleDisplayElement ? parseInt(mainAngleDisplayElement.innerText.slice(0, -1)) : 0;
 
     const mainRoadParams = {

@@ -1336,7 +1336,6 @@ div.side-panel.close {
   /* White border on arrow */
 }
 
-/* Add a second arrow inside the first to create the border effect on the arrow */
 .tooltip.tooltip-arrow-left::after {
   /* Renamed from tooltip-right */
   content: '';
@@ -1474,7 +1473,6 @@ div.side-panel.close {
   /* White border on arrow */
 }
 
-/* Add a second arrow inside the first to create the border effect on the arrow */
 .hints.hints-arrow-left::after {
   /* Renamed from tooltip-right */
   content: '';
@@ -2711,4 +2709,167 @@ div.side-panel.close {
   outline: 2px solid rgba(0,0,0,0.2);
   outline-offset: 2px;
   background: transparent;
+}
+
+/* Custom Dropdown Styles */
+.custom-dropdown-container {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select-wrapper {
+  position: relative;
+  user-select: none;
+  width: 100%;
+}
+
+.custom-select-trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  font-size: 18px;
+  font-weight: normal;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  background: #404042;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.custom-select-wrapper.open .custom-select-trigger {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  background: #505052;
+}
+
+.custom-select-trigger .arrow {
+  position: relative;
+  height: 10px;
+  width: 10px;
+}
+
+.custom-select-trigger .arrow::before,
+.custom-select-trigger .arrow::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 0.15rem;
+  height: 100%;
+  transition: all 0.2s;
+}
+
+.custom-select-trigger .arrow::before {
+  left: -3px;
+  transform: rotate(-45deg);
+  background-color: #fff;
+}
+
+.custom-select-trigger .arrow::after {
+  left: 3px;
+  transform: rotate(45deg);
+  background-color: #fff;
+}
+
+.custom-select-wrapper.open .custom-select-trigger .arrow::before {
+  transform: rotate(-135deg);
+}
+
+.custom-select-wrapper.open .custom-select-trigger .arrow::after {
+  transform: rotate(135deg);
+}
+
+.custom-options {
+  position: absolute;
+  display: block;
+  top: 100%;
+  left: 0;
+  right: 0;
+  border-top: 0;
+  background: #404042;
+  transition: all 0.2s;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 100;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.custom-select-wrapper.open .custom-options {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+}
+
+.custom-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+  font-size: 18px;
+  font-weight: normal;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.custom-option:last-child {
+  border-bottom: none;
+}
+
+.custom-option span {
+  padding: 8px 12px;
+  display: block;
+}
+
+.custom-option:hover {
+  background-color: #3498db;
+}
+
+.custom-option.selected {
+  background-color: #2980b9;
+}
+
+.option-image-placeholder {
+  width: 100%;
+  height: 120px;
+  background-color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.custom-option.selected .option-image-placeholder {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.custom-option:hover .option-image-placeholder {
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+.option-image-placeholder:empty {
+  display: none;
+}
+
+.option-image-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 2px;
+  box-sizing: border-box;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.custom-option:hover .option-image-placeholder img {
+  transform: none;
 }
