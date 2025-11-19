@@ -14,7 +14,8 @@ import { CanvasGlobals } from "../canvas/canvas.js";
 import { BaseGroup } from "./draw.js";
 import { SymbolObject } from "./symbols.js";
 import { TextObject } from "./text.js";
-import { MainRoadSymbol, SideRoadSymbol } from "./route.js";
+import { MainRoadSymbol } from "./mainRoute.js";
+import { SideRoadSymbol } from "./sideRoute.js";
 import { BorderGroup } from "./border.js"; // Assuming this is defined in this file or imported correctly
 import { DividerObject } from "./divider.js";
 import { globalAnchorTree, anchorShape } from "./anchor.js"; // For registering anchor relationships and creating anchors

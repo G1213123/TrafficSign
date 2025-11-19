@@ -11,7 +11,9 @@ import './objects/draw.js';
 import './objects/template.js';
 import './objects/symbols.js';
 import './objects/text.js';
-import './objects/route.js';
+import './objects/routeBase.js';
+import './objects/mainRoute.js';
+import './objects/sideRoute.js';
 import './objects/border.js';
 import './objects/divider.js';
 // Import anchor and tracker logic if needed

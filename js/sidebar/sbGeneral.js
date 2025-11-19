@@ -327,6 +327,108 @@ let GeneralHandler = {
   },
 
   /**
+   * Creates a custom dropdown with image support
+   * @param {string} name - Name/ID of the dropdown
+   * @param {Array} options - Array of strings or objects {value, label, image}
+   * @param {HTMLElement} parent - Parent element
+   * @param {string} defaultVal - Default selected value
+   * @param {Function} callback - Callback function on change
+   */
+  createImageDropdown: function (name, options, parent, defaultVal, callback) {
+    const container = GeneralHandler.createNode("div", { 'class': 'input-container custom-dropdown-container', 'id': `${name}-container` }, parent);
+
+    // Label
+    const label = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': name }, container);
+    label.setAttribute('data-i18n', name);
+    try { label.textContent = i18n.t(name); } catch (_) { label.textContent = name; }
+
+    // Dropdown wrapper
+    const wrapper = GeneralHandler.createNode("div", { 'class': 'custom-select-wrapper', 'id': name }, container);
+
+    // Selected item display
+    const selectedDisplay = GeneralHandler.createNode("div", { 'class': 'custom-select-trigger' }, wrapper);
+    const selectedText = GeneralHandler.createNode("span", {}, selectedDisplay);
+
+    // Arrow icon
+    const arrow = GeneralHandler.createNode("div", { 'class': 'arrow' }, selectedDisplay);
+
+    // Options list
+    const optionsList = GeneralHandler.createNode("div", { 'class': 'custom-options' }, wrapper);
+
+    // Set initial value
+    let currentValue = defaultVal;
+    container.setAttribute('data-value', currentValue);
+    
+    // We need to find the label for the default value to set selectedText correctly
+    let defaultLabel = currentValue;
+
+    // Create options
+    options.forEach(opt => {
+      const val = typeof opt === 'object' ? opt.value : opt;
+      const txt = typeof opt === 'object' ? opt.label : opt;
+
+      const optionDiv = GeneralHandler.createNode("div", { 'class': 'custom-option', 'data-value': val }, optionsList);
+
+      // Image placeholder
+      const imgPlaceholder = GeneralHandler.createNode("div", { 'class': 'option-image-placeholder' }, optionDiv);
+
+      // If image path is provided, use it
+      if (opt.image) {
+        const img = GeneralHandler.createNode("img", { 'src': 'images/' + opt.image, 'alt': txt }, imgPlaceholder);
+      }
+
+      const textSpan = GeneralHandler.createNode("span", {}, optionDiv);
+      textSpan.setAttribute('data-i18n', txt);
+      try { textSpan.textContent = i18n.t(txt); } catch (_) { textSpan.textContent = txt; }
+
+      if (val === currentValue) {
+        optionDiv.classList.add('selected');
+        selectedText.setAttribute('data-i18n', txt);
+        try { selectedText.textContent = i18n.t(txt); } catch (_) { selectedText.textContent = txt; }
+        defaultLabel = txt;
+      }
+
+      optionDiv.addEventListener('click', function (e) {
+        e.stopPropagation();
+        currentValue = val;
+        container.setAttribute('data-value', currentValue);
+        
+        selectedText.setAttribute('data-i18n', txt);
+        try { selectedText.textContent = i18n.t(txt); } catch (_) { selectedText.textContent = txt; }
+
+        // Update selected class
+        const allOptions = optionsList.querySelectorAll('.custom-option');
+        allOptions.forEach(o => o.classList.remove('selected'));
+        optionDiv.classList.add('selected');
+
+        wrapper.classList.remove('open');
+
+        if (callback) callback();
+      });
+    });
+    
+    // If selectedText is still empty (defaultVal not in options?), set it
+    if (!selectedText.textContent) {
+         selectedText.textContent = defaultLabel;
+    }
+
+    // Toggle dropdown
+    selectedDisplay.addEventListener('click', function (e) {
+      wrapper.classList.toggle('open');
+      e.stopPropagation();
+    });
+
+    // Close on click outside
+    document.addEventListener('click', function (e) {
+      if (!wrapper.contains(e.target)) {
+        wrapper.classList.remove('open');
+      }
+    });
+
+    return container;
+  },
+
+  /**
    * Gets the value of the active button in a toggle container
    * @param {string} containerId - The ID of the toggle container
    * @return {string|null} The value of the active button or null if not found

@@ -5,7 +5,8 @@ import { LockIcon } from '../objects/lock.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { DividerObject } from '../objects/divider.js';
 import { BorderUtilities, BorderGroup } from '../objects/border.js';
-import { MainRoadSymbol, SideRoadSymbol } from '../objects/route.js';
+import { MainRoadSymbol } from '../objects/mainRoute.js';
+import { SideRoadSymbol } from '../objects/sideRoute.js';
 import { FormTemplateComponent } from '../sidebar/sb-template.js';
 
 const canvasObject = CanvasGlobals.canvasObject; // Assuming canvasObject is defined in canvas.js

@@ -6,7 +6,8 @@ import { SymbolObject } from '../objects/symbols.js';
 import { BorderUtilities } from '../objects/border.js';
 import { DividerObject } from '../objects/divider.js';
 import { DividerMargin } from '../objects/template.js';
-import { MainRoadSymbol, SideRoadSymbol } from '../objects/route.js';
+import { MainRoadSymbol } from '../objects/mainRoute.js';
+import { SideRoadSymbol } from '../objects/sideRoute.js';
 import { anchorShape } from '../objects/anchor.js';
 
 const canvas = CanvasGlobals.canvas;
