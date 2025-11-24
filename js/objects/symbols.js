@@ -34,6 +34,7 @@ function calcSymbol(type, length, color = 'white') {
         vertex.x *= length;
         vertex.y *= length;
         if (vertex.radius) vertex.radius *= length;
+        if (vertex.width) vertex.width *= length;
       });
     }
     if (path.centerArc) {

@@ -262,8 +262,8 @@ function roundelTemplate(type, rootLength) {
                         { start: 'V14', end: 'V15', radius: 12, direction: 0, sweep: 0 },
                         { start: 'V15', end: 'V16', radius: 1, direction: 0, sweep: 0 },
                     ], 'centerLine': [
-                        { x: 0, y: 9.5, label: 'C4', start: 1, display: 1 },
-                        { x: 0, y: rootLength, label: 'C5', start: 0, display: 1 },]
+                        { x: 0, y: 9.5, label: 'C4', width: 6, start: 1, display: 1 },
+                        { x: 0, y: rootLength, label: 'C5', width: 6, start: 0, display: 1 },]
                 },
                 {
                     'vertex': [
@@ -286,8 +286,8 @@ function roundelTemplate(type, rootLength) {
                         { start: 'V24', end: 'V25', radius: 12, direction: 1, sweep: 0 },
                         { start: 'V25', end: 'V2', radius: 12, direction: 1, sweep: 0 },
                     ], 'centerLine': [
-                        { x: 4.75, y: 8.2273, label: 'C2', start: 1, display: 1 },
-                        { x: 8.2273, y: 4.75, label: 'C3', start: 0, display: 1 },
+                        { x: 4.75, y: 8.2273, label: 'C2', width: 5, start: 1, display: 1 },
+                        { x: 8.2273, y: 4.75, label: 'C3', width: 5, start: 0, display: 1 },
                     ], 'centerArc': [
                         { start: 'C2', end: 'C3', radius: 9.5, direction:1, sweep: 1 }]
                 },

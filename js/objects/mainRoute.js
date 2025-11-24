@@ -268,6 +268,134 @@ function calcMainRoadVertices(xHeight, routeList, innerCornerRadius = null, oute
     }
 }
 
+function generateOutlineFromCenterline(centerLine, centerArc) {
+    const rightPath = [];
+    const leftPath = [];
+    const newArcs = [];
+
+    // Helper to find arc
+    const findArc = (startLabel, endLabel) => {
+        if (!centerArc) return null;
+        return centerArc.find(a => a.start === startLabel && a.end === endLabel);
+    };
+
+    for (let i = 0; i < centerLine.length - 1; i++) {
+        const curr = centerLine[i];
+        const next = centerLine[i + 1];
+        const width = curr.width || 4; // Default width
+        const offset = width / 2;
+
+        const arc = findArc(curr.label, next.label);
+
+        if (arc) {
+            // Handle Arc
+            const d2 = Math.pow(next.x - curr.x, 2) + Math.pow(next.y - curr.y, 2);
+            const det = Math.sqrt(Math.max(0, arc.radius * arc.radius / d2 - 0.25));
+
+            const dx = next.x - curr.x;
+            const dy = next.y - curr.y;
+
+            let hx = (curr.x + next.x) / 2;
+            let hy = (curr.y + next.y) / 2;
+
+            let cx, cy;
+
+            if (arc.direction === 1) { // CW
+                cx = hx + dy * det;
+                cy = hy - dx * det;
+            } else { // CCW
+                cx = hx - dy * det;
+                cy = hy + dx * det;
+            }
+
+            const getOffsetPoint = (p, c, r_new) => {
+                const v_x = p.x - c.x;
+                const v_y = p.y - c.y;
+                const len = Math.sqrt(v_x * v_x + v_y * v_y);
+                return {
+                    x: c.x + (v_x / len) * r_new,
+                    y: c.y + (v_y / len) * r_new
+                };
+            };
+
+            let r_right, r_left;
+            if (arc.direction === 1) {
+                r_right = arc.radius - offset;
+                r_left = arc.radius + offset;
+            } else {
+                r_right = arc.radius + offset;
+                r_left = arc.radius - offset;
+            }
+
+            const currRight = getOffsetPoint(curr, { x: cx, y: cy }, r_right);
+            const nextRight = getOffsetPoint(next, { x: cx, y: cy }, r_right);
+            const currLeft = getOffsetPoint(curr, { x: cx, y: cy }, r_left);
+            const nextLeft = getOffsetPoint(next, { x: cx, y: cy }, r_left);
+
+            if (i === 0) {
+                rightPath.push({ ...currRight, label: `R${i}` });
+                leftPath.push({ ...currLeft, label: `L${i}` });
+            }
+            rightPath.push({ ...nextRight, label: `R${i + 1}` });
+            leftPath.push({ ...nextLeft, label: `L${i + 1}` });
+
+            newArcs.push({
+                start: `R${i}`,
+                end: `R${i + 1}`,
+                radius: r_right,
+                direction: arc.direction,
+                sweep: arc.sweep
+            });
+
+            newArcs.push({
+                start: `L${i + 1}`,
+                end: `L${i}`,
+                radius: r_left,
+                direction: 1 - arc.direction,
+                sweep: arc.sweep
+            });
+
+        } else {
+            // Handle Line
+            const dx = next.x - curr.x;
+            const dy = next.y - curr.y;
+            const len = Math.sqrt(dx * dx + dy * dy);
+            const nx = -dy / len;
+            const ny = dx / len;
+
+            const currRight = { x: curr.x + nx * offset, y: curr.y + ny * offset };
+            const nextRight = { x: next.x + nx * offset, y: next.y + ny * offset };
+            const currLeft = { x: curr.x - nx * offset, y: curr.y - ny * offset };
+            const nextLeft = { x: next.x - nx * offset, y: next.y - ny * offset };
+
+            if (i === 0) {
+                rightPath.push({ ...currRight, label: `R${i}` });
+                leftPath.push({ ...currLeft, label: `L${i}` });
+            }
+            rightPath.push({ ...nextRight, label: `R${i + 1}` });
+            leftPath.push({ ...nextLeft, label: `L${i + 1}` });
+        }
+    }
+
+    const vertexList = [...rightPath];
+    for (let i = leftPath.length - 1; i >= 0; i--) {
+        vertexList.push(leftPath[i]);
+    }
+
+    assignVertexLabel(vertexList);
+
+    const labelMap = {};
+    rightPath.forEach((p, idx) => labelMap[`R${idx}`] = vertexList[idx].label);
+    leftPath.forEach((p, idx) => labelMap[`L${idx}`] = vertexList[rightPath.length + (leftPath.length - 1 - idx)].label);
+
+    newArcs.forEach(a => {
+        a.start = labelMap[a.start];
+        a.end = labelMap[a.end];
+    });
+
+    return { vertex: vertexList, arcs: newArcs };
+}
+
 /**
  * Calculates vertices for a conventional roundabout
  * @param {number} xHeight - X-height value
@@ -295,6 +423,12 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
                 angle: 0
             });
             p.centerLine = transformedCenterLine;
+
+            if (type === 'Conventional') {
+                const outline = generateOutlineFromCenterline(p.centerLine, p.centerArc);
+                p.vertex = outline.vertex;
+                p.arcs = outline.arcs;
+            }
         }
     });
 
