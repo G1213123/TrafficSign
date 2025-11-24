@@ -1,5 +1,5 @@
 import { BaseGroup, GlyphPath } from './draw.js';
-import { calculateTransformedPoints } from './path.js';
+import { calculateTransformedPoints, convertVertexToPathCommands } from './path.js';
 import { roadMapTemplate, roundelTemplate } from './template.js';
 import { calcSymbol } from './symbols.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
@@ -287,6 +287,15 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
             angle: 0
         });
         p.vertex = transformed
+
+        if (p.centerLine) {
+            let transformedCenterLine = calculateTransformedPoints(p.centerLine, {
+                x: center.x,
+                y: center.y,
+                angle: 0
+            });
+            p.centerLine = transformedCenterLine;
+        }
     });
 
     return roundel;
@@ -377,6 +386,31 @@ class MainRoadSymbol extends BaseGroup {
 
         // Set the basePolygon that was initially null in the constructor
         this.setBasePolygon(arrow, false)
+
+        if (vertexList.path) {
+            vertexList.path.forEach(p => {
+                if (p.centerLine) {
+                    const centerLineData = {
+                        vertex: p.centerLine,
+                        arcs: p.centerArc
+                    };
+
+                    const centerLineCommands = convertVertexToPathCommands(centerLineData, false);
+
+                    const centerLinePath = new fabric.Path(centerLineCommands, {
+                        fill: '',
+                        stroke: 'red',
+                        strokeWidth: 2,
+                        strokeDashArray: [5, 5],
+                        objectCaching: false,
+                        originX: 'left',
+                        originY: 'top'
+                    });
+
+                    this.add(centerLinePath);
+                }
+            });
+        }
 
         // Add special features based on RAfeature
         if (this.RAfeature === 'U-turn') {

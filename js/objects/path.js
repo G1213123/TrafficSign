@@ -447,9 +447,10 @@ function getInsertOffset(shapeMeta, angle = 0) {
 /**
  * Convert vertex data directly to Fabric.js path commands
  * @param {Object} path - Path object with vertices and arcs
+ * @param {boolean} isClosed - Whether to close the path (default: true)
  * @returns {string} - Fabric.js path command string
  */
-function convertVertexToPathCommands(path) {
+function convertVertexToPathCommands(path, isClosed = true) {
   let pathCommands = '';
   const vertices = path.vertex || [];
 
@@ -540,7 +541,7 @@ function convertVertexToPathCommands(path) {
       }
 
       // Close the path
-      pathCommands += 'Z ';
+      if (isClosed) pathCommands += 'Z ';
 
       // Reset path start for next subpath
       if (i < vertices.length - 1) {
@@ -551,7 +552,7 @@ function convertVertexToPathCommands(path) {
   }
 
   // Close the final subpath if needed
-  if (!pathCommands.endsWith('Z ')) {
+  if (isClosed && !pathCommands.endsWith('Z ')) {
     pathCommands += 'Z';
   }
 
