@@ -29,6 +29,20 @@ function calcSymbol(type, length, color = 'white') {
       arc.radius *= length;
       if (arc.radius2) { arc.radius2 *= length; }
     });
+    if (path.centerLine) {
+      path.centerLine.forEach(vertex => {
+        vertex.x *= length;
+        vertex.y *= length;
+        if (vertex.radius) vertex.radius *= length;
+        if (vertex.width) vertex.width *= length;
+      });
+    }
+    if (path.centerArc) {
+      path.centerArc.forEach(arc => {
+        arc.radius *= length;
+        if (arc.radius2) { arc.radius2 *= length; }
+      });
+    }
   });
 
   if (symbol.text) {

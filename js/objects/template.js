@@ -261,7 +261,9 @@ function roundelTemplate(type, rootLength) {
                         { start: 'V13', end: 'V14', radius: 1, direction: 0, sweep: 0 },
                         { start: 'V14', end: 'V15', radius: 12, direction: 0, sweep: 0 },
                         { start: 'V15', end: 'V16', radius: 1, direction: 0, sweep: 0 },
-                    ]
+                    ], 'centerLine': [
+                        { x: 0, y: 9.5, label: 'C4', width: 6, start: 1, display: 1 },
+                        { x: 0, y: rootLength, label: 'C5', width: 6, start: 0, display: 1 },]
                 },
                 {
                     'vertex': [
@@ -283,7 +285,11 @@ function roundelTemplate(type, rootLength) {
                         { start: 'V22', end: 'V23', radius: 7, direction: 0, sweep: 1 },
                         { start: 'V24', end: 'V25', radius: 12, direction: 1, sweep: 0 },
                         { start: 'V25', end: 'V2', radius: 12, direction: 1, sweep: 0 },
-                    ]
+                    ], 'centerLine': [
+                        { x: 4.75, y: 8.2273, label: 'C2', width: 5, start: 1, display: 1 },
+                        { x: 8.2273, y: 4.75, label: 'C3', width: 5, start: 0, display: 1 },
+                    ], 'centerArc': [
+                        { start: 'C2', end: 'C3', radius: 9.5, direction:1, sweep: 1 }]
                 },
                 ],
             }
@@ -311,7 +317,7 @@ function roundelTemplate(type, rootLength) {
                 {
                     'vertex': [
                         { x: 0, y: -12, label: 'V2', start: 1, display: 1 }, // Original center point
-                        { x: 12, y: 0, label: 'V20', start: 0, display: 1 }, 
+                        { x: 12, y: 0, label: 'V20', start: 0, display: 1 },
                         { x: 2.0838, y: 11.8177, label: 'V21', start: 0, display: 0 },
                         { x: 1.2155, y: 6.8937, label: 'V22', start: 0, display: 0 },
                         { x: -1.2155, y: 6.8937, label: 'V23', start: 0, display: 0 },
@@ -404,7 +410,7 @@ function roundelTemplate(type, rootLength) {
                 {
                     'vertex': [
                         { x: 0, y: -14, label: 'V11', start: 1, display: 1 }, // Original center point
-                        { x: 14, y: 0, label: 'V12', start: 0, display: 1 }, 
+                        { x: 14, y: 0, label: 'V12', start: 0, display: 1 },
                         { x: 12.1244, y: 7, label: 'V13', start: 0, display: 0 },
                         { x: 8.6603, y: 5, label: 'V14', start: 0, display: 0 },
                         { x: 5, y: 8.6603, label: 'V15', start: 0, display: 0 },
@@ -443,7 +449,7 @@ function roundelTemplate(type, rootLength) {
                 {
                     'vertex': [
                         { x: 0, y: -14, label: 'V11', start: 1, display: 1 }, // Original center point
-                        { x: 14, y: 0, label: 'V12', start: 0, display: 1 }, 
+                        { x: 14, y: 0, label: 'V12', start: 0, display: 1 },
                         { x: 2, y: 13.8564, label: 'V13', start: 0, display: 0 },
                         { x: 2, y: 9.7980, label: 'V14', start: 0, display: 0 },
                         { x: 0, y: 10, label: 'V15', start: 0, display: 0 },
@@ -495,7 +501,7 @@ function roundelTemplate(type, rootLength) {
                 {
                     'vertex': [
                         { x: 0, y: -14, label: 'V21', start: 1, display: 1 }, // Center point
-                        { x: 14, y: 0, label: 'V22', start: 0, display: 1 }, 
+                        { x: 14, y: 0, label: 'V22', start: 0, display: 1 },
                         { x: 12.1244, y: 7, label: 'V23', start: 0, display: 0 },
                         { x: 8.6603, y: 5, label: 'V24', start: 0, display: 0 },
                         { x: 5, y: 8.6603, label: 'V25', start: 0, display: 0 },
@@ -4030,12 +4036,12 @@ function HDividerTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
 
     const returnBorder = [{
         'vertex': [
-            { x: 0, y: 0, label: 'V1', start: 1 , display: 1},
+            { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
             { x: Xwidth / 2, y: 0, label: 'V2', radius: 1.5, start: 0 },
             { x: Xwidth / 2, y: -1.5, label: 'V3', start: 0 },
             { x: Xwidth / 2, y: 2.5, label: 'V4', start: 0 },
             { x: Xwidth / 2, y: 1, label: 'V5', radius: 1.5, start: 0 },
-            { x: 0, y: 1, label: 'V6', radius: 1.5, start: 0 , display: 1},
+            { x: 0, y: 1, label: 'V6', radius: 1.5, start: 0, display: 1 },
             { x: -Xwidth / 2, y: 1, label: 'V7', radius: 1.5, start: 0 },
             { x: -Xwidth / 2, y: 2.5, label: 'V8', start: 0 },
             { x: -Xwidth / 2, y: -1.5, label: 'V9', start: 0 },
@@ -4140,18 +4146,18 @@ function VLaneTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
             returnBorder[0].vertex.push(...[
                 { x: 0, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V1', start: 1 },
                 { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V2', start: 0 },
-                { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - diminishedStroke, label: 'V3', start: 0 , display: 1},
-                { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - diminishedStroke, label: 'V4', start: 0 , display: 1},
+                { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - diminishedStroke, label: 'V3', start: 0, display: 1 },
+                { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - diminishedStroke, label: 'V4', start: 0, display: 1 },
                 { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: 'V5', start: 0 },
             ])
             k++
         } else if (i != 0) {
             returnBorder[0].vertex.push(...[
-                { x: 0, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: `V${k*5 + 1}`, start: 1 },
-                { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: `V${k*5 + 2}`, start: 0 },
-                { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: `V${k*5 + 3}`, start: 0 },
-                { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: `V${k*5 + 4}`, start: 0 },
-                { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: `V${k*5 + 5}`, start: 0 },
+                { x: 0, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: `V${k * 5 + 1}`, start: 1 },
+                { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: `V${k * 5 + 2}`, start: 0 },
+                { x: 1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: `V${k * 5 + 3}`, start: 0 },
+                { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing) - strokeHeight, label: `V${k * 5 + 4}`, start: 0 },
+                { x: -1.5, y: BHeight - DividerMargin['VLane'].bottom - rounding.y / 2 + i * (strokeHeight + strokeSpacing), label: `V${k * 5 + 5}`, start: 0 },
             ])
             k++
         }
