@@ -1,11 +1,28 @@
 /* Homepage Styles - Professional Landing Page */
 
+/*
+ * ========================================
+ *   MONOTONE MODE - TEMPORARILY ACTIVE
+ * ========================================
+ * All colors have been converted to grayscale.
+ * To restore original colors, revert changes to:
+ * - CSS variables in :root (lines 5-9)
+ * - Hardcoded color values throughout file
+ * Original color scheme:
+ *   --primary-color: #2563eb (blue)
+ *   --primary-dark: #1d4ed8 (dark blue)
+ *   --accent-color: #f59e0b (orange)
+ *   --success-color: #10b981 (green)
+ * ========================================
+ */
+
 :root {
-    --primary-color: #2563eb;
-    --primary-dark: #1d4ed8;
+    /* MONOTONE MODE - Temporarily converted all colors to grayscale */
+    --primary-color: #4a4a4a;
+    --primary-dark: #2a2a2a;
     --secondary-color: #64748b;
-    --accent-color: #f59e0b;
-    --success-color: #10b981;
+    --accent-color: #6b6b6b;
+    --success-color: #5a5a5a;
     --background-color: #ffffff;
     --background-alt: #f8fafc;
     --text-primary: #1e293b;
@@ -63,7 +80,7 @@ body {
     text-align: center;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     position: relative;
-    border: 3px solid #f59e0b;
+    border: 3px solid #6b6b6b;
 }
 
 .migration-sign {
@@ -88,14 +105,14 @@ body {
 }
 
 .migration-link {
-    color: #2563eb;
+    color: #4a4a4a;
     text-decoration: none;
     font-weight: 600;
     transition: color 0.2s ease;
 }
 
 .migration-link:hover {
-    color: #1d4ed8;
+    color: #2a2a2a;
     text-decoration: underline;
 }
 
@@ -188,7 +205,7 @@ body {
     align-items: center;
     font-weight: 700;
     font-size: 1.5rem;
-    color: #0033a2;
+    color: #2a2a2a;
     text-decoration: none;
 }
 
@@ -1381,8 +1398,8 @@ body {
 /* Development Status Styling */
 
 .development-notice {
-    background: linear-gradient(135deg, #e0f2fe, #b3e5fc);
-    border: 2px solid #0288d1;
+    background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+    border: 2px solid #6b6b6b;
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 2rem;
@@ -1397,13 +1414,13 @@ body {
 }
 
 .development-notice i {
-    color: #0288d1;
+    color: #6b6b6b;
     font-size: 1.25rem;
     flex-shrink: 0;
 }
 
 .development-notice span {
-    color: #01579b;
+    color: #2a2a2a;
     font-size: 0.95rem;
     line-height: 1.5;
 }
@@ -1415,7 +1432,7 @@ body {
 
 /* Enhanced warning colors */
 .about-feature:has(i.fa-exclamation-triangle) span {
-    color: #d97706;
+    color: #6b6b6b;
     font-weight: 600;
 }
 
@@ -2370,13 +2387,13 @@ html {
     content: '';
     position: absolute;
     width: 4px;
-    background: linear-gradient(135deg, var(--primary-color), #06674b);
+    background: linear-gradient(135deg, var(--primary-color), #4a4a4a);
     top: 0;
     bottom: 0;
     left: 50%;
     margin-left: -2px;
     border-radius: 2px;
-    box-shadow: 0 0 10px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 0 10px rgba(74, 74, 74, 0.3);
     z-index: -99;
 }
 
@@ -2482,37 +2499,37 @@ html {
 }
 
 .status-concept {
-    background: linear-gradient(135deg, #1e40af, #1d4ed8);
+    background: linear-gradient(135deg, #3a3a3a, #2a2a2a);
     color: white;
 }
 
 .status-development {
-    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    background: linear-gradient(135deg, #5a5a5a, #4a4a4a);
     color: white;
 }
 
 .status-beta {
-    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    background: linear-gradient(135deg, #6a6a6a, #5a5a5a);
     color: white;
 }
 
 .status-completed {
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: linear-gradient(135deg, #5a5a5a, #4a4a4a);
     color: white;
 }
 
 .status-research {
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    background: linear-gradient(135deg, #4a4a4a, #3a3a3a);
     color: white;
 }
 
 .status-innovation {
-    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    background: linear-gradient(135deg, #5a5a5a, #4a4a4a);
     color: white;
 }
 
 .status-future {
-    background: linear-gradient(135deg, #047857, #065f46);
+    background: linear-gradient(135deg, #4a4a4a, #3a3a3a);
     color: white;
 }
 
@@ -2557,58 +2574,58 @@ html {
 
 /* Timeline content color theming - Blue to Green spectrum progression */
 .timeline-content:has(.status-concept) {
-    border-left: 4px solid #1e40af;
-    background: linear-gradient(135deg, rgba(30, 64, 175, 0.02), rgba(29, 78, 216, 0.01));
+    border-left: 4px solid #3a3a3a;
+    background: linear-gradient(135deg, rgba(58, 58, 58, 0.02), rgba(42, 42, 42, 0.01));
 }
 
 .timeline-content:has(.status-research) {
-    border-left: 4px solid #3b82f6;
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.02), rgba(37, 99, 235, 0.01));
+    border-left: 4px solid #4a4a4a;
+    background: linear-gradient(135deg, rgba(74, 74, 74, 0.02), rgba(58, 58, 58, 0.01));
 }
 
 .timeline-content:has(.status-development) {
-    border-left: 4px solid #0ea5e9;
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.02), rgba(2, 132, 199, 0.01));
+    border-left: 4px solid #5a5a5a;
+    background: linear-gradient(135deg, rgba(90, 90, 90, 0.02), rgba(74, 74, 74, 0.01));
 }
 
 .timeline-content:has(.status-innovation) {
-    border-left: 4px solid #0ea5e9;
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.02), rgba(2, 132, 199, 0.01));
+    border-left: 4px solid #5a5a5a;
+    background: linear-gradient(135deg, rgba(90, 90, 90, 0.02), rgba(74, 74, 74, 0.01));
 }
 
 .timeline-content:has(.status-beta) {
-    border-left: 4px solid #06b6d4;
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.02), rgba(8, 145, 178, 0.01));
+    border-left: 4px solid #6a6a6a;
+    background: linear-gradient(135deg, rgba(106, 106, 106, 0.02), rgba(90, 90, 90, 0.01));
 }
 
 .timeline-content:has(.status-future) {
-    border-left: 4px solid #047857;
-    background: linear-gradient(135deg, rgba(4, 120, 87, 0.02), rgba(6, 95, 70, 0.01));
+    border-left: 4px solid #4a4a4a;
+    background: linear-gradient(135deg, rgba(74, 74, 74, 0.02), rgba(58, 58, 58, 0.01));
 }
 
 /* Timeline icon color coordination */
 .timeline-item:has(.status-concept) .timeline-icon {
-    background: linear-gradient(135deg, #1e40af, #1d4ed8);
+    background: linear-gradient(135deg, #3a3a3a, #2a2a2a);
 }
 
 .timeline-item:has(.status-research) .timeline-icon {
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    background: linear-gradient(135deg, #4a4a4a, #3a3a3a);
 }
 
 .timeline-item:has(.status-development) .timeline-icon {
-    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    background: linear-gradient(135deg, #5a5a5a, #4a4a4a);
 }
 
 .timeline-item:has(.status-innovation) .timeline-icon {
-    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    background: linear-gradient(135deg, #5a5a5a, #4a4a4a);
 }
 
 .timeline-item:has(.status-beta) .timeline-icon {
-    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    background: linear-gradient(135deg, #6a6a6a, #5a5a5a);
 }
 
 .timeline-item:has(.status-future) .timeline-icon {
-    background: linear-gradient(135deg, #047857, #065f46);
+    background: linear-gradient(135deg, #4a4a4a, #3a3a3a);
 }
 
 /* Timeline responsive design */
