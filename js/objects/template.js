@@ -289,7 +289,7 @@ function roundelTemplate(type, rootLength) {
                         { x: 4.75, y: 8.2273, label: 'C2', width: 5, start: 1, display: 1 },
                         { x: 8.2273, y: 4.75, label: 'C3', width: 5, start: 0, display: 1 },
                     ], 'centerArc': [
-                        { start: 'C2', end: 'C3', radius: 9.5, direction:1, sweep: 1 }]
+                        { start: 'C2', end: 'C3', radius: 9.5, direction: 1, sweep: 1 }]
                 },
                 ],
             }
@@ -592,6 +592,168 @@ const symbolsTemplate = {
             },
         ],
     },
+
+    'TunnelClosed': {
+        path: [ // 4.5.2.2
+            {
+                'vertex': [
+                    { x: 0, y: 2, label: 'V1', start: 1, display: 1 },
+                    { x: 3.25, y: 2, label: 'V2', start: 0, display: 0 },
+                    { x: 7.25, y: 6, label: 'V3', start: 0, display: 0 },
+                    { x: 7.25, y: 15, label: 'V4', start: 0, display: 0 },
+                    { x: -7.25, y: 15, label: 'V5', start: 0, display: 0 },
+                    { x: -7.25, y: 6, label: 'V6', start: 0, display: 0 },
+                    { x: -3.25, y: 2, label: 'V7', start: 0, display: 0 },
+                    { x: -4.25, y: 12.5, label: 'V8', start: 1, display: 0 },
+                    { x: 4.25, y: 12.5, label: 'V9', start: 0, display: 0 },
+                    { x: 0, y: 0, label: 'V10', start: 1, display: 0 },
+                ], 'arcs': [{ start: 'V9', end: 'V8', radius: 5.25, direction: 0, sweep: 1 }],
+            },
+            {
+                'vertex': [
+                    { x: 8.116, y: 0, label: 'V91', start: 1, display: 1 },
+                    { x: 9, y: 0, label: 'V92', start: 0, display: 0 },
+                    { x: 9, y: 0.884, label: 'V93', start: 0, display: 0 },
+                    { x: -8.116, y: 16, label: 'V94', start: 0, display: 1 },
+                    { x: -9, y: 16, label: 'V95', start: 0, display: 0 },
+                    { x: -9, y: 15.116, label: 'V96', start: 0, display: 0 },
+
+                ], 'arcs': [], 'fill': '#ff0000'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V10', start: 1, display: 0 },
+                    { x: 9, y: 0, label: 'V11', start: 0, display: 0 },
+                    { x: 9, y: 16, label: 'V12', start: 0, display: 0 },
+                    { x: -9, y: 16, label: 'V13', start: 0, display: 0 },
+                    { x: -9, y: 0, label: 'V14', start: 0, display: 0 },
+                    { x: 0, y: 0.2, label: 'V15', start: 1, display: 0 },
+                    { x: -8.8, y: 0.2, label: 'V16', start: 0, display: 0 },
+                    { x: -8.8, y: 1.9, label: 'V17', start: 0, display: 0 },
+                    { x: 8.8, y: 1.9, label: 'V18', start: 0, display: 0 },
+                    { x: 8.8, y: 0.2, label: 'V19', start: 0, display: 0 },
+
+                    { x: 0, y: 2.1, label: 'V25', start: 1, display: 0 },
+                    { x: -8.8, y: 2.1, label: 'V26', start: 0, display: 0 },
+                    { x: -8.8, y: 3.9, label: 'V27', start: 0, display: 0 },
+                    { x: 8.8, y: 3.9, label: 'V28', start: 0, display: 0 },
+                    { x: 8.8, y: 2.1, label: 'V29', start: 0, display: 0 },
+
+                    { x: 0, y: 4.1, label: 'V35', start: 1, display: 0 },
+                    { x: -8.8, y: 4.1, label: 'V36', start: 0, display: 0 },
+                    { x: -8.8, y: 5.9, label: 'V37', start: 0, display: 0 },
+                    { x: 8.8, y: 5.9, label: 'V38', start: 0, display: 0 },
+                    { x: 8.8, y: 4.1, label: 'V39', start: 0, display: 0 },
+
+                    { x: 0, y: 6.1, label: 'V45', start: 1, display: 0 },
+                    { x: -8.8, y: 6.1, label: 'V46', start: 0, display: 0 },
+                    { x: -8.8, y: 7.9, label: 'V47', start: 0, display: 0 },
+                    { x: 8.8, y: 7.9, label: 'V48', start: 0, display: 0 },
+                    { x: 8.8, y: 6.1, label: 'V49', start: 0, display: 0 },
+
+                    { x: 0, y: 8.1, label: 'V55', start: 1, display: 0 },
+                    { x: -8.8, y: 8.1, label: 'V56', start: 0, display: 0 },
+                    { x: -8.8, y: 9.9, label: 'V57', start: 0, display: 0 },
+                    { x: 8.8, y: 9.9, label: 'V58', start: 0, display: 0 },
+                    { x: 8.8, y: 8.1, label: 'V59', start: 0, display: 0 },
+
+                    { x: 0, y: 10.1, label: 'V65', start: 1, display: 0 },
+                    { x: -8.8, y: 10.1, label: 'V66', start: 0, display: 0 },
+                    { x: -8.8, y: 11.9, label: 'V67', start: 0, display: 0 },
+                    { x: 8.8, y: 11.9, label: 'V68', start: 0, display: 0 },
+                    { x: 8.8, y: 10.1, label: 'V69', start: 0, display: 0 },
+
+                    { x: 0, y: 12.1, label: 'V75', start: 1, display: 0 },
+                    { x: -8.8, y: 12.1, label: 'V76', start: 0, display: 0 },
+                    { x: -8.8, y: 13.9, label: 'V77', start: 0, display: 0 },
+                    { x: 8.8, y: 13.9, label: 'V78', start: 0, display: 0 },
+                    { x: 8.8, y: 12.1, label: 'V79', start: 0, display: 0 },
+
+                    { x: 0, y: 14.1, label: 'V85', start: 1, display: 0 },
+                    { x: -8.8, y: 14.1, label: 'V86', start: 0, display: 0 },
+                    { x: -8.8, y: 15.8, label: 'V87', start: 0, display: 0 },
+                    { x: 8.8, y: 15.8, label: 'V88', start: 0, display: 0 },
+                    { x: 8.8, y: 14.1, label: 'V89', start: 0, display: 0 },
+                ], 'arcs': [], 'fill': '#000000'
+            },
+        ],
+    },
+
+    'TunnelOpened': {
+        path: [ // 4.5.2.2
+            {
+                'vertex': [
+                    { x: 0, y: 2, label: 'V1', start: 1, display: 1 },
+                    { x: 3.25, y: 2, label: 'V2', start: 0, display: 0 },
+                    { x: 7.25, y: 6, label: 'V3', start: 0, display: 0 },
+                    { x: 7.25, y: 15, label: 'V4', start: 0, display: 0 },
+                    { x: -7.25, y: 15, label: 'V5', start: 0, display: 0 },
+                    { x: -7.25, y: 6, label: 'V6', start: 0, display: 0 },
+                    { x: -3.25, y: 2, label: 'V7', start: 0, display: 0 },
+                    { x: -4.25, y: 12.5, label: 'V8', start: 1, display: 0 },
+                    { x: 4.25, y: 12.5, label: 'V9', start: 0, display: 0 },
+                    { x: 0, y: 0, label: 'V10', start: 1, display: 0 },
+                ], 'arcs': [{ start: 'V9', end: 'V8', radius: 5.25, direction: 0, sweep: 1 }],
+            },        
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V10', start: 1, display: 0 },
+                    { x: 9, y: 0, label: 'V11', start: 0, display: 0 },
+                    { x: 9, y: 16, label: 'V12', start: 0, display: 0 },
+                    { x: -9, y: 16, label: 'V13', start: 0, display: 0 },
+                    { x: -9, y: 0, label: 'V14', start: 0, display: 0 },
+                    { x: 0, y: 0.2, label: 'V15', start: 1, display: 0 },
+                    { x: -8.8, y: 0.2, label: 'V16', start: 0, display: 0 },
+                    { x: -8.8, y: 1.9, label: 'V17', start: 0, display: 0 },
+                    { x: 8.8, y: 1.9, label: 'V18', start: 0, display: 0 },
+                    { x: 8.8, y: 0.2, label: 'V19', start: 0, display: 0 },
+
+                    { x: 0, y: 2.1, label: 'V25', start: 1, display: 0 },
+                    { x: -8.8, y: 2.1, label: 'V26', start: 0, display: 0 },
+                    { x: -8.8, y: 3.9, label: 'V27', start: 0, display: 0 },
+                    { x: 8.8, y: 3.9, label: 'V28', start: 0, display: 0 },
+                    { x: 8.8, y: 2.1, label: 'V29', start: 0, display: 0 },
+
+                    { x: 0, y: 4.1, label: 'V35', start: 1, display: 0 },
+                    { x: -8.8, y: 4.1, label: 'V36', start: 0, display: 0 },
+                    { x: -8.8, y: 5.9, label: 'V37', start: 0, display: 0 },
+                    { x: 8.8, y: 5.9, label: 'V38', start: 0, display: 0 },
+                    { x: 8.8, y: 4.1, label: 'V39', start: 0, display: 0 },
+
+                    { x: 0, y: 6.1, label: 'V45', start: 1, display: 0 },
+                    { x: -8.8, y: 6.1, label: 'V46', start: 0, display: 0 },
+                    { x: -8.8, y: 7.9, label: 'V47', start: 0, display: 0 },
+                    { x: 8.8, y: 7.9, label: 'V48', start: 0, display: 0 },
+                    { x: 8.8, y: 6.1, label: 'V49', start: 0, display: 0 },
+
+                    { x: 0, y: 8.1, label: 'V55', start: 1, display: 0 },
+                    { x: -8.8, y: 8.1, label: 'V56', start: 0, display: 0 },
+                    { x: -8.8, y: 9.9, label: 'V57', start: 0, display: 0 },
+                    { x: 8.8, y: 9.9, label: 'V58', start: 0, display: 0 },
+                    { x: 8.8, y: 8.1, label: 'V59', start: 0, display: 0 },
+
+                    { x: 0, y: 10.1, label: 'V65', start: 1, display: 0 },
+                    { x: -8.8, y: 10.1, label: 'V66', start: 0, display: 0 },
+                    { x: -8.8, y: 11.9, label: 'V67', start: 0, display: 0 },
+                    { x: 8.8, y: 11.9, label: 'V68', start: 0, display: 0 },
+                    { x: 8.8, y: 10.1, label: 'V69', start: 0, display: 0 },
+
+                    { x: 0, y: 12.1, label: 'V75', start: 1, display: 0 },
+                    { x: -8.8, y: 12.1, label: 'V76', start: 0, display: 0 },
+                    { x: -8.8, y: 13.9, label: 'V77', start: 0, display: 0 },
+                    { x: 8.8, y: 13.9, label: 'V78', start: 0, display: 0 },
+                    { x: 8.8, y: 12.1, label: 'V79', start: 0, display: 0 },
+
+                    { x: 0, y: 14.1, label: 'V85', start: 1, display: 0 },
+                    { x: -8.8, y: 14.1, label: 'V86', start: 0, display: 0 },
+                    { x: -8.8, y: 15.8, label: 'V87', start: 0, display: 0 },
+                    { x: 8.8, y: 15.8, label: 'V88', start: 0, display: 0 },
+                    { x: 8.8, y: 14.1, label: 'V89', start: 0, display: 0 },
+                ], 'arcs': [], 'fill': '#000000'
+            },
+        ],
+    },
+
 
     'Expressway': {
         path: [ // Diagram 3.5.7.11
