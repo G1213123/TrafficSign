@@ -2,7 +2,7 @@
 
 /*
  * ========================================
- *   MONOTONE MODE - TEMPORARILY ACTIVE
+ *   MONOTONE MODE - DEACTIVE
  * ========================================
  * All colors have been converted to grayscale.
  * To restore original colors, revert changes to:
@@ -17,12 +17,11 @@
  */
 
 :root {
-    /* MONOTONE MODE - Temporarily converted all colors to grayscale */
-    --primary-color: #4a4a4a;
-    --primary-dark: #2a2a2a;
+    --primary-color: #2563eb;
+    --primary-dark: #1d4ed8;
     --secondary-color: #64748b;
-    --accent-color: #6b6b6b;
-    --success-color: #5a5a5a;
+    --accent-color: #f59e0b;
+    --success-color: #10b981;
     --background-color: #ffffff;
     --background-alt: #f8fafc;
     --text-primary: #1e293b;
@@ -205,7 +204,7 @@ body {
     align-items: center;
     font-weight: 700;
     font-size: 1.5rem;
-    color: #2a2a2a;
+    color: #0033a2;
     text-decoration: none;
 }
 
@@ -1398,8 +1397,8 @@ body {
 /* Development Status Styling */
 
 .development-notice {
-    background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
-    border: 2px solid #6b6b6b;
+    background: linear-gradient(135deg, #e0f2fe, #b3e5fc);
+    border: 2px solid #0288d1;
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 2rem;
@@ -1414,13 +1413,13 @@ body {
 }
 
 .development-notice i {
-    color: #6b6b6b;
+    color: #0288d1;
     font-size: 1.25rem;
     flex-shrink: 0;
 }
 
 .development-notice span {
-    color: #2a2a2a;
+    color: #01579b;
     font-size: 0.95rem;
     line-height: 1.5;
 }
