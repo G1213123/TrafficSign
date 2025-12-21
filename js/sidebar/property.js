@@ -295,9 +295,10 @@ function showPropertyPanel(object) {
         targetObject._showName = newValue;
       }
       try {
-        targetObject.removeAll();
-        targetObject.initialize();
-        targetObject.updateAllCoord();
+        targetObject.updateText(newValue,targetObject.xHeight,targetObject.font,targetObject.color);
+        //targetObject.removeAll();
+        //targetObject.initialize();
+        //targetObject.updateAllCoord();
       } catch (initError) {
         console.error(`Error calling ${targetObject.type}.initialize() for ${prop.key} change:`, initError);
       }

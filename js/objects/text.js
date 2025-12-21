@@ -3,6 +3,7 @@
  */
 
 import { BaseGroup } from './draw.js';
+import { drawDivider } from './divider.js';
 import { textWidthMedium, textWidthHeavy, } from './template.js';
 import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontKorean, parsedFontKai, parsedFontSans, ensureOpenTypePatched } from './path.js';
 import { GeneralSettings } from '../sidebar/sbGeneral.js';
@@ -648,6 +649,22 @@ class TextObject extends BaseGroup {
 
     // Update the name for the object inspector
     this._showName = `<Group ${this.canvasID}> Text - ${newText}`; 
+
+    // Update underline if it exists
+    if (this.underline) {
+      const textWidth = (this.basePolygon && this.basePolygon.width)
+        ? this.basePolygon.width * this.basePolygon.scaleX
+        : this.width;
+
+      const objectBBox = { left: this.left, top: this.top+this.height, right: 0, bottom: 0 };
+      const objectSize = { width: textWidth, height: this.underline.xHeight / 4 };
+
+      const basePoly = drawDivider(this.underline.xHeight, this.underline.color, objectBBox, objectSize, 'HLine');
+      this.underline.replaceBasePolygon(basePoly, false);
+      //this.underline.drawVertex(false);
+      //this.underline.setCoords();
+    }
+    
     //this.canvas.renderAll();
   }
 }
