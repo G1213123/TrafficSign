@@ -5,7 +5,7 @@
 import { BaseGroup } from './draw.js';
 import { drawDivider } from './divider.js';
 import { textWidthMedium, textWidthHeavy, } from './template.js';
-import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontKorean, parsedFontKai, parsedFontSans, ensureOpenTypePatched } from './path.js';
+import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontHK, parsedFontKorean, parsedFontChocolate, parsedFontKai, parsedFontSans, ensureOpenTypePatched } from './path.js';
 import { GeneralSettings } from '../sidebar/sbGeneral.js';
 import { FormTextAddComponent } from '../sidebar/sb-text.js';
 import { FontPriorityManager } from '../modal/md-font.js';
@@ -322,13 +322,14 @@ class TextObject extends BaseGroup {
     let fontFamily = font;
     
     try {
-      // Get special characters array and override font from FontPriorityManager
-      const specialCharacters = FontPriorityManager.getSpecialCharactersArray();
+      // Get override rules from FontPriorityManager
+      const rules = FontPriorityManager.getOverrideRules();
       
-      // Check if the character is in the special characters array
-      if (specialCharacters.includes(actualChar)) {
-        const overrideFontName = FontPriorityManager.getOverrideFont();
-        fontFamily = overrideFontName;
+      // Find a rule that contains this character
+      const matchingRule = rules.find(rule => rule.characters.includes(actualChar));
+      
+      if (matchingRule) {
+        fontFamily = matchingRule.font;
       }
     } catch (error) {
       console.warn('Could not check special characters, using default font:', error);
@@ -495,6 +496,12 @@ class TextObject extends BaseGroup {
       return parsedFontHeavy;
     } else if (fontFamily === 'TW-MOE-Std-Kai') {
       return parsedFontKai;
+    } else if (fontFamily === 'parsedFontKorean') {
+      return parsedFontKorean;
+    } else if (fontFamily === 'parsedFontHK') {
+      return parsedFontHK;
+    } else if (fontFamily === 'parsedFontChocolate') {
+      return parsedFontChocolate;
     } else if (fontFamily === 'parsedFontSans') {
       return parsedFontSans; // Return the sans serif fallback font
     } else if (fontFamily.startsWith('custom_')) {

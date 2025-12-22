@@ -246,6 +246,9 @@ let FormTextAddComponent = {
           case 'parsedFontChinese':
             newFont = 'TW-MOE-Std-Kai';
             break;
+          case 'parsedFontHK':
+            newFont = 'TW-MOE-Std-Kai';
+            break;
           case 'parsedFontMedium':
             newFont = 'TransportMedium';
             break;

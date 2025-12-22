@@ -11,6 +11,8 @@ let parsedFontMedium = null;
 let parsedFontHeavy = null;
 let parsedFontKorean = null; // Korean font has closer appearance to the true sign fonts
 let parsedFontChinese = null; // Chinese font for supplement for special characters
+let parsedFontHK = null; // Hong Kong font
+let parsedFontChocolate = null; // Chocolate font
 let parsedFontKai = null;
 let parsedFontSans = null; // Sans serif fallback for punctuation characters
 let fontParsingPromise = null; // To store the promise
@@ -594,7 +596,7 @@ function parseFont() {
         }
       }).catch(e => { console.error("Error fetching/parsing TransportHeavy:", e); throw e; }),
 
-    fetch('https://fonts.gstatic.com/s/notosanshk/v32/nKKF-GM_FYFRJvXzVXaAPe97P1KHynJFP716qEJ--oWTiYjNvVA.ttf')
+    fetch('https://fonts.gstatic.com/s/notosanstc/v38/-nFuOG829Oofr2wohFbTp9ifNAn722rq0MXz75Ky_CpOtma3uNQ.ttf')
       .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
       .then(buffer => {
         if (typeof opentype !== 'undefined') {
@@ -604,7 +606,29 @@ function parseFont() {
         }
       }).catch(e => { console.error("Error fetching/parsing NotoSansHK-Medium:", e); throw e; }),
 
-    fetch('https://fonts.gstatic.com/s/notosanskr/v36/PbyxFmXiEBPT4ITbgNA5Cgms3VYcOA-vvnIzztgyeLTq8H4hfeE.ttf')
+    fetch('https://fonts.gstatic.com/s/notosanshk/v32/nKKF-GM_FYFRJvXzVXaAPe97P1KHynJFP716qEJ--oWTiYjNvVA.ttf') // Placeholder URL
+      .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
+      .then(buffer => {
+        if (typeof opentype !== 'undefined') {
+          parsedFontHK = opentype.parse(buffer);
+          if (typeof window !== 'undefined') window.parsedFontHK = parsedFontHK;
+        } else {
+          throw new Error("opentype.js not loaded. Cannot parse parsedFontHK.");
+        }
+      }).catch(e => { console.error("Error fetching/parsing parsedFontHK:", e); throw e; }),
+
+    fetch('https://fonts.gstatic.com/s/chocolateclassicalsans/v14/nuFqD-PLTZX4XIgT-P2ToCDudWHHflqUpTpfjWdDPI2J9mHITw.ttf') // Placeholder URL
+      .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
+      .then(buffer => {
+        if (typeof opentype !== 'undefined') {
+          parsedFontChocolate = opentype.parse(buffer);
+          if (typeof window !== 'undefined') window.parsedFontChocolate = parsedFontChocolate;
+        } else {
+          throw new Error("opentype.js not loaded. Cannot parse parsedFontChocolate.");
+        }
+      }).catch(e => { console.error("Error fetching/parsing parsedFontChocolate:", e); throw e; }),
+    
+      fetch('https://fonts.gstatic.com/s/notosanskr/v36/PbyxFmXiEBPT4ITbgNA5Cgms3VYcOA-vvnIzztgyeLTq8H4hfeE.ttf')
       .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
       .then(buffer => {
         if (typeof opentype !== 'undefined') {
@@ -972,6 +996,8 @@ export {
   parsedFontMedium,
   parsedFontHeavy,
   parsedFontChinese,
+  parsedFontHK,
+  parsedFontChocolate,
   parsedFontKorean,
   parsedFontKai,
   parsedFontSans,

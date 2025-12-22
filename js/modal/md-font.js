@@ -9,7 +9,7 @@ import { CanvasGlobals } from '../canvas/canvas.js';
 import { i18n } from '../i18n/i18n.js';
 
 const FontPriorityManager = {
-  fontPriorityList: ['parsedFontKorean', 'parsedFontChinese'], // Default priority
+  fontPriorityList: ['parsedFontKorean', 'parsedFontChinese', 'parsedFontChocolate', 'parsedFontHK'], // Default priority
   /**
    * Initialize font priority system
    */
@@ -22,6 +22,7 @@ const FontPriorityManager = {
    * Show the font priority management modal
    */
   showModal: function () {
+    FontPriorityManager.currentOverrideRules = null; // Reset temporary rules
     const modalId = 'font-priority-modal';
   const { modal, modalContent } = ModalUtils.createModal(modalId, 'Chinese Font Priority Management');
 
@@ -55,56 +56,89 @@ const FontPriorityManager = {
     uploadSection.appendChild(uploadInput);
 
     // Character Override section
-  const overrideSection = ModalUtils.createSection('upload-section');
+    const overrideSection = ModalUtils.createSection('override-section');
 
-  const overrideTitle = document.createElement('h4');
-  overrideTitle.setAttribute('data-i18n', 'Character Override Settings');
-  overrideTitle.textContent = i18n.t('Character Override Settings');
-  const overrideInfo = ModalUtils.createInfoText('Specify characters that should use a specific font. Enter characters directly without spaces or commas.');
+    const overrideTitle = document.createElement('h4');
+    overrideTitle.setAttribute('data-i18n', 'Character Override Settings');
+    overrideTitle.textContent = i18n.t('Character Override Settings');
+    
+    const overrideInfo = ModalUtils.createInfoText('Specify characters that should use a specific font. You can add multiple rules.');
 
-    const overrideContainer = document.createElement('div');
-    overrideContainer.className = 'override-container';
+    const rulesContainer = document.createElement('div');
+    rulesContainer.id = 'override-rules-container';
+    rulesContainer.className = 'override-rules-container';
 
-    // Font selection for override
-  const fontSelectLabel = document.createElement('label');
-  fontSelectLabel.setAttribute('data-i18n', 'Override Font:');
-  fontSelectLabel.textContent = i18n.t('Override Font:');
-    fontSelectLabel.className = 'override-label';
+    // Function to render rules
+    const renderRules = () => {
+        rulesContainer.innerHTML = '';
+        const rules = FontPriorityManager.currentOverrideRules || FontPriorityManager.getOverrideRules();
+        FontPriorityManager.currentOverrideRules = rules; // Cache for editing
 
-    const fontSelect = document.createElement('select');
-    fontSelect.className = 'font-select';
-    fontSelect.id = 'override-font-select';
-    FontPriorityManager.populateFontSelect(fontSelect);    // Character input
-  const charInputLabel = document.createElement('label');
-  charInputLabel.setAttribute('data-i18n', 'Characters:');
-  charInputLabel.textContent = i18n.t('Characters:');
-    charInputLabel.className = 'override-label';
-    const charInput = document.createElement('input');
-    charInput.type = 'text';
-    charInput.className = 'char-input';
-    charInput.id = 'override-char-input';
-  charInput.setAttribute('data-i18n-placeholder', 'e.g., 屯門元朗天水圍');
-  charInput.placeholder = i18n.t('e.g., 屯門元朗天水圍');
-    charInput.value = FontPriorityManager.getSpecialCharacters();
-    overrideContainer.appendChild(fontSelectLabel);
-    overrideContainer.appendChild(fontSelect);
-    overrideContainer.appendChild(charInputLabel);
-    overrideContainer.appendChild(charInput);
+        rules.forEach((rule, index) => {
+            const ruleDiv = document.createElement('div');
+            ruleDiv.className = 'override-rule';
+            ruleDiv.style.display = 'flex';
+            ruleDiv.style.gap = '10px';
+            ruleDiv.style.marginBottom = '10px';
+            ruleDiv.style.alignItems = 'center';
+
+            // Font Select
+            const fontSelect = document.createElement('select');
+            fontSelect.className = 'font-select';
+            FontPriorityManager.populateFontSelect(fontSelect);
+            fontSelect.value = rule.font;
+            fontSelect.onchange = (e) => {
+                rule.font = e.target.value;
+            };
+
+            // Char Input
+            const charInput = document.createElement('input');
+            charInput.type = 'text';
+            charInput.className = 'char-input';
+            charInput.value = rule.characters;
+            charInput.placeholder = i18n.t('Characters');
+            charInput.style.flex = '1';
+            charInput.oninput = (e) => {
+                rule.characters = e.target.value;
+            };
+
+            // Remove Button
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = '×';
+            removeBtn.className = 'remove-button';
+            removeBtn.onclick = () => {
+                rules.splice(index, 1);
+                renderRules();
+            };
+
+            ruleDiv.appendChild(fontSelect);
+            ruleDiv.appendChild(charInput);
+            ruleDiv.appendChild(removeBtn);
+            rulesContainer.appendChild(ruleDiv);
+        });
+    };
+
+    renderRules();
+
+    const addRuleBtn = ModalUtils.createButton('Add Rule', 'add-rule-button', () => {
+        if (!FontPriorityManager.currentOverrideRules) {
+             FontPriorityManager.currentOverrideRules = FontPriorityManager.getOverrideRules();
+        }
+        FontPriorityManager.currentOverrideRules.push({ font: 'parsedFontChinese', characters: '' });
+        renderRules();
+    });
+    addRuleBtn.style.marginTop = '10px';
 
     overrideSection.appendChild(overrideTitle);
     overrideSection.appendChild(overrideInfo);
-    overrideSection.appendChild(overrideContainer);
+    overrideSection.appendChild(rulesContainer);
+    overrideSection.appendChild(addRuleBtn);
 
     // Create apply button using ModalUtils
     const applyButton = ModalUtils.createButton('Apply Changes', 'apply-button', () => {
       // Save character override settings
-      const fontSelect = document.getElementById('override-font-select');
-      const charInput = document.getElementById('override-char-input');
-
-      if (fontSelect && charInput) {
-        const selectedFont = fontSelect.value;
-        const characters = charInput.value.trim();
-        FontPriorityManager.saveCharacterOverride(selectedFont, characters);
+      if (FontPriorityManager.currentOverrideRules) {
+          FontPriorityManager.saveOverrideRules(FontPriorityManager.currentOverrideRules);
       }
 
       // Apply other changes and close modal
@@ -138,7 +172,7 @@ const FontPriorityManager = {
 
     FontPriorityManager.fontPriorityList.forEach((fontName) => {
       // Check if it's a built-in font
-      const isBuiltInFont = ['parsedFontChinese', 'parsedFontKorean', 'parsedFontMedium', 'parsedFontHeavy', 'parsedFontKai'].includes(fontName);
+      const isBuiltInFont = ['parsedFontChinese', 'parsedFontChocolate', 'parsedFontHK', 'parsedFontKorean', 'parsedFontMedium', 'parsedFontHeavy', 'parsedFontKai'].includes(fontName);
 
       if (isBuiltInFont) {
         validFonts.push(fontName);
@@ -211,7 +245,9 @@ const FontPriorityManager = {
   getFontDisplayName: function (fontName) {
     const displayNames = {
       'parsedFontKorean': 'Noto Sans KR (Default)',
-      'parsedFontChinese': 'Noto Sans HK',
+      'parsedFontChinese': 'Noto Sans Trad Chinese',
+      'parsedFontChocolate': 'Noto Sans Chocolate',
+      'parsedFontHK': 'Noto Sans HK',
     };
 
     if (fontName.startsWith('custom_')) {
@@ -342,32 +378,90 @@ const FontPriorityManager = {
     return FontPriorityManager.fontPriorityList;
   },
   /**
+   * Get override rules from localStorage
+   * Migrates old format if necessary
+   */
+  getOverrideRules: function () {
+    const storedRules = localStorage.getItem('overrideRules');
+    if (storedRules) {
+      try {
+        return JSON.parse(storedRules);
+      } catch (e) {
+        console.warn('Failed to parse override rules');
+        return [];
+      }
+    }
+
+    // Migration from old format
+    const oldChars = localStorage.getItem('specialCharacters');
+    const oldFont = localStorage.getItem('overrideFont');
+    
+    if (oldChars || oldFont) {
+      const rules = [{
+        font: oldFont || 'parsedFontChinese',
+        characters: oldChars || '彩天輸勝都愉朗'
+      }];
+      // Save in new format and clear old
+      FontPriorityManager.saveOverrideRules(rules);
+      localStorage.removeItem('specialCharacters');
+      localStorage.removeItem('overrideFont');
+      return rules;
+    }
+
+    // Default if nothing exists
+    return [{
+        font: 'parsedFontHK',
+        characters: '彩天輸勝都愉朗'
+      },{
+        font: 'parsedFontChinese',
+        characters: '啟嶺'
+      },{
+        font: 'parsedFontChocolate',
+        characters: '尚'
+      }];
+  },
+
+  /**
+   * Save override rules to localStorage
+   */
+  saveOverrideRules: function (rules) {
+    localStorage.setItem('overrideRules', JSON.stringify(rules));
+  },
+
+  /**
    * Get special characters from localStorage or return default
+   * @deprecated Use getOverrideRules instead
    */
   getSpecialCharacters: function () {
-    const stored = localStorage.getItem('specialCharacters');
-    if (stored !== null) {
-      // Ensure the stored characters are a valid string
-      return stored;
-    }
-    return '彩天輸勝都愉朗';
-
+    const rules = FontPriorityManager.getOverrideRules();
+    // Return all characters from all rules concatenated
+    return rules.map(r => r.characters).join('');
   },
 
   /**
    * Get the override font from localStorage or return default
+   * @deprecated Use getOverrideRules instead
    */
   getOverrideFont: function () {
-    const stored = localStorage.getItem('overrideFont');
-    return stored || 'parsedFontChinese';
+    const rules = FontPriorityManager.getOverrideRules();
+    return rules.length > 0 ? rules[0].font : 'parsedFontChinese';
   },
 
   /**
    * Save special characters and override font to localStorage
+   * @deprecated Use saveOverrideRules instead
    */
   saveCharacterOverride: function (font, characters) {
-    localStorage.setItem('overrideFont', font);
-    localStorage.setItem('specialCharacters', characters);
+    // This is kept for backward compatibility but should ideally not be used
+    // It will overwrite the first rule or create a new one
+    const rules = FontPriorityManager.getOverrideRules();
+    if (rules.length > 0) {
+      rules[0].font = font;
+      rules[0].characters = characters;
+    } else {
+      rules.push({ font, characters });
+    }
+    FontPriorityManager.saveOverrideRules(rules);
   },
   /**
    * Populate font select dropdown with available fonts
@@ -377,30 +471,16 @@ const FontPriorityManager = {
     selectElement.innerHTML = '';
 
     const currentOverride = FontPriorityManager.getOverrideFont();
-    const fontPriorityList = FontPriorityManager.fontPriorityList;
+    // Use all available fonts including Chinese/HK fonts
+    const availableFonts = FontPriorityManager.getAllAvailableFonts(true);
 
-    // Create options from the font priority list
-    fontPriorityList.forEach(fontName => {
+    // Create options from the available fonts list
+    availableFonts.forEach(fontInfo => {
       const option = document.createElement('option');
-      option.value = fontName;
-
-      // Create user-friendly labels for built-in fonts
-      let label = fontName;
-      switch (fontName) {
-        case 'parsedFontChinese':
-          label = 'Noto Sans HK';
-          break;
-        case 'parsedFontKorean':
-          label = 'Noto Sans KR';
-          break;
-        default:
-          // For custom fonts, use the font name as is
-          label = fontName.replace('parsedFont', '').replace(/([A-Z])/g, ' $1').trim();
-          if (!label) label = fontName;
-      }
-
-      option.textContent = label;
-      if (fontName === currentOverride) {
+      option.value = fontInfo.value;
+      option.textContent = fontInfo.label;
+      
+      if (fontInfo.value === currentOverride) {
         option.selected = true;
       }
       selectElement.appendChild(option);
@@ -409,6 +489,7 @@ const FontPriorityManager = {
 
   /**
    * Get special characters as array for use in path.js
+   * @deprecated Use getOverrideRules instead
    */
   getSpecialCharactersArray: function () {
     const charactersString = FontPriorityManager.getSpecialCharacters();
@@ -422,11 +503,26 @@ const FontPriorityManager = {
   resetToDefaults: function () {
     try {
       // Reset font priority list to default
-      FontPriorityManager.fontPriorityList = ['parsedFontKorean', 'parsedFontChinese'];
+      FontPriorityManager.fontPriorityList = ['parsedFontKorean', 'parsedFontChinese', 'parsedFontHK'];
 
       // Clear character override settings
       localStorage.removeItem('characterOverrideFont');
-      localStorage.setItem('specialCharacters', '彩天輸勝都愉朗 ');
+      localStorage.removeItem('specialCharacters');
+      localStorage.removeItem('overrideFont');
+      localStorage.removeItem('overrideRules');
+      
+      // Default rules
+      const defaultRules = [{
+        font: 'parsedFontHK',
+        characters: '彩天輸勝都愉朗'
+      },{
+        font: 'parsedFontChinese',
+        characters: '啟嶺'
+      },{
+        font: 'parsedFontChocolate',
+        characters: '尚'
+      }];
+      FontPriorityManager.saveOverrideRules(defaultRules);
 
       // Remove custom fonts from window object
       Object.keys(window).forEach(key => {
@@ -455,7 +551,9 @@ const FontPriorityManager = {
 
     if (containsNonEnglish) {
       // For text with non-English characters, show Chinese/Asian fonts
-      fonts.push({ value: 'parsedFontChinese', label: 'Noto Sans HK' });
+      fonts.push({ value: 'parsedFontChinese', label: 'Noto Sans Trad Chinese' });
+      fonts.push({ value: 'parsedFontChocolate', label: 'Noto Sans Chocolate' });
+      fonts.push({ value: 'parsedFontHK', label: 'Noto Sans HK' });
       fonts.push({ value: 'parsedFontKorean', label: 'Noto Sans KR' });
 
       // Add custom fonts from fontPriorityList for non-English text
@@ -486,7 +584,7 @@ const FontPriorityManager = {
 
     FontPriorityManager.fontPriorityList.forEach(fontName => {
       // Check if font exists (either as built-in or in window)
-      const isBuiltInFont = ['parsedFontKorean', 'parsedFontChinese', 'TransportMedium', 'TransportHeavy', 'TW-MOE-Std-Kai'].includes(fontName);
+      const isBuiltInFont = ['parsedFontKorean', 'parsedFontChinese', 'parsedFontChocolate', 'parsedFontHK', 'TransportMedium', 'TransportHeavy', 'TW-MOE-Std-Kai'].includes(fontName);
       const existsInWindow = window[fontName] !== undefined;
 
       if (!isBuiltInFont && !existsInWindow) {
@@ -526,7 +624,7 @@ const FontPriorityManager = {
 
       // Check each unique font
       uniqueFonts.forEach(fontName => {
-        const isBuiltInFont = ['parsedFontKorean', 'parsedFontChinese', 'TransportMedium', 'TransportHeavy', 'TW-MOE-Std-Kai'].includes(fontName);
+        const isBuiltInFont = ['parsedFontKorean', 'parsedFontChinese', 'parsedFontChocolate', 'parsedFontHK', 'TransportMedium', 'TransportHeavy', 'TW-MOE-Std-Kai'].includes(fontName);
         const existsInWindow = window[fontName] !== undefined;
 
         if (!isBuiltInFont && !existsInWindow && !missingFonts.includes(fontName)) {
@@ -593,7 +691,9 @@ const FontPriorityManager = {
       { name: 'TransportHeavy', check: () => window.parsedFontHeavy },
       { name: 'TW-MOE-Std-Kai', check: () => window.parsedFontKai },
       { name: 'parsedFontKorean', check: () => window.parsedFontKorean },
-      { name: 'parsedFontChinese', check: () => window.parsedFontChinese }
+      { name: 'parsedFontChinese', check: () => window.parsedFontChinese },
+      { name: 'parsedFontChocolate', check: () => window.parsedFontChocolate },
+      { name: 'parsedFontHK', check: () => window.parsedFontHK }
     ];
 
     for (const font of builtInFonts) {
