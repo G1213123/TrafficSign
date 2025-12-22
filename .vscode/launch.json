@@ -8,8 +8,8 @@
         {
             "type": "chrome",
             "request": "launch",
-            "name": "Open index.html",
-            "file": "${workspaceFolder}/index.html",
+            "name": "Open design.html",
+            "file": "${workspaceFolder}/design.html",
             "runtimeArgs": [
                 "--disable-web-security"
             ],
@@ -29,7 +29,7 @@
                 // Eval / anonymous script frames
                 "<eval>/**",
                 // Specific VM eval chunks (e.g. <eval>/VM46947695)
-                "<eval>/VM*",
+                "<eval>/VM**",
                 "<anonymous>/**"
             ]
         },
