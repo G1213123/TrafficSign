@@ -754,6 +754,91 @@ const symbolsTemplate = {
         ],
     },
 
+    'AmberLightAbove': {
+        path: [ // Diagram 4.5.5.1
+            {
+                'vertex': [
+                    { x: 4.8, y: 0, label: 'V1', start: 1, display: 0 },
+                    { x: 4.8, y: 3.2, label: 'V2', start: 0, display: 0 },
+                ], 'arcs': [{ start: 'V1', end: 'V2', radius: 1.6, direction: 1, sweep: 0 },
+                { start: 'V2', end: 'V1', radius: 1.6, direction: 1, sweep: 0 }],
+                'fill': '#0a0a0a'
+            },
+            {
+                'vertex': [
+                    { x: -4.8, y: 0, label: 'V3', start: 1, display: 0 },
+                    { x: -4.8, y: 3.2, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [{ start: 'V3', end: 'V4', radius: 1.6, direction: 1, sweep: 0 },
+                { start: 'V4', end: 'V3', radius: 1.6, direction: 1, sweep: 0 }],
+                'fill': '#0a0a0a'
+            },
+            {
+                'vertex': [
+                    { x: 4.8, y: 0.2, label: 'V11', start: 1, display: 0 },
+                    { x: 4.8, y: 3, label: 'V12', start: 0, display: 0 },
+                ], 'arcs': [{ start: 'V11', end: 'V12', radius: 1.4, direction: 1, sweep: 0 },
+                { start: 'V12', end: 'V11', radius: 1.4, direction: 1, sweep: 0 }],
+                'fill': '#ffbf00'
+            },
+            {
+                'vertex': [
+                    { x: -4.8, y: 0.2, label: 'V13', start: 1, display: 0 },
+                    { x: -4.8, y: 3, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [{ start: 'V13', end: 'V14', radius: 1.4, direction: 1, sweep: 0 },
+                { start: 'V14', end: 'V13', radius: 1.4, direction: 1, sweep: 0 }],
+                'fill': '#ffbf00'
+            },
+        ],
+    },
+
+    'AmberLightBack': {
+        path: [ // Diagram 4.5.5.3
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V21', start: 1, display: 0 },
+                    { x: 9.6, y: 0, label: 'V23', start: 0, display: 0, radius: 1.6 },
+                    { x: 9.6, y: 6.4, label: 'V24', start: 0, display: 0 },
+                    { x: -9.6, y: 6.4, label: 'V25', start: 0, display: 0 },
+                    { x: -9.6, y: 0, label: 'V26', start: 0, display: 0, radius: 1.6 },
+                ], 'arcs': [],
+                'fill': '#333333'
+            }, 
+            {
+                'vertex': [
+                    { x: 4.8, y: 1.6, label: 'V1', start: 1, display: 0 },
+                    { x: 4.8, y: 4.8, label: 'V2', start: 0, display: 0 },
+                ], 'arcs': [{ start: 'V1', end: 'V2', radius: 1.6, direction: 1, sweep: 0 },
+                { start: 'V2', end: 'V1', radius: 1.6, direction: 1, sweep: 0 }],
+                'fill': '#0a0a0a'
+            },
+            {
+                'vertex': [
+                    { x: -4.8, y: 1.6, label: 'V3', start: 1, display: 0 },
+                    { x: -4.8, y: 4.8, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': [{ start: 'V3', end: 'V4', radius: 1.6, direction: 1, sweep: 0 },
+                { start: 'V4', end: 'V3', radius: 1.6, direction: 1, sweep: 0 }],
+                'fill': '#0a0a0a'
+            },
+            {
+                'vertex': [
+                    { x: 4.8, y: 1.8, label: 'V11', start: 1, display: 0 },
+                    { x: 4.8, y: 4.6, label: 'V12', start: 0, display: 0 },
+                ], 'arcs': [{ start: 'V11', end: 'V12', radius: 1.4, direction: 1, sweep: 0 },
+                { start: 'V12', end: 'V11', radius: 1.4, direction: 1, sweep: 0 }],
+                'fill': '#ffbf00'
+            },
+            {
+                'vertex': [
+                    { x: -4.8, y: 1.8, label: 'V13', start: 1, display: 0 },
+                    { x: -4.8, y: 4.6, label: 'V14', start: 0, display: 0 },
+                ], 'arcs': [{ start: 'V13', end: 'V14', radius: 1.4, direction: 1, sweep: 0 },
+                { start: 'V14', end: 'V13', radius: 1.4, direction: 1, sweep: 0 }],
+                'fill': '#ffbf00'
+            },
+        ],
+    },
+
+
 
     'Expressway': {
         path: [ // Diagram 3.5.7.11
@@ -1631,7 +1716,7 @@ const symbolsTemplate = {
             { character: '分鐘', x: 3.25, y: -25.94, fontSize: 3.5 * 0.9, fontFamily: 'parsedFontKorean' }
         ]
     },
-    
+
     'JTIS-EHC': {
         path: [ // 3.5.7.7
             {
