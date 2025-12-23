@@ -888,8 +888,8 @@ class BorderGroup extends BaseGroup {
           // If there are widthObjects, center the fixed width around their midpoint
           const midX = (coords.left + coords.right) / 2;
           this.fixedWidthCoords = {
-            left: midX - parseInt(this.fixedWidth) / 2,
-            right: midX + parseInt(this.fixedWidth) / 2
+            left: midX - parseInt(this.fixedWidth) / 2 + leftPadding,
+            right: midX + parseInt(this.fixedWidth) / 2 - rightPadding
           };
         }
       } else {
@@ -932,8 +932,8 @@ class BorderGroup extends BaseGroup {
           // If there are heightObjects, center the fixed height around their midpoint
           const midY = (coords.top + coords.bottom) / 2;
           this.fixedHeightCoords = {
-            top: midY - parseInt(this.fixedHeight) / 2,
-            bottom: midY + parseInt(this.fixedHeight) / 2
+            top: midY - parseInt(this.fixedHeight) / 2 + topPadding,
+            bottom: midY + parseInt(this.fixedHeight) / 2 - bottomPadding
           };
         }
       } else {

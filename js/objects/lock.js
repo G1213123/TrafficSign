@@ -299,7 +299,19 @@ class LockIcon {
 
       // Remove from globalAnchorTree x tree before clearing lockXToPolygon
       if (anchorX) {
-        globalAnchorTree.removeNode('x', this.baseGroup.canvasID);
+        const tree = globalAnchorTree.xTree;
+        const nodeId = this.baseGroup.canvasID;
+        const parentId = anchorX.canvasID;
+
+        if (tree[nodeId] && tree[nodeId].children.length > 0) {
+          // If the object has children, preserve the node and only remove the parent link
+          if (tree[parentId]) {
+            tree[parentId].children = tree[parentId].children.filter(id => id !== nodeId);
+          }
+          tree[nodeId].parents = tree[nodeId].parents.filter(id => id !== parentId);
+        } else {
+          globalAnchorTree.removeNode('x', this.baseGroup.canvasID);
+        }
       }
 
       // Clear the lockXToPolygon object
@@ -318,7 +330,19 @@ class LockIcon {
 
       // Remove from globalAnchorTree y tree before clearing lockYToPolygon
       if (anchorY) {
-        globalAnchorTree.removeNode('y', this.baseGroup.canvasID);
+        const tree = globalAnchorTree.yTree;
+        const nodeId = this.baseGroup.canvasID;
+        const parentId = anchorY.canvasID;
+
+        if (tree[nodeId] && tree[nodeId].children.length > 0) {
+          // If the object has children, preserve the node and only remove the parent link
+          if (tree[parentId]) {
+            tree[parentId].children = tree[parentId].children.filter(id => id !== nodeId);
+          }
+          tree[nodeId].parents = tree[nodeId].parents.filter(id => id !== parentId);
+        } else {
+          globalAnchorTree.removeNode('y', this.baseGroup.canvasID);
+        }
       }
 
       // Clear the lockYToPolygon object

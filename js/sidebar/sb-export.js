@@ -180,6 +180,26 @@ let FormExportComponent = {
       });
     }
 
+    // Enforce correct fill colors for Text objects before export
+    // This fixes an issue where colors might be reversed or incorrect in SVG export
+    CanvasGlobals.canvas.getObjects().forEach(obj => {
+      if (obj.functionalType === 'Text') {
+        let color = obj.color;
+        // Normalize color names to hex
+        if (color === 'White') color = '#ffffff';
+        if (color === 'Black') color = '#000000';
+        
+        if (obj._objects) {
+          obj._objects.forEach(child => {
+            // Only update if it's a path (character) and not the frame
+            if (child.type === 'path') {
+              child.set('fill', color);
+            }
+          });
+        }
+      }
+    });
+
   CanvasGlobals.scheduleRender();
     return originalState;
   },
