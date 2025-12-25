@@ -48,6 +48,16 @@ const base = {
   // Export/donation overlay
   'Donation Thanks Title': 'Thank you for using Road Sign Factory!',
   'Donation Message': 'If you find this tool helpful, please consider supporting its continued development and new features.',
+  // Posters page
+  'Posters': 'Posters',
+  'Featured Posters': 'Featured Posters',
+  'Browse our collection of traffic signs posters.': 'Browse our collection of traffic signs posters.',
+  'Central Kowloon Bypass Eastbound': 'Central Kowloon Bypass Eastbound',
+  'A map of directional signs in Central Kowloon Bypass Eastbound.': 'A map of directional signs in Central Kowloon Bypass Eastbound.',
+  'Central Kowloon Bypass Westbound': 'Central Kowloon Bypass Westbound',
+  'A map of directional signs in Central Kowloon Bypass Westbound.': 'A map of directional signs in Central Kowloon Bypass Westbound.',
+  'Download Full Size': 'Download Full Size',
+  'Download': 'Download',
   'Diverge Sign': 'Diverge Sign',
   'Flag Sign': 'Flag Sign',
   'Gantry Sign': 'Gantry Sign',
@@ -87,6 +97,16 @@ const dictionaries = {
     'demo_click_hint': '點擊下方任一按鈕以查看功能示範',
     'Snap prompt': '對齊提示',
     'Drag & Snap': '拖曳對齊',
+    // Posters page
+    'Posters': '海報',
+    'Featured Posters': '精選海報',
+    'Browse our collection of traffic signs posters.': '瀏覽我們的交通標誌海報系列。',
+    'Central Kowloon Bypass Eastbound': '中九龍繞道東行',
+    'A map of directional signs in Central Kowloon Bypass Eastbound.': '中九龍繞道東行的方向指示標誌地圖。',
+    'Central Kowloon Bypass Westbound': '中九龍繞道西行',
+    'A map of directional signs in Central Kowloon Bypass Westbound.': '中九龍繞道西行的方向指示標誌地圖。',
+    'Download Full Size': '下載原始大小',
+    'Download': '下載',
     // Homepage/nav
     'Home': '首頁',
     'Getting Started': '快速開始',

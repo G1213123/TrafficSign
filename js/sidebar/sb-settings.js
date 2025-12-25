@@ -14,8 +14,14 @@ const KEYBOARD_SHORTCUTS = {
   "Escape": "Cancel Action / Toggle / Close Panel",
   "Enter": "Confirm Input",
   "Tab": "Switch Vertex / Unit",
+  "Ctrl + C": "Copy Selected Object",
+  "Ctrl + V": "Paste Object",
   "Ctrl + Z": "Undo",
   "Ctrl + S": "Save",
+  "F3": "Toggle Text Border",
+  "F4": "Toggle Grid",
+  "F2": "Toggle Vertices",
+  "F8": "Toggle Dimension Unit",
 };
 
 let FormSettingsComponent = {
@@ -32,11 +38,17 @@ let FormSettingsComponent = {
       // Create a container for shortcuts
       var shortcutsContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container shortcut-list-container' }, parent);
 
-      // Create heading for shortcuts
-      GeneralHandler.createI18nNode("h3", { 'class': 'panel-subheading' }, shortcutsContainer, 'Keyboard Shortcuts', 'text');
+      // Create details element for collapsible behavior
+      const details = GeneralHandler.createNode("details", {}, shortcutsContainer);
 
-      // Create the list element
-      const list = GeneralHandler.createNode("ul", { 'class': 'shortcut-list' }, shortcutsContainer);
+      // Create summary element for the heading
+      const summary = GeneralHandler.createNode("summary", { 'class': 'panel-subheading', 'style': 'cursor: pointer;' }, details);
+      
+      // Add heading text to summary
+      GeneralHandler.createI18nNode("span", {}, summary, 'Keyboard Shortcuts', 'text');
+
+      // Create the list element inside details
+      const list = GeneralHandler.createNode("ul", { 'class': 'shortcut-list' }, details);
 
       // Loop through the shortcuts object and create list items
       for (const key in KEYBOARD_SHORTCUTS) {

@@ -1,7 +1,9 @@
 import { CanvasGlobals } from "./canvas.js";
 import { FormSettingsComponent } from "../sidebar/sb-settings.js";
+import { GeneralSettings } from "../sidebar/sbGeneral.js";
 import { canvasTracker } from "./Tracker.js";
 import { showPropertyPanel } from "../sidebar/property.js";
+import { buildObjectsFromJSON } from "../objects/build.js";
 
 // Keyboard shortcut for showing/hiding sidebar
 function ShowHideSideBarEvent(e) {
@@ -158,6 +160,106 @@ document.addEventListener('keydown', function (event) {
       // Update content based on current active object
       const obj = CanvasGlobals.canvas.getActiveObject();
       if (obj) showPropertyPanel(obj);
+    }
+});
+
+// Clipboard for copy/paste
+let _clipboard = null;
+
+function copy() {
+  const activeObjects = CanvasGlobals.canvas.getActiveObjects();
+  if (activeObjects.length > 0) {
+    _clipboard = [];
+    activeObjects.forEach(obj => {
+      if (typeof obj.serializeToJSON === 'function') {
+        _clipboard.push(obj.serializeToJSON());
+      }
+    });
+  }
+}
+
+async function paste() {
+  if (!_clipboard || _clipboard.length === 0) return;
+  
+  // Deep copy the clipboard data to avoid modifying the original clipboard
+  const dataToPaste = JSON.parse(JSON.stringify(_clipboard));
+  
+  // Offset the objects
+  dataToPaste.forEach(data => {
+    if (data.left !== undefined) data.left += 20;
+    if (data.top !== undefined) data.top += 20;
+    // Also offset fixedWidthCoords/fixedHeightCoords if they exist (for BorderGroup)
+    if (data.fixedWidthCoords) {
+        data.fixedWidthCoords.x += 20;
+        data.fixedWidthCoords.y += 20;
+    }
+    if (data.fixedHeightCoords) {
+        data.fixedHeightCoords.x += 20;
+        data.fixedHeightCoords.y += 20;
+    }
+  });
+
+  CanvasGlobals.canvas.discardActiveObject();
+  
+  try {
+    const newObjects = await buildObjectsFromJSON(dataToPaste);
+    
+    if (newObjects && newObjects.length > 0) {
+      const selection = new fabric.ActiveSelection(newObjects, {
+        canvas: CanvasGlobals.canvas,
+      });
+      CanvasGlobals.canvas.setActiveObject(selection);
+      CanvasGlobals.canvas.requestRenderAll();
+    }
+  } catch (error) {
+    console.error("Error pasting objects:", error);
+  }
+}
+
+document.addEventListener('keydown', function(e) {
+    // Ctrl+C
+    if (e.ctrlKey && (e.key === 'c' || e.key === 'C')) {
+        // Check if input is focused
+        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+        copy();
+    }
+    // Ctrl+V
+    if (e.ctrlKey && (e.key === 'v' || e.key === 'V')) {
+        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+        paste();
+    }
+    
+    // F3 - Toggle Text Border
+    if (e.key === 'F3') {
+        e.preventDefault();
+        GeneralSettings.showTextBorders = !GeneralSettings.showTextBorders;
+        FormSettingsComponent.applyTextBorderSettings();
+        FormSettingsComponent.updateSettingsUI();
+        FormSettingsComponent.saveSettings();
+    }
+    // F4 - Toggle Grid
+    if (e.key === 'F4') {
+        e.preventDefault();
+        GeneralSettings.showGrid = !GeneralSettings.showGrid;
+        FormSettingsComponent.applyGridSettings();
+        FormSettingsComponent.updateSettingsUI();
+        FormSettingsComponent.saveSettings();
+    }
+    // F2 - Toggle Vertices
+    if (e.key === 'F2') {
+        e.preventDefault();
+        GeneralSettings.showAllVertices = !GeneralSettings.showAllVertices;
+        FormSettingsComponent.applyVertexDisplaySettings();
+        FormSettingsComponent.updateSettingsUI();
+        FormSettingsComponent.saveSettings();
+    }
+    // F8 - Toggle Dimension Unit
+    if (e.key === 'F8') {
+        e.preventDefault();
+        GeneralSettings.dimensionUnit = GeneralSettings.dimensionUnit === 'mm' ? 'sw' : 'mm';
+        FormSettingsComponent.refreshDimensionDisplays();
+        FormSettingsComponent.updateSettingsUI();
+        FormSettingsComponent.saveSettings();
     }
 });
 

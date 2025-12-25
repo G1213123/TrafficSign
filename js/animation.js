@@ -56,6 +56,9 @@ function initCommonScrollAnimations() {
         '.changelog-cta',
         '.version-tag',
         
+        // Posters page specific
+        '.poster-card',
+
         // General content sections
         '.section-title',
         '.section-subtitle',
