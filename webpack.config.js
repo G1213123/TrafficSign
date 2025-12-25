@@ -76,6 +76,15 @@ module.exports = {
       title: 'Getting Started - Road Sign Factory',
       appVersion: require('./package.json').version || process.env.VERSION || 'dev',
       googleAdsClientId: process.env.GOOGLE_ADS_CLIENT_ID || 'ca-pub-0000000000000000'
+    }),    // Posters HTML
+    new HtmlWebpackPlugin({
+      template: './posters.html',   // Path to your posters.html
+      filename: 'posters.html',     // Output filename
+      chunks: ['nav'],              // Include nav bundle
+      inject: false,                // Use manual script tags
+      title: 'Posters - Road Sign Factory',
+      appVersion: require('./package.json').version || process.env.VERSION || 'dev',
+      googleAdsClientId: process.env.GOOGLE_ADS_CLIENT_ID || 'ca-pub-0000000000000000'
     }),    
     new CopyWebpackPlugin({
       patterns: [
