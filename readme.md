@@ -20,7 +20,8 @@ Road Sign Factory is a professional web-based application for designing, customi
 - 🔧 **Symbol Library**: Comprehensive traffic symbol collection
 - 📐 **Precision Tools**: Built-in measurement and grid systems
 - 📤 **Multi-Format Export**: SVG, DXF, and PDF support
-- 📱 **Cross-Platform**: Works on desktop, tablet, and mobile
+- �️ **Posters Gallery**: Download high-quality traffic sign posters
+- �📱 **Cross-Platform**: Works on desktop, tablet, and mobile
 - 🎯 **Standards Compliant**: Hong Kong TPDM guidelines
 
 ## 🏗️ Project Structure
@@ -29,6 +30,7 @@ The application now uses a professional homepage structure:
 
 - **`index.html`** - Professional landing page
 - **`design.html`** - The main application interface
+- **`posters.html`** - Featured posters gallery
 - **`css/homepage.css`** - Landing page styles
 - **`js/homepage.js`** - Landing page interactions
 - **`css/style.css`** - Application styles

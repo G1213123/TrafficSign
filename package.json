@@ -20,13 +20,13 @@
     "jest-environment-jsdom": "^30.0.0",
     "mini-css-extract-plugin": "^2.9.2",
     "terser-webpack-plugin": "^5.3.14",
-    "webpack": "^5.99.6",    
+    "webpack": "^5.99.6",
     "webpack-cli": "^6.0.1"
   },
   "scripts": {
     "build": "webpack --mode production",
     "start": "npx http-server . -p 8080",
-    "preview": "npx http-server dist -p 8080",    
+    "preview": "npx http-server dist -p 8080",
     "deploy": "cd dist && gcloud app deploy --no-cache --promote --version=$(node -p \"require('../package.json').version\")",
     "test": "jest",
     "test:watch": "jest --watch",
