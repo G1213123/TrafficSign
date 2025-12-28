@@ -112,21 +112,11 @@ document.addEventListener('keydown', function (event) {
   // Ctrl+Z for undo (try state-based first, fallback to original)
   if (event.ctrlKey && event.key === 'z' && !event.shiftKey) {
     event.preventDefault();
-    const stateSuccess = canvasTracker.undoState();
-    if (stateSuccess) {
-      console.log('State-based undo performed');
-    } else {
-      // Fallback to original undo method if available
-      if (typeof canvasTracker.undo === 'function') {
-        const originalSuccess = canvasTracker.undo();
-        if (originalSuccess) {
-          console.log('Original undo performed');
-        } else {
-          console.log('Nothing to undo');
-        }
-      } else {
-        console.log('Nothing to undo');
-      }
+    if (typeof canvasTracker.undo === 'function') {
+        canvasTracker.undo().then(success => {
+            if (success) console.log('Undo performed');
+            else console.log('Nothing to undo');
+        });
     }
   }
 
@@ -134,21 +124,11 @@ document.addEventListener('keydown', function (event) {
   if ((event.ctrlKey && event.key === 'y') ||
     (event.ctrlKey && event.shiftKey && event.key === 'Z')) {
     event.preventDefault();
-    const stateSuccess = canvasTracker.redoState();
-    if (stateSuccess) {
-      console.log('State-based redo performed');
-    } else {
-      // Fallback to original redo method if available
-      if (typeof canvasTracker.redo === 'function') {
-        const originalSuccess = canvasTracker.redo();
-        if (originalSuccess) {
-          console.log('Original redo performed');
-        } else {
-          console.log('Nothing to redo');
-        }
-      } else {
-        console.log('Nothing to redo');
-      }
+    if (typeof canvasTracker.redo === 'function') {
+        canvasTracker.redo().then(success => {
+            if (success) console.log('Redo performed');
+            else console.log('Nothing to redo');
+        });
     }
   }
 

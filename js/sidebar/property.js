@@ -49,6 +49,10 @@ function handleClear() {
 
 // Function to populate and display the property panel
 function showPropertyPanel(object) {
+  if (!object) {
+    handleClear();
+    return;
+  }
   const panel = document.getElementById('property-panel');
   panel.innerHTML = '';
   // Close button

@@ -28,16 +28,6 @@ canvas.setZoom(0.2);
 
 window.addEventListener('resize', resizeCanvas, false);
 
-// Use this code to save and get custom properties at initialization of component
-fabric.Object.prototype.toObject = (function (toObject) {
-  return function (propertiesToInclude) {
-    propertiesToInclude = (propertiesToInclude || []).concat(
-      ["basePolygon", "anchoredPolygon", "functionalType", "txtChar", "text", "insertionPoint", "vertex", "refTopLeft", "symbol", "xHeight"] // custom attributes
-    );
-    return toObject.apply(this, [propertiesToInclude]);
-  };
-})(fabric.Object.prototype.toObject);
-
 function resizeCanvas() {
   const canvasContainer = document.getElementById('canvas-container')
   canvas.setDimensions({ width: canvasContainer.clientWidth, height: canvasContainer.clientHeight })
