@@ -897,9 +897,38 @@ div.side-panel.close {
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
+.history-item {
+  padding: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #555;
+  color: #eee;
+  transition: background-color 0.2s;
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.history-item:hover {
+  background-color: #555;
+}
+
+.history-item.active {
+  background-color: #6761A8;
+  font-weight: bold;
+  color: white;
+}
+
+.history-empty {
+  padding: 10px;
+  color: #aaa;
+  text-align: center;
+  font-style: italic;
+}
+
 .history-controls {
   display: flex;
-  justify-content: space-between;
+  gap: 5px;
   margin-bottom: 10px;
 }
 
