@@ -466,12 +466,20 @@ let FormExportComponent = {
 
       // Collect all path objects from canvasObject
       CanvasGlobals.canvasObject.forEach(obj => {
-        collectPathObjects(obj, pathObjects);
+        try {
+          collectPathObjects(obj, pathObjects);
+        } catch (error) {
+          console.error(`Error collecting path objects for DXF: ${obj.id}`, error);
+        }
       });
 
       // Process each path object for DXF export
       pathObjects.forEach(pathObj => {
-        processPathForDXF(pathObj, dxf, 0, 0);
+        try {
+          processPathForDXF(pathObj, dxf, 0, 0);
+        } catch (error) {
+          console.error(`Error processing path for DXF: ${pathObj.id}`, error);
+        }
       });
 
       // Generate the DXF content
