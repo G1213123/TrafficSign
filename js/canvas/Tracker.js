@@ -101,17 +101,23 @@ class CanvasTracker {
     }
 
     const stateStr = JSON.stringify(state);
+    let description = this.history.length === 0 ? "Initial State" : `State ${this.history.length + 1}`;
+
     if (this.historyIndex >= 0) {
-        const lastStateStr = JSON.stringify(this.history[this.historyIndex].state);
+        const lastEntry = this.history[this.historyIndex];
+        const lastStateStr = JSON.stringify(lastEntry.state);
+        
         if (stateStr === lastStateStr) {
             return;
         }
+        
+        description = this._generateDescription(lastEntry.state, state);
     }
 
     this.history.push({
         state: state,
         timestamp: new Date().toLocaleTimeString(),
-        description: `State ${this.history.length + 1}`
+        description: description
     });
     this.historyIndex++;
 
@@ -122,6 +128,59 @@ class CanvasTracker {
 
     console.log(`State saved. History: ${this.historyIndex + 1}/${this.history.length}`);
     this.notifyHistoryChanged();
+  }
+
+  _generateDescription(oldState, newState) {
+    const oldMap = new Map(oldState.map(obj => [obj.canvasID, obj]));
+    const newMap = new Map(newState.map(obj => [obj.canvasID, obj]));
+    const changes = [];
+
+    const created = [];
+    const deleted = [];
+    const updated = [];
+
+    // Check for created
+    newState.forEach(obj => {
+        if (!oldMap.has(obj.canvasID)) {
+            created.push(obj.objectType || 'Object');
+        }
+    });
+
+    // Check for deleted
+    oldState.forEach(obj => {
+        if (!newMap.has(obj.canvasID)) {
+            deleted.push(obj.objectType || 'Object');
+        }
+    });
+
+    // Check for updated
+    newState.forEach(obj => {
+        if (oldMap.has(obj.canvasID)) {
+            const oldObj = oldMap.get(obj.canvasID);
+            if (JSON.stringify(obj) !== JSON.stringify(oldObj)) {
+                updated.push(obj.objectType || 'Object');
+            }
+        }
+    });
+
+    if (created.length > 0) changes.push(`Created ${this._summarizeTypes(created)}`);
+    if (deleted.length > 0) changes.push(`Deleted ${this._summarizeTypes(deleted)}`);
+    if (updated.length > 0) changes.push(`Updated ${this._summarizeTypes(updated)}`);
+
+    if (changes.length === 0) {
+         return "Reordered Objects";
+    }
+    
+    return changes.join(', ');
+  }
+
+  _summarizeTypes(types) {
+    const counts = {};
+    types.forEach(t => counts[t] = (counts[t] || 0) + 1);
+    return Object.entries(counts).map(([type, count]) => {
+        const label = count > 1 ? `${type}s` : type;
+        return count > 1 ? `${count} ${label}` : label;
+    }).join(', ');
   }
 
   async restoreState(index) {

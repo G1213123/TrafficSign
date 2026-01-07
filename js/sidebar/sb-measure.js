@@ -66,14 +66,14 @@ const FormMeasureComponent = {
 
       // Update button text
       const toggleButton = document.getElementById('toggle-measure');
-      if (toggleButton) { toggleButton.value = i18n.t('Stop Measuring'); toggleButton.setAttribute('data-i18n', 'Stop Measuring'); }
+      if (toggleButton) { toggleButton.textContent = i18n.t('Stop Measuring'); toggleButton.setAttribute('data-i18n', 'Stop Measuring'); }
     } else {
       // Disable measuring mode
       FormMeasureComponent.stopMeasuring();
 
       // Update button text
       const toggleButton = document.getElementById('toggle-measure');
-      if (toggleButton) { toggleButton.value = i18n.t('Start Measuring'); toggleButton.setAttribute('data-i18n', 'Start Measuring'); }
+      if (toggleButton) { toggleButton.textContent = i18n.t('Start Measuring'); toggleButton.setAttribute('data-i18n', 'Start Measuring'); }
     }
   },
 
