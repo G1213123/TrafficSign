@@ -61,6 +61,7 @@ function calcSymbol(type, length, color = 'white') {
  */
 class SymbolObject extends BaseGroup {
   constructor(shapeMeta = {}) {
+    // Ensure symbolType is passed in options so it gets added to _metadataKeys
     super(null, 'Symbol', 'SymbolObject', shapeMeta ); // Call BaseGroup constructor
 
     // Store shapeMeta properties

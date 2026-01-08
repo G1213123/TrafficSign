@@ -89,6 +89,10 @@ async function reconstructSingleObjectInternal(data, fabricCanvas, allDeserializ
 
     // 2. Prepare constructor options
     const constructorOptions = { ...data };
+    // Ensure functionalType is preserved in options
+    if (data.functionalType) {
+        constructorOptions.functionalType = data.functionalType;
+    }
     delete constructorOptions.basePolygon; // Handled separately
     delete constructorOptions.basePolygonVertex; // Handled separately
     delete constructorOptions.objectType; // Used by factory
