@@ -719,6 +719,12 @@ const dictionaries = {
   'X-height notes': '備註（摘自表下）：x 高度主要由設計車速決定；無括號數值為建議值；括號內為受限制時之較小替代值。中間值可依 5 mm 進位（詳見 3.2.5.2–3 節），另有例外情況。',
     'Minimum clear visibility': '最小清晰可見距離',
   'Table 3.2.5.1 also specifies minimum clear visibility distances for each case. Ensure siting achieves at least the stated minimums; strive for more where feasible (see 3.2.5.4–3.2.5.7).': '表 3.2.5.1 同時列出各情況之最小清晰可見距離。設置位置應至少達到所列最小值，並在可行情況下爭取更大距離（詳見 3.2.5.4–3.2.5.7 節）。',
+
+    'Tunnel Closed Symbol': '隧道封閉符號',
+    'TPDM Vol.3 - Section 4.5.5 (Symbol Placement)': 'TPDM 第三卷 - 第 4.5.5 節（符號位置）',
+    'Applicable for Tunnel Symbol when the sign is within Trunk Road or Primary Distributor Road': '適用於位於主幹道或市區幹道標誌上的隧道符號',
+    'Placement in gantry sign with flashing light above and outside sign:': '門架標誌上的位置（閃燈位於標誌上外方）：',
+    'Placement with flashing light together within sign:': '與閃燈同時位於標誌內的位置：',
   },
 };
 
