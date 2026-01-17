@@ -29,7 +29,14 @@ let FormDrawMapComponent = {
       { value: 'Normal', label: 'Normal', image: 'roundabout-spiral-normal.svg' },
       { value: 'Auxiliary', label: 'Auxiliary', image: 'roundabout-spiral-auxiliary.svg' },
       { value: 'U-turn', label: 'U-turn', image: 'roundabout-spiral-uturn.svg' }
-    ]
+    ],
+    'Oval':[{ value: '0', label: '0', image: 'roundabout-spiral-normal.svg' },
+      { value: '30', label: '30', image: 'roundabout-spiral-auxiliary.svg' },
+      { value: '60', label: '60', image: 'roundabout-spiral-uturn.svg'  },
+      { value: '90 Left', label: '90 Left', image: 'roundabout-spiral-uturn.svg'  },
+      { value: '90 Middle', label: '90 Middle', image: 'roundabout-spiral-uturn.svg'  },
+      { value: '-30', label: '-30', image: 'roundabout-spiral-uturn.svg' },
+      { value: '-60', label: '-60', image: 'roundabout-spiral-uturn.svg' },]
   },
   permitAngle: [45, 60, 90],
   defaultRoute: [{ x: 0, y: 7, angle: 60, width: 4, shape: 'Arrow' }],
@@ -139,10 +146,12 @@ let FormDrawMapComponent = {
       // Roundabout settings
 
       // 1. Roundel Type Toggle (Conventional vs Spiral)
-      const roundelToggle = GeneralHandler.createToggle('Roundel Shape', ['Conventional', 'Spiral'], roadTypeSettingsContainer, 'Conventional', FormDrawMapComponent.onRoundelTypeChange);
+      const roundelToggle = GeneralHandler.createToggle('Roundel Shape', Object.keys(FormDrawMapComponent.RoundaboutFeatures), roadTypeSettingsContainer, 'Conventional', FormDrawMapComponent.onRoundelTypeChange);
+
+      const roundelType = GeneralHandler.getToggleValue('Roundel Shape-container');
 
       // Use custom image dropdown for Roundabout Shape
-      GeneralHandler.createImageDropdown('Main Road Shape', FormDrawMapComponent.RoundaboutFeatures['Conventional'], roadTypeSettingsContainer, 'Normal', FormDrawMapComponent.drawMainRoadOnCursor);
+      GeneralHandler.createImageDropdown('Main Road Shape', FormDrawMapComponent.RoundaboutFeatures[roundelType], roadTypeSettingsContainer, FormDrawMapComponent.RoundaboutFeatures[roundelType][0].value, FormDrawMapComponent.drawMainRoadOnCursor);
 
       const shapeContainer = document.getElementById('Main Road Shape-container');
       if (shapeContainer) {
@@ -170,7 +179,7 @@ let FormDrawMapComponent = {
       parent.removeChild(container);
       
       // Create new dropdown (appends to parent)
-      const newDropdown = GeneralHandler.createImageDropdown('Main Road Shape', features, parent, 'Normal', FormDrawMapComponent.drawMainRoadOnCursor);
+      const newDropdown = GeneralHandler.createImageDropdown('Main Road Shape', features, parent, features[0].value, FormDrawMapComponent.drawMainRoadOnCursor);
       
       // Move to correct position if needed
       if (nextSibling) {
@@ -580,7 +589,7 @@ let FormDrawMapComponent = {
       // Update the routeList coordinates to match the new position
       // For initial placement, we need to recreate routeList at the new position
       if (mainRoad.routeList && mainRoad.routeList.length >= 2) {
-        if (mainRoad.roadType === 'Conventional Roundabout' || mainRoad.roadType === 'Spiral Roundabout') {
+        if (mainRoad.roadType === 'Conventional Roundabout' || mainRoad.roadType === 'Spiral Roundabout' || mainRoad.roadType === 'Oval Roundabout') {
           // For roundabout, use the center point (routeList[1])
           mainRoad.routeList[1].x = pointer.x;
           mainRoad.routeList[1].y = pointer.y;
@@ -727,7 +736,7 @@ let FormDrawMapComponent = {
         angle = -angle;
       }
 
-      shape = mainRoad.roadType == 'Spiral Roundabout' ? 'Spiral Arrow' : GeneralHandler.getToggleValue('Side Road Shape-container');
+      shape = GeneralHandler.getToggleValue('Side Road Shape-container');
       width = document.getElementById(`Side Road width`).value;
       routeList.push({ x: pointer.x, y: pointer.y, angle: angle, shape: shape, width: width, });
       mainRoad.tempRootList = JSON.parse(JSON.stringify(routeList));
@@ -765,7 +774,7 @@ let FormDrawMapComponent = {
       x: options.position.x,
       y: options.position.y,
       angle: options.angle,
-      shape: options.shape || (mainRoad.roadType == 'Spiral Roundabout' ? 'Spiral Arrow' : 'Arrow'),
+      shape: options.shape ,
       width: options.width || 4
     }];
 

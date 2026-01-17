@@ -29,6 +29,34 @@ function calcSideRoadVertices(xHeight, mainRouteList, routeList) {
 }
 
 /**
+ * Common transformation logic for roundabout side roads
+ * @param {Object} arrowTipPath - The path object to transform
+ * @param {Object} route - The route object
+ * @param {number} length - Route length
+ * @param {number} angle - Rotation angle
+ * @param {Object} center - Center point
+ * @param {string} excludeShape - Shape name to exclude from standard rotation
+ * @return {Object} Transformed path
+ */
+function transformRoundaboutPath(arrowTipPath, route, length, angle, center, excludeShape) {
+    arrowTipPath = calcSymbol(arrowTipPath, length);
+    const transform = route.shape !== excludeShape ? {
+        x: route.x,
+        y: route.y,
+        angle: angle / Math.PI * 180 + 90
+    } : {
+        x: center.x,
+        y: center.y,
+        angle: 0
+    };
+    // Apply transform to all paths
+    arrowTipPath.path.forEach((p) => {
+        p.vertex = calculateTransformedPoints(p.vertex, transform);
+    });
+    return arrowTipPath;
+}
+
+/**
  * Gets coordinates for side road endpoints
  * @param {Object} route - main road object
  * @param {number} length - Route length
@@ -70,22 +98,7 @@ function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle, center)
         }
     }
 
-    arrowTipPath = calcSymbol(arrowTipPath, length);
-    const transform = route.shape !== 'UArrow Conventional' ? {
-        x: route.x,
-        y: route.y,
-        angle: angle / Math.PI * 180 + 90
-    } : {
-        x: center.x,
-        y: center.y,
-        angle: 0
-    };
-    // Apply transform to all paths
-    arrowTipPath.path.forEach((p) => {
-        p.vertex = calculateTransformedPoints(p.vertex, transform);
-    });
-
-    return arrowTipPath;
+    return transformRoundaboutPath(arrowTipPath, route, length, angle, center, 'UArrow Conventional');
 }
 /**
  * Gets coordinates for side road endpoints
@@ -96,23 +109,48 @@ function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle, center)
  * @return {Array} Array of vertex coordinates
  */
 function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
+    const rootShape = route.shape == 'Spiral Arrow' ? 'Arrow' : route.shape; // legacy shape for spiral legs
 
-    let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]));
-    arrowTipPath = calcSymbol(arrowTipPath, length);
-    const transform = route.shape !== 'UArrow Spiral' ? {
-        x: route.x,
-        y: route.y,
-        angle: angle / Math.PI * 180 + 90
-    } : {
-        x: center.x,
-        y: center.y,
-        angle: 0
-    };
-    // Apply transform to all paths
-    arrowTipPath.path.forEach((p) => {
-        p.vertex = calculateTransformedPoints(p.vertex, transform);
+    let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[rootShape]));
+
+    const width = route.width;
+    // Scale vertices for all paths
+    arrowTipPath.path.forEach(p => {
+        p.vertex.forEach(v => { v.x *= width / 2; v.y *= width / 2; });
     });
-    return arrowTipPath;
+
+    const rCenter = { x: 0, y: 24 };
+    const rAngle = 5 * Math.PI / 180;
+
+    arrowTipPath.path.forEach(p => {
+        p.vertex.forEach(v => {
+            const dx = v.x - rCenter.x;
+            const dy = v.y - rCenter.y;
+            v.x = rCenter.x + dx * Math.cos(rAngle) - dy * Math.sin(rAngle);
+            v.y = rCenter.y + dx * Math.sin(rAngle) + dy * Math.cos(rAngle);
+        });
+    });
+
+    const i0 = { x: 0.841, y: 10.025, label: 'V3', start: 0, display: 1 }
+    const i1 = { x: -6.949, y: 11.846, label: 'V4', start: 0, display: 1 }
+
+    // Modify the first path with additional vertices/arcs, keep others intact
+        if (arrowTipPath.path.length > 0) {
+            let vtx = arrowTipPath.path[0].vertex;
+            vtx = [...vtx, i0, i1];
+            vtx.push(vtx.shift()); // rotate start point
+            assignVertexLabel(vtx);
+            arrowTipPath.path[0].vertex = vtx;
+
+            arrowTipPath.path[0].arcs.push(
+                { start: 'V2', end: 'V3', radius: 18, direction: 1, sweep: 0 },
+                { start: 'V3', end: 'V4', radius: 14, direction: 0, sweep: 0 },
+                { start: 'V4', end: 'V5', radius: 14, direction: 0, sweep: 0 },
+            );
+        }
+
+
+    return transformRoundaboutPath(arrowTipPath, route, length, angle, center, 'UArrow Spiral');
 }
 
 /**
@@ -191,6 +229,8 @@ export class SideRoadSymbol extends BaseGroup {
                 return this.applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeight)
             case 'Spiral Roundabout':
                 return this.applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList, xHeight)
+            case 'Oval Roundabout':
+                return this.applySideRoadConstraintsOvalRoundabout(sideRoad, mainRoad, routeList, xHeight)
         }
 
     }
@@ -275,6 +315,34 @@ export class SideRoadSymbol extends BaseGroup {
     }
 
     applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList, xHeight) {
+        const center = mainRoad.routeList[1]
+        const length = xHeight / 4 // Use the parameter directly for temp objects without sideRoad object
+
+        const rawAngleToCenter = Math.atan2(routeList[0].y - center.y, routeList[0].x - center.x)
+        // Convert to degrees, round to nearest 15 degrees, then back to radians
+        const angleInDegrees = rawAngleToCenter * 180 / Math.PI
+        const roundedDegrees = Math.round(angleInDegrees / 15) * 15
+        const angleToCenter = roundedDegrees * Math.PI / 180
+        const distToCenter = 24 * length
+
+        if (routeList[0].shape !== 'UArrow Spiral') {
+            routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
+            routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
+        }
+
+        const tempVertexList = getSpirRdAboutSideRoadCoords(routeList[0], length, angleToCenter, center);
+
+        // Only set left/top if sideRoad is a real object with those properties
+        if (sideRoad && sideRoad.left !== undefined) {
+            const offset = getInsertOffset(tempVertexList);
+            sideRoad.left = offset.left;
+            sideRoad.top = offset.top;
+        }
+
+        return { routeList, tempVertexList };
+    }
+
+    applySideRoadConstraintsOvalRoundabout(sideRoad, mainRoad, routeList, xHeight) {
         const center = mainRoad.routeList[1]
         const length = xHeight / 4 // Use the parameter directly for temp objects without sideRoad object
 

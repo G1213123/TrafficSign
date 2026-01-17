@@ -11,7 +11,8 @@ const canvas = CanvasGlobals.canvas;
 const calcVertexType = {
     'Main Line': (xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) => calcMainRoadVertices(xHeight, routeList, innerCornerRadius, outerCornerRadius),
     'Conventional Roundabout': (xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) => calcRoundaboutVertices('Conventional', xHeight, routeList),
-    'Spiral Roundabout': (xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) => calcRoundaboutVertices('Spiral', xHeight, routeList)
+    'Spiral Roundabout': (xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) => calcRoundaboutVertices('Spiral', xHeight, routeList),
+    'Oval Roundabout': (xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) => calcRoundaboutVertices('Oval', xHeight, routeList)
 }
 
 // Extract drawing functions from FormDrawMapComponent
