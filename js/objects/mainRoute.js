@@ -179,7 +179,7 @@ function processVertexListAndArcs(vertexList, arcList, remainingPath = []) {
 /**
  * Calculates vertices for Main Road with single arm (current implementation)
  * @param {number} xHeight - X-height value
- * @param {Array} routeList - List of routes
+ * @param {Array}   - List of routes
  * @return {Object} Vertex list object
  */
 function calcMainRoadVerticesSingleArm(xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) {
@@ -489,6 +489,7 @@ class MainRoadSymbol extends BaseGroup {
         this.color = options.color || 'white';
         this.roadType = options.roadType || 'Main Line';
         this.sideRoad = [];
+        this.mainAngle = options.mainAngle || 0;
         this.RAfeature = options.RAfeature || 'Conventional';
         this.innerCornerRadius = options.innerCornerRadius || null;
         this.outerCornerRadius = options.outerCornerRadius || null;

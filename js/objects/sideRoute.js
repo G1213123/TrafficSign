@@ -154,6 +154,44 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
 }
 
 /**
+ * Gets coordinates for side road endpoints on straight section
+ * @param {Object} route - main road object
+ * @param {number} length - Route length
+ * @param {number} arm - Arm length
+ * @param {number} angle - Rotation angle
+ * @param {Object} center - anchor point
+ * @return {Array} Array of vertex coordinates
+ */
+function getOvalStraightSideRoadCoords(route, length, arm, angle, center) {
+    let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]));
+    if (route.shape !== 'UArrow Conventional') {
+        const width = route.width;
+        arrowTipPath.path.forEach(p => {
+            p.vertex.forEach(v => { v.x *= width / 2; v.y *= width / 2; });
+        });
+
+        const i2 = { x: width / 2, y: arm / length - 1, display: 0 };
+        const i3 = { x: width / 2 + 1, y: arm / length, display: 1 };
+        const i0 = { x: -i3.x, y: i3.y, display: 1 };
+        const i1 = { x: -i2.x, y: i2.y, display: 0 };
+
+        if (arrowTipPath.path.length > 0) {
+            let vtx = arrowTipPath.path[0].vertex;
+            vtx = [...vtx, i2, i3, i0, i1];
+            vtx.push(vtx.shift());
+            assignVertexLabel(vtx);
+            arrowTipPath.path[0].vertex = vtx;
+
+            arrowTipPath.path[0].arcs.push(
+                { start: 'V3', end: 'V4', radius: 1, direction: 0, sweep: 0 },
+                { start: 'V5', end: 'V6', radius: 1, direction: 0, sweep: 0 },
+            );
+        }
+    }
+    return transformRoundaboutPath(arrowTipPath, route, length, angle, center, 'UArrow Conventional');
+}
+
+/**
  * SideRoadSymbol class extends baseGroup for side roads
  */
 export class SideRoadSymbol extends BaseGroup {
@@ -343,22 +381,123 @@ export class SideRoadSymbol extends BaseGroup {
     }
 
     applySideRoadConstraintsOvalRoundabout(sideRoad, mainRoad, routeList, xHeight) {
-        const center = mainRoad.routeList[1]
-        const length = xHeight / 4 // Use the parameter directly for temp objects without sideRoad object
+        const center = mainRoad.routeList[1];
+        const length = xHeight / 4;
+        const radius = 12; // 12 units radius
 
-        const rawAngleToCenter = Math.atan2(routeList[0].y - center.y, routeList[0].x - center.x)
-        // Convert to degrees, round to nearest 15 degrees, then back to radians
-        const angleInDegrees = rawAngleToCenter * 180 / Math.PI
-        const roundedDegrees = Math.round(angleInDegrees / 15) * 15
-        const angleToCenter = roundedDegrees * Math.PI / 180
-        const distToCenter = 24 * length
+        // Main road rotation
+        const mainAngle = (mainRoad.mainAngle || 0) * Math.PI / 180;
 
-        if (routeList[0].shape !== 'UArrow Spiral') {
-            routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
-            routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
+        // Global to Local (Rotate by -mainAngle) relative to Bottom Center (routeList[1])
+        const dxGlobal = (routeList[0].x - center.x) / length;
+        const dyGlobal = (routeList[0].y - center.y) / length;
+
+        const dx = dxGlobal * Math.cos(-mainAngle) - dyGlobal * Math.sin(-mainAngle);
+        const dy = dxGlobal * Math.sin(-mainAngle) + dyGlobal * Math.cos(-mainAngle);
+
+        // Define Zones in Local Space
+        // Bottom Center is (0,0). Top Center is (0, -24).
+        // Straight is between Y=0 and Y=-24.
+        
+        let localNormalAngle; // Direction of arm in Local Space
+        let localVirtualCenter; // Pivot point for arm in Local Space
+        let isStraight = false;
+        let sideSign = 1; // 1 for right, -1 for left
+
+        if (dy < -24) {
+            // TOP CIRCLE ZONE (Center at 0, -24)
+            const vY = dy - (-24);
+            const vX = dx;
+            const rawAngle = Math.atan2(vY, vX); // Angle from (0, -24)
+            // Round to 15 deg
+            const deg = rawAngle * 180 / Math.PI;
+            const roundedDeg = Math.round(deg / 15) * 15;
+            localNormalAngle = roundedDeg * Math.PI / 180;
+            localVirtualCenter = { x: 0, y: -24 };
+            
+        } else if (dy > 0) {
+            // BOTTOM CIRCLE ZONE (Center at 0, 0)
+            const vY = dy;
+            const vX = dx;
+            const rawAngle = Math.atan2(vY, vX); // Angle from (0,0)
+            // Round to 15 deg
+            const deg = rawAngle * 180 / Math.PI;
+            const roundedDeg = Math.round(deg / 15) * 15;
+            localNormalAngle = roundedDeg * Math.PI / 180;
+            localVirtualCenter = { x: 0, y: 0 };
+            
+        } else {
+            // STRAIGHT ZONE (between 0 and -24)
+            isStraight = true;
+            if (dx >= 0) {
+                // Right Side
+                localNormalAngle = 0;
+                sideSign = 1;
+            } else {
+                // Left Side
+                localNormalAngle = Math.PI;
+                sideSign = -1;
+            }
+            // For straight, virtualCenter acts as the anchor on the hull
+            localVirtualCenter = { x: sideSign * 12, y: dy };
         }
 
-        const tempVertexList = getSpirRdAboutSideRoadCoords(routeList[0], length, angleToCenter, center);
+        // Calculate Arm Length
+        let distFromAnchor = 0;
+        if (isStraight) {
+            // Projected distance from the hull line (X = 12 or -12)
+            distFromAnchor = (sideSign === 1) ? (dx - 12) : (-12 - dx);
+        } else {
+            // Radial distance from virtual center minus radius
+            const distToVC = Math.sqrt((dx - localVirtualCenter.x) ** 2 + (dy - localVirtualCenter.y) ** 2);
+            distFromAnchor = distToVC - radius;
+        }
+
+        // Min length constraint
+        const minBranchShapeXDelta = (routeList[0].shape == 'Arrow' ? 12 : 4);
+        if (distFromAnchor < minBranchShapeXDelta) distFromAnchor = minBranchShapeXDelta;
+
+        // Calculate Constrained Position in LOCAL space
+        let constrainedLocalX, constrainedLocalY;
+        if (isStraight) {
+            constrainedLocalX = (sideSign * 12) + (sideSign * distFromAnchor);
+            constrainedLocalY = dy; // Y is preserved (sliding)
+        } else {
+            constrainedLocalX = localVirtualCenter.x + (radius + distFromAnchor) * Math.cos(localNormalAngle);
+            constrainedLocalY = localVirtualCenter.y + (radius + distFromAnchor) * Math.sin(localNormalAngle);
+        }
+
+        // Transform back to GLOBAL space
+        // 1. Constrained Point
+        const finalGlobalX = constrainedLocalX * Math.cos(mainAngle) - constrainedLocalY * Math.sin(mainAngle);
+        const finalGlobalY = constrainedLocalX * Math.sin(mainAngle) + constrainedLocalY * Math.cos(mainAngle);
+
+        if (routeList[0].shape !== 'UArrow Conventional') {
+            routeList[0].x = center.x + finalGlobalX * length;
+            routeList[0].y = center.y + finalGlobalY * length;
+        }
+
+        // 2. Helper Virtual Center (for drawing)
+        // Note: For straight, we used sliding VCenter (x, dy).
+        // For curved, we used static VCenter (x, y).
+        const vcGlobalX = localVirtualCenter.x * Math.cos(mainAngle) - localVirtualCenter.y * Math.sin(mainAngle);
+        const vcGlobalY = localVirtualCenter.x * Math.sin(mainAngle) + localVirtualCenter.y * Math.cos(mainAngle);
+        const globalVirtualCenter = {
+            x: center.x + vcGlobalX * length,
+            y: center.y + vcGlobalY * length
+        };
+
+        // 3. Global Normal Angle (for drawing direction)
+        const globalNormalAngle = localNormalAngle + mainAngle;
+
+        // Generate Vertices
+        let tempVertexList;
+        if (isStraight) {
+            tempVertexList = getOvalStraightSideRoadCoords(routeList[0], length, distFromAnchor * length, globalNormalAngle, globalVirtualCenter);
+        } else {
+            const totalArm = (radius + distFromAnchor) * length;
+            tempVertexList = getConvRdAboutSideRoadCoords(routeList[0], length, totalArm, 12, globalNormalAngle, globalVirtualCenter);
+        }
 
         // Only set left/top if sideRoad is a real object with those properties
         if (sideRoad && sideRoad.left !== undefined) {

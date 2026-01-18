@@ -516,14 +516,14 @@ function roundelTemplate(type, rootLength) {
                     ]
                 },],
             }
-        case '0 Oval':
+        case 'Normal 0 Oval':
             return {
                 path: [{
                     'vertex': [
-                        { x: 0, y: -36, label: 'V1', start: 1, display: 0 },
-                        { x: 12, y: -24, label: 'V2', start: 0, display: 0 },
-                        { x: 12, y: -12, label: 'V3', start: 0, display: 0 },
-                        { x: 12, y: 0, label: 'V4', start: 0, display: 0 },
+                        { x: 0, y: -36, label: 'V1', start: 1, display: 1 },
+                        { x: 12, y: -24, label: 'V2', start: 0, display: 1 },
+                        { x: 12, y: -12, label: 'V3', start: 0, display: 1 },
+                        { x: 12, y: 0, label: 'V4', start: 0, display: 1 },
                         { x: 10.392, y: 6, label: 'V5', start: 0, display: 0 },  // notched
                         { x: 6.062, y: 3.5, label: 'V6', start: 0, display: 0 }, // notched
                         { x: 7, y: 0, label: 'V7', start: 0, display: 0 },
@@ -532,10 +532,10 @@ function roundelTemplate(type, rootLength) {
                         { x: -7, y: 0, label: 'V13', start: 0, display: 0 },
                         { x: 3.5, y: 6.062, label: 'V14', start: 0, display: 0 }, // notched
                         { x: 6, y: 10.392, label: 'V15', start: 0, display: 0 }, // notched
-                        { x: 0, y: 12, label: 'V16', start: 0, display: 0 },
-                        { x: -12, y: 0, label: 'V17', start: 0, display: 0 },
-                        { x: -12, y: -12, label: 'V18', start: 0, display: 0 },
-                        { x: -12, y: -24, label: 'V19', start: 0, display: 0 },
+                        { x: 0, y: 12, label: 'V16', start: 0, display: 1 },
+                        { x: -12, y: 0, label: 'V17', start: 0, display: 1 },
+                        { x: -12, y: -12, label: 'V18', start: 0, display: 1 },
+                        { x: -12, y: -24, label: 'V19', start: 0, display: 1 },
                     ], 'arcs': [
                         { start: 'V1', end: 'V2', radius: 12, direction: 1, sweep: 0 },
                         { start: 'V4', end: 'V5', radius: 12, direction: 1, sweep: 0 },
@@ -559,8 +559,8 @@ function roundelTemplate(type, rootLength) {
                         { x: -3.6923, y: 11.4178, label: 'V24', start: 0, display: 0 },
                         { x: 3.6923, y: 11.4178, label: 'V25', start: 0, display: 0 },
                         { x: 3, y: 12.3693, label: 'V26', start: 0, display: 0 },
-                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 0 },
-                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 0 },
+                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 1 },
+                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 1 },
                     ], 'arcs': [
                         { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
                         { start: 'V24', end: 'V25', radius: 12, direction: 0, sweep: 0 },
@@ -569,24 +569,24 @@ function roundelTemplate(type, rootLength) {
                 },
                 ]
             }
-        case '30 Oval':
+        case 'Normal 30 Oval':
             return {
                 path: [{
                     'vertex': [
-                        { x: 18, y: -31.1769, label: "V1", start: 1, display: 0 },
-                        { x: 22.3923, y: -14.7846, label: "V2", start: 0, display: 0 },
-                        { x: 16.3923, y: -4.3923, label: "V3", start: 0, display: 0 },
-                        { x: 10.392, y: 6, label: 'V5', start: 0, display: 0 },  // notched
+                        { x: 18, y: -31.1769, label: "V1", start: 1, display: 1 },
+                        { x: 22.3923, y: -14.7846, label: "V2", start: 0, display: 1 },
+                        { x: 16.3923, y: -4.3923, label: "V3", start: 0, display: 1 },
+                        { x: 10.392, y: 6, label: 'V5', start: 0, display: 1 },  // notched
                         { x: 6.062, y: 3.5, label: 'V6', start: 0, display: 0 }, // notched
                         { x: 18.0622, y: -17.2846, label: "V9", start: 0, display: 0 },
                         { x: 5.9378, y: -24.2846, label: "V11", start: 0, display: 0 },
                         { x: -6.0622, y: -3.5, label: "V13", start: 0, display: 0 },
                         { x: 3.5, y: 6.062, label: 'V14', start: 0, display: 0 }, // notched
                         { x: 6, y: 10.392, label: 'V15', start: 0, display: 0 }, // notched
-                        { x: -6, y: 10.3923, label: "V16", start: 0, display: 0 },
-                        { x: -10.3923, y: -6, label: "V17", start: 0, display: 0 },
-                        { x: -4.3923, y: -16.3923, label: "V18", start: 0, display: 0 },
-                        { x: 1.6077, y: -26.7846, label: "V19", start: 0, display: 0 }
+                        { x: -6, y: 10.3923, label: "V16", start: 0, display: 1 },
+                        { x: -10.3923, y: -6, label: "V17", start: 0, display: 1 },
+                        { x: -4.3923, y: -16.3923, label: "V18", start: 0, display: 1 },
+                        { x: 1.6077, y: -26.7846, label: "V19", start: 0, display: 1 }
                     ], 'arcs': [
                         { start: 'V1', end: 'V2', radius: 12, direction: 1, sweep: 0 },
                         { start: 'V9', end: 'V11', radius: 7, direction: 0, sweep: 0 },
@@ -608,8 +608,8 @@ function roundelTemplate(type, rootLength) {
                         { x: -3.6923, y: 11.4178, label: 'V24', start: 0, display: 0 },
                         { x: 3.6923, y: 11.4178, label: 'V25', start: 0, display: 0 },
                         { x: 3, y: 12.3693, label: 'V26', start: 0, display: 0 },
-                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 0 },
-                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 0 },
+                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 1 },
+                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 1 },
                     ], 'arcs': [
                         { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
                         { start: 'V24', end: 'V25', radius: 12, direction: 0, sweep: 0 },
@@ -618,24 +618,24 @@ function roundelTemplate(type, rootLength) {
                 },
                 ]
             }
-        case '60 Oval':
+        case 'Normal 60 Oval':
             return {
                 path: [{
                     'vertex': [
-                        { x: 31.1769, y: -18, label: "V1", start: 1, display: 0 },
-                        { x: 26.7846, y: -1.6077, label: "V2", start: 0, display: 0 },
-                        { x: 16.3923, y: 4.3923, label: "V3", start: 0, display: 0 },
-                        { x: 9.5, y: 8.372, label: 'V4', start: 0, display: 0 }, // notched
+                        { x: 31.1769, y: -18, label: "V1", start: 1, display: 1 },
+                        { x: 26.7846, y: -1.6077, label: "V2", start: 0, display: 1 },
+                        { x: 16.3923, y: 4.3923, label: "V3", start: 0, display: 1 },
+                        { x: 9.5, y: 8.372, label: 'V4', start: 0, display: 1 }, // notched
                         { x: 7, y: 4.042, label: 'V5', start: 0, display: 0 },  // notched
                         { x: 24.2846, y: -5.9378, label: "V9", start: 0, display: 0 },
                         { x: 17.2846, y: -18.0622, label: "V11", start: 0, display: 0 },
                         { x: -3.5, y: -6.0622, label: "V13", start: 0, display: 0 },
                         { x: 3.5, y: 6.062, label: 'V14', start: 0, display: 0 }, // notched
-                        { x: 6, y: 10.392, label: 'V15', start: 0, display: 0 }, // notched
-                        { x: -10.3923, y: 6, label: "V16", start: 0, display: 0 },
-                        { x: -6, y: -10.3923, label: "V17", start: 0, display: 0 },
-                        { x: 4.3923, y: -16.3923, label: "V18", start: 0, display: 0 },
-                        { x: 14.7846, y: -22.3923, label: "V19", start: 0, display: 0 }
+                        { x: 6, y: 10.392, label: 'V15', start: 0, display: 1 }, // notched
+                        { x: -10.3923, y: 6, label: "V16", start: 0, display: 1 },
+                        { x: -6, y: -10.3923, label: "V17", start: 0, display: 1 },
+                        { x: 4.3923, y: -16.3923, label: "V18", start: 0, display: 1 },
+                        { x: 14.7846, y: -22.3923, label: "V19", start: 0, display: 1 }
                     ], 'arcs': [
                         { start: 'V1', end: 'V2', radius: 12, direction: 1, sweep: 0 },
                         { start: 'V6', end: 'V7', radius: 7, direction: 0, sweep: 0 },
@@ -658,8 +658,8 @@ function roundelTemplate(type, rootLength) {
                         { x: -3.6923, y: 11.4178, label: 'V24', start: 0, display: 0 },
                         { x: 3.6923, y: 11.4178, label: 'V25', start: 0, display: 0 },
                         { x: 3, y: 12.3693, label: 'V26', start: 0, display: 0 },
-                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 0 },
-                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 0 },
+                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 1 },
+                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 1 },
                     ], 'arcs': [
                         { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
                         { start: 'V24', end: 'V25', radius: 12, direction: 0, sweep: 0 },
@@ -668,33 +668,30 @@ function roundelTemplate(type, rootLength) {
                 },
                 ]
             }
-        case '90 Left Oval':
+        case 'Normal 90 Left Oval':
             return {
                 path: [{
                     'vertex': [
-                        { x: 36, y: 0, label: "V1", start: 1, display: 0 },
-                        { x: 34.392, y: 6, label: 'V5', start: 0, display: 0 },  // notched
-                        { x: 30.062, y: 3.5, label: 'V6', start: 0, display: 0 }, // notched
-                        { x: 24, y: -7, label: "V11", start: 0, display: 0 },
+                        { x: 36, y: 0, label: "V1", start: 1, display: 1 },
+                        { x: 24, y: 12, label: "V2", start: 0, display: 1 },
+                        { x: 14.5, y: 12, label: 'V5', start: 0, display: 0 },  // notched
+                        { x: 14.5, y: 7, label: 'V6', start: 0, display: 0 }, // notched
+                        { x: 24, y: 7, label: "V9", start: 0, display: 0 },
+                        { x: 24, y: -7, label: "V11", start: 0, display: 0},
                         { x: 0, y: -7, label: "V13", start: 0, display: 0 },
                         { x: 0, y: 7, label: "V7", start: 0, display: 0 },
-                        { x: 24, y: 7, label: "V9", start: 0, display: 0 },
-                        { x: 27.5, y: 6.062, label: 'V14', start: 0, display: 0 }, // notched
-                        { x: 30, y: 10.392, label: 'V15', start: 0, display: 0 }, // notched
-                        { x: 24, y: 12, label: "V2", start: 0, display: 0 },
-                        { x: 12, y: 12, label: "V3", start: 0, display: 0 },
-                        { x: 0, y: 12, label: "V4", start: 0, display: 0 },
-                        { x: -12, y: 0, label: "V16", start: 0, display: 0 },
-                        { x: 0, y: -12, label: "V17", start: 0, display: 0 },
-                        { x: 12, y: -12, label: "V18", start: 0, display: 0 },
-                        { x: 24, y: -12, label: "V19", start: 0, display: 0 }
+                        { x: 9.5, y: 7, label: 'V14', start: 0, display: 0 }, // notched
+                        { x: 9.5, y: 12, label: 'V15', start: 0, display: 0 }, // notched
+                        { x: 0, y: 12, label: "V4", start: 0, display: 1 },
+                        { x: -12, y: 0, label: "V16", start: 0, display: 1 },
+                        { x: 0, y: -12, label: "V17", start: 0, display: 1 },
+                        { x: 12, y: -12, label: "V18", start: 0, display: 1 },
+                        { x: 24, y: -12, label: "V19", start: 0, display: 1 }
                     ], 'arcs': [
                         { start: 'V1', end: 'V2', radius: 12, direction: 1, sweep: 0 },
-                        { start: 'V4', end: 'V5', radius: 12, direction: 1, sweep: 0 },
-                        { start: 'V6', end: 'V7', radius: 7, direction: 0, sweep: 0 },
-                        { start: 'V9', end: 'V11', radius: 7, direction: 0, sweep: 0 },
-                        { start: 'V13', end: 'V14', radius: 7, direction: 0, sweep: 0 },
-                        { start: 'V15', end: 'V16', radius: 12, direction: 1, sweep: 0 },
+                         { start: 'V9', end: 'V11', radius: 7, direction: 0, sweep: 0 },
+                        { start: 'V13', end: 'V7', radius: 7, direction: 0, sweep: 0 },
+                        { start: 'V4', end: 'V16', radius: 12, direction: 1, sweep: 0 },
                         { start: 'V16', end: 'V17', radius: 12, direction: 1, sweep: 0 },
                         { start: 'V19', end: 'V1', radius: 12, direction: 1, sweep: 0 },
                     ]
@@ -712,8 +709,8 @@ function roundelTemplate(type, rootLength) {
                         { x: 0, y: 12, label: "V34", start: 0, display: 0 },
                         { x: 4, y: 12, label: 'V25', start: 0, display: 0 },
                         { x: 3, y: 13, label: 'V26', start: 0, display: 0 },
-                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 0 },
-                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 0 },
+                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 1 },
+                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 1 },
                     ], 'arcs': [
                         { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
                         { start: 'V25', end: 'V26', radius: 1, direction: 0, sweep: 0 },
@@ -721,11 +718,11 @@ function roundelTemplate(type, rootLength) {
                 },
                 ]
             }
-        case '90 Middle Oval':
+        case 'Normal 90 Middle Oval':
             return {
                 path: [{
                     'vertex': [
-                        { x: 36, y: 0, label: "V1", start: 1, display: 0 },
+                        { x: 36, y: 0, label: "V1", start: 1, display: 1 },
                         { x: 34.392, y: 6, label: 'V5', start: 0, display: 0 },  // notched
                         { x: 30.062, y: 3.5, label: 'V6', start: 0, display: 0 }, // notched
                         { x: 24, y: -7, label: "V11", start: 0, display: 0 },
@@ -734,13 +731,13 @@ function roundelTemplate(type, rootLength) {
                         { x: 24, y: 7, label: "V9", start: 0, display: 0 },
                         { x: 27.5, y: 6.062, label: 'V14', start: 0, display: 0 }, // notched
                         { x: 30, y: 10.392, label: 'V15', start: 0, display: 0 }, // notched
-                        { x: 24, y: 12, label: "V2", start: 0, display: 0 },
-                        { x: 12, y: 12, label: "V3", start: 0, display: 0 },
-                        { x: 0, y: 12, label: "V4", start: 0, display: 0 },
-                        { x: -12, y: 0, label: "V16", start: 0, display: 0 },
-                        { x: 0, y: -12, label: "V17", start: 0, display: 0 },
-                        { x: 12, y: -12, label: "V18", start: 0, display: 0 },
-                        { x: 24, y: -12, label: "V19", start: 0, display: 0 }
+                        { x: 24, y: 12, label: "V2", start: 0, display: 1 },
+                        { x: 12, y: 12, label: "V3", start: 0, display: 1 },
+                        { x: 0, y: 12, label: "V4", start: 0, display: 1 },
+                        { x: -12, y: 0, label: "V16", start: 0, display: 1 },
+                        { x: 0, y: -12, label: "V17", start: 0, display: 1 },
+                        { x: 12, y: -12, label: "V18", start: 0, display: 1 },
+                        { x: 24, y: -12, label: "V19", start: 0, display: 1 }
                     ], 'arcs': [
                         { start: 'V1', end: 'V2', radius: 12, direction: 1, sweep: 0 },
                         { start: 'V4', end: 'V5', radius: 12, direction: 1, sweep: 0 },
@@ -765,8 +762,8 @@ function roundelTemplate(type, rootLength) {
                         { x: 12, y: 12, label: "V34", start: 0, display: 0 },
                         { x: 16, y: 12, label: 'V25', start: 0, display: 0 },
                         { x: 15, y: 13, label: 'V26', start: 0, display: 0 },
-                        { x: 15, y: rootLength, label: 'V27', start: 0, display: 0 },
-                        { x: 12, y: rootLength, label: 'V28', start: 0, display: 0 },
+                        { x: 15, y: rootLength, label: 'V27', start: 0, display: 1 },
+                        { x: 12, y: rootLength, label: 'V28', start: 0, display: 1 },
                     ], 'arcs': [
                         { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
                         { start: 'V25', end: 'V26', radius: 1, direction: 0, sweep: 0 },
@@ -774,14 +771,14 @@ function roundelTemplate(type, rootLength) {
                 },
                 ]
             }
-        case '-30 Oval':
+        case 'Normal -30 Oval':
             return {
                 path: [{
                     'vertex': [
-                        { x: -18, y: -31.1769, label: "V1", start: 1, display: 0 },
-                        { x: -22.3923, y: -14.7846, label: "V2", start: 0, display: 0 },
-                        { x: -16.3923, y: -4.3923, label: "V3", start: 0, display: 0 },
-                        { x: -10.3923, y: 6, label: "V4", start: 0, display: 0 },
+                        { x: -18, y: -31.1769, label: "V1", start: 1, display: 1 },
+                        { x: -22.3923, y: -14.7846, label: "V2", start: 0, display: 1 },
+                        { x: -16.3923, y: -4.3923, label: "V3", start: 0, display: 1 },
+                        { x: -10.3923, y: 6, label: "V4", start: 0, display: 1 },
                         { x: 6, y: 10.392, label: 'V5', start: 0, display: 0 }, // notched
                         { x: 3.5, y: 6.062, label: 'V6', start: 0, display: 0 }, // notched
                         { x: -6.0622, y: 3.5, label: "V7", start: 0, display: 0 },
@@ -790,9 +787,9 @@ function roundelTemplate(type, rootLength) {
                         { x: 6.0622, y: -3.5, label: "V13", start: 0, display: 0 },
                         { x: 6.062, y: 3.5, label: 'V14', start: 0, display: 0 }, // notched
                         { x: 10.392, y: 6, label: 'V15', start: 0, display: 0 },  // notched
-                        { x: 10.3923, y: -6, label: "V17", start: 0, display: 0 },
-                        { x: 4.3923, y: -16.3923, label: "V18", start: 0, display: 0 },
-                        { x: -1.6077, y: -26.7846, label: "V19", start: 0, display: 0 }
+                        { x: 10.3923, y: -6, label: "V17", start: 0, display: 1 },
+                        { x: 4.3923, y: -16.3923, label: "V18", start: 0, display: 1 },
+                        { x: -1.6077, y: -26.7846, label: "V19", start: 0, display: 1 }
                     ], 'arcs': [
                         { start: 'V1', end: 'V2', radius: 12, direction: 0, sweep: 0 },
                         { start: 'V4', end: 'V5', radius: 12, direction: 0, sweep: 0 },
@@ -815,8 +812,8 @@ function roundelTemplate(type, rootLength) {
                         { x: -3.6923, y: 11.4178, label: 'V24', start: 0, display: 0 },
                         { x: 3.6923, y: 11.4178, label: 'V25', start: 0, display: 0 },
                         { x: 3, y: 12.3693, label: 'V26', start: 0, display: 0 },
-                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 0 },
-                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 0 },
+                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 1 },
+                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 1 },
                     ], 'arcs': [
                         { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
                         { start: 'V24', end: 'V25', radius: 12, direction: 0, sweep: 0 },
@@ -825,14 +822,14 @@ function roundelTemplate(type, rootLength) {
                 },
                 ]
             }
-        case '-60 Oval':
+        case 'Normal -60 Oval':
             return {
                 path: [{
                     'vertex': [
-                        { x: -31.1769, y: -18, label: "V1", start: 1, display: 0 },
-                        { x: -26.7846, y: -1.6077, label: "V2", start: 0, display: 0 },
-                        { x: -16.3923, y: 4.3923, label: "V3", start: 0, display: 0 },
-                        { x: -6, y: 10.3923, label: "V4", start: 0, display: 0 },
+                        { x: -31.1769, y: -18, label: "V1", start: 1, display: 1 },
+                        { x: -26.7846, y: -1.6077, label: "V2", start: 0, display: 1 },
+                        { x: -16.3923, y: 4.3923, label: "V3", start: 0, display: 1 },
+                        { x: -6, y: 10.3923, label: "V4", start: 0, display: 1 },
                         { x: 6, y: 10.392, label: 'V5', start: 0, display: 0 }, // notched
                         { x: 3.5, y: 6.062, label: 'V6', start: 0, display: 0 }, // notched
                         { x: -3.5, y: 6.0622, label: "V7", start: 0, display: 0 },
@@ -840,10 +837,10 @@ function roundelTemplate(type, rootLength) {
                         { x: -17.2846, y: -18.0622, label: "V11", start: 0, display: 0 },
                         { x: 3.5, y: -6.0622, label: "V13", start: 0, display: 0 },
                         { x: 7, y: 4.042, label: 'V14', start: 0, display: 0 },  // notched
-                        { x: 10.3923, y: 6, label: "V16", start: 0, display: 0 },
-                        { x: 6, y: -10.3923, label: "V17", start: 0, display: 0 },
-                        { x: -4.3923, y: -16.3923, label: "V18", start: 0, display: 0 },
-                        { x: -14.7846, y: -22.3923, label: "V19", start: 0, display: 0 }
+                        { x: 10.3923, y: 6, label: "V16", start: 0, display: 1 },
+                        { x: 6, y: -10.3923, label: "V17", start: 0, display: 1 },
+                        { x: -4.3923, y: -16.3923, label: "V18", start: 0, display: 1 },
+                        { x: -14.7846, y: -22.3923, label: "V19", start: 0, display: 1 }
                     ], 'arcs': [
                         { start: 'V1', end: 'V2', radius: 12, direction: 0, sweep: 0 },
                         { start: 'V4', end: 'V5', radius: 12, direction: 0, sweep: 0 },
@@ -866,8 +863,8 @@ function roundelTemplate(type, rootLength) {
                         { x: -3.6923, y: 11.4178, label: 'V24', start: 0, display: 0 },
                         { x: 3.6923, y: 11.4178, label: 'V25', start: 0, display: 0 },
                         { x: 3, y: 12.3693, label: 'V26', start: 0, display: 0 },
-                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 0 },
-                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 0 },
+                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 1 },
+                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 1 },
                     ], 'arcs': [
                         { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
                         { start: 'V24', end: 'V25', radius: 12, direction: 0, sweep: 0 },
