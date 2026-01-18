@@ -270,7 +270,7 @@ export class SideRoadSymbol extends BaseGroup {
             case 'Oval Roundabout':
                 return this.applySideRoadConstraintsOvalRoundabout(sideRoad, mainRoad, routeList, xHeight)
             case 'Double Roundabout':
-                return this.applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeight)
+                return this.applySideRoadConstraintsDoubleRoundabout(sideRoad, mainRoad, routeList, xHeight)
         }
 
     }
@@ -500,6 +500,105 @@ export class SideRoadSymbol extends BaseGroup {
             const totalArm = (radius + distFromAnchor) * length;
             tempVertexList = getConvRdAboutSideRoadCoords(routeList[0], length, totalArm, 12, globalNormalAngle, globalVirtualCenter);
         }
+
+        // Only set left/top if sideRoad is a real object with those properties
+        if (sideRoad && sideRoad.left !== undefined) {
+            const offset = getInsertOffset(tempVertexList);
+            sideRoad.left = offset.left;
+            sideRoad.top = offset.top;
+        }
+
+        return { routeList, tempVertexList };
+    }
+
+    applySideRoadConstraintsDoubleRoundabout(sideRoad, mainRoad, routeList, xHeight) {
+        const center = mainRoad.routeList[1];
+        const length = xHeight / 4;
+        const radius = 12; // 12 units radius
+
+        // Main road rotation
+        const mainAngle = (mainRoad.mainAngle || 0) * Math.PI / 180;
+
+        // Global to Local (Rotate by -mainAngle) relative to Bottom Center (routeList[1])
+        const dxGlobal = (routeList[0].x - center.x) / length;
+        const dyGlobal = (routeList[0].y - center.y) / length;
+
+        const dx = dxGlobal * Math.cos(-mainAngle) - dyGlobal * Math.sin(-mainAngle);
+        const dy = dxGlobal * Math.sin(-mainAngle) + dyGlobal * Math.cos(-mainAngle);
+
+        let localNormalAngle; // Direction of arm in Local Space
+        let localVirtualCenter; // Pivot point for arm in Local Space
+        
+        // Two centers at (0,0) and (0, -28).
+        const dist1 = dx * dx + dy * dy; // Distance squared to (0,0)
+        const dist2 = dx * dx + (dy + 28) * (dy + 28); // Distance squared to (0, -28)
+
+        if (dist1 < dist2) {
+             // Closer to bottom center (0,0)
+             localVirtualCenter = { x: 0, y: 0 };
+        } else {
+             // Closer to top center (0, -28)
+             localVirtualCenter = { x: 0, y: -28 };
+        }
+        
+        const vY = dy - localVirtualCenter.y;
+        const vX = dx - localVirtualCenter.x;
+        const rawAngle = Math.atan2(vY, vX); // Angle from Virtual Center
+        // Round to 15 deg
+        const deg = rawAngle * 180 / Math.PI;
+        let roundedDeg = Math.round(deg / 15) * 15;
+
+        // Apply directional constraints (Double Roundabout splay)
+        if (localVirtualCenter.y === -28) {
+            // Top Center: Exclude downward cone (45 to 135)
+            if (roundedDeg > 45 && roundedDeg < 135) {
+                roundedDeg = (roundedDeg <= 90) ? 45 : 135;
+            }
+        } else {
+            // Bottom Center: Exclude upward cone (-135 to -45)
+            if (roundedDeg > -135 && roundedDeg < -45) {
+                roundedDeg = (roundedDeg <= -90) ? -135 : -45;
+            }
+        }
+
+        localNormalAngle = roundedDeg * Math.PI / 180;
+
+        // Calculate Arm Length
+        // Radial distance from virtual center minus radius
+        const distToVC = Math.sqrt((dx - localVirtualCenter.x) ** 2 + (dy - localVirtualCenter.y) ** 2);
+        let distFromAnchor = distToVC - radius;
+
+        // Min length constraint
+        const minBranchShapeXDelta = (routeList[0].shape == 'Arrow' ? 12 : 4);
+        if (distFromAnchor < minBranchShapeXDelta) distFromAnchor = minBranchShapeXDelta;
+
+        // Calculate Constrained Position in LOCAL space
+        const constrainedLocalX = localVirtualCenter.x + (radius + distFromAnchor) * Math.cos(localNormalAngle);
+        const constrainedLocalY = localVirtualCenter.y + (radius + distFromAnchor) * Math.sin(localNormalAngle);
+
+        // Transform back to GLOBAL space
+        // 1. Constrained Point
+        const finalGlobalX = constrainedLocalX * Math.cos(mainAngle) - constrainedLocalY * Math.sin(mainAngle);
+        const finalGlobalY = constrainedLocalX * Math.sin(mainAngle) + constrainedLocalY * Math.cos(mainAngle);
+
+        if (routeList[0].shape !== 'UArrow Conventional') {
+            routeList[0].x = center.x + finalGlobalX * length;
+            routeList[0].y = center.y + finalGlobalY * length;
+        }
+
+        // 2. Helper Virtual Center (for drawing)
+        const vcGlobalX = localVirtualCenter.x * Math.cos(mainAngle) - localVirtualCenter.y * Math.sin(mainAngle);
+        const vcGlobalY = localVirtualCenter.x * Math.sin(mainAngle) + localVirtualCenter.y * Math.cos(mainAngle);
+        const globalVirtualCenter = {
+            x: center.x + vcGlobalX * length,
+            y: center.y + vcGlobalY * length
+        };
+
+        // 3. Global Normal Angle (for drawing direction)
+        const globalNormalAngle = localNormalAngle + mainAngle;
+
+        const totalArm = (radius + distFromAnchor) * length;
+        const tempVertexList = getConvRdAboutSideRoadCoords(routeList[0], length, totalArm, 12, globalNormalAngle, globalVirtualCenter);
 
         // Only set left/top if sideRoad is a real object with those properties
         if (sideRoad && sideRoad.left !== undefined) {

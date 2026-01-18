@@ -408,8 +408,9 @@ let FormDrawMapComponent = {
     // Handle visibility of Position Toggle (Left/Middle) for 90 deg
     const ovalPosContainer = document.getElementById('Oval Position-container');
     if (ovalPosContainer) {
+        const roundelType = GeneralHandler.getToggleValue('Roundel Shape-container');
         const posParent = ovalPosContainer.parentNode;
-        posParent.style.display = (newAngle === 90) ? 'block' : 'none';
+        posParent.style.display = (roundelType === 'Oval' && newAngle === 90) ? 'block' : 'none';
     }
 
     // Update object if exists
