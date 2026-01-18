@@ -269,6 +269,8 @@ export class SideRoadSymbol extends BaseGroup {
                 return this.applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList, xHeight)
             case 'Oval Roundabout':
                 return this.applySideRoadConstraintsOvalRoundabout(sideRoad, mainRoad, routeList, xHeight)
+            case 'Double Roundabout':
+                return this.applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeight)
         }
 
     }

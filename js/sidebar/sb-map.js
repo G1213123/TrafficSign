@@ -30,7 +30,8 @@ let FormDrawMapComponent = {
       { value: 'Auxiliary', label: 'Auxiliary', image: 'roundabout-spiral-auxiliary.svg' },
       { value: 'U-turn', label: 'U-turn', image: 'roundabout-spiral-uturn.svg' }
     ],
-    'Oval':[{ value: 'Normal', label: 'Normal', image: 'roundabout-spiral-normal.svg' }]
+    'Oval':[{ value: 'Normal', label: 'Normal', image: 'roundabout-oval-normal.svg' }],
+    'Double':[{ value: 'Normal', label: 'Normal', image: 'roundabout-double-normal.svg' }]
   },
   permitAngle: [45, 60, 90],
   defaultRoute: [{ x: 0, y: 7, angle: 60, width: 4, shape: 'Arrow' }],
@@ -203,7 +204,7 @@ let FormDrawMapComponent = {
     // Toggle Angle Picker for Oval
     const angleContainer = document.querySelector('.road-type-settings .angle-picker-container');
     if (angleContainer) {
-        angleContainer.style.display = roundelType === 'Oval' ? 'flex' : 'none';
+        angleContainer.style.display = (roundelType === 'Oval' || roundelType === 'Double') ? 'flex' : 'none';
     }
 
     // Check angle for position toggle visibility
@@ -275,6 +276,9 @@ let FormDrawMapComponent = {
             const position = GeneralHandler.getToggleValue('Oval Position-container');
             roundaboutFeatures += ' ' + position;
         }
+      } else if (roundelType === 'Double') {
+        const angle = parseInt(mainAngleDisplayElement.innerText.slice(0, -1));
+        roundaboutFeatures = 'Normal ' + angle;
       } else {
         roundaboutFeatures = endShape; // Normal, Auxiliary, or U-turn
       }
@@ -517,7 +521,7 @@ let FormDrawMapComponent = {
     }
     // Determine which vertex to use as the active vertex for tracking
     // For roundabouts, use C1 (center) vertex, otherwise use V1
-    const activeVertexLabel = (roadType === 'Conventional Roundabout' || roadType === 'Spiral Roundabout' || roadType === 'Oval Roundabout') ? 'C1' : 'V1';
+    const activeVertexLabel = (roadType === 'Conventional Roundabout' || roadType === 'Spiral Roundabout' || roadType === 'Oval Roundabout' || roadType === 'Double Roundabout') ? 'C1' : 'V1';
 
     // Use the general object creation with snapping function
     GeneralHandler.createObjectWithSnapping(
@@ -679,7 +683,7 @@ let FormDrawMapComponent = {
       // Update the routeList coordinates to match the new position
       // For initial placement, we need to recreate routeList at the new position
       if (mainRoad.routeList && mainRoad.routeList.length >= 2) {
-        if (mainRoad.roadType === 'Conventional Roundabout' || mainRoad.roadType === 'Spiral Roundabout' || mainRoad.roadType === 'Oval Roundabout') {
+        if (mainRoad.roadType === 'Conventional Roundabout' || mainRoad.roadType === 'Spiral Roundabout' || mainRoad.roadType === 'Oval Roundabout' || mainRoad.roadType === 'Double Roundabout') {
           // For roundabout, use the center point (routeList[1])
           mainRoad.routeList[1].x = pointer.x;
           mainRoad.routeList[1].y = pointer.y;
