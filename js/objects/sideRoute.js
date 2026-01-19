@@ -119,15 +119,39 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
         p.vertex.forEach(v => { v.x *= width / 2; v.y *= width / 2; });
     });
 
-    const rCenter = { x: 0, y: 24 };
-    const rAngle = 5 * Math.PI / 180;
+    // for rotate 5 deg relative to roundabout center
+    const polarVectors1 = {
+        rCenter: { x: 0, y: 24 },
+        rAngle: 5 * Math.PI / 180
+    }
+    // for rotate stub end along side road middle line
+    const polarVectors2 = {
+        rCenter: { x: -13.9035, y: -0.3 },
+        rAngle: 19.8668 * Math.PI / 180
+    }
 
-    arrowTipPath.path.forEach(p => {
-        p.vertex.forEach(v => {
-            const dx = v.x - rCenter.x;
-            const dy = v.y - rCenter.y;
-            v.x = rCenter.x + dx * Math.cos(rAngle) - dy * Math.sin(rAngle);
-            v.y = rCenter.y + dx * Math.sin(rAngle) + dy * Math.cos(rAngle);
+    let polarVector
+
+    switch (rootShape) {
+        case 'Arrow':
+            polarVector = [polarVectors1];
+            break;
+        case 'Stub':
+            polarVector = [polarVectors1, polarVectors2];
+            break;
+        default:
+            polarVector = [polarVectors1];
+            break;
+    }
+
+    polarVector.forEach(({ rCenter, rAngle }) => {
+        arrowTipPath.path.forEach(p => {
+            p.vertex.forEach(v => {
+                const dx = v.x - rCenter.x;
+                const dy = v.y - rCenter.y;
+                v.x = rCenter.x + dx * Math.cos(rAngle) - dy * Math.sin(rAngle);
+                v.y = rCenter.y + dx * Math.sin(rAngle) + dy * Math.cos(rAngle);
+            });
         });
     });
 
@@ -135,19 +159,19 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
     const i1 = { x: -6.949, y: 11.846, label: 'V4', start: 0, display: 1 }
 
     // Modify the first path with additional vertices/arcs, keep others intact
-        if (arrowTipPath.path.length > 0) {
-            let vtx = arrowTipPath.path[0].vertex;
-            vtx = [...vtx, i0, i1];
-            vtx.push(vtx.shift()); // rotate start point
-            assignVertexLabel(vtx);
-            arrowTipPath.path[0].vertex = vtx;
+    if (arrowTipPath.path.length > 0) {
+        let vtx = arrowTipPath.path[0].vertex;
+        vtx = [...vtx, i0, i1];
+        vtx.push(vtx.shift()); // rotate start point
+        assignVertexLabel(vtx);
+        arrowTipPath.path[0].vertex = vtx;
 
-            arrowTipPath.path[0].arcs.push(
-                { start: 'V2', end: 'V3', radius: 18, direction: 1, sweep: 0 },
-                { start: 'V3', end: 'V4', radius: 14, direction: 0, sweep: 0 },
-                { start: 'V4', end: 'V5', radius: 14, direction: 0, sweep: 0 },
-            );
-        }
+        arrowTipPath.path[0].arcs.push(
+            { start: 'V2', end: 'V3', radius: 18, direction: 1, sweep: 0 },
+            { start: 'V3', end: 'V4', radius: 14, direction: 0, sweep: 0 },
+            { start: 'V4', end: 'V5', radius: 14, direction: 0, sweep: 0 },
+        );
+    }
 
 
     return transformRoundaboutPath(arrowTipPath, route, length, angle, center, 'UArrow Spiral');
@@ -363,7 +387,7 @@ export class SideRoadSymbol extends BaseGroup {
         const angleInDegrees = rawAngleToCenter * 180 / Math.PI
         const roundedDegrees = Math.round(angleInDegrees / 15) * 15
         const angleToCenter = roundedDegrees * Math.PI / 180
-        const distToCenter = 24 * length
+        const distToCenter = sideRoad.routeList[0].shape == "Arrow" || sideRoad.routeList[0].shape == "Spiral Arrow" ? 24 * length : 17.5 * length;
 
         if (routeList[0].shape !== 'UArrow Spiral') {
             routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
@@ -400,7 +424,7 @@ export class SideRoadSymbol extends BaseGroup {
         // Define Zones in Local Space
         // Bottom Center is (0,0). Top Center is (0, -24).
         // Straight is between Y=0 and Y=-24.
-        
+
         let localNormalAngle; // Direction of arm in Local Space
         let localVirtualCenter; // Pivot point for arm in Local Space
         let isStraight = false;
@@ -416,7 +440,7 @@ export class SideRoadSymbol extends BaseGroup {
             const roundedDeg = Math.round(deg / 15) * 15;
             localNormalAngle = roundedDeg * Math.PI / 180;
             localVirtualCenter = { x: 0, y: -24 };
-            
+
         } else if (dy > 0) {
             // BOTTOM CIRCLE ZONE (Center at 0, 0)
             const vY = dy;
@@ -427,7 +451,7 @@ export class SideRoadSymbol extends BaseGroup {
             const roundedDeg = Math.round(deg / 15) * 15;
             localNormalAngle = roundedDeg * Math.PI / 180;
             localVirtualCenter = { x: 0, y: 0 };
-            
+
         } else {
             // STRAIGHT ZONE (between 0 and -24)
             isStraight = true;
@@ -528,19 +552,19 @@ export class SideRoadSymbol extends BaseGroup {
 
         let localNormalAngle; // Direction of arm in Local Space
         let localVirtualCenter; // Pivot point for arm in Local Space
-        
+
         // Two centers at (0,0) and (0, -28).
         const dist1 = dx * dx + dy * dy; // Distance squared to (0,0)
         const dist2 = dx * dx + (dy + 28) * (dy + 28); // Distance squared to (0, -28)
 
         if (dist1 < dist2) {
-             // Closer to bottom center (0,0)
-             localVirtualCenter = { x: 0, y: 0 };
+            // Closer to bottom center (0,0)
+            localVirtualCenter = { x: 0, y: 0 };
         } else {
-             // Closer to top center (0, -28)
-             localVirtualCenter = { x: 0, y: -28 };
+            // Closer to top center (0, -28)
+            localVirtualCenter = { x: 0, y: -28 };
         }
-        
+
         const vY = dy - localVirtualCenter.y;
         const vX = dx - localVirtualCenter.x;
         const rawAngle = Math.atan2(vY, vX); // Angle from Virtual Center

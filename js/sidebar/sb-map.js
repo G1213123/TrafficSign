@@ -31,7 +31,9 @@ let FormDrawMapComponent = {
       { value: 'U-turn', label: 'U-turn', image: 'roundabout-spiral-uturn.svg' }
     ],
     'Oval':[{ value: 'Normal', label: 'Normal', image: 'roundabout-oval-normal.svg' }],
-    'Double':[{ value: 'Normal', label: 'Normal', image: 'roundabout-double-normal.svg' }]
+    'Double':[{ value: 'Normal', label: 'Normal', image: 'roundabout-double-normal.svg' },
+      { value: 'Spiral', label: 'Spiral', image: 'roundabout-double-spiral.svg' },
+    ]
   },
   permitAngle: [45, 60, 90],
   defaultRoute: [{ x: 0, y: 7, angle: 60, width: 4, shape: 'Arrow' }],
@@ -278,7 +280,7 @@ let FormDrawMapComponent = {
         }
       } else if (roundelType === 'Double') {
         const angle = parseInt(mainAngleDisplayElement.innerText.slice(0, -1));
-        roundaboutFeatures = 'Normal ' + angle;
+        roundaboutFeatures = endShape + ' ' + angle;
       } else {
         roundaboutFeatures = endShape; // Normal, Auxiliary, or U-turn
       }

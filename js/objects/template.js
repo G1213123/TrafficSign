@@ -1390,7 +1390,56 @@ function roundelTemplate(type, rootLength) {
                 ]
             }
 
-
+        case 'Spiral 0 Double':
+            return {
+                path: [{
+                    'vertex': [
+                        { x: -2, y: 24, label: 'V1', start: 1, display: 1 },
+                        { x: -2, y: 20.785, label: 'V2', start: 0, display: 0 },
+                        { x: -7, y: 12.124, label: 'V3', start: 0, display: 1 },
+                        { x: 2.392, y: 13.794, label: 'V4', start: 0, display: 0 },
+                        { x: 4, y: 20.785, label: 'V5', start: 0, display: 0 },
+                        { x: 4, y: 24, label: 'V6', start: 0, display: 1 },
+                    ], 'arcs': [
+                        { start: 'V2', end: 'V3', radius: 10, direction: 0, sweep: 0 },
+                        { start: 'V3', end: 'V4', radius: 14, direction: 0, sweep: 0 },
+                        { start: 'V4', end: 'V5', radius: 16, direction: 1, sweep: 0 },
+                    ]
+                },
+                {
+                    'vertex': [
+                        { x: 0, y: 0, label: 'C1', start: 1, display: 1 }, // Center point for tracking
+                    ], 'arcs': []
+                },
+                {
+                    'vertex': [
+                        { x: 0, y: -52, label: 'V11', start: 1, display: 1 }, // Original center point
+                        { x: 12.1244, y: -31, label: 'V13', start: 0, display: 0 },
+                        { x: 8.6603, y: -33, label: 'V14', start: 0, display: 0 },
+                        { x: 5, y: -29.3397, label: 'V15', start: 0, display: 0 },
+                        { x: 7, y: -25.8756, label: 'V16', start: 0, display: 0 },
+                        { x: 3.991, y: -24.5833, label: 'V17', start: 0, display: 0 },
+                        { x: 0.7835, y: -13.9781, label: 'V18', start: 0, display: 0 },
+                                                
+                        { x: 12.1244, y: 7, label: 'V19', start: 0, display: 0 },
+                        { x: 8.6603, y: 5, label: 'V20', start: 0, display: 0 },
+                        { x: 5, y: 8.6603, label: 'V21', start: 0, display: 0 },
+                        { x: 7, y: 12.1244, label: 'V22', start: 0, display: 0 },
+                        { x: -6.9989, y: -12.125, label: 'V23', start: 0, display: 1 },
+                        { x: 0, y: -24, label: 'V24', start: 0, display: 1 },
+                    ], 'arcs': [
+                        { start: 'V11', end: 'V13', radius: 14, direction: 1, sweep: 0 },
+                        { start: 'V14', end: 'V15', radius: 10, direction: 0, sweep: 1 },
+                        { start: 'V17', end: 'V18', radius: 14, direction: 1, sweep: 0 },
+                        { start: 'V18', end: 'V19', radius: 14, direction: 1, sweep: 0 },
+                        { start: 'V20', end: 'V21', radius: 10, direction: 0, sweep: 1 },
+                        { start: 'V22', end: 'V23', radius: 14, direction: 1, sweep: 0 },
+                        { start: 'V23', end: 'V24', radius: 14, direction: 0, sweep: 0 },
+                        { start: 'V24', end: 'V11', radius: 14, direction: 1, sweep: 0 },
+                    ]
+                },],
+            
+            }
     }
 }
 
