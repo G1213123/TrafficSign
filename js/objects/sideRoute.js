@@ -113,6 +113,10 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
 
     let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[rootShape]));
 
+    if (route.shape == 'UArrow Spiral') {
+        return transformRoundaboutPath(arrowTipPath, route, length, angle, center, 'UArrow Spiral');
+    }
+
     const width = route.width;
     // Scale vertices for all paths
     arrowTipPath.path.forEach(p => {
@@ -139,8 +143,11 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
         case 'Stub':
             polarVector = [polarVectors1, polarVectors2];
             break;
+        case 'RedBar':
+            polarVector = [polarVectors1, polarVectors2];
+            break;
         default:
-            polarVector = [polarVectors1];
+            polarVector = [];
             break;
     }
 
@@ -154,7 +161,7 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
             });
         });
     });
-
+    
     const i0 = { x: 0.841, y: 10.025, label: 'V3', start: 0, display: 1 }
     const i1 = { x: -6.949, y: 11.846, label: 'V4', start: 0, display: 1 }
 
@@ -540,6 +547,10 @@ export class SideRoadSymbol extends BaseGroup {
         const length = xHeight / 4;
         const radius = 12; // 12 units radius
 
+        // Check for Spiral feature
+        const isSpiral = mainRoad.RAfeature && mainRoad.RAfeature.includes('Spiral');
+        const spacing = isSpiral ? 38 : 28;
+
         // Main road rotation
         const mainAngle = (mainRoad.mainAngle || 0) * Math.PI / 180;
 
@@ -553,16 +564,16 @@ export class SideRoadSymbol extends BaseGroup {
         let localNormalAngle; // Direction of arm in Local Space
         let localVirtualCenter; // Pivot point for arm in Local Space
 
-        // Two centers at (0,0) and (0, -28).
+        // Two centers at (0,0) and (0, -spacing).
         const dist1 = dx * dx + dy * dy; // Distance squared to (0,0)
-        const dist2 = dx * dx + (dy + 28) * (dy + 28); // Distance squared to (0, -28)
+        const dist2 = dx * dx + (dy + spacing) * (dy + spacing); // Distance squared to (0, -spacing)
 
         if (dist1 < dist2) {
             // Closer to bottom center (0,0)
             localVirtualCenter = { x: 0, y: 0 };
         } else {
-            // Closer to top center (0, -28)
-            localVirtualCenter = { x: 0, y: -28 };
+            // Closer to top center (0, -spacing)
+            localVirtualCenter = { x: 0, y: -spacing };
         }
 
         const vY = dy - localVirtualCenter.y;
@@ -573,7 +584,7 @@ export class SideRoadSymbol extends BaseGroup {
         let roundedDeg = Math.round(deg / 15) * 15;
 
         // Apply directional constraints (Double Roundabout splay)
-        if (localVirtualCenter.y === -28) {
+        if (localVirtualCenter.y === -spacing) {
             // Top Center: Exclude downward cone (45 to 135)
             if (roundedDeg > 45 && roundedDeg < 135) {
                 roundedDeg = (roundedDeg <= 90) ? 45 : 135;
@@ -587,30 +598,7 @@ export class SideRoadSymbol extends BaseGroup {
 
         localNormalAngle = roundedDeg * Math.PI / 180;
 
-        // Calculate Arm Length
-        // Radial distance from virtual center minus radius
-        const distToVC = Math.sqrt((dx - localVirtualCenter.x) ** 2 + (dy - localVirtualCenter.y) ** 2);
-        let distFromAnchor = distToVC - radius;
-
-        // Min length constraint
-        const minBranchShapeXDelta = (routeList[0].shape == 'Arrow' ? 12 : 4);
-        if (distFromAnchor < minBranchShapeXDelta) distFromAnchor = minBranchShapeXDelta;
-
-        // Calculate Constrained Position in LOCAL space
-        const constrainedLocalX = localVirtualCenter.x + (radius + distFromAnchor) * Math.cos(localNormalAngle);
-        const constrainedLocalY = localVirtualCenter.y + (radius + distFromAnchor) * Math.sin(localNormalAngle);
-
-        // Transform back to GLOBAL space
-        // 1. Constrained Point
-        const finalGlobalX = constrainedLocalX * Math.cos(mainAngle) - constrainedLocalY * Math.sin(mainAngle);
-        const finalGlobalY = constrainedLocalX * Math.sin(mainAngle) + constrainedLocalY * Math.cos(mainAngle);
-
-        if (routeList[0].shape !== 'UArrow Conventional') {
-            routeList[0].x = center.x + finalGlobalX * length;
-            routeList[0].y = center.y + finalGlobalY * length;
-        }
-
-        // 2. Helper Virtual Center (for drawing)
+        // Helper Virtual Center (for drawing)
         const vcGlobalX = localVirtualCenter.x * Math.cos(mainAngle) - localVirtualCenter.y * Math.sin(mainAngle);
         const vcGlobalY = localVirtualCenter.x * Math.sin(mainAngle) + localVirtualCenter.y * Math.cos(mainAngle);
         const globalVirtualCenter = {
@@ -618,11 +606,53 @@ export class SideRoadSymbol extends BaseGroup {
             y: center.y + vcGlobalY * length
         };
 
-        // 3. Global Normal Angle (for drawing direction)
+        // Global Normal Angle (for drawing direction)
         const globalNormalAngle = localNormalAngle + mainAngle;
 
-        const totalArm = (radius + distFromAnchor) * length;
-        const tempVertexList = getConvRdAboutSideRoadCoords(routeList[0], length, totalArm, 12, globalNormalAngle, globalVirtualCenter);
+        let tempVertexList;
+
+        if (isSpiral) {
+            // Calculate Constrained Position in LOCAL space for Spiral (fixed radius 24)
+            const constrainedLocalX = localVirtualCenter.x + 24 * Math.cos(localNormalAngle);
+            const constrainedLocalY = localVirtualCenter.y + 24 * Math.sin(localNormalAngle);
+
+            // Transform back to GLOBAL space
+            const finalGlobalX = constrainedLocalX * Math.cos(mainAngle) - constrainedLocalY * Math.sin(mainAngle);
+            const finalGlobalY = constrainedLocalX * Math.sin(mainAngle) + constrainedLocalY * Math.cos(mainAngle);
+
+            if (routeList[0].shape !== 'UArrow Spiral') {
+                routeList[0].x = center.x + finalGlobalX * length;
+                routeList[0].y = center.y + finalGlobalY * length;
+            }
+            tempVertexList = getSpirRdAboutSideRoadCoords(routeList[0], length, globalNormalAngle, globalVirtualCenter);
+
+        } else {
+            // Calculate Arm Length
+            // Radial distance from virtual center minus radius
+            const distToVC = Math.sqrt((dx - localVirtualCenter.x) ** 2 + (dy - localVirtualCenter.y) ** 2);
+            let distFromAnchor = distToVC - radius;
+
+            // Min length constraint
+            const minBranchShapeXDelta = (routeList[0].shape == 'Arrow' ? 12 : 4);
+            if (distFromAnchor < minBranchShapeXDelta) distFromAnchor = minBranchShapeXDelta;
+
+            // Calculate Constrained Position in LOCAL space
+            const constrainedLocalX = localVirtualCenter.x + (radius + distFromAnchor) * Math.cos(localNormalAngle);
+            const constrainedLocalY = localVirtualCenter.y + (radius + distFromAnchor) * Math.sin(localNormalAngle);
+
+            // Transform back to GLOBAL space
+            // 1. Constrained Point
+            const finalGlobalX = constrainedLocalX * Math.cos(mainAngle) - constrainedLocalY * Math.sin(mainAngle);
+            const finalGlobalY = constrainedLocalX * Math.sin(mainAngle) + constrainedLocalY * Math.cos(mainAngle);
+
+            if (routeList[0].shape !== 'UArrow Conventional') {
+                routeList[0].x = center.x + finalGlobalX * length;
+                routeList[0].y = center.y + finalGlobalY * length;
+            }
+
+            const totalArm = (radius + distFromAnchor) * length;
+            tempVertexList = getConvRdAboutSideRoadCoords(routeList[0], length, totalArm, 12, globalNormalAngle, globalVirtualCenter);
+        }
 
         // Only set left/top if sideRoad is a real object with those properties
         if (sideRoad && sideRoad.left !== undefined) {

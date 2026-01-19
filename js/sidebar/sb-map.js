@@ -30,9 +30,9 @@ let FormDrawMapComponent = {
       { value: 'Auxiliary', label: 'Auxiliary', image: 'roundabout-spiral-auxiliary.svg' },
       { value: 'U-turn', label: 'U-turn', image: 'roundabout-spiral-uturn.svg' }
     ],
-    'Oval':[{ value: 'Normal', label: 'Normal', image: 'roundabout-oval-normal.svg' }],
-    'Double':[{ value: 'Normal', label: 'Normal', image: 'roundabout-double-normal.svg' },
-      { value: 'Spiral', label: 'Spiral', image: 'roundabout-double-spiral.svg' },
+    'Oval': [{ value: 'Normal', label: 'Normal', image: 'roundabout-oval-normal.svg' }],
+    'Double': [{ value: 'Normal', label: 'Normal', image: 'roundabout-double-normal.svg' },
+    { value: 'Spiral', label: 'Spiral', image: 'roundabout-double-spiral.svg' },
     ]
   },
   permitAngle: [45, 60, 90],
@@ -181,24 +181,24 @@ let FormDrawMapComponent = {
   onRoundelTypeChange: function () {
     const roundelType = GeneralHandler.getToggleValue('Roundel Shape-container');
     const features = FormDrawMapComponent.RoundaboutFeatures[roundelType];
-    
+
     // Find existing dropdown container
     const container = document.getElementById('Main Road Shape-container');
     if (container) {
       const parent = container.parentNode;
       const nextSibling = container.nextSibling;
-      
+
       // Remove old container
       parent.removeChild(container);
-      
+
       // Create new dropdown (appends to parent)
       const newDropdown = GeneralHandler.createImageDropdown('Main Road Shape', features, parent, features[0].value, FormDrawMapComponent.drawMainRoadOnCursor);
-      
+
       // Move to correct position if needed
       if (nextSibling) {
         parent.insertBefore(newDropdown, nextSibling);
       }
-      
+
       // Re-add help icon
       GeneralHandler.createHelpIconWithHint(newDropdown, 'route/Roundabout');
     }
@@ -206,18 +206,18 @@ let FormDrawMapComponent = {
     // Toggle Angle Picker for Oval
     const angleContainer = document.querySelector('.road-type-settings .angle-picker-container');
     if (angleContainer) {
-        angleContainer.style.display = (roundelType === 'Oval' || roundelType === 'Double') ? 'flex' : 'none';
+      angleContainer.style.display = (roundelType === 'Oval' || roundelType === 'Double') ? 'flex' : 'none';
     }
 
     // Check angle for position toggle visibility
     const angleDisplay = document.getElementById('main-angle-display');
     const ovalPosContainer = document.getElementById('Oval Position-container');
     if (angleDisplay && ovalPosContainer) {
-        const angle = parseInt(angleDisplay.innerText.slice(0, -1));
-        const posParent = ovalPosContainer.parentNode;
-        posParent.style.display = (roundelType === 'Oval' && angle === 90) ? 'block' : 'none';
+      const angle = parseInt(angleDisplay.innerText.slice(0, -1));
+      const posParent = ovalPosContainer.parentNode;
+      posParent.style.display = (roundelType === 'Oval' && angle === 90) ? 'block' : 'none';
     }
-    
+
     // Trigger draw update
     FormDrawMapComponent.drawMainRoadOnCursor();
   },
@@ -259,7 +259,7 @@ let FormDrawMapComponent = {
     const mainAngleDisplayElement = document.getElementById('main-angle-display');
 
     const rootLength = rootLengthElement ? parseFloat(rootLengthElement.value) : null;
-    const tipLength = tipLengthElement ? parseFloat(tipLengthElement.value) : null;
+    let tipLength = tipLengthElement ? parseFloat(tipLengthElement.value) : null;
     const mainWidth = mainWidthElement ? parseFloat(mainWidthElement.value) : null;
 
     // Get shape from custom dropdown
@@ -274,14 +274,23 @@ let FormDrawMapComponent = {
       if (roundelType === 'Oval') {
         const angle = parseInt(mainAngleDisplayElement.innerText.slice(0, -1));
         roundaboutFeatures = 'Normal ' + angle;
+        tipLength = 24; // Fixed tip length for Oval
         if (angle === 90) {
-            const position = GeneralHandler.getToggleValue('Oval Position-container');
-            roundaboutFeatures += ' ' + position;
+          const position = GeneralHandler.getToggleValue('Oval Position-container');
+          roundaboutFeatures += ' ' + position;
         }
+        //} else if (roundelType === 'Double') {
+        //  const angle = parseInt(mainAngleDisplayElement.innerText.slice(0, -1));
+        //  roundaboutFeatures = endShape + ' ' + angle;
       } else if (roundelType === 'Double') {
-        const angle = parseInt(mainAngleDisplayElement.innerText.slice(0, -1));
-        roundaboutFeatures = endShape + ' ' + angle;
-      } else {
+        if (endShape === 'Spiral') {
+          tipLength = 38; // Fixed tip length for Double Spiral
+        } else {
+          tipLength = 28; // Fixed tip length for Double Normal
+        }
+        roundaboutFeatures = endShape; 
+      }
+      else {
         roundaboutFeatures = endShape; // Normal, Auxiliary, or U-turn
       }
     }
@@ -388,9 +397,9 @@ let FormDrawMapComponent = {
 
     // Extract the current angle value
     const currentText = angleDisplay.innerText.slice(0, -1);
-    
+
     // Define allowed angles for oval
-    const ovalAngles = [-60, -30, 0, 30, 60, 90];
+    const ovalAngles = [-90, -60, -30, 0, 30, 60, 90];
     const angleIndex = ovalAngles.indexOf(parseInt(currentText));
 
     const isLeftButton = event.currentTarget.id.includes('rotate-left');
@@ -410,23 +419,23 @@ let FormDrawMapComponent = {
     // Handle visibility of Position Toggle (Left/Middle) for 90 deg
     const ovalPosContainer = document.getElementById('Oval Position-container');
     if (ovalPosContainer) {
-        const roundelType = GeneralHandler.getToggleValue('Roundel Shape-container');
-        const posParent = ovalPosContainer.parentNode;
-        posParent.style.display = (roundelType === 'Oval' && newAngle === 90) ? 'block' : 'none';
+      const roundelType = GeneralHandler.getToggleValue('Roundel Shape-container');
+      const posParent = ovalPosContainer.parentNode;
+      posParent.style.display = (roundelType === 'Oval' && newAngle === 90) ? 'block' : 'none';
     }
 
     // Update object if exists
     if (FormDrawMapComponent.newMapObject && FormDrawMapComponent.newMapObject.functionalType === 'MainRoad') {
       FormDrawMapComponent.newMapObject.mainAngle = newAngle;
-       if (CanvasGlobals.activeVertex && CanvasGlobals.activeVertex.handleMouseMoveRef) {
-          const pointer = CanvasGlobals.canvas.getPointer({ e: window.event });
-          CanvasGlobals.activeVertex.handleMouseMoveRef({
-            e: window.event,
-            pointer: pointer
-          });
-       }
-       // Force redraw to catch shape change (e.g. 90 Left vs 90 Middle if relevant, or just angle update)
-       FormDrawMapComponent.drawMainRoadOnCursor();
+      if (CanvasGlobals.activeVertex && CanvasGlobals.activeVertex.handleMouseMoveRef) {
+        const pointer = CanvasGlobals.canvas.getPointer({ e: window.event });
+        CanvasGlobals.activeVertex.handleMouseMoveRef({
+          e: window.event,
+          pointer: pointer
+        });
+      }
+      // Force redraw to catch shape change (e.g. 90 Left vs 90 Middle if relevant, or just angle update)
+      FormDrawMapComponent.drawMainRoadOnCursor();
     }
   },
 
@@ -871,7 +880,7 @@ let FormDrawMapComponent = {
       x: options.position.x,
       y: options.position.y,
       angle: options.angle,
-      shape: options.shape ,
+      shape: options.shape,
       width: options.width || 4
     }];
 

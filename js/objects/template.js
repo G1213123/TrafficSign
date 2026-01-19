@@ -874,7 +874,58 @@ function roundelTemplate(type, rootLength) {
                 ]
             }
 
-        case 'Normal 0 Double':
+        case 'Normal -90 Oval':
+            return {
+                path: [{
+                    'vertex': [
+                        { x: 36, y: 0, label: "V1", start: 1, display: 1 },
+                        { x: 24, y: 12, label: "V2", start: 0, display: 1 },
+                        { x: 14.5, y: 12, label: 'V5', start: 0, display: 0 },  // notched
+                        { x: 14.5, y: 7, label: 'V6', start: 0, display: 0 }, // notched
+                        { x: 24, y: 7, label: "V9", start: 0, display: 0 },
+                        { x: 24, y: -7, label: "V11", start: 0, display: 0 },
+                        { x: 0, y: -7, label: "V13", start: 0, display: 0 },
+                        { x: 0, y: 7, label: "V7", start: 0, display: 0 },
+                        { x: 9.5, y: 7, label: 'V14', start: 0, display: 0 }, // notched
+                        { x: 9.5, y: 12, label: 'V15', start: 0, display: 0 }, // notched
+                        { x: 0, y: 12, label: "V4", start: 0, display: 1 },
+                        { x: -12, y: 0, label: "V16", start: 0, display: 1 },
+                        { x: 0, y: -12, label: "V17", start: 0, display: 1 },
+                        { x: 12, y: -12, label: "V18", start: 0, display: 1 },
+                        { x: 24, y: -12, label: "V19", start: 0, display: 1 }
+                    ], 'arcs': [
+                        { start: 'V1', end: 'V2', radius: 12, direction: 1, sweep: 0 },
+                        { start: 'V9', end: 'V11', radius: 7, direction: 0, sweep: 0 },
+                        { start: 'V13', end: 'V7', radius: 7, direction: 0, sweep: 0 },
+                        { start: 'V4', end: 'V16', radius: 12, direction: 1, sweep: 0 },
+                        { start: 'V16', end: 'V17', radius: 12, direction: 1, sweep: 0 },
+                        { start: 'V19', end: 'V1', radius: 12, direction: 1, sweep: 0 },
+                    ]
+                },
+                {
+                    'vertex': [
+                        { x: 0, y: 0, label: 'C1', start: 1, display: 1 }, // Center point for tracking
+                    ], 'arcs': []
+                },
+                {
+                    'vertex': [
+                        { x: 27, y: rootLength, label: 'V21', start: 1, display: 1 },
+                        { x: 27, y: 12.3693, label: 'V23', start: 0, display: 0 },
+                        { x: 27.6923, y: 11.4178, label: 'V24', start: 0, display: 0 },
+                        { x: 24, y: 12, label: "V34", start: 0, display: 0 },
+                        { x: 20, y: 12, label: 'V25', start: 0, display: 0 },
+                        { x: 21, y: 13, label: 'V26', start: 0, display: 0 },
+                        { x: 21, y: rootLength, label: 'V27', start: 0, display: 1 },
+                        { x: 24, y: rootLength, label: 'V28', start: 0, display: 1 },
+                    ], 'arcs': [
+                        { start: 'V23', end: 'V24', radius: 1, direction: 1, sweep: 0 },
+                        { start: 'V25', end: 'V26', radius: 1, direction: 1, sweep: 0 },
+                    ],
+                },
+                ]
+            }
+
+        case 'Normal Double':
             return {
                 path: [
                     {
@@ -913,23 +964,28 @@ function roundelTemplate(type, rootLength) {
                         ]
                     },
                     {
-                    'vertex': [
-                        { x: -3, y: rootLength, label: 'V21', start: 1, display: 1 },
-                        { x: -3, y: 12.3693, label: 'V23', start: 0, display: 0 },
-                        { x: -3.6923, y: 11.4178, label: 'V24', start: 0, display: 0 },
-                        { x: 3.6923, y: 11.4178, label: 'V25', start: 0, display: 0 },
-                        { x: 3, y: 12.3693, label: 'V26', start: 0, display: 0 },
-                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 1 },
-                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 1 },
-                    ], 'arcs': [
-                        { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
-                        { start: 'V24', end: 'V25', radius: 12, direction: 0, sweep: 0 },
-                        { start: 'V25', end: 'V26', radius: 1, direction: 0, sweep: 0 },
-                    ],
-                },
+                        'vertex': [
+                            { x: -3, y: rootLength, label: 'V31', start: 1, display: 1 },
+                            { x: -3, y: 12.3693, label: 'V33', start: 0, display: 0 },
+                            { x: -3.6923, y: 11.4178, label: 'V34', start: 0, display: 0 },
+                            { x: 3.6923, y: 11.4178, label: 'V35', start: 0, display: 0 },
+                            { x: 3, y: 12.3693, label: 'V36', start: 0, display: 0 },
+                            { x: 3, y: rootLength, label: 'V37', start: 0, display: 1 },
+                            { x: 0, y: rootLength, label: 'V38', start: 0, display: 1 },
+                        ], 'arcs': [
+                            { start: 'V33', end: 'V34', radius: 1, direction: 0, sweep: 0 },
+                            { start: 'V34', end: 'V35', radius: 12, direction: 0, sweep: 0 },
+                            { start: 'V35', end: 'V36', radius: 1, direction: 0, sweep: 0 },
+                        ],
+                    },
                     {
                         'vertex': [
                             { x: 0, y: 0, label: 'C1', start: 1, display: 1 }, // Center point
+                        ], 'arcs': []
+                    },
+                    {
+                        'vertex': [
+                            { x: 0, y: -28, label: 'C2', start: 1, display: 1 }, // Center point
                         ], 'arcs': []
                     },
                     {
@@ -960,485 +1016,87 @@ function roundelTemplate(type, rootLength) {
                 ]
             };
 
-        case 'Normal 30 Double':
+        case 'Spiral Double':
             return {
                 path: [
-                    {
-                        vertex: [
-                            { x: 20, y: -34.641, label: "V1", start: 1, display: 1 },
-                            { x: 24.3923, y: -18.2487, label: 'V3', start: 0, display: 0 },      // notched
-                            { x: 20.0622, y: -20.7487, label: 'V4', start: 0, display: 0 },     // notched
-                            { x: 17.5, y: -18.1865, label: 'V5', start: 0, display: 0 },     // notched
-                            { x: 20, y: -13.8564, label: 'V6', start: 0, display: 0 },       // notched
-                { x: 11.0221, y: -12.624, label: "V20", start: 0, display: 0 },
-                { x: 9.9051, y: -12.1561, label: "V7", start: 0, display: 0 },
-                { x: 8.4251, y: -9.5926, label: "V8", start: 0, display: 0 },
-                { x: 8.5783, y: -8.3913, label: "V21", start: 0, display: 0 },
-                            { x: 10.3923, y: 6, label: 'V10', start: 0, display: 0 },       // notched
-                            { x: 6.0622, y: 3.5, label: 'V11', start: 0, display: 0 },      // notched
-                            { x: 3.5, y: 6.0622, label: 'V12', start: 0, display: 0 },      // notched
-                            { x: 6, y: 10.3923, label: 'V13', start: 0, display: 0 },       // notched
-                { x: 2.9779, y: -11.6247, label: "V22", start: 0, display: 0 },
-                { x: 4.0949, y: -12.0926, label: "V16", start: 0, display: 0 },
-                { x: 5.5749, y: -14.6561, label: "V17", start: 0, display: 0 },
-                { x: 5.4217, y: -15.8574, label: "V23", start: 0, display: 0 }
-                        ],
-                        arcs: [
-                            { start: "V1", end: "V3", radius: 12, direction: 1, sweep: 0 },
-                            { start: "V4", end: "V5", radius: 7, direction: 0, sweep: 1 },
-                            { start: 'V6', end: 'V20', radius: 12, direction: 1, sweep: 0 },
-                            { start: 'V20', end: 'V7', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V8', end: 'V21', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V21', end: 'V10', radius: 12, direction: 1, sweep: 0 },
-                            { start: "V11", end: "V12", radius: 7, direction: 0, sweep: 1 },
-                            { start: 'V13', end: 'V22', radius: 12, direction: 1, sweep: 1 },
-                            { start: 'V22', end: 'V16', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V17', end: 'V23', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V23', end: 'V1', radius: 12, direction: 1, sweep: 0 },
-                        ]
-                    },
-                    {
-                    'vertex': [
-                        { x: -3, y: rootLength, label: 'V21', start: 1, display: 1 },
-                        { x: -3, y: 12.3693, label: 'V23', start: 0, display: 0 },
-                        { x: -3.6923, y: 11.4178, label: 'V24', start: 0, display: 0 },
-                        { x: 3.6923, y: 11.4178, label: 'V25', start: 0, display: 0 },
-                        { x: 3, y: 12.3693, label: 'V26', start: 0, display: 0 },
-                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 1 },
-                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 1 },
-                    ], 'arcs': [
-                        { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
-                        { start: 'V24', end: 'V25', radius: 12, direction: 0, sweep: 0 },
-                        { start: 'V25', end: 'V26', radius: 1, direction: 0, sweep: 0 },
-                    ],
-                },
-                    {
-                        vertex: [
-                            { x: 0, y: 0, label: "C1", start: 1, display: 1 }
-                        ],
-                        arcs: []
-                    },
-                    {
-                        vertex: [
-                            { x: 24.3923, y: -18.2487, label: "V2", start: 1, display: 1 }
-                        ]
-                    },
-                    {
-                        vertex: [
-                            { x: 10.3923, y: 6, label: "V9", start: 0, display: 1 }
-                        ]
-                    },
-                    {
-                        vertex: [
-                            { x: -6, y: 10.3923, label: "V14", start: 0, display: 1 }
-                        ]
-                    },
-                    {
-                        vertex: [
-                            { x: -10.3923, y: -6, label: "V15", start: 0, display: 1 }
-                        ]
-                    },
-                    {
-                        vertex: [
-                            { x: 3.6077, y: -30.2487, label: "V18", start: 0, display: 1 }
-                        ]
-                    }
-                ]
-            }
-
-        case 'Normal 60 Double':
-            return {
-                path: [
-                    {
-                        vertex: [
-                            { x: 34.641, y: -20, label: "V1", start: 1, display: 1 },
-                            { x: 34.641, y: -8, label: 'V3', start: 0, display: 0 },      // notched
-                            { x: 30.3109, y: -10.5, label: 'V4', start: 0, display: 0 },     // notched
-                            { x: 27.7487, y: -7.9378, label: 'V5', start: 0, display: 0 },     // notched
-                            { x: 30.2487, y: -3.6077, label: 'V6', start: 0, display: 0 },       // notched
-                { x: 15.8574, y: -5.4217, label: "V20", start: 0, display: 0 },
-                { x: 14.6561, y: -5.5749, label: "V7", start: 0, display: 0 },
-                { x: 12.0926, y: -4.0949, label: "V8", start: 0, display: 0 },
-                { x: 11.6247, y: -2.9779, label: "V21", start: 0, display: 0 },
-                            { x: 10.3923, y: 6, label: 'V10', start: 0, display: 0 },       // notched
-                            { x: 6.0622, y: 3.5, label: 'V11', start: 0, display: 0 },      // notched
-                            { x: 3.5, y: 6.0622, label: 'V12', start: 0, display: 0 },      // notched
-                            { x: 6, y: 10.3923, label: 'V13', start: 0, display: 0 },       // notched
-                { x: 8.3913, y: -8.5783, label: "V22", start: 0, display: 0 },
-                { x: 9.5926, y: -8.4251, label: "V16", start: 0, display: 0 },
-                { x: 12.1561, y: -9.9051, label: "V17", start: 0, display: 0 },
-                { x: 12.624, y: -11.0221, label: "V23", start: 0, display: 0 }
-                        ],
-                        arcs: [
-                            { start: "V1", end: "V3", radius: 12, direction: 1, sweep: 0 },
-                            { start: "V4", end: "V5", radius: 7, direction: 0, sweep: 1 },
-                            { start: 'V6', end: 'V20', radius: 12, direction: 1, sweep: 0 },
-                            { start: 'V20', end: 'V7', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V8', end: 'V21', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V21', end: 'V10', radius: 12, direction: 1, sweep: 0 },
-                            { start: "V11", end: "V12", radius: 7, direction: 0, sweep: 1 },
-                            { start: 'V13', end: 'V22', radius: 12, direction: 1, sweep: 1 },
-                            { start: 'V22', end: 'V16', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V17', end: 'V23', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V23', end: 'V1', radius: 12, direction: 1, sweep: 0 },
-                        ]
-                    },
-                    {
-                    'vertex': [
-                        { x: -3, y: rootLength, label: 'V21', start: 1, display: 1 },
-                        { x: -3, y: 12.3693, label: 'V23', start: 0, display: 0 },
-                        { x: -3.6923, y: 11.4178, label: 'V24', start: 0, display: 0 },
-                        { x: 3.6923, y: 11.4178, label: 'V25', start: 0, display: 0 },
-                        { x: 3, y: 12.3693, label: 'V26', start: 0, display: 0 },
-                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 1 },
-                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 1 },
-                    ], 'arcs': [
-                        { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
-                        { start: 'V24', end: 'V25', radius: 12, direction: 0, sweep: 0 },
-                        { start: 'V25', end: 'V26', radius: 1, direction: 0, sweep: 0 },
-                    ],
-                },
-                    {
-                        vertex: [
-                            { x: 0, y: 0, label: "C1", start: 1, display: 1 }
-                        ],
-                        arcs: []
-                    },
-                    {
-                        vertex: [
-                            { x: 30.2487, y: -3.6077, label: "V2", start: 1, display: 1 }
-                        ]
-                    },
-                    {
-                        vertex: [
-                            { x: 6, y: 10.3923, label: "V9", start: 0, display: 1 }
-                        ]
-                    },
-                    {
-                        vertex: [
-                            { x: -10.3923, y: 6, label: "V14", start: 0, display: 1 }
-                        ]
-                    },
-                    {
-                        vertex: [
-                            { x: -6, y: -10.3923, label: "V15", start: 0, display: 1 }
-                        ]
-                    },
-                    {
-                        vertex: [
-                            { x: 18.2487, y: -24.3923, label: "V18", start: 0, display: 1 }
-                        ]
-                    }
-                ]
-            };
-
-        case 'Normal 90 Double':
-            return {
-                path: [
-                    {
-                        // Top Circle
-                        'vertex': [
-                            { x: 40, y: 0, label: 'V1', start: 1, display: 1 },
-                            { x: 38.3923, y: 6, label: 'V3', start: 0, display: 0 },       // notched
-                            { x: 34.0622, y: 3.5, label: 'V4', start: 0, display: 0 },      // notched
-                            { x: 31.5, y: 6.0622, label: 'V5', start: 0, display: 0 },      // notched
-                            { x: 34, y: 10.3923, label: 'V6', start: 0, display: 0 },       // notched
-                { x: 16.4438, y: 3.2334, label: "V20", start: 0, display: 0 },
-                { x: 15.48, y: 2.5, label: "V7", start: 0, display: 0 },
-                { x: 12.52, y: 2.5, label: "V8", start: 0, display: 0 },
-                { x: 11.5562, y: 3.2334, label: "V21", start: 0, display: 0 },
-                            { x: 10.3923, y: 6, label: 'V10', start: 0, display: 0 },       // notched
-                            { x: 6.0622, y: 3.5, label: 'V11', start: 0, display: 0 },      // notched
-                            { x: 3.5, y: 6.0622, label: 'V12', start: 0, display: 0 },      // notched
-                            { x: 6, y: 10.3923, label: 'V13', start: 0, display: 0 },       // notched
-                { x: 11.5562, y: -3.2334, label: "V22", start: 0, display: 0 },
-                { x: 12.52, y: -2.5, label: "V16", start: 0, display: 0 },
-                { x: 15.48, y: -2.5, label: "V17", start: 0, display: 0 },
-                { x: 16.4438, y: -3.2334, label: "V23", start: 0, display: 0 }
-                        ],
-                        'arcs': [
-                            { start: "V1", end: "V3", radius: 12, direction: 1, sweep: 0 },
-                            { start: "V4", end: "V5", radius: 7, direction: 0, sweep: 1 },
-                            { start: 'V6', end: 'V20', radius: 12, direction: 1, sweep: 0 },
-                            { start: 'V20', end: 'V7', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V8', end: 'V21', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V21', end: 'V10', radius: 12, direction: 1, sweep: 0 },
-                            { start: "V11", end: "V12", radius: 7, direction: 0, sweep: 1 },
-                            { start: 'V13', end: 'V22', radius: 12, direction: 1, sweep: 1 },
-                            { start: 'V22', end: 'V16', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V17', end: 'V23', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V23', end: 'V1', radius: 12, direction: 1, sweep: 0 },
-                        ]
-                    },
-                    {
-                    'vertex': [
-                        { x: -3, y: rootLength, label: 'V21', start: 1, display: 1 },
-                        { x: -3, y: 12.3693, label: 'V23', start: 0, display: 0 },
-                        { x: -3.6923, y: 11.4178, label: 'V24', start: 0, display: 0 },
-                        { x: 3.6923, y: 11.4178, label: 'V25', start: 0, display: 0 },
-                        { x: 3, y: 12.3693, label: 'V26', start: 0, display: 0 },
-                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 1 },
-                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 1 },
-                    ], 'arcs': [
-                        { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
-                        { start: 'V24', end: 'V25', radius: 12, direction: 0, sweep: 0 },
-                        { start: 'V25', end: 'V26', radius: 1, direction: 0, sweep: 0 },
-                    ],
-                },
                     {
                         'vertex': [
-                            { x: 0, y: 0, label: 'C1', start: 1, display: 1 }, // Center point
+                            { x: 0, y: -52, label: 'V1', start: 1, display: 1 }, // Original center point
+                            { x: 12.1244, y: -31, label: 'V3', start: 0, display: 0 },  //notched
+                            { x: 8.6603, y: -33, label: 'V4', start: 0, display: 0 }, //notched
+                            { x: 5, y: -29.3397, label: 'V5', start: 0, display: 0 }, //notched
+                            { x: 7, y: -25.8756, label: 'V6', start: 0, display: 0 }, //notched
+                            { x: 3.991, y: -24.5833, label: 'V7', start: 0, display: 0 },
+                            { x: 0.7835, y: -13.9781, label: 'V8', start: 0, display: 0 },
+                            { x: 12.1244, y: 7, label: 'V10', start: 0, display: 0 },  // notched
+                            { x: 8.6603, y: 5, label: 'V11', start: 0, display: 0 },  // notched
+                            { x: 5, y: 8.6603, label: 'V12', start: 0, display: 0 },  // notched
+                            { x: 7, y: 12.1244, label: 'V13', start: 0, display: 0 },  // notched
+                            { x: -6.9989, y: -12.125, label: 'V14', start: 0, display: 1 },
+                            { x: 0, y: -24, label: 'V15', start: 0, display: 1 },
+                        ], 'arcs': [
+                            { start: 'V1', end: 'V3', radius: 14, direction: 1, sweep: 0 },
+                            { start: 'V4', end: 'V5', radius: 10, direction: 0, sweep: 1 },
+                            { start: 'V6', end: 'V7', radius: 14, direction: 1, sweep: 0 },
+                            { start: 'V7', end: 'V8', radius: 14, direction: 1, sweep: 0 },
+                            { start: 'V8', end: 'V10', radius: 14, direction: 1, sweep: 0 },
+                            { start: 'V11', end: 'V12', radius: 10, direction: 0, sweep: 1 },
+                            { start: 'V13', end: 'V14', radius: 14, direction: 1, sweep: 0 },
+                            { start: 'V14', end: 'V15', radius: 14, direction: 0, sweep: 0 },
+                            { start: 'V15', end: 'V1', radius: 14, direction: 1, sweep: 0 },
+                        ]
+                    },
+                    {
+                        'vertex': [
+                            { x: 0, y: 0, label: 'C1', start: 1, display: 1 }, // Center point for tracking
                         ], 'arcs': []
                     },
                     {
                         'vertex': [
-                            { x: 28, y: -12, label: 'V2', start: 1, display: 1 },
+                            { x: 0, y: -38, label: 'C2', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
+                    },
+                    {
+                        'vertex': [
+                            { x: 14, y: -38, label: 'V2', start: 1, display: 1 },
                         ],
                     },
                     {
                         'vertex': [
-                            { x: 12, y: 0, label: 'V9', start: 0, display: 1 },
+                            { x: 14, y: 0, label: 'V9', start: 0, display: 1 },
                         ],
                     },
                     {
                         'vertex': [
-                            { x: 0, y: 12, label: 'V14', start: 0, display: 1 },
+                            { x: 0, y: 14, label: 'V16', start: 0, display: 1 },
                         ],
                     },
                     {
                         'vertex': [
-                            { x: -12, y: 0, label: 'V15', start: 0, display: 1 },
+                            { x: -14, y: 0, label: 'V17', start: 0, display: 1 },
                         ],
                     },
                     {
                         'vertex': [
-                            { x: 0, y: -12, label: 'V18', start: 0, display: 1 },
+                            { x: -14, y: -38, label: 'V18', start: 0, display: 1 },
                         ],
                     },
-                ]
-            }
+                    {
+                        'vertex': [
+                            { x: -2, y: 24, label: 'V21', start: 1, display: 1 },
+                            { x: -2, y: 20.785, label: 'V22', start: 0, display: 0 },
+                            { x: -7, y: 12.124, label: 'V23', start: 0, display: 1 },
+                            { x: 2.392, y: 13.794, label: 'V24', start: 0, display: 0 },
+                            { x: 4, y: 20.785, label: 'V25', start: 0, display: 0 },
+                            { x: 4, y: 24, label: 'V26', start: 0, display: 1 },
+                        ], 'arcs': [
+                            { start: 'V22', end: 'V23', radius: 10, direction: 0, sweep: 0 },
+                            { start: 'V23', end: 'V24', radius: 14, direction: 0, sweep: 0 },
+                            { start: 'V24', end: 'V25', radius: 16, direction: 1, sweep: 0 },
+                        ]
+                    },
+                ],
 
-        case 'Normal -30 Double':
-            return {
-                path: [
-                    {
-                        vertex: [
-                            { x: -20, y: -34.641, label: "V1", start: 1, display: 1 },
-                            { x: -2.409, y: -21.143, label: 'V3', start: 0, display: 1 },
-                            { x: -7.239, y: -22.437, label: 'V4', start: 0, display: 1 },
-                            { x: -9.05, y: -19.299, label: 'V5', start: 0, display: 1 },
-                            { x: -5.515, y: -15.763, label: 'V6', start: 0, display: 1 },
-                { x: -5.4217, y: -15.8574, label: "V20", start: 0, display: 0 },
-                { x: -5.5749, y: -14.6561, label: "V7", start: 0, display: 0 },
-                { x: -4.0949, y: -12.0926, label: "V8", start: 0, display: 0 },
-                { x: -2.9779, y: -11.6247, label: "V21", start: 0, display: 0 },
-                            { x: 10.3923, y: 6, label: 'V10', start: 0, display: 0 },       // notched
-                            { x: 6.0622, y: 3.5, label: 'V11', start: 0, display: 0 },      // notched
-                            { x: 3.5, y: 6.0622, label: 'V12', start: 0, display: 0 },      // notched
-                            { x: 6, y: 10.3923, label: 'V13', start: 0, display: 0 },       // notched
-                { x: -8.5783, y: -8.3913, label: "V22", start: 0, display: 0 },
-                { x: -8.4251, y: -9.5926, label: "V16", start: 0, display: 0 },
-                { x: -9.9051, y: -12.1561, label: "V17", start: 0, display: 0 },
-                { x: -11.0221, y: -12.624, label: "V23", start: 0, display: 0 }
-                        ],
-                        arcs: [
-                            { start: "V1", end: "V3", radius: 12, direction: 1, sweep: 0 },
-                            { start: "V4", end: "V5", radius: 7, direction: 0, sweep: 1 },
-                            { start: 'V6', end: 'V20', radius: 12, direction: 1, sweep: 0 },
-                            { start: 'V20', end: 'V7', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V8', end: 'V21', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V21', end: 'V10', radius: 12, direction: 1, sweep: 0 },
-                            { start: "V11", end: "V12", radius: 7, direction: 0, sweep: 1 },
-                            { start: 'V13', end: 'V22', radius: 12, direction: 1, sweep: 0 },
-                            { start: 'V22', end: 'V16', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V17', end: 'V23', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V23', end: 'V1', radius: 12, direction: 1, sweep: 0 },
-                        ]
-                    },
-                    {
-                    'vertex': [
-                        { x: -3, y: rootLength, label: 'V21', start: 1, display: 1 },
-                        { x: -3, y: 12.3693, label: 'V23', start: 0, display: 0 },
-                        { x: -3.6923, y: 11.4178, label: 'V24', start: 0, display: 0 },
-                        { x: 3.6923, y: 11.4178, label: 'V25', start: 0, display: 0 },
-                        { x: 3, y: 12.3693, label: 'V26', start: 0, display: 0 },
-                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 1 },
-                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 1 },
-                    ], 'arcs': [
-                        { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
-                        { start: 'V24', end: 'V25', radius: 12, direction: 0, sweep: 0 },
-                        { start: 'V25', end: 'V26', radius: 1, direction: 0, sweep: 0 },
-                    ],
-                },
-                    {
-                        vertex: [
-                            { x: 0, y: 0, label: "C1", start: 1, display: 1 }
-                        ],
-                        arcs: []
-                    },
-                    {
-                        vertex: [
-                            { x: -3.6077, y: -30.2487, label: "V2", start: 1, display: 1 }
-                        ]
-                    },
-                    {
-                        vertex: [
-                            { x: 10.3923, y: -6, label: "V9", start: 0, display: 1 }
-                        ]
-                    },
-                    {
-                        vertex: [
-                            { x: 6, y: 10.3923, label: "V14", start: 0, display: 1 }
-                        ]
-                    },
-                    {
-                        vertex: [
-                            { x: -10.3923, y: 6, label: "V15", start: 0, display: 1 }
-                        ]
-                    },
-                    {
-                        vertex: [
-                            { x: -24.3923, y: -18.2487, label: "V18", start: 0, display: 1 }
-                        ]
-                    }
-                ]
-            }
-
-        case 'Normal -60 Double':
-            return {
-                path: [
-                    {
-                        vertex: [
-                            { x: -34.641, y: -20, label: "V1", start: 1, display: 1 },
-                            { x: -13.8564, y: -20, label: "V3", start: 0, display: 0 },
-                            { x: -18.1865, y: -17.5, label: "V4", start: 0, display: 0 },
-                            { x: -17.2487, y: -14, label: "V5", start: 0, display: 0 },
-                            { x: -12.2487, y: -14, label: "V6", start: 0, display: 0 },
-                { x: -12.624, y: -11.0221, label: "V20", start: 0, display: 0 },
-                { x: -12.1561, y: -9.9051, label: "V7", start: 0, display: 0 },
-                { x: -9.5926, y: -8.4251, label: "V8", start: 0, display: 0 },
-                { x: -8.3913, y: -8.5783, label: "V21", start: 0, display: 0 },
-                            { x: 10.3923, y: 6, label: 'V10', start: 0, display: 0 },       // notched
-                            { x: 6.0622, y: 3.5, label: 'V11', start: 0, display: 0 },      // notched
-                            { x: 3.5, y: 6.0622, label: 'V12', start: 0, display: 0 },      // notched
-                            { x: 6, y: 10.3923, label: 'V13', start: 0, display: 0 },       // notched
-                { x: -11.6247, y: -2.9779, label: "V22", start: 0, display: 0 },
-                { x: -12.0926, y: -4.0949, label: "V16", start: 0, display: 0 },
-                { x: -14.6561, y: -5.5749, label: "V17", start: 0, display: 0 },
-                { x: -15.8574, y: -5.4217, label: "V23", start: 0, display: 0 }
-                        ],
-                        arcs: [
-                            { start: "V1", end: "V3", radius: 12, direction: 1, sweep: 0 },
-                            { start: "V4", end: "V5", radius: 7, direction: 0, sweep: 1 },
-                            { start: 'V6', end: 'V20', radius: 12, direction: 1, sweep: 0 },
-                            { start: 'V20', end: 'V7', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V8', end: 'V21', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V21', end: 'V10', radius: 12, direction: 1, sweep: 0 },
-                            { start: "V11", end: "V12", radius: 7, direction: 0, sweep: 1 },
-                            { start: 'V13', end: 'V22', radius: 12, direction: 1, sweep: 0 },
-                            { start: 'V22', end: 'V16', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V17', end: 'V23', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V23', end: 'V1', radius: 12, direction: 1, sweep: 0 },
-                        ]
-                    },
-                    {
-                    'vertex': [
-                        { x: -3, y: rootLength, label: 'V21', start: 1, display: 1 },
-                        { x: -3, y: 12.3693, label: 'V23', start: 0, display: 0 },
-                        { x: -3.6923, y: 11.4178, label: 'V24', start: 0, display: 0 },
-                        { x: 3.6923, y: 11.4178, label: 'V25', start: 0, display: 0 },
-                        { x: 3, y: 12.3693, label: 'V26', start: 0, display: 0 },
-                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 1 },
-                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 1 },
-                    ], 'arcs': [
-                        { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
-                        { start: 'V24', end: 'V25', radius: 12, direction: 0, sweep: 0 },
-                        { start: 'V25', end: 'V26', radius: 1, direction: 0, sweep: 0 },
-                    ],
-                },
-                    {
-                        vertex: [
-                            { x: 0, y: 0, label: "C1", start: 1, display: 1 }
-                        ],
-                        arcs: []
-                    },
-                    {
-                        vertex: [
-                            { x: -18.2487, y: -24.3923, label: "V2", start: 1, display: 1 }
-                        ]
-                    },
-                    {
-                        vertex: [
-                            { x: 6, y: -10.3923, label: "V9", start: 0, display: 1 }
-                        ]
-                    },
-                    {
-                        vertex: [
-                            { x: 10.3923, y: 6, label: "V14", start: 0, display: 1 }
-                        ]
-                    },
-                    {
-                        vertex: [
-                            { x: -6, y: 10.3923, label: "V15", start: 0, display: 1 }
-                        ]
-                    },
-                    {
-                        vertex: [
-                            { x: -30.2487, y: -3.6077, label: "V18", start: 0, display: 1 }
-                        ]
-                    }
-                ]
-            }
-
-        case 'Spiral 0 Double':
-            return {
-                path: [{
-                    'vertex': [
-                        { x: -2, y: 24, label: 'V1', start: 1, display: 1 },
-                        { x: -2, y: 20.785, label: 'V2', start: 0, display: 0 },
-                        { x: -7, y: 12.124, label: 'V3', start: 0, display: 1 },
-                        { x: 2.392, y: 13.794, label: 'V4', start: 0, display: 0 },
-                        { x: 4, y: 20.785, label: 'V5', start: 0, display: 0 },
-                        { x: 4, y: 24, label: 'V6', start: 0, display: 1 },
-                    ], 'arcs': [
-                        { start: 'V2', end: 'V3', radius: 10, direction: 0, sweep: 0 },
-                        { start: 'V3', end: 'V4', radius: 14, direction: 0, sweep: 0 },
-                        { start: 'V4', end: 'V5', radius: 16, direction: 1, sweep: 0 },
-                    ]
-                },
-                {
-                    'vertex': [
-                        { x: 0, y: 0, label: 'C1', start: 1, display: 1 }, // Center point for tracking
-                    ], 'arcs': []
-                },
-                {
-                    'vertex': [
-                        { x: 0, y: -52, label: 'V11', start: 1, display: 1 }, // Original center point
-                        { x: 12.1244, y: -31, label: 'V13', start: 0, display: 0 },
-                        { x: 8.6603, y: -33, label: 'V14', start: 0, display: 0 },
-                        { x: 5, y: -29.3397, label: 'V15', start: 0, display: 0 },
-                        { x: 7, y: -25.8756, label: 'V16', start: 0, display: 0 },
-                        { x: 3.991, y: -24.5833, label: 'V17', start: 0, display: 0 },
-                        { x: 0.7835, y: -13.9781, label: 'V18', start: 0, display: 0 },
-                                                
-                        { x: 12.1244, y: 7, label: 'V19', start: 0, display: 0 },
-                        { x: 8.6603, y: 5, label: 'V20', start: 0, display: 0 },
-                        { x: 5, y: 8.6603, label: 'V21', start: 0, display: 0 },
-                        { x: 7, y: 12.1244, label: 'V22', start: 0, display: 0 },
-                        { x: -6.9989, y: -12.125, label: 'V23', start: 0, display: 1 },
-                        { x: 0, y: -24, label: 'V24', start: 0, display: 1 },
-                    ], 'arcs': [
-                        { start: 'V11', end: 'V13', radius: 14, direction: 1, sweep: 0 },
-                        { start: 'V14', end: 'V15', radius: 10, direction: 0, sweep: 1 },
-                        { start: 'V17', end: 'V18', radius: 14, direction: 1, sweep: 0 },
-                        { start: 'V18', end: 'V19', radius: 14, direction: 1, sweep: 0 },
-                        { start: 'V20', end: 'V21', radius: 10, direction: 0, sweep: 1 },
-                        { start: 'V22', end: 'V23', radius: 14, direction: 1, sweep: 0 },
-                        { start: 'V23', end: 'V24', radius: 14, direction: 0, sweep: 0 },
-                        { start: 'V24', end: 'V11', radius: 14, direction: 1, sweep: 0 },
-                    ]
-                },],
-            
             }
     }
 }
