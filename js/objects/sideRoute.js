@@ -387,7 +387,7 @@ export class SideRoadSymbol extends BaseGroup {
         const angleInDegrees = rawAngleToCenter * 180 / Math.PI
         const roundedDegrees = Math.round(angleInDegrees / 15) * 15
         const angleToCenter = roundedDegrees * Math.PI / 180
-        const distToCenter = sideRoad.routeList[0].shape == "Arrow" || sideRoad.routeList[0].shape == "Spiral Arrow" ? 24 * length : 17.5 * length;
+        const distToCenter = 24 * length;
 
         if (routeList[0].shape !== 'UArrow Spiral') {
             routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
