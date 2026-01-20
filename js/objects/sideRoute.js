@@ -1,6 +1,6 @@
 import { BaseGroup, GlyphPath } from './draw.js';
 import { calculateTransformedPoints, getInsertOffset } from './path.js';
-import { roadMapTemplate } from './template.js';
+import { roadMapTemplate, baseSideRoadTemplate } from './template.js';
 import { calcSymbol } from './symbols.js';
 import { assignVertexLabel, getSideRoadCoords } from './routeBase.js';
 
@@ -66,8 +66,13 @@ function transformRoundaboutPath(arrowTipPath, route, length, angle, center, exc
  */
 function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle, center) {
 
-    let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]));
-    if (route.shape !== 'UArrow Conventional') {
+    let arrowTipPath;
+    if (route.shape === 'Base Roundabout') {
+        arrowTipPath = baseSideRoadTemplate(arm / length);
+    } else {
+        arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]));
+    }
+    if (route.shape !== 'UArrow Conventional' && route.shape !== 'Base Roundabout') {
         const width = route.width;
         // Scale vertices for all paths
         arrowTipPath.path.forEach(p => {
@@ -109,8 +114,14 @@ function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle, center)
  * @return {Array} Array of vertex coordinates
  */
 function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
-    const rootShape = route.shape == 'Spiral Arrow' ? 'Arrow' : route.shape; // legacy shape for spiral legs
+    if (route.shape === 'Base Roundabout') {
+        const distToCenter = Math.sqrt(Math.pow(route.x - center.x, 2) + Math.pow(route.y - center.y, 2));
+        const arm = distToCenter;
+        let arrowTipPath = baseSideRoadTemplate(arm / length);
+        return transformRoundaboutPath(arrowTipPath, route, length, angle, center, 'UArrow Spiral');
+    }
 
+    const rootShape = route.shape == 'Spiral Arrow' ? 'Arrow' : route.shape; // legacy shape for spiral legs
     let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[rootShape]));
 
     if (route.shape == 'UArrow Spiral') {
@@ -362,14 +373,25 @@ export class SideRoadSymbol extends BaseGroup {
         const center = mainRoad.routeList[1]
         const length = xHeight / 4
 
-        const rawAngleToCenter = Math.atan2(routeList[0].y - center.y, routeList[0].x - center.x)
-        // Convert to degrees, round to nearest 15 degrees, then back to radians
-        const angleInDegrees = rawAngleToCenter * 180 / Math.PI
-        const roundedDegrees = Math.round(angleInDegrees / 15) * 15
-        const angleToCenter = roundedDegrees * Math.PI / 180
-        const distToCenter = Math.max(minBranchXDelta, Math.sqrt((routeList[0].y - center.y) ** 2 + (routeList[0].x - center.x) ** 2))
+        let angleToCenter, distToCenter;
 
-        if (routeList[0].shape !== 'UArrow Conventional') {
+        if (routeList[0].shape === 'Base Roundabout') {
+            angleToCenter = 90 * Math.PI / 180;
+            const rootLength = mainRoad.routeList[1].length || 7;
+            distToCenter = Math.max(minBranchXDelta, Math.sqrt((routeList[0].y - center.y) ** 2 + (routeList[0].x - center.x) ** 2))
+        } else {
+            const rawAngleToCenter = Math.atan2(routeList[0].y - center.y, routeList[0].x - center.x)
+            // Convert to degrees, round to nearest 15 degrees, then back to radians
+            const angleInDegrees = rawAngleToCenter * 180 / Math.PI
+            const roundedDegrees = Math.round(angleInDegrees / 15) * 15
+            angleToCenter = roundedDegrees * Math.PI / 180
+            distToCenter = Math.max(minBranchXDelta, Math.sqrt((routeList[0].y - center.y) ** 2 + (routeList[0].x - center.x) ** 2))
+        }
+
+        if (routeList[0].shape !== 'UArrow Conventional' && routeList[0].shape !== 'Base Roundabout') {
+            routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
+            routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
+        } else if (routeList[0].shape === 'Base Roundabout') {
             routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
             routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
         }
@@ -388,15 +410,27 @@ export class SideRoadSymbol extends BaseGroup {
     applySideRoadConstraintsSpiralRoundabout(sideRoad, mainRoad, routeList, xHeight) {
         const center = mainRoad.routeList[1]
         const length = xHeight / 4 // Use the parameter directly for temp objects without sideRoad object
+        const radius = 12;
 
-        const rawAngleToCenter = Math.atan2(routeList[0].y - center.y, routeList[0].x - center.x)
-        // Convert to degrees, round to nearest 15 degrees, then back to radians
-        const angleInDegrees = rawAngleToCenter * 180 / Math.PI
-        const roundedDegrees = Math.round(angleInDegrees / 15) * 15
-        const angleToCenter = roundedDegrees * Math.PI / 180
-        const distToCenter = 24 * length;
+        let angleToCenter, distToCenter;
 
-        if (routeList[0].shape !== 'UArrow Spiral') {
+        if (routeList[0].shape === 'Base Roundabout') {
+            angleToCenter = 90 * Math.PI / 180;
+            const rootLength = mainRoad.routeList[1].length || 7;
+            distToCenter = (radius + rootLength) * length;
+        } else {
+            const rawAngleToCenter = Math.atan2(routeList[0].y - center.y, routeList[0].x - center.x)
+            // Convert to degrees, round to nearest 15 degrees, then back to radians
+            const angleInDegrees = rawAngleToCenter * 180 / Math.PI
+            const roundedDegrees = Math.round(angleInDegrees / 15) * 15
+            angleToCenter = roundedDegrees * Math.PI / 180
+            distToCenter = 24 * length;
+        }
+
+        if (routeList[0].shape !== 'UArrow Spiral' && routeList[0].shape !== 'Base Roundabout') {
+            routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
+            routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
+        } else if (routeList[0].shape === 'Base Roundabout') {
             routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
             routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
         }
@@ -420,6 +454,47 @@ export class SideRoadSymbol extends BaseGroup {
 
         // Main road rotation
         const mainAngle = (mainRoad.mainAngle || 0) * Math.PI / 180;
+
+        if (routeList[0].shape === 'Base Roundabout') {
+            const rootLength = mainRoad.routeList[1].length || 7;
+            const distToCenter = (radius + rootLength) * length;
+            // Angle should be Down (90 deg relative to Bottom Center).
+            // Bottom Center is (0,0) in Local.
+            const localNormalAngle = Math.PI / 2;
+            const localVirtualCenter = { x: 0, y: 0 }; // Bottom center
+
+            // Global Normal Angle (for drawing direction)
+            const globalNormalAngle = localNormalAngle + mainAngle;
+
+            // Calculate Constrained Position in LOCAL space
+            const constrainedLocalX = localVirtualCenter.x + (radius + rootLength) * Math.cos(localNormalAngle);
+            const constrainedLocalY = localVirtualCenter.y + (radius + rootLength) * Math.sin(localNormalAngle);
+
+            // Transform back to GLOBAL space
+            const finalGlobalX = constrainedLocalX * Math.cos(mainAngle) - constrainedLocalY * Math.sin(mainAngle);
+            const finalGlobalY = constrainedLocalX * Math.sin(mainAngle) + constrainedLocalY * Math.cos(mainAngle);
+
+            routeList[0].x = center.x + finalGlobalX * length;
+            routeList[0].y = center.y + finalGlobalY * length;
+
+            // Generate Vertices (use getConvRdAboutSideRoadCoords since it supports Base Roundabout)
+            const vcGlobalX = localVirtualCenter.x * Math.cos(mainAngle) - localVirtualCenter.y * Math.sin(mainAngle);
+            const vcGlobalY = localVirtualCenter.x * Math.sin(mainAngle) + localVirtualCenter.y * Math.cos(mainAngle);
+            const globalVirtualCenter = {
+                x: center.x + vcGlobalX * length,
+                y: center.y + vcGlobalY * length
+            };
+
+            const totalArm = (radius + rootLength) * length;
+            const tempVertexList = getConvRdAboutSideRoadCoords(routeList[0], length, totalArm, 12, globalNormalAngle, globalVirtualCenter);
+
+            if (sideRoad && sideRoad.left !== undefined) {
+                const offset = getInsertOffset(tempVertexList);
+                sideRoad.left = offset.left;
+                sideRoad.top = offset.top;
+            }
+            return { routeList, tempVertexList };
+        }
 
         // Global to Local (Rotate by -mainAngle) relative to Bottom Center (routeList[1])
         const dxGlobal = (routeList[0].x - center.x) / length;

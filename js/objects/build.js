@@ -89,6 +89,7 @@ async function reconstructSingleObjectInternal(data, fabricCanvas, allDeserializ
 
     // 2. Prepare constructor options
     const constructorOptions = { ...data };
+    constructorOptions.isLoading = true;
     // Ensure functionalType is preserved in options
     if (data.functionalType) {
         constructorOptions.functionalType = data.functionalType;

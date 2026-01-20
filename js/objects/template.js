@@ -244,27 +244,49 @@ const roadMapTemplate = {
     },
 };
 
+
+function baseSideRoadTemplate(rootLength) {
+    return {
+        path: [{
+            'vertex': [
+                { x: 0, y: 0, label: 'V1', start: 0, display: 1 },
+                { x: -3, y: 0, label: 'V2', start: 1, display: 1 },
+                { x: -3, y: rootLength-12.3693, label: 'V3', start: 0, display: 1 },
+                { x: -3.6923, y: rootLength-11.4178, label: 'V4', start: 0, display: 0 },
+                { x: 3.6923, y: rootLength-11.4178, label: 'V5', start: 0, display: 0 },
+                { x: 3, y: rootLength-12.3693, label: 'V6', start: 0, display: 1 },
+                { x: 3, y: 0, label: 'V7', start: 0, display: 1 },
+            ], 'arcs': [
+                { start: 'V3', end: 'V4', radius: 1, direction: 1, sweep: 0 },
+                { start: 'V4', end: 'V5', radius: 12, direction: 1, sweep: 0 },
+                { start: 'V5', end: 'V6', radius: 1, direction: 1, sweep: 0 },
+            ]
+        }]
+    };
+}
+
 function roundelTemplate(type, rootLength) {
     switch (type) {
         case 'Normal Conventional':
             return {
-                path: [{
-                    'vertex': [
-                        { x: -3, y: rootLength, label: 'V1', start: 1, display: 1 },
-                        { x: -3, y: 12.3693, label: 'V13', start: 0, display: 1 },
-                        { x: -3.6923, y: 11.4178, label: 'V14', start: 0, display: 0 },
-                        { x: 3.6923, y: 11.4178, label: 'V15', start: 0, display: 0 },
-                        { x: 3, y: 12.3693, label: 'V16', start: 0, display: 1 },
-                        { x: 3, y: rootLength, label: 'V17', start: 0, display: 1 },
-                        { x: 0, y: rootLength, label: 'V18', start: 0, display: 1 },
-                    ], 'arcs': [
-                        { start: 'V13', end: 'V14', radius: 1, direction: 0, sweep: 0 },
-                        { start: 'V14', end: 'V15', radius: 12, direction: 0, sweep: 0 },
-                        { start: 'V15', end: 'V16', radius: 1, direction: 0, sweep: 0 },
-                    ], //'centerLine': [
-                    // { x: 0, y: 9.5, label: 'C4', width: 6, start: 1, display: 1 },
-                    // { x: 0, y: rootLength, label: 'C5', width: 6, start: 0, display: 1 },]
-                },
+                path: [
+                //{
+                //    'vertex': [
+                //        { x: -3, y: rootLength, label: 'V1', start: 1, display: 1 },
+                //        { x: -3, y: 12.3693, label: 'V13', start: 0, display: 1 },
+                //        { x: -3.6923, y: 11.4178, label: 'V14', start: 0, display: 0 },
+                //        { x: 3.6923, y: 11.4178, label: 'V15', start: 0, display: 0 },
+                //        { x: 3, y: 12.3693, label: 'V16', start: 0, display: 1 },
+                //        { x: 3, y: rootLength, label: 'V17', start: 0, display: 1 },
+                //        { x: 0, y: rootLength, label: 'V18', start: 0, display: 1 },
+                //    ], 'arcs': [
+                //        { start: 'V13', end: 'V14', radius: 1, direction: 0, sweep: 0 },
+                //        { start: 'V14', end: 'V15', radius: 12, direction: 0, sweep: 0 },
+                //        { start: 'V15', end: 'V16', radius: 1, direction: 0, sweep: 0 },
+                //    ], //'centerLine': [
+                //    // { x: 0, y: 9.5, label: 'C4', width: 6, start: 1, display: 1 },
+                //    // { x: 0, y: rootLength, label: 'C5', width: 6, start: 0, display: 1 },]
+                //},
                 {
                     'vertex': [
                         { x: 0, y: 0, label: 'C1', start: 1, display: 1 }, // Center point for tracking
@@ -5379,7 +5401,9 @@ function VLaneTemplate(xHeight, position, block, rounding = { x: 0, y: 0 }) {
     return { path: returnBorder };
 }
 
+
 export {
+    baseSideRoadTemplate,
     BorderColorScheme,
     BorderTypeScheme,
     BorderFrameWidth,

@@ -1,10 +1,11 @@
 import { BaseGroup, GlyphPath } from './draw.js';
 import { calculateTransformedPoints, convertVertexToPathCommands } from './path.js';
-import { roadMapTemplate, roundelTemplate } from './template.js';
+import { roadMapTemplate, roundelTemplate, baseSideRoadTemplate } from './template.js';
 import { calcSymbol } from './symbols.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { assignVertexLabel, getSideRoadCoords } from './routeBase.js';
 import { SideRoadSymbol } from './sideRoute.js';
+import { anchorShape } from './anchor.js';
 
 const canvas = CanvasGlobals.canvas;
 
@@ -564,6 +565,40 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
         sideRoad.mainRoad = mainRoad;
     }
 
+    function addBaseToRoundabout(mainRoad) {
+        if (mainRoad.isLoading) return;
+
+        const isBaseExists = mainRoad.sideRoad.some(side => 
+            side.routeList && side.routeList.length > 0 && side.routeList[0].shape === 'Base Roundabout'
+        );
+        
+        if (isBaseExists) return;
+
+        const center = mainRoad.routeList[1];
+        const length = mainRoad.xHeight / 4;
+        const rootLengthPixels = mainRoad.rootLength * length;
+
+        const options = {
+            mainRoad: mainRoad,
+            color: mainRoad.color,
+            x: center.x,
+            y: center.y,
+            routeList: [{
+                x: center.x, 
+                y: center.y + rootLengthPixels,
+                angle: 0,
+                shape: 'Base Roundabout',
+                width: 6,
+            }],
+            xHeight: mainRoad.xHeight,
+        };
+
+        const sideRoad = new SideRoadSymbol(options);
+
+        //sideRoad.onMove(null, false);
+        anchorShape(mainRoad, sideRoad, { vertexIndex1: 'V1', vertexIndex2: 'C1', spacingX: 0, spacingY: rootLengthPixels});
+    }
+
     /**
      * MainRoute class extends baseGroup to create route objects
      */
@@ -586,6 +621,7 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
             this.RAfeature = options.RAfeature || 'Conventional';
             this.innerCornerRadius = options.innerCornerRadius || null;
             this.outerCornerRadius = options.outerCornerRadius || null;
+            this.isLoading = options.isLoading || false;
 
             this.initialize();
 
@@ -645,6 +681,11 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
             if (this.RAfeature === 'U-turn') {
                 addUTurnToMainRoad(this);
             }
+            if (this.roadType.includes('Roundabout')) {
+                addBaseToRoundabout(this);
+            }
+
+            this.isLoading = false;
 
             return this;
         }
