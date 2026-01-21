@@ -67,12 +67,14 @@ function transformRoundaboutPath(arrowTipPath, route, length, angle, center, exc
 function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle, center) {
 
     let arrowTipPath;
-    if (route.shape === 'Base Roundabout') {
-        arrowTipPath = baseSideRoadTemplate(arm / length);
-    } else {
+    if (route.isBase) {
+        arrowTipPath = baseSideRoadTemplate(route.shape, arm / length);
+    }
+    
+    if (!arrowTipPath) {
         arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]));
     }
-    if (route.shape !== 'UArrow Conventional' && route.shape !== 'Base Roundabout') {
+    if (!route.isBase) {
         const width = route.width;
         // Scale vertices for all paths
         arrowTipPath.path.forEach(p => {
@@ -114,10 +116,13 @@ function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle, center)
  * @return {Array} Array of vertex coordinates
  */
 function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
-    if (route.shape === 'Base Roundabout') {
+    if (route.isBase) {
         const distToCenter = Math.sqrt(Math.pow(route.x - center.x, 2) + Math.pow(route.y - center.y, 2));
         const arm = distToCenter;
-        let arrowTipPath = baseSideRoadTemplate(arm / length);
+        let arrowTipPath = baseSideRoadTemplate(route.shape, arm / length);
+        if (!arrowTipPath) {
+            arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]));
+        }
         return transformRoundaboutPath(arrowTipPath, route, length, angle, center, 'UArrow Spiral');
     }
 
@@ -206,7 +211,7 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
  */
 function getOvalStraightSideRoadCoords(route, length, arm, angle, center) {
     let arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]));
-    if (route.shape !== 'UArrow Conventional') {
+    if (!route.isBase) {
         const width = route.width;
         arrowTipPath.path.forEach(p => {
             p.vertex.forEach(v => { v.x *= width / 2; v.y *= width / 2; });
@@ -243,6 +248,12 @@ export class SideRoadSymbol extends BaseGroup {
 
         // Branch-specific properties
         this.routeList = options.routeList || [];
+        this.isBase = options.isBase || false;
+        this.routeList.forEach((r) => {
+            if (r.isBase === undefined) {
+                r.isBase = this.isBase;
+            }
+        });
         this.xHeight = options.xHeight || 100;
         this.color = options.color || 'white';
         this.mainRoad = options.mainRoad || null;
@@ -375,7 +386,7 @@ export class SideRoadSymbol extends BaseGroup {
 
         let angleToCenter, distToCenter;
 
-        if (routeList[0].shape === 'Base Roundabout') {
+        if (routeList[0].isBase) {
             angleToCenter = 90 * Math.PI / 180;
             const rootLength = mainRoad.routeList[1].length || 7;
             distToCenter = Math.max(minBranchXDelta, Math.sqrt((routeList[0].y - center.y) ** 2 + (routeList[0].x - center.x) ** 2))
@@ -388,10 +399,10 @@ export class SideRoadSymbol extends BaseGroup {
             distToCenter = Math.max(minBranchXDelta, Math.sqrt((routeList[0].y - center.y) ** 2 + (routeList[0].x - center.x) ** 2))
         }
 
-        if (routeList[0].shape !== 'UArrow Conventional' && routeList[0].shape !== 'Base Roundabout') {
+        if (!routeList[0].isBase) {
             routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
             routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
-        } else if (routeList[0].shape === 'Base Roundabout') {
+        } else {
             routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
             routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
         }
@@ -414,7 +425,7 @@ export class SideRoadSymbol extends BaseGroup {
 
         let angleToCenter, distToCenter;
 
-        if (routeList[0].shape === 'Base Roundabout') {
+        if (routeList[0].isBase) {
             angleToCenter = 90 * Math.PI / 180;
             const rootLength = mainRoad.routeList[1].length || 7;
             distToCenter = (radius + rootLength) * length;
@@ -427,10 +438,10 @@ export class SideRoadSymbol extends BaseGroup {
             distToCenter = 24 * length;
         }
 
-        if (routeList[0].shape !== 'UArrow Spiral' && routeList[0].shape !== 'Base Roundabout') {
+        if (!routeList[0].isBase) {
             routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
             routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
-        } else if (routeList[0].shape === 'Base Roundabout') {
+        } else {
             routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
             routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
         }
@@ -455,7 +466,7 @@ export class SideRoadSymbol extends BaseGroup {
         // Main road rotation
         const mainAngle = (mainRoad.mainAngle || 0) * Math.PI / 180;
 
-        if (routeList[0].shape === 'Base Roundabout') {
+        if (routeList[0].isBase) {
             const rootLength = mainRoad.routeList[1].length || 7;
             const distToCenter = (radius + rootLength) * length;
             // Angle should be Down (90 deg relative to Bottom Center).
@@ -695,7 +706,7 @@ export class SideRoadSymbol extends BaseGroup {
             const finalGlobalX = constrainedLocalX * Math.cos(mainAngle) - constrainedLocalY * Math.sin(mainAngle);
             const finalGlobalY = constrainedLocalX * Math.sin(mainAngle) + constrainedLocalY * Math.cos(mainAngle);
 
-            if (routeList[0].shape !== 'UArrow Spiral') {
+            if (!routeList[0].isBase) {
                 routeList[0].x = center.x + finalGlobalX * length;
                 routeList[0].y = center.y + finalGlobalY * length;
             }
@@ -720,7 +731,7 @@ export class SideRoadSymbol extends BaseGroup {
             const finalGlobalX = constrainedLocalX * Math.cos(mainAngle) - constrainedLocalY * Math.sin(mainAngle);
             const finalGlobalY = constrainedLocalX * Math.sin(mainAngle) + constrainedLocalY * Math.cos(mainAngle);
 
-            if (routeList[0].shape !== 'UArrow Conventional') {
+            if (!routeList[0].isBase) {
                 routeList[0].x = center.x + finalGlobalX * length;
                 routeList[0].y = center.y + finalGlobalY * length;
             }

@@ -539,6 +539,7 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
             color: mainRoad.color,
             x: center.x,
             y: center.y,
+            isBase: true,
             routeList: [{
                 x: 6 + center.x, y: 33.4 + (mainRoad.roadType == 'Spiral Roundabout' ? 2 : 0) + center.y,
                 angle: 0,
@@ -569,7 +570,7 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
         if (mainRoad.isLoading) return;
 
         const isBaseExists = mainRoad.sideRoad.some(side => 
-            side.routeList && side.routeList.length > 0 && side.routeList[0].shape === 'Base Roundabout'
+            side.isBase
         );
         
         if (isBaseExists) return;
@@ -583,11 +584,12 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
             color: mainRoad.color,
             x: center.x,
             y: center.y,
+            isBase: true,
             routeList: [{
                 x: center.x, 
                 y: center.y + rootLengthPixels,
                 angle: 0,
-                shape: 'Base Roundabout',
+                shape: 'Base ' + mainRoad.roadType.split(' ')[0] + ' ' + mainRoad.RAfeature,
                 width: 6,
             }],
             xHeight: mainRoad.xHeight,
@@ -618,7 +620,7 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
             this.roadType = options.roadType || 'Main Line';
             this.sideRoad = [];
             this.mainAngle = options.mainAngle || 0;
-            this.RAfeature = options.RAfeature || 'Conventional';
+            this.RAfeature = options.RAfeature || 'Normal';
             this.innerCornerRadius = options.innerCornerRadius || null;
             this.outerCornerRadius = options.outerCornerRadius || null;
             this.isLoading = options.isLoading || false;
