@@ -70,7 +70,7 @@ function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle, center)
     if (route.isBase) {
         arrowTipPath = baseSideRoadTemplate(route.shape, arm / length);
     }
-    
+
     if (!arrowTipPath) {
         arrowTipPath = JSON.parse(JSON.stringify(roadMapTemplate[route.shape]));
     }
@@ -177,7 +177,7 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
             });
         });
     });
-    
+
     const i0 = { x: 0.841, y: 10.025, label: 'V3', start: 0, display: 1 }
     const i1 = { x: -6.949, y: 11.846, label: 'V4', start: 0, display: 1 }
 
@@ -379,25 +379,26 @@ export class SideRoadSymbol extends BaseGroup {
     applySideRoadConstraintsRoundabout(sideRoad, mainRoad, routeList, xHeight) {
         // Horizontal constraint based on side
         const radius = 12
-        const minBranchShapeXDelta = (routeList[0].shape == 'Arrow' ? radius : 4);
-        const minBranchXDelta = (minBranchShapeXDelta + radius) * xHeight / 4;
-        const center = mainRoad.routeList[1]
         const length = xHeight / 4
+        const minBranchShapeXDelta = (routeList[0].shape == 'Arrow' ? radius : 4);
+        const minBranchXDelta = (minBranchShapeXDelta + radius);
+        const center = mainRoad.routeList[1]
 
         let angleToCenter, distToCenter;
 
         if (routeList[0].isBase) {
             angleToCenter = 90 * Math.PI / 180;
             const rootLength = mainRoad.routeList[1].length || 7;
-            distToCenter = Math.max(minBranchXDelta, Math.sqrt((routeList[0].y - center.y) ** 2 + (routeList[0].x - center.x) ** 2))
         } else {
             const rawAngleToCenter = Math.atan2(routeList[0].y - center.y, routeList[0].x - center.x)
             // Convert to degrees, round to nearest 15 degrees, then back to radians
             const angleInDegrees = rawAngleToCenter * 180 / Math.PI
             const roundedDegrees = Math.round(angleInDegrees / 15) * 15
             angleToCenter = roundedDegrees * Math.PI / 180
-            distToCenter = Math.max(minBranchXDelta, Math.sqrt((routeList[0].y - center.y) ** 2 + (routeList[0].x - center.x) ** 2))
+
         }
+
+        distToCenter = Math.max(minBranchXDelta * length, Math.sqrt((routeList[0].y - center.y) ** 2 + (routeList[0].x - center.x) ** 2))
 
         if (!routeList[0].isBase) {
             routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
@@ -422,29 +423,27 @@ export class SideRoadSymbol extends BaseGroup {
         const center = mainRoad.routeList[1]
         const length = xHeight / 4 // Use the parameter directly for temp objects without sideRoad object
         const radius = 12;
+        const minBranchXDelta = { 'Arrow': 24, 'Base Spiral Normal': 24, 'Base Spiral Auxiliary': 30, 'Base Spiral U-turn': 45 }[routeList[0].shape] || 24;
 
         let angleToCenter, distToCenter;
 
         if (routeList[0].isBase) {
             angleToCenter = 90 * Math.PI / 180;
             const rootLength = mainRoad.routeList[1].length || 7;
-            distToCenter = (radius + rootLength) * length;
+            distToCenter = Math.max(minBranchXDelta * length, Math.sqrt((routeList[0].y - center.y) ** 2 + (routeList[0].x - center.x) ** 2))
         } else {
             const rawAngleToCenter = Math.atan2(routeList[0].y - center.y, routeList[0].x - center.x)
             // Convert to degrees, round to nearest 15 degrees, then back to radians
             const angleInDegrees = rawAngleToCenter * 180 / Math.PI
             const roundedDegrees = Math.round(angleInDegrees / 15) * 15
             angleToCenter = roundedDegrees * Math.PI / 180
-            distToCenter = 24 * length;
+            distToCenter = minBranchXDelta * length
         }
 
-        if (!routeList[0].isBase) {
-            routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
-            routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
-        } else {
-            routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
-            routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
-        }
+
+        routeList[0].x = center.x + distToCenter * Math.cos(angleToCenter)
+        routeList[0].y = center.y + distToCenter * Math.sin(angleToCenter)
+
 
         const tempVertexList = getSpirRdAboutSideRoadCoords(routeList[0], length, angleToCenter, center);
 

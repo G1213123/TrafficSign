@@ -569,8 +569,10 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
     function addBaseToRoundabout(mainRoad) {
         if (mainRoad.isLoading) return;
 
+        const shapeName = 'Base ' + mainRoad.roadType.split(' ')[0] + ' ' + mainRoad.RAfeature; 
+
         const isBaseExists = mainRoad.sideRoad.some(side => 
-            side.isBase
+            side.routeList[0].shape === shapeName
         );
         
         if (isBaseExists) return;
