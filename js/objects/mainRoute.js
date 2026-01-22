@@ -472,7 +472,7 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
         });
 
         // need to adjust the arc from V13 to V22 when angle is negative
-        if (routeList[0].shape == 'Normal') {
+        if (routeList[0].shape == 'Conventional') {
             roundel.path.map((p) => {
                 if (p.arcs) {
                     p.arcs.map((a) => {

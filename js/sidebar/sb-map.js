@@ -31,7 +31,7 @@ let FormDrawMapComponent = {
       { value: 'U-turn', label: 'U-turn', image: 'roundabout-spiral-uturn.svg' }
     ],
     'Oval': [{ value: 'Normal', label: 'Normal', image: 'roundabout-oval-normal.svg' }],
-    'Double': [{ value: 'Normal', label: 'Normal', image: 'roundabout-double-normal.svg' },
+    'Double': [{ value: 'Conventional', label: 'Conventional', image: 'roundabout-double-normal.svg' },
     { value: 'Spiral', label: 'Spiral', image: 'roundabout-double-spiral.svg' },
     ]
   },

@@ -178,7 +178,7 @@ const roadMapTemplate = {
                 { x: 8, y: 15.8745, label: 'V33', start: 0, display: 1 },
                 { x: 10.5, y: 9.2601, label: 'V34', start: 0, display: 1 },
                 { x: 4.2303, y: 13.3456, label: 'V35', start: 0, display: 0 },
-                { x: 4, y: 17.8745, label: 'V36', start: 0, display: 0 },
+                { x: 4, y: 15.8745, label: 'V36', start: 0, display: 0 },
                 { x: 4, y: 33.4, label: 'V37', start: 0, display: 1 },
             ], 'arcs': [
                 { start: 'V33', end: 'V34', radius: 10, direction: 1, sweep: 0 },
@@ -218,10 +218,10 @@ function baseSideRoadTemplate(baseShape, rootLength) {
                     'vertex': [
                         { x: 0, y: 0, label: 'V1', start: 0, display: 1 },
                         { x: -3, y: 0, label: 'V2', start: 1, display: 1 },
-                        { x: -3, y: rootLength - 12.3693, label: 'V3', start: 0, display: 1 },
+                        { x: -3, y: rootLength - 12.3693, label: 'V3', start: 0, display: 0 },
                         { x: -3.6923, y: rootLength - 11.4178, label: 'V4', start: 0, display: 0 },
                         { x: 3.6923, y: rootLength - 11.4178, label: 'V5', start: 0, display: 0 },
-                        { x: 3, y: rootLength - 12.3693, label: 'V6', start: 0, display: 1 },
+                        { x: 3, y: rootLength - 12.3693, label: 'V6', start: 0, display: 0 },
                         { x: 3, y: 0, label: 'V7', start: 0, display: 1 },
                     ], 'arcs': [
                         { start: 'V3', end: 'V4', radius: 1, direction: 1, sweep: 0 },
@@ -236,7 +236,7 @@ function baseSideRoadTemplate(baseShape, rootLength) {
                     'vertex': [
                         { x: 6, y: 0, label: 'V1', start: 1, display: 1 },
                         { x: 8, y: 0, label: 'V2', start: 0, display: 1 },
-                        { x: 8, y: rootLength - 9.3808, label: 'V13', start: 0, display: 1 },
+                        { x: 8, y: rootLength - 9.3808, label: 'V13', start: 0, display: 0 },
                         { x: 8.3077, y: rootLength - 8.6592, label: 'V14', start: 0, display: 0 },
                         { x: 2.7692, y: rootLength - 11.6761, label: 'V15', start: 0, display: 0 },
                         { x: 4, y: rootLength - 12.6491, label: 'V16', start: 0, display: 0 },
@@ -260,7 +260,7 @@ function baseSideRoadTemplate(baseShape, rootLength) {
                             { x: 27, y: rootLength - 4, label: 'V5', start: 0, display: 1 },
                             { x: 30, y: rootLength - 1, label: 'V6', start: 0, display: 1 },
                             { x: 27, y: rootLength + 2, label: 'V7', start: 0, display: 1 },
-                            { x: 12.6491, y: rootLength + 2, label: 'V8', start: 0, display: 1 },
+                            { x: 12.6491, y: rootLength + 2, label: 'V8', start: 0, display: 0 },
                             { x: 11.6761, y: rootLength + 2.7692, label: 'V9', start: 0, display: 0 },
                             { x: 11.6761, y: rootLength - 2.7692, label: 'V10', start: 0, display: 0 },
                             { x: 12.6491, y: rootLength - 2, label: 'V11', start: 0, display: 0 },
@@ -269,7 +269,7 @@ function baseSideRoadTemplate(baseShape, rootLength) {
                             { x: 3, y: rootLength - 12.3693, label: 'V14', start: 0, display: 0 },
                             { x: 3.6923, y: rootLength - 11.4178, label: 'V15', start: 0, display: 0 },
                             { x: -3.6923, y: rootLength - 11.4178, label: 'V16', start: 0, display: 0 },
-                            { x: -3, y: rootLength - 12.3693, label: 'V17', start: 0, display: 1 },
+                            { x: -3, y: rootLength - 12.3693, label: 'V17', start: 0, display: 0 },
                             { x: -3, y: 0, label: 'V18', start: 0, display: 1 },
                         ], 'arcs': [
                             { start: 'V8', end: 'V9', radius: 1, direction: 0, sweep: 0 },
@@ -288,7 +288,7 @@ function baseSideRoadTemplate(baseShape, rootLength) {
                     'vertex': [
                         { x: 2, y: 0, label: 'V1', start: 1, display: 1 },
                         { x: 2, y: rootLength - 20.785, label: 'V2', start: 0, display: 0 },
-                        { x: 7, y: rootLength - 12.124, label: 'V3', start: 0, display: 1 },
+                        { x: 7, y: rootLength - 12.124, label: 'V3', start: 0, display: 0 },
                         { x: -2.392, y: rootLength - 13.794, label: 'V4', start: 0, display: 0 },
                         { x: -4, y: rootLength - 20.785, label: 'V5', start: 0, display: 0 },
                         { x: -4, y: 0, label: 'V6', start: 0, display: 1 },
@@ -304,8 +304,8 @@ function baseSideRoadTemplate(baseShape, rootLength) {
                 path: [{
                     'vertex': [
                         { x: 6, y: 0, label: 'V1', start: 1, display: 1 },
-                        { x: 6, y: rootLength - 17.8885, label: 'V2', start: 0, display: 1 },
-                        { x: 9.3333, y: rootLength - 10.4350, label: 'V3', start: 0, display: 1 },
+                        { x: 6, y: rootLength - 17.8885, label: 'V2', start: 0, display: 0 },
+                        { x: 9.3333, y: rootLength - 10.4350, label: 'V3', start: 0, display: 0 },
                         { x: 2.6252, y: rootLength - 13.7517, label: 'V4', start: 0, display: 0 },
                         { x: 2, y: rootLength - 17.8885, label: 'V5', start: 0, display: 0 },
                         { x: 2, y: 0, label: 'V6', start: 0, display: 1 },
@@ -327,7 +327,7 @@ function baseSideRoadTemplate(baseShape, rootLength) {
                         { x: 34, y: rootLength + 1.9784, label: 'V5', start: 0, display: 1 },
                         { x: 30.7294, y: rootLength + 4.6809, label: 'V6', start: 0, display: 1 },
                         { x: 21.734, y: rootLength + 3.917, label: 'V7', start: 0, display: 0 },
-                        { x: 13.975, y: rootLength + 0.841, label: 'V8', start: 0, display: 1 },
+                        { x: 13.975, y: rootLength + 0.841, label: 'V8', start: 0, display: 0 },
                         { x: 12.154, y: rootLength - 6.949, label: 'V9', start: 0, display: 0 },
                         { x: 22.6134, y: rootLength - 0.0140, label: 'V10', start: 0, display: 0 },
                         { x: 2, y: rootLength - 20.6274, label: 'V11', start: 0, display: 0 },
@@ -345,6 +345,123 @@ function baseSideRoadTemplate(baseShape, rootLength) {
                     ]
                 },]
             }
+        case 'Base Double Conventional':
+            return {
+                path: [{
+                    'vertex': [
+                        { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                        { x: 3, y: 0, label: 'V2', start: 0, display: 1 },
+                        { x: 3, y: rootLength - 12.3693, label: 'V3', start: 0, display: 0 },
+                        { x: 3.6923, y: rootLength - 11.4178, label: 'V4', start: 0, display: 0 },
+                        { x: -3.6923, y: rootLength - 11.4178, label: 'V5', start: 0, display: 0 },
+                        { x: -3, y: rootLength - 12.3693, label: 'V6', start: 0, display: 0 },
+                        { x: -3, y: 0, label: 'V7', start: 0, display: 1 },
+                        { x: 0, y: 0, label: 'V8', start: 0, display: 1 },
+                    ], 'arcs': [
+                        { start: 'V3', end: 'V4', radius: 1, direction: 0, sweep: 0 },
+                        { start: 'V6', end: 'V5', radius: 12, direction: 0, sweep: 0 },
+                        { start: 'V5', end: 'V6', radius: 1, direction: 0, sweep: 0 },
+                    ],
+                },]
+            };
+
+        case 'Base Double Spiral':
+            return {
+                path: [{
+                    'vertex': [
+                        { x: -1, y: 0, label: 'V1', start: 1, display: 1 },
+                        { x: 2, y: 0, label: 'V2', start: 0, display: 1 },
+                        { x: 2, y: rootLength - 20.785, label: 'V3', start: 0, display: 0 },
+                        { x: 7, y: rootLength - 12.124, label: 'V4', start: 0, display: 1 },
+                        { x: -2.392, y: rootLength - 13.794, label: 'V5', start: 0, display: 0 },
+                        { x: -4, y: rootLength - 20.785, label: 'V6', start: 0, display: 0 },
+                        { x: -4, y: 0, label: 'V7', start: 0, display: 1 },
+                    ], 'arcs': [
+                        { start: 'V3', end: 'V4', radius: 10, direction: 0, sweep: 0 },
+                        { start: 'V4', end: 'V5', radius: 14, direction: 0, sweep: 0 },
+                        { start: 'V5', end: 'V6', radius: 16, direction: 1, sweep: 0 },
+                    ]
+                },]
+            };
+        case 'Base Oval Normal 0':
+        case 'Base Oval Normal 30':
+        case 'Base Oval Normal 60':
+        case 'Base Oval Normal -30':
+        case 'Base Oval Normal -60':
+            return {
+                path: [{
+                    'vertex': [
+                        { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                        { x: 3, y: 0, label: 'V2', start: 0, display: 1 },
+                        { x: 3, y: rootLength - 12.3693, label: 'V3', start: 0, display: 0 },
+                        { x: 3.6923, y: rootLength - 11.4178, label: 'V4', start: 0, display: 0 },
+                        { x: -3.6923, y: rootLength - 11.4178, label: 'V5', start: 0, display: 0 },
+                        { x: -3, y: rootLength - 12.3693, label: 'V6', start: 0, display: 0 },
+                        { x: -3, y: 0, label: 'V7', start: 0, display: 0 },
+                        { x: -0, y: 0, label: 'V8', start: 0, display: 1 },
+                    ], 'arcs': [
+                        { start: 'V3', end: 'V4', radius: 1, direction: 0, sweep: 0 },
+                        { start: 'V4', end: 'V5', radius: 12, direction: 0, sweep: 0 },
+                        { start: 'V5', end: 'V6', radius: 1, direction: 0, sweep: 0 },
+                    ],
+                }]
+            };
+        case 'Base Oval Normal 90 Left':
+            return {
+                path: [{
+                    'vertex': [
+                        { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                        { x: 3, y: 0, label: 'V2', start: 0, display: 1 },
+                        { x: 3, y: rootLength - 12.3693, label: 'V3', start: 0, display: 0 },
+                        { x: 3.6923, y: rootLength - 11.4178, label: 'V4', start: 0, display: 0 },
+                        { x: -0, y: rootLength - 12, label: "V5", start: 0, display: 0 },
+                        { x: -4, y: rootLength - 12, label: 'V6', start: 0, display: 0 },
+                        { x: -3, y: rootLength - 13, label: 'V7', start: 0, display: 0 },
+                        { x: -3, y: 0, label: 'V8', start: 0, display: 1 },
+                    ], 'arcs': [
+                        { start: 'V3', end: 'V4', radius: 1, direction: 0, sweep: 0 },
+                        { start: 'V4', end: 'V5', radius: 12, direction: 0, sweep: 0 },
+                        { start: 'V6', end: 'V7', radius: 1, direction: 0, sweep: 0 },
+                    ],
+                }]
+            };
+        case 'Base Oval Normal 90 Middle':
+            return {
+                path: [{
+                    'vertex': [
+                        { x: -12, y: 0, label: 'V1', start: 1, display: 1 },
+                        { x: -9, y: 0, label: 'V2', start: 0, display: 1 },
+                        { x: -9, y: rootLength - 13, label: 'V3', start: 0, display: 0 },
+                        { x: -8, y: rootLength - 12, label: 'V4', start: 0, display: 0 },
+                        { x: -12, y: rootLength - 12, label: "V5", start: 0, display: 0 },
+                        { x: -16, y: rootLength - 12, label: 'V6', start: 0, display: 0 },
+                        { x: -15, y: rootLength - 13, label: 'V7', start: 0, display: 0 },
+                        { x: -15, y: 0, label: 'V8', start: 0, display: 1 },
+                    ], 'arcs': [
+                        { start: 'V3', end: 'V4', radius: 1, direction: 0, sweep: 0 },
+                        { start: 'V6', end: 'V7', radius: 1, direction: 0, sweep: 0 },
+                    ],
+                }]
+            };
+        case 'Base Oval Normal -90':
+            return {
+                path: [{
+                    'vertex': [
+                        { x: -24, y: 0, label: 'V1', start: 1, display: 1 },
+                        { x: -27, y: 0, label: 'V2', start: 0, display: 1 },
+                        { x: -27, y: rootLength - 12.3693, label: 'V3', start: 0, display: 0 },
+                        { x: -27.6923, y: rootLength - 11.4178, label: 'V4', start: 0, display: 0 },
+                        { x: -24, y: rootLength - 12, label: "V5", start: 0, display: 0 },
+                        { x: -20, y: rootLength - 12, label: 'V6', start: 0, display: 0 },
+                        { x: -21, y: rootLength - 13, label: 'V7', start: 0, display: 0 },
+                        { x: -21, y: 0, label: 'V8', start: 0, display: 1 },
+                    ], 'arcs': [
+                        { start: 'V3', end: 'V4', radius: 1, direction: 1, sweep: 0 },
+                        { start: 'V6', end: 'V7', radius: 1, direction: 1, sweep: 0 },
+                    ],
+                }]
+            };
+
     }
 
 }
@@ -361,6 +478,21 @@ function roundelTemplate(type, rootLength) {
                     {
                         'vertex': [
                             { x: 0, y: 0, label: 'C1', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
+                    },
+                    {
+                        'vertex': [
+                            { x: 0, y: 0, label: 'C1', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
+                    },
+                    {
+                        'vertex': [
+                            { x: -3, y: Math.sqrt(144 - 9), label: 'V1', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
+                    },
+                    {
+                        'vertex': [
+                            { x: 3, y: Math.sqrt(144 - 9), label: 'V3', start: 1, display: 1 }, // Center point for tracking
                         ], 'arcs': []
                     },
                     {
@@ -396,6 +528,16 @@ function roundelTemplate(type, rootLength) {
                     },
                     {
                         'vertex': [
+                            { x: 8, y: Math.sqrt(144 - 64), label: 'V3', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
+                    },
+                    {
+                        'vertex': [
+                            { x: -8, y: Math.sqrt(144 - 64), label: 'V1', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
+                    },
+                    {
+                        'vertex': [
                             { x: 0, y: -12, label: 'V2', start: 1, display: 1 }, // Original center point
                             { x: 12, y: 0, label: 'V20', start: 0, display: 1 },
                             { x: 2.0838, y: 11.8177, label: 'V21', start: 0, display: 0 },
@@ -424,6 +566,16 @@ function roundelTemplate(type, rootLength) {
                     },
                     {
                         'vertex': [
+                            { x: 2.392, y: 13.794, label: 'V1', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
+                    },
+                    {
+                        'vertex': [
+                            { x: -7, y: 12.124, label: 'V3', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
+                    },
+                    {
+                        'vertex': [
                             { x: 0, y: -14, label: 'V11', start: 1, display: 1 }, // Original center point
                             { x: 14, y: 0, label: 'V12', start: 0, display: 1 },
                             { x: 12.1244, y: 7, label: 'V13', start: 0, display: 0 },
@@ -447,6 +599,16 @@ function roundelTemplate(type, rootLength) {
                     {
                         'vertex': [
                             { x: 0, y: 0, label: 'C1', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
+                    },
+                    {
+                        'vertex': [
+                            { x: 9.3333, y: 10.435, label: 'V1', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
+                    },
+                    {
+                        'vertex': [
+                            { x: -9.3333, y: 10.435, label: 'V3', start: 1, display: 1 }, // Center point for tracking
                         ], 'arcs': []
                     },
                     {
@@ -507,18 +669,13 @@ function roundelTemplate(type, rootLength) {
                 },
                 {
                     'vertex': [
-                        { x: -3, y: rootLength, label: 'V21', start: 1, display: 1 },
-                        { x: -3, y: 12.3693, label: 'V23', start: 0, display: 0 },
-                        { x: -3.6923, y: 11.4178, label: 'V24', start: 0, display: 0 },
-                        { x: 3.6923, y: 11.4178, label: 'V25', start: 0, display: 0 },
-                        { x: 3, y: 12.3693, label: 'V26', start: 0, display: 0 },
-                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 1 },
-                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 1 },
-                    ], 'arcs': [
-                        { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
-                        { start: 'V24', end: 'V25', radius: 12, direction: 0, sweep: 0 },
-                        { start: 'V25', end: 'V26', radius: 1, direction: 0, sweep: 0 },
-                    ],
+                        { x: -3, y: Math.sqrt(144 - 9), label: 'V1', start: 1, display: 1 }, // Center point for tracking
+                    ], 'arcs': []
+                },
+                {
+                    'vertex': [
+                        { x: 3, y: Math.sqrt(144 - 9), label: 'V3', start: 1, display: 1 }, // Center point for tracking
+                    ], 'arcs': []
                 },
                 ]
             }
@@ -556,18 +713,13 @@ function roundelTemplate(type, rootLength) {
                 },
                 {
                     'vertex': [
-                        { x: -3, y: rootLength, label: 'V21', start: 1, display: 1 },
-                        { x: -3, y: 12.3693, label: 'V23', start: 0, display: 0 },
-                        { x: -3.6923, y: 11.4178, label: 'V24', start: 0, display: 0 },
-                        { x: 3.6923, y: 11.4178, label: 'V25', start: 0, display: 0 },
-                        { x: 3, y: 12.3693, label: 'V26', start: 0, display: 0 },
-                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 1 },
-                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 1 },
-                    ], 'arcs': [
-                        { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
-                        { start: 'V24', end: 'V25', radius: 12, direction: 0, sweep: 0 },
-                        { start: 'V25', end: 'V26', radius: 1, direction: 0, sweep: 0 },
-                    ],
+                        { x: -3, y: Math.sqrt(144 - 9), label: 'V1', start: 1, display: 1 }, // Center point for tracking
+                    ], 'arcs': []
+                },
+                {
+                    'vertex': [
+                        { x: 3, y: Math.sqrt(144 - 9), label: 'V3', start: 1, display: 1 }, // Center point for tracking
+                    ], 'arcs': []
                 },
                 ]
             }
@@ -606,18 +758,13 @@ function roundelTemplate(type, rootLength) {
                 },
                 {
                     'vertex': [
-                        { x: -3, y: rootLength, label: 'V21', start: 1, display: 1 },
-                        { x: -3, y: 12.3693, label: 'V23', start: 0, display: 0 },
-                        { x: -3.6923, y: 11.4178, label: 'V24', start: 0, display: 0 },
-                        { x: 3.6923, y: 11.4178, label: 'V25', start: 0, display: 0 },
-                        { x: 3, y: 12.3693, label: 'V26', start: 0, display: 0 },
-                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 1 },
-                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 1 },
-                    ], 'arcs': [
-                        { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
-                        { start: 'V24', end: 'V25', radius: 12, direction: 0, sweep: 0 },
-                        { start: 'V25', end: 'V26', radius: 1, direction: 0, sweep: 0 },
-                    ],
+                        { x: -3, y: Math.sqrt(144 - 9), label: 'V1', start: 1, display: 1 }, // Center point for tracking
+                    ], 'arcs': []
+                },
+                {
+                    'vertex': [
+                        { x: 3, y: Math.sqrt(144 - 9), label: 'V3', start: 1, display: 1 }, // Center point for tracking
+                    ], 'arcs': []
                 },
                 ]
             }
@@ -656,18 +803,13 @@ function roundelTemplate(type, rootLength) {
                 },
                 {
                     'vertex': [
-                        { x: -3, y: rootLength, label: 'V21', start: 1, display: 1 },
-                        { x: -3, y: 12.3693, label: 'V23', start: 0, display: 0 },
-                        { x: -3.6923, y: 11.4178, label: 'V24', start: 0, display: 0 },
-                        { x: 0, y: 12, label: "V34", start: 0, display: 0 },
-                        { x: 4, y: 12, label: 'V25', start: 0, display: 0 },
-                        { x: 3, y: 13, label: 'V26', start: 0, display: 0 },
-                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 1 },
-                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 1 },
-                    ], 'arcs': [
-                        { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
-                        { start: 'V25', end: 'V26', radius: 1, direction: 0, sweep: 0 },
-                    ],
+                        { x: 9, y: Math.sqrt(144 - 9), label: 'V1', start: 1, display: 1 }, // Center point for tracking
+                    ], 'arcs': []
+                },
+                {
+                    'vertex': [
+                        { x: 15, y: 12, label: 'V3', start: 1, display: 1 }, // Center point for tracking
+                    ], 'arcs': []
                 },
                 ]
             }
@@ -707,21 +849,16 @@ function roundelTemplate(type, rootLength) {
                         { x: 0, y: 0, label: 'C1', start: 1, display: 1 }, // Center point for tracking
                     ], 'arcs': []
                 },
-                {
-                    'vertex': [
-                        { x: 9, y: rootLength, label: 'V21', start: 1, display: 1 },
-                        { x: 9, y: 13, label: 'V23', start: 0, display: 0 },
-                        { x: 8, y: 12, label: 'V24', start: 0, display: 0 },
-                        { x: 12, y: 12, label: "V34", start: 0, display: 0 },
-                        { x: 16, y: 12, label: 'V25', start: 0, display: 0 },
-                        { x: 15, y: 13, label: 'V26', start: 0, display: 0 },
-                        { x: 15, y: rootLength, label: 'V27', start: 0, display: 1 },
-                        { x: 12, y: rootLength, label: 'V28', start: 0, display: 1 },
-                    ], 'arcs': [
-                        { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
-                        { start: 'V25', end: 'V26', radius: 1, direction: 0, sweep: 0 },
-                    ],
-                },
+                                    {
+                        'vertex': [
+                            { x: -3, y: 12, label: 'V1', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
+                    },
+                    {
+                        'vertex': [
+                            { x: 3, y: 12, label: 'V3', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
+                    },
                 ]
             }
         case 'Normal -30 Oval':
@@ -758,21 +895,16 @@ function roundelTemplate(type, rootLength) {
                         { x: 0, y: 0, label: 'C1', start: 1, display: 1 }, // Center point for tracking
                     ], 'arcs': []
                 },
-                {
-                    'vertex': [
-                        { x: -3, y: rootLength, label: 'V21', start: 1, display: 1 },
-                        { x: -3, y: 12.3693, label: 'V23', start: 0, display: 0 },
-                        { x: -3.6923, y: 11.4178, label: 'V24', start: 0, display: 0 },
-                        { x: 3.6923, y: 11.4178, label: 'V25', start: 0, display: 0 },
-                        { x: 3, y: 12.3693, label: 'V26', start: 0, display: 0 },
-                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 1 },
-                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 1 },
-                    ], 'arcs': [
-                        { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
-                        { start: 'V24', end: 'V25', radius: 12, direction: 0, sweep: 0 },
-                        { start: 'V25', end: 'V26', radius: 1, direction: 0, sweep: 0 },
-                    ],
-                },
+                                    {
+                        'vertex': [
+                            { x: -3, y: Math.sqrt(144 - 9), label: 'V1', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
+                    },
+                    {
+                        'vertex': [
+                            { x: 3, y: Math.sqrt(144 - 9), label: 'V3', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
+                    },
                 ]
             }
         case 'Normal -60 Oval':
@@ -809,21 +941,16 @@ function roundelTemplate(type, rootLength) {
                         { x: 0, y: 0, label: 'C1', start: 1, display: 1 }, // Center point for tracking
                     ], 'arcs': []
                 },
-                {
-                    'vertex': [
-                        { x: -3, y: rootLength, label: 'V21', start: 1, display: 1 },
-                        { x: -3, y: 12.3693, label: 'V23', start: 0, display: 0 },
-                        { x: -3.6923, y: 11.4178, label: 'V24', start: 0, display: 0 },
-                        { x: 3.6923, y: 11.4178, label: 'V25', start: 0, display: 0 },
-                        { x: 3, y: 12.3693, label: 'V26', start: 0, display: 0 },
-                        { x: 3, y: rootLength, label: 'V27', start: 0, display: 1 },
-                        { x: 0, y: rootLength, label: 'V28', start: 0, display: 1 },
-                    ], 'arcs': [
-                        { start: 'V23', end: 'V24', radius: 1, direction: 0, sweep: 0 },
-                        { start: 'V24', end: 'V25', radius: 12, direction: 0, sweep: 0 },
-                        { start: 'V25', end: 'V26', radius: 1, direction: 0, sweep: 0 },
-                    ],
-                },
+                                    {
+                        'vertex': [
+                            { x: -3, y: Math.sqrt(144 - 9), label: 'V1', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
+                    },
+                    {
+                        'vertex': [
+                            { x: 3, y: Math.sqrt(144 - 9), label: 'V3', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
+                    },
                 ]
             }
 
@@ -860,25 +987,20 @@ function roundelTemplate(type, rootLength) {
                         { x: 0, y: 0, label: 'C1', start: 1, display: 1 }, // Center point for tracking
                     ], 'arcs': []
                 },
-                {
-                    'vertex': [
-                        { x: 27, y: rootLength, label: 'V21', start: 1, display: 1 },
-                        { x: 27, y: 12.3693, label: 'V23', start: 0, display: 0 },
-                        { x: 27.6923, y: 11.4178, label: 'V24', start: 0, display: 0 },
-                        { x: 24, y: 12, label: "V34", start: 0, display: 0 },
-                        { x: 20, y: 12, label: 'V25', start: 0, display: 0 },
-                        { x: 21, y: 13, label: 'V26', start: 0, display: 0 },
-                        { x: 21, y: rootLength, label: 'V27', start: 0, display: 1 },
-                        { x: 24, y: rootLength, label: 'V28', start: 0, display: 1 },
-                    ], 'arcs': [
-                        { start: 'V23', end: 'V24', radius: 1, direction: 1, sweep: 0 },
-                        { start: 'V25', end: 'V26', radius: 1, direction: 1, sweep: 0 },
-                    ],
-                },
+                                    {
+                        'vertex': [
+                            { x: 21, y: 12, label: 'V1', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
+                    },
+                    {
+                        'vertex': [
+                            { x: 27, y: Math.sqrt(144 - 9), label: 'V3', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
+                    },
                 ]
             }
 
-        case 'Normal Double':
+        case 'Conventional Double':
             return {
                 path: [
                     {
@@ -918,21 +1040,6 @@ function roundelTemplate(type, rootLength) {
                     },
                     {
                         'vertex': [
-                            { x: -3, y: rootLength, label: 'V31', start: 1, display: 1 },
-                            { x: -3, y: 12.3693, label: 'V33', start: 0, display: 0 },
-                            { x: -3.6923, y: 11.4178, label: 'V34', start: 0, display: 0 },
-                            { x: 3.6923, y: 11.4178, label: 'V35', start: 0, display: 0 },
-                            { x: 3, y: 12.3693, label: 'V36', start: 0, display: 0 },
-                            { x: 3, y: rootLength, label: 'V37', start: 0, display: 1 },
-                            { x: 0, y: rootLength, label: 'V38', start: 0, display: 1 },
-                        ], 'arcs': [
-                            { start: 'V33', end: 'V34', radius: 1, direction: 0, sweep: 0 },
-                            { start: 'V34', end: 'V35', radius: 12, direction: 0, sweep: 0 },
-                            { start: 'V35', end: 'V36', radius: 1, direction: 0, sweep: 0 },
-                        ],
-                    },
-                    {
-                        'vertex': [
                             { x: 0, y: 0, label: 'C1', start: 1, display: 1 }, // Center point
                         ], 'arcs': []
                     },
@@ -965,6 +1072,16 @@ function roundelTemplate(type, rootLength) {
                         'vertex': [
                             { x: -12, y: -28, label: 'V18', start: 0, display: 1 },
                         ],
+                    },
+                                        {
+                        'vertex': [
+                            { x: -3, y: Math.sqrt(144 - 9), label: 'V31', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
+                    },
+                    {
+                        'vertex': [
+                            { x: 3, y: Math.sqrt(144 - 9), label: 'V33', start: 1, display: 1 }, // Center point for tracking
+                        ], 'arcs': []
                     },
                 ]
             };
@@ -1033,20 +1150,6 @@ function roundelTemplate(type, rootLength) {
                         'vertex': [
                             { x: -14, y: -38, label: 'V18', start: 0, display: 1 },
                         ],
-                    },
-                    {
-                        'vertex': [
-                            { x: -2, y: 24, label: 'V21', start: 1, display: 1 },
-                            { x: -2, y: 20.785, label: 'V22', start: 0, display: 0 },
-                            { x: -7, y: 12.124, label: 'V23', start: 0, display: 1 },
-                            { x: 2.392, y: 13.794, label: 'V24', start: 0, display: 0 },
-                            { x: 4, y: 20.785, label: 'V25', start: 0, display: 0 },
-                            { x: 4, y: 24, label: 'V26', start: 0, display: 1 },
-                        ], 'arcs': [
-                            { start: 'V22', end: 'V23', radius: 10, direction: 0, sweep: 0 },
-                            { start: 'V23', end: 'V24', radius: 14, direction: 0, sweep: 0 },
-                            { start: 'V24', end: 'V25', radius: 16, direction: 1, sweep: 0 },
-                        ]
                     },
                 ],
 

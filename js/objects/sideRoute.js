@@ -380,8 +380,7 @@ export class SideRoadSymbol extends BaseGroup {
         // Horizontal constraint based on side
         const radius = 12
         const length = xHeight / 4
-        const minBranchShapeXDelta = (routeList[0].shape == 'Arrow' ? radius : 4);
-        const minBranchXDelta = (minBranchShapeXDelta + radius);
+        const minBranchXDelta = { 'Arrow': 24, 'Base Conventional Normal': 22.9, 'Base Conventional Auxiliary': 30, 'Base Conventional U-turn': 45 }[routeList[0].shape] || 16;
         const center = mainRoad.routeList[1]
 
         let angleToCenter, distToCenter;
@@ -461,41 +460,28 @@ export class SideRoadSymbol extends BaseGroup {
         const center = mainRoad.routeList[1];
         const length = xHeight / 4;
         const radius = 12; // 12 units radius
+        const minBranchXDelta = { 'Arrow': 24, 'Stub': 16, 'RedBar': 16, }[routeList[0].shape] || 22.9;
 
         // Main road rotation
         const mainAngle = (mainRoad.mainAngle || 0) * Math.PI / 180;
 
         if (routeList[0].isBase) {
             const rootLength = mainRoad.routeList[1].length || 7;
-            const distToCenter = (radius + rootLength) * length;
-            // Angle should be Down (90 deg relative to Bottom Center).
-            // Bottom Center is (0,0) in Local.
-            const localNormalAngle = Math.PI / 2;
-            const localVirtualCenter = { x: 0, y: 0 }; // Bottom center
 
-            // Global Normal Angle (for drawing direction)
-            const globalNormalAngle = localNormalAngle + mainAngle;
+            // Global Normal Angle (for drawing direction) - Always 90 degrees (Down)
+            const globalNormalAngle = Math.PI / 2;
 
-            // Calculate Constrained Position in LOCAL space
-            const constrainedLocalX = localVirtualCenter.x + (radius + rootLength) * Math.cos(localNormalAngle);
-            const constrainedLocalY = localVirtualCenter.y + (radius + rootLength) * Math.sin(localNormalAngle);
-
-            // Transform back to GLOBAL space
-            const finalGlobalX = constrainedLocalX * Math.cos(mainAngle) - constrainedLocalY * Math.sin(mainAngle);
-            const finalGlobalY = constrainedLocalX * Math.sin(mainAngle) + constrainedLocalY * Math.cos(mainAngle);
-
-            routeList[0].x = center.x + finalGlobalX * length;
-            routeList[0].y = center.y + finalGlobalY * length;
-
-            // Generate Vertices (use getConvRdAboutSideRoadCoords since it supports Base Roundabout)
-            const vcGlobalX = localVirtualCenter.x * Math.cos(mainAngle) - localVirtualCenter.y * Math.sin(mainAngle);
-            const vcGlobalY = localVirtualCenter.x * Math.sin(mainAngle) + localVirtualCenter.y * Math.cos(mainAngle);
+            // Virtual Center is just the center because Oval pivots at (0,0) local
             const globalVirtualCenter = {
-                x: center.x + vcGlobalX * length,
-                y: center.y + vcGlobalY * length
+                x: center.x,
+                y: center.y
             };
 
-            const totalArm = (radius + rootLength) * length;
+            const distToCenter = Math.max(minBranchXDelta * length, Math.sqrt((routeList[0].y - center.y) ** 2 + (routeList[0].x - center.x) ** 2))
+            routeList[0].x = center.x + distToCenter * Math.cos(globalNormalAngle);
+            routeList[0].y = center.y + distToCenter * Math.sin(globalNormalAngle);
+
+            const totalArm = distToCenter;
             const tempVertexList = getConvRdAboutSideRoadCoords(routeList[0], length, totalArm, 12, globalNormalAngle, globalVirtualCenter);
 
             if (sideRoad && sideRoad.left !== undefined) {
@@ -638,6 +624,42 @@ export class SideRoadSymbol extends BaseGroup {
 
         // Main road rotation
         const mainAngle = (mainRoad.mainAngle || 0) * Math.PI / 180;
+
+        if (routeList[0].isBase) {
+            const localVirtualCenter = { x: 0, y: 0 };
+            const localNormalAngle = Math.PI / 2;
+            const globalNormalAngle = 90 * Math.PI / 180 ;
+            const globalVirtualCenter = {
+                x: center.x,
+                y: center.y
+            };
+
+            let tempVertexList;
+            if (isSpiral) {
+                const minBranchXDelta = { 'Base Spiral Normal': 24, 'Base Spiral Auxiliary': 30, 'Base Spiral U-turn': 45 }[routeList[0].shape] || 24;
+                const distToCenter = Math.max(minBranchXDelta * length, Math.sqrt((routeList[0].y - center.y) ** 2 + (routeList[0].x - center.x) ** 2))
+
+                routeList[0].x = center.x + distToCenter * Math.cos(globalNormalAngle)
+                routeList[0].y = center.y + distToCenter * Math.sin(globalNormalAngle)
+
+                tempVertexList = getSpirRdAboutSideRoadCoords(routeList[0], length, globalNormalAngle, globalVirtualCenter);
+            } else {
+                const minBranchXDelta = {  'Base Double Conventional': 22.9, }[routeList[0].shape] || 16;
+
+                const distToCenter = Math.max(minBranchXDelta * length, Math.sqrt((routeList[0].y - center.y) ** 2 + (routeList[0].x - center.x) ** 2))
+
+                routeList[0].x = center.x + distToCenter * Math.cos(globalNormalAngle)
+                routeList[0].y = center.y + distToCenter * Math.sin(globalNormalAngle)
+                tempVertexList = getConvRdAboutSideRoadCoords(routeList[0], length, distToCenter, radius, globalNormalAngle, globalVirtualCenter);
+            }
+
+            if (sideRoad && sideRoad.left !== undefined) {
+                const offset = getInsertOffset(tempVertexList);
+                sideRoad.left = offset.left;
+                sideRoad.top = offset.top;
+            }
+            return { routeList, tempVertexList };
+        }
 
         // Global to Local (Rotate by -mainAngle) relative to Bottom Center (routeList[1])
         const dxGlobal = (routeList[0].x - center.x) / length;
