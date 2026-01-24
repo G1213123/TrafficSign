@@ -1,5 +1,5 @@
 import { CanvasGlobals } from '../canvas/canvas.js';
-import { symbolsPermittedAngle, BorderColorScheme } from '../objects/template.js';
+import { symbolsPermittedAngle, routePermittedAngle, BorderColorScheme } from '../objects/template.js';
 import { FontPriorityManager } from '../modal/md-font.js';
 import { containsNonEnglishCharacters } from '../objects/text.js';
 import { canvasTracker } from '../canvas/Tracker.js';
@@ -375,7 +375,7 @@ function showPropertyPanel(object) {
         targetObject.set(prop.key, newValue);
         valueChanged = true;
       }
-    } else if (prop.key === 'symbolAngle') {
+    } else if (prop.key === 'symbolAngle' || prop.key === 'mainAngle') {
       valueToSet = parseInt(newValue, 10);
       if (targetObject[prop.key] !== valueToSet) {
         oldValue = targetObject[prop.key]; // Store old value
@@ -795,6 +795,11 @@ function showPropertyPanel(object) {
       specialProps = [
         { label: 'Road Type', value: object.roadType },
       ];
+      // Check if this road type supports rotation
+      if (routePermittedAngle[object.roadType]) {
+        specialProps.push({ label: 'Main Angle', key: 'mainAngle', type: 'select', options: routePermittedAngle[object.roadType], editable: true, value: object.mainAngle || 0 });
+      }
+
       if (object.roadType === 'Main Line') {
         specialProps.push(
           { label: 'Approach Length', key: 'rootLength', type: 'number', editable: true, step: 1, value: object.rootLength },

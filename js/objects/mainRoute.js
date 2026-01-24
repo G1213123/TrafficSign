@@ -641,6 +641,11 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
      * @return {MainRoadSymbol} - The initialized route
      */
         initialize() {
+            // Sync mainAngle to routeList[0].angle as it is used by calcVertexType
+            if (this.routeList && this.routeList.length > 0) {
+                 this.routeList[0].angle = this.mainAngle;
+            }
+
             const vertexList = calcVertexType[this.roadType](this.xHeight, this.routeList, this.innerCornerRadius, this.outerCornerRadius)
             const arrow = new GlyphPath();
             arrow.initialize(vertexList, {

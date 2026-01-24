@@ -3,7 +3,7 @@ import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { MainRoadSymbol, calcVertexType, calculateMainRoadBottomY } from '../objects/mainRoute.js';
 import { SideRoadSymbol } from '../objects/sideRoute.js';
-import { roadMapTemplate, roundelTemplate } from '../objects/template.js';
+import { roadMapTemplate, roundelTemplate, routePermittedAngle } from '../objects/template.js';
 import { HintLoader } from '../utils/hintLoader.js';
 import { i18n } from '../i18n/i18n.js';
 
@@ -159,10 +159,10 @@ let FormDrawMapComponent = {
 
       // Add angle selector for Oval Roundabout (hidden by default unless Oval is selected)
       var mainAngleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container', 'style': 'display: none;' }, roadTypeSettingsContainer);
-      GeneralHandler.createButton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', mainAngleContainer, null, FormDrawMapComponent.setOvalAngle, 'click');
+      GeneralHandler.createButton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', mainAngleContainer, null, FormDrawMapComponent.setMainAngle, 'click');
       var mainAngleDisplay = GeneralHandler.createNode("div", { 'id': `main-angle-display`, 'class': 'angle-display' }, mainAngleContainer);
       mainAngleDisplay.innerText = '0°';
-      GeneralHandler.createButton(`rotate-right`, '<i class="fa-solid fa-rotate-right"></i>', mainAngleContainer, null, FormDrawMapComponent.setOvalAngle, 'click');
+      GeneralHandler.createButton(`rotate-right`, '<i class="fa-solid fa-rotate-right"></i>', mainAngleContainer, null, FormDrawMapComponent.setMainAngle, 'click');
 
       // Oval 90 position toggle
       GeneralHandler.createToggle('Oval Position', ['Left', 'Middle'], roadTypeSettingsContainer, 'Left', FormDrawMapComponent.drawMainRoadOnCursor);
@@ -383,70 +383,11 @@ let FormDrawMapComponent = {
   },
 
   /**
-   * Sets angle for oval roundabout based on button clicks
-   * @param {Event} event - Click event
-   * @return {void}
-   */
-  setOvalAngle: function (event) {
-    // Find the parent container element
-    const parentContainer = event.currentTarget.parentNode;
-    // Find the angle display element within the same container
-    const angleDisplay = document.getElementById('main-angle-display');
-
-    if (!angleDisplay) return;
-
-    // Extract the current angle value
-    const currentText = angleDisplay.innerText.slice(0, -1);
-
-    // Define allowed angles for oval
-    const ovalAngles = [-90, -60, -30, 0, 30, 60, 90];
-    const angleIndex = ovalAngles.indexOf(parseInt(currentText));
-
-    const isLeftButton = event.currentTarget.id.includes('rotate-left');
-    const isRightButton = event.currentTarget.id.includes('rotate-right');
-
-    let newAngle;
-    if (isLeftButton) {
-      newAngle = angleIndex > 0 ? ovalAngles[angleIndex - 1] : ovalAngles[ovalAngles.length - 1];
-    } else if (isRightButton) {
-      newAngle = angleIndex < ovalAngles.length - 1 ? ovalAngles[angleIndex + 1] : ovalAngles[0];
-    } else {
-      newAngle = ovalAngles[(angleIndex + 1) % ovalAngles.length];
-    }
-
-    angleDisplay.innerText = newAngle + '°';
-
-    // Handle visibility of Position Toggle (Left/Middle) for 90 deg
-    const ovalPosContainer = document.getElementById('Oval Position-container');
-    if (ovalPosContainer) {
-      const roundelType = GeneralHandler.getToggleValue('Roundel Shape-container');
-      const posParent = ovalPosContainer.parentNode;
-      posParent.style.display = (roundelType === 'Oval' && newAngle === 90) ? 'block' : 'none';
-    }
-
-    // Update object if exists
-    if (FormDrawMapComponent.newMapObject && FormDrawMapComponent.newMapObject.functionalType === 'MainRoad') {
-      FormDrawMapComponent.newMapObject.mainAngle = newAngle;
-      if (CanvasGlobals.activeVertex && CanvasGlobals.activeVertex.handleMouseMoveRef) {
-        const pointer = CanvasGlobals.canvas.getPointer({ e: window.event });
-        CanvasGlobals.activeVertex.handleMouseMoveRef({
-          e: window.event,
-          pointer: pointer
-        });
-      }
-      // Force redraw to catch shape change (e.g. 90 Left vs 90 Middle if relevant, or just angle update)
-      FormDrawMapComponent.drawMainRoadOnCursor();
-    }
-  },
-
-  /**
    * Sets angle for main road based on button clicks
    * @param {Event} event - Click event
    * @return {void}
    */
   setMainAngle: function (event) {
-    // Find the parent container element
-    const parentContainer = event.currentTarget.parentNode;
     // Find the angle display element within the same container
     const angleDisplay = document.getElementById('main-angle-display');
 
@@ -456,12 +397,29 @@ let FormDrawMapComponent = {
       return;
     }
 
-    // Extract the current angle value
-    const currentText = angleDisplay.innerText.slice(0, -1); // Remove the degree symbol
+    // Determine context (Road Type / Roundel Type)
+    const roadType = GeneralHandler.getToggleValue('Main Road Type-container');
+    let angleKey = 'Main Line'; // Default
 
-    // Define allowed angles for main road (can be different from side road angles)
-    const mainRoadAngles = [-90, -60, -45, -30, 0, 30, 45, 60, 90];
-    const angleIndex = mainRoadAngles.indexOf(parseInt(currentText));
+    if (roadType === 'Roundabout') {
+      const roundelType = GeneralHandler.getToggleValue('Roundel Shape-container');
+      angleKey = roundelType + ' Roundabout';
+    }
+
+    // Guard against types that don't rotate or key not found
+    // If double roundabout not in permitted list yet, default or skip
+    let mainRoadAngles = routePermittedAngle[angleKey];
+    
+    // Extract the current angle value
+    let currentText = angleDisplay.innerText.slice(0, -1); // Remove the degree symbol
+    let currentAngle = parseInt(currentText);
+    
+    // If current angle is not in the allowed list (e.g. switching types), snap to nearest or 0
+    if (mainRoadAngles.indexOf(currentAngle) === -1) {
+        currentAngle = 0;
+    }
+
+    const angleIndex = mainRoadAngles.indexOf(currentAngle);
 
     // Determine if this is a left (counter-clockwise) or right (clockwise) button
     const isLeftButton = event.currentTarget.id.includes('rotate-left');
@@ -479,7 +437,18 @@ let FormDrawMapComponent = {
       newAngle = mainRoadAngles[(angleIndex + 1) % mainRoadAngles.length];
     }
 
+    if (isNaN(newAngle)) newAngle = 0;
+
     angleDisplay.innerText = newAngle + '°';
+
+    // Handle visibility of Position Toggle (Left/Middle) for Oval 90 deg
+    if (angleKey === 'Oval Roundabout') {
+        const ovalPosContainer = document.getElementById('Oval Position-container');
+        if (ovalPosContainer) {
+            const posParent = ovalPosContainer.parentNode;
+            posParent.style.display = (newAngle === 90) ? 'block' : 'none';
+        }
+    }
 
     // If we have a main road object being placed, update its angle
     if (FormDrawMapComponent.newMapObject && FormDrawMapComponent.newMapObject.functionalType === 'MainRoad') {
@@ -495,6 +464,9 @@ let FormDrawMapComponent = {
           pointer: pointer
         });
       }
+      
+      // Force redraw to catch shape change (important for Oval position toggle etc)
+      FormDrawMapComponent.drawMainRoadOnCursor();
     }
   },
 

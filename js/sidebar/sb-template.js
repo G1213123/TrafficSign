@@ -2243,7 +2243,7 @@ let FormTemplateComponent = {
       });
 
       // Left text anchoring
-      anchorShape(roundabout, leftTextEng1, {
+      anchorShape(baseSideRoute, leftTextEng1, {
         vertexIndex1: 'E3',
         vertexIndex2: 'V1',
         spacingX: -731,
@@ -2251,7 +2251,7 @@ let FormTemplateComponent = {
       });
       anchorShape(baseSideRoute, leftTextEng1, {
         vertexIndex1: 'E3',
-        vertexIndex2: 'V3',
+        vertexIndex2: 'V4',
         spacingX: '',
         spacingY: 37.5
       });

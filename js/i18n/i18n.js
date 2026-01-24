@@ -337,6 +337,8 @@ const dictionaries = {
     'Roundabout': '迴旋處',
     'Conventional': '傳統',
     'Spiral': '螺旋',
+    'Oval': '橢圓',
+    'Double': '雙迴旋',
     'Roundel Shape': '迴旋形狀',
     'Approach Length': '引道長度',
     'Exit Length': '出口長度',
