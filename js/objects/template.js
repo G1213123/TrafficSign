@@ -282,6 +282,42 @@ function baseSideRoadTemplate(baseShape, rootLength) {
                     },
                 ]
             }
+        case 'Base Conventional Auxiliary -45':
+            return {
+                path: [
+                    {
+                        'vertex': [
+                            { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                            { x: 3, y: 0, label: 'V2', start: 0, display: 1 },
+                            { x: 3, y: rootLength - 20.3345, label: 'V3', start: 0, display: 1 },
+                            { x: 16.1806, y: rootLength - 18.7695, label: 'V4', start: 0, display: 1 },
+                            { x: 22.708, y: rootLength - 26.3436, label: 'V5', start: 0, display: 1 },
+                            { x: 26.950, y: rootLength - 26.3436, label: 'V6', start: 0, display: 1 },
+                            { x: 26.950, y: rootLength - 22.1036, label: 'V7', start: 0, display: 1 },
+                            { x: 10.3585, y: rootLength - 7.5301, label: "V8", start: 0, display: 0 },
+                            { x: 10.2144, y: rootLength - 6.2981, label: "V9", start: 0, display: 0 },
+                            { x: 6.2981, y: rootLength - 10.2144, label: "V10", start: 0, display: 0 },
+                            { x: 7.5301, y: rootLength - 10.3585, label: "V11", start: 0, display: 0 },
+                            { x: 11.1716, y: rootLength - 14, label: "V12", start: 0, display: 0 },
+                            { x: 3, y: rootLength - 16.7990, label: 'V13', start: 0, display: 0 },
+                            { x: 3, y: rootLength - 12.3693, label: 'V14', start: 0, display: 0 },
+                            { x: 3.6923, y: rootLength - 11.4178, label: 'V15', start: 0, display: 0 },
+                            { x: -3.6923, y: rootLength - 11.4178, label: 'V16', start: 0, display: 0 },
+                            { x: -3, y: rootLength - 12.3693, label: 'V17', start: 0, display: 0 },
+                            { x: -3, y: 0, label: 'V18', start: 0, display: 1 },
+                        ], 'arcs': [
+                            { start: 'V3', end: 'V4', radius: 7.5, direction: 0, sweep: 0 },
+                            { start: 'V8', end: 'V9', radius: 1, direction: 0, sweep: 0 },
+                            { start: 'V9', end: 'V10', radius: 12, direction: 0, sweep: 0 },
+                            { start: 'V10', end: 'V11', radius: 1, direction: 0, sweep: 0 },
+                            { start: 'V12', end: 'V13', radius: 10, direction: 1, sweep: 0 },
+                            { start: 'V14', end: 'V15', radius: 1, direction: 0, sweep: 0 },
+                            { start: 'V15', end: 'V16', radius: 12, direction: 0, sweep: 0 },
+                            { start: 'V16', end: 'V17', radius: 1, direction: 0, sweep: 0 },
+                        ]
+                    },
+                ]
+            }
         case 'Base Spiral Normal':
             return {
                 path: [{
@@ -474,6 +510,7 @@ function roundelTemplate(type, rootLength) {
     switch (type) {
         case 'Normal Conventional':
         case 'Auxiliary Conventional':
+        case 'Auxiliary -45 Conventional':
             return {
                 path: [
                     {
