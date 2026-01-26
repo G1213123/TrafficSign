@@ -352,6 +352,8 @@ const dictionaries = {
     'Arrow': '箭頭',
     'Stub': '平頭',
     'RedBar' : '路線封閉',
+    'Circular Sign' : '圓形標誌',
+    'Circular Sign (with Arrow)' : '圓形標誌(箭頭)',
     'LaneDrop' : '只往出口',
     'T-Junction' : 'T字路口',
     'Y-Junction' : 'Y字路口',

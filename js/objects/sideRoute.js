@@ -332,7 +332,8 @@ export class SideRoadSymbol extends BaseGroup {
         // Horizontal constraint based on side
         const rootLeft = mainRoad.routeList[1].x - mainRoad.routeList[1].width * mainRoad.xHeight / 8;
         const rootRight = mainRoad.routeList[1].x + mainRoad.routeList[1].width * mainRoad.xHeight / 8;
-        const minBranchShapeXDelta = routeList[0].shape == 'Stub' ? 4 : Math.abs(routeList[0].angle) == 90 ? 12 : 13;
+        const minBranchXDeltaShape = { 'Arrow': 13, 'Stub': 4, 'RedBar': 4, 'Circular Sign': 13, 'Circular Sign (with Arrow)': 28 }[routeList[0].shape] || 12;
+        const minBranchShapeXDelta = (Math.abs(routeList[0].angle) == 90 && routeList[0].shape == 'Arrow') ? 12 : minBranchXDeltaShape;
         const minBranchXDelta = minBranchShapeXDelta * xHeight / 4;
 
         // Constrain movement based on side (left or right)
@@ -380,7 +381,7 @@ export class SideRoadSymbol extends BaseGroup {
         // Horizontal constraint based on side
         const radius = 12
         const length = xHeight / 4
-        const minBranchXDelta = { 'Arrow': 24, 'Base Conventional Normal': 22.9, 'Base Conventional Auxiliary': 30, 'Base Conventional U-turn': 45 }[routeList[0].shape] || 16;
+        const minBranchXDelta = { 'Arrow': 24, 'Base Conventional Normal': 22.9, 'Base Conventional Auxiliary': 30, 'Base Conventional U-turn': 45, 'Circular Sign': 13, 'Circular Sign (with Arrow)': 28 }[routeList[0].shape] || 16;
         const center = mainRoad.routeList[1]
 
         let angleToCenter, distToCenter;
@@ -422,7 +423,7 @@ export class SideRoadSymbol extends BaseGroup {
         const center = mainRoad.routeList[1]
         const length = xHeight / 4 // Use the parameter directly for temp objects without sideRoad object
         const radius = 12;
-        const minBranchXDelta = { 'Arrow': 24, 'Base Spiral Normal': 24, 'Base Spiral Auxiliary': 30, 'Base Spiral U-turn': 45 }[routeList[0].shape] || 24;
+        const minBranchXDelta = { 'Arrow': 24, 'Base Spiral Normal': 24, 'Base Spiral Auxiliary': 30, 'Base Spiral U-turn': 45, 'Circular Sign': 13, 'Circular Sign (with Arrow)': 28 }[routeList[0].shape] || 24;
 
         let angleToCenter, distToCenter;
 
@@ -460,7 +461,7 @@ export class SideRoadSymbol extends BaseGroup {
         const center = mainRoad.routeList[1];
         const length = xHeight / 4;
         const radius = 12; // 12 units radius
-        const minBranchXDelta = { 'Arrow': 24, 'Stub': 16, 'RedBar': 16, }[routeList[0].shape] || 22.9;
+        const minBranchXDelta = { 'Arrow': 24, 'Stub': 16, 'RedBar': 16, 'Circular Sign': 13, 'Circular Sign (with Arrow)': 28 }[routeList[0].shape] || 22.9;
 
         // Main road rotation
         const mainAngle = (mainRoad.mainAngle || 0) * Math.PI / 180;

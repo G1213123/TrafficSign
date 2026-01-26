@@ -18,7 +18,7 @@ let FormDrawMapComponent = {
   { value: 'LaneDrop', label: 'LaneDrop', image: 'lanedrop.svg' },
   { value: 'T-Junction', label: 'T-Junction', image: 'tjunction.svg' },
   { value: 'Y-Junction', label: 'Y-Junction', image: 'yjunction.svg' }],
-  SideEndShape: ['Arrow', 'Stub', 'RedBar'],
+  SideEndShape: ['Arrow', 'Stub', 'RedBar', 'Circular Sign', 'Circular Sign (with Arrow)'],
   RoundaboutFeatures: {
     'Conventional': [
       { value: 'Normal', label: 'Normal', image: 'roundabout-normal.svg' },

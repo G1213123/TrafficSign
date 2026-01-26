@@ -1,3 +1,10 @@
+// Important: 
+// vertex 'start' property: 1 means the start of the path, 0 means not start. 
+// If cutout is needed, the paths with different start point should be defined in the same object path array.
+// radius property in vertex is only apply for straight line intersection, to indicate the fillet radius at that vertex.
+// display property in vertex: 1 means the vertex is to be displayed, 0 means not displayed.
+// display property also control the snapping behavior when try to anchor objects.
+
 const roadMapTemplate = {
     'Arrow': {
         path: [{
@@ -31,6 +38,45 @@ const roadMapTemplate = {
                 { x: 3, y: -0.667, label: 'V16', start: 0, display: 1 },
                 { x: -3, y: -0.667, label: 'V17', start: 0, display: 1 },
             ], 'arcs': [], fill: 'rgb(224, 0, 0)'
+        }],
+    },
+    'Circular Sign': {
+        path: [{
+            'vertex': [
+                { x: -1, y: 4.3875, label: 'V1', start: 0, display: 1 },
+                { x: 0, y: 4.5, label: 'V2', start: 1, display: 1 },
+                { x: 1, y: 4.3875, label: 'V3', start: 0, display: 1 },
+            ], 'arcs': [
+                { start: 'V7', end: 'V1', radius: 4.5, direction: 0, sweep: 0 },
+                { start: 'V1', end: 'V2', radius: 4.5, direction: 0, sweep: 0 },]
+        }, {
+            'vertex': [
+                { x: 0, y: 0, label: 'C1', start: 1, display: 1 },
+            ], 'arcs': [],
+        }],
+    },
+    'Circular Sign (with Arrow)': {
+        path: [{
+            'vertex': [
+                { x: -1, y: 11.8875, label: 'V1', start: 1, display: 1 },
+                { x: 0, y: 12, label: 'V2', start: 0, display: 1 },
+                { x: 1, y: 11.8875, label: 'V3', start: 0, display: 1 },
+            ], 'arcs': [
+                { start: 'V7', end: 'V1', radius: 4.5, direction: 0, sweep: 0 },
+                { start: 'V1', end: 'V2', radius: 4.5, direction: 0, sweep: 0 },]
+        },{
+            'vertex': [
+                { x: -1, y: 1, label: 'V8', start: 1, display: 1 },
+                { x: 0, y: 0, label: 'V9', start: 0, display: 1 },
+                { x: 1, y: 1, label: 'V10', start: 0, display: 1 },
+                { x: 1, y: 3.1125, label: 'V11', start: 0, display: 1 },
+                { x: -1, y: 3.1125, label: 'V12', start: 0, display: 1 },
+            ], 'arcs': [
+                { start: 'V11', end: 'V12', radius: 4.5, direction: 0, sweep: 0 },]
+        },  {
+            'vertex': [
+                { x: 0, y: 7.5, label: 'C1', start: 1, display: 1 },
+            ], 'arcs': [],
         }],
     },
     'Round': {
@@ -3443,7 +3489,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8.25, y: 8.25, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16.5, label: 'V3', start: 0, display: 0 },
                     { x: -8.25, y: 8.25, label: 'V4', start: 0, display: 0 },
@@ -3456,7 +3502,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 0.25, label: 'V11', start: 1, display: 1 },
+                    { x: 0, y: 0.25, label: 'V11', start: 1, display: 0 },
                     { x: 8, y: 8.25, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 16.25, label: 'V13', start: 0, display: 0 },
                     { x: -8, y: 8.25, label: 'V14', start: 0, display: 0 },
@@ -3469,12 +3515,17 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 6.75, label: 'V21', start: 1, display: 1 },
+                    { x: 0, y: 6.75, label: 'V21', start: 1, display: 0 },
                     { x: 7.25, y: 6.75, label: 'V22', start: 0, display: 0, radius: 0.75 },
                     { x: 7.25, y: 9.75, label: 'V23', start: 0, display: 0, radius: 0.75 },
                     { x: -7.25, y: 9.75, label: 'V24', start: 0, display: 0, radius: 0.75 },
                     { x: -7.25, y: 6.75, label: 'V25', start: 0, display: 0, radius: 0.75 },
                 ], 'arcs': [], 'fill': 'rgb(255, 255, 255)'
+            },
+            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
             },
         ],
     },
@@ -3483,7 +3534,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -3496,7 +3547,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 0 },
                     { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
                     { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
@@ -3506,6 +3557,10 @@ const symbolsTemplate = {
                     { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
                     { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
                 ], 'fill': 'rgb(255, 255, 255)'
+            },            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
             },
 
         ],
@@ -3515,7 +3570,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -3528,7 +3583,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: -4.557, y: 5.173, label: 'V21', start: 1, display: 1 },
+                    { x: -4.557, y: 5.173, label: 'V21', start: 1, display: 0 },
                     { x: -5.6, y: 5.973, label: 'V22', start: 0, display: 0 },
                     { x: -4.557, y: 6.773, label: 'V23', start: 0, display: 0 },
                     { x: 0.96, y: 6.773, label: 'V24', start: 0, display: 0, radius: 0.533 },
@@ -3539,13 +3594,13 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
-                    { x: -5.056, y: 4.076, label: 'V11', start: 1, display: 1 },
+                    { x: -5.056, y: 4.076, label: 'V11', start: 1, display: 0 },
                     { x: 3.924, y: 13.056, label: 'V12', start: 0, display: 0 },
-                    { x: -3.924, y: 2.944, label: 'V13', start: 1, display: 1 },
+                    { x: -3.924, y: 2.944, label: 'V13', start: 1, display: 0 },
                     { x: 5.056, y: 11.924, label: 'V14', start: 0, display: 0 },
                 ], 'arcs': [
                     { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
@@ -3555,6 +3610,10 @@ const symbolsTemplate = {
                     { start: 'V11', end: 'V12', radius: 6.4, direction: 0, sweep: 0 },
                     { start: 'V14', end: 'V13', radius: 6.4, direction: 0, sweep: 0 },
                 ], 'fill': 'rgb(224, 0, 0)'
+            },            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
             },
 
         ],
@@ -3564,7 +3623,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -3577,7 +3636,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 4.557, y: 5.173, label: 'V21', start: 1, display: 1 },
+                    { x: 4.557, y: 5.173, label: 'V21', start: 1, display: 0 },
                     { x: 5.6, y: 5.973, label: 'V22', start: 0, display: 0 },
                     { x: 4.557, y: 6.773, label: 'V23', start: 0, display: 0 },
                     { x: -0.96, y: 6.773, label: 'V24', start: 0, display: 0, radius: 0.533 },
@@ -3588,13 +3647,13 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
-                    { x: 5.056, y: 4.076, label: 'V11', start: 1, display: 1 },
+                    { x: 5.056, y: 4.076, label: 'V11', start: 1, display: 0 },
                     { x: -3.924, y: 13.056, label: 'V12', start: 0, display: 0 },
-                    { x: 3.924, y: 2.944, label: 'V13', start: 1, display: 1 },
+                    { x: 3.924, y: 2.944, label: 'V13', start: 1, display: 0 },
                     { x: -5.056, y: 11.924, label: 'V14', start: 0, display: 0 },
                 ], 'arcs': [
                     { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
@@ -3604,6 +3663,10 @@ const symbolsTemplate = {
                     { start: 'V12', end: 'V11', radius: 6.4, direction: 0, sweep: 0 },
                     { start: 'V13', end: 'V14', radius: 6.4, direction: 0, sweep: 0 },
                 ], 'fill': 'rgb(224, 0, 0)'
+            },            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
             },
 
         ],
@@ -3613,7 +3676,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -3644,13 +3707,13 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
-                    { x: -5.899, y: 5.518, label: 'V11', start: 1, display: 1 },
+                    { x: -5.899, y: 5.518, label: 'V11', start: 1, display: 0 },
                     { x: 5.099, y: 11.868, label: 'V12', start: 0, display: 0 },
-                    { x: -5.099, y: 4.132, label: 'V13', start: 1, display: 1 },
+                    { x: -5.099, y: 4.132, label: 'V13', start: 1, display: 0 },
                     { x: 5.899, y: 10.482, label: 'V14', start: 0, display: 0 },
                 ], 'arcs': [
                     { start: 'V1', end: 'V2', radius: 8, direction: 1, sweep: 0 },
@@ -3660,6 +3723,10 @@ const symbolsTemplate = {
                     { start: 'V11', end: 'V12', radius: 6.4, direction: 0, sweep: 0 },
                     { start: 'V14', end: 'V13', radius: 6.4, direction: 0, sweep: 0 },
                 ], 'fill': 'rgb(224, 0, 0)'
+            },            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
             },
 
         ],
@@ -3669,7 +3736,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -3682,7 +3749,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 0 },
                     { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
                     { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
@@ -3695,17 +3762,21 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 4.516, y: 8, label: 'V11', start: 1, display: 1 },
+                    { x: 4.516, y: 8, label: 'V11', start: 1, display: 0 },
                     { x: 5.867, y: 6.667, label: 'V12', start: 0, display: 0 },
                     { x: 5.867, y: 9.333, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
             {
                 'vertex': [
-                    { x: -4.516, y: 8, label: 'V11', start: 1, display: 1 },
+                    { x: -4.516, y: 8, label: 'V11', start: 1, display: 0 },
                     { x: -5.867, y: 6.667, label: 'V12', start: 0, display: 0 },
                     { x: -5.867, y: 9.333, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
+            },            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
             },
 
         ],
@@ -3719,7 +3790,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -3732,7 +3803,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 0 },
                     { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
                     { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
@@ -3745,19 +3816,23 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 4.466, y: 8, label: 'V11', start: 1, display: 1 },
+                    { x: 4.466, y: 8, label: 'V11', start: 1, display: 0 },
                     { x: 5.817, y: 6.667, label: 'V12', start: 0, display: 0 },
                     { x: 5.817, y: 9.333, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
             {
                 'vertex': [
-                    { x: -4.466, y: 8, label: 'V11', start: 1, display: 1 },
+                    { x: -4.466, y: 8, label: 'V11', start: 1, display: 0 },
                     { x: -5.817, y: 6.667, label: 'V12', start: 0, display: 0 },
                     { x: -5.817, y: 9.333, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
-
+            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
+            },
         ],
         text: [
             { character: '2.5', x: -4.47, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
@@ -3769,7 +3844,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -3782,7 +3857,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 0 },
                     { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
                     { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
@@ -3795,19 +3870,23 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 4.25, y: 8, label: 'V11', start: 1, display: 1 },
+                    { x: 4.25, y: 8, label: 'V11', start: 1, display: 0 },
                     { x: 5.60, y: 6.667, label: 'V12', start: 0, display: 0 },
                     { x: 5.60, y: 9.333, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
             {
                 'vertex': [
-                    { x: -4.25, y: 8, label: 'V11', start: 1, display: 1 },
+                    { x: -4.25, y: 8, label: 'V11', start: 1, display: 0 },
                     { x: -5.601, y: 6.667, label: 'V12', start: 0, display: 0 },
                     { x: -5.601, y: 9.333, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
-
+            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
+            },
         ],
         text: [
             { character: '2.7', x: -4.25, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
@@ -3819,7 +3898,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -3832,7 +3911,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 0 },
                     { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
                     { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
@@ -3845,19 +3924,23 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 4.466, y: 8, label: 'V11', start: 1, display: 1 },
+                    { x: 4.466, y: 8, label: 'V11', start: 1, display: 0 },
                     { x: 5.817, y: 6.667, label: 'V12', start: 0, display: 0 },
                     { x: 5.817, y: 9.333, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
             {
                 'vertex': [
-                    { x: -4.466, y: 8, label: 'V11', start: 1, display: 1 },
+                    { x: -4.466, y: 8, label: 'V11', start: 1, display: 0 },
                     { x: -5.817, y: 6.667, label: 'V12', start: 0, display: 0 },
                     { x: -5.817, y: 9.333, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
-
+            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
+            },
         ],
         text: [
             { character: '2.9', x: -4.47, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
@@ -3869,7 +3952,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -3882,7 +3965,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 0 },
                     { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
                     { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
@@ -3895,19 +3978,23 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
-
+            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
+            },
         ],
         text: [
             { character: '2', x: -3.111, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
@@ -3918,7 +4005,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -3931,7 +4018,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 0 },
                     { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
                     { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
@@ -3944,19 +4031,23 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
-
+            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
+            },
         ],
         text: [
             { character: '3', x: -3.2, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
@@ -3967,7 +4058,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -3980,7 +4071,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 0 },
                     { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
                     { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
@@ -3993,19 +4084,23 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
-
+            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
+            },
         ],
         text: [
             { character: '3.5', x: -4.853, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
@@ -4016,7 +4111,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -4029,7 +4124,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 0 },
                     { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
                     { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
@@ -4042,19 +4137,23 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
-
+            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
+            },
         ],
         text: [
             { character: '4', x: -3.218, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
@@ -4065,7 +4164,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -4078,7 +4177,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 0 },
                     { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
                     { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
@@ -4091,19 +4190,23 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
-
+            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
+            },
         ],
         text: [
             { character: '4.1', x: -4.462, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
@@ -4114,7 +4217,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -4127,7 +4230,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 0 },
                     { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
                     { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
@@ -4140,19 +4243,23 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
-
+            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
+            },
         ],
         text: [
             { character: '4.2', x: -4.836, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
@@ -4163,7 +4270,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -4176,7 +4283,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 0 },
                     { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
                     { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
@@ -4189,19 +4296,23 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
-
+            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
+            },
         ],
         text: [
             { character: '4.3', x: -4.924, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
@@ -4212,7 +4323,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -4225,7 +4336,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 0 },
                     { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
                     { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
@@ -4238,19 +4349,23 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
-
+            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
+            },
         ],
         text: [
             { character: '4.4', x: -4.942, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
@@ -4261,7 +4376,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -4274,7 +4389,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 0 },
                     { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
                     { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
@@ -4287,19 +4402,23 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
-
+            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
+            },
         ],
         text: [
             { character: '4.5', x: -4.871, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
@@ -4310,7 +4429,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -4323,7 +4442,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 0 },
                     { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
                     { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
@@ -4336,19 +4455,23 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
-
+            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
+            },
         ],
         text: [
             { character: '4.6', x: -4.871, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
@@ -4359,7 +4482,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -4372,7 +4495,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 0 },
                     { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
                     { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
@@ -4385,19 +4508,23 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
-
+            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
+            },
         ],
         text: [
             { character: '4.7', x: -4.853, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
@@ -4408,7 +4535,7 @@ const symbolsTemplate = {
         path: [
             {
                 'vertex': [
-                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 0 },
                     { x: 8, y: 8, label: 'V2', start: 0, display: 0 },
                     { x: 0, y: 16, label: 'V3', start: 0, display: 0 },
                     { x: -8, y: 8, label: 'V4', start: 0, display: 0 },
@@ -4421,7 +4548,7 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 1 },
+                    { x: 0, y: 1.6, label: 'V11', start: 1, display: 0 },
                     { x: 6.4, y: 8, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 14.4, label: 'V13', start: 0, display: 0 },
                     { x: -6.4, y: 8, label: 'V14', start: 0, display: 0 },
@@ -4434,19 +4561,23 @@ const symbolsTemplate = {
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 2.133, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 2.133, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 4.267, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
             {
                 'vertex': [
-                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 1 },
+                    { x: -1.6, y: 13.866, label: 'V11', start: 1, display: 0 },
                     { x: 1.6, y: 13.866, label: 'V12', start: 0, display: 0 },
                     { x: 0, y: 11.733, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
             },
-
+            {
+                'vertex': [
+                    { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
+                ], 
+            },
         ],
         text: [
             { character: '4.8', x: -4.942, y: -6.2, fontSize: 3.556, fontFamily: 'TransportHeavy', fill: '#000000' },
