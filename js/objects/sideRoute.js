@@ -141,6 +141,9 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
         p.arcs.forEach(a => { a.radius *= width / 2; });
     });
 
+    // vector operations for arrow tips
+    // https://www.desmos.com/calculator/6wj0d4ppmi
+
     // for rotate 5 deg relative to roundabout center
     const polarVectors1 = {
         rCenter: { x: 0, y: 24 },
@@ -150,6 +153,11 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
     const polarVectors2 = {
         rCenter: { x: -13.9035, y: -0.3 },
         rAngle: 21.3 * Math.PI / 180
+    }
+    // circular sign arrow only, rotate arrow tip
+    const polarVectors3 = {
+        rCenter: { x: 4.2789, y: -2.881 },
+        rAngle: -8.15 * Math.PI / 180
     }
 
     let polarVector
@@ -196,6 +204,16 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
         });
     });
 
+    if (rootShape === 'Circular Sign (with Arrow)') {
+        arrowTipPath.path[1].vertex.forEach(v => {
+            const { rCenter, rAngle } = polarVectors3;
+            const dx = v.x - rCenter.x;
+            const dy = v.y - rCenter.y;
+            v.x = rCenter.x + dx * Math.cos(rAngle) - dy * Math.sin(rAngle);
+            v.y = rCenter.y + dx * Math.sin(rAngle) + dy * Math.cos(rAngle);
+        });
+    }
+
     const i0 = { x: 0.841, y: 10.025, label: 'V3', start: 0, display: 1 }
     const i1 = { x: -6.949, y: 11.846, label: 'V4', start: 0, display: 1 }
 
@@ -208,7 +226,7 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
         arrowTipPath.path[0].vertex = vtx;
 
         // remap the end curve vertex V7 to V5 since spiral has 2 vertex less
-        arrowTipPath.path[0].arcs.filter(a => a.start === 'V7' ).map(a => { a.start = 'V5' });
+        arrowTipPath.path[0].arcs.filter(a => a.start === 'V7').map(a => { a.start = 'V5' });
 
         arrowTipPath.path[0].arcs.push(
             { start: 'V2', end: 'V3', radius: 18, direction: 1, sweep: 0 },
