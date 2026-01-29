@@ -79,6 +79,7 @@ function getConvRdAboutSideRoadCoords(route, length, arm, radius, angle, center)
         // Scale vertices for all paths
         arrowTipPath.path.forEach(p => {
             p.vertex.forEach(v => { v.x *= width / 2; v.y *= width / 2; });
+            p.arcs.forEach(a => { a.radius *= width / 2; });
         });
 
         // Compute trimming/extension points based on geometry
@@ -137,6 +138,7 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
     // Scale vertices for all paths
     arrowTipPath.path.forEach(p => {
         p.vertex.forEach(v => { v.x *= width / 2; v.y *= width / 2; });
+        p.arcs.forEach(a => { a.radius *= width / 2; });
     });
 
     // for rotate 5 deg relative to roundabout center
@@ -147,7 +149,7 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
     // for rotate stub end along side road middle line
     const polarVectors2 = {
         rCenter: { x: -13.9035, y: -0.3 },
-        rAngle: 19.8668 * Math.PI / 180
+        rAngle: 21.3 * Math.PI / 180
     }
 
     let polarVector
@@ -159,13 +161,29 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
         case 'Stub':
             polarVector = [polarVectors1, polarVectors2];
             break;
+        case 'Circular Sign':
+            polarVector = [polarVectors1, polarVectors2];
+            break;
         case 'RedBar':
             polarVector = [polarVectors1, polarVectors2];
             break;
         default:
-            polarVector = [];
+            polarVector = [polarVectors1, polarVectors2];
             break;
     }
+
+
+    arrowTipPath.path.forEach(p => {
+        p.vertex.forEach(v => {
+            if (rootShape === 'Circular Sign') {
+                v.y -= 9;
+            }
+            if (rootShape === 'Circular Sign (with Arrow)') {
+                v.y -= 24;
+            }
+        });
+    });
+
 
     polarVector.forEach(({ rCenter, rAngle }) => {
         arrowTipPath.path.forEach(p => {
@@ -189,11 +207,16 @@ function getSpirRdAboutSideRoadCoords(route, length, angle, center) {
         assignVertexLabel(vtx);
         arrowTipPath.path[0].vertex = vtx;
 
+        // remap the end curve vertex V7 to V5 since spiral has 2 vertex less
+        arrowTipPath.path[0].arcs.filter(a => a.start === 'V7' ).map(a => { a.start = 'V5' });
+
         arrowTipPath.path[0].arcs.push(
             { start: 'V2', end: 'V3', radius: 18, direction: 1, sweep: 0 },
             { start: 'V3', end: 'V4', radius: 14, direction: 0, sweep: 0 },
             { start: 'V4', end: 'V5', radius: 14, direction: 0, sweep: 0 },
         );
+
+
     }
 
 
@@ -215,6 +238,7 @@ function getOvalStraightSideRoadCoords(route, length, arm, angle, center) {
         const width = route.width;
         arrowTipPath.path.forEach(p => {
             p.vertex.forEach(v => { v.x *= width / 2; v.y *= width / 2; });
+            p.arcs.forEach(a => { a.radius *= width / 2; });
         });
 
         const i2 = { x: width / 2, y: arm / length - 1, display: 0 };
@@ -381,7 +405,7 @@ export class SideRoadSymbol extends BaseGroup {
         // Horizontal constraint based on side
         const radius = 12
         const length = xHeight / 4
-        const minBranchXDelta = { 'Arrow': 24, 'Base Conventional Normal': 22.9, 'Base Conventional Auxiliary': 30, 'Base Conventional U-turn': 45, 'Circular Sign': 13, 'Circular Sign (with Arrow)': 28 }[routeList[0].shape] || 16;
+        const minBranchXDelta = { 'Arrow': 24, 'Base Conventional Normal': 22.9, 'Base Conventional Auxiliary': 30, 'Base Conventional U-turn': 45, 'Circular Sign': 25, 'Circular Sign (with Arrow)': 40 }[routeList[0].shape] || 16;
         const center = mainRoad.routeList[1]
 
         let angleToCenter, distToCenter;
@@ -423,7 +447,7 @@ export class SideRoadSymbol extends BaseGroup {
         const center = mainRoad.routeList[1]
         const length = xHeight / 4 // Use the parameter directly for temp objects without sideRoad object
         const radius = 12;
-        const minBranchXDelta = { 'Arrow': 24, 'Base Spiral Normal': 24, 'Base Spiral Auxiliary': 30, 'Base Spiral U-turn': 45, 'Circular Sign': 13, 'Circular Sign (with Arrow)': 28 }[routeList[0].shape] || 24;
+        const minBranchXDelta = { 'Arrow': 24, 'Base Spiral Normal': 24, 'Base Spiral Auxiliary': 30, 'Base Spiral U-turn': 45, 'Circular Sign': 24, 'Circular Sign (with Arrow)': 24 }[routeList[0].shape] || 24;
 
         let angleToCenter, distToCenter;
 
@@ -559,7 +583,7 @@ export class SideRoadSymbol extends BaseGroup {
         }
 
         // Min length constraint
-        const minBranchShapeXDelta = (routeList[0].shape == 'Arrow' ? 12 : 4);
+        const minBranchShapeXDelta = minBranchXDelta;
         if (distFromAnchor < minBranchShapeXDelta) distFromAnchor = minBranchShapeXDelta;
 
         // Calculate Constrained Position in LOCAL space
@@ -629,7 +653,7 @@ export class SideRoadSymbol extends BaseGroup {
         if (routeList[0].isBase) {
             const localVirtualCenter = { x: 0, y: 0 };
             const localNormalAngle = Math.PI / 2;
-            const globalNormalAngle = 90 * Math.PI / 180 ;
+            const globalNormalAngle = 90 * Math.PI / 180;
             const globalVirtualCenter = {
                 x: center.x,
                 y: center.y
@@ -645,7 +669,7 @@ export class SideRoadSymbol extends BaseGroup {
 
                 tempVertexList = getSpirRdAboutSideRoadCoords(routeList[0], length, globalNormalAngle, globalVirtualCenter);
             } else {
-                const minBranchXDelta = {  'Base Double Conventional': 22.9, }[routeList[0].shape] || 16;
+                const minBranchXDelta = { 'Base Double Conventional': 22.9, }[routeList[0].shape] || 16;
 
                 const distToCenter = Math.max(minBranchXDelta * length, Math.sqrt((routeList[0].y - center.y) ** 2 + (routeList[0].x - center.x) ** 2))
 
@@ -741,8 +765,8 @@ export class SideRoadSymbol extends BaseGroup {
             let distFromAnchor = distToVC - radius;
 
             // Min length constraint
-            const minBranchShapeXDelta = (routeList[0].shape == 'Arrow' ? 12 : 4);
-            if (distFromAnchor < minBranchShapeXDelta) distFromAnchor = minBranchShapeXDelta;
+            const minBranchXDelta = { 'Arrow': 12, 'Stub': 4, 'RedBar': 4, 'Circular Sign': 13, 'Circular Sign (with Arrow)': 28 }[routeList[0].shape] || 4;
+            if (distFromAnchor < minBranchXDelta) distFromAnchor = minBranchXDelta;
 
             // Calculate Constrained Position in LOCAL space
             const constrainedLocalX = localVirtualCenter.x + (radius + distFromAnchor) * Math.cos(localNormalAngle);
