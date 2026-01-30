@@ -6,6 +6,7 @@ import { CanvasGlobals } from '../canvas/canvas.js';
 import { assignVertexLabel, getSideRoadCoords } from './routeBase.js';
 import { SideRoadSymbol } from './sideRoute.js';
 import { anchorShape } from './anchor.js';
+import { remapAnchors } from '../version_upgrades/v1_3_1_roundabout.js';
 
 const canvas = CanvasGlobals.canvas;
 
@@ -635,7 +636,24 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
             this.on('moving', this.onMove.bind(this));
             this.on('moved', this.onMove.bind(this));
             this.on('modified', this.onMove.bind(this));
-        }    /**
+        }
+
+    upgradeBaseRoute() {
+        const wasLoading = this.isLoading;
+        this.isLoading = false;
+
+        this.RAfeature = this.routeList[0].shape || 'Normal';
+        
+        // 1. Remap existing anchors (arms) to new vertex labels
+        remapAnchors(this);
+
+        // 2. Add the base route (entry)
+        addBaseToRoundabout(this);
+        
+        this.isLoading = wasLoading;
+    }
+
+    /**
      * Initialize the route with a GlyphPath
      * @param {Object} vertexList - Vertex data for the route
      * @return {MainRoadSymbol} - The initialized route

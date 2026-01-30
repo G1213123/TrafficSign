@@ -5,6 +5,7 @@ import { buildObjectsFromJSON } from '../objects/build.js';
 import { ImportManager } from '../modal/md-import.js';
 import { i18n } from '../i18n/i18n.js';
 import { collectPathObjects, processPathForDXF } from '../exportUtils/export.js';
+import { UpgradeManager } from '../version_upgrades/UpgradeManager.js';
 
 let FormExportComponent = {
   // Export settings for canvas objects
@@ -711,6 +712,10 @@ let FormExportComponent = {
 
       if (typeof buildObjectsFromJSON === 'function') {
         await buildObjectsFromJSON(objectsToLoad, CanvasGlobals.canvas);
+
+        const version = jsonData.meta ? jsonData.meta.version : null;
+        UpgradeManager.processUpgrades(version);
+        
       } else {
         console.error("buildObjectsFromJSON function is not available.");
         throw new Error("Critical function buildObjectsFromJSON is not available to reconstruct objects.");
