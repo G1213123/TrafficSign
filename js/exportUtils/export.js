@@ -130,7 +130,12 @@ function collectNestedPathObjects(obj, collection, parentObj) {
       left: obj.left || 0,
       top: obj.top || 0,
       scaleX: obj.scaleX || 1,
-      scaleY: obj.scaleY || 1
+      scaleY: obj.scaleY || 1,
+      width: obj.width,
+      height: obj.height,
+      pathOffset: obj.pathOffset,
+      originX: obj.originX,
+      originY: obj.originY
     };
     // Add as a regular path
     // Apply transformations based on the character's position within the text object
@@ -418,8 +423,19 @@ function transformPath(pathObj, parentLeft, parentTop) {
   const minX = coordinates.length > 0 ? Math.min(...coordinates.map(p => p.x)) : 0;
   const minY = coordinates.length > 0 ? Math.min(...coordinates.map(p => p.y)) : 0;
 
-  const absLeft = parentLeft + pathObj.left - minX;
-  const absTop = parentTop + pathObj.top - minY;
+  let absLeft, absTop;
+
+  // If pathOffset is available, use it for more accurate positioning
+  if (pathObj.pathOffset) {
+    const centerXOffset = pathObj.originX === 'center' ? 0 : (pathObj.width || 0) / 2;
+    const centerYOffset = pathObj.originY === 'center' ? 0 : (pathObj.height || 0) / 2;
+
+    absLeft = parentLeft + pathObj.left + centerXOffset - pathObj.pathOffset.x;
+    absTop = parentTop + pathObj.top + centerYOffset - pathObj.pathOffset.y;
+  } else {
+    absLeft = parentLeft + pathObj.left - minX;
+    absTop = parentTop + pathObj.top - minY;
+  }
 
   // Apply transformations directly to path commands
   const transformedPath = {

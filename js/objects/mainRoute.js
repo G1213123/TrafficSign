@@ -1,17 +1,21 @@
 import { BaseGroup, GlyphPath } from './draw.js';
 import { calculateTransformedPoints, convertVertexToPathCommands } from './path.js';
-import { roadMapTemplate, roundelTemplate } from './template.js';
+import { roadMapTemplate, roundelTemplate, baseSideRoadTemplate } from './template.js';
 import { calcSymbol } from './symbols.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { assignVertexLabel, getSideRoadCoords } from './routeBase.js';
 import { SideRoadSymbol } from './sideRoute.js';
+import { anchorShape } from './anchor.js';
+import { remapAnchors } from '../version_upgrades/v1_3_1_roundabout.js';
 
 const canvas = CanvasGlobals.canvas;
 
 const calcVertexType = {
     'Main Line': (xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) => calcMainRoadVertices(xHeight, routeList, innerCornerRadius, outerCornerRadius),
     'Conventional Roundabout': (xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) => calcRoundaboutVertices('Conventional', xHeight, routeList),
-    'Spiral Roundabout': (xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) => calcRoundaboutVertices('Spiral', xHeight, routeList)
+    'Spiral Roundabout': (xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) => calcRoundaboutVertices('Spiral', xHeight, routeList),
+    'Oval Roundabout': (xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) => calcRoundaboutVertices('Oval', xHeight, routeList),
+    'Double Roundabout': (xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) => calcRoundaboutVertices('Double', xHeight, routeList)
 }
 
 // Extract drawing functions from FormDrawMapComponent
@@ -178,7 +182,7 @@ function processVertexListAndArcs(vertexList, arcList, remainingPath = []) {
 /**
  * Calculates vertices for Main Road with single arm (current implementation)
  * @param {number} xHeight - X-height value
- * @param {Array} routeList - List of routes
+ * @param {Array}   - List of routes
  * @return {Object} Vertex list object
  */
 function calcMainRoadVerticesSingleArm(xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) {
@@ -407,282 +411,436 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
     const center = routeList[1] // use tip location
     const templateName = routeList[0].shape + ' ' + type
     let roundel = roundelTemplate(templateName, routeList[1].length)
-    roundel = calcSymbol(roundel, length)
-    roundel.path.map((p) => {
-        let transformed = calculateTransformedPoints(p.vertex, {
-            x: center.x,
-            y: center.y,
-            angle: 0
-        });
-        p.vertex = transformed
 
-        if (p.centerLine) {
-            let transformedCenterLine = calculateTransformedPoints(p.centerLine, {
+    if (templateName.includes('Double')) {
+        // For double roundabout, we need to rotate the inner roundabout by the specified angle
+        const angle = routeList[0].angle || 0;
+        const bottomCenter = { x: 0, y: 0 }
+        const topCenter = { x: routeList[0].length * Math.sin(angle * Math.PI / 180), y: - routeList[0].length * Math.cos(angle * Math.PI / 180) }
+
+        function rotatePoint(x, y, angleDeg, center) {
+            const angleRad = angleDeg * Math.PI / 180;
+            const cos = Math.cos(angleRad);
+            const sin = Math.sin(angleRad);
+
+            // Translate point to origin
+            const translatedX = x - center.x;
+            const translatedY = y - center.y;
+
+            // Rotate 
+            const newX = translatedX * cos - translatedY * sin;
+            const newY = translatedX * sin + translatedY * cos;
+
+            // Translate back
+            const finalX = newX + center.x;
+            const finalY = newY + center.y;
+
+            return { x: finalX, y: finalY };
+        }
+
+        const excludeTopNotchPoints = ['V3', 'V4', 'V5', 'V6'];
+        const excludeBottomNotchPoints = ['V10', 'V11', 'V12', 'V13'];
+
+        roundel.path.map((p) => {
+            if (p.vertex) {
+                p.vertex.map((v) => {
+                    let rotated = rotatePoint(v.x, v.y, angle, bottomCenter);
+                    v.x = parseFloat(rotated.x.toFixed(4));
+                    v.y = parseFloat(rotated.y.toFixed(4));
+                });
+            }
+        });
+
+        // rotate back the notch points to original position by its center
+        // rotate more angle when the roundabout angle is negative
+        let angleAdjustment = angle == -30 ? 20 : (angle == -60 ? 50 : (angle == -90 ? 80 : 0));
+        roundel.path.map((p) => {
+            if (p.vertex) {
+                p.vertex.map((v) => {
+                    if (excludeTopNotchPoints.includes(v.label)) {
+                        let rotated = rotatePoint(v.x, v.y, -angle - angleAdjustment, topCenter);
+                        v.x = parseFloat(rotated.x.toFixed(4));
+                        v.y = parseFloat(rotated.y.toFixed(4));
+                    }
+                    if (excludeBottomNotchPoints.includes(v.label)) {
+                        let rotated = rotatePoint(v.x, v.y, -angle, bottomCenter);
+                        v.x = parseFloat(rotated.x.toFixed(4));
+                        v.y = parseFloat(rotated.y.toFixed(4));
+                    }
+                }
+                );
+            }
+        });
+
+        // need to adjust the arc from V13 to V22 when angle is negative
+        if (routeList[0].shape == 'Conventional') {
+            roundel.path.map((p) => {
+                if (p.arcs) {
+                    p.arcs.map((a) => {
+                        if (a.start === 'V13' && a.end === 'V22' && angle < 0) {
+                            a.sweep = 0;
+                        }
+                        if (a.start === 'V21' && a.end === 'V10' && angle == -90) {
+                            a.sweep = 1;
+                        }
+                    });
+                }
+            });
+        }
+        if (routeList[0].shape == 'Spiral') {
+            roundel.path.map((p) => {
+                if (p.arcs) {
+                    p.arcs.map((a) => {
+                        if (a.start === 'V13' && a.end === 'V14' && angle > 0) {
+                            a.sweep = 1;
+                        }
+                        if (a.start === 'V8' && a.end === 'V10' && angle == -90) {
+                            a.sweep = 1;
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+        roundel = calcSymbol(roundel, length)
+        roundel.path.map((p) => {
+            let transformed = calculateTransformedPoints(p.vertex, {
                 x: center.x,
                 y: center.y,
                 angle: 0
             });
-            p.centerLine = transformedCenterLine;
+            p.vertex = transformed
 
-            if (type === 'Conventional') {
-                const outline = generateOutlineFromCenterline(p.centerLine, p.centerArc);
-                p.vertex = outline.vertex;
-                p.arcs = outline.arcs;
+            if (p.centerLine) {
+                let transformedCenterLine = calculateTransformedPoints(p.centerLine, {
+                    x: center.x,
+                    y: center.y,
+                    angle: 0
+                });
+                p.centerLine = transformedCenterLine;
+
+                if (type === 'Conventional') {
+                    const outline = generateOutlineFromCenterline(p.centerLine, p.centerArc);
+                    p.vertex = outline.vertex;
+                    p.arcs = outline.arcs;
+                }
             }
+        });
+
+        return roundel;
+    }
+
+    function addUTurnToMainRoad(mainRoad) {
+        const center = mainRoad.routeList[1] // use tip location
+
+        // Create options for the arm
+        const options = {
+            mainRoad: mainRoad,
+            color: mainRoad.color,
+            x: center.x,
+            y: center.y,
+            isBase: true,
+            routeList: [{
+                x: 6 + center.x, y: 33.4 + (mainRoad.roadType == 'Spiral Roundabout' ? 2 : 0) + center.y,
+                angle: 0,
+                shape: 'UArrow ' + mainRoad.roadType.split(' ')[0],
+                width: 4
+            }],
+            xHeight: mainRoad.xHeight,
+        };
+
+        // Declare variables outside the if-else blocks 
+        let routeList = options.routeList;
+        let arrow = JSON.parse(JSON.stringify(roadMapTemplate[routeList[0].shape]))
+        arrow = calcSymbol(arrow, mainRoad.xHeight / 4)
+
+        // Create and initialize the side road
+        const sideRoad = new SideRoadSymbol(options);
+        //sideRoad.initialize(arrow);
+
+
+        // Update main road to show how it would look with the new side road
+        //mainRoad.receiveNewRoute(tempVertexList);
+        //mainRoad.setCoords();
+        mainRoad.sideRoad.push(sideRoad);
+        sideRoad.mainRoad = mainRoad;
+    }
+
+    function addBaseToRoundabout(mainRoad) {
+        if (mainRoad.isLoading) return;
+
+        const shapeName = 'Base ' + mainRoad.roadType.split(' ')[0] + ' ' + mainRoad.RAfeature; 
+
+        const isBaseExists = mainRoad.sideRoad.some(side => 
+            side.routeList[0].shape === shapeName
+        );
+        
+        if (isBaseExists) return;
+
+        const center = mainRoad.routeList[1];
+        const length = mainRoad.xHeight / 4;
+        const rootLengthPixels = mainRoad.rootLength * length;
+
+        const options = {
+            mainRoad: mainRoad,
+            color: mainRoad.color,
+            x: center.x,
+            y: center.y,
+            isBase: true,
+            routeList: [{
+                x: center.x, 
+                y: center.y + rootLengthPixels,
+                angle: 0,
+                shape: 'Base ' + mainRoad.roadType.split(' ')[0] + ' ' + mainRoad.RAfeature,
+                width: 6,
+            }],
+            xHeight: mainRoad.xHeight,
+        };
+
+        const sideRoad = new SideRoadSymbol(options);
+
+        //sideRoad.onMove(null, false);
+        anchorShape(mainRoad, sideRoad, { vertexIndex1: 'V1', vertexIndex2: 'C1', spacingX: 0, spacingY: rootLengthPixels});
+    }
+
+    /**
+     * MainRoute class extends baseGroup to create route objects
+     */
+    class MainRoadSymbol extends BaseGroup {
+        constructor(options = {}) {
+            // We need to pass null as basePolygon initially, as we'll set it after initialize()
+            super(null, 'MainRoad', 'MainRoadSymbol', options);
+
+            // Initialize route-specific properties
+            this.routeList = options.routeList || [];
+            this.routeCenter = options.routeCenter || [];
+            this.xHeight = options.xHeight || 100;
+            this.rootLength = options.rootLength ?? 7;
+            this.tipLength = options.tipLength ?? 12;
+            this.routeWidth = options.routeWidth ?? 6;
+            this.color = options.color || 'white';
+            this.roadType = options.roadType || 'Main Line';
+            this.sideRoad = [];
+            this.mainAngle = options.mainAngle || 0;
+            this.RAfeature = options.RAfeature || 'Normal';
+            this.innerCornerRadius = options.innerCornerRadius || null;
+            this.outerCornerRadius = options.outerCornerRadius || null;
+            this.isLoading = options.isLoading || false;
+
+            this.initialize();
+
+            // Bind events
+            this.on('selected', roadMapOnSelect);
+            this.on('deselected', roadMapOnDeselect);
+            this.on('moving', this.onMove.bind(this));
+            this.on('moved', this.onMove.bind(this));
+            this.on('modified', this.onMove.bind(this));
         }
-    });
 
-    return roundel;
-}
+    upgradeBaseRoute() {
+        const wasLoading = this.isLoading;
+        this.isLoading = false;
 
-function addUTurnToMainRoad(mainRoad) {
-    const center = mainRoad.routeList[1] // use tip location
+        this.RAfeature = this.routeList[0].shape || 'Normal';
+        
+        // 1. Remap existing anchors (arms) to new vertex labels
+        remapAnchors(this);
 
-    // Create options for the arm
-    const options = {
-        mainRoad: mainRoad,
-        color: mainRoad.color,
-        x: center.x,
-        y: center.y,
-        routeList: [{
-            x: 6 + center.x, y: 33.4 + (mainRoad.roadType == 'Spiral Roundabout' ? 2 : 0) + center.y,
-            angle: 0,
-            shape: 'UArrow ' + mainRoad.roadType.split(' ')[0],
-            width: 4
-        }],
-        xHeight: mainRoad.xHeight,
-    };
+        // 2. Add the base route (entry)
+        addBaseToRoundabout(this);
+        
+        this.isLoading = wasLoading;
+    }
 
-    // Declare variables outside the if-else blocks 
-    let routeList = options.routeList;
-    let arrow = JSON.parse(JSON.stringify(roadMapTemplate[routeList[0].shape]))
-    arrow = calcSymbol(arrow, mainRoad.xHeight / 4)
-
-    // Create and initialize the side road
-    const sideRoad = new SideRoadSymbol(options);
-    //sideRoad.initialize(arrow);
-
-
-    // Update main road to show how it would look with the new side road
-    //mainRoad.receiveNewRoute(tempVertexList);
-    //mainRoad.setCoords();
-    mainRoad.sideRoad.push(sideRoad);
-    sideRoad.mainRoad = mainRoad;
-}
-
-/**
- * MainRoute class extends baseGroup to create route objects
- */
-class MainRoadSymbol extends BaseGroup {
-    constructor(options = {}) {
-        // We need to pass null as basePolygon initially, as we'll set it after initialize()
-        super(null, 'MainRoad', 'MainRoadSymbol', options);
-
-        // Initialize route-specific properties
-        this.routeList = options.routeList || [];
-        this.routeCenter = options.routeCenter || [];
-        this.xHeight = options.xHeight || 100;
-        this.rootLength = options.rootLength ?? 7;
-        this.tipLength = options.tipLength ?? 12;
-        this.routeWidth = options.routeWidth ?? 6;
-        this.color = options.color || 'white';
-        this.roadType = options.roadType || 'Main Line';
-        this.sideRoad = [];
-        this.RAfeature = options.RAfeature || 'Conventional';
-        this.innerCornerRadius = options.innerCornerRadius || null;
-        this.outerCornerRadius = options.outerCornerRadius || null;
-
-        this.initialize();
-
-        // Bind events
-        this.on('selected', roadMapOnSelect);
-        this.on('deselected', roadMapOnDeselect);
-        this.on('moving', this.onMove.bind(this));
-        this.on('moved', this.onMove.bind(this));
-        this.on('modified', this.onMove.bind(this));
-    }    /**
+    /**
      * Initialize the route with a GlyphPath
      * @param {Object} vertexList - Vertex data for the route
      * @return {MainRoadSymbol} - The initialized route
      */
-    initialize() {
-        const vertexList = calcVertexType[this.roadType](this.xHeight, this.routeList, this.innerCornerRadius, this.outerCornerRadius)
-        const arrow = new GlyphPath();
-        arrow.initialize(vertexList, {
-            left: 0,
-            top: 0,
-            angle: 0,
-            fill: this.color,
-            objectCaching: false,
-            dirty: true,
-            strokeWidth: 0
-        });
-
-        // Set the basePolygon that was initially null in the constructor
-        this.setBasePolygon(arrow, false)
-
-        if (vertexList.path) {
-            vertexList.path.forEach(p => {
-                if (p.centerLine) {
-                    const centerLineData = {
-                        vertex: p.centerLine,
-                        arcs: p.centerArc
-                    };
-
-                    const centerLineCommands = convertVertexToPathCommands(centerLineData, false);
-
-                    const centerLinePath = new fabric.Path(centerLineCommands, {
-                        fill: '',
-                        stroke: 'red',
-                        strokeWidth: 2,
-                        strokeDashArray: [5, 5],
-                        objectCaching: false,
-                        originX: 'left',
-                        originY: 'top'
-                    });
-
-                    this.add(centerLinePath);
-                }
+        initialize() {
+            const vertexList = calcVertexType[this.roadType](this.xHeight, this.routeList, this.innerCornerRadius, this.outerCornerRadius)
+            const arrow = new GlyphPath();
+            arrow.initialize(vertexList, {
+                left: 0,
+                top: 0,
+                angle: 0,
+                fill: this.color,
+                objectCaching: false,
+                dirty: true,
+                strokeWidth: 0
             });
+
+            // Set the basePolygon that was initially null in the constructor
+            this.setBasePolygon(arrow, false)
+
+            if (vertexList.path) {
+                vertexList.path.forEach(p => {
+                    if (p.centerLine) {
+                        const centerLineData = {
+                            vertex: p.centerLine,
+                            arcs: p.centerArc
+                        };
+
+                        const centerLineCommands = convertVertexToPathCommands(centerLineData, false);
+
+                        const centerLinePath = new fabric.Path(centerLineCommands, {
+                            fill: '',
+                            stroke: 'red',
+                            strokeWidth: 2,
+                            strokeDashArray: [5, 5],
+                            objectCaching: false,
+                            originX: 'left',
+                            originY: 'top'
+                        });
+
+                        this.add(centerLinePath);
+                    }
+                });
+            }
+
+            // Add special features based on RAfeature
+            if (this.RAfeature === 'U-turn') {
+                addUTurnToMainRoad(this);
+            }
+            if (this.roadType.includes('Roundabout')) {
+                addBaseToRoundabout(this);
+            }
+
+            this.isLoading = false;
+
+            return this;
         }
 
-        // Add special features based on RAfeature
-        if (this.RAfeature === 'U-turn') {
-            addUTurnToMainRoad(this);
-        }
 
-        return this;
-    }
+        /**
+         * Updates base route object when receiving new route additions
+         * @param {Object} branchRouteList - Optional route object to add (legacy)
+         * @return {void}
+         */
+        receiveNewRoute(newSideRoad = null) {
+            if (this.roadType !== 'Main Line') {
+                if (newSideRoad) {
+                    this.sideRoad.push(newSideRoad);
+                }
+                return;
+            }
+            const topList = this.routeList.filter(route => route.angle !== 180)[0];
+            const bottomList = this.routeList.filter(route => route.angle === 180)[0];
+            const length = this.xHeight / 4;
 
-
-    /**
-     * Updates base route object when receiving new route additions
-     * @param {Object} branchRouteList - Optional route object to add (legacy)
-     * @return {void}
-     */
-    receiveNewRoute(newSideRoad = null) {
-        if (this.roadType !== 'Main Line') {
             if (newSideRoad) {
                 this.sideRoad.push(newSideRoad);
             }
-            return;
+
+            // Use the extracted function to calculate the proper bottom Y coordinate
+            let newBottom = calculateMainRoadBottomY(topList, bottomList, length);
+
+            // Also consider side roads when calculating bottom position
+            this.sideRoad.forEach(side => {
+                const sideBottom = side.side ? side.basePolygon.vertex[5].y : side.basePolygon.vertex[2].y;
+                if (sideBottom + bottomList.length * length > newBottom) {
+                    newBottom = sideBottom + bottomList.length * length;
+                }
+            });
+
+            this.routeList.forEach(route => {
+                if (route.angle === 180) {
+                    route.y = newBottom;
+                }
+            });
+            let newVertexList = calcVertexType[this.roadType](this.xHeight, this.routeList, this.innerCornerRadius, this.outerCornerRadius);
+            const newPolygon = new GlyphPath();
+            newPolygon.initialize(newVertexList, {
+                left: 0,
+                top: 0,
+                angle: 0,
+                fill: this.color,
+                objectCaching: false,
+                dirty: true,
+                strokeWidth: 0
+            });
+
+            this.replaceBasePolygon(newPolygon, false);
+            this.setCoords();
+            //this.drawVertex(false);
+            CanvasGlobals.scheduleRender()
         }
-        const topList = this.routeList.filter(route => route.angle !== 180)[0];
-        const bottomList = this.routeList.filter(route => route.angle === 180)[0];
-        const length = this.xHeight / 4;
 
-        if (newSideRoad) {
-            this.sideRoad.push(newSideRoad);
+        /**
+         * Updates route positions when root is moved
+         * @param {Event} event - Move event
+         * @return {void}
+         */
+        onMove(event) {
+            this.sideRoad.forEach((side, index) => {
+                side.onMove(null, true);
+            });
+            this.receiveNewRoute();
+            this.setCoords();
         }
-
-        // Use the extracted function to calculate the proper bottom Y coordinate
-        let newBottom = calculateMainRoadBottomY(topList, bottomList, length);
-
-        // Also consider side roads when calculating bottom position
-        this.sideRoad.forEach(side => {
-            const sideBottom = side.side ? side.basePolygon.vertex[5].y : side.basePolygon.vertex[2].y;
-            if (sideBottom + bottomList.length * length > newBottom) {
-                newBottom = sideBottom + bottomList.length * length;
-            }
-        });
-
-        this.routeList.forEach(route => {
-            if (route.angle === 180) {
-                route.y = newBottom;
-            }
-        });
-        let newVertexList = calcVertexType[this.roadType](this.xHeight, this.routeList, this.innerCornerRadius, this.outerCornerRadius);
-        const newPolygon = new GlyphPath();
-        newPolygon.initialize(newVertexList, {
-            left: 0,
-            top: 0,
-            angle: 0,
-            fill: this.color,
-            objectCaching: false,
-            dirty: true,
-            strokeWidth: 0
-        });
-
-        this.replaceBasePolygon(newPolygon, false);
-        this.setCoords();
-        //this.drawVertex(false);
-        CanvasGlobals.scheduleRender()
     }
 
     /**
-     * Updates route positions when root is moved
-     * @param {Event} event - Move event
+     * Handles route object selection
+     * @param {Event} event - Selection event
      * @return {void}
      */
-    onMove(event) {
-        this.sideRoad.forEach((side, index) => {
-            side.onMove(null, true);
-        });
-        this.receiveNewRoute();
-        this.setCoords();
-    }
-}
+    function roadMapOnSelect(event) {
+        const panel = document.getElementById("button-DrawMap");
+        const parent = document.getElementById("input-form");
+        const existingRoute = canvas.getActiveObjects()
+        if (panel && parent && existingRoute.length == 1 && existingRoute[0].functionalType === 'MainRoad') {
+            //GeneralHandler.createButton('button-addRoute', '+ Another Route Destination', parent, 'input', FormDrawMapComponent.addRouteInput, 'click')
+        }
 
-/**
- * Handles route object selection
- * @param {Event} event - Selection event
- * @return {void}
- */
-function roadMapOnSelect(event) {
-    const panel = document.getElementById("button-DrawMap");
-    const parent = document.getElementById("input-form");
-    const existingRoute = canvas.getActiveObjects()
-    if (panel && parent && existingRoute.length == 1 && existingRoute[0].functionalType === 'MainRoad') {
-        //GeneralHandler.createButton('button-addRoute', '+ Another Route Destination', parent, 'input', FormDrawMapComponent.addRouteInput, 'click')
+        // Enable side road button and make it active
+        toggleButtonState('button-addRoute', true);
     }
 
-    // Enable side road button and make it active
-    toggleButtonState('button-addRoute', true);
-}
+    /**
+     * Handles route object deselection
+     * @param {Event} event - Deselection event
+     * @return {void}
+     */
+    function roadMapOnDeselect(event) {
+        const panel = document.getElementById("button-addRoute");
+        if (panel) {
+            //panel.parentNode.parentNode.removeChild(panel.parentNode)
+        }
+        //canvas.off('mouse:move', drawBranchRouteOnCursor)
+        //existingRoute.routeList = existingRoute.tempRootList || existingRoute.routeList
 
-/**
- * Handles route object deselection
- * @param {Event} event - Deselection event
- * @return {void}
- */
-function roadMapOnDeselect(event) {
-    const panel = document.getElementById("button-addRoute");
-    if (panel) {
-        //panel.parentNode.parentNode.removeChild(panel.parentNode)
+        // Disable side road button
+        toggleButtonState('button-addRoute', false);
     }
-    //canvas.off('mouse:move', drawBranchRouteOnCursor)
-    //existingRoute.routeList = existingRoute.tempRootList || existingRoute.routeList
 
-    // Disable side road button
-    toggleButtonState('button-addRoute', false);
-}
+    /**
+     * Toggles the state of a button to either active or deactive
+     * @param {string} buttonId - The ID of the button to toggle
+     * @param {boolean} isActive - Whether to make the button active (true) or deactive (false)
+     */
+    function toggleButtonState(buttonId, isActive) {
+        const button = document.getElementById(buttonId);
+        if (!button) return;
 
-/**
- * Toggles the state of a button to either active or deactive
- * @param {string} buttonId - The ID of the button to toggle
- * @param {boolean} isActive - Whether to make the button active (true) or deactive (false)
- */
-function toggleButtonState(buttonId, isActive) {
-    const button = document.getElementById(buttonId);
-    if (!button) return;
-
-    if (isActive) {
-        button.classList.remove('deactive');
-        button.disabled = false;
-    } else {
-        button.classList.add('deactive');
-        button.disabled = true;
+        if (isActive) {
+            button.classList.remove('deactive');
+            button.disabled = false;
+        } else {
+            button.classList.add('deactive');
+            button.disabled = true;
+        }
     }
-}
 
-export {
-    MainRoadSymbol,
-    calcMainRoadVertices,
-    calcMainRoadVerticesSingleArm,
-    calcMainRoadVerticesMultipleArms,
-    calcRoundaboutVertices,
-    calcVertexType,
-    roadMapOnSelect,
-    roadMapOnDeselect,
-    calculateMainRoadBottomY,
-};
+    export {
+        MainRoadSymbol,
+        calcMainRoadVertices,
+        calcMainRoadVerticesSingleArm,
+        calcMainRoadVerticesMultipleArms,
+        calcRoundaboutVertices,
+        calcVertexType,
+        roadMapOnSelect,
+        roadMapOnDeselect,
+        calculateMainRoadBottomY,
+    };

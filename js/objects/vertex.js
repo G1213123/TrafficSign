@@ -118,6 +118,13 @@ class VertexControl extends fabric.Control {
                 y: this.vertex.y - this.baseGroup.top
             };
 
+            if (this.baseGroup.functionalType === 'SideRoad') {
+                this.sideroadRouteOffset = {
+                    x: this.vertex.x - this.baseGroup.routeList[0].x,
+                    y: this.vertex.y - this.baseGroup.routeList[0].y
+                };
+            }
+
             // Set cursor style for canvas
             canvas.defaultCursor = 'move';
 
@@ -223,42 +230,45 @@ class VertexControl extends fabric.Control {
                 { x: this.snapTarget.vertex.x, y: this.snapTarget.vertex.y } :
                 pointer;
             if (this.baseGroup.functionalType === 'SideRoad') {
-                // For SideRoad, calculate the appropriate offset based on active vertex
-                if (CanvasGlobals.activeVertex && CanvasGlobals.activeVertex.vertex) {
-                    // Find the V1 vertex which corresponds to routeList[0]
-                    let v1Vertex = this.baseGroup.basePolygon.vertex.find(v => v.label === 'V1');
-
-                    // Calculate offset between active vertex and V1
-                    let offsetX = 0;
-                    let offsetY = 0;
-
-                    if (CanvasGlobals.activeVertex.vertex.label !== 'V1' && v1Vertex) {
-                        // Calculate offset
-                        const activeVertexObj = this.baseGroup.basePolygon.vertex.find(v => v.label === CanvasGlobals.activeVertex.vertex.label);
-                        if (activeVertexObj) {
-                            offsetX = v1Vertex.x - activeVertexObj.x;
-                            offsetY = v1Vertex.y - activeVertexObj.y;
-                        }
-                    }
-
-                    // Apply the position update with the calculated offset, respecting lock properties
+                if (this.sideroadRouteOffset) {
                     if (!this.baseGroup.lockMovementX) {
-
-                        this.baseGroup.routeList[0].x = finalPointer.x + offsetX;
+                        this.baseGroup.routeList[0].x = finalPointer.x - this.sideroadRouteOffset.x;
                     }
                     if (!this.baseGroup.lockMovementY) {
-                        this.baseGroup.routeList[0].y = finalPointer.y + offsetY;
+                        this.baseGroup.routeList[0].y = finalPointer.y - this.sideroadRouteOffset.y;
                     }
                 } else {
-                    // Fallback to old behavior if active vertex information is not available
-                    this.baseGroup.routeList.forEach(route => {
+                    // Fallback to V1-based logic if offset not available
+                    if (CanvasGlobals.activeVertex && CanvasGlobals.activeVertex.vertex) {
+                        let v1Vertex = this.baseGroup.basePolygon.vertex.find(v => v.label === 'V1');
+                        let offsetX = 0;
+                        let offsetY = 0;
+
+                        if (CanvasGlobals.activeVertex.vertex.label !== 'V1' && v1Vertex) {
+                            const activeVertexObj = this.baseGroup.basePolygon.vertex.find(v => v.label === CanvasGlobals.activeVertex.vertex.label);
+                            if (activeVertexObj) {
+                                offsetX = v1Vertex.x - activeVertexObj.x;
+                                offsetY = v1Vertex.y - activeVertexObj.y;
+                            }
+                        }
+
                         if (!this.baseGroup.lockMovementX) {
-                            route.x = newLeft + this.vertexOffset.x;
+                            this.baseGroup.routeList[0].x = finalPointer.x + offsetX;
                         }
                         if (!this.baseGroup.lockMovementY) {
-                            route.y = newTop + this.vertexOffset.y;
+                            this.baseGroup.routeList[0].y = finalPointer.y + offsetY;
                         }
-                    });
+                    } else {
+                        // Deep fallback
+                        this.baseGroup.routeList.forEach(route => {
+                            if (!this.baseGroup.lockMovementX) {
+                                route.x = newLeft + this.vertexOffset.x;
+                            }
+                            if (!this.baseGroup.lockMovementY) {
+                                route.y = newTop + this.vertexOffset.y;
+                            }
+                        });
+                    }
                 }
             } else {
                 // For MainRoad, use original behavior but respect lock properties
@@ -275,21 +285,26 @@ class VertexControl extends fabric.Control {
             let updateX = !this.baseGroup.lockMovementX;
             let updateY = !this.baseGroup.lockMovementY;
 
+            let cycleStartedX = false;
+            let cycleStartedY = false;
+
             if (updateX && !globalAnchorTree.updateInProgressX) {
                 globalAnchorTree.startUpdateCycle('x', this.baseGroup.canvasID);
+                cycleStartedX = true;
             }
             if (updateY && !globalAnchorTree.updateInProgressY) {
                 globalAnchorTree.startUpdateCycle('y', this.baseGroup.canvasID);
+                cycleStartedY = true;
             }
 
-            //this.baseGroup.onMove();
+            this.baseGroup.onMove();
             this.baseGroup.setCoords();
             this.baseGroup.updateAllCoord();
 
-            if (!globalAnchorTree.updateInProgressX) {
+            if (cycleStartedX) {
                 globalAnchorTree.endUpdateCycle('x');
             }
-            if (!globalAnchorTree.updateInProgressY) {
+            if (cycleStartedY) {
                 globalAnchorTree.endUpdateCycle('y');
             }
         }

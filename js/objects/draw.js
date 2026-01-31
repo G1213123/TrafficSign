@@ -592,6 +592,7 @@ class BaseGroup extends fabric.Group {
         this.controls[vertexLabel].visible = shouldDisplay;
       } else {
         // Update existing control position and visibility
+        this.controls[vertexLabel].vertex = v;
         this.controls[vertexLabel].x = (v.x - this.left) / this.width - 0.5;
         this.controls[vertexLabel].y = (v.y - this.top) / this.height - 0.5;
       }

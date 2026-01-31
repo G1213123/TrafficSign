@@ -25,10 +25,12 @@ function calcSymbol(type, length, color = 'white') {
       vertex.y *= length;
       if (vertex.radius) vertex.radius *= length;
     });
-    path.arcs.forEach(arc => {
-      arc.radius *= length;
-      if (arc.radius2) { arc.radius2 *= length; }
-    });
+    if (path.arcs){
+      path.arcs.forEach(arc => {
+        arc.radius *= length;
+        if (arc.radius2) { arc.radius2 *= length; }
+      });
+    }
     if (path.centerLine) {
       path.centerLine.forEach(vertex => {
         vertex.x *= length;

@@ -3,7 +3,7 @@ import { GeneralSettings, GeneralHandler } from './sbGeneral.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { MainRoadSymbol, calcVertexType, calculateMainRoadBottomY } from '../objects/mainRoute.js';
 import { SideRoadSymbol } from '../objects/sideRoute.js';
-import { roadMapTemplate, roundelTemplate } from '../objects/template.js';
+import { roadMapTemplate, roundelTemplate, routePermittedAngle } from '../objects/template.js';
 import { HintLoader } from '../utils/hintLoader.js';
 import { i18n } from '../i18n/i18n.js';
 
@@ -18,7 +18,7 @@ let FormDrawMapComponent = {
   { value: 'LaneDrop', label: 'LaneDrop', image: 'lanedrop.svg' },
   { value: 'T-Junction', label: 'T-Junction', image: 'tjunction.svg' },
   { value: 'Y-Junction', label: 'Y-Junction', image: 'yjunction.svg' }],
-  SideEndShape: ['Arrow', 'Stub', 'RedBar'],
+  SideEndShape: ['Arrow', 'Stub', 'RedBar', 'Circular Sign', 'Circular Sign (with Arrow)'],
   RoundaboutFeatures: {
     'Conventional': [
       { value: 'Normal', label: 'Normal', image: 'roundabout-normal.svg' },
@@ -29,6 +29,10 @@ let FormDrawMapComponent = {
       { value: 'Normal', label: 'Normal', image: 'roundabout-spiral-normal.svg' },
       { value: 'Auxiliary', label: 'Auxiliary', image: 'roundabout-spiral-auxiliary.svg' },
       { value: 'U-turn', label: 'U-turn', image: 'roundabout-spiral-uturn.svg' }
+    ],
+    'Oval': [{ value: 'Normal', label: 'Normal', image: 'roundabout-oval-normal.svg' }],
+    'Double': [{ value: 'Conventional', label: 'Conventional', image: 'roundabout-double-normal.svg' },
+    { value: 'Spiral', label: 'Spiral', image: 'roundabout-double-spiral.svg' },
     ]
   },
   permitAngle: [45, 60, 90],
@@ -139,10 +143,12 @@ let FormDrawMapComponent = {
       // Roundabout settings
 
       // 1. Roundel Type Toggle (Conventional vs Spiral)
-      const roundelToggle = GeneralHandler.createToggle('Roundel Shape', ['Conventional', 'Spiral'], roadTypeSettingsContainer, 'Conventional', FormDrawMapComponent.onRoundelTypeChange);
+      const roundelToggle = GeneralHandler.createToggle('Roundel Shape', Object.keys(FormDrawMapComponent.RoundaboutFeatures), roadTypeSettingsContainer, 'Conventional', FormDrawMapComponent.onRoundelTypeChange);
+
+      const roundelType = GeneralHandler.getToggleValue('Roundel Shape-container');
 
       // Use custom image dropdown for Roundabout Shape
-      GeneralHandler.createImageDropdown('Main Road Shape', FormDrawMapComponent.RoundaboutFeatures['Conventional'], roadTypeSettingsContainer, 'Normal', FormDrawMapComponent.drawMainRoadOnCursor);
+      GeneralHandler.createImageDropdown('Main Road Shape', FormDrawMapComponent.RoundaboutFeatures[roundelType], roadTypeSettingsContainer, FormDrawMapComponent.RoundaboutFeatures[roundelType][0].value, FormDrawMapComponent.drawMainRoadOnCursor);
 
       const shapeContainer = document.getElementById('Main Road Shape-container');
       if (shapeContainer) {
@@ -150,6 +156,22 @@ let FormDrawMapComponent = {
       }
 
       GeneralHandler.createInput('root-length', 'Roundabout Approach Length', roadTypeSettingsContainer, 22.9, FormDrawMapComponent.drawMainRoadOnCursor, 'input', 'sw');
+
+      // Add angle selector for Oval Roundabout (hidden by default unless Oval is selected)
+      var mainAngleContainer = GeneralHandler.createNode("div", { 'class': 'angle-picker-container', 'style': 'display: none;' }, roadTypeSettingsContainer);
+      GeneralHandler.createButton(`rotate-left`, '<i class="fa-solid fa-rotate-left"></i>', mainAngleContainer, null, FormDrawMapComponent.setMainAngle, 'click');
+      var mainAngleDisplay = GeneralHandler.createNode("div", { 'id': `main-angle-display`, 'class': 'angle-display' }, mainAngleContainer);
+      mainAngleDisplay.innerText = '0°';
+      GeneralHandler.createButton(`rotate-right`, '<i class="fa-solid fa-rotate-right"></i>', mainAngleContainer, null, FormDrawMapComponent.setMainAngle, 'click');
+
+      // Oval 90 position toggle
+      GeneralHandler.createToggle('Oval Position', ['Left', 'Middle'], roadTypeSettingsContainer, 'Left', FormDrawMapComponent.drawMainRoadOnCursor);
+      // Hide initially
+      const ovalPosContainer = document.getElementById('Oval Position-container').parentNode;
+      ovalPosContainer.style.display = 'none';
+
+      // Trigger visibility check
+      FormDrawMapComponent.onRoundelTypeChange();
     }
 
     try { i18n.applyTranslations(roadTypeSettingsContainer.parentElement); } catch (_) { }
@@ -159,28 +181,43 @@ let FormDrawMapComponent = {
   onRoundelTypeChange: function () {
     const roundelType = GeneralHandler.getToggleValue('Roundel Shape-container');
     const features = FormDrawMapComponent.RoundaboutFeatures[roundelType];
-    
+
     // Find existing dropdown container
     const container = document.getElementById('Main Road Shape-container');
     if (container) {
       const parent = container.parentNode;
       const nextSibling = container.nextSibling;
-      
+
       // Remove old container
       parent.removeChild(container);
-      
+
       // Create new dropdown (appends to parent)
-      const newDropdown = GeneralHandler.createImageDropdown('Main Road Shape', features, parent, 'Normal', FormDrawMapComponent.drawMainRoadOnCursor);
-      
+      const newDropdown = GeneralHandler.createImageDropdown('Main Road Shape', features, parent, features[0].value, FormDrawMapComponent.drawMainRoadOnCursor);
+
       // Move to correct position if needed
       if (nextSibling) {
         parent.insertBefore(newDropdown, nextSibling);
       }
-      
+
       // Re-add help icon
       GeneralHandler.createHelpIconWithHint(newDropdown, 'route/Roundabout');
     }
-    
+
+    // Toggle Angle Picker for Oval
+    const angleContainer = document.querySelector('.road-type-settings .angle-picker-container');
+    if (angleContainer) {
+      angleContainer.style.display = (roundelType === 'Oval' || roundelType === 'Double') ? 'flex' : 'none';
+    }
+
+    // Check angle for position toggle visibility
+    const angleDisplay = document.getElementById('main-angle-display');
+    const ovalPosContainer = document.getElementById('Oval Position-container');
+    if (angleDisplay && ovalPosContainer) {
+      const angle = parseInt(angleDisplay.innerText.slice(0, -1));
+      const posParent = ovalPosContainer.parentNode;
+      posParent.style.display = (roundelType === 'Oval' && angle === 90) ? 'block' : 'none';
+    }
+
     // Trigger draw update
     FormDrawMapComponent.drawMainRoadOnCursor();
   },
@@ -222,7 +259,7 @@ let FormDrawMapComponent = {
     const mainAngleDisplayElement = document.getElementById('main-angle-display');
 
     const rootLength = rootLengthElement ? parseFloat(rootLengthElement.value) : null;
-    const tipLength = tipLengthElement ? parseFloat(tipLengthElement.value) : null;
+    let tipLength = tipLengthElement ? parseFloat(tipLengthElement.value) : null;
     const mainWidth = mainWidthElement ? parseFloat(mainWidthElement.value) : null;
 
     // Get shape from custom dropdown
@@ -234,7 +271,28 @@ let FormDrawMapComponent = {
       const roundelType = roundelContainer ? GeneralHandler.getToggleValue('Roundel Shape-container') : 'Conventional';
 
       roadType = roundelType + ' Roundabout';
-      roundaboutFeatures = endShape; // Normal, Auxiliary, or U-turn
+      if (roundelType === 'Oval') {
+        const angle = parseInt(mainAngleDisplayElement.innerText.slice(0, -1));
+        roundaboutFeatures = 'Normal ' + angle;
+        tipLength = 24; // Fixed tip length for Oval
+        if (angle === 90) {
+          const position = GeneralHandler.getToggleValue('Oval Position-container');
+          roundaboutFeatures += ' ' + position;
+        }
+        //} else if (roundelType === 'Double') {
+        //  const angle = parseInt(mainAngleDisplayElement.innerText.slice(0, -1));
+        //  roundaboutFeatures = endShape + ' ' + angle;
+      } else if (roundelType === 'Double') {
+        if (endShape === 'Spiral') {
+          tipLength = 38; // Fixed tip length for Double Spiral
+        } else {
+          tipLength = 28; // Fixed tip length for Double Normal
+        }
+        roundaboutFeatures = endShape; 
+      }
+      else {
+        roundaboutFeatures = endShape; // Normal, Auxiliary, or U-turn
+      }
     }
 
     // Only get radius values if LaneDrop is selected and inputs exist
@@ -245,7 +303,7 @@ let FormDrawMapComponent = {
       outerCornerRadius = outerCornerRadiusElement ? parseFloat(outerCornerRadiusElement.value) : null;
     }
 
-    // const roundaboutFeatures = roundaboutFeaturesContainer ? GeneralHandler.getToggleValue('Roundabout Type-container') : null; // Removed
+    // const roundaboutFeatures = null; // Removed
     const mainAngle = mainAngleDisplayElement ? parseInt(mainAngleDisplayElement.innerText.slice(0, -1)) : 0;
 
     const mainRoadParams = {
@@ -330,8 +388,6 @@ let FormDrawMapComponent = {
    * @return {void}
    */
   setMainAngle: function (event) {
-    // Find the parent container element
-    const parentContainer = event.currentTarget.parentNode;
     // Find the angle display element within the same container
     const angleDisplay = document.getElementById('main-angle-display');
 
@@ -341,12 +397,29 @@ let FormDrawMapComponent = {
       return;
     }
 
-    // Extract the current angle value
-    const currentText = angleDisplay.innerText.slice(0, -1); // Remove the degree symbol
+    // Determine context (Road Type / Roundel Type)
+    const roadType = GeneralHandler.getToggleValue('Main Road Type-container');
+    let angleKey = 'Main Line'; // Default
 
-    // Define allowed angles for main road (can be different from side road angles)
-    const mainRoadAngles = [-90, -60, -45, -30, 0, 30, 45, 60, 90];
-    const angleIndex = mainRoadAngles.indexOf(parseInt(currentText));
+    if (roadType === 'Roundabout') {
+      const roundelType = GeneralHandler.getToggleValue('Roundel Shape-container');
+      angleKey = roundelType + ' Roundabout';
+    }
+
+    // Guard against types that don't rotate or key not found
+    // If double roundabout not in permitted list yet, default or skip
+    let mainRoadAngles = routePermittedAngle[angleKey];
+    
+    // Extract the current angle value
+    let currentText = angleDisplay.innerText.slice(0, -1); // Remove the degree symbol
+    let currentAngle = parseInt(currentText);
+    
+    // If current angle is not in the allowed list (e.g. switching types), snap to nearest or 0
+    if (mainRoadAngles.indexOf(currentAngle) === -1) {
+        currentAngle = 0;
+    }
+
+    const angleIndex = mainRoadAngles.indexOf(currentAngle);
 
     // Determine if this is a left (counter-clockwise) or right (clockwise) button
     const isLeftButton = event.currentTarget.id.includes('rotate-left');
@@ -364,7 +437,18 @@ let FormDrawMapComponent = {
       newAngle = mainRoadAngles[(angleIndex + 1) % mainRoadAngles.length];
     }
 
+    if (isNaN(newAngle)) newAngle = 0;
+
     angleDisplay.innerText = newAngle + '°';
+
+    // Handle visibility of Position Toggle (Left/Middle) for Oval 90 deg
+    if (angleKey === 'Oval Roundabout') {
+        const ovalPosContainer = document.getElementById('Oval Position-container');
+        if (ovalPosContainer) {
+            const posParent = ovalPosContainer.parentNode;
+            posParent.style.display = (newAngle === 90) ? 'block' : 'none';
+        }
+    }
 
     // If we have a main road object being placed, update its angle
     if (FormDrawMapComponent.newMapObject && FormDrawMapComponent.newMapObject.functionalType === 'MainRoad') {
@@ -380,6 +464,9 @@ let FormDrawMapComponent = {
           pointer: pointer
         });
       }
+      
+      // Force redraw to catch shape change (important for Oval position toggle etc)
+      FormDrawMapComponent.drawMainRoadOnCursor();
     }
   },
 
@@ -418,7 +505,7 @@ let FormDrawMapComponent = {
     }
     // Determine which vertex to use as the active vertex for tracking
     // For roundabouts, use C1 (center) vertex, otherwise use V1
-    const activeVertexLabel = (roadType === 'Conventional Roundabout' || roadType === 'Spiral Roundabout') ? 'C1' : 'V1';
+    const activeVertexLabel = (roadType === 'Conventional Roundabout' || roadType === 'Spiral Roundabout' || roadType === 'Oval Roundabout' || roadType === 'Double Roundabout') ? 'C1' : 'V1';
 
     // Use the general object creation with snapping function
     GeneralHandler.createObjectWithSnapping(
@@ -580,7 +667,7 @@ let FormDrawMapComponent = {
       // Update the routeList coordinates to match the new position
       // For initial placement, we need to recreate routeList at the new position
       if (mainRoad.routeList && mainRoad.routeList.length >= 2) {
-        if (mainRoad.roadType === 'Conventional Roundabout' || mainRoad.roadType === 'Spiral Roundabout') {
+        if (mainRoad.roadType === 'Conventional Roundabout' || mainRoad.roadType === 'Spiral Roundabout' || mainRoad.roadType === 'Oval Roundabout' || mainRoad.roadType === 'Double Roundabout') {
           // For roundabout, use the center point (routeList[1])
           mainRoad.routeList[1].x = pointer.x;
           mainRoad.routeList[1].y = pointer.y;
@@ -727,7 +814,7 @@ let FormDrawMapComponent = {
         angle = -angle;
       }
 
-      shape = mainRoad.roadType == 'Spiral Roundabout' ? 'Spiral Arrow' : GeneralHandler.getToggleValue('Side Road Shape-container');
+      shape = GeneralHandler.getToggleValue('Side Road Shape-container');
       width = document.getElementById(`Side Road width`).value;
       routeList.push({ x: pointer.x, y: pointer.y, angle: angle, shape: shape, width: width, });
       mainRoad.tempRootList = JSON.parse(JSON.stringify(routeList));
@@ -765,7 +852,7 @@ let FormDrawMapComponent = {
       x: options.position.x,
       y: options.position.y,
       angle: options.angle,
-      shape: options.shape || (mainRoad.roadType == 'Spiral Roundabout' ? 'Spiral Arrow' : 'Arrow'),
+      shape: options.shape,
       width: options.width || 4
     }];
 

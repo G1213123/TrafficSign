@@ -1,5 +1,5 @@
 import { CanvasGlobals } from '../canvas/canvas.js';
-import { symbolsPermittedAngle, BorderColorScheme } from '../objects/template.js';
+import { symbolsPermittedAngle, routePermittedAngle, BorderColorScheme } from '../objects/template.js';
 import { FontPriorityManager } from '../modal/md-font.js';
 import { containsNonEnglishCharacters } from '../objects/text.js';
 import { canvasTracker } from '../canvas/Tracker.js';
@@ -375,7 +375,7 @@ function showPropertyPanel(object) {
         targetObject.set(prop.key, newValue);
         valueChanged = true;
       }
-    } else if (prop.key === 'symbolAngle') {
+    } else if (prop.key === 'symbolAngle' || prop.key === 'mainAngle') {
       valueToSet = parseInt(newValue, 10);
       if (targetObject[prop.key] !== valueToSet) {
         oldValue = targetObject[prop.key]; // Store old value
@@ -795,6 +795,11 @@ function showPropertyPanel(object) {
       specialProps = [
         { label: 'Road Type', value: object.roadType },
       ];
+      // Check if this road type supports rotation
+      if (routePermittedAngle[object.roadType]) {
+        specialProps.push({ label: 'Main Angle', key: 'mainAngle', type: 'select', options: routePermittedAngle[object.roadType], editable: true, value: object.mainAngle || 0 });
+      }
+
       if (object.roadType === 'Main Line') {
         specialProps.push(
           { label: 'Approach Length', key: 'rootLength', type: 'number', editable: true, step: 1, value: object.rootLength },
@@ -818,12 +823,17 @@ function showPropertyPanel(object) {
       specialProps.push({ label: 'Side Roads', value: object.sideRoad.length });
       break;
     case 'SideRoad':
+      const isBaseRoundabout = object.routeList && object.routeList[0] && object.routeList[0].shape === 'Base Roundabout';
       specialProps = [
         { label: 'Parent Road', value: object.mainRoad?.roadType || '' },
         { label: 'Branch Index', value: object.branchIndex },
-        { label: 'Shape', key: 'shape', type: 'select', options: ['Arrow', 'Stub'], editable: true, value: object.routeList[0].shape },
-        { label: 'Angle', key: 'angle', type: 'select', options: [45, 60, 90], editable: true, value: object.routeList[0].angle }
       ];
+      if (!isBaseRoundabout) {
+        specialProps.push(
+          { label: 'Shape', key: 'shape', type: 'select', options: ['Arrow', 'Stub'], editable: true, value: object.routeList[0].shape },
+          { label: 'Angle', key: 'angle', type: 'select', options: [45, 60, 90], editable: true, value: object.routeList[0].angle }
+        );
+      }
       // Add event listener for SideRoad shape and angle directly if not covered by generic select
       // This part might be redundant if the generic select handler covers it.
       // We will rely on the handleSelectInputChange to manage SideRoad specific updates.

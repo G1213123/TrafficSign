@@ -77,8 +77,8 @@ let FormTemplateComponent = {
 
     if (parent) {
       // Create heading for templates
-  const templateHeader = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
-  GeneralHandler.createI18nNode("div", { 'class': 'placeholder' }, templateHeader, 'Select Template', 'text');
+      const templateHeader = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      GeneralHandler.createI18nNode("div", { 'class': 'placeholder' }, templateHeader, 'Select Template', 'text');
 
       // Create templates grid - using FormTemplateComponent as context
       FormTemplateComponent.createTemplatesGrid(parent);
@@ -347,7 +347,7 @@ let FormTemplateComponent = {
         { xHeight: xHeight, borderType: 'flag', colorType: 'Blue Background' }
       );
 
-  CanvasGlobals.scheduleRender();
+      CanvasGlobals.scheduleRender();
       console.log('Basic Gantry template created successfully');
 
       // Return dimensions and position
@@ -509,7 +509,7 @@ let FormTemplateComponent = {
           spacingX: 2.5 * xHeight / 4,
           spacingY: ''
         });
-        
+
       anchorShape(verticalDivider, rightChiText2,
         {
           vertexIndex1: 'E1',
@@ -586,7 +586,7 @@ let FormTemplateComponent = {
       );
 
       //
-  CanvasGlobals.scheduleRender();
+      CanvasGlobals.scheduleRender();
       console.log('Gantry Sign template created successfully');
 
       // Return dimensions and position of the main border group
@@ -866,7 +866,7 @@ let FormTemplateComponent = {
       });
 
 
-  CanvasGlobals.scheduleRender();
+      CanvasGlobals.scheduleRender();
       console.log('Stack Sign template created successfully');
 
       // Since there are two main border groups, we might return info about both,
@@ -1344,7 +1344,7 @@ let FormTemplateComponent = {
         { xHeight: xHeight, borderType: 'stack', colorType: 'Blue Background' }
       );
 
-  CanvasGlobals.scheduleRender();
+      CanvasGlobals.scheduleRender();
       console.log('Roundabout Directions template created successfully');
 
       // Return dimensions and position of the final border group
@@ -1637,7 +1637,7 @@ let FormTemplateComponent = {
         { xHeight: xHeight, borderType: 'stack', colorType: 'Green Background' }
       );
 
-  CanvasGlobals.scheduleRender();
+      CanvasGlobals.scheduleRender();
       console.log('Interchange Directions template created successfully');
 
       // Return dimensions and position of the final border group
@@ -1920,7 +1920,7 @@ let FormTemplateComponent = {
       });
 
 
-  CanvasGlobals.scheduleRender();
+      CanvasGlobals.scheduleRender();
       console.log('Multi-Lane Exit template created successfully');
 
       // Return dimensions and position of the final border group
@@ -1953,10 +1953,14 @@ let FormTemplateComponent = {
         rootLength: 7,
         tipLength: 12,
         roadType: 'Spiral Roundabout',
+        shape: 'Auxiliary',
+        RAfeature: 'Auxiliary',
         color: color
       };
 
       const roundabout = new MainRoadSymbol(routeOptions);
+
+      const baseSideRoute = roundabout.sideRoad[0];
 
       // Create side roads at top-left, top-right, left and right positions
       canvas.setActiveObject(roundabout);
@@ -2239,13 +2243,13 @@ let FormTemplateComponent = {
       });
 
       // Left text anchoring
-      anchorShape(roundabout, leftTextEng1, {
+      anchorShape(baseSideRoute, leftTextEng1, {
         vertexIndex1: 'E3',
         vertexIndex2: 'V1',
         spacingX: -731,
         spacingY: ''
       });
-      anchorShape(roundabout, leftTextEng1, {
+      anchorShape(baseSideRoute, leftTextEng1, {
         vertexIndex1: 'E3',
         vertexIndex2: 'V4',
         spacingX: '',
@@ -2385,7 +2389,7 @@ let FormTemplateComponent = {
         { xHeight: xHeight, borderType: 'stack', colorType: 'Blue Background' }
       );
 
-  CanvasGlobals.scheduleRender();
+      CanvasGlobals.scheduleRender();
       console.log('Spiral Roundabout Sign template created successfully');
 
       return {
