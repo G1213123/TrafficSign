@@ -573,96 +573,69 @@ function parseFont() {
     return fontParsingPromise;
   }
 
-  // Start parsing and store the promise
-  fontParsingPromise = Promise.all([
-    fetch('./css/font/TransportMedium.woff')
-      .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
-      .then(buffer => {
-        // Ensure opentype is available before calling parse
-        if (typeof opentype !== 'undefined') {
-          parsedFontMedium = opentype.parse(buffer);
-        } else {
-          throw new Error("opentype.js not loaded. Cannot parse TransportMedium font.");
-        }
-      }).catch(e => { console.error("Error fetching/parsing TransportMedium:", e); throw e; }), // Re-throw to reject Promise.all
+  const loadFont = async (url, name, assignFn) => {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    const buffer = await res.arrayBuffer();
+    if (typeof opentype !== 'undefined') {
+      const font = opentype.parse(buffer);
+      assignFn(font);
+    } else {
+      throw new Error(`opentype.js not loaded. Cannot parse ${name} font.`);
+    }
+  };
 
-    fetch('./css/font/TransportHeavy.woff')
-      .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
-      .then(buffer => {
-        if (typeof opentype !== 'undefined') {
-          parsedFontHeavy = opentype.parse(buffer);
-        } else {
-          throw new Error("opentype.js not loaded. Cannot parse TransportHeavy font.");
-        }
-      }).catch(e => { console.error("Error fetching/parsing TransportHeavy:", e); throw e; }),
+  // Critical fonts: TransportMedium, TransportHeavy, NotoSansHK
+  const criticalFonts = [
+    loadFont('./css/font/TransportMedium.woff', 'TransportMedium', (f) => parsedFontMedium = f)
+      .catch(e => { console.error("Error fetching/parsing TransportMedium:", e); throw e; }),
+    loadFont('./css/font/TransportHeavy.woff', 'TransportHeavy', (f) => parsedFontHeavy = f)
+      .catch(e => { console.error("Error fetching/parsing TransportHeavy:", e); throw e; }),
+    loadFont('https://fonts.gstatic.com/s/notosanskr/v36/PbyxFmXiEBPT4ITbgNA5Cgms3VYcOA-vvnIzztgyeLTq8H4hfeE.ttf', 'NotoSansKR-Medium', (f) => parsedFontKorean = f)
+      .catch(e => { console.error("Error fetching/parsing NotoSansKR-Medium:", e); throw e; })
+  ];
 
-    fetch('https://fonts.gstatic.com/s/notosanstc/v38/-nFuOG829Oofr2wohFbTp9ifNAn722rq0MXz75Ky_CpOtma3uNQ.ttf')
-      .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
-      .then(buffer => {
-        if (typeof opentype !== 'undefined') {
-          parsedFontChinese = opentype.parse(buffer);
-        } else {
-          throw new Error("opentype.js not loaded. Cannot parse NotoSansHK-Medium font.");
-        }
-      }).catch(e => { console.error("Error fetching/parsing NotoSansHK-Medium:", e); throw e; }),
+  // Deferred fonts loading function
+  const loadDeferred = () => {
+    const deferredTasks = [
+      () => loadFont('https://fonts.gstatic.com/s/notosanstc/v38/-nFuOG829Oofr2wohFbTp9ifNAn722rq0MXz75Ky_CpOtma3uNQ.ttf', 'parsedFontChinese', (f) => {
+        parsedFontChinese = f;
+        window.dispatchEvent(new CustomEvent('fontLoaded', { detail: { fontName: 'parsedFontChinese' } }));
+      }),
+      () => loadFont('https://fonts.gstatic.com/s/chocolateclassicalsans/v14/nuFqD-PLTZX4XIgT-P2ToCDudWHHflqUpTpfjWdDPI2J9mHITw.ttf', 'parsedFontChocolate', (f) => {
+        parsedFontChocolate = f;
+        if (typeof window !== 'undefined') window.parsedFontChocolate = parsedFontChocolate;
+        window.dispatchEvent(new CustomEvent('fontLoaded', { detail: { fontName: 'parsedFontChocolate' } }));
+      }),
+      () => loadFont('https://fonts.gstatic.com/s/notosanshk/v32/nKKF-GM_FYFRJvXzVXaAPe97P1KHynJFP716qEJ--oWTiYjNvVA.ttf', 'parsedFontHK', (f) => {
+        parsedFontHK = f;
+        if (typeof window !== 'undefined') window.parsedFontHK = parsedFontHK;
+        window.dispatchEvent(new CustomEvent('fontLoaded', { detail: { fontName: 'parsedFontHK' } }));
+      }),
+      () => loadFont('./css/font/TW-MOE-Std-Kai-compact.ttf', 'TW-MOE-Std-Kai-compact', (f) => {
+         parsedFontKai = f
+         window.dispatchEvent(new CustomEvent('fontLoaded', { detail: { fontName: 'TW-MOE-Std-Kai' } }));
+      }),
+      () => loadFont('https://fonts.gstatic.com/s/notosans/v39/o-0IIpQlx3QUlC5A4PNb4j5Ba_2c7A.ttf', 'parsedFontSans', (f) => {
+         parsedFontSans = f
+         window.dispatchEvent(new CustomEvent('fontLoaded', { detail: { fontName: 'parsedFontSans' } }));
+      })
+    ];
 
-    fetch('https://fonts.gstatic.com/s/notosanshk/v32/nKKF-GM_FYFRJvXzVXaAPe97P1KHynJFP716qEJ--oWTiYjNvVA.ttf') // Placeholder URL
-      .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
-      .then(buffer => {
-        if (typeof opentype !== 'undefined') {
-          parsedFontHK = opentype.parse(buffer);
-          if (typeof window !== 'undefined') window.parsedFontHK = parsedFontHK;
-        } else {
-          throw new Error("opentype.js not loaded. Cannot parse parsedFontHK.");
-        }
-      }).catch(e => { console.error("Error fetching/parsing parsedFontHK:", e); throw e; }),
+    console.log("Starting deferred font loading...");
+    deferredTasks.forEach(task => {
+      // We don't bubble up errors from deferred fonts to the main promise
+      task().catch(e => console.warn("Deferred font failed to load:", e));
+    });
+  };
 
-    fetch('https://fonts.gstatic.com/s/chocolateclassicalsans/v14/nuFqD-PLTZX4XIgT-P2ToCDudWHHflqUpTpfjWdDPI2J9mHITw.ttf') // Placeholder URL
-      .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
-      .then(buffer => {
-        if (typeof opentype !== 'undefined') {
-          parsedFontChocolate = opentype.parse(buffer);
-          if (typeof window !== 'undefined') window.parsedFontChocolate = parsedFontChocolate;
-        } else {
-          throw new Error("opentype.js not loaded. Cannot parse parsedFontChocolate.");
-        }
-      }).catch(e => { console.error("Error fetching/parsing parsedFontChocolate:", e); throw e; }),
-    
-      fetch('https://fonts.gstatic.com/s/notosanskr/v36/PbyxFmXiEBPT4ITbgNA5Cgms3VYcOA-vvnIzztgyeLTq8H4hfeE.ttf')
-      .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
-      .then(buffer => {
-        if (typeof opentype !== 'undefined') {
-          parsedFontKorean = opentype.parse(buffer);
-        } else {
-          throw new Error("opentype.js not loaded. Cannot parse NotoSansKR-Medium font.");
-        }
-      }).catch(e => { console.error("Error fetching/parsing NotoSansKR-Medium:", e); throw e; }),
-
-    fetch('./css/font/TW-MOE-Std-Kai-compact.ttf')
-      .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
-      .then(buffer => {
-        if (typeof opentype !== 'undefined') {
-          parsedFontKai = opentype.parse(buffer);
-        } else {
-          throw new Error("opentype.js not loaded. Cannot parse TW-MOE-Std-Kai-compact font.");
-        }
-      }).catch(e => { console.error("Error fetching/parsing TW-MOE-Std-Kai-compact:", e); throw e; }),
-
-    // Add Noto Sans as fallback for punctuation characters
-    fetch('https://fonts.gstatic.com/s/notosans/v39/o-0IIpQlx3QUlC5A4PNb4j5Ba_2c7A.ttf')
-      .then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.arrayBuffer(); })
-      .then(buffer => {
-        if (typeof opentype !== 'undefined') {
-          parsedFontSans = opentype.parse(buffer);
-        } else {
-          throw new Error("opentype.js not loaded. Cannot parse NotoSans font.");
-        }
-      }).catch(e => { console.error("Error fetching/parsing NotoSans:", e); throw e; })
-  ]).then(() => {
-    console.log("All fonts parsed successfully.");
-    // Promise resolves with no value (void) upon success
+  // Start parsing and store the promise for critical fonts only
+  fontParsingPromise = Promise.all(criticalFonts).then(() => {
+    console.log("Critical fonts parsed successfully.");
+    // Start deferred fonts loading after a short delay to ensure UI is responsive
+    setTimeout(loadDeferred, 100);
   }).catch(error => {
-    console.error("One or more fonts failed to load:", error);
+    console.error("One or more critical fonts failed to load:", error);
     fontParsingPromise = null; // Reset promise if parsing failed
     throw error; // Re-throw so the caller knows about the failure
   });

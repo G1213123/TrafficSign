@@ -13,7 +13,7 @@ import { FontPriorityManager } from '../modal/md-font.js';
 
 // Special characters that are not available in Transport fonts and should use fallback
 const TRANSPORT_MISSING_CHARS = new Set([
-  '$', '@', '#', '*', '~', '`', 
+  '$', '@', '#', '*', '~', '`',
   '€', '£', '¥', '¢', '©', '®', '™', '§',
   '¿', '¡', 'ñ', 'Ñ', 'ç', 'Ç', 'á', 'é', 'í', 'ó', 'ú',
   'À', 'È', 'Ì', 'Ò', 'Ù', 'â', 'ê', 'î', 'ô', 'û',
@@ -79,9 +79,66 @@ class TextObject extends BaseGroup {
     this.containsNonAlphabetic = containsNonAlphabetic;
     // Set group as base polygon
     this.setBasePolygon(group);
+
+    // Listen for font updates if we might be using fallback fonts
+    if (this.containsNonAlphabetic && !this._fontLoadListener) {
+      this._fontLoadListener = (e) => {
+        // Debounce update to avoid multiple renders when multiple fonts load in sequence
+        if (this._updateTimer) clearTimeout(this._updateTimer);
+        this._updateTimer = setTimeout(() => {
+          this.updateTextElements();
+        }, 50);
+      };
+      window.addEventListener('fontLoaded', this._fontLoadListener);
+    }
+
     // Update display name
     this._showName = `<Group ${this.canvasID}> Text - ${this.text}`;
     return this;
+  }
+
+  /**
+   * Re-generate text elements (e.g. after a font has loaded)
+   */
+  updateTextElements() {
+    // Generate elements using stored properties
+    const { txtCharList, txtFrameList, containsNonAlphabetic } = TextObject.createTextElements(
+      this.text,
+      this.xHeight,
+      this.color,
+      this.font,
+      false
+    );
+
+    // Remove old basePolygon
+    if (this.basePolygon) {
+      this.remove(this.basePolygon);
+    }
+
+    // Create a new group for the updated elements
+    // We must position the new group at the current absolute position of this TextObject (the parent group)
+    // so that when added, its relative position becomes (0,0).
+    const group = new fabric.Group([...txtCharList, ...txtFrameList], {
+      left: this.left,
+      top: this.top,
+      angle: this.angle,
+      scaleX: this.scaleX,
+      scaleY: this.scaleY
+    });
+
+    group.setCoords();
+
+    // Store references
+    this.txtCharList = txtCharList;
+    this.txtFrameList = txtFrameList;
+    this.containsNonAlphabetic = containsNonAlphabetic;
+
+    // Update the base polygon
+    this.setBasePolygon(group);
+
+    // Force canvas render if possible
+    this.canvas.requestRenderAll();
+
   }
 
   /**
@@ -157,7 +214,7 @@ class TextObject extends BaseGroup {
         return null; // Not Chinese text, don't override font
       }
 
-     if (window[defaultFont]) {
+      if (window[defaultFont]) {
         return defaultFont; // If a specific font is provided, don't override it
       } else {
         const fontPriorityList = FontPriorityManager.getFontPriorityList();
@@ -200,26 +257,26 @@ class TextObject extends BaseGroup {
   static _getEnglishCharacterParams(textChar, font, xHeight, previousChar, nextChar) {
     const isTransportHeavy = font === 'TransportHeavy';
     const fontWidth = isTransportHeavy ? textWidthHeavy : textWidthMedium;
-    
+
     // Check if current character should use short width based on specific rules
     let hasShortWidth = false;
-    
+
     // Rule 1: Characters following T, U, V use short width
     if (previousChar && ['T', 'U', 'V'].includes(previousChar)) {
       hasShortWidth = true;
     }
-    
+
     // Rule 2: T, U, V use short width when followed by a character that has short width AND is lowercase
     if (['T', 'U', 'V'].includes(textChar) && nextChar) {
       const nextCharWidthObj = fontWidth.find(e => e.char === nextChar);
       const nextCharHasShortWidth = nextCharWidthObj && nextCharWidthObj.shortWidth !== 0;
       const nextCharIsLowercase = nextChar >= 'a' && nextChar <= 'z';
-      
+
       if (nextCharHasShortWidth && nextCharIsLowercase) {
         hasShortWidth = true;
       }
     }
-    
+
     // Rule 3: W uses short width when followed by uppercase letter
     if (textChar === 'W' && nextChar) {
       const nextCharIsUppercase = nextChar >= 'A' && nextChar <= 'Z';
@@ -270,7 +327,7 @@ class TextObject extends BaseGroup {
   static _getPunctuationParams(textChar, xHeight, previousChar) {
     const charWidthObj = textWidthHeavy.find(e => e.char === textChar);
     const charWidth = charWidthObj?.width || xHeight * 100 / 4;
-    
+
     // Check if this punctuation should use fallback font
     let fontFamily;
     if (textChar === '、') {
@@ -320,14 +377,14 @@ class TextObject extends BaseGroup {
   static _getChineseCharacterParams(actualChar, font, xHeight) {
     // Check if character requires special override font
     let fontFamily = font;
-    
+
     try {
       // Get override rules from FontPriorityManager
       const rules = FontPriorityManager.getOverrideRules();
-      
+
       // Find a rule that contains this character
       const matchingRule = rules.find(rule => rule.characters.includes(actualChar));
-      
+
       if (matchingRule) {
         fontFamily = matchingRule.font;
       }
@@ -409,15 +466,15 @@ class TextObject extends BaseGroup {
 
     // Calculate left position adjustment for short width characters
     let leftAdjustment = 0;
-    
+
     // Check if current character should use short width based on the same rules
     let shouldUseShortWidth = false;
-    
+
     // Rule 1: Characters following T, U, V use short width
     if (previousChar && ['T', 'U', 'V'].includes(previousChar)) {
       shouldUseShortWidth = true;
     }
-    
+
     // Rule 2: T, U, V use short width when followed by a character that has short width AND is lowercase
     if (['T', 'U', 'V'].includes(textChar) && nextChar) {
       const isTransportFont = font === 'TransportMedium' || font === 'TransportHeavy';
@@ -426,13 +483,13 @@ class TextObject extends BaseGroup {
         const nextCharWidthObj = fontWidth.find(e => e.char === nextChar);
         const nextCharHasShortWidth = nextCharWidthObj && nextCharWidthObj.shortWidth !== 0;
         const nextCharIsLowercase = nextChar >= 'a' && nextChar <= 'z';
-        
+
         if (nextCharHasShortWidth && nextCharIsLowercase) {
           shouldUseShortWidth = true;
         }
       }
     }
-    
+
     // Rule 3: W uses short width when followed by uppercase letter
     if (textChar === 'W' && nextChar) {
       const nextCharIsUppercase = nextChar >= 'A' && nextChar <= 'Z';
@@ -440,14 +497,14 @@ class TextObject extends BaseGroup {
         shouldUseShortWidth = true;
       }
     }
-    
+
     if (shouldUseShortWidth && !TRANSPORT_MISSING_CHARS.has(textChar)) {
       // Check if short width was actually used for this character
       const isTransportFont = font === 'TransportMedium' || font === 'TransportHeavy';
       if (isTransportFont) {
         const fontWidth = font === 'TransportHeavy' ? textWidthHeavy : textWidthMedium;
         const charWidthObj = fontWidth.find(e => e.char === textChar);
-        
+
         if (charWidthObj && charWidthObj.shortWidth !== 0 && charWidthObj.shortWidth < charWidthObj.width) {
           // Calculate the width difference and center the character
           const widthDifference = (charWidthObj.width - charWidthObj.shortWidth) * xHeight / 100;
@@ -490,27 +547,34 @@ class TextObject extends BaseGroup {
    * Helper function to get appropriate font glyphs
    */
   static _getFontGlyphs(fontFamily, textChar, containsNonAlphabetic) {
+    let glyphs = null;
     if (fontFamily === 'TransportMedium') {
-      return parsedFontMedium;
+      glyphs = parsedFontMedium;
     } else if (fontFamily === 'TransportHeavy') {
-      return parsedFontHeavy;
+      glyphs = parsedFontHeavy;
     } else if (fontFamily === 'TW-MOE-Std-Kai') {
-      return parsedFontKai;
+      glyphs = parsedFontKai;
     } else if (fontFamily === 'parsedFontKorean') {
-      return parsedFontKorean;
+      glyphs = parsedFontKorean;
     } else if (fontFamily === 'parsedFontHK') {
-      return parsedFontHK;
+      glyphs = parsedFontHK;
     } else if (fontFamily === 'parsedFontChocolate') {
-      return parsedFontChocolate;
+      glyphs = parsedFontChocolate;
     } else if (fontFamily === 'parsedFontSans') {
-      return parsedFontSans; // Return the sans serif fallback font
+      glyphs = parsedFontSans; // Return the sans serif fallback font
     } else if (fontFamily.startsWith('custom_')) {
       // Handle custom fonts - they should have their font object in window
       const customFont = window[fontFamily];
-      return customFont || parsedFontChinese; // Fallback to default
+      glyphs = customFont || parsedFontChinese; // Fallback to default
     } else {
-      return parsedFontChinese;
+      glyphs = parsedFontChinese;
     }
+
+    // Fallback if the selected font is not yet loaded
+    if (!glyphs) {
+      return parsedFontMedium;
+    }
+    return glyphs;
   }
   /**
    * Static method to create text and frame elements
@@ -655,7 +719,7 @@ class TextObject extends BaseGroup {
     this.containsNonAlphabetic = containsNonAlphabetic;
 
     // Update the name for the object inspector
-    this._showName = `<Group ${this.canvasID}> Text - ${newText}`; 
+    this._showName = `<Group ${this.canvasID}> Text - ${newText}`;
 
     // Update underline if it exists
     if (this.underline) {
@@ -663,7 +727,7 @@ class TextObject extends BaseGroup {
         ? this.basePolygon.width * this.basePolygon.scaleX
         : this.width;
 
-      const objectBBox = { left: this.left, top: this.top+this.height, right: 0, bottom: 0 };
+      const objectBBox = { left: this.left, top: this.top + this.height, right: 0, bottom: 0 };
       const objectSize = { width: textWidth, height: this.underline.xHeight / 4 };
 
       const basePoly = drawDivider(this.underline.xHeight, this.underline.color, objectBBox, objectSize, 'HLine');
@@ -671,7 +735,7 @@ class TextObject extends BaseGroup {
       //this.underline.drawVertex(false);
       //this.underline.setCoords();
     }
-    
+
     //this.canvas.renderAll();
   }
 }
