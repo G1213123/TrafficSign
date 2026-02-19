@@ -267,7 +267,7 @@ class BaseGroup extends fabric.Group {
       } else {
         Object.values(this.controls).forEach(control => { if (control.onMouseOut) { control.onMouseOut() } })
       }
-  CanvasGlobals.scheduleRender();
+      CanvasGlobals.scheduleRender();
     });
 
 
@@ -276,7 +276,7 @@ class BaseGroup extends fabric.Group {
         opacity: 1
       });
       Object.values(this.controls).forEach(control => { if (control.onMouseOut) { control.onMouseOut() } })
-  CanvasGlobals.scheduleRender();
+      CanvasGlobals.scheduleRender();
     });
 
 
@@ -526,7 +526,7 @@ class BaseGroup extends fabric.Group {
   replaceBasePolygon(newBasePolygon, calcVertex = true) {
     this.removeAll();
     this.setBasePolygon(newBasePolygon, calcVertex);
-  CanvasGlobals.scheduleRender();
+    CanvasGlobals.scheduleRender();
   }
 
   drawVertex(calc = true) {
@@ -776,7 +776,7 @@ class BaseGroup extends fabric.Group {
         o.set('opacity', opacity);
       })
     });
-  CanvasGlobals.scheduleRender();
+    CanvasGlobals.scheduleRender();
 
   }
   // Method to update coordinates and emit delta
@@ -926,7 +926,7 @@ class BaseGroup extends fabric.Group {
       this.borderResize();
     }
     this.setCoords();
-  CanvasGlobals.scheduleRender();
+    CanvasGlobals.scheduleRender();
   }
 
   // Method to update coordinates
@@ -1065,7 +1065,7 @@ class BaseGroup extends fabric.Group {
           if (idx > -1) arr.splice(idx, 1);
         }
       });
-      if (deleteObj.functionalType !== 'HDivider' && deleteObj.functionalType !== 'VDivider'){
+      if (deleteObj.functionalType !== 'HDivider' && deleteObj.functionalType !== 'VDivider') {
         deleteObj.borderResize();
       }
     }
@@ -1090,7 +1090,7 @@ class BaseGroup extends fabric.Group {
     });
     canvas.remove(deleteObj);
     CanvasObjectInspector.createObjectListPanelInit()
-  CanvasGlobals.scheduleRender();
+    CanvasGlobals.scheduleRender();
   }
 
   renderIcon(ctx, left, top, _styleOverride, fabricObject) {
@@ -1117,7 +1117,9 @@ class BaseGroup extends fabric.Group {
     };
 
     if (this.lockXToPolygon && this.lockXToPolygon.TargetObject) {
+      this.lockXToPolygon.TargetObject = canvasObject[this.lockXToPolygon.TargetObject.canvasID];
       const targetObj = this.lockXToPolygon.TargetObject;
+
       const targetVertex = getAbsoluteVertex(targetObj, this.lockXToPolygon.targetPoint);
       const sourceVertex = getAbsoluteVertex(this, this.lockXToPolygon.sourcePoint);
       const spacing = this.lockXToPolygon.spacing || 0;
@@ -1131,7 +1133,9 @@ class BaseGroup extends fabric.Group {
     }
 
     if (this.lockYToPolygon && this.lockYToPolygon.TargetObject) {
+      this.lockYToPolygon.TargetObject = canvasObject[this.lockYToPolygon.TargetObject.canvasID];
       const targetObj = this.lockYToPolygon.TargetObject;
+
       const targetVertex = getAbsoluteVertex(targetObj, this.lockYToPolygon.targetPoint);
       const sourceVertex = getAbsoluteVertex(this, this.lockYToPolygon.sourcePoint);
       const spacing = this.lockYToPolygon.spacing || 0;
@@ -1219,7 +1223,7 @@ class BaseGroup extends fabric.Group {
     this.focusMode = true;
     //this.hideDimensions();
     //this.drawVertex(false);
-  CanvasGlobals.scheduleRender();
+    CanvasGlobals.scheduleRender();
   }
 
   // New method to exit focus mode
@@ -1229,7 +1233,7 @@ class BaseGroup extends fabric.Group {
     //if (canvas.getActiveObject() === this) {
     //  this.showDimensions();
     //}
-  CanvasGlobals.scheduleRender();
+    CanvasGlobals.scheduleRender();
   }
 }
 
