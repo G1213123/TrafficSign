@@ -98,11 +98,24 @@ let FormTextAddComponent = {
       // Create the select element for locations
       const locationSelect = GeneralHandler.createNode("select", { 'class': 'input', 'id': 'location-select' }, locationDropdownContainer, FormTextAddComponent.locationSelected, 'change');
 
-  // Initialize the location dropdown with locations from the first region
-  FormTextAddComponent.populateLocationDropdown(regionNames[0], "English");
+      // Create a container for Street Name Plate
+      const streetNamePlateContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      GeneralHandler.createI18nNode('div', { 'class': 'placeholder' }, streetNamePlateContainer, 'Street Name Plate', 'text');
 
-  // Apply translations so Region toggle options and labels render in the current locale
-  try { i18n.applyTranslations(parent); } catch (_) {}
+      GeneralHandler.createInput('input-eng-st-name', 'Eng St Name', streetNamePlateContainer, '', null, 'input');
+      GeneralHandler.createInput('input-chin-st-name', 'Chin St Name', streetNamePlateContainer, '', null, 'input');
+      GeneralHandler.createInput('input-left-st-num1', 'Left St Num 1', streetNamePlateContainer, '', null, 'input');
+      GeneralHandler.createInput('input-left-st-num2', 'Left St Num 2', streetNamePlateContainer, '', null, 'input');
+      GeneralHandler.createInput('input-right-st-num1', 'Right St Num 1', streetNamePlateContainer, '', null, 'input');
+      GeneralHandler.createInput('input-right-st-num2', 'Right St Num 2', streetNamePlateContainer, '', null, 'input');
+
+      GeneralHandler.createButton('btn-create-street-name', 'Create Street Name Plate', streetNamePlateContainer, 'input', FormTextAddComponent.createStreetNamePlate, 'click');
+
+      // Initialize the location dropdown with locations from the first region
+      FormTextAddComponent.populateLocationDropdown(regionNames[0], "English");
+
+      // Apply translations so Region toggle options and labels render in the current locale
+      try { i18n.applyTranslations(parent); } catch (_) { }
     }
   },
 
@@ -134,7 +147,7 @@ let FormTextAddComponent = {
     FormTextAddComponent.populateLocationDropdown(regionName, language);
     if (FormTextAddComponent.newTextObject && CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
       FormTextAddComponent.liveUpdateText();
-  CanvasGlobals.scheduleRender();
+      CanvasGlobals.scheduleRender();
     }
   },
 
@@ -159,12 +172,12 @@ let FormTextAddComponent = {
     // Clear existing options
     locationSelect.innerHTML = '';
 
-  // Add a default empty option (translate immediately and mark for future locale switches)
-  const defaultOption = document.createElement('option');
-  defaultOption.value = '';
-  defaultOption.setAttribute('data-i18n', '-- Select Location --');
-  defaultOption.text = i18n.t('-- Select Location --');
-  locationSelect.appendChild(defaultOption);
+    // Add a default empty option (translate immediately and mark for future locale switches)
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.setAttribute('data-i18n', '-- Select Location --');
+    defaultOption.text = i18n.t('-- Select Location --');
+    locationSelect.appendChild(defaultOption);
 
     // Find the selected region in the destinations array
     const languageSet = language == "English" ? EngDestinations : ChtDestinations
@@ -183,7 +196,7 @@ let FormTextAddComponent = {
     });
 
     // Re-apply translations for the newly created dropdown (safe-guard if locale changed later)
-    try { i18n.applyTranslations(locationSelect); } catch (_) {}
+    try { i18n.applyTranslations(locationSelect); } catch (_) { }
   },
 
   /**
@@ -204,7 +217,7 @@ let FormTextAddComponent = {
       // If we already have a new text object being placed, update it
       if (FormTextAddComponent.newTextObject && CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
         FormTextAddComponent.liveUpdateText();
-  CanvasGlobals.scheduleRender();
+        CanvasGlobals.scheduleRender();
       }
       // If we're editing an existing text object
       else if (activeObject && activeObject.functionalType === 'Text') {
@@ -221,6 +234,87 @@ let FormTextAddComponent = {
         });
       }
     }
+  },
+
+  createStreetNamePlate: function () {
+    const engStName = document.getElementById('input-eng-st-name').value;
+    const chinStName = document.getElementById('input-chin-st-name').value;
+    const leftStNum1 = document.getElementById('input-left-st-num1').value;
+    const leftStNum2 = document.getElementById('input-left-st-num2').value;
+    const rightStNum1 = document.getElementById('input-right-st-num1').value;
+    const rightStNum2 = document.getElementById('input-right-st-num2').value;
+
+    const xHeightEng = 50;
+    const xHeightChin = 43.5;
+    const xHeightNum = 35;
+    const font = document.getElementById('Text Font-container').selected.getAttribute('data-value') || 'TransportMedium';
+    const color = 'black';
+
+    // For Chinese text, we should use the Chinese font
+    let chinFont = 'TW-MOE-Std-Kai';
+    try {
+      const fontPriorityList = FontPriorityManager.getFontPriorityList();
+      const priorityFont = fontPriorityList.length > 0 ? fontPriorityList[0] : 'parsedFontKorean';
+      switch (priorityFont) {
+        case 'parsedFontKorean': chinFont = 'TW-MOE-Std-Kai'; break;
+        case 'parsedFontChinese': chinFont = 'TW-MOE-Std-Kai'; break;
+        case 'parsedFontHK': chinFont = 'TW-MOE-Std-Kai'; break;
+        case 'parsedFontMedium': chinFont = 'TransportMedium'; break;
+        case 'parsedFontHeavy': chinFont = 'TransportHeavy'; break;
+        default: chinFont = 'TW-MOE-Std-Kai';
+      }
+    } catch (e) { }
+
+    const createText = (text, xHeight, fontOverride, charSpacing = 0) => {
+      if (!text) return null;
+      const t = new TextObject({
+        text: text,
+        xHeight: xHeight,
+        font: fontOverride || font,
+        color: color,
+        left: 0,
+        top: 0,
+        charSpacing: charSpacing
+      });
+      CanvasGlobals.canvas.add(t);
+      return t;
+    };
+
+    const tEngStName = createText(engStName, xHeightEng);
+    const tChinStName = createText(chinStName, xHeightChin, chinFont, 18.25);
+    const tLeftStNum1 = createText(leftStNum1, xHeightNum);
+    const tLeftStNum2 = createText(leftStNum2, xHeightNum);
+    const tRightStNum1 = createText(rightStNum1, xHeightNum);
+    const tRightStNum2 = createText(rightStNum2, xHeightNum);
+
+    // Position the base element
+    let baseElement = tEngStName || tChinStName || tLeftStNum1 || tRightStNum1;
+    if (baseElement) {
+      baseElement.setCoords();
+    }
+
+    // Anchor Chinese name below English name
+    if (tEngStName && tChinStName) {
+      anchorShape(tEngStName, tChinStName, { vertexIndex1: 'E2', vertexIndex2: 'E6', spacingX: 0, spacingY: 56-xHeightEng*0.5-xHeightChin*0.1 });
+    }
+
+    // Anchor left numbers to the left of English name
+    if (tChinStName) {
+      anchorShape(tChinStName, tLeftStNum2, { vertexIndex1: 'E4', vertexIndex2: 'E8', spacingX: -40 + xHeightChin*0.25, spacingY: 0 });
+    }
+    if (tLeftStNum1 && tLeftStNum2) {
+      anchorShape(tLeftStNum2, tLeftStNum1, { vertexIndex1: 'E4', vertexIndex2: 'E8', spacingX: -40, spacingY: 0 });
+    }
+
+    // Anchor right numbers to the right of English name
+    if (tChinStName) {
+      anchorShape(tChinStName, tRightStNum1, { vertexIndex1: 'E8', vertexIndex2: 'E4', spacingX: 40 - xHeightChin*0.25, spacingY: 0 });
+    }
+    if (tRightStNum1 && tRightStNum2) {
+      anchorShape(tRightStNum1, tRightStNum2, { vertexIndex1: 'E8', vertexIndex2: 'E4', spacingX: 40, spacingY: 0 });
+    }
+
+    CanvasGlobals.scheduleRender();
   },
 
   /**
@@ -544,7 +638,7 @@ let FormTextAddComponent = {
     // If we already have a new text object being placed, just update it instead of creating another
     if (FormTextAddComponent.newTextObject && CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
       FormTextAddComponent.newTextObject.updateText(txt, xHeight, font, color);
-  CanvasGlobals.scheduleRender();
+      CanvasGlobals.scheduleRender();
       return;
     }
 
@@ -596,7 +690,7 @@ let FormTextAddComponent = {
       console.error('Error creating text object:', error);
     }
 
-  CanvasGlobals.scheduleRender();
+    CanvasGlobals.scheduleRender();
   },
 
   // For regular single-line text, use our standard pattern

@@ -64,7 +64,7 @@ const roadMapTemplate = {
             ], 'arcs': [
                 { start: 'V7', end: 'V1', radius: 4.5, direction: 0, sweep: 0 },
                 { start: 'V1', end: 'V2', radius: 4.5, direction: 0, sweep: 0 },]
-        },{
+        }, {
             'vertex': [
                 { x: -1, y: 1, label: 'V8', start: 1, display: 1 },
                 { x: 0, y: 0, label: 'V9', start: 0, display: 1 },
@@ -73,7 +73,7 @@ const roadMapTemplate = {
                 { x: -1, y: 3.1125, label: 'V12', start: 0, display: 1 },
             ], 'arcs': [
                 { start: 'V11', end: 'V12', radius: 4.5, direction: 0, sweep: 0 },]
-        },  {
+        }, {
             'vertex': [
                 { x: 0, y: 7.5, label: 'C1', start: 1, display: 1 },
             ], 'arcs': [],
@@ -3525,7 +3525,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
     },
@@ -3557,10 +3557,10 @@ const symbolsTemplate = {
                     { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
                     { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
                 ], 'fill': 'rgb(255, 255, 255)'
-            },            {
+            }, {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
 
         ],
@@ -3610,10 +3610,10 @@ const symbolsTemplate = {
                     { start: 'V11', end: 'V12', radius: 6.4, direction: 0, sweep: 0 },
                     { start: 'V14', end: 'V13', radius: 6.4, direction: 0, sweep: 0 },
                 ], 'fill': 'rgb(224, 0, 0)'
-            },            {
+            }, {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
 
         ],
@@ -3663,10 +3663,10 @@ const symbolsTemplate = {
                     { start: 'V12', end: 'V11', radius: 6.4, direction: 0, sweep: 0 },
                     { start: 'V13', end: 'V14', radius: 6.4, direction: 0, sweep: 0 },
                 ], 'fill': 'rgb(224, 0, 0)'
-            },            {
+            }, {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
 
         ],
@@ -3723,10 +3723,10 @@ const symbolsTemplate = {
                     { start: 'V11', end: 'V12', radius: 6.4, direction: 0, sweep: 0 },
                     { start: 'V14', end: 'V13', radius: 6.4, direction: 0, sweep: 0 },
                 ], 'fill': 'rgb(224, 0, 0)'
-            },            {
+            }, {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
 
         ],
@@ -3773,10 +3773,10 @@ const symbolsTemplate = {
                     { x: -5.867, y: 6.667, label: 'V12', start: 0, display: 0 },
                     { x: -5.867, y: 9.333, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
-            },            {
+            }, {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
 
         ],
@@ -3831,7 +3831,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -3885,7 +3885,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -3939,7 +3939,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -3993,7 +3993,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4046,7 +4046,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4099,7 +4099,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4152,7 +4152,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4205,7 +4205,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4258,7 +4258,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4311,7 +4311,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4364,7 +4364,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4417,7 +4417,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4470,7 +4470,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4523,7 +4523,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4576,7 +4576,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -5121,6 +5121,8 @@ const BorderTypeScheme = {
     'panel': PanelTemplate,
     'greenPanel': GreenPanelTemplate,
     'rectangle': RectTemplate,
+    //'StreetName': StreetNameTemplate,
+    'StreetName2Way': StreetName2WayTemplate
 }
 
 const BorderFrameWidth = {
@@ -5178,6 +5180,40 @@ function applyLengthAndRounding(path, length) {
     path.arcs.forEach(arc => {
         arc.radius *= length;
     });
+}
+
+function StreetName2WayTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+    const length = xHeight / 4;
+
+    const padding = {
+        left: 1,
+        top: 1,
+        right: 1,
+        bottom: 1,
+    };
+
+    const returnBorder = [{
+        'vertex': [
+            { x: -136 / length, y: -45 / length, label: 'V1', start: 1, radius: 25 / length },
+            { x: block.width / length + 136 / length, y: -45 / length, label: 'V2', start: 0, radius: 25 / length },
+            { x: block.width / length + 136 / length, y: 279 / length, label: 'V3', start: 0, radius: 25 / length },
+            { x: -136 / length, y: 279 / length, label: 'V4', start: 0, radius: 25 / length },
+        ], 'arcs': [], 'fill': '#000000'
+    },{
+        'vertex': [
+            { x: -6 / length, y: -33 / length, label: 'V1', start: 1, },
+            { x: block.width / length + 6 / length, y: -33 / length, label: 'V2', start: 0 },
+            { x: block.width / length + 111 / length, y: 117 / length, label: 'V3', start: 0 },
+            { x: block.width / length + 6 / length, y: 267 / length, label: 'V4', start: 0 },
+            { x: -6 / length, y: 267 / length, label: 'V5', start: 0 },
+            { x: -111 / length, y: 117 / length, label: 'V6', start: 0 },
+        ], 'arcs': [], 'fill': '#FFFFFF'
+    },
+
+];
+
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
 }
 
 function RectTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
