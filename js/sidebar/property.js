@@ -24,6 +24,12 @@ CanvasGlobals.canvas.on('selection:updated', handleSelection);
 CanvasGlobals.canvas.on('object:modified', handleSelection);
 //CanvasGlobals.canvas.on('selection:cleared', handleClear);
 
+CanvasGlobals.canvas.on('object:dblclick', function(e) {
+  if (e.target) {
+    showPropertyPanel(e.target);
+  }
+});
+
 function handleSelection(event) {
   const panel = document.getElementById('property-panel');
   // Only update panel if it was opened via context-menu

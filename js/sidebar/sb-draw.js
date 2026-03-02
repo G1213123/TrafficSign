@@ -152,6 +152,7 @@ let FormDrawAddComponent = {
 
     // Add symbols to the grid - two in each row
     Object.keys(symbolsTemplate).forEach(async (symbol) => {
+      if (symbol === 'Lozenge') return;
       const svg = await FormDrawAddComponent.createButtonSVG(symbol, 5, color);
 
       // Create the button
@@ -675,30 +676,36 @@ let FormDrawAddComponent = {
       // Reset angle to default when hiding controls
       FormDrawAddComponent.symbolAngle = 0;
     }
+  },
+
+  /**
+   * Initialize the draw component settings listener
+   * This should be called after all modules are loaded to avoid circular dependencies
+   */
+  initializeSettingsListener: function () {
+    // Use the shared settings listener implementation
+    GeneralSettings.addListener(
+      GeneralHandler.createSettingsListener(1, function (setting, value) {
+        // Symbol-specific updates when settings change
+        if (setting === 'xHeight') {
+          if (FormDrawAddComponent.newSymbolObject || FormDrawAddComponent.editingExistingSymbol) {
+            const targetSymbol = FormDrawAddComponent.newSymbolObject || FormDrawAddComponent.editingExistingSymbol;
+            FormDrawAddComponent.updateSymbol(targetSymbol, { xHeight: value });
+          }
+        } else if (setting === 'messageColor') {
+          if (FormDrawAddComponent.newSymbolObject || FormDrawAddComponent.editingExistingSymbol) {
+            const targetSymbol = FormDrawAddComponent.newSymbolObject || FormDrawAddComponent.editingExistingSymbol;
+            FormDrawAddComponent.updateSymbol(targetSymbol, { color: value.toLowerCase() });
+          }
+
+          // Update all symbol buttons with new color
+          if (document.getElementById("input-form")) {
+            FormDrawAddComponent.addAllSymbolsButton();
+          }
+        }
+      })
+    );
   }
 }
-
-// Use the shared settings listener implementation
-GeneralSettings.addListener(
-  GeneralHandler.createSettingsListener(1, function (setting, value) {
-    // Symbol-specific updates when settings change
-    if (setting === 'xHeight') {
-      if (FormDrawAddComponent.newSymbolObject || FormDrawAddComponent.editingExistingSymbol) {
-        const targetSymbol = FormDrawAddComponent.newSymbolObject || FormDrawAddComponent.editingExistingSymbol;
-        FormDrawAddComponent.updateSymbol(targetSymbol, { xHeight: value });
-      }
-    } else if (setting === 'messageColor') {
-      if (FormDrawAddComponent.newSymbolObject || FormDrawAddComponent.editingExistingSymbol) {
-        const targetSymbol = FormDrawAddComponent.newSymbolObject || FormDrawAddComponent.editingExistingSymbol;
-        FormDrawAddComponent.updateSymbol(targetSymbol, { color: value.toLowerCase() });
-      }
-
-      // Update all symbol buttons with new color
-      if (document.getElementById("input-form")) {
-        FormDrawAddComponent.addAllSymbolsButton();
-      }
-    }
-  })
-);
 
 export { FormDrawAddComponent };

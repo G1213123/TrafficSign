@@ -6,8 +6,6 @@
 import { BaseGroup, GlyphPath } from './draw.js';
 import { symbolsTemplate, symbolsTemplateAlt } from './template.js';
 import { calculateTransformedPoints } from './path.js';
-import { FormDrawAddComponent } from '../sidebar/sb-draw.js';
-
 
 function calcSymbol(type, length, color = 'white') {
   let symbol;
@@ -76,13 +74,6 @@ class SymbolObject extends BaseGroup {
 
     this.initialize();
 
-    // When this symbol is deselected, clear it from FormDrawAddComponent if it was active
-    this.on('deselected', () => {
-      if (FormDrawAddComponent.editingExistingSymbol === this) {
-        FormDrawAddComponent.editingExistingSymbol = null;
-        FormDrawAddComponent.hideAngleControls();
-      }
-    });
   }
 
   initialize() {
@@ -91,15 +82,6 @@ class SymbolObject extends BaseGroup {
     this.setBasePolygon(this.drawSymbol());
 
     return this;
-  }
-
-  /**
-   * Handle double-click on the symbol object
-   */
-  onDoubleClick() {
-    // If already defined, initialize directly
-    FormDrawAddComponent.drawPanelInit(null, this);
-
   }
 
   /**

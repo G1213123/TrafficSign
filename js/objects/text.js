@@ -7,7 +7,6 @@ import { drawDivider } from './divider.js';
 import { textWidthMedium, textWidthHeavy, } from './template.js';
 import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontHK, parsedFontKorean, parsedFontChocolate, parsedFontKai, parsedFontSans, ensureOpenTypePatched } from './path.js';
 import { GeneralSettings } from '../sidebar/sbGeneral.js';
-import { FormTextAddComponent } from '../sidebar/sb-text.js';
 import { FontPriorityManager } from '../modal/md-font.js';
 
 
@@ -143,67 +142,6 @@ class TextObject extends BaseGroup {
     this.canvas.requestRenderAll();
 
   }
-
-  /**
-   * LEGACY Handle double-click on the text object
-  */
-  onDoubleClick() {
-    // If already defined, initialize directly
-    FormTextAddComponent.textPanelInit(null, this);
-    this.setupTextPanelInputs();
-
-  }
-
-  /**
-   * Setup text panel inputs with current text values
-   */
-  setupTextPanelInputs() {
-    // Wait for the panel to initialize
-    setTimeout(() => {
-      // Fill the text input with the current text
-      const textInput = document.getElementById('input-text');
-      if (textInput) {
-        textInput.value = this.text;
-        textInput.focus();
-      }
-
-      // Set the xHeight input
-      const xHeightInput = document.getElementById('input-xHeight');
-      if (xHeightInput) {
-        xHeightInput.value = this.xHeight;
-      }
-
-      // Set the font toggle
-      const fontToggle = document.getElementById('Text Font-container');
-      if (fontToggle) {
-        const buttons = fontToggle.querySelectorAll('.toggle-button');
-        buttons.forEach(button => {
-          if (button.getAttribute('data-value') === this.font) {
-            button.classList.add('active');
-          } else {
-            button.classList.remove('active');
-          }
-        });
-      }
-
-      // Set the color toggle
-      const colorToggle = document.getElementById('Message Colour-container');
-      if (colorToggle) {
-        const buttons = colorToggle.querySelectorAll('.toggle-button');
-        buttons.forEach(button => {
-          if (button.getAttribute('data-value') === 'White' && this.color == '#ffffff') {
-            button.classList.add('active');
-          } else if
-            (button.getAttribute('data-value') === 'Black' && this.color == '#000000') {
-            button.classList.add('active');
-          } else {
-            button.classList.remove('active');
-          }
-        });
-      }
-    }, 100);
-  }
-
 
   /**
    * Helper function to get the appropriate font for Chinese/non-English characters

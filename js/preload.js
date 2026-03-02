@@ -35,8 +35,9 @@ async function preload() {
             i18n.applyTranslations(document);
         }
 
-        // Initialize text component settings listener after all modules are loaded
+        // Initialize component settings listener after all modules are loaded
         FormTextAddComponent.initializeSettingsListener();
+        FormDrawAddComponent.initializeSettingsListener();
 
         window.jsPDF = window.jspdf.jsPDF; // Ensure jsPDF is available globally if needed
         paper.install(window); // Install paper.js into the global window object

@@ -6,7 +6,6 @@ import { BorderDimensionDisplay } from "./dimension.js";
 import { LockIcon } from "./lock.js";
 import { globalAnchorTree, anchorShape } from './anchor.js';
 import { CanvasObjectInspector } from "../sidebar/sb-inspector.js";
-import { showPropertyPanel, handleClear } from '../sidebar/property.js'; // Import showPropertyPanel
 import { parsedFontMedium, parsedFontHeavy, parsedFontKorean } from "./path.js";
 
 const canvas = CanvasGlobals.canvas; // Assuming canvas is a global variable in canvas.js
@@ -282,7 +281,7 @@ class BaseGroup extends fabric.Group {
 
     this.on('mousedblclick', (e) => {
       canvasTracker.isDragging = false;
-      showPropertyPanel(this);
+      // showPropertyPanel(this); -> handled globally by object:dblclick event
     });
 
     this.on('modified', this.updateAllCoord.bind(this));

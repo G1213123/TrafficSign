@@ -7,7 +7,7 @@ import { anchorShape } from '../objects/anchor.js';
 import { EngDestinations, ChtDestinations } from '../objects/template.js';
 import { FontPriorityManager } from '../modal/md-font.js';
 import { HintLoader } from '../utils/hintLoader.js';
-import { DividerObject } from '../objects/divider.js';
+import { SymbolObject } from '../objects/symbols.js';
 import { BorderGroup } from '../objects/border.js';
 
 let FormTextAddComponent = {
@@ -287,6 +287,18 @@ let FormTextAddComponent = {
     const tRightStNum1 = createText(rightStNum1, xHeightNum);
     const tRightStNum2 = createText(rightStNum2, xHeightNum);
 
+    const createLozenge = (xHeight) => {
+      const lozenge = new SymbolObject({
+        symbolType: 'Lozenge',
+        xHeight: xHeight,
+        color: color,
+        left: 0,
+        top: 0
+      });
+      CanvasGlobals.canvas.add(lozenge);
+      return lozenge;
+    };
+
     // Position the base element
     let baseElement = tEngStName || tChinStName || tLeftStNum1 || tRightStNum1;
     if (baseElement) {
@@ -303,7 +315,9 @@ let FormTextAddComponent = {
       anchorShape(tChinStName, tLeftStNum2, { vertexIndex1: 'E4', vertexIndex2: 'E8', spacingX: -40 + xHeightChin*0.25, spacingY: 0 });
     }
     if (tLeftStNum1 && tLeftStNum2) {
-      anchorShape(tLeftStNum2, tLeftStNum1, { vertexIndex1: 'E4', vertexIndex2: 'E8', spacingX: -40, spacingY: 0 });
+      const lozengeLeft = createLozenge(xHeightNum);
+      anchorShape(tLeftStNum2, lozengeLeft, { vertexIndex1: 'E4', vertexIndex2: 'E8', spacingX: -20, spacingY: -0.2*xHeightNum });
+      anchorShape(lozengeLeft, tLeftStNum1, { vertexIndex1: 'E4', vertexIndex2: 'E8', spacingX: -20, spacingY: 0.2*xHeightNum });
     }
 
     // Anchor right numbers to the right of English name
@@ -311,7 +325,9 @@ let FormTextAddComponent = {
       anchorShape(tChinStName, tRightStNum1, { vertexIndex1: 'E8', vertexIndex2: 'E4', spacingX: 40 - xHeightChin*0.25, spacingY: 0 });
     }
     if (tRightStNum1 && tRightStNum2) {
-      anchorShape(tRightStNum1, tRightStNum2, { vertexIndex1: 'E8', vertexIndex2: 'E4', spacingX: 40, spacingY: 0 });
+      const lozengeRight = createLozenge(xHeightNum);
+      anchorShape(tRightStNum1, lozengeRight, { vertexIndex1: 'E8', vertexIndex2: 'E4', spacingX: 20, spacingY: -0.2*xHeightNum });
+      anchorShape(lozengeRight, tRightStNum2, { vertexIndex1: 'E8', vertexIndex2: 'E4', spacingX: 20, spacingY: 0.2*xHeightNum });
     }
 
     CanvasGlobals.scheduleRender();
