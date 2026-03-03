@@ -22,7 +22,7 @@ propertyMenuItem.addEventListener('click', function (e) {
 CanvasGlobals.canvas.on('selection:created', handleSelection);
 CanvasGlobals.canvas.on('selection:updated', handleSelection);
 CanvasGlobals.canvas.on('object:modified', handleSelection);
-//CanvasGlobals.canvas.on('selection:cleared', handleClear);
+CanvasGlobals.canvas.on('selection:cleared', handleClear);
 
 CanvasGlobals.canvas.on('object:dblclick', function(e) {
   if (e.target) {

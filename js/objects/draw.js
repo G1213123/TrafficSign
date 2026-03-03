@@ -7,6 +7,7 @@ import { LockIcon } from "./lock.js";
 import { globalAnchorTree, anchorShape } from './anchor.js';
 import { CanvasObjectInspector } from "../sidebar/sb-inspector.js";
 import { parsedFontMedium, parsedFontHeavy, parsedFontKorean } from "./path.js";
+import { showPropertyPanel, handleClear } from "../sidebar/property.js";
 
 const canvas = CanvasGlobals.canvas; // Assuming canvas is a global variable in canvas.js
 const canvasObject = CanvasGlobals.canvasObject; // Assuming canvasObject is a global variable in canvas.js
@@ -21,23 +22,6 @@ const deleteIcon =
 //fabric.Object.prototype.toObject = function (additionalProperties) {
 //  return originalToObject.call(this, myAdditional.concat(additionalProperties));
 //}
-
-// Enable double-click detection on canvas
-canvas.on('mouse:down', function (options) {
-  if (options.e.type === 'dblclick') {
-    const target = options.target;
-    if (target && target.dblclick) {
-      target.dblclick(options.e);
-    } else if (target) {
-      const eventData = {
-        e: options.e,
-        target: target
-      };
-      canvas.fire('object:dblclick', eventData);
-      target.fire('mousedblclick', options.e);
-    }
-  }
-});
 
 
 class GlyphPath extends fabric.Group {
@@ -281,7 +265,7 @@ class BaseGroup extends fabric.Group {
 
     this.on('mousedblclick', (e) => {
       canvasTracker.isDragging = false;
-      // showPropertyPanel(this); -> handled globally by object:dblclick event
+      showPropertyPanel(this); //-> handled globally by object:dblclick event
     });
 
     this.on('modified', this.updateAllCoord.bind(this));
