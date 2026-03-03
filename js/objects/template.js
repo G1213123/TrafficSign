@@ -5134,7 +5134,9 @@ const BorderTypeScheme = {
     'greenPanel': GreenPanelTemplate,
     'rectangle': RectTemplate,
     //'StreetName': StreetNameTemplate,
-    'StreetName2Way': StreetName2WayTemplate
+    'StreetName2Way': StreetName2WayTemplate,
+    'StreetNameLeft': StreetNameLeftTemplate,
+    'StreetNameRight': StreetNameRightTemplate
 }
 
 const BorderFrameWidth = {
@@ -5197,32 +5199,85 @@ function applyLengthAndRounding(path, length) {
 function StreetName2WayTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
     const length = xHeight / 4;
 
-    const padding = {
-        left: 1,
-        top: 1,
-        right: 1,
-        bottom: 1,
-    };
+    const baseWidth = block.width + 136 + 136; // V1 to V2 distance
+    const totalWidth = Math.ceil(baseWidth / 50) * 50;
+    const paddingX = (totalWidth - baseWidth) / 2;
 
     const returnBorder = [{
         'vertex': [
-            { x: -136 / length, y: -45 / length, label: 'V1', start: 1, radius: 25 / length },
-            { x: block.width / length + 136 / length, y: -45 / length, label: 'V2', start: 0, radius: 25 / length },
-            { x: block.width / length + 136 / length, y: 279 / length, label: 'V3', start: 0, radius: 25 / length },
-            { x: -136 / length, y: 279 / length, label: 'V4', start: 0, radius: 25 / length },
+            { x: (-136 - paddingX) / length, y: -45 / length, label: 'V1', start: 1, radius: 25 / length },
+            { x: (block.width + 136 + paddingX) / length, y: -45 / length, label: 'V2', start: 0, radius: 25 / length },
+            { x: (block.width + 136 + paddingX) / length, y: 279 / length, label: 'V3', start: 0, radius: 25 / length },
+            { x: (-136 - paddingX) / length, y: 279 / length, label: 'V4', start: 0, radius: 25 / length },
         ], 'arcs': [], 'fill': '#000000'
     },{
         'vertex': [
-            { x: -6 / length, y: -33 / length, label: 'V1', start: 1, },
-            { x: block.width / length + 6 / length, y: -33 / length, label: 'V2', start: 0 },
-            { x: block.width / length + 111 / length, y: 117 / length, label: 'V3', start: 0 },
-            { x: block.width / length + 6 / length, y: 267 / length, label: 'V4', start: 0 },
-            { x: -6 / length, y: 267 / length, label: 'V5', start: 0 },
-            { x: -111 / length, y: 117 / length, label: 'V6', start: 0 },
+            { x: (-6 - paddingX) / length, y: -33 / length, label: 'V1', start: 1, },
+            { x: (block.width + 6 + paddingX) / length, y: -33 / length, label: 'V2', start: 0 },
+            { x: (block.width + 111 + paddingX) / length, y: 117 / length, label: 'V3', start: 0 },
+            { x: (block.width + 6 + paddingX) / length, y: 267 / length, label: 'V4', start: 0 },
+            { x: (-6 - paddingX) / length, y: 267 / length, label: 'V5', start: 0 },
+            { x: (-111 - paddingX) / length, y: 117 / length, label: 'V6', start: 0 },
         ], 'arcs': [], 'fill': '#FFFFFF'
-    },
+    }];
 
-];
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
+}
+
+function StreetNameLeftTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+    const length = xHeight / 4;
+
+    const baseWidth = 136 + block.width + 37;
+    const totalWidth = Math.ceil(baseWidth / 50) * 50;
+    const paddingX = (totalWidth - baseWidth) / 2;
+
+    const returnBorder = [{
+        'vertex': [
+            { x: (-136 - paddingX) / length, y: -45 / length, label: 'V1', start: 1, radius: 25 / length },
+            { x: (block.width + 37 + paddingX) / length, y: -45 / length, label: 'V2', start: 0, radius: 25 / length },
+            { x: (block.width + 37 + paddingX) / length, y: 279 / length, label: 'V3', start: 0, radius: 25 / length },
+            { x: (-136 - paddingX) / length, y: 279 / length, label: 'V4', start: 0, radius: 25 / length },
+        ], 'arcs': [], 'fill': '#000000'
+    },{
+        // Chevron on left, straight flat on right
+        'vertex': [
+            { x: (-6 - paddingX) / length, y: -33 / length, label: 'V1', start: 1, },
+            { x: (block.width + 25 + paddingX) / length, y: -33 / length, label: 'V2', start: 0, radius: 12.5 / length },
+            { x: (block.width + 25 + paddingX) / length, y: 267 / length, label: 'V3', start: 0, radius: 12.5 / length },
+            { x: (-6 - paddingX) / length, y: 267 / length, label: 'V4', start: 0 },
+            { x: (-111 - paddingX) / length, y: 117 / length, label: 'V5', start: 0 },
+        ], 'arcs': [], 'fill': '#FFFFFF'
+    }];
+
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
+}
+
+function StreetNameRightTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+    const length = xHeight / 4;
+
+    const baseWidth = 37 + block.width + 136;
+    const totalWidth = Math.ceil(baseWidth / 50) * 50;
+    const paddingX = (totalWidth - baseWidth) / 2;
+
+    const returnBorder = [{
+        'vertex': [
+            { x: (-37 - paddingX) / length, y: -45 / length, label: 'V1', start: 1, radius: 25 / length },
+            { x: (block.width + 136 + paddingX) / length, y: -45 / length, label: 'V2', start: 0, radius: 25 / length },
+            { x: (block.width + 136 + paddingX) / length, y: 279 / length, label: 'V3', start: 0, radius: 25 / length },
+            { x: (-37 - paddingX) / length, y: 279 / length, label: 'V4', start: 0, radius: 25 / length },
+        ], 'arcs': [], 'fill': '#000000'
+    },{
+        // Straight flat on left, Chevron on right
+        'vertex': [
+            { x: (-25 - paddingX) / length, y: -33 / length, label: 'V1', start: 1, radius: 12.5 / length },
+            { x: (block.width + 6 + paddingX) / length, y: -33 / length, label: 'V2', start: 0 },
+            { x: (block.width + 111 + paddingX) / length, y: 117 / length, label: 'V3', start: 0 },
+            { x: (block.width + 6 + paddingX) / length, y: 267 / length, label: 'V4', start: 0 },
+            { x: (-25 - paddingX) / length, y: 267 / length, label: 'V5', start: 0, radius: 12.5 / length },
+        ], 'arcs': [], 'fill': '#FFFFFF'
+    }];
 
     returnBorder.forEach(path => applyLengthAndRounding(path, length));
     return { path: returnBorder };

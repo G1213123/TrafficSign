@@ -2932,4 +2932,5 @@ div.side-panel.close {
 
 .custom-option:hover .option-image-placeholder img {
   transform: none;
-}
+}.input-row { display: flex; gap: 10px; }
+.input-row > div { flex: 1; }
