@@ -104,16 +104,25 @@ let FormTextAddComponent = {
 
       GeneralHandler.createInput('input-eng-st-name', 'Eng St Name', streetNamePlateContainer, '', null, 'input');
       GeneralHandler.createInput('input-chin-st-name', 'Chin St Name', streetNamePlateContainer, '', null, 'input');
-    
-    // Left numbers row
-    const leftNumRow = GeneralHandler.createNode("div", { 'class': 'input-row' }, streetNamePlateContainer);
-    GeneralHandler.createInput('input-left-st-num1', 'Left Num 1', leftNumRow, '', null, 'input');
-    GeneralHandler.createInput('input-left-st-num2', 'Left Num 2', leftNumRow, '', null, 'input');
-    
-    // Right numbers row
-    const rightNumRow = GeneralHandler.createNode("div", { 'class': 'input-row' }, streetNamePlateContainer);
-    GeneralHandler.createInput('input-right-st-num1', 'Right Num 1', rightNumRow, '', null, 'input');
-    GeneralHandler.createInput('input-right-st-num2', 'Right Num 2', rightNumRow, '', null, 'input');
+
+      // Left numbers row
+      const leftNumRow = GeneralHandler.createNode("div", { 'class': 'input-row' }, streetNamePlateContainer);
+      GeneralHandler.createInput('input-left-st-num1', 'Left Num 1', leftNumRow, '', null, 'input', '(optional)');
+      GeneralHandler.createInput('input-left-st-num2', 'Left Num 2', leftNumRow, '', null, 'input', '(optional)');
+
+      // Right numbers row
+      const rightNumRow = GeneralHandler.createNode("div", { 'class': 'input-row' }, streetNamePlateContainer);
+      GeneralHandler.createInput('input-right-st-num1', 'Right Num 1', rightNumRow, '', null, 'input', '(optional)');
+      GeneralHandler.createInput('input-right-st-num2', 'Right Num 2', rightNumRow, '', null, 'input', '(optional)');
+
+      GeneralHandler.createButton(
+        'add-street-name-plate-text',
+        'Add Street Name Plate Text',
+        streetNamePlateContainer,
+        'input',
+        FormTextAddComponent.createStreetNamePlate,
+        'click'
+      );
 
       // Initialize the location dropdown with locations from the first region
       FormTextAddComponent.populateLocationDropdown(regionNames[0], "English");
@@ -286,7 +295,7 @@ let FormTextAddComponent = {
 
   createStreetNamePlateObject: function (options) {
     const pos = options.position || CanvasGlobals.CenterCoord();
-    
+
     // Spread the objects out vertically during creation, similar to 2-liner texts,
     // to give them distinct coordinates initially before anchoring.
     let Y_offset = 0;
@@ -308,7 +317,7 @@ let FormTextAddComponent = {
     };
 
     const tEngStName = createText(options.engStName, options.xHeightEng);
-    const tChinStName = createText(options.chinStName, options.xHeightChin, options.chinFont, 18.25);
+    const tChinStName = createText(options.chinStName, options.xHeightChin, options.chinFont, 18.25); // Add extra char spacing for Chinese text to make it fulfil standard 40
     const tLeftStNum1 = createText(options.leftStNum1, options.xHeightNum);
     const tLeftStNum2 = createText(options.leftStNum2, options.xHeightNum);
     const tRightStNum1 = createText(options.rightStNum1, options.xHeightNum);
@@ -327,35 +336,41 @@ let FormTextAddComponent = {
       return lozenge;
     };
 
-    // Use setTimeout to allow objects to initialize their dimensions before anchoring
-    setTimeout(() => {
-      // Anchor Chinese name below English name
-      if (tEngStName && tChinStName) {
-        anchorShape(tEngStName, tChinStName, { vertexIndex1: 'E2', vertexIndex2: 'E6', spacingX: 0, spacingY: 56 - options.xHeightEng * 0.5 - options.xHeightChin * 0.1 });
-      }
+    // Calculate widths only for existing numbers
+    const leftNumWidth = (tLeftStNum2?.width || 0) + (tLeftStNum1?.width || 0);
+    const rightNumWidth = (tRightStNum1?.width || 0) + (tRightStNum2?.width || 0);
+    const leftEqWidth = leftNumWidth - rightNumWidth > 0 ? 0 : 0.5 * leftNumWidth - 0.5 * rightNumWidth;
+    const rightEqWidth = rightNumWidth - leftNumWidth > 0 ? 0 : 0.5 * rightNumWidth - 0.5 * leftNumWidth;
 
-      // Anchor left numbers to the left of English name
-      if (tChinStName) {
-        anchorShape(tChinStName, tLeftStNum2, { vertexIndex1: 'E4', vertexIndex2: 'E8', spacingX: -40 + options.xHeightChin * 0.25, spacingY: 0 });
-      }
-      if (tLeftStNum1 && tLeftStNum2) {
-        const lozengeLeft = createLozenge(options.xHeightNum);
-        anchorShape(tLeftStNum2, lozengeLeft, { vertexIndex1: 'E4', vertexIndex2: 'E8', spacingX: -20, spacingY: -0.2 * options.xHeightNum });
-        anchorShape(lozengeLeft, tLeftStNum1, { vertexIndex1: 'E4', vertexIndex2: 'E8', spacingX: -20, spacingY: 0.2 * options.xHeightNum });
-      }
+    // Anchor Chinese name below English name
+    if (tEngStName && tChinStName) {
+      anchorShape(tEngStName, tChinStName, { vertexIndex1: 'E2', vertexIndex2: 'E6', spacingX: 0, spacingY: 56 - options.xHeightEng * 0.5 - options.xHeightChin * 0.1 });
+    }
 
-      // Anchor right numbers to the right of English name
-      if (tChinStName) {
-        anchorShape(tChinStName, tRightStNum1, { vertexIndex1: 'E8', vertexIndex2: 'E4', spacingX: 40 - options.xHeightChin * 0.25, spacingY: 0 });
-      }
-      if (tRightStNum1 && tRightStNum2) {
-        const lozengeRight = createLozenge(options.xHeightNum);
-        anchorShape(tRightStNum1, lozengeRight, { vertexIndex1: 'E8', vertexIndex2: 'E4', spacingX: 20, spacingY: -0.2 * options.xHeightNum });
-        anchorShape(lozengeRight, tRightStNum2, { vertexIndex1: 'E8', vertexIndex2: 'E4', spacingX: 20, spacingY: 0.2 * options.xHeightNum });
-      }
+    // Anchor left numbers to the left of English name
+    if (tChinStName && (tLeftStNum1 || tLeftStNum2)) {
+      const targetNum = tLeftStNum2 || tLeftStNum1;
+      anchorShape(tChinStName, targetNum, { vertexIndex1: 'E4', vertexIndex2: 'E8', spacingX: -35 + leftEqWidth + options.xHeightChin * 0.25, spacingY: 0 });
+    }
+    if (tLeftStNum1 && tLeftStNum2) {
+      const lozengeLeft = createLozenge(options.xHeightNum);
+      anchorShape(tLeftStNum2, lozengeLeft, { vertexIndex1: 'E4', vertexIndex2: 'E8', spacingX: -10, spacingY: -0.2 * options.xHeightNum });
+      anchorShape(lozengeLeft, tLeftStNum1, { vertexIndex1: 'E4', vertexIndex2: 'E8', spacingX: -10, spacingY: 0.2 * options.xHeightNum });
+    }
 
-      CanvasGlobals.scheduleRender();
-    }, 100);
+    // Anchor right numbers to the right of English name
+    if (tChinStName && (tRightStNum1 || tRightStNum2)) {
+      const targetNum = tRightStNum1 || tRightStNum2;
+      anchorShape(tChinStName, targetNum, { vertexIndex1: 'E8', vertexIndex2: 'E4', spacingX: 35 - rightEqWidth - options.xHeightChin * 0.25, spacingY: 0 });
+    }
+    if (tRightStNum1 && tRightStNum2) {
+      const lozengeRight = createLozenge(options.xHeightNum);
+      anchorShape(tRightStNum1, lozengeRight, { vertexIndex1: 'E8', vertexIndex2: 'E4', spacingX: 10, spacingY: -0.2 * options.xHeightNum });
+      anchorShape(lozengeRight, tRightStNum2, { vertexIndex1: 'E8', vertexIndex2: 'E4', spacingX: 10, spacingY: 0.2 * options.xHeightNum });
+    }
+
+    CanvasGlobals.scheduleRender();
+
 
     // Return the base object so createObjectWithSnapping can bind it to mouse
     return tEngStName || tChinStName || tLeftStNum1 || tRightStNum1;
