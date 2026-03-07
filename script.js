@@ -7,6 +7,9 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
 }).addTo(map);
 
+// Add Scale Bar
+L.control.scale({metric: true, imperial: false}).addTo(map);
+
 // WFS URL Configuration
 const wfsBaseUrl = 'https://portal.csdi.gov.hk/server/services/common/td_rcd_1638928986276_39755/MapServer/WFSServer';
 const outputFormat = 'GEOJSON';
@@ -65,9 +68,40 @@ for (const [groupName, layerList] of Object.entries(layersConfig)) {
         let label = typeName.replace('csdi:', '').replace('DTAD_', '').replace(/_/g, ' ');
         
         // Setup empty GeoJSON layer with style
+        // We use a factory function to capture the scoped variable 'layerConfig' 
+        // But here we rely on the internal logic.
+        
         const layer = L.geoJSON(null, {
             style: function (feature) {
-                return {color: "#000000", weight: 2, opacity: 0.8}; 
+                // Default global style
+                let style = {color: "#000000", weight: 2, opacity: 0.8}; 
+                
+                // Use lineStyles.js logic if LINETYPE is present
+                if (feature && feature.properties && feature.properties.LINETYPE) {
+                    const styles = getLineStyles(feature.properties.LINETYPE, map);
+                    // Use the FIRST style for the base layer
+                    // We assume valid response array
+                    if (styles.length > 0) {
+                        style = { ...style, ...styles[0] };
+                        
+                        // Wait! If the first style has an offset, we can't apply it via 'style' option
+                        // because L.GeoJSON uses the original geometry.
+                        // However, we can't modify geometry inside 'style' function.
+                        // Visual offset via transparent border? No.
+                        
+                        // HACK: If offset is needed on the primary layer (index 0), 
+                        // we might need to handle it in onEachFeature by making this base layer transparent?
+                        // For now, assume Primary Layer (Index 0) is Center or Base.
+                        
+                        // If style[0] has 'offset', we should probably hide this layer 
+                        // and render EVERYTHING in onEachFeature as "extra" layers?
+                        
+                        if (styles[0].offset) {
+                            style.opacity = 0; // Hide the base geometry
+                        }
+                    }
+                }
+                return style;
             },
             pointToLayer: function (feature, latlng) {
                 return L.circleMarker(latlng, {
@@ -79,7 +113,8 @@ for (const [groupName, layerList] of Object.entries(layersConfig)) {
                     fillOpacity: 0.8
                 });
             },
-            onEachFeature: function (feature, layer) {
+            onEachFeature: function (feature, featureLayer) {
+                // Basic Popup
                 if (feature.properties) {
                     let popupContent = `<b>${label}</b><br><div class="popup-content">`;
                     for (const key in feature.properties) {
@@ -88,7 +123,55 @@ for (const [groupName, layerList] of Object.entries(layersConfig)) {
                          }
                     }
                     popupContent += '</div>';
-                    layer.bindPopup(popupContent);
+                    featureLayer.bindPopup(popupContent);
+                }
+
+                // Handle Complex Styles (Multi-line, Offsets)
+                if (feature.properties && feature.properties.LINETYPE) {
+                    const styles = getLineStyles(feature.properties.LINETYPE, map);
+                    
+                    // Iterate through styles
+                    styles.forEach((style, index) => {
+                        // Skip index 0 IF it has no offset (it's already handled by 'style' function)
+                        // defined above.
+                        // BUT: If index 0 HAS offset, we hid the base layer, so we must render it here as a new polyline.
+                        
+                        if (index === 0 && !style.offset) return; 
+
+                        // For index > 0 OR index 0 with offset:
+                        // Create a new Polyline
+                        if (feature.geometry.type === "MultiLineString" || feature.geometry.type === "LineString") {
+                            // Get geometry (LatLngs)
+                            let latlngs = featureLayer.getLatLngs();
+                            
+                            // Handle MultiLineString structure (Array of Arrays) vs LineString (Array)
+                            // L.GeoJSON normalizes this? getLatLngs() returns:
+                            // LineString: [LatLng, LatLng...]
+                            // MultiLineString: [[LatLng...], [LatLng...]]
+                            
+                            const flatten = (arr) => arr[0] instanceof L.LatLng ? [arr] : arr;
+                            const segments = flatten(latlngs);
+
+                            segments.forEach(segment => {
+                                // Apply Offset
+                                let finalLatLngs = segment;
+                                if (style.offset) {
+                                    finalLatLngs = getOffsetLatLngs(segment, style.offset, map);
+                                }
+                                
+                                const multiLine = L.polyline(finalLatLngs, style);
+                                
+                                // Tag it so we can update it later
+                                multiLine.options.isCustomPart = true;
+                                multiLine.options.linetype = feature.properties.LINETYPE;
+                                multiLine.options.styleIndex = index;
+                                multiLine.options.origFeature = feature; // Reference for updates
+                                
+                                // Add to the PARENT group (so it clears/updates with the group)
+                                layer.addLayer(multiLine);
+                            });
+                        }
+                    });
                 }
             }
         });
@@ -102,14 +185,12 @@ for (const [groupName, layerList] of Object.entries(layersConfig)) {
 }
 
 // Initialize the Grouped Layer Control
-// Options: collapsed: false allows seeing the list immediately (optional)
 L.control.groupedLayers(null, groupedOverlays, {
     collapsed: false,
-    groupCheckboxes: true // This allows toggling the whole group!
+    groupCheckboxes: true 
 }).addTo(map);
 
-// Pre-select some common layers so map isn't empty
-// Let's enable "Traffic Signs -> Pole Points" (TS POLE PT)
+// Pre-select some common layers
 const defaultLayer = allLayersMap["csdi:DTAD_TS_POLE_PT"];
 if (defaultLayer) {
     defaultLayer.addTo(map);
@@ -166,9 +247,53 @@ function refreshMap() {
 
 // --- Event Listeners ---
 
+// Update dash styles on zoom end to maintain meter-based sizing
+function updateStylesForZoom() {
+    if (map.getZoom() < 16) return;
+
+    for (const layerInstance of Object.values(allLayersMap)) {
+         layerInstance.eachLayer(function(layer) {
+             // 1. Handle Standard GeoJSON layers (Base)
+             if (layer.feature && layer.setStyle && !layer.options.isCustomPart) {
+                 layer.setStyle(function(feature) {
+                     let style = {color: "#000000", weight: 2, opacity: 0.8}; 
+                     if (feature && feature.properties && feature.properties.LINETYPE) {
+                         const styles = getLineStyles(feature.properties.LINETYPE, map);
+                         if (styles.length > 0) {
+                             style = { ...style, ...styles[0] };
+                             // Hide base if offset exists
+                             if (styles[0].offset) style.opacity = 0;
+                         }
+                     }
+                     return style;
+                 });
+             }
+
+             // 2. Handle Custom Parts (Offsets / Clones)
+             if (layer.options && layer.options.isCustomPart) {
+                 const linetype = layer.options.linetype;
+                 const idx = layer.options.styleIndex;
+                 const feature = layer.options.origFeature; // This might be undefined unless we attached it properly
+                 
+                 const styles = getLineStyles(linetype, map);
+                 if (styles[idx]) {
+                     const style = styles[idx];
+                     
+                     // Update Pattern
+                     layer.setStyle(style);
+                     
+                     // NOTE: We are NOT recalculating offset geometry here (expensive/complex). 
+                     // Dash patterns will update, but line width/separation might drift slightly until reload.
+                 }
+             }
+         });
+    }
+}
+
 // Initial Load
 map.on('load', refreshMap);
 map.on('moveend', refreshMap);
+map.on('zoomend', updateStylesForZoom); // Re-calculate dashes
 
 // When a user toggles a layer ON, load data for it immediately
 map.on('overlayadd', function(e) {
