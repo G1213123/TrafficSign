@@ -503,7 +503,7 @@ export class SideRoadSymbol extends BaseGroup {
         const center = mainRoad.routeList[1];
         const length = xHeight / 4;
         const radius = 12; // 12 units radius
-        const minBranchXDelta = { 'Arrow': 24, 'Stub': 16, 'RedBar': 16, 'Circular Sign': 13, 'Circular Sign (with Arrow)': 28 }[routeList[0].shape] || 22.9;
+        const minBranchXDelta = { 'Arrow': 12, 'Stub': 4, 'RedBar': 4, 'Circular Sign': 13, 'Circular Sign (with Arrow)': 16 }[routeList[0].shape] || 22.9;
 
         // Main road rotation
         const mainAngle = (mainRoad.mainAngle || 0) * Math.PI / 180;
