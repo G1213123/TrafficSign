@@ -2794,6 +2794,76 @@ const symbolsTemplate = {
         text: []
     },
 
+    'CableCar': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0.426, y: 0, label: 'V2', start: 0, display: 0 },
+                    { x: 0.426, y: 3.407, label: 'V3', start: 0, display: 0 },
+                    { x: 3.212, y: 3.407, label: 'V4', start: 0, display: 0 },
+                    { x: 3.097, y: 3.044, label: 'V5', start: 0, display: 0 },
+                    { x: 3.697, y: 3.044, label: 'V6', start: 0, display: 0 },
+                    { x: 5.319, y: 8.271, label: 'V7', start: 0, display: 0 },
+                    { x: 5.383, y: 11.477, label: 'V8', start: 0, display: 0 },
+                    { x: 4.158, y: 16.070, label: 'V9', start: 0, display: 0 },
+                    { x: 3.585, y: 16.070, label: 'V10', start: 0, display: 0 },
+                    { x: 3.833, y: 15.133, label: 'V11', start: 0, display: 0 },
+                    { x: -3.833, y: 15.133, label: 'V12', start: 0, display: 0 },
+                    { x: -3.585, y: 16.070, label: 'V13', start: 0, display: 0 },
+                    { x: -4.158, y: 16.070, label: 'V14', start: 0, display: 0 },
+                    { x: -5.383, y: 11.477, label: 'V15', start: 0, display: 0 },
+                    { x: -5.319, y: 8.271, label: 'V16', start: 0, display: 0 },
+                    { x: -3.697, y: 3.044, label: 'V17', start: 0, display: 0 },
+                    { x: -3.097, y: 3.044, label: 'V18', start: 0, display: 0 },
+                    { x: -3.212, y: 3.407, label: 'V19', start: 0, display: 0 },
+                    { x: -0.426, y: 3.407, label: 'V20', start: 0, display: 0 },
+                    { x: -0.426, y: 0, label: 'V21', start: 0, display: 0 },
+                    { x: 3.518, y: 4.390, label: 'V31', start: 1, display: 0 },
+                    { x: 3.518, y: 10.656, label: 'V32', start: 0, display: 0 },
+                    { x: 4.983, y: 10.656, label: 'V33', start: 0, display: 0 },
+                    { x: 4.790, y: 8.437, label: 'V34', start: 0, display: 0 },
+                    { x: 0.235, y: 4.390, label: 'V35', start: 1, display: 0 },
+                    { x: 0.235, y: 10.656, label: 'V36', start: 0, display: 0 },
+                    { x: 3.048, y: 10.656, label: 'V37', start: 0, display: 0 },
+                    { x: 3.048, y: 4.390, label: 'V38', start: 0, display: 0 },
+                    { x: -3.518, y: 4.390, label: 'V41', start: 1, display: 0 },
+                    { x: -4.790, y: 8.437, label: 'V42', start: 0, display: 0 },
+                    { x: -4.983, y: 10.656, label: 'V43', start: 0, display: 0 },
+                    { x: -3.518, y: 10.656, label: 'V44', start: 0, display: 0 },
+                    { x: -0.235, y: 4.390, label: 'V45', start: 1, display: 0 },
+                    { x: -3.048, y: 4.390, label: 'V46', start: 0, display: 0 },
+                    { x: -3.048, y: 10.656, label: 'V47', start: 0, display: 0 },
+                    { x: -0.235, y: 10.656, label: 'V48', start: 0, display: 0 },
+
+                ], 'arcs': [
+                    { start: 'V7', end: 'V8', radius: 5.709, direction: 1, sweep: 0 },
+                    { start: 'V15', end: 'V16', radius: 5.709, direction: 1, sweep: 0 },
+                    { start: 'V33', end: 'V34', radius: 5.155, direction: 0, sweep: 0 },
+                    { start: 'V42', end: 'V43', radius: 5.155, direction: 0, sweep: 0 },
+
+                ],
+            },
+            {
+                'vertex': [
+                    { x: 0.641, y: 1.103, label: 'V51', start: 1, display: 0 },
+                    { x: 7.147, y: 2.847, label: 'V52', start: 0, display: 0 },
+                    { x: 7.147, y: 3.335, label: 'V53', start: 0, display: 0 },
+                    { x: 0.641, y: 1.589, label: 'V54', start: 0, display: 0 },
+                ], 'arcs': [],
+            },
+            {
+                'vertex': [
+                    { x: -0.641, y: 0.761, label: 'V55', start: 1, display: 0 },
+                    { x: -7.147, y: -0.982, label: 'V56', start: 0, display: 0 },
+                    { x: -7.147, y: -0.497, label: 'V57', start: 0, display: 0 },
+                    { x: -0.641, y: 1.246, label: 'V58', start: 0, display: 0 },
+                ], 'arcs': [],
+            },
+        ],
+        text: []
+    },
+
     'Disney': {
         path: [ // https://upload.wikimedia.org/wikipedia/commons/f/fe/Mickey_Mouse_head_and_ears.svg
             {
@@ -5210,7 +5280,7 @@ function StreetName2WayTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
             { x: (block.width + 136 + paddingX) / length, y: 279 / length, label: 'V3', start: 0, radius: 25 / length },
             { x: (-136 - paddingX) / length, y: 279 / length, label: 'V4', start: 0, radius: 25 / length },
         ], 'arcs': [], 'fill': '#000000'
-    },{
+    }, {
         'vertex': [
             { x: (-6 - paddingX) / length, y: -33 / length, label: 'V1', start: 1, },
             { x: (block.width + 6 + paddingX) / length, y: -33 / length, label: 'V2', start: 0 },
@@ -5239,7 +5309,7 @@ function StreetNameLeftTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
             { x: (block.width + 37 + paddingX) / length, y: 279 / length, label: 'V3', start: 0, radius: 25 / length },
             { x: (-136 - paddingX) / length, y: 279 / length, label: 'V4', start: 0, radius: 25 / length },
         ], 'arcs': [], 'fill': '#000000'
-    },{
+    }, {
         // Chevron on left, straight flat on right
         'vertex': [
             { x: (-6 - paddingX) / length, y: -33 / length, label: 'V1', start: 1, },
@@ -5268,7 +5338,7 @@ function StreetNameRightTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
             { x: (block.width + 136 + paddingX) / length, y: 279 / length, label: 'V3', start: 0, radius: 25 / length },
             { x: (-37 - paddingX) / length, y: 279 / length, label: 'V4', start: 0, radius: 25 / length },
         ], 'arcs': [], 'fill': '#000000'
-    },{
+    }, {
         // Straight flat on left, Chevron on right
         'vertex': [
             { x: (-25 - paddingX) / length, y: -33 / length, label: 'V1', start: 1, radius: 12.5 / length },
