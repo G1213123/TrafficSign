@@ -1,10 +1,17 @@
-const map = L.map('map').setView([22.3193, 114.1694], 14); // Centered on Hong Kong, slightly zoomed in
+// Initialize map with EPSG:4326 projection to match HK Map Service WGS84 tiles
+const map = L.map('map', {
+}).setView([22.3193, 114.1694], 14); // Centered on Hong Kong, slightly zoomed in
 
-// Use CartoDB Positron (White/Light tone) basemap
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    maxNativeZoom: 19,
+// Use HK Map Service Label (English, WGS84)
+L.tileLayer('https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/basemap/WGS84/{z}/{x}/{y}.png', {
+    maxNativeZoom: 20,
     maxZoom: 22, 
-    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
+    attribution: 'Map information from Lands Department'
+}).addTo(map);
+L.tileLayer('https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/label/hk/en/WGS84/{z}/{x}/{y}.png', {
+    maxNativeZoom: 20,
+    maxZoom: 22, 
+    attribution: 'Map information from Lands Department'
 }).addTo(map);
 
 // Add Scale Bar
@@ -73,6 +80,11 @@ for (const [groupName, layerList] of Object.entries(layersConfig)) {
         
         const layer = L.geoJSON(null, {
             style: function (feature) {
+                // Special handling to hide the bounding box polygon for annotations
+                if (typeName === 'csdi:DTAD_RD_MARK_ANNO') {
+                    return { opacity: 0, fillOpacity: 0, stroke: false, interactive: false };
+                }
+
                 // Default global style
                 let style = {color: "#000000", weight: 2, opacity: 0.8}; 
                 
@@ -114,6 +126,27 @@ for (const [groupName, layerList] of Object.entries(layersConfig)) {
                 });
             },
             onEachFeature: function (feature, featureLayer) {
+                // Special handling for Annotation Polygons - Add text label at center
+                if (typeName === "csdi:DTAD_RD_MARK_ANNO") {
+                    var center = featureLayer.getBounds().getCenter();
+                    var marker = L.marker(center, { 
+                        icon: createAnnotationIcon(feature, center), // Pass center for pixel size calc
+                        interactive: false // Let clicks pass through
+                    });
+                    
+                    // Critical: Add the marker to the PARENT layer group so it appears/hides with the group
+                    layer.addLayer(marker);
+
+                    // Disable interaction on the original invisible polygon
+                     if (featureLayer.setStyle) {
+                        featureLayer.setStyle({ stroke: false, fill: false });
+                        if (featureLayer.getElement) {
+                            featureLayer.getElement().style.pointerEvents = 'none';
+                        }
+                    }
+                    return; // Skip default popup behavior for the invisible box
+                }
+
                 // Basic Popup
                 if (feature.properties) {
                     let popupContent = `<b>${label}</b><br><div class="popup-content">`;
@@ -185,10 +218,16 @@ for (const [groupName, layerList] of Object.entries(layersConfig)) {
 }
 
 // Initialize the Grouped Layer Control
-L.control.groupedLayers(null, groupedOverlays, {
+var layerControl = L.control.groupedLayers(null, groupedOverlays, {
     collapsed: false,
     groupCheckboxes: true 
-}).addTo(map);
+});
+layerControl.addTo(map);
+
+// Disable scroll propagation on the control container to prevent map zooming while scrolling the list
+var controlDiv = layerControl.getContainer();
+L.DomEvent.disableScrollPropagation(controlDiv);
+L.DomEvent.disableClickPropagation(controlDiv);
 
 // Pre-select some common layers
 const defaultLayer = allLayersMap["csdi:DTAD_TS_POLE_PT"];
@@ -248,8 +287,25 @@ function refreshMap() {
 // --- Event Listeners ---
 
 // Update dash styles on zoom end to maintain meter-based sizing
+function metersToPixels(meters, latitude, zoom) {
+    // Earth circumference in meters / 2^zoom / 256 pixels = meters/pixel at equator
+    // Scale by cos(latitude)
+    const metersPerPixel = (40075016.686 * Math.cos(latitude * Math.PI / 180)) / Math.pow(2, zoom + 8);
+    return meters / metersPerPixel;
+}
+
 function updateStylesForZoom() {
     if (map.getZoom() < 16) return;
+
+    // Update Annotation Labels Size
+    document.querySelectorAll('.road-label').forEach(el => {
+        const sizeMeters = parseFloat(el.getAttribute('data-size-meters'));
+        const lat = parseFloat(el.getAttribute('data-lat'));
+        if (!isNaN(sizeMeters) && !isNaN(lat)) {
+            const pxSize = metersToPixels(sizeMeters, lat, map.getZoom());
+            el.style.fontSize = pxSize + 'px';
+        }
+    });
 
     for (const layerInstance of Object.values(allLayersMap)) {
          layerInstance.eachLayer(function(layer) {
@@ -333,3 +389,124 @@ map.on('zoomend', function() {
         refreshMap();
     }
 });
+
+// Helper for annotation styling
+function createAnnotationIcon(feature, latlng) {
+    const p = feature.properties || {};
+    // Split text by space to create multi-line labels
+    const text = (p.TextString || '').split(' ').join('<br>'); // Multi-row support
+    
+    // Rotation Logic:
+    // CSDI Data (AutoCAD style): Angle is arithmetic or geographic degrees.
+    // CSS `rotate(Xdeg)` is clockwise.Arithmetic is CCW.
+    // If Angle = -100 (CCW), that is 100 degrees CW.
+    // So CSS rotate(100deg).
+    // Let's negate the input angle.
+    // Also, handle FlipAngle? If it helps readability (upside down).
+    const angle = p.Angle || 0; 
+    const cssRotation = -angle; 
+
+    // Font Sizing in Meters
+    // Default assumption: specific font sizes like 8.99 are METERS on the ground.
+    const sizeMeters = p.FontSize || 8; 
+    
+    // Calculate initial pixel size for current zoom
+    let fontSizePx = '12px';
+    if (latlng && map) {
+        // We define the helper function metersToPixels in the scope above or ensure it handles it
+        // Since createAnnotationIcon is called after map init, map is available in closure scope.
+        // We need the helper function defined. It is inserted before updateStylesForZoom.
+        // But since this function is at the bottom, we must hoist the helper or check order.
+        // Function declarations are hoisted, so 'metersToPixels' is available.
+        const px = metersToPixels(sizeMeters, latlng.lat, map.getZoom());
+        fontSizePx = px + 'px';
+    }
+
+    // Handle 'chinese' font name mapping to system fonts
+    let fontFamily = p.FontName;
+    if (!fontFamily || fontFamily.toLowerCase().indexOf('chinese') !== -1) {
+        fontFamily = '"Microsoft JhengHei", "Microsoft YaHei", sans-serif';
+    }
+    
+    const isBold = p.Bold == 1;
+    const isItalic = p.Italic == 1;
+    const isUnderline = p.Underline == 1;
+
+    // Scale X for Width Factor (CharacterWidth: 40 -> 40%?)
+    // If CharacterWidth is 100 (normal), then 40 is 0.4.
+    // Also flip angle? If FlipAngle is set, maybe it implies a mirror or just orientation limit.
+    // Ignoring FlipAngle for now in favor of raw rotation.
+    const scaleX = (p.CharacterWidth && p.CharacterWidth !== 100) ? (p.CharacterWidth / 100) : 1;
+    
+    // Alignment mapping
+    // VerticalAlignment: 0-Top, 1-Center, 2-Baseline, 3-Bottom
+    // HorizontalAlignment: 0-Left, 1-Center, 2-Right
+    
+    let translateX = '-50%'; // Default Center
+    let translateY = '-50%'; // Default Center
+    let textAlign = 'center';
+
+    // Horizontal
+    if (p.HorizontalAlignment == 0) { // Left
+        translateX = '0%';
+        textAlign = 'left'; 
+    } else if (p.HorizontalAlignment == 1) { // Center
+        translateX = '-50%';
+        textAlign = 'center';
+    } else if (p.HorizontalAlignment == 2) { // Right
+        translateX = '-100%';
+        textAlign = 'right';
+    }
+
+    // Vertical
+    // For CSS transform translate:
+    // 0% Y -> Top aligned with anchor
+    // -50% Y -> Center aligned with anchor
+    // -100% Y -> Bottom aligned with anchor
+    if (p.VerticalAlignment == 0) { // Top
+        translateY = '0%';
+    } else if (p.VerticalAlignment == 1) { // Center
+        translateY = '-50%';
+    } else if (p.VerticalAlignment == 2 || p.VerticalAlignment == 3) { // Baseline / Bottom
+        translateY = '-100%';
+    }
+
+    // Style construction
+    // Added 'road-label' class and data attributes for dynamic resizing
+    // Rotation: rotate first, then translate?
+    // standard CSS transform order applies from right to left intuitively?
+    // transform: rotate(A) translate(X, Y) scaleX(S)
+    // Actually applying rotate first (leftmost in string) rotates the coordinate system.
+    // Then translate moves along the rotated axes.
+    // We want the text to anchor at point, then rotate.
+    // So usually: translate(-50%, -50%) to center on point, THEN rotate, THEN scale.
+    // Order matters! 
+    // If we rotate first: The X/Y translation axes are rotated.
+    // If we translate first: calculated from element center.
+    // Let's do: translate (to align anchor) -> rotate (around anchor) -> scale
+    // Syntax: transform: translate(tx, ty) rotate(deg) scale(sx)
+    
+    const style = `
+        position: absolute;
+        left: 0; top: 0;
+        white-space: nowrap;
+        font-family: ${fontFamily};
+        /* font-size set via inline style on element but also here for init */
+        font-weight: ${isBold ? 'bold' : 'normal'};
+        font-style: ${isItalic ? 'italic' : 'normal'};
+        text-decoration: ${isUnderline ? 'underline' : 'none'};
+        color: black;
+        text-align: ${textAlign};
+        transform-origin: 0 0; /* Leaflet DivIcon anchor becomes the 0,0 of this inner div */
+        transform: rotate(${cssRotation}deg) translate(${translateX}, ${translateY}) scaleX(${scaleX});
+        pointer-events: none; 
+        line-height: 1.2;
+    `;
+
+    return L.divIcon({
+        className: '', 
+        html: `<div class="road-label" data-size-meters="${sizeMeters}" data-lat="${latlng ? latlng.lat : 0}" style="${style} font-size: ${fontSizePx};">${text}</div>`,
+        iconSize: [0, 0], 
+        iconAnchor: [0, 0] 
+    });
+}
