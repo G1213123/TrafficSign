@@ -235,6 +235,10 @@ let FormDrawMapComponent = {
       // Show corner radius inputs only for LaneDrop shape
       if (selectedShape === 'LaneDrop') {
         cornerRadiusContainer.style.display = 'block';
+        const tipLengthInput = document.getElementById('tip-length');
+        if (tipLengthInput) {
+          tipLengthInput.value = 18.45;
+        }
       } else {
         cornerRadiusContainer.style.display = 'none';
       }
@@ -550,7 +554,6 @@ let FormDrawMapComponent = {
       mainAngle = -30;
     } else if (options.shape === 'LaneDrop') {
       mainAngle = -60
-      tipLength = 18.45
       rootLength = 12
     }
     const angleRad = mainAngle * Math.PI / 180;

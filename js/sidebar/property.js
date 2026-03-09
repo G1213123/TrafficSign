@@ -6,6 +6,7 @@ import { canvasTracker } from '../canvas/Tracker.js';
 import { DividerObject } from '../objects/divider.js';
 import { anchorShape } from '../objects/anchor.js';
 import { i18n } from '../i18n/i18n.js';
+import { calculateMainRoadBottomY } from '../objects/mainRoute.js';
 
 // Add handler for 'Property' context-menu action
 const propertyMenuItem = document.getElementById('property');
