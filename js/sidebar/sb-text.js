@@ -7,7 +7,7 @@ import { anchorShape } from '../objects/anchor.js';
 import { EngDestinations, ChtDestinations } from '../objects/template.js';
 import { FontPriorityManager } from '../modal/md-font.js';
 import { HintLoader } from '../utils/hintLoader.js';
-import { DividerObject } from '../objects/divider.js';
+import { SymbolObject } from '../objects/symbols.js';
 import { BorderGroup } from '../objects/border.js';
 
 let FormTextAddComponent = {
@@ -98,11 +98,37 @@ let FormTextAddComponent = {
       // Create the select element for locations
       const locationSelect = GeneralHandler.createNode("select", { 'class': 'input', 'id': 'location-select' }, locationDropdownContainer, FormTextAddComponent.locationSelected, 'change');
 
-  // Initialize the location dropdown with locations from the first region
-  FormTextAddComponent.populateLocationDropdown(regionNames[0], "English");
+      // Create a container for Street Name Plate
+      const streetNamePlateContainer = GeneralHandler.createNode("div", { 'class': 'input-group-container' }, parent);
+      GeneralHandler.createI18nNode('div', { 'class': 'placeholder' }, streetNamePlateContainer, 'Street Name Plate', 'text');
 
-  // Apply translations so Region toggle options and labels render in the current locale
-  try { i18n.applyTranslations(parent); } catch (_) {}
+      GeneralHandler.createInput('input-eng-st-name', 'Eng St Name', streetNamePlateContainer, '', null, 'input');
+      GeneralHandler.createInput('input-chin-st-name', 'Chin St Name', streetNamePlateContainer, '', null, 'input');
+
+      // Left numbers row
+      const leftNumRow = GeneralHandler.createNode("div", { 'class': 'input-row' }, streetNamePlateContainer);
+      GeneralHandler.createInput('input-left-st-num1', 'Left Num 1', leftNumRow, '', null, 'input', '(optional)');
+      GeneralHandler.createInput('input-left-st-num2', 'Left Num 2', leftNumRow, '', null, 'input', '(optional)');
+
+      // Right numbers row
+      const rightNumRow = GeneralHandler.createNode("div", { 'class': 'input-row' }, streetNamePlateContainer);
+      GeneralHandler.createInput('input-right-st-num1', 'Right Num 1', rightNumRow, '', null, 'input', '(optional)');
+      GeneralHandler.createInput('input-right-st-num2', 'Right Num 2', rightNumRow, '', null, 'input', '(optional)');
+
+      GeneralHandler.createButton(
+        'add-street-name-plate-text',
+        'Add Street Name Plate Text',
+        streetNamePlateContainer,
+        'input',
+        FormTextAddComponent.createStreetNamePlate,
+        'click'
+      );
+
+      // Initialize the location dropdown with locations from the first region
+      FormTextAddComponent.populateLocationDropdown(regionNames[0], "English");
+
+      // Apply translations so Region toggle options and labels render in the current locale
+      try { i18n.applyTranslations(parent); } catch (_) { }
     }
   },
 
@@ -134,7 +160,7 @@ let FormTextAddComponent = {
     FormTextAddComponent.populateLocationDropdown(regionName, language);
     if (FormTextAddComponent.newTextObject && CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
       FormTextAddComponent.liveUpdateText();
-  CanvasGlobals.scheduleRender();
+      CanvasGlobals.scheduleRender();
     }
   },
 
@@ -159,12 +185,12 @@ let FormTextAddComponent = {
     // Clear existing options
     locationSelect.innerHTML = '';
 
-  // Add a default empty option (translate immediately and mark for future locale switches)
-  const defaultOption = document.createElement('option');
-  defaultOption.value = '';
-  defaultOption.setAttribute('data-i18n', '-- Select Location --');
-  defaultOption.text = i18n.t('-- Select Location --');
-  locationSelect.appendChild(defaultOption);
+    // Add a default empty option (translate immediately and mark for future locale switches)
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.setAttribute('data-i18n', '-- Select Location --');
+    defaultOption.text = i18n.t('-- Select Location --');
+    locationSelect.appendChild(defaultOption);
 
     // Find the selected region in the destinations array
     const languageSet = language == "English" ? EngDestinations : ChtDestinations
@@ -183,7 +209,7 @@ let FormTextAddComponent = {
     });
 
     // Re-apply translations for the newly created dropdown (safe-guard if locale changed later)
-    try { i18n.applyTranslations(locationSelect); } catch (_) {}
+    try { i18n.applyTranslations(locationSelect); } catch (_) { }
   },
 
   /**
@@ -204,7 +230,7 @@ let FormTextAddComponent = {
       // If we already have a new text object being placed, update it
       if (FormTextAddComponent.newTextObject && CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
         FormTextAddComponent.liveUpdateText();
-  CanvasGlobals.scheduleRender();
+        CanvasGlobals.scheduleRender();
       }
       // If we're editing an existing text object
       else if (activeObject && activeObject.functionalType === 'Text') {
@@ -221,6 +247,133 @@ let FormTextAddComponent = {
         });
       }
     }
+  },
+
+  createStreetNamePlate: async function () {
+    const engStName = document.getElementById('input-eng-st-name').value;
+    const chinStName = document.getElementById('input-chin-st-name').value;
+    const leftStNum1 = document.getElementById('input-left-st-num1').value;
+    const leftStNum2 = document.getElementById('input-left-st-num2').value;
+    const rightStNum1 = document.getElementById('input-right-st-num1').value;
+    const rightStNum2 = document.getElementById('input-right-st-num2').value;
+
+    const xHeightEng = 50;
+    const xHeightChin = 43.5;
+    const xHeightNum = 35;
+    const font = document.getElementById('Text Font-container').selected.getAttribute('data-value') || 'TransportMedium';
+    const color = 'black';
+
+    // For Chinese text, we should use the Chinese font
+    let chinFont = 'TW-MOE-Std-Kai';
+    try {
+      const fontPriorityList = FontPriorityManager.getFontPriorityList();
+      const priorityFont = fontPriorityList.length > 0 ? fontPriorityList[0] : 'parsedFontKorean';
+      switch (priorityFont) {
+        case 'parsedFontKorean': chinFont = 'TW-MOE-Std-Kai'; break;
+        case 'parsedFontChinese': chinFont = 'TW-MOE-Std-Kai'; break;
+        case 'parsedFontHK': chinFont = 'TW-MOE-Std-Kai'; break;
+        case 'parsedFontMedium': chinFont = 'TransportMedium'; break;
+        case 'parsedFontHeavy': chinFont = 'TransportHeavy'; break;
+        default: chinFont = 'TW-MOE-Std-Kai';
+      }
+    } catch (e) { }
+
+    await GeneralHandler.createObjectWithSnapping(
+      {
+        engStName, chinStName, leftStNum1, leftStNum2, rightStNum1, rightStNum2,
+        xHeightEng, xHeightChin, xHeightNum, font, chinFont, color
+      },
+      FormTextAddComponent.createStreetNamePlateObject,
+      FormTextAddComponent,
+      'newTextObject',
+      'E1',
+      FormTextAddComponent.TextOnMouseMove,
+      FormTextAddComponent.TextOnMouseClick,
+      FormTextAddComponent.cancelInput
+    );
+  },
+
+  createStreetNamePlateObject: function (options) {
+    const pos = options.position || CanvasGlobals.CenterCoord();
+
+    // Spread the objects out vertically during creation, similar to 2-liner texts,
+    // to give them distinct coordinates initially before anchoring.
+    let Y_offset = 0;
+
+    const createText = (text, xHeight, fontOverride, charSpacing = 0) => {
+      if (!text) return null;
+      const t = new TextObject({
+        text: text,
+        xHeight: xHeight,
+        font: fontOverride || options.font,
+        color: options.color,
+        left: pos.x,
+        top: pos.y + Y_offset,
+        charSpacing: charSpacing
+      });
+      t.isTemporary = true;
+      Y_offset += 10; // offset each slightly
+      return t;
+    };
+
+    const tEngStName = createText(options.engStName, options.xHeightEng);
+    const tChinStName = createText(options.chinStName, options.xHeightChin, options.chinFont, 18.25); // Add extra char spacing for Chinese text to make it fulfil standard 40
+    const tLeftStNum1 = createText(options.leftStNum1, options.xHeightNum);
+    const tLeftStNum2 = createText(options.leftStNum2, options.xHeightNum);
+    const tRightStNum1 = createText(options.rightStNum1, options.xHeightNum);
+    const tRightStNum2 = createText(options.rightStNum2, options.xHeightNum);
+
+    const createLozenge = (xHeight) => {
+      const lozenge = new SymbolObject({
+        symbolType: 'Lozenge',
+        xHeight: xHeight,
+        color: options.color,
+        left: pos.x,
+        top: pos.y + Y_offset
+      });
+      lozenge.isTemporary = true;
+      Y_offset += 10;
+      return lozenge;
+    };
+
+    // Calculate widths only for existing numbers
+    const leftNumWidth = (tLeftStNum2?.width || 0) + (tLeftStNum1?.width || 0);
+    const rightNumWidth = (tRightStNum1?.width || 0) + (tRightStNum2?.width || 0);
+    const leftEqWidth = leftNumWidth - rightNumWidth > 0 ? 0 : 0.5 * leftNumWidth - 0.5 * rightNumWidth;
+    const rightEqWidth = rightNumWidth - leftNumWidth > 0 ? 0 : 0.5 * rightNumWidth - 0.5 * leftNumWidth;
+
+    // Anchor Chinese name below English name
+    if (tEngStName && tChinStName) {
+      anchorShape(tEngStName, tChinStName, { vertexIndex1: 'E2', vertexIndex2: 'E6', spacingX: 0, spacingY: 56 - options.xHeightEng * 0.5 - options.xHeightChin * 0.1 });
+    }
+
+    // Anchor left numbers to the left of English name
+    if (tChinStName && (tLeftStNum1 || tLeftStNum2)) {
+      const targetNum = tLeftStNum2 || tLeftStNum1;
+      anchorShape(tChinStName, targetNum, { vertexIndex1: 'E4', vertexIndex2: 'E8', spacingX: -35 + leftEqWidth + options.xHeightChin * 0.25, spacingY: 0 });
+    }
+    if (tLeftStNum1 && tLeftStNum2) {
+      const lozengeLeft = createLozenge(options.xHeightNum);
+      anchorShape(tLeftStNum2, lozengeLeft, { vertexIndex1: 'E4', vertexIndex2: 'E8', spacingX: -10, spacingY: -0.2 * options.xHeightNum });
+      anchorShape(lozengeLeft, tLeftStNum1, { vertexIndex1: 'E4', vertexIndex2: 'E8', spacingX: -10, spacingY: 0.2 * options.xHeightNum });
+    }
+
+    // Anchor right numbers to the right of English name
+    if (tChinStName && (tRightStNum1 || tRightStNum2)) {
+      const targetNum = tRightStNum1 || tRightStNum2;
+      anchorShape(tChinStName, targetNum, { vertexIndex1: 'E8', vertexIndex2: 'E4', spacingX: 35 - rightEqWidth - options.xHeightChin * 0.25, spacingY: 0 });
+    }
+    if (tRightStNum1 && tRightStNum2) {
+      const lozengeRight = createLozenge(options.xHeightNum);
+      anchorShape(tRightStNum1, lozengeRight, { vertexIndex1: 'E8', vertexIndex2: 'E4', spacingX: 10, spacingY: -0.2 * options.xHeightNum });
+      anchorShape(lozengeRight, tRightStNum2, { vertexIndex1: 'E8', vertexIndex2: 'E4', spacingX: 10, spacingY: 0.2 * options.xHeightNum });
+    }
+
+    CanvasGlobals.scheduleRender();
+
+
+    // Return the base object so createObjectWithSnapping can bind it to mouse
+    return tEngStName || tChinStName || tLeftStNum1 || tRightStNum1;
   },
 
   /**
@@ -544,7 +697,7 @@ let FormTextAddComponent = {
     // If we already have a new text object being placed, just update it instead of creating another
     if (FormTextAddComponent.newTextObject && CanvasGlobals.canvas.contains(FormTextAddComponent.newTextObject)) {
       FormTextAddComponent.newTextObject.updateText(txt, xHeight, font, color);
-  CanvasGlobals.scheduleRender();
+      CanvasGlobals.scheduleRender();
       return;
     }
 
@@ -596,7 +749,7 @@ let FormTextAddComponent = {
       console.error('Error creating text object:', error);
     }
 
-  CanvasGlobals.scheduleRender();
+    CanvasGlobals.scheduleRender();
   },
 
   // For regular single-line text, use our standard pattern

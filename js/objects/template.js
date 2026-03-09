@@ -64,7 +64,7 @@ const roadMapTemplate = {
             ], 'arcs': [
                 { start: 'V7', end: 'V1', radius: 4.5, direction: 0, sweep: 0 },
                 { start: 'V1', end: 'V2', radius: 4.5, direction: 0, sweep: 0 },]
-        },{
+        }, {
             'vertex': [
                 { x: -1, y: 1, label: 'V8', start: 1, display: 1 },
                 { x: 0, y: 0, label: 'V9', start: 0, display: 1 },
@@ -73,7 +73,7 @@ const roadMapTemplate = {
                 { x: -1, y: 3.1125, label: 'V12', start: 0, display: 1 },
             ], 'arcs': [
                 { start: 'V11', end: 'V12', radius: 4.5, direction: 0, sweep: 0 },]
-        },  {
+        }, {
             'vertex': [
                 { x: 0, y: 7.5, label: 'C1', start: 1, display: 1 },
             ], 'arcs': [],
@@ -2794,6 +2794,76 @@ const symbolsTemplate = {
         text: []
     },
 
+    'CableCar': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: 0, label: 'V1', start: 1, display: 1 },
+                    { x: 0.426, y: 0, label: 'V2', start: 0, display: 0 },
+                    { x: 0.426, y: 3.407, label: 'V3', start: 0, display: 0 },
+                    { x: 3.212, y: 3.407, label: 'V4', start: 0, display: 0 },
+                    { x: 3.097, y: 3.044, label: 'V5', start: 0, display: 0 },
+                    { x: 3.697, y: 3.044, label: 'V6', start: 0, display: 0 },
+                    { x: 5.319, y: 8.271, label: 'V7', start: 0, display: 0 },
+                    { x: 5.383, y: 11.477, label: 'V8', start: 0, display: 0 },
+                    { x: 4.158, y: 16.070, label: 'V9', start: 0, display: 0 },
+                    { x: 3.585, y: 16.070, label: 'V10', start: 0, display: 0 },
+                    { x: 3.833, y: 15.133, label: 'V11', start: 0, display: 0 },
+                    { x: -3.833, y: 15.133, label: 'V12', start: 0, display: 0 },
+                    { x: -3.585, y: 16.070, label: 'V13', start: 0, display: 0 },
+                    { x: -4.158, y: 16.070, label: 'V14', start: 0, display: 0 },
+                    { x: -5.383, y: 11.477, label: 'V15', start: 0, display: 0 },
+                    { x: -5.319, y: 8.271, label: 'V16', start: 0, display: 0 },
+                    { x: -3.697, y: 3.044, label: 'V17', start: 0, display: 0 },
+                    { x: -3.097, y: 3.044, label: 'V18', start: 0, display: 0 },
+                    { x: -3.212, y: 3.407, label: 'V19', start: 0, display: 0 },
+                    { x: -0.426, y: 3.407, label: 'V20', start: 0, display: 0 },
+                    { x: -0.426, y: 0, label: 'V21', start: 0, display: 0 },
+                    { x: 3.518, y: 4.390, label: 'V31', start: 1, display: 0 },
+                    { x: 3.518, y: 10.656, label: 'V32', start: 0, display: 0 },
+                    { x: 4.983, y: 10.656, label: 'V33', start: 0, display: 0 },
+                    { x: 4.790, y: 8.437, label: 'V34', start: 0, display: 0 },
+                    { x: 0.235, y: 4.390, label: 'V35', start: 1, display: 0 },
+                    { x: 0.235, y: 10.656, label: 'V36', start: 0, display: 0 },
+                    { x: 3.048, y: 10.656, label: 'V37', start: 0, display: 0 },
+                    { x: 3.048, y: 4.390, label: 'V38', start: 0, display: 0 },
+                    { x: -3.518, y: 4.390, label: 'V41', start: 1, display: 0 },
+                    { x: -4.790, y: 8.437, label: 'V42', start: 0, display: 0 },
+                    { x: -4.983, y: 10.656, label: 'V43', start: 0, display: 0 },
+                    { x: -3.518, y: 10.656, label: 'V44', start: 0, display: 0 },
+                    { x: -0.235, y: 4.390, label: 'V45', start: 1, display: 0 },
+                    { x: -3.048, y: 4.390, label: 'V46', start: 0, display: 0 },
+                    { x: -3.048, y: 10.656, label: 'V47', start: 0, display: 0 },
+                    { x: -0.235, y: 10.656, label: 'V48', start: 0, display: 0 },
+
+                ], 'arcs': [
+                    { start: 'V7', end: 'V8', radius: 5.709, direction: 1, sweep: 0 },
+                    { start: 'V15', end: 'V16', radius: 5.709, direction: 1, sweep: 0 },
+                    { start: 'V33', end: 'V34', radius: 5.155, direction: 0, sweep: 0 },
+                    { start: 'V42', end: 'V43', radius: 5.155, direction: 0, sweep: 0 },
+
+                ],
+            },
+            {
+                'vertex': [
+                    { x: 0.641, y: 1.103, label: 'V51', start: 1, display: 0 },
+                    { x: 7.147, y: 2.847, label: 'V52', start: 0, display: 0 },
+                    { x: 7.147, y: 3.335, label: 'V53', start: 0, display: 0 },
+                    { x: 0.641, y: 1.589, label: 'V54', start: 0, display: 0 },
+                ], 'arcs': [],
+            },
+            {
+                'vertex': [
+                    { x: -0.641, y: 0.761, label: 'V55', start: 1, display: 0 },
+                    { x: -7.147, y: -0.982, label: 'V56', start: 0, display: 0 },
+                    { x: -7.147, y: -0.497, label: 'V57', start: 0, display: 0 },
+                    { x: -0.641, y: 1.246, label: 'V58', start: 0, display: 0 },
+                ], 'arcs': [],
+            },
+        ],
+        text: []
+    },
+
     'Disney': {
         path: [ // https://upload.wikimedia.org/wikipedia/commons/f/fe/Mickey_Mouse_head_and_ears.svg
             {
@@ -3525,7 +3595,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
     },
@@ -3557,10 +3627,10 @@ const symbolsTemplate = {
                     { start: 'V13', end: 'V14', radius: 6.4, direction: 1, sweep: 0 },
                     { start: 'V14', end: 'V11', radius: 6.4, direction: 1, sweep: 0 },
                 ], 'fill': 'rgb(255, 255, 255)'
-            },            {
+            }, {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
 
         ],
@@ -3610,10 +3680,10 @@ const symbolsTemplate = {
                     { start: 'V11', end: 'V12', radius: 6.4, direction: 0, sweep: 0 },
                     { start: 'V14', end: 'V13', radius: 6.4, direction: 0, sweep: 0 },
                 ], 'fill': 'rgb(224, 0, 0)'
-            },            {
+            }, {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
 
         ],
@@ -3663,10 +3733,10 @@ const symbolsTemplate = {
                     { start: 'V12', end: 'V11', radius: 6.4, direction: 0, sweep: 0 },
                     { start: 'V13', end: 'V14', radius: 6.4, direction: 0, sweep: 0 },
                 ], 'fill': 'rgb(224, 0, 0)'
-            },            {
+            }, {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
 
         ],
@@ -3723,10 +3793,10 @@ const symbolsTemplate = {
                     { start: 'V11', end: 'V12', radius: 6.4, direction: 0, sweep: 0 },
                     { start: 'V14', end: 'V13', radius: 6.4, direction: 0, sweep: 0 },
                 ], 'fill': 'rgb(224, 0, 0)'
-            },            {
+            }, {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
 
         ],
@@ -3773,10 +3843,10 @@ const symbolsTemplate = {
                     { x: -5.867, y: 6.667, label: 'V12', start: 0, display: 0 },
                     { x: -5.867, y: 9.333, label: 'V13', start: 0, display: 0 },
                 ], 'arcs': [], 'fill': 'rgb(0, 0, 0)'
-            },            {
+            }, {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
 
         ],
@@ -3831,7 +3901,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -3885,7 +3955,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -3939,7 +4009,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -3993,7 +4063,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4046,7 +4116,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4099,7 +4169,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4152,7 +4222,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4205,7 +4275,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4258,7 +4328,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4311,7 +4381,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4364,7 +4434,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4417,7 +4487,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4470,7 +4540,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4523,7 +4593,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4576,7 +4646,7 @@ const symbolsTemplate = {
             {
                 'vertex': [
                     { x: 0, y: 8, label: 'C1', start: 1, display: 1 },
-                ], 
+                ],
             },
         ],
         text: [
@@ -4585,6 +4655,18 @@ const symbolsTemplate = {
         ]
     },
 
+    'Lozenge': {
+        path: [
+            {
+                'vertex': [
+                    { x: 0, y: -1, label: 'V1', start: 1, display: 1 },
+                    { x: 2, y: 0, label: 'V2', start: 0, display: 0 },
+                    { x: 0, y: 1, label: 'V3', start: 0, display: 0 },
+                    { x: -2, y: 0, label: 'V4', start: 0, display: 0 },
+                ], 'arcs': []
+            }
+        ]
+    },
 
 };
 
@@ -5061,7 +5143,7 @@ const symbolsTemplateAlt = {
     },
 }
 
-const textWidthMedium = [{ char: ' ', width: 50, shortWidth: 0 }, { char: 'A', width: 136, shortWidth: 0 }, { char: 'B', width: 147, shortWidth: 0 }, { char: 'C', width: 148, shortWidth: 0 }, { char: 'D', width: 154, shortWidth: 0 }, { char: 'E', width: 132, shortWidth: 0 }, { char: 'F', width: 119, shortWidth: 0 }, { char: 'G', width: 155, shortWidth: 0 }, { char: 'H', width: 160, shortWidth: 0 }, { char: 'I', width: 73, shortWidth: 0 }, { char: 'J', width: 93, shortWidth: 0 }, { char: 'K', width: 138, shortWidth: 0 }, { char: 'L', width: 107, shortWidth: 0 }, { char: 'M', width: 184, shortWidth: 0 }, { char: 'N', width: 168, shortWidth: 0 }, { char: 'O', width: 156, shortWidth: 0 }, { char: 'P', width: 130, shortWidth: 0 }, { char: 'Q', width: 158, shortWidth: 0 }, { char: 'R', width: 141, shortWidth: 0 }, { char: 'S', width: 137, shortWidth: 0 }, { char: 'T', width: 109, shortWidth: 105 }, { char: 'U', width: 154, shortWidth: 0 }, { char: 'V', width: 130, shortWidth: 120 }, { char: 'W', width: 183, shortWidth: 189 }, { char: 'X', width: 128, shortWidth: 0 }, { char: 'Y', width: 123, shortWidth: 118 }, { char: 'Z', width: 119, shortWidth: 0 }, { char: 'a', width: 111, shortWidth: 104 }, { char: 'b', width: 117, shortWidth: 0 }, { char: 'c', width: 103, shortWidth: 0 }, { char: 'd', width: 119, shortWidth: 0 }, { char: 'e', width: 109, shortWidth: 102 }, { char: 'f', width: 75, shortWidth: 0 }, { char: 'g', width: 114, shortWidth: 107 }, { char: 'h', width: 112, shortWidth: 0 }, { char: 'i', width: 54, shortWidth: 0 }, { char: 'j', width: 58, shortWidth: 0 }, { char: 'k', width: 108, shortWidth: 0 }, { char: 'l', width: 62, shortWidth: 0 }, { char: 'm', width: 164, shortWidth: 0 }, { char: 'n', width: 112, shortWidth: 0 }, { char: 'o', width: 118, shortWidth: 111 }, { char: 'p', width: 118, shortWidth: 0 }, { char: 'q', width: 118, shortWidth: 0 }, { char: 'r', width: 73, shortWidth: 59 }, { char: 's', width: 97, shortWidth: 95 }, { char: 't', width: 81, shortWidth: 0 }, { char: 'u', width: 115, shortWidth: 101 }, { char: 'v', width: 98, shortWidth: 0 }, { char: 'w', width: 147, shortWidth: 145 }, { char: 'x', width: 104, shortWidth: 0 }, { char: 'y', width: 98, shortWidth: 96 }, { char: 'z', width: 97, shortWidth: 0 }, { char: '1', width: 78, shortWidth: 0 }, { char: '2', width: 120, shortWidth: 0 }, { char: '3', width: 127, shortWidth: 0 }, { char: '4', width: 132, shortWidth: 0 }, { char: '5', width: 122, shortWidth: 0 }, { char: '6', width: 126, shortWidth: 0 }, { char: '7', width: 104, shortWidth: 0 }, { char: '8', width: 130, shortWidth: 0 }, { char: '9', width: 128, shortWidth: 0 }, { char: '0', width: 133, shortWidth: 0 }, { char: '¼', width: 123, shortWidth: 0 }, { char: '½', width: 132, shortWidth: 0 }, { char: '¾', width: 148, shortWidth: 0 }, { char: ',', width: 53, shortWidth: 0 }, { char: '.', width: 53, shortWidth: 0 }, { char: "'", width: 39, shortWidth: 0 }, { char: ':', width: 53, shortWidth: 0 }, { char: '•', width: 53, shortWidth: 0 }, { char: '、', width: 53, shortWidth: 0 }, { char: '-', width: 66, shortWidth: 0 }, { char: '&', width: 126, shortWidth: 0 }, { char: '(', width: 105, shortWidth: 0 }, { char: ')', width: 105, shortWidth: 0 }, { char: '/', width: 85, shortWidth: 0 }, { char: '$', width: 100, shortWidth: 0 }, { char: '%', width: 160, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }]
+const textWidthMedium = [{ char: ' ', width: 50, shortWidth: 0 }, { char: 'A', width: 136, shortWidth: 0 }, { char: 'B', width: 147, shortWidth: 0 }, { char: 'C', width: 148, shortWidth: 0 }, { char: 'D', width: 154, shortWidth: 0 }, { char: 'E', width: 132, shortWidth: 0 }, { char: 'F', width: 119, shortWidth: 0 }, { char: 'G', width: 155, shortWidth: 0 }, { char: 'H', width: 160, shortWidth: 0 }, { char: 'I', width: 73, shortWidth: 0 }, { char: 'J', width: 93, shortWidth: 0 }, { char: 'K', width: 138, shortWidth: 0 }, { char: 'L', width: 107, shortWidth: 0 }, { char: 'M', width: 184, shortWidth: 0 }, { char: 'N', width: 168, shortWidth: 0 }, { char: 'O', width: 156, shortWidth: 0 }, { char: 'P', width: 130, shortWidth: 0 }, { char: 'Q', width: 158, shortWidth: 0 }, { char: 'R', width: 141, shortWidth: 0 }, { char: 'S', width: 137, shortWidth: 0 }, { char: 'T', width: 109, shortWidth: 105 }, { char: 'U', width: 154, shortWidth: 0 }, { char: 'V', width: 130, shortWidth: 120 }, { char: 'W', width: 183, shortWidth: 189 }, { char: 'X', width: 128, shortWidth: 0 }, { char: 'Y', width: 123, shortWidth: 118 }, { char: 'Z', width: 119, shortWidth: 0 }, { char: 'a', width: 111, shortWidth: 104 }, { char: 'b', width: 117, shortWidth: 0 }, { char: 'c', width: 103, shortWidth: 0 }, { char: 'd', width: 119, shortWidth: 0 }, { char: 'e', width: 109, shortWidth: 102 }, { char: 'f', width: 75, shortWidth: 0 }, { char: 'g', width: 114, shortWidth: 107 }, { char: 'h', width: 112, shortWidth: 0 }, { char: 'i', width: 54, shortWidth: 0 }, { char: 'j', width: 58, shortWidth: 0 }, { char: 'k', width: 108, shortWidth: 0 }, { char: 'l', width: 62, shortWidth: 0 }, { char: 'm', width: 164, shortWidth: 0 }, { char: 'n', width: 112, shortWidth: 0 }, { char: 'o', width: 118, shortWidth: 111 }, { char: 'p', width: 118, shortWidth: 0 }, { char: 'q', width: 118, shortWidth: 0 }, { char: 'r', width: 73, shortWidth: 59 }, { char: 's', width: 97, shortWidth: 95 }, { char: 't', width: 81, shortWidth: 0 }, { char: 'u', width: 115, shortWidth: 101 }, { char: 'v', width: 98, shortWidth: 0 }, { char: 'w', width: 147, shortWidth: 145 }, { char: 'x', width: 104, shortWidth: 0 }, { char: 'y', width: 98, shortWidth: 96 }, { char: 'z', width: 97, shortWidth: 0 }, { char: '1', width: 78, shortWidth: 0 }, { char: '2', width: 120, shortWidth: 0 }, { char: '3', width: 127, shortWidth: 0 }, { char: '4', width: 132, shortWidth: 0 }, { char: '5', width: 122, shortWidth: 0 }, { char: '6', width: 126, shortWidth: 0 }, { char: '7', width: 104, shortWidth: 0 }, { char: '8', width: 130, shortWidth: 0 }, { char: '9', width: 128, shortWidth: 0 }, { char: '0', width: 133, shortWidth: 0 }, { char: '¼', width: 123, shortWidth: 0 }, { char: '½', width: 132, shortWidth: 0 }, { char: '¾', width: 148, shortWidth: 0 }, { char: ',', width: 53, shortWidth: 0 }, { char: '.', width: 53, shortWidth: 0 }, { char: "'", width: 39, shortWidth: 0 }, { char: ':', width: 53, shortWidth: 0 }, { char: '•', width: 53, shortWidth: 0 }, { char: '、', width: 53, shortWidth: 0 }, { char: '-', width: 66, shortWidth: 0 }, { char: '&', width: 126, shortWidth: 0 }, { char: '(', width: 105, shortWidth: 0 }, { char: ')', width: 105, shortWidth: 0 }, { char: '/', width: 85, shortWidth: 0 }, { char: '$', width: 100, shortWidth: 0 }, { char: '%', width: 160, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }, { char: '⧫', width: 100, shortWidth: 0 }]
 const textWidthHeavy = [{ char: ' ', width: 50, shortWidth: 0 }, { char: 'A', width: 142, shortWidth: 0 }, { char: 'B', width: 146, shortWidth: 0 }, { char: 'C', width: 151, shortWidth: 0 }, { char: 'D', width: 150, shortWidth: 0 }, { char: 'E', width: 136, shortWidth: 0 }, { char: 'F', width: 121, shortWidth: 0 }, { char: 'G', width: 156, shortWidth: 0 }, { char: 'H', width: 159, shortWidth: 0 }, { char: 'I', width: 73, shortWidth: 0 }, { char: 'J', width: 95, shortWidth: 0 }, { char: 'K', width: 138, shortWidth: 0 }, { char: 'L', width: 118, shortWidth: 0 }, { char: 'M', width: 186, shortWidth: 0 }, { char: 'N', width: 168, shortWidth: 0 }, { char: 'O', width: 158, shortWidth: 0 }, { char: 'P', width: 134, shortWidth: 0 }, { char: 'Q', width: 161, shortWidth: 0 }, { char: 'R', width: 148, shortWidth: 0 }, { char: 'S', width: 146, shortWidth: 0 }, { char: 'T', width: 118, shortWidth: 113 }, { char: 'U', width: 157, shortWidth: 0 }, { char: 'V', width: 133, shortWidth: 127 }, { char: 'W', width: 193, shortWidth: 196 }, { char: 'X', width: 130, shortWidth: 0 }, { char: 'Y', width: 128, shortWidth: 125 }, { char: 'Z', width: 119, shortWidth: 0 }, { char: 'a', width: 111, shortWidth: 104 }, { char: 'b', width: 117, shortWidth: 0 }, { char: 'c', width: 107, shortWidth: 0 }, { char: 'd', width: 119, shortWidth: 0 }, { char: 'e', width: 110, shortWidth: 103 }, { char: 'f', width: 79, shortWidth: 0 }, { char: 'g', width: 117, shortWidth: 110 }, { char: 'h', width: 119, shortWidth: 0 }, { char: 'i', width: 55, shortWidth: 0 }, { char: 'j', width: 71, shortWidth: 0 }, { char: 'k', width: 114, shortWidth: 0 }, { char: 'l', width: 63, shortWidth: 0 }, { char: 'm', width: 173, shortWidth: 0 }, { char: 'n', width: 119, shortWidth: 0 }, { char: 'o', width: 115, shortWidth: 107 }, { char: 'p', width: 120, shortWidth: 0 }, { char: 'q', width: 120, shortWidth: 0 }, { char: 'r', width: 80, shortWidth: 67 }, { char: 's', width: 100, shortWidth: 98 }, { char: 't', width: 84, shortWidth: 0 }, { char: 'u', width: 120, shortWidth: 107 }, { char: 'v', width: 107, shortWidth: 0 }, { char: 'w', width: 160, shortWidth: 154 }, { char: 'x', width: 110, shortWidth: 0 }, { char: 'y', width: 106, shortWidth: 104 }, { char: 'z', width: 93, shortWidth: 0 }, { char: '1', width: 84, shortWidth: 0 }, { char: '2', width: 125, shortWidth: 0 }, { char: '3', width: 136, shortWidth: 0 }, { char: '4', width: 138, shortWidth: 0 }, { char: '5', width: 130, shortWidth: 0 }, { char: '6', width: 129, shortWidth: 0 }, { char: '7', width: 107, shortWidth: 0 }, { char: '8', width: 138, shortWidth: 0 }, { char: '9', width: 129, shortWidth: 0 }, { char: '0', width: 145, shortWidth: 0 }, { char: '¼', width: 130, shortWidth: 0 }, { char: '½', width: 136, shortWidth: 0 }, { char: '¾', width: 162, shortWidth: 0 }, { char: ',', width: 56, shortWidth: 0 }, { char: '.', width: 56, shortWidth: 0 }, { char: "'", width: 41, shortWidth: 0 }, { char: ':', width: 56, shortWidth: 0 }, { char: '•', width: 56, shortWidth: 0 }, { char: '、', width: 53, shortWidth: 0 }, { char: '-', width: 71, shortWidth: 0 }, { char: '&', width: 126, shortWidth: 0 }, { char: '(', width: 115, shortWidth: 0 }, { char: ')', width: 115, shortWidth: 0 }, { char: '/', width: 88, shortWidth: 0 }, { char: '$', width: 100, shortWidth: 0 }, { char: '%', width: 160, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }, { char: '"', width: 92, shortWidth: 0 }]
 
 const EngDestinations = [{ "Hong Kong Island": ["Hong Kong", "Hong Kong(E)", "Hong Kong(C)", "Hong Kong(W)", "Aberdeen", "Ap Lei Chau", "Causeway Bay", "Central", "Chai Wan", "Chung Hom Kok", "Cyberport", "Hang Fa Tsuen", "Happy Valley", "Kennedy Town", "Kornhill", "Mid-levels", "North Point", "Pok Fu Lam", "Quarry Bay", "Repulse Bay", "Sai Wan", "Sai Wan Ho", "Sai Ying Pun", "Shau Kei Wan", "Shek O", "Shek Tong Tsui", "Sheung Wan", "Shouson Hill", "Stanley", "Siu Sai Wan", "Tai Hang", "Tai Koo Shing", "The Peak", "Wah Fu", "Wan Chai", "Wan Chai(N)", "Wong Chuk Hang"] },
@@ -5121,6 +5203,10 @@ const BorderTypeScheme = {
     'panel': PanelTemplate,
     'greenPanel': GreenPanelTemplate,
     'rectangle': RectTemplate,
+    //'StreetName': StreetNameTemplate,
+    'StreetName2Way': StreetName2WayTemplate,
+    'StreetNameLeft': StreetNameLeftTemplate,
+    'StreetNameRight': StreetNameRightTemplate
 }
 
 const BorderFrameWidth = {
@@ -5178,6 +5264,93 @@ function applyLengthAndRounding(path, length) {
     path.arcs.forEach(arc => {
         arc.radius *= length;
     });
+}
+
+function StreetName2WayTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+    const length = xHeight / 4;
+
+    const baseWidth = block.width + 136 + 136; // V1 to V2 distance
+    const totalWidth = Math.ceil(baseWidth / 50) * 50;
+    const paddingX = (totalWidth - baseWidth) / 2;
+
+    const returnBorder = [{
+        'vertex': [
+            { x: (-136 - paddingX) / length, y: -45 / length, label: 'V1', start: 1, radius: 25 / length },
+            { x: (block.width + 136 + paddingX) / length, y: -45 / length, label: 'V2', start: 0, radius: 25 / length },
+            { x: (block.width + 136 + paddingX) / length, y: 279 / length, label: 'V3', start: 0, radius: 25 / length },
+            { x: (-136 - paddingX) / length, y: 279 / length, label: 'V4', start: 0, radius: 25 / length },
+        ], 'arcs': [], 'fill': '#000000'
+    }, {
+        'vertex': [
+            { x: (-6 - paddingX) / length, y: -33 / length, label: 'V1', start: 1, },
+            { x: (block.width + 6 + paddingX) / length, y: -33 / length, label: 'V2', start: 0 },
+            { x: (block.width + 111 + paddingX) / length, y: 117 / length, label: 'V3', start: 0 },
+            { x: (block.width + 6 + paddingX) / length, y: 267 / length, label: 'V4', start: 0 },
+            { x: (-6 - paddingX) / length, y: 267 / length, label: 'V5', start: 0 },
+            { x: (-111 - paddingX) / length, y: 117 / length, label: 'V6', start: 0 },
+        ], 'arcs': [], 'fill': '#FFFFFF'
+    }];
+
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
+}
+
+function StreetNameLeftTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+    const length = xHeight / 4;
+
+    const baseWidth = 136 + block.width + 37;
+    const totalWidth = Math.ceil(baseWidth / 50) * 50;
+    const paddingX = (totalWidth - baseWidth) / 2;
+
+    const returnBorder = [{
+        'vertex': [
+            { x: (-136 - paddingX) / length, y: -45 / length, label: 'V1', start: 1, radius: 25 / length },
+            { x: (block.width + 37 + paddingX) / length, y: -45 / length, label: 'V2', start: 0, radius: 25 / length },
+            { x: (block.width + 37 + paddingX) / length, y: 279 / length, label: 'V3', start: 0, radius: 25 / length },
+            { x: (-136 - paddingX) / length, y: 279 / length, label: 'V4', start: 0, radius: 25 / length },
+        ], 'arcs': [], 'fill': '#000000'
+    }, {
+        // Chevron on left, straight flat on right
+        'vertex': [
+            { x: (-6 - paddingX) / length, y: -33 / length, label: 'V1', start: 1, },
+            { x: (block.width + 25 + paddingX) / length, y: -33 / length, label: 'V2', start: 0, radius: 12.5 / length },
+            { x: (block.width + 25 + paddingX) / length, y: 267 / length, label: 'V3', start: 0, radius: 12.5 / length },
+            { x: (-6 - paddingX) / length, y: 267 / length, label: 'V4', start: 0 },
+            { x: (-111 - paddingX) / length, y: 117 / length, label: 'V5', start: 0 },
+        ], 'arcs': [], 'fill': '#FFFFFF'
+    }];
+
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
+}
+
+function StreetNameRightTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
+    const length = xHeight / 4;
+
+    const baseWidth = 37 + block.width + 136;
+    const totalWidth = Math.ceil(baseWidth / 50) * 50;
+    const paddingX = (totalWidth - baseWidth) / 2;
+
+    const returnBorder = [{
+        'vertex': [
+            { x: (-37 - paddingX) / length, y: -45 / length, label: 'V1', start: 1, radius: 25 / length },
+            { x: (block.width + 136 + paddingX) / length, y: -45 / length, label: 'V2', start: 0, radius: 25 / length },
+            { x: (block.width + 136 + paddingX) / length, y: 279 / length, label: 'V3', start: 0, radius: 25 / length },
+            { x: (-37 - paddingX) / length, y: 279 / length, label: 'V4', start: 0, radius: 25 / length },
+        ], 'arcs': [], 'fill': '#000000'
+    }, {
+        // Straight flat on left, Chevron on right
+        'vertex': [
+            { x: (-25 - paddingX) / length, y: -33 / length, label: 'V1', start: 1, radius: 12.5 / length },
+            { x: (block.width + 6 + paddingX) / length, y: -33 / length, label: 'V2', start: 0 },
+            { x: (block.width + 111 + paddingX) / length, y: 117 / length, label: 'V3', start: 0 },
+            { x: (block.width + 6 + paddingX) / length, y: 267 / length, label: 'V4', start: 0 },
+            { x: (-25 - paddingX) / length, y: 267 / length, label: 'V5', start: 0, radius: 12.5 / length },
+        ], 'arcs': [], 'fill': '#FFFFFF'
+    }];
+
+    returnBorder.forEach(path => applyLengthAndRounding(path, length));
+    return { path: returnBorder };
 }
 
 function RectTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {

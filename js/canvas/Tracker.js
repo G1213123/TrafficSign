@@ -204,6 +204,12 @@ class CanvasTracker {
           CanvasGlobals.canvasObject.length = 0;
       }
       
+      // Clear global anchor tree to prevent circular references and stale object references
+      const { globalAnchorTree } = await import("../objects/anchor.js");
+      if (globalAnchorTree && typeof globalAnchorTree.clear === 'function') {
+          globalAnchorTree.clear();
+      }
+
       const stateClone = JSON.parse(JSON.stringify(stateEntry.state));
       
       // Dynamic import to avoid circular dependency

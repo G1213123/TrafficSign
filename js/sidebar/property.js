@@ -6,6 +6,7 @@ import { canvasTracker } from '../canvas/Tracker.js';
 import { DividerObject } from '../objects/divider.js';
 import { anchorShape } from '../objects/anchor.js';
 import { i18n } from '../i18n/i18n.js';
+import { calculateMainRoadBottomY } from '../objects/mainRoute.js';
 
 // Add handler for 'Property' context-menu action
 const propertyMenuItem = document.getElementById('property');
@@ -22,7 +23,7 @@ propertyMenuItem.addEventListener('click', function (e) {
 CanvasGlobals.canvas.on('selection:created', handleSelection);
 CanvasGlobals.canvas.on('selection:updated', handleSelection);
 CanvasGlobals.canvas.on('object:modified', handleSelection);
-//CanvasGlobals.canvas.on('selection:cleared', handleClear);
+CanvasGlobals.canvas.on('selection:cleared', handleClear);
 
 function handleSelection(event) {
   const panel = document.getElementById('property-panel');

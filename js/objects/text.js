@@ -7,7 +7,6 @@ import { drawDivider } from './divider.js';
 import { textWidthMedium, textWidthHeavy, } from './template.js';
 import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontHK, parsedFontKorean, parsedFontChocolate, parsedFontKai, parsedFontSans, ensureOpenTypePatched } from './path.js';
 import { GeneralSettings } from '../sidebar/sbGeneral.js';
-import { FormTextAddComponent } from '../sidebar/sb-text.js';
 import { FontPriorityManager } from '../modal/md-font.js';
 
 
@@ -39,6 +38,7 @@ class TextObject extends BaseGroup {
     this.txtCharList = [];
     this.txtFrameList = [];
     this.underline = options.underline || null;
+    this.charSpacing = options.charSpacing || 0;
     this.containsNonAlphabetic = containsNonEnglishCharacters(this.text);
 
     // Determine the correct font based on text content and priority system
@@ -64,7 +64,8 @@ class TextObject extends BaseGroup {
       this.xHeight,
       this.color,
       this.font,
-      false
+      false,
+      this.charSpacing
     );
     // Build group
     const group = new fabric.Group([...txtCharList, ...txtFrameList], {
@@ -107,7 +108,8 @@ class TextObject extends BaseGroup {
       this.xHeight,
       this.color,
       this.font,
-      false
+      false,
+      this.charSpacing
     );
 
     // Remove old basePolygon
@@ -142,67 +144,6 @@ class TextObject extends BaseGroup {
   }
 
   /**
-   * LEGACY Handle double-click on the text object
-  */
-  onDoubleClick() {
-    // If already defined, initialize directly
-    FormTextAddComponent.textPanelInit(null, this);
-    this.setupTextPanelInputs();
-
-  }
-
-  /**
-   * Setup text panel inputs with current text values
-   */
-  setupTextPanelInputs() {
-    // Wait for the panel to initialize
-    setTimeout(() => {
-      // Fill the text input with the current text
-      const textInput = document.getElementById('input-text');
-      if (textInput) {
-        textInput.value = this.text;
-        textInput.focus();
-      }
-
-      // Set the xHeight input
-      const xHeightInput = document.getElementById('input-xHeight');
-      if (xHeightInput) {
-        xHeightInput.value = this.xHeight;
-      }
-
-      // Set the font toggle
-      const fontToggle = document.getElementById('Text Font-container');
-      if (fontToggle) {
-        const buttons = fontToggle.querySelectorAll('.toggle-button');
-        buttons.forEach(button => {
-          if (button.getAttribute('data-value') === this.font) {
-            button.classList.add('active');
-          } else {
-            button.classList.remove('active');
-          }
-        });
-      }
-
-      // Set the color toggle
-      const colorToggle = document.getElementById('Message Colour-container');
-      if (colorToggle) {
-        const buttons = colorToggle.querySelectorAll('.toggle-button');
-        buttons.forEach(button => {
-          if (button.getAttribute('data-value') === 'White' && this.color == '#ffffff') {
-            button.classList.add('active');
-          } else if
-            (button.getAttribute('data-value') === 'Black' && this.color == '#000000') {
-            button.classList.add('active');
-          } else {
-            button.classList.remove('active');
-          }
-        });
-      }
-    }, 100);
-  }
-
-
-  /**
    * Helper function to get the appropriate font for Chinese/non-English characters
    * @param {string} text - Text to check
    * @returns {string} - Font family name to use
@@ -230,7 +171,7 @@ class TextObject extends BaseGroup {
   /**
    * Helper function to get character parameters based on type
    */
-  static _getCharacterParameters(textChar, containsNonAlphabetic, font, xHeight, previousChar, nextChar) {
+  static _getCharacterParameters(textChar, containsNonAlphabetic, font, xHeight, previousChar, nextChar, charSpacing = 0) {
     // Handle special character transformations
     let actualChar = textChar;
     if (textChar === ',' && containsNonAlphabetic) {
@@ -245,7 +186,7 @@ class TextObject extends BaseGroup {
     }
 
     if (containsNonAlphabetic) {
-      return this._getNonEnglishCharacterParams(actualChar, effectiveFont, xHeight, previousChar);
+      return this._getNonEnglishCharacterParams(actualChar, effectiveFont, xHeight, previousChar, charSpacing);
     } else {
       return this._getEnglishCharacterParams(textChar, effectiveFont, xHeight, previousChar, nextChar);
     }
@@ -306,7 +247,7 @@ class TextObject extends BaseGroup {
   /**
    * Helper function for non-English character parameters (Chinese, numbers, punctuation)
    */
-  static _getNonEnglishCharacterParams(actualChar, font, xHeight, previousChar) {
+  static _getNonEnglishCharacterParams(actualChar, font, xHeight, previousChar, charSpacing = 0) {
     const isKnownPunctuation = textWidthHeavy.map(item => item.char).includes(actualChar);
 
     if (this._isNumber(actualChar)) {
@@ -317,7 +258,7 @@ class TextObject extends BaseGroup {
       return this._getPunctuationParams(actualChar, xHeight, previousChar);
     } else {
       // Chinese characters - pass the font parameter
-      return this._getChineseCharacterParams(actualChar, font, xHeight);
+      return this._getChineseCharacterParams(actualChar, font, xHeight, charSpacing);
     }
   }
 
@@ -374,7 +315,7 @@ class TextObject extends BaseGroup {
   }  /**
    * Helper function for Chinese character parameters
    */
-  static _getChineseCharacterParams(actualChar, font, xHeight) {
+  static _getChineseCharacterParams(actualChar, font, xHeight, charSpacing = 0) {
     // Check if character requires special override font
     let fontFamily = font;
 
@@ -403,7 +344,7 @@ class TextObject extends BaseGroup {
       topOffset: -0.2 * xHeight,
       frameWidth: 2.75 * xHeight - 2,
       frameHeight: 2.85 * xHeight - 2,
-      advanceWidth: 2.75 * xHeight
+      advanceWidth: 2.75 * xHeight + charSpacing
     };
   }
 
@@ -597,7 +538,7 @@ class TextObject extends BaseGroup {
    * - Character width and positioning offsets
    * - Frame dimensions and advance width
    */
-  static createTextElements(txt, xHeight, color, font, isCursor = false) {
+  static createTextElements(txt, xHeight, color, font, isCursor = false, charSpacing = 0) {
     let txtCharList = [];
     let txtFrameList = [];
     let left_pos = 0;    // Check if text contains any non-English characters
@@ -609,7 +550,7 @@ class TextObject extends BaseGroup {
       const nextChar = i < txt.length - 1 ? txt[i + 1] : null;
 
       // Get character parameters based on type
-      const charParams = this._getCharacterParameters(textChar, containsNonAlphabetic, font, xHeight, previousChar, nextChar);
+      const charParams = this._getCharacterParameters(textChar, containsNonAlphabetic, font, xHeight, previousChar, nextChar, charSpacing);
       // Calculate positioning
       const positioning = this._calculateCharacterPositioning(left_pos, charParams, xHeight, previousChar);
 
@@ -682,7 +623,7 @@ class TextObject extends BaseGroup {
   /**
    * Method to update text properties
    */
-  updateText(newText, newXHeight, newFont, newColor) {
+  updateText(newText, newXHeight, newFont, newColor, newCharSpacing = this.charSpacing) {
     // Remove old objects
     this.removeAll();
 
@@ -691,7 +632,9 @@ class TextObject extends BaseGroup {
       newText,
       newXHeight,
       newColor,
-      newFont
+      newFont,
+      false,
+      newCharSpacing
     );
 
     // Create a new group
@@ -714,6 +657,7 @@ class TextObject extends BaseGroup {
     this.xHeight = newXHeight;
     this.font = newFont;
     this.color = newColor;
+    this.charSpacing = newCharSpacing;
     this.txtCharList = txtCharList;
     this.txtFrameList = txtFrameList;
     this.containsNonAlphabetic = containsNonAlphabetic;

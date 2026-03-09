@@ -58,7 +58,7 @@ const FormMeasureComponent = {
    * Toggle measurement mode on/off
    */
   toggleMeasurementMode: function () {
-    FormMeasureComponent.activeMeasurement = !FormMeasureComponent.activeMeasurement;
+    FormMeasureComponent.activeMeasurement = !FormMeasureComponent.activeMeasurement; CanvasGlobals.activeMeasurement = FormMeasureComponent.activeMeasurement;
 
     if (FormMeasureComponent.activeMeasurement) {
       // Enable measuring mode

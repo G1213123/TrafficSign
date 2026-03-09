@@ -21,6 +21,19 @@ class AnchorTree {
     this.updateDepthY = 0; // Track nesting level of Y updates
   }
 
+  clear() {
+    this.xTree = {};
+    this.yTree = {};
+    this.updateInProgressX = false;
+    this.updateInProgressY = false;
+    this.updatedObjectsX.clear();
+    this.updatedObjectsY.clear();
+    this.starterObjectX = null;
+    this.starterObjectY = null;
+    this.updateDepthX = 0;
+    this.updateDepthY = 0;
+  }
+
   // Start a new update cycle for a specific direction
   startUpdateCycle(direction, starterId) {
     if (starterId === null) {
