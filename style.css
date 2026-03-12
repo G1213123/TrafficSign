@@ -48,6 +48,40 @@ body {
     margin-right: 5px;
 }
 
+/* Custom SVG Icon - Ensure no default box styling */
+.custom-svg-icon-wrapper {
+    background: none;
+    border: none;
+}
+
+.custom-svg-icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    /* Center the logic wrapper at 0,0 (the marker position) */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 0;
+    height: 0;
+    /* Apply zooming scale here using CSS variable updated by JS */
+    transform: scale(var(--map-icon-scale, 1));
+}
+
+.custom-svg-icon img {
+    /* Base size at Zoom 20 */
+    width: 24px;
+    height: 24px;
+    display: block;
+    /* Ensure rotation happens from center */
+    transform-origin: center center;
+    /* Center the image in the 0x0 flex container */
+    /* Flex box with justify-content center does this, 
+       but if the image is the only child and 24px wide, 
+       centering it on a 0px container means it overflows -12px to 12px.
+    */
+}
+
 /* Add bottom border to the whole group header container if possible, 
    or just the label wrapper to differentiate groups */
 .leaflet-control-layers-group-label {

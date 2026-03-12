@@ -2,6 +2,20 @@
 const map = L.map('map', {
 }).setView([22.3193, 114.1694], 14); // Centered on Hong Kong, slightly zoomed in
 
+// Dynamic Icon Scaling
+function updateIconScale() {
+    const zoom = map.getZoom();
+    // Calculate scale factor relative to Zoom 20
+    const scale = Math.pow(2, zoom - 21);
+    // Update CSS variable on the map container
+    map.getContainer().style.setProperty('--map-icon-scale', scale);
+}
+
+// Listen to zoom events
+map.on('zoomend', updateIconScale);
+// Initial call
+updateIconScale();
+
 // Use HK Map Service Label (English, WGS84)
 L.tileLayer('https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/basemap/WGS84/{z}/{x}/{y}.png', {
     maxNativeZoom: 20,
@@ -116,6 +130,31 @@ for (const [groupName, layerList] of Object.entries(layersConfig)) {
                 return style;
             },
             pointToLayer: function (feature, latlng) {
+                // Custom SVG Icons for Traffic Lights, Traffic Sign Poles, and Road Markings
+                if (typeName === "csdi:DTAD_TRAFFIC_LIGHT_PT" || typeName === "csdi:DTAD_TS_POLE_PT" || typeName === "csdi:DTAD_RD_MARK_SYM_PT") {
+                    let iconUrl = null;
+                    let angle = (feature.properties && feature.properties.ANGLE) ? feature.properties.ANGLE : 0;
+
+                    if (typeName === "csdi:DTAD_TRAFFIC_LIGHT_PT" && feature.properties && feature.properties.REFNAME) {
+                         iconUrl = `svg/t lights/${feature.properties.REFNAME}.svg`;
+                    } else if (typeName === "csdi:DTAD_TS_POLE_PT") {
+                         iconUrl = "svg/TrafficSign.svg";
+                    } else if (typeName === "csdi:DTAD_RD_MARK_SYM_PT" && feature.properties && feature.properties.REFNAME) {
+                         iconUrl = `svg/rd mark/${feature.properties.REFNAME}.svg`;
+                    }
+
+                    if (iconUrl) {
+                        return L.marker(latlng, {
+                            icon: L.divIcon({
+                                className: 'custom-svg-icon-wrapper', 
+                                html: `<div class="custom-svg-icon"><img src="${iconUrl}" style="transform: rotate(${-angle}deg);" /></div>`,
+                                iconSize: [0, 0], // Let CSS handle sizing and centering from this point
+                                iconAnchor: [0, 0] // Anchor the flex container center at the LatLng
+                            })
+                        });
+                    }
+                }
+
                 return L.circleMarker(latlng, {
                     radius: 3,
                     fillColor: "#000000",
@@ -229,11 +268,85 @@ var controlDiv = layerControl.getContainer();
 L.DomEvent.disableScrollPropagation(controlDiv);
 L.DomEvent.disableClickPropagation(controlDiv);
 
-// Pre-select some common layers
-const defaultLayer = allLayersMap["csdi:DTAD_TS_POLE_PT"];
-if (defaultLayer) {
-    defaultLayer.addTo(map);
+// --- State Persistence ---
+
+function saveMapState() {
+    const center = map.getCenter();
+    const zoom = map.getZoom();
+    const activeLayers = [];
+    
+    // Identify active layers by their key in allLayersMap
+    // Iterate through allLayersMap to find which ones are on the map
+    for (const [key, layer] of Object.entries(allLayersMap)) {
+        if (map.hasLayer(layer)) {
+            activeLayers.push(key);
+        }
+    }
+    
+    const state = {
+        center: { lat: center.lat, lng: center.lng },
+        zoom: zoom,
+        activeLayers: activeLayers
+    };
+    
+    try {
+        localStorage.setItem('mapState', JSON.stringify(state));
+    } catch (e) {
+        console.warn('Failed to save map state', e);
+    }
 }
+
+// Restore State or Set Default
+try {
+    const savedState = localStorage.getItem('mapState');
+    let stateRestored = false;
+
+    if (savedState) {
+        const state = JSON.parse(savedState);
+        
+        // Restore View
+        if (state.center && state.zoom) {
+            map.setView([state.center.lat, state.center.lng], state.zoom);
+        }
+        
+        // Restore Layers
+        if (state.activeLayers && Array.isArray(state.activeLayers)) {
+            // Remove any existing layers first if necessary? 
+            // Currently only default adds layers, but we are replacing that block.
+            // So map should be clean of overlays at this point.
+            
+            state.activeLayers.forEach(layerKey => {
+                const layer = allLayersMap[layerKey];
+                if (layer) {
+                    layer.addTo(map);
+                    stateRestored = true;
+                }
+            });
+        }
+    }
+    
+    // Fallback to default if no layers restored (or no state)
+    if (!stateRestored) {
+        const defaultLayer = allLayersMap["csdi:DTAD_TS_POLE_PT"];
+        if (defaultLayer) {
+            defaultLayer.addTo(map);
+        }
+    }
+
+} catch (e) {
+    console.warn('Failed to restore map state', e);
+    // Fallback on error
+    const defaultLayer = allLayersMap["csdi:DTAD_TS_POLE_PT"];
+    if (defaultLayer) {
+        defaultLayer.addTo(map);
+    }
+}
+
+// Add persistence listeners
+map.on('moveend', saveMapState);
+map.on('zoomend', saveMapState);
+map.on('overlayadd', saveMapState);
+map.on('overlayremove', saveMapState);
 
 
 // --- Data Loading Logic ---
