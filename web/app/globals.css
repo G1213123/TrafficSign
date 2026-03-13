@@ -1,0 +1,289 @@
+:root {
+  --background: #f0f2f5;
+  --foreground: #1c1e21;
+  --card-bg: #ffffff;
+  --card-border: #dfe3e8;
+  --primary: #007bff;
+  --primary-hover: #0056b3;
+  --secondary: #6c757d;
+  --secondary-hover: #545b62;
+  --shadow: 0 2px 8px rgba(0,0,0,0.1);
+  --shadow-hover: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #18191a;
+    --foreground: #e4e6eb;
+    --card-bg: #242526;
+    --card-border: #3e4042;
+    --shadow: 0 2px 8px rgba(0,0,0,0.3);
+    --shadow-hover: 0 8px 24px rgba(0,0,0,0.4);
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+.header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+.header p {
+  color: var(--secondary);
+  font-size: 1.1rem;
+}
+
+/* Grid Layout */
+.catalogue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 2rem;
+}
+
+/* Card Styling */
+.sign-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.sign-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+}
+
+.sign-image-wrapper {
+  background: #ffffff; /* Always white for traffic signs */
+  padding: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  aspect-ratio: 1;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.sign-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+  transition: transform 0.3s ease;
+}
+
+.sign-card:hover .sign-image {
+  transform: scale(1.05);
+}
+
+.sign-info {
+  padding: 1rem;
+  text-align: center;
+}
+
+.sign-number {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--foreground);
+  margin-bottom: 0.25rem;
+}
+
+.sign-name {
+  font-size: 0.85rem;
+  color: var(--secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Modal Styling */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background-color: var(--card-bg);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 1000px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  border: none;
+  background: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: var(--secondary);
+  z-index: 10;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.modal-close:hover {
+  color: var(--foreground);
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .modal-body {
+    flex-direction: row;
+    height: 600px; /* Fixed height for desktop to ensure image area is large */
+  }
+}
+
+.modal-image-container {
+  flex: 1.2;
+  background: #f8f9fa; /* Light grey bg for image area */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  position: relative;
+}
+
+.modal-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+}
+
+.modal-details {
+  flex: 1;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.modal-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--foreground);
+}
+
+.modal-subtitle {
+  color: var(--secondary);
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 2rem;
+  font-family: monospace;
+}
+
+.modal-info-section h3 {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--secondary);
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.modal-info-section p {
+  margin: 0;
+  color: var(--foreground);
+  line-height: 1.6;
+}
+
+.modal-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+.modal-link:hover {
+  text-decoration: underline;
+}
+
+.modal-actions {
+  margin-top: auto;
+  padding-top: 2rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+}
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 2px solid var(--card-border);
+  color: var(--foreground);
+}
+.btn-secondary:hover {
+  background-color: var(--background);
+  border-color: var(--secondary);
+}

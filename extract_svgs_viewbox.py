@@ -667,7 +667,7 @@ def process_svg_file(input_svg_path, output_dir_path, start_id):
     print(f"Done processing {input_svg_path}.")
 
 if __name__ == "__main__":
-    search_pattern = os.path.join("whole_pdf_svg", "(TS*.svg")
+    search_pattern = os.path.join("data", "whole_pdf_svg", "(TS*.svg")
     files = glob.glob(search_pattern)
     files.sort()
     
