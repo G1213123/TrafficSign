@@ -1,0 +1,62 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.map-container {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+/* Better Popup Styling */
+.leaflet-popup-content-wrapper {
+    border-radius: 8px;
+    box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+}
+.leaflet-popup-content {
+    margin: 15px;
+    line-height: 1.5;
+}
+.popup-content {
+    max-height: 250px; /* slightly taller */
+    overflow-y: auto;
+    scrollbar-width: thin; /* Firefox */
+}
+/* Scrollbar styling for Webkit */
+.popup-content::-webkit-scrollbar {
+    width: 6px;
+}
+.popup-content::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 3px;
+}
+
+/* Custom SVG Icons */
+.custom-svg-icon-wrapper {
+    background: transparent;
+    border: none;
+}
+.custom-svg-icon {
+    width: 0;
+    height: 0;
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center;    /* Center vertically */
+    /* No overflow: hidden, let the image extend */
+}
+
+/* The image itself. Sized relative to map zoom via CSS variable --map-icon-scale */
+.custom-svg-icon img {
+    /* Base size at max zoom (e.g. 20) is roughly real-world meter size converted to pixels? */
+    /* Let's pick a base size visually appealing at high zoom. e.g. 40px */
+    width: calc(30px * var(--map-icon-scale, 1)); 
+    height: auto;
+    /* transform-origin: center center; */ /* Rotate around center */
+    pointer-events: none; /* Let clicks pass through to marker if needed */
+    filter: drop-shadow(0px 0px 2px rgba(255,255,255,0.8)); /* Outline/Glow for visibility */
+}

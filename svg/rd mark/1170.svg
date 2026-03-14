@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?><!-- DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" -->
-<svg viewBox="0,0,1024,3076" preserveAspectRatio="xMidYMid" zoomAndPan="magnify" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<line x1="0" y1="0" x2="1024" y2="2.03758e-07" stroke="black" stroke-width="10" />
-<line x1="0" y1="0" x2="513.01" y2="3075.69" stroke="black" stroke-width="10" />
-<line x1="513.01" y1="3075.69" x2="1024" y2="2.03758e-07" stroke="black" stroke-width="10" />
-<line x1="214.2" y1="512.753" x2="810.941" y2="512.519" stroke="black" stroke-width="10" />
-<line x1="214.2" y1="512.753" x2="513.974" y2="2301.08" stroke="black" stroke-width="10" />
-<line x1="513.974" y1="2301.08" x2="810.941" y2="512.519" stroke="black" stroke-width="10" />
-</svg>

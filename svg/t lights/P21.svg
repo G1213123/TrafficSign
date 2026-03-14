@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?><!-- DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" -->
-<svg viewBox="0,0,1024,480" preserveAspectRatio="xMidYMid" zoomAndPan="magnify" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<line x1="227.117" y1="227.719" x2="227.117" y2="227.719" stroke="fuchsia" stroke-width="10" />
-<line x1="239.828" y1="240.263" x2="720.199" y2="240.075" stroke="fuchsia" stroke-width="10" />
-<line x1="239.828" y1="240.263" x2="239.828" y2="240.263" stroke="fuchsia" stroke-width="10" />
-<path d="M1023.78,8.61 A240.02,240.02 359.99 1,0 1023.93,471.38" fill="none" stroke="fuchsia" stroke-width="10" />
-<line x1="1024" y1="8.68001" x2="1023.85" y2="471.535" stroke="fuchsia" stroke-width="10" />
-<circle cx="120.008" cy="240.107" r="120.008" fill="fuchsia" fill-opacity="0.5" stroke="fuchsia" stroke-width="10" />
-</svg>

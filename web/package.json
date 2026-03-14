@@ -9,9 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "15.1.0",
+    "leaflet": "^1.9.4",
+    "leaflet-groupedlayercontrol": "^0.6.1",
+    "lucide-react": "latest",
+    "next": "^15.1.0",
     "react": "19.0.0",
-    "react-dom": "19.0.0",
-    "lucide-react": "latest"
+    "react-dom": "19.0.0"
   }
 }

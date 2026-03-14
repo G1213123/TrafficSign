@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?><!-- DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" -->
-<svg viewBox="0,0,1024,131" preserveAspectRatio="xMidYMid" zoomAndPan="magnify" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<polyline points="828.29,21.59,878.20,0.00,1024.00,130.63,677.78,87.80,757.74,53.21" fill="none" stroke="rgb(150, 150, 150)" stroke-width="10" />
-<path d="M757.74,53.21 A1888.27,1888.27 66.61 0,0 0.00,130.63" fill="none" stroke="rgb(150, 150, 150)" stroke-width="10" />
-<path d="M17.96,85.32 A1801.51,1801.51 66.61 0,1 828.29,21.59" fill="none" stroke="rgb(150, 150, 150)" stroke-width="10" />
-<line x1="17.9566" y1="85.325" x2="0" y2="130.632" stroke="rgb(150, 150, 150)" stroke-width="10" />
-</svg>
