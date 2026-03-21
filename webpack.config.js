@@ -35,6 +35,9 @@ module.exports = {
       filename: 'index.html',   // Output filename
       chunks: ['main'],       // Include only main bundle
       inject: true,           // Changed to true to process template variables
+      // Pass base path as a custom option to use in the template manually
+      // This avoids auto-injection issues and allows strict control over placement
+      customBase: '/design/', 
       title: 'Road Sign Factory - Online Sign Creator',
       appVersion: require('./package.json').version || process.env.VERSION || 'dev',
       googleAdsClientId: process.env.GOOGLE_ADS_CLIENT_ID || 'ca-pub-0000000000000000'
