@@ -4,6 +4,7 @@ const path = require('path');
 
 const PORT = 8080;
 const ROOT = path.resolve(__dirname, '..');
+const DESIGN_PREFIX = '/design';
 
 const MIME_TYPES = {
     '.html': 'text/html',
@@ -22,19 +23,20 @@ const MIME_TYPES = {
 
 const server = http.createServer((req, res) => {
     let reqUrl = req.url.split('?')[0]; // Ignore query string
-    
-    // Rewrite rules
-    if (reqUrl === '/design' || reqUrl === '/design/') {
-        reqUrl = '/design.html';
-    } else if (reqUrl.startsWith('/design/')) {
-        reqUrl = reqUrl.replace('/design/', '/');
+
+    // Keep local routing aligned with deployment where the app is mounted at /design.
+    if (reqUrl === '/') {
+        res.writeHead(302, { Location: DESIGN_PREFIX });
+        res.end();
+        return;
     }
 
-    // Default to index.html if root requested? 
-    // Usually strict mapping is better for debugging to avoid confusion
-    if (reqUrl === '/') {
-        // Maybe redirect to /design? Or serve design.html?
-        // User asked for /design page mapping
+    if (reqUrl === DESIGN_PREFIX || reqUrl === DESIGN_PREFIX + '/') {
+        reqUrl = '/design.html';
+    } else if (reqUrl.startsWith(DESIGN_PREFIX + '/')) {
+        // /design/images/foo.svg -> /images/foo.svg
+        // /design/js/main.js -> /js/main.js
+        reqUrl = '/' + reqUrl.slice((DESIGN_PREFIX + '/').length);
     }
 
     const filePath = path.normalize(path.join(ROOT, reqUrl));
@@ -63,6 +65,7 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}/design`);
-    console.log(`Mapping /design/* to ./*`);
+    console.log(`Server running at http://localhost:${PORT}${DESIGN_PREFIX}`);
+    console.log(`Alias enabled: ${DESIGN_PREFIX}/* -> /*`);
+    console.log(`Example image URL: http://localhost:${PORT}${DESIGN_PREFIX}/images/stack.svg`);
 });

@@ -16,7 +16,7 @@ const base = {
   'Donation Thanks Title': 'Thank you for using Road Sign Factory!',
   'Donation Message': 'If you find this tool helpful, please consider supporting its continued development and new features.',
    // Region labels (note: key has a typo kept for compatibility)
-  'New Terriitories': 'New Territories',
+  'New Territories': 'New Territories',
 };
 
 const dictionaries = {
