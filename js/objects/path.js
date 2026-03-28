@@ -792,7 +792,9 @@ function getFontPath(t) {
     // First, check if the character exists in the current font
     if (hasCharacter(font, t.character)) {
       // Character exists in current font, use it
-      return font.getPath(t.character, t.x, t.y, t.fontSize);
+      const path = font.getPath(t.character, t.x, t.y, t.fontSize);
+      path._resolvedFont = font;
+      return path;
     } else {
       // Character not found in current font, try font priority list
       console.warn(`Character "${t.character}" not found in font ${t.fontFamily}, trying fallback fonts...`);
@@ -801,13 +803,17 @@ function getFontPath(t) {
       for (const fallbackFont of fallbackFonts) {
         if (hasCharacter(fallbackFont, t.character)) {
           console.log(`Found character "${t.character}" in fallback font`);
-          return fallbackFont.getPath(t.character, t.x, t.y, t.fontSize);
+          const path = fallbackFont.getPath(t.character, t.x, t.y, t.fontSize);
+          path._resolvedFont = fallbackFont;
+          return path;
         }
       }
 
       // If character not found in any font, try with the original font anyway (might render as missing character box)
       console.warn(`Character "${t.character}" not found in any available font, using original font`);
-      return font.getPath(t.character, t.x, t.y, t.fontSize);
+      const path = font.getPath(t.character, t.x, t.y, t.fontSize);
+      path._resolvedFont = font;
+      return path;
     }
   } catch (error) {
     console.error(`Error getting path for character "${t.character}" with font ${t.fontFamily}:`, error);
