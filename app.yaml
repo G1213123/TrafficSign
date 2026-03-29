@@ -11,6 +11,12 @@ automatic_scaling:
   max_concurrent_requests: 50
 
 handlers:
+# Backward-compatibility for clients still requesting root CSS/font paths.
+- url: /css/(.*)
+  static_files: design/css/\1
+  upload: design/css/(.*)
+  secure: always
+
 # Serve static files with appropriate MIME types and cache settings
 - url: /design/(.*\.(css|js|html|json|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|txt|map))$
   static_files: design/\1

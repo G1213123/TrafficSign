@@ -585,11 +585,17 @@ function parseFont() {
     }
   };
 
+  const assetBase = (typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/design'))
+    ? '/design/'
+    : '/';
+
+  const localAsset = (relativePath) => `${assetBase}${relativePath.replace(/^\/+/, '')}`;
+
   // Critical fonts: TransportMedium, TransportHeavy, NotoSansHK
   const criticalFonts = [
-    loadFont('./css/font/TransportMedium.woff', 'TransportMedium', (f) => parsedFontMedium = f)
+    loadFont(localAsset('css/font/TransportMedium.woff'), 'TransportMedium', (f) => parsedFontMedium = f)
       .catch(e => { console.error("Error fetching/parsing TransportMedium:", e); throw e; }),
-    loadFont('./css/font/TransportHeavy.woff', 'TransportHeavy', (f) => parsedFontHeavy = f)
+    loadFont(localAsset('css/font/TransportHeavy.woff'), 'TransportHeavy', (f) => parsedFontHeavy = f)
       .catch(e => { console.error("Error fetching/parsing TransportHeavy:", e); throw e; }),
     loadFont('https://fonts.gstatic.com/s/notosanskr/v36/PbyxFmXiEBPT4ITbgNA5Cgms3VYcOA-vvnIzztgyeLTq8H4hfeE.ttf', 'NotoSansKR-Medium', (f) => parsedFontKorean = f)
       .catch(e => { console.error("Error fetching/parsing NotoSansKR-Medium:", e); throw e; })
@@ -612,7 +618,7 @@ function parseFont() {
         if (typeof window !== 'undefined') window.parsedFontHK = parsedFontHK;
         window.dispatchEvent(new CustomEvent('fontLoaded', { detail: { fontName: 'parsedFontHK' } }));
       }),
-      () => loadFont('./css/font/TW-MOE-Std-Kai-compact.ttf', 'TW-MOE-Std-Kai-compact', (f) => {
+      () => loadFont(localAsset('css/font/TW-MOE-Std-Kai-compact.ttf'), 'TW-MOE-Std-Kai-compact', (f) => {
          parsedFontKai = f
          window.dispatchEvent(new CustomEvent('fontLoaded', { detail: { fontName: 'TW-MOE-Std-Kai' } }));
       }),

@@ -11,16 +11,16 @@
     <meta name="keywords"
         content="Road Sign Factory, road sign, traffic sign, generator, creator, custom sign, Hong Kong Standard, online tool, vector, SVG, DXF, PDF">
     <title>Road Sign Factory - Online Sign Creator</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-    <link rel="icon" type="images/png" sizes="32x32" href="/images/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
-    <link rel="manifest" href="/images/site.webmanifest">
-    <link rel="stylesheet" href="css/style.css">    
+    <link rel="apple-touch-icon" sizes="180x180" href="<%= htmlWebpackPlugin.options.customBase %>images/apple-touch-icon.png">
+    <link rel="icon" type="images/png" sizes="32x32" href="<%= htmlWebpackPlugin.options.customBase %>images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="<%= htmlWebpackPlugin.options.customBase %>images/favicon-16x16.png">
+    <link rel="manifest" href="<%= htmlWebpackPlugin.options.customBase %>images/site.webmanifest">
+    <link rel="stylesheet" href="<%= htmlWebpackPlugin.options.customBase %>css/style.css">    
     <script src="https://cdn.jsdelivr.net/npm/fabric@6.4.3/dist/index.js"></script>
     <script src="https://opentype.js.org/dist/opentype.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.17/paper-full.min.js"></script>
-    <script src="js/exportUtils/dxf-bundle.js"></script>
+    <script src="<%= htmlWebpackPlugin.options.customBase %>js/exportUtils/dxf-bundle.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1W8GWKLVSK"></script>
@@ -187,7 +187,6 @@
         </div>
 
     <!-- Modular development: load only the main entry point as a module -->
-    <script type="module" src="design/js/main.js"></script>
 </body>
 
 </html>

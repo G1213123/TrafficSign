@@ -5,6 +5,8 @@ const path = require('path');
 const PORT = 8080;
 const ROOT = path.resolve(__dirname, '..');
 const DESIGN_PREFIX = '/design';
+const TEMPLATE_BASE_PLACEHOLDER = /<%=\s*htmlWebpackPlugin\.options\.customBase\s*%>/g;
+const DEBUG_MAIN_SCRIPT = '<script type="module" src="/design/js/main.js"></script>';
 
 const MIME_TYPES = {
     '.html': 'text/html',
@@ -57,6 +59,30 @@ const server = http.createServer((req, res) => {
 
         const ext = path.extname(filePath).toLowerCase();
         const mimeType = MIME_TYPES[ext] || 'application/octet-stream';
+
+        // Render template placeholders in design.html so debug server can serve
+        // source templates without requiring webpack HTML processing.
+        if (path.basename(filePath).toLowerCase() === 'design.html') {
+            fs.readFile(filePath, 'utf8', (readErr, html) => {
+                if (readErr) {
+                    res.writeHead(500);
+                    res.end(`Failed to read template: ${readErr.message}`);
+                    return;
+                }
+
+                let rendered = html.replace(TEMPLATE_BASE_PLACEHOLDER, `${DESIGN_PREFIX}/`);
+
+                // In debug mode we serve source HTML directly, so inject the module entry
+                // that HtmlWebpackPlugin would normally inject in production builds.
+                if (!rendered.includes('/js/main.js')) {
+                    rendered = rendered.replace('</body>', `    ${DEBUG_MAIN_SCRIPT}\n</body>`);
+                }
+
+                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.end(rendered);
+            });
+            return;
+        }
 
         res.writeHead(200, { 'Content-Type': mimeType });
         const stream = fs.createReadStream(filePath);
