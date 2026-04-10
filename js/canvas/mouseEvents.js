@@ -1,7 +1,71 @@
 import { CanvasGlobals,DrawGrid } from './canvas.js';
 import { canvasTracker } from './Tracker.js';
 const canvas = CanvasGlobals.canvas; // Access the global canvas object
-const activeVertex = CanvasGlobals.activeVertex; // Access the global active vertex object
+const canvasObject = CanvasGlobals.canvasObject; // Access the global canvas object list
+
+let currentSnapHoverObjects = [];
+
+function clearSnapHoverEnvelope() {
+  currentSnapHoverObjects.forEach(obj => {
+    if (obj && typeof obj.hideHoverSnapVertexEnvelope === 'function') {
+      obj.hideHoverSnapVertexEnvelope();
+    }
+  });
+  currentSnapHoverObjects = [];
+}
+
+function updateSnapHoverEnvelope(opt) {
+  const activeVertex = CanvasGlobals.activeVertex;
+  const isSnapMode = !!(activeVertex && activeVertex.isDragging && activeVertex.baseGroup);
+
+  if (!isSnapMode) {
+    clearSnapHoverEnvelope();
+    return;
+  }
+
+  const pointer = canvas.getPointer(opt.e);
+  const activeSnapObject = activeVertex.baseGroup;
+  const hoveredObjects = [];
+
+  // Loop through canvasObject and use bounding-box hit test.
+  for (let i = canvasObject.length - 1; i >= 0; i--) {
+    const obj = canvasObject[i];
+    if (!obj || obj === activeSnapObject) continue;
+    if (typeof obj.getBoundingRect !== 'function') continue;
+
+    const bbox = obj.getBoundingRect();
+    const insideBBox =
+      pointer.x >= bbox.left &&
+      pointer.x <= bbox.left + bbox.width &&
+      pointer.y >= bbox.top &&
+      pointer.y <= bbox.top + bbox.height;
+
+    if (insideBBox) {
+      hoveredObjects.push(obj);
+    }
+  }
+
+  const removedObjects = currentSnapHoverObjects.filter(obj => !hoveredObjects.includes(obj));
+  const addedObjects = hoveredObjects.filter(obj => !currentSnapHoverObjects.includes(obj));
+
+  if (removedObjects.length === 0 && addedObjects.length === 0) {
+    return;
+  }
+
+  removedObjects.forEach(obj => {
+    if (obj && typeof obj.hideHoverSnapVertexEnvelope === 'function') {
+      obj.hideHoverSnapVertexEnvelope();
+    }
+  });
+
+  addedObjects.forEach(obj => {
+    if (obj && typeof obj.showHoverSnapVertexEnvelope === 'function') {
+      obj.showHoverSnapVertexEnvelope();
+    }
+  });
+
+  currentSnapHoverObjects = hoveredObjects;
+}
 
 // Handle mousedown event
 canvas.on('mouse:down', function (opt) {
@@ -32,6 +96,8 @@ canvas.on('mouse:move', function (opt) {
       obj.setCoords();
     });
   }
+
+  updateSnapHoverEnvelope(opt);
 });
 
 canvas.on('mouse:up', function (opt) {
@@ -39,6 +105,7 @@ canvas.on('mouse:up', function (opt) {
   // for all objects, so we call setViewportTransform\
   canvas.isDragging = false;
   canvas.selection = true;
+  clearSnapHoverEnvelope();
 });
 
 
@@ -68,6 +135,7 @@ canvas.on('mouse:wheel', function (opt) {
   }
 
   // Update active vertex 
+  const activeVertex = CanvasGlobals.activeVertex;
   if (activeVertex) {
     activeVertex.clearSnapHighlight()
     activeVertex.addSnapHighlight()

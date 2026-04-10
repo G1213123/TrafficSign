@@ -14,24 +14,6 @@
                 "/design": "${workspaceFolder}"
             },
             "skipFiles": [
-                "**VM**",
-                "${workspaceFolder}/node_modules/**",
-                "**/paper-full.min.js",
-                "https://cdnjs.cloudflare.com/ajax/libs/paper.js/**",
-                "*google*",
-                "<eval>/**"
-            ],
-            "preLaunchTask": "Start Debug Server"
-        },
-        {
-            "type": "chrome",
-            "request": "launch",
-            "name": "Open design.html",
-            "file": "${workspaceFolder}/design.html",
-            "runtimeArgs": [
-                "--disable-web-security"
-            ],
-            "skipFiles": [
                 // Existing pattern
                 "**VM**",
                 // Local dependencies
@@ -51,25 +33,5 @@
                 "<anonymous>/**"
             ]
         },
-        {
-            "type": "chrome",
-            "request": "launch",
-            "name": "Open dist",
-            "url": "http://localhost:8080/design",
-            "runtimeArgs": [
-                "--disable-web-security"
-            ],
-            "preLaunchTask": "Start Debug Server",
-            "skipFiles": [
-                "*VM*",
-                "${workspaceFolder}/node_modules/**",
-                "**/paper-full.min.js",
-                "https://cdnjs.cloudflare.com/ajax/libs/paper.js/**",
-                "*google*",
-                "<eval>/**",
-                "<eval>/VM*",
-                "<anonymous>/**"
-            ]
-        }
     ]
 }
