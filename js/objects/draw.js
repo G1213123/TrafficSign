@@ -163,6 +163,7 @@ class BaseGroup extends fabric.Group {
     this.refTopLeft = { top: 0, left: 0 }; // Initialize even without basePolygon
 
     this.dimensionAnnotations = []; // Array to hold dimension line objects
+    this.hoverSnapEnvelopes = []; // Temporary hover-only vertex envelopes during snapping
 
     this.isTemporary = false;
     this.focusMode = false; // Add focus mode flag
@@ -230,6 +231,7 @@ class BaseGroup extends fabric.Group {
           })
         });
         this.hideLockHighlights();
+        this.hideHoverSnapVertexEnvelope();
 
         // Hide dimension lines when object is deselected
         this.hideDimensions();
@@ -241,6 +243,14 @@ class BaseGroup extends fabric.Group {
       this.set({
         opacity: 0.5
       });
+
+      const activeVertex = CanvasGlobals.activeVertex;
+      const isVertexSnappingMode = !!(activeVertex && activeVertex.isDragging);
+      const isHoveredObjectBeingSnapped = !!(isVertexSnappingMode && activeVertex.baseGroup === this);
+      if (isVertexSnappingMode && !isHoveredObjectBeingSnapped) {
+        this.showHoverSnapVertexEnvelope();
+      }
+
       if (this.__corner) {
         if (this.controls[this.__corner].onHover) {
           this.controls[this.__corner].onHover()
@@ -258,6 +268,7 @@ class BaseGroup extends fabric.Group {
       this.set({
         opacity: 1
       });
+      //this.hideHoverSnapVertexEnvelope();
       Object.values(this.controls).forEach(control => { if (control.onMouseOut) { control.onMouseOut() } })
       CanvasGlobals.scheduleRender();
     });
@@ -960,6 +971,9 @@ class BaseGroup extends fabric.Group {
   // Method to delete the object
   deleteObject(_eventData, transform) {
     const deleteObj = transform?.target || transform || this
+    if (typeof deleteObj.hideHoverSnapVertexEnvelope === 'function') {
+      deleteObj.hideHoverSnapVertexEnvelope();
+    }
 
     // Track object deletion before actually deleting it
     canvasTracker.track('deleteObject', [{
@@ -1199,6 +1213,59 @@ class BaseGroup extends fabric.Group {
       canvas.remove(this.lockHighlightY);
       this.lockHighlightY = null;
     }
+  }
+
+  showHoverSnapVertexEnvelope() {
+    this.hideHoverSnapVertexEnvelope();
+
+    if (!this.basePolygon || !this.basePolygon.vertex) return;
+
+    const showAllVertices = GeneralSettings && GeneralSettings.showAllVertices;
+    const zoomFactor = canvas.getZoom() || 1;
+    const radius = 12 / zoomFactor;
+    const strokeWidth = 2 / zoomFactor;
+
+    this.basePolygon.vertex.forEach(v => {
+      const vertexLabel = v.label || '';
+      let shouldDisplay = false;
+
+      if (/^(ml|mr|mt|mb|mtr|tl|tr|bl|br)$/.test(vertexLabel)) {
+        shouldDisplay = false;
+      } else if (this.functionalType === 'SideRoad' && vertexLabel.startsWith('E')) {
+        shouldDisplay = false;
+      } else if (showAllVertices) {
+        shouldDisplay = true;
+      } else {
+        shouldDisplay = (v.display == 1);
+      }
+
+      if (!shouldDisplay) return;
+
+      const envelope = new fabric.Circle({
+        left: v.x,
+        top: v.y,
+        radius: radius,
+        fill: 'transparent',
+        stroke: '#00B7FF',
+        strokeWidth: strokeWidth,
+        selectable: false,
+        evented: false,
+        originX: 'center',
+        originY: 'center'
+      });
+
+      this.hoverSnapEnvelopes.push(envelope);
+      canvas.add(envelope);
+    });
+
+    CanvasGlobals.scheduleRender();
+  }
+
+  hideHoverSnapVertexEnvelope() {
+    if (!this.hoverSnapEnvelopes || this.hoverSnapEnvelopes.length === 0) return;
+    this.hoverSnapEnvelopes.forEach(envelope => canvas.remove(envelope));
+    this.hoverSnapEnvelopes = [];
+    CanvasGlobals.scheduleRender();
   }
 
   // New method to enter focus mode

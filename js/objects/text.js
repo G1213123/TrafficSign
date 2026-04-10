@@ -398,10 +398,14 @@ class TextObject extends BaseGroup {
     // Get the font path
     const charPath = getFontPath(pathParams);
     charPath.fill = color;
+    let resolvedFontGlyphs = fontGlyphs;
+    if (charPath._resolvedFont) {
+      resolvedFontGlyphs = charPath._resolvedFont;
+    }
     // Ensure opentype rounding patch is applied at point of use in TextObject
     ensureOpenTypePatched();
     const charSVG = charPath.toPathData({ flipY: false });
-    const charGlyph = fontGlyphs.charToGlyph(charParams.actualChar);
+    const charGlyph = resolvedFontGlyphs.charToGlyph(charParams.actualChar);
 
     const minTop = Math.min(...charPath.commands.map(cmd => cmd.y));
 

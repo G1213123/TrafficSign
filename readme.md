@@ -36,6 +36,19 @@ The application now uses a professional homepage structure:
 - **`css/style.css`** - Application styles
 - **`js/main.js`** - Application entry point
 
+## Debug Server
+
+Use the local debug server when developing the app directly from source files.
+
+1. From the project root, start the server:
+	```bash
+	node scripts/debug-server.js
+	```
+2. Open the app in your browser:
+	```text
+	http://localhost:8080/design
+	```
+
 
 ## Features
 

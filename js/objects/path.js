@@ -585,11 +585,17 @@ function parseFont() {
     }
   };
 
+  const assetBase = (typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/design'))
+    ? '/design/'
+    : '/';
+
+  const localAsset = (relativePath) => `${assetBase}${relativePath.replace(/^\/+/, '')}`;
+
   // Critical fonts: TransportMedium, TransportHeavy, NotoSansHK
   const criticalFonts = [
-    loadFont('./css/font/TransportMedium.woff', 'TransportMedium', (f) => parsedFontMedium = f)
+    loadFont(localAsset('css/font/TransportMedium.woff'), 'TransportMedium', (f) => parsedFontMedium = f)
       .catch(e => { console.error("Error fetching/parsing TransportMedium:", e); throw e; }),
-    loadFont('./css/font/TransportHeavy.woff', 'TransportHeavy', (f) => parsedFontHeavy = f)
+    loadFont(localAsset('css/font/TransportHeavy.woff'), 'TransportHeavy', (f) => parsedFontHeavy = f)
       .catch(e => { console.error("Error fetching/parsing TransportHeavy:", e); throw e; }),
     loadFont('https://fonts.gstatic.com/s/notosanskr/v36/PbyxFmXiEBPT4ITbgNA5Cgms3VYcOA-vvnIzztgyeLTq8H4hfeE.ttf', 'NotoSansKR-Medium', (f) => parsedFontKorean = f)
       .catch(e => { console.error("Error fetching/parsing NotoSansKR-Medium:", e); throw e; })
@@ -612,7 +618,7 @@ function parseFont() {
         if (typeof window !== 'undefined') window.parsedFontHK = parsedFontHK;
         window.dispatchEvent(new CustomEvent('fontLoaded', { detail: { fontName: 'parsedFontHK' } }));
       }),
-      () => loadFont('./css/font/TW-MOE-Std-Kai-compact.ttf', 'TW-MOE-Std-Kai-compact', (f) => {
+      () => loadFont(localAsset('css/font/TW-MOE-Std-Kai-compact.ttf'), 'TW-MOE-Std-Kai-compact', (f) => {
          parsedFontKai = f
          window.dispatchEvent(new CustomEvent('fontLoaded', { detail: { fontName: 'TW-MOE-Std-Kai' } }));
       }),
@@ -792,7 +798,9 @@ function getFontPath(t) {
     // First, check if the character exists in the current font
     if (hasCharacter(font, t.character)) {
       // Character exists in current font, use it
-      return font.getPath(t.character, t.x, t.y, t.fontSize);
+      const path = font.getPath(t.character, t.x, t.y, t.fontSize);
+      path._resolvedFont = font;
+      return path;
     } else {
       // Character not found in current font, try font priority list
       console.warn(`Character "${t.character}" not found in font ${t.fontFamily}, trying fallback fonts...`);
@@ -801,13 +809,17 @@ function getFontPath(t) {
       for (const fallbackFont of fallbackFonts) {
         if (hasCharacter(fallbackFont, t.character)) {
           console.log(`Found character "${t.character}" in fallback font`);
-          return fallbackFont.getPath(t.character, t.x, t.y, t.fontSize);
+          const path = fallbackFont.getPath(t.character, t.x, t.y, t.fontSize);
+          path._resolvedFont = fallbackFont;
+          return path;
         }
       }
 
       // If character not found in any font, try with the original font anyway (might render as missing character box)
       console.warn(`Character "${t.character}" not found in any available font, using original font`);
-      return font.getPath(t.character, t.x, t.y, t.fontSize);
+      const path = font.getPath(t.character, t.x, t.y, t.fontSize);
+      path._resolvedFont = font;
+      return path;
     }
   } catch (error) {
     console.error(`Error getting path for character "${t.character}" with font ${t.fontFamily}:`, error);

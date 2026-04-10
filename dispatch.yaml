@@ -1,0 +1,4 @@
+dispatch:
+
+- url: "*/design*"
+  service: design

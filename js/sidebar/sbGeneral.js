@@ -374,7 +374,7 @@ let GeneralHandler = {
 
       // If image path is provided, use it
       if (opt.image) {
-        const img = GeneralHandler.createNode("img", { 'src': 'images/' + opt.image, 'alt': txt }, imgPlaceholder);
+        const img = GeneralHandler.createNode("img", { 'src': '/images/' + opt.image, 'alt': txt }, imgPlaceholder);
       }
 
       const textSpan = GeneralHandler.createNode("span", {}, optionDiv);

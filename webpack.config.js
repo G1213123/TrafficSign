@@ -10,14 +10,12 @@ require('dotenv').config(); // Load .env file
 module.exports = {  
   entry: {
     main: './js/main.js',
-    homepage: './js/homepage.js',
-    nav: './js/nav.js',
-    animation: './js/animation.js'
   },
   output: {
-    filename: './js/[name].js',
-    path: path.resolve(__dirname, 'dist'),
+    filename: 'js/[name].js',
+    path: path.resolve(__dirname, 'dist/design'),
     clean: true, // Clean the output directory before emit.
+    publicPath: '/design/',
   },
   mode: 'production', // Set mode to production for optimizations
   module: {
@@ -33,70 +31,26 @@ module.exports = {
     ],
   }, plugins: [    // Homepage HTML
     new HtmlWebpackPlugin({
-      template: './index.html', // Path to your source index.html (homepage)
-      filename: 'index.html',   // Output filename
-      chunks: ['homepage', 'animation'],     // Include homepage and animation bundles
-      inject: false,             // Changed to true to process template variables
-      title: 'Road Sign Factory - Professional Traffic Sign Designer',
-      appVersion: (require('./package.json').version || process.env.VERSION || 'dev').replace(/-/g, '.'),
-      googleAdsClientId: process.env.GOOGLE_ADS_CLIENT_ID || 'ca-pub-0000000000000000'
-    }),    // App HTML
-    new HtmlWebpackPlugin({
       template: './design.html', // Path to your design.html
-      filename: 'design.html',   // Output filename
+      filename: 'index.html',   // Output filename
       chunks: ['main'],       // Include only main bundle
-      inject: false,           // Changed to true to process template variables
+      inject: true,           // Changed to true to process template variables
+      // Pass base path as a custom option to use in the template manually
+      // This avoids auto-injection issues and allows strict control over placement
+      customBase: '/design/', 
       title: 'Road Sign Factory - Online Sign Creator',
       appVersion: require('./package.json').version || process.env.VERSION || 'dev',
       googleAdsClientId: process.env.GOOGLE_ADS_CLIENT_ID || 'ca-pub-0000000000000000'
     }),// Changelog HTML
-    new HtmlWebpackPlugin({
-      template: './changelog.html', // Path to your changelog.html
-      filename: 'changelog.html',   // Output filename
-      chunks: ['nav'],              // Include nav bundle for navigation functionality
-      inject: false,                 // Use manual script tags in source HTML (Option A)
-      title: 'Changelog - Road Sign Factory',
-      appVersion: require('./package.json').version || process.env.VERSION || 'dev',
-      googleAdsClientId: process.env.GOOGLE_ADS_CLIENT_ID || 'ca-pub-0000000000000000'
-    }),    // About HTML
-    new HtmlWebpackPlugin({
-      template: './about.html',     // Path to your about.html
-      filename: 'about.html',       // Output filename
-      chunks: ['nav'], // Include nav and animation bundles
-      inject: false,                 // Use manual script tags in source HTML (Option A)
-      title: 'About - Road Sign Factory',
-      appVersion: require('./package.json').version || process.env.VERSION || 'dev',
-      googleAdsClientId: process.env.GOOGLE_ADS_CLIENT_ID || 'ca-pub-0000000000000000'
-    }),    // Getting Started HTML
-    new HtmlWebpackPlugin({
-      template: './getting-started.html', // Path to your getting-started.html
-      filename: 'getting-started.html',   // Output filename
-      chunks: ['nav'],                    // Include nav bundle for navigation functionality
-      inject: false,                       // Use manual script tags in source HTML (Option A)
-      title: 'Getting Started - Road Sign Factory',
-      appVersion: require('./package.json').version || process.env.VERSION || 'dev',
-      googleAdsClientId: process.env.GOOGLE_ADS_CLIENT_ID || 'ca-pub-0000000000000000'
-    }),    // Posters HTML
-    new HtmlWebpackPlugin({
-      template: './posters.html',   // Path to your posters.html
-      filename: 'posters.html',     // Output filename
-      chunks: ['nav'],              // Include nav bundle
-      inject: false,                // Use manual script tags
-      title: 'Posters - Road Sign Factory',
-      appVersion: require('./package.json').version || process.env.VERSION || 'dev',
-      googleAdsClientId: process.env.GOOGLE_ADS_CLIENT_ID || 'ca-pub-0000000000000000'
-    }),    
+   
     new CopyWebpackPlugin({
       patterns: [
         { from: 'css', to: 'css' },
-        { from: 'images', to: 'images' },
         { from: 'hints', to: 'hints' }, // Copy hint files for the hint system
         // Include DXF bundle for publishing
         { from: 'js/exportUtils/dxf-bundle.js', to: 'js/exportUtils/dxf-bundle.js' },
-        { from: 'ads.txt', to: 'ads.txt' }, // Ensure ads.txt is copied
-        { from: 'app.yaml', to: 'app.yaml' }, // Ensure app.yaml is copied
-        { from: 'sitemap.xml', to: 'sitemap.xml' }, // Ensure sitemap.xml is copied
-        { from: 'robots.txt', to: 'robots.txt' } // Ensure robots.txt is copied
+        { from: 'app.yaml', to: '../app.yaml' }, // Ensure app.yaml is copied to root
+        { from: 'dispatch.yaml', to: '../dispatch.yaml' }, // Ensure dispatch.yaml is copied to root
       ],
     }),// Optional: If you need the version available in your JS code as well
     new webpack.DefinePlugin({

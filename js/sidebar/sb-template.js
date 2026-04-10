@@ -21,47 +21,47 @@ let FormTemplateComponent = {
       description: 'Standard flag type sign with destinations and chevron',
       thumbnail: function () {
         // Load SVG image from images folder in a standardized thumbnail container
-        return `<div class="template-thumbnail"><img src="images/flag.svg" alt="Flag Sign" /></div>`;
+        return `<div class="template-thumbnail"><img src="/images/flag.svg" alt="Flag Sign" /></div>`;
       }
     },
     'Stack Sign': {
       description: 'Stacked road sign with multiple destinations',
       thumbnail: function () {
         // Load SVG image from images folder in a standardized thumbnail container
-        return `<div class="template-thumbnail"><img src="images/stack.svg" alt="Stack Sign" /></div>`;
+        return `<div class="template-thumbnail"><img src="/images/stack.svg" alt="Stack Sign" /></div>`;
       }
     },
     'Lane Sign': {
       description: 'Exit sign showing multiple lanes with directions',
       thumbnail: function () {
         // Load SVG image from images folder in a standardized thumbnail container
-        return `<div class="template-thumbnail"><img src="images/lane.svg" alt="Lane Sign" /></div>`;
+        return `<div class="template-thumbnail"><img src="/images/lane.svg" alt="Lane Sign" /></div>`;
       }
     },
     'Roundabout Sign': {
       description: 'Sign showing directions at a roundabout',
       thumbnail: function () {
         // Load SVG image from images folder in a standardized thumbnail container
-        return `<div class="template-thumbnail"><img src="images/roundabout.svg" alt="Roundabout Sign" /></div>`;
+        return `<div class="template-thumbnail"><img src="/images/roundabout.svg" alt="Roundabout Sign" /></div>`;
       }
     }, 'Spiral Roundabout Sign': {
       description: 'Sign showing directions at a spiral roundabout with multiple destinations',
       thumbnail: function () {
         // Load SVG image from images folder in a standardized thumbnail container
-        return `<div class="template-thumbnail"><img src="images/spiral.svg" alt="Spiral Roundabout Sign" /></div>`;
+        return `<div class="template-thumbnail"><img src="/images/spiral.svg" alt="Spiral Roundabout Sign" /></div>`;
       }
     }, 'Gantry Sign': {
       description: 'Overhead gantry sign with destinations in separate compartments',
       thumbnail: function () {
         // Load SVG image from images folder in a standardized thumbnail container
-        return `<div class="template-thumbnail"><img src="images/gantry.svg" alt="Gantry Sign" /></div>`;
+        return `<div class="template-thumbnail"><img src="/images/gantry.svg" alt="Gantry Sign" /></div>`;
       }
     },
     'Diverge Sign': {
       description: 'Complex interchange direction sign with multiple destinations',
       thumbnail: function () {
         // Load SVG image from images folder in a standardized thumbnail container
-        return `<div class="template-thumbnail"><img src="images/diverge.svg" alt="Diverge Sign" /></div>`;
+        return `<div class="template-thumbnail"><img src="/images/diverge.svg" alt="Diverge Sign" /></div>`;
       }
     },
 
