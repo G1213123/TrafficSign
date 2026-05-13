@@ -6,13 +6,9 @@
     "configurations": [
         {
             "name": "Debug with Server",
-            "type": "chrome",
+            "type": "node-terminal",
             "request": "launch",
-            "url": "http://localhost:8080/design",
-            "webRoot": "${workspaceFolder}",
-            "pathMapping": {
-                "/design": "${workspaceFolder}"
-            },
+            "command": "node scripts/debug-server.js",
             "skipFiles": [
                 // Existing pattern
                 "**VM**",
@@ -32,6 +28,14 @@
                 "<eval>/VM**",
                 "<anonymous>/**"
             ]
+        },
+        {
+            "name": "Open Design in Chrome",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:8080",
+            "webRoot": "${workspaceFolder}",
+            "preLaunchTask": "Start Debug Server"
         },
     ]
 }
