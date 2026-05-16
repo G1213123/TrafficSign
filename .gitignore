@@ -10,7 +10,6 @@ build/
 
 # IDE specific files
 .idea/
-.vscode/
 *.sublime-workspace
 *.sublime-project
 
