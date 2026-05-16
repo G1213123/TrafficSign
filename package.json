@@ -27,7 +27,6 @@
     "build": "webpack --mode production",
     "start": "npx http-server . -p 8080",
     "preview": "npx http-server dist -p 8080",
-    "deploy": "npm run build && cd dist && gcloud app deploy app.yaml dispatch.yaml --no-cache --promote --version=$(node -p \"require('../package.json').version\")",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",

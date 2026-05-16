@@ -45,8 +45,6 @@ module.exports = {
         { from: 'hints', to: 'hints' }, // Copy hint files for the hint system
         // Include DXF bundle for publishing
         { from: 'js/exportUtils/dxf-bundle.js', to: 'js/exportUtils/dxf-bundle.js' },
-        { from: 'app.yaml', to: '../app.yaml' }, // Ensure app.yaml is copied to root
-        { from: 'dispatch.yaml', to: '../dispatch.yaml' }, // Ensure dispatch.yaml is copied to root
       ],
     }),// Optional: If you need the version available in your JS code as well
     new webpack.DefinePlugin({
