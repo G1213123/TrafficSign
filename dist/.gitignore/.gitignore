@@ -5,10 +5,12 @@ yarn-debug.log
 yarn-error.log
 
 # Build outputs
+dist/
 build/
 
 # IDE specific files
 .idea/
+.vscode/
 *.sublime-workspace
 *.sublime-project
 
@@ -22,11 +24,3 @@ Thumbs.db
 .env.development.local
 .env.test.local
 .env.production.local
-
-# AdSense
-ads.txt
-
-# Exports
-export/
-
-source

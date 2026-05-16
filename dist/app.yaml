@@ -1,0 +1,33 @@
+runtime: nodejs22
+service: design
+
+instance_class: F1
+automatic_scaling:
+  target_cpu_utilization: 0.65
+  min_instances: 1
+  max_instances: 1
+  min_pending_latency: 30ms
+  max_pending_latency: automatic
+  max_concurrent_requests: 50
+
+handlers:
+# Backward-compatibility for clients still requesting root CSS/font paths.
+- url: /css/(.*)
+  static_files: design/css/\1
+  upload: design/css/(.*)
+  secure: always
+
+# Serve static files with appropriate MIME types and cache settings
+- url: /design/(.*\.(css|js|html|json|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|txt|map))$
+  static_files: design/\1
+  upload: design/.*\.(css|js|html|json|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|txt|map)$
+  secure: always
+
+# Serve index.html for everything else under /design
+- url: /design/?.*
+  static_files: design/index.html
+  upload: design/index.html
+  secure: always
+  http_headers:
+    X-Content-Type-Options: nosniff
+    Strict-Transport-Security: max-age=31536000; includeSubDomains
