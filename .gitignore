@@ -7,6 +7,11 @@ yarn-error.log
 # Build outputs
 build/
 
+# mock design url
+design/
+
+dist/
+
 # IDE specific files
 .idea/
 *.sublime-workspace

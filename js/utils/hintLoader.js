@@ -7,7 +7,13 @@ export class HintLoader {
   static cssLoaded = false; // Track if CSS has been loaded
   static cssLoadPromise = null; // Track CSS loading promise
   static buttonHintMap = new Map(); // Map button names to hint paths
-  
+
+  /**
+   * Map base url suffix for resolving hint paths, useful for development environments where the app might be served from a subdirectory
+   */
+  static baseUrlSuffix = window.location.pathname ;;
+
+
   /**
    * Load hint content from a file
    * @param {string} hintPath - Path to the hint file (e.g., 'symbols/Airport') or button name
@@ -16,26 +22,26 @@ export class HintLoader {
   static async loadHint(hintPath) {
     // Resolve button name to actual hint path if mapping exists
     const resolvedPath = this.resolveHintPath(hintPath);
-    
+
     // Ensure CSS is loaded first
     await this.ensureCSSLoaded();
-    
+
     // Check cache first
     if (this.cache.has(resolvedPath)) {
       return this.cache.get(resolvedPath);
     }
-    
+
     // Check if already loading
     if (this.loadingPromises.has(resolvedPath)) {
       return this.loadingPromises.get(resolvedPath);
     }
-    
+
     // Start loading
     const loadPromise = this._fetchHint(resolvedPath);
     this.loadingPromises.set(resolvedPath, loadPromise);
-    
+
     try {
-      const content = await loadPromise;
+      const content = loadPromise.then(rawContent => this.mapHintSvgPath(rawContent));
       this.cache.set(resolvedPath, content);
       this.loadingPromises.delete(resolvedPath);
       return content;
@@ -44,7 +50,16 @@ export class HintLoader {
       throw error;
     }
   }
-  
+
+  static mapHintSvgPath(content) {
+    // Implementation for mapping SVG paths in hint content
+    const regex = /<img\s+[^>]*src=["']([^"']+)["'][^>]*>/gi;
+    return content.replace(regex, (match, src) => {
+      const resolvedSrc = `${this.baseUrlSuffix}/${src}`;
+      return match.replace(src, resolvedSrc);
+    });
+  }
+
   /**
    * Resolve button name to hint path using mapping
    * @param {string} buttonNameOrPath - Button name or direct hint path
@@ -52,13 +67,14 @@ export class HintLoader {
    */
   static resolveHintPath(buttonNameOrPath) {
     // Check if it's a mapped button name
-    if (this.buttonHintMap.has(buttonNameOrPath)) {
-      return this.buttonHintMap.get(buttonNameOrPath);
-    }
-    // Return original path if no mapping found
-    return buttonNameOrPath;
+    const path = this.buttonHintMap.has(buttonNameOrPath)
+      ? this.buttonHintMap.get(buttonNameOrPath)
+      : buttonNameOrPath;
+
+    // Return absolute URL with base origin
+    return `${this.baseUrlSuffix + '/hints/' + path + '.html'}`;
   }
-  
+
   /**
    * Ensure hints CSS is loaded
    * @return {Promise<void>}
@@ -67,15 +83,15 @@ export class HintLoader {
     if (this.cssLoaded) {
       return;
     }
-    
+
     if (this.cssLoadPromise) {
       return this.cssLoadPromise;
     }
-    
+
     this.cssLoadPromise = this._loadCSS();
     await this.cssLoadPromise;
   }
-  
+
   /**
    * Load the hints CSS file
    * @private
@@ -90,55 +106,55 @@ export class HintLoader {
         resolve();
         return;
       }
-      
+
       // Create and load CSS link
       const link = document.createElement('link');
       link.rel = 'stylesheet';
       link.type = 'text/css';
-      link.href = 'hints/hints.css';
-      
+      link.href = `${this.baseUrlSuffix}/hints/hints.css`;
+
       link.onload = () => {
         this.cssLoaded = true;
         console.log('Hints CSS loaded successfully');
         resolve();
       };
-      
+
       link.onerror = (error) => {
         console.warn('Failed to load hints CSS:', error);
         // Don't reject - allow hints to work without CSS
         this.cssLoaded = true;
         resolve();
       };
-      
+
       document.head.appendChild(link);
     });
   }
-  
+
   /**
    * Internal method to fetch hint content
    * @private
    */
   static async _fetchHint(hintPath) {
-    const url = `hints/${hintPath}.html`;
-    
+    const url = hintPath;
+
     try {
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Failed to load hint: ${response.status} ${response.statusText}`);
       }
-      
+
       let content = await response.text();
-      
+
       // Remove the CSS link from the content since we load it separately
       content = content.replace(/<link[^>]*href[^>]*hints\.css[^>]*>/gi, '');
-      
+
       return content.trim();
     } catch (error) {
       console.warn(`Failed to load hint from ${url}:`, error);
       return null; // Return null for missing hints rather than throwing
     }
   }
-  
+
   /**
    * Preload multiple hints
    * @param {string[]} hintPaths - Array of hint paths to preload
@@ -147,11 +163,11 @@ export class HintLoader {
   static async preloadHints(hintPaths) {
     // Ensure CSS is loaded first
     await this.ensureCSSLoaded();
-    
+
     const promises = hintPaths.map(path => this.loadHint(path));
     await Promise.allSettled(promises); // Use allSettled to not fail if some hints are missing
   }
-  
+
   /**
    * Clear the cache (useful for development/testing)
    */
@@ -160,7 +176,7 @@ export class HintLoader {
     this.loadingPromises.clear();
     // Note: We don't reset cssLoaded to avoid reloading CSS unnecessarily
   }
-  
+
   /**
    * Force reload CSS (useful for development)
    */
@@ -173,7 +189,7 @@ export class HintLoader {
       existingLink.remove();
     }
   }
-  
+
   /**
    * Get cache statistics
    * @return {Object} Cache statistics
@@ -256,7 +272,7 @@ export class HintLoader {
         this.addButtonHintMapping(button.id, hintPath);
       }
     });
-    
+
     console.log(`Auto-setup completed: ${this.buttonHintMap.size} button mappings created`);
   }
 }
