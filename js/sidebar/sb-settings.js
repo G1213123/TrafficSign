@@ -112,6 +112,88 @@ let FormSettingsComponent = {
         FormSettingsComponent.changeBackgroundColor
       );
 
+      // Background image picker
+      GeneralHandler.createNode("div", { 'class': 'input-container' }, canvasSettingsContainer); // spacer
+      const bgImageLabel = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': 'background-image' }, canvasSettingsContainer);
+      bgImageLabel.setAttribute('data-i18n', 'Background Image');
+      bgImageLabel.textContent = i18n.t('Background Image');
+
+      const bgImageInput = GeneralHandler.createNode("input", {
+        'type': 'file',
+        'class': 'input',
+        'id': 'background-image',
+        'accept': 'image/*'
+      }, canvasSettingsContainer);
+      bgImageInput.addEventListener('change', FormSettingsComponent.changeBackgroundImage);
+
+      // Remove background image button
+      GeneralHandler.createButton('remove-bg-image', 'Remove Background Image', canvasSettingsContainer, 'input',
+        FormSettingsComponent.removeBackgroundImage, 'click');
+
+      // OCR button
+      GeneralHandler.createButton('ocr-bg-image', 'OCR Background Image', canvasSettingsContainer, 'input',
+        FormSettingsComponent.runOcrOnBackgroundImage, 'click');
+
+      // OCR results panel
+      const ocrResultContainer = GeneralHandler.createNode("div", {
+        'class': 'input-container ocr-result-container',
+        'id': 'ocr-result-container',
+        'style': 'display: none;'
+      }, canvasSettingsContainer);
+      const ocrResultLabel = GeneralHandler.createNode("div", { 'class': 'placeholder' }, ocrResultContainer);
+      ocrResultLabel.setAttribute('data-i18n', 'OCR Result');
+      ocrResultLabel.textContent = i18n.t('OCR Result');
+      const ocrResultTextarea = GeneralHandler.createNode("textarea", {
+        'class': 'input ocr-result-textarea',
+        'id': 'ocr-result-textarea',
+        'readonly': 'true',
+        'rows': '4',
+        'placeholder': i18n.t('OCR result will appear here...')
+      }, ocrResultContainer);
+      const ocrButtonsRow = GeneralHandler.createNode("div", { 'class': 'ocr-buttons-row' }, ocrResultContainer);
+      const ocrCopyBtn = GeneralHandler.createNode("button", { 'class': 'input-button', 'id': 'ocr-copy-btn' }, ocrButtonsRow);
+      ocrCopyBtn.textContent = i18n.t('Copy Text');
+      ocrCopyBtn.addEventListener('click', FormSettingsComponent.copyOcrResult);
+      const ocrClearBtn = GeneralHandler.createNode("button", { 'class': 'input-button', 'id': 'ocr-clear-btn' }, ocrButtonsRow);
+      ocrClearBtn.textContent = i18n.t('Clear');
+      ocrClearBtn.addEventListener('click', FormSettingsComponent.clearOcrResult);
+
+      // OCR progress indicator
+      const ocrProgressContainer = GeneralHandler.createNode("div", {
+        'class': 'input-container ocr-progress-container',
+        'id': 'ocr-progress-container',
+        'style': 'display: none;'
+      }, canvasSettingsContainer);
+      const ocrProgressBar = GeneralHandler.createNode("div", { 'class': 'ocr-progress-bar', 'id': 'ocr-progress-bar' }, ocrProgressContainer);
+      const ocrProgressText = GeneralHandler.createNode("div", { 'class': 'ocr-progress-text', 'id': 'ocr-progress-text' }, ocrProgressContainer);
+      ocrProgressText.textContent = i18n.t('Initializing OCR...');
+
+      // Background image size mode toggle
+      GeneralHandler.createToggle('Image Fit', ['Cover', 'Contain', 'Stretch', 'Manual'], canvasSettingsContainer,
+        GeneralSettings.backgroundImageSize === 'cover' ? 'Cover' :
+        GeneralSettings.backgroundImageSize === 'contain' ? 'Contain' :
+        GeneralSettings.backgroundImageSize === 'stretch' ? 'Stretch' : 'Manual',
+        FormSettingsComponent.changeBackgroundImageSize);
+
+      // Image opacity slider
+      const opacityContainer = GeneralHandler.createNode("div", { 'class': 'input-container' }, canvasSettingsContainer);
+      const opacityLabel = GeneralHandler.createNode("div", { 'class': 'placeholder', 'for': 'background-image-opacity' }, opacityContainer);
+      opacityLabel.setAttribute('data-i18n', 'Image Opacity');
+      opacityLabel.textContent = i18n.t('Image Opacity');
+
+      const opacityValueDisplay = GeneralHandler.createNode("span", { 'class': 'range-value-display', 'id': 'bg-opacity-value' }, opacityContainer);
+      opacityValueDisplay.textContent = Math.round(GeneralSettings.backgroundImageOpacity * 100) + '%';
+
+      const opacityInput = GeneralHandler.createNode("input", {
+        'type': 'range',
+        'class': 'range-input',
+        'id': 'background-image-opacity',
+        'min': '0',
+        'max': '100',
+        'value': Math.round(GeneralSettings.backgroundImageOpacity * 100)
+      }, opacityContainer);
+      opacityInput.addEventListener('input', FormSettingsComponent.changeBackgroundImageOpacity);
+
       // Grid color picker
       const gridColorPicker = FormSettingsComponent.createColorPicker(
         'grid-color',
@@ -258,6 +340,222 @@ let FormSettingsComponent = {
     CanvasGlobals.canvas.backgroundColor = event.target.value;
     CanvasGlobals.scheduleRender();
     FormSettingsComponent.saveSettings(); // Auto-save settings
+  },
+
+  changeBackgroundImage: async function (event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    GeneralSettings.backgroundImage = dataUrl;
+    GeneralSettings.backgroundImageSize = 'cover';
+    GeneralSettings.backgroundImageScale = 1.0;
+    await FormSettingsComponent.applyBackgroundImage();
+    FormSettingsComponent.saveSettings();
+  },
+
+  removeBackgroundImage: function () {
+    GeneralSettings.backgroundImage = null;
+    GeneralSettings.backgroundImageSize = 'cover';
+    GeneralSettings.backgroundImageScale = 1.0;
+    FormSettingsComponent.applyBackgroundImage();
+    const bgImageInput = document.getElementById('background-image');
+    if (bgImageInput) bgImageInput.value = '';
+    FormSettingsComponent.saveSettings();
+  },
+
+  changeBackgroundImageSize: async function (button) {
+    const value = button.getAttribute('data-value').toLowerCase();
+    GeneralSettings.backgroundImageSize = value;
+
+    // Before re-applying (which removes and recreates the image),
+    // capture the current visual scale so Manual mode preserves it.
+    if (value === 'manual' && GeneralSettings.backgroundImage) {
+      const currentBg = CanvasGlobals.canvas.getObjects().find(obj => obj.id === 'backgroundImage');
+      if (currentBg) {
+        GeneralSettings.backgroundImageScale = currentBg.scaleX;
+        GeneralSettings.backgroundImageOffsetX = currentBg.left - CanvasGlobals.canvas.width / 2 / CanvasGlobals.canvas.getZoom();
+        GeneralSettings.backgroundImageOffsetY = currentBg.top - CanvasGlobals.canvas.height / 2 / CanvasGlobals.canvas.getZoom();
+      }
+    }
+
+    await FormSettingsComponent.applyBackgroundImage();
+    if (value === 'manual') {
+      FormSettingsComponent.enableBgImageManualMode();
+    } else {
+      FormSettingsComponent.disableBgImageManualMode();
+    }
+    FormSettingsComponent.saveSettings();
+  },
+
+  changeBackgroundImageOpacity: function (event) {
+    const percent = parseInt(event.target.value) || 100;
+    GeneralSettings.backgroundImageOpacity = percent / 100;
+    const display = document.getElementById('bg-opacity-value');
+    if (display) display.textContent = percent + '%';
+
+    const existingBg = CanvasGlobals.canvas.getObjects().find(obj => obj.id === 'backgroundImage');
+    if (existingBg) {
+      existingBg.set('opacity', GeneralSettings.backgroundImageOpacity);
+      CanvasGlobals.scheduleRender();
+    }
+    FormSettingsComponent.saveSettings();
+  },
+
+  // Canvas event handlers for background image manipulation in Manual mode
+  _bgImageSyncHandlers: {
+    _saveTimer: null,
+
+    syncBgImageState: function () {
+      const bg = CanvasGlobals.canvas.getObjects().find(obj => obj.id === 'backgroundImage');
+      if (!bg) return;
+      GeneralSettings.backgroundImageScale = bg.scaleX;
+      GeneralSettings.backgroundImageOffsetX = bg.left - CanvasGlobals.canvas.width / 2 / CanvasGlobals.canvas.getZoom();
+      GeneralSettings.backgroundImageOffsetY = bg.top - CanvasGlobals.canvas.height / 2 / CanvasGlobals.canvas.getZoom();
+    },
+
+    onObjectModified: function (e) {
+      if (e.target && e.target.id === 'backgroundImage') {
+        clearTimeout(FormSettingsComponent._bgImageSyncHandlers._saveTimer);
+        FormSettingsComponent._bgImageSyncHandlers._saveTimer = setTimeout(() => {
+          FormSettingsComponent._bgImageSyncHandlers.syncBgImageState();
+          FormSettingsComponent.saveSettings();
+        }, 200);
+      }
+    }
+  },
+
+  enableBgImageManualMode: function () {
+    const bg = CanvasGlobals.canvas.getObjects().find(obj => obj.id === 'backgroundImage');
+    if (!bg) return;
+    bg.set({
+      selectable: true,
+      evented: true,
+      lockMovementX: false,
+      lockMovementY: false,
+      lockScalingX: false,
+      lockScalingY: false,
+      hasControls: true,
+      hasBorders: true,
+      borderColor: '#4a90d9',
+      cornerColor: '#4a90d9',
+      cornerStyle: 'circle',
+      cornerSize: 8,
+      transparentCorners: false,
+      borderScaleFactor: 1.5
+    });
+    bg.setCoords();
+    CanvasGlobals.scheduleRender();
+    CanvasGlobals.canvas.on('object:modified', FormSettingsComponent._bgImageSyncHandlers.onObjectModified);
+  },
+
+  disableBgImageManualMode: function () {
+    CanvasGlobals.canvas.off('object:modified', FormSettingsComponent._bgImageSyncHandlers.onObjectModified);
+    const bg = CanvasGlobals.canvas.getObjects().find(obj => obj.id === 'backgroundImage');
+    if (!bg) return;
+    if (CanvasGlobals.canvas.getActiveObject() === bg) {
+      CanvasGlobals.canvas.discardActiveObject();
+    }
+    bg.set({
+      selectable: false,
+      evented: false,
+      lockMovementX: true,
+      lockMovementY: true,
+      lockScalingX: true,
+      lockScalingY: true,
+      hasControls: false,
+      hasBorders: false
+    });
+    bg.setCoords();
+    CanvasGlobals.scheduleRender();
+  },
+
+  applyBackgroundImage: async function () {
+    const existingBg = CanvasGlobals.canvas.getObjects().find(obj => obj.id === 'backgroundImage');
+    if (existingBg) CanvasGlobals.canvas.remove(existingBg);
+
+    if (!GeneralSettings.backgroundImage) {
+      CanvasGlobals.scheduleRender();
+      return;
+    }
+
+    try {
+      const img = await fabric.Image.fromURL(GeneralSettings.backgroundImage, {
+        crossOrigin: 'anonymous'
+      });
+
+      const canvasWidth = CanvasGlobals.canvas.width / CanvasGlobals.canvas.getZoom();
+      const canvasHeight = CanvasGlobals.canvas.height / CanvasGlobals.canvas.getZoom();
+      const mode = GeneralSettings.backgroundImageSize || 'cover';
+
+      let scaleX, scaleY, left, top;
+
+      if (mode === 'stretch') {
+        scaleX = canvasWidth / img.width;
+        scaleY = canvasHeight / img.height;
+        left = canvasWidth / 2;
+        top = canvasHeight / 2;
+      } else if (mode === 'contain') {
+        const ratio = Math.min(canvasWidth / img.width, canvasHeight / img.height);
+        scaleX = ratio;
+        scaleY = ratio;
+        left = canvasWidth / 2;
+        top = canvasHeight / 2;
+      } else if (mode === 'manual') {
+        const manualScale = GeneralSettings.backgroundImageScale || 1.0;
+        scaleX = manualScale;
+        scaleY = manualScale;
+        left = canvasWidth / 2 + (GeneralSettings.backgroundImageOffsetX || 0);
+        top = canvasHeight / 2 + (GeneralSettings.backgroundImageOffsetY || 0);
+      } else {
+        // cover (default)
+        const ratio = Math.max(canvasWidth / img.width, canvasHeight / img.height);
+        scaleX = ratio;
+        scaleY = ratio;
+        left = canvasWidth / 2;
+        top = canvasHeight / 2;
+      }
+
+      const isManual = mode === 'manual';
+      img.set({
+        left: left,
+        top: top,
+        originX: 'center',
+        originY: 'center',
+        scaleX: scaleX,
+        scaleY: scaleY,
+        selectable: isManual,
+        evented: isManual,
+        lockMovementX: !isManual,
+        lockMovementY: !isManual,
+        lockScalingX: !isManual,
+        lockScalingY: !isManual,
+        hasControls: isManual,
+        hasBorders: isManual,
+        borderColor: '#4a90d9',
+        cornerColor: '#4a90d9',
+        cornerStyle: 'circle',
+        cornerSize: 8,
+        transparentCorners: false,
+        borderScaleFactor: 1.5,
+        opacity: GeneralSettings.backgroundImageOpacity,
+        id: 'backgroundImage'
+      });
+
+      CanvasGlobals.canvas.add(img);
+      const gridObj = CanvasGlobals.canvas.getObjects().find(obj => obj.id === 'grid');
+      CanvasGlobals.canvas.sendObjectToBack(img);
+      if (gridObj) CanvasGlobals.canvas.sendObjectToBack(gridObj);
+      CanvasGlobals.scheduleRender();
+    } catch (err) {
+      console.error('Failed to load background image:', err);
+    }
   },
 
   changeGridColor: function (event) {
@@ -506,6 +804,14 @@ let FormSettingsComponent = {
     // Apply background color
     CanvasGlobals.canvas.backgroundColor = GeneralSettings.backgroundColor;
 
+    // Apply background image
+    FormSettingsComponent.applyBackgroundImage();
+
+    // Re-enable manual mode handlers if needed
+    if (GeneralSettings.backgroundImageSize === 'manual' && GeneralSettings.backgroundImage) {
+      FormSettingsComponent.enableBgImageManualMode();
+    }
+
     // Apply snap to grid
     CanvasGlobals.canvas.snap_pts = GeneralSettings.snapToGrid ?
       FormSettingsComponent.generateSnapPoints() : [];
@@ -637,6 +943,23 @@ let FormSettingsComponent = {
     const bgColorInput = document.getElementById('background-color');
     if (bgColorInput) bgColorInput.value = GeneralSettings.backgroundColor;
 
+    // Sync background image size toggle
+    const bgSizeContainer = document.getElementById('Image Fit-container');
+    if (bgSizeContainer) {
+      const sizeMap = { cover: 'Cover', contain: 'Contain', stretch: 'Stretch', manual: 'Manual' };
+      const targetLabel = sizeMap[GeneralSettings.backgroundImageSize] || 'Cover';
+      bgSizeContainer.querySelectorAll('.toggle-button').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-value') === targetLabel);
+        if (btn.getAttribute('data-value') === targetLabel) bgSizeContainer.selected = btn;
+      });
+    }
+
+    // Sync background image opacity slider
+    const bgOpacityInput = document.getElementById('background-image-opacity');
+    if (bgOpacityInput) bgOpacityInput.value = Math.round(GeneralSettings.backgroundImageOpacity * 100);
+    const bgOpacityValue = document.getElementById('bg-opacity-value');
+    if (bgOpacityValue) bgOpacityValue.textContent = Math.round(GeneralSettings.backgroundImageOpacity * 100) + '%';
+
     const gridColorInput = document.getElementById('grid-color');
     if (gridColorInput) gridColorInput.value = GeneralSettings.gridColor;
 
@@ -676,6 +999,84 @@ let FormSettingsComponent = {
 
     // Force canvas re-render
     CanvasGlobals.scheduleRender();
+  },
+
+  // --- OCR for background image ---
+  runOcrOnBackgroundImage: async function () {
+    if (!GeneralSettings.backgroundImage) {
+      alert(i18n.t('No background image loaded. Please load a background image first.'));
+      return;
+    }
+
+    const progressContainer = document.getElementById('ocr-progress-container');
+    const progressBar = document.getElementById('ocr-progress-bar');
+    const progressText = document.getElementById('ocr-progress-text');
+    const resultContainer = document.getElementById('ocr-result-container');
+    const resultTextarea = document.getElementById('ocr-result-textarea');
+
+    progressContainer.style.display = 'block';
+    resultContainer.style.display = 'none';
+    progressBar.style.width = '0%';
+    progressText.textContent = i18n.t('Initializing OCR...');
+
+    try {
+      const result = await Tesseract.recognize(
+        GeneralSettings.backgroundImage,
+        'eng+chi_tra',
+        {
+          logger: (m) => {
+            if (m.status === 'recognizing text') {
+              const pct = Math.round(m.progress * 100);
+              progressBar.style.width = pct + '%';
+              progressText.textContent = i18n.t('Recognizing text...') + ' ' + pct + '%';
+            } else if (m.status === 'loading language traineddata') {
+              progressText.textContent = i18n.t('Loading language data...');
+            }
+          }
+        }
+      );
+
+      progressBar.style.width = '100%';
+      progressText.textContent = i18n.t('Done!');
+
+      const text = result.data.text.trim();
+      if (text) {
+        resultTextarea.value = text;
+        resultContainer.style.display = 'block';
+        progressContainer.style.display = 'none';
+      } else {
+        progressText.textContent = i18n.t('No text found in image.');
+        setTimeout(() => { progressContainer.style.display = 'none'; }, 2000);
+      }
+    } catch (err) {
+      console.error('OCR error:', err);
+      progressText.textContent = i18n.t('OCR failed:') + ' ' + err.message;
+      setTimeout(() => { progressContainer.style.display = 'none'; }, 3000);
+    }
+  },
+
+  copyOcrResult: function () {
+    const textarea = document.getElementById('ocr-result-textarea');
+    if (textarea && textarea.value) {
+      navigator.clipboard.writeText(textarea.value).then(() => {
+        const btn = document.getElementById('ocr-copy-btn');
+        const original = btn.textContent;
+        btn.textContent = i18n.t('Copied!');
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      }).catch(() => {
+        textarea.select();
+        document.execCommand('copy');
+      });
+    }
+  },
+
+  clearOcrResult: function () {
+    const resultContainer = document.getElementById('ocr-result-container');
+    const resultTextarea = document.getElementById('ocr-result-textarea');
+    const progressContainer = document.getElementById('ocr-progress-container');
+    if (resultTextarea) resultTextarea.value = '';
+    if (resultContainer) resultContainer.style.display = 'none';
+    if (progressContainer) progressContainer.style.display = 'none';
   }
 };
 
