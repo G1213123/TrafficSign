@@ -29,7 +29,9 @@ module.exports = {
         type: 'asset/resource',
       },
     ],
-  }, plugins: [    // Homepage HTML
+  }, 
+  plugins: [    
+    // Homepage HTML
     new HtmlWebpackPlugin({
       template: './design.html', // Path to your design.html
       filename: 'index.html',   // Output filename
@@ -55,7 +57,14 @@ module.exports = {
     }),// Optional: If you need the version available in your JS code as well
     new webpack.DefinePlugin({
       'process.env.APP_VERSION': JSON.stringify(require('./package.json').version || process.env.VERSION || 'dev'),
-      'process.env.APP_TITLE': JSON.stringify('Road Sign Factory - Online Sign Creator')
+      'process.env.APP_TITLE': JSON.stringify('Road Sign Factory - Online Sign Creator'),
+      'process.env.NEXT_PUBLIC_FIREBASE_API_KEY': JSON.stringify(process.env.NEXT_PUBLIC_FIREBASE_API_KEY),
+      'process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN': JSON.stringify(process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN),
+      'process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID': JSON.stringify(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID),
+      'process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET': JSON.stringify(process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET),
+      'process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID': JSON.stringify(process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID),
+      'process.env.NEXT_PUBLIC_FIREBASE_APP_ID': JSON.stringify(process.env.NEXT_PUBLIC_FIREBASE_APP_ID),
+      'process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID': JSON.stringify(process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID)
     }),
     new MiniCssExtractPlugin({ // Added
       filename: 'css/[name].css', // Output CSS filename

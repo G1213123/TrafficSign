@@ -3,7 +3,8 @@
   "version": "1.4.3",
   "dependencies": {
     "dxf-writer": "^1.18.4",
-    "env-cmd": "^10.1.0"
+    "env-cmd": "^10.1.0",
+    "firebase": "^12.15.0"
   },
   "devDependencies": {
     "@babel/core": "^7.27.4",

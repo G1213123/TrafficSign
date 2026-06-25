@@ -35,3 +35,7 @@ ads.txt
 export/
 
 source
+
+firebaseConfig.js
+
+secrets.yaml
