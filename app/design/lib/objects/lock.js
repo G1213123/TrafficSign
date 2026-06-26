@@ -1,5 +1,5 @@
 import { globalAnchorTree } from "./anchor.js";
-import { canvasTracker } from "../canvas/Tracker.js";
+import { canvasTracker } from "../utils/Tracker.js";
 import { CanvasGlobals } from "../canvas/canvas.js";
 import { GeneralSettings } from "../sidebar/sbGeneral.js";
 const canvas = CanvasGlobals.canvas;

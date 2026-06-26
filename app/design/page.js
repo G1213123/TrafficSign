@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import Sidebar from './components/Sidebar';
+import Sidebar from './components/sidebars/Sidebar';
 import CanvasEditor from './components/canvas/CanvasEditor';
 
 export default function DesignPage() {

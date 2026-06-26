@@ -1,14 +1,13 @@
 //TODO: check updateAllCoord for anchor object inside border / divider not working
 // AnchorTree class to manage anchoring relationships between objects
 import { CanvasGlobals } from '../canvas/canvas.js';
-import { canvasTracker } from '../canvas/Tracker.js'; // Import canvasTracker for tracking changes
+import { canvasTracker } from '../utils/Tracker.js'; // Import canvasTracker for tracking changes
 import { ShowHideSideBarEvent } from '../canvas/keyboardEvents.js';
 import { showTextBox, hideTextBox, selectObjectHandler } from '../canvas/promptBox.js'; // Import selectObjectHandler for object selection
 
-const canvas = CanvasGlobals.canvas; // Get the global canvas instance
-
 class AnchorTree {
   constructor() {
+    // ...existing code...
     this.xTree = {}; // Object to store X-axis anchor relationships
     this.yTree = {}; // Object to store Y-axis anchor relationships
     this.updateInProgressX = false; // Flag to track if an X-axis update cycle is in progress

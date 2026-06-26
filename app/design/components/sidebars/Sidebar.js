@@ -18,6 +18,7 @@ import {
     ChevronsDown
 } from 'lucide-react';
 import './sidebar.css';
+import DrawSymbolPanel from './DrawSymbolPanel';
 
 const SIDEBAR_ITEMS = [
     { id: 'btn_draw', icon: Road, label: 'Draw Symbol', tooltip: 'Draw Symbol' },
@@ -66,20 +67,7 @@ export default function Sidebar() {
                         </h2>
 
                         {activeTab === 'btn_draw' && (
-                            <div className="space-y-4">
-                                <div className="input-group">
-                                    <label className="input-label">X-Height</label>
-                                    <input type="number" className="input-field" defaultValue="100" />
-                                </div>
-                                <div className="symbol-grid">
-                                    {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                                        <div key={i} className="symbol-item">
-                                            <Road size={20} />
-                                        </div>
-                                    ))}
-                                </div>
-                                <p style={{ fontSize: '12px', color: '#888', fontStyle: 'italic' }}>Mock Symbol Grid</p>
-                            </div>
+                            <DrawSymbolPanel canvas={canvas} />
                         )}
 
                         {activeTab !== 'btn_draw' && (

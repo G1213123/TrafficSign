@@ -1,11 +1,11 @@
 import { CanvasGlobals } from "../canvas/canvas.js";
 import { calculateTransformedPoints, convertVertexToPathCommands, getFontPath, convertFontPathToFabricPath } from "./path.js";
-import { canvasTracker } from "../canvas/Tracker.js";
+import { canvasTracker } from "../utils/Tracker.js";
 import { VertexControl } from "./vertex.js";
 import { BorderDimensionDisplay } from "./dimension.js";
 import { LockIcon } from "./lock.js";
 import { globalAnchorTree, anchorShape } from './anchor.js';
-import { CanvasObjectInspector } from "../sidebar/sb-inspector.js";
+//import { CanvasObjectInspector } from "../sidebar/sb-inspector.js";
 import { parsedFontMedium, parsedFontHeavy, parsedFontKorean } from "./path.js";
 import { showPropertyPanel, handleClear } from "../sidebar/property.js";
 

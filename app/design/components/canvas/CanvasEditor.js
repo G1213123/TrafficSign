@@ -2,23 +2,23 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Canvas, Line, Group, Text } from 'fabric'
+import { initCanvasGlobals } from '../../lib/canvas/canvas';
 
-export default function CanvasEditor() {
-    const canvasRef = useRef(null);
-    const fabricCanvas = useRef(null);
-    const [zoom, setZoom] = useState(0.2);
+export default function CanvasEditor({ canvasInstance }) {
+  const canvasRef = useRef(null);
+  const fabricCanvas = useRef(null);
+  const [zoom, setZoom] = useState(0.2);
 
-    useEffect(() => {
-        // Initialize Fabric Canvas
-        const canvas = new Canvas('canvas', {
-            fireMiddleClick: true,
-            fireRightClick: true,
-            preserveObjectStacking: true,
-            enableRetinaScaling: true,
-        });
-
-        fabricCanvas.current = canvas;
-        canvas.setZoom(zoom);
+  useEffect(() => {
+    if (!canvasInstance) return;
+    
+    const canvas = canvasInstance;
+    canvas.setZoom(zoom);
+    
+    // Initialize global canvas access for lib scripts
+    initCanvasGlobals(canvas);
+    
+    // ...existing code...
 
         // Initial resize and center
         resizeCanvas(canvas);
