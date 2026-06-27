@@ -1,8 +1,8 @@
 import { CanvasGlobals } from "./canvas.js";
-import { FormSettingsComponent } from "../sidebar/sb-settings.js";
-import { GeneralSettings } from "../sidebar/sbGeneral.js";
-import { canvasTracker } from "./Tracker.js";
-import { showPropertyPanel } from "../sidebar/property.js";
+//import { FormSettingsComponent } from "../sidebar/sb-settings.js";
+import { GeneralSettings } from '../../lib/sidebar/general';
+import { canvasTracker } from "../utils/Tracker.js";
+import { showPropertyPanel } from "../utils/property.js";
 import { buildObjectsFromJSON } from "../objects/build.js";
 
 // Keyboard shortcut for showing/hiding sidebar
@@ -93,55 +93,55 @@ function handleArrowKeys(event) {
 document.addEventListener('keydown', handleArrowKeys);
 
 // Add event listener for Ctrl+S to save canvas state
-document.addEventListener('keydown', function (event) {
-  if (event.ctrlKey && event.key === 's') {
-    event.preventDefault(); // Prevent the browser's default save action
-    FormSettingsComponent.saveCanvasState();
-    // Optionally, provide some feedback to the user, e.g., a console log or a small notification
-    console.log('Canvas state saved (Ctrl+S)');
-  }
-});
-
-// Add event listeners for undo/redo functionality
-document.addEventListener('keydown', function (event) {
-  // Check if user is currently inputting something - if so, don't trigger undo/redo
-  if (document.activeElement.tagName === 'INPUT' ||
-    document.activeElement.tagName === 'TEXTAREA') {
-    return; // Exit early if user is typing in an input field
-  }
-  // Ctrl+Z for undo (try state-based first, fallback to original)
-  if (event.ctrlKey && event.key === 'z' && !event.shiftKey) {
-    event.preventDefault();
-    if (typeof canvasTracker.undo === 'function') {
-        canvasTracker.undo().then(success => {
-            if (success) console.log('Undo performed');
-            else console.log('Nothing to undo');
-        });
-    }
-  }
-
-  // Ctrl+Y or Ctrl+Shift+Z for redo (try state-based first, fallback to original)
-  if ((event.ctrlKey && event.key === 'y') ||
-    (event.ctrlKey && event.shiftKey && event.key === 'Z')) {
-    event.preventDefault();
-    if (typeof canvasTracker.redo === 'function') {
-        canvasTracker.redo().then(success => {
-            if (success) console.log('Redo performed');
-            else console.log('Nothing to redo');
-        });
-    }
-  }
-
-  // Refresh property panel when arrow keys are pressed
-    const panel = document.getElementById('property-panel');
-    if (panel.style.display !== 'block') return;
-    const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
-    if (arrowKeys.includes(event.key)) {
-      // Update content based on current active object
-      const obj = CanvasGlobals.canvas.getActiveObject();
-      if (obj) showPropertyPanel(obj);
-    }
-});
+//document.addEventListener('keydown', function (event) {
+//  if (event.ctrlKey && event.key === 's') {
+//    event.preventDefault(); // Prevent the browser's default save action
+//    FormSettingsComponent.saveCanvasState();
+//    // Optionally, provide some feedback to the user, e.g., a console log or a small notification
+//    console.log('Canvas state saved (Ctrl+S)');
+//  }
+//});
+//
+//// Add event listeners for undo/redo functionality
+//document.addEventListener('keydown', function (event) {
+//  // Check if user is currently inputting something - if so, don't trigger undo/redo
+//  if (document.activeElement.tagName === 'INPUT' ||
+//    document.activeElement.tagName === 'TEXTAREA') {
+//    return; // Exit early if user is typing in an input field
+//  }
+//  // Ctrl+Z for undo (try state-based first, fallback to original)
+//  if (event.ctrlKey && event.key === 'z' && !event.shiftKey) {
+//    event.preventDefault();
+//    if (typeof canvasTracker.undo === 'function') {
+//        canvasTracker.undo().then(success => {
+//            if (success) console.log('Undo performed');
+//            else console.log('Nothing to undo');
+//        });
+//    }
+//  }
+//
+//  // Ctrl+Y or Ctrl+Shift+Z for redo (try state-based first, fallback to original)
+//  if ((event.ctrlKey && event.key === 'y') ||
+//    (event.ctrlKey && event.shiftKey && event.key === 'Z')) {
+//    event.preventDefault();
+//    if (typeof canvasTracker.redo === 'function') {
+//        canvasTracker.redo().then(success => {
+//            if (success) console.log('Redo performed');
+//            else console.log('Nothing to redo');
+//        });
+//    }
+//  }
+//
+//  // Refresh property panel when arrow keys are pressed
+//    const panel = document.getElementById('property-panel');
+//    if (panel.style.display !== 'block') return;
+//    const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+//    if (arrowKeys.includes(event.key)) {
+//      // Update content based on current active object
+//      const obj = CanvasGlobals.canvas.getActiveObject();
+//      if (obj) showPropertyPanel(obj);
+//    }
+//});
 
 // Clipboard for copy/paste
 let _clipboard = null;

@@ -1,5 +1,5 @@
 // CanvasTracker utility for tracking canvas operations
-import { CanvasGlobals, DrawGrid } from "./canvas.js";
+import { CanvasGlobals } from "../canvas/canvas.js";
 
 const canvasObject = CanvasGlobals.canvasObject;
 
@@ -217,13 +217,13 @@ class CanvasTracker {
       await buildObjectsFromJSON(stateClone);
 
       // Ensure grid is present and correct
-      DrawGrid();
+      //DrawGrid();
 
       this.historyIndex = index;
       canvas.renderAll();
       
       // Dynamic import for property panel to avoid circular dependency
-      const { showPropertyPanel } = await import("../sidebar/property.js");
+      const { showPropertyPanel } = await import("../utils/property.js");
 
       // Restore selection if possible
       let restored = false;

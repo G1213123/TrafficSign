@@ -1,18 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  Road, 
-  Type, 
-  Square, 
-  MapPin, 
-  Ruler, 
-  Signpost, 
-  FileExport, 
-  History, 
-  Info, 
-  Settings 
-} from 'lucide-react';
+
 import { fabric } from 'fabric';
 import { symbolsTemplate } from '../../lib/objects/template';
 import { calcSymbol, SymbolObject } from '../../lib/objects/symbols';

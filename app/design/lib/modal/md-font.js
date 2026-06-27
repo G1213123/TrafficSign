@@ -4,7 +4,7 @@
  */
 
 import { ModalUtils } from './mdGeneral.js';
-import { GeneralHandler } from '../sidebar/sbGeneral.js';
+import { GeneralSettings } from '../../lib/sidebar/general';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { i18n } from '../i18n/i18n.js';
 

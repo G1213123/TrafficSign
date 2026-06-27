@@ -6,7 +6,7 @@ import { BaseGroup } from './draw.js';
 import { drawDivider } from './divider.js';
 import { textWidthMedium, textWidthHeavy, } from './template.js';
 import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontHK, parsedFontKorean, parsedFontChocolate, parsedFontKai, parsedFontSans, ensureOpenTypePatched } from './path.js';
-import { GeneralSettings } from '../sidebar/sbGeneral.js';
+import { GeneralSettings } from '../../lib/sidebar/general';
 import { FontPriorityManager } from '../modal/md-font.js';
 
 

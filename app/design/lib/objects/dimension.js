@@ -1,5 +1,5 @@
 import { CanvasGlobals } from "../canvas/canvas.js";
-import { GeneralSettings } from "../sidebar/sbGeneral.js";
+import { GeneralSettings } from '../../lib/sidebar/general';
 const canvas = CanvasGlobals.canvas;
 
 // Class to handle engineering style dimension displays for border objects

@@ -1,7 +1,7 @@
 import { globalAnchorTree } from "./anchor.js";
 import { canvasTracker } from "../utils/Tracker.js";
 import { CanvasGlobals } from "../canvas/canvas.js";
-import { GeneralSettings } from "../sidebar/sbGeneral.js";
+import { GeneralSettings } from '../../lib/sidebar/general';
 const canvas = CanvasGlobals.canvas;
 
 class LockIcon {

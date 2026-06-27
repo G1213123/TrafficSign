@@ -1,5 +1,5 @@
 import { CanvasGlobals } from "./canvas.js";
-import { showPropertyPanel } from '../sidebar/property.js'; // Import showPropertyPanel
+import { showPropertyPanel } from '../utils/property.js'; // Import showPropertyPanel
 
 const canvas = CanvasGlobals.canvas; // Access the global canvas object
 // Context menu
