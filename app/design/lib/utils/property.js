@@ -12,20 +12,24 @@ import { calculateMainRoadBottomY } from '../objects/mainRoute.js';
 const propertyMenuItem = document.getElementById('property');
 const contextMenu = document.getElementById('context-menu');
 
-propertyMenuItem.addEventListener('click', function (e) {
-  e.preventDefault();
-  contextMenu.style.display = 'none';
-  const obj = contextMenu.selectedArrow;
-  showPropertyPanel(obj);
-});
+if (propertyMenuItem) {
+  propertyMenuItem.addEventListener('click', function (e) {
+    e.preventDefault();
+    contextMenu.style.display = 'none';
+    const obj = contextMenu.selectedArrow;
+    showPropertyPanel(obj);
+  });
+}
 
 // Initialize property panel based on canvas selection events
-CanvasGlobals.canvas.on('selection:created', handleSelection);
-CanvasGlobals.canvas.on('selection:updated', handleSelection);
-CanvasGlobals.canvas.on('object:modified', handleSelection);
-CanvasGlobals.canvas.on('selection:cleared', handleClear);
+export function initializePropertyPanel(canvas) {
+  canvas.on('selection:created', handleSelection);
+  canvas.on('selection:updated', handleSelection);
+  canvas.on('object:modified', handleSelection);
+  canvas.on('selection:cleared', handleClear);
+}
 
-function handleSelection(event) {
+export function handleSelection(event) {
   const panel = document.getElementById('property-panel');
   // Only update panel if it was opened via context-menu
   if (panel.style.display !== 'block') return;
@@ -42,7 +46,7 @@ function handleSelection(event) {
   if (obj) showPropertyPanel(obj);
 }
 
-function handleClear() {
+export function handleClear() {
   const panel = document.getElementById('property-panel');
   panel.style.display = 'none';
   panel.innerHTML = '';
@@ -135,8 +139,8 @@ function showPropertyPanel(object) {
     let numValue;
     let oldValue; // Track old value for undo
 
-  const isBorder = targetObject.functionalType === 'Border';
-  if (prop.key === 'xHeight') {
+    const isBorder = targetObject.functionalType === 'Border';
+    if (prop.key === 'xHeight') {
       numValue = parseFloat(e.target.value);
       if (!isNaN(numValue) && targetObject.xHeight !== numValue) {
         oldValue = targetObject.xHeight; // Store old value
@@ -300,7 +304,7 @@ function showPropertyPanel(object) {
         targetObject._showName = newValue;
       }
       try {
-        targetObject.updateText(newValue,targetObject.xHeight,targetObject.font,targetObject.color);
+        targetObject.updateText(newValue, targetObject.xHeight, targetObject.font, targetObject.color);
         //targetObject.removeAll();
         //targetObject.initialize();
         //targetObject.updateAllCoord();

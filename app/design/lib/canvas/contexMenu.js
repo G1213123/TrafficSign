@@ -1,12 +1,14 @@
 import { CanvasGlobals } from "./canvas.js";
 import { showPropertyPanel } from '../utils/property.js'; // Import showPropertyPanel
 
-const canvas = CanvasGlobals.canvas; // Access the global canvas object
 // Context menu
 const contextMenu = document.getElementById('context-menu');
 let cursorClickMode = 'normal'; // Default click mode
 
 function clickModelHandler(event) {
+  const canvas = CanvasGlobals.canvas; // Access the global canvas object inside the handler
+  if (!canvas) return;
+
   switch (cursorClickMode) {
     case 'normal': {
       if (event.e.button === 2 && event.target) { // Right click
@@ -34,9 +36,13 @@ function clickModelHandler(event) {
   }
 }
 
-canvas.on('mouse:down', function (event) {
-  clickModelHandler(event)
-});
+export function setupContextMenu(canvas) {
+
+  canvas.on('mouse:down', function (event) {
+    clickModelHandler(event);
+  });
+
+}
 
 
 document.addEventListener('contextmenu', function (event) {
@@ -46,27 +52,32 @@ document.addEventListener('contextmenu', function (event) {
 
 // Add handlers for context-menu actions
 const deleteMenuItem = document.getElementById('delete-object');
-deleteMenuItem.addEventListener('click', function (e) {
-  e.preventDefault();
-  contextMenu.style.display = 'none';
-  const obj = contextMenu.selectedArrow;
-  if (obj && typeof obj.deleteObject === 'function') {
-    obj.deleteObject(null, { target: obj });
-  }
-});
+if (deleteMenuItem) {
+
+  deleteMenuItem.addEventListener('click', function (e) {
+    e.preventDefault();
+    contextMenu.style.display = 'none';
+    const obj = contextMenu.selectedArrow;
+    if (obj && typeof obj.deleteObject === 'function') {
+      obj.deleteObject(null, { target: obj });
+    }
+  });
+}
 
 const editMenuItem = document.getElementById('edit-object');
-editMenuItem.addEventListener('click', function (e) {
-  e.preventDefault();
-  contextMenu.style.display = 'none';
-  const obj = contextMenu.selectedArrow;
-  // if (obj && typeof obj.onDoubleClick === 'function') { // Old behavior
-  //   obj.onDoubleClick();
-  // }
-  if (obj) { // New behavior
-    showPropertyPanel(obj);
-  }
-});
+if (editMenuItem) {
+  editMenuItem.addEventListener('click', function (e) {
+    e.preventDefault();
+    contextMenu.style.display = 'none';
+    const obj = contextMenu.selectedArrow;
+    // if (obj && typeof obj.onDoubleClick === 'function') { // Old behavior
+    //   obj.onDoubleClick();
+    // }
+    if (obj) { // New behavior
+      showPropertyPanel(obj);
+    }
+  });
+}
 
 // Dynamically flip submenu to left if it would overflow the viewport on the right
 const pivotMenuItem = document.getElementById('pivot-anchor');
@@ -88,4 +99,4 @@ if (pivotMenuItem) {
   });
 }
 
-export {cursorClickMode}
+export { cursorClickMode }

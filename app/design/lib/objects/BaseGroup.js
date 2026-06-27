@@ -1,4 +1,4 @@
-import { fabric } from 'fabric';
+import { Group } from 'fabric';
 import { canvasTracker } from '../utils/Tracker.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 
@@ -10,7 +10,7 @@ const deleteIcon =
 
 
 
-export class BaseGroup extends fabric.Group {
+export class BaseGroup extends Group {
   /**
    * List of property names to include in metadata.
    * @type {string[]}
@@ -942,12 +942,5 @@ export class BaseGroup extends fabric.Group {
   }
 }
 
-fabric.BaseGroup = BaseGroup;
-
-
-
-
-// Register the custom class with Fabric.js
-fabric.BaseGroup = BaseGroup;
 
 export { BaseGroup, canvasObject };

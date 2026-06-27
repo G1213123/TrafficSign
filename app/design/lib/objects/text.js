@@ -2,7 +2,7 @@
  * TextObject extends BaseGroup to create text with proper vertex handling
  */
 
-import { BaseGroup } from './draw.js';
+import { BaseGroup } from './BaseGroup.js';
 import { drawDivider } from './divider.js';
 import { textWidthMedium, textWidthHeavy, } from './template.js';
 import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontHK, parsedFontKorean, parsedFontChocolate, parsedFontKai, parsedFontSans, ensureOpenTypePatched } from './path.js';

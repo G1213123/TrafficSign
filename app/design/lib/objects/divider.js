@@ -1,4 +1,5 @@
-import { BaseGroup, GlyphPath } from './draw.js';
+import { GlyphPath } from './draw.js';
+import { BaseGroup } from './BaseGroup.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { DividerScheme, BorderColorScheme, DividerMargin } from './template.js';
 import { BorderUtilities } from './border.js';

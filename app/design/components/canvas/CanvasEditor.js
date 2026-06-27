@@ -3,6 +3,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Canvas, Line, Group, Text } from 'fabric'
 import { initCanvasGlobals } from '../../lib/canvas/canvas';
+import { setupContextMenu } from '../../lib/canvas/contexMenu';
+import { initializePropertyPanel } from '../../lib/utils/property';
 
 export default function CanvasEditor({ canvasInstance }) {
   const canvasRef = useRef(null);
@@ -17,6 +19,8 @@ export default function CanvasEditor({ canvasInstance }) {
     
     // Initialize global canvas access for lib scripts
     initCanvasGlobals(canvas);
+    setupContextMenu(canvas);
+    initializePropertyPanel(canvas);
     
     // ...existing code...
 

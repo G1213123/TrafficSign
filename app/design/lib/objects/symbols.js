@@ -3,7 +3,8 @@
  * Uses path.js for all path-related functionality
  */
 
-import { BaseGroup, GlyphPath } from './draw.js';
+import { GlyphPath } from './draw.js';
+import { BaseGroup } from './BaseGroup.js';
 import { symbolsTemplate, symbolsTemplateAlt } from './template.js';
 import { calculateTransformedPoints } from './path.js';
 

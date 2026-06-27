@@ -1,4 +1,5 @@
-import { BaseGroup, GlyphPath } from './draw.js';
+import { GlyphPath } from './draw.js';
+import { BaseGroup } from './BaseGroup.js';
 import { calculateTransformedPoints, getInsertOffset } from './path.js';
 import { roadMapTemplate, baseSideRoadTemplate } from './template.js';
 import { calcSymbol } from './symbols.js';

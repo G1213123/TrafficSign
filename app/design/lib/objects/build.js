@@ -11,7 +11,7 @@
 // Fabric canvas instance and the array storing canvas objects, respectively.
 
 import { CanvasGlobals } from "../canvas/canvas.js";
-import { BaseGroup } from "./draw.js";
+import { BaseGroup } from "./BaseGroup.js";
 import { SymbolObject } from "./symbols.js";
 import { TextObject } from "./text.js";
 import { MainRoadSymbol } from "./mainRoute.js";

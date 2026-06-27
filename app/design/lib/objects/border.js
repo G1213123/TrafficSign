@@ -1,4 +1,4 @@
-import { BaseGroup } from './draw.js';
+import { BaseGroup } from './BaseGroup.js';
 import { BorderDimensionDisplay, RadiusDimensionDisplay } from './dimension.js';
 import { globalAnchorTree, processUpdateCycle } from './anchor.js';
 import { BorderTypeScheme, BorderColorScheme, BorderFrameWidth, BorderPaddingWidth, DividerMargin } from './template.js';
