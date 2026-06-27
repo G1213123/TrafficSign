@@ -2,7 +2,6 @@
 // AnchorTree class to manage anchoring relationships between objects
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { canvasTracker } from '../utils/Tracker.js'; // Import canvasTracker for tracking changes
-import { ShowHideSideBarEvent } from '../canvas/keyboardEvents.js';
 import { showTextBox, hideTextBox, selectObjectHandler } from '../canvas/promptBox.js'; // Import selectObjectHandler for object selection
 
 class AnchorTree {
@@ -478,37 +477,41 @@ class AnchorTree {
 // Create a global instance of the AnchorTree
 const globalAnchorTree = new AnchorTree();
 
-document.getElementById('set-anchor').addEventListener('click', function (event) {
-  const selectedArrow = event.target.parentElement.parentElement.selectedArrow; // The object we want to MOVE (shape2)
-  if (!selectedArrow) return;
+const set_anchor = document.getElementById('set-anchor')
+if (set_anchor){
+  set_anchor.addEventListener('click', function (event) {
+    const selectedArrow = event.target.parentElement.parentElement.selectedArrow; // The object we want to MOVE (shape2)
+    if (!selectedArrow) return;
+  
+    // Hide context menu (container is parentElement.parentElement per existing code)
+    this.parentElement.parentElement.style.display = 'none';
+    window.dispatchEvent(new CustomEvent('toggle-sidebar'));
+  
+    // Wrapper to adapt selectObjectHandler's callback signature to anchorShape(expected: targetShape, movingShape)
+    const handleAnchorSelection = (selectedTargets, movingShape /* comes from options param */) => {
+      if (!selectedTargets || selectedTargets.length === 0) return; // nothing selected
+  
+      // Use first selected object as target (shape1). selectObjectHandler returns an array.
+      const targetShape = Array.isArray(selectedTargets) ? selectedTargets[0] : selectedTargets;
+  
+      // Prevent anchoring an object to itself.
+      if (targetShape === movingShape) {
+        // Simply re-enable sidebar key listener and exit; could add user feedback if desired.
+        window.dispatchEvent(new CustomEvent('toggle-sidebar'));
+        return;
+      }
+  
+      // Call original anchorShape with (targetShape, movingShape)
+      anchorShape(targetShape, movingShape)
+    };
+  
+    // Invoke selection flow. selectObjectHandler will pass (successSelectedArray, optionsSelectedArrow, ...)
+    // First clear any existing active selection so user makes a fresh target choice.
+      canvas.discardActiveObject();
+    selectObjectHandler('Select shape to anchor to', handleAnchorSelection, selectedArrow);
+  });
 
-  // Hide context menu (container is parentElement.parentElement per existing code)
-  this.parentElement.parentElement.style.display = 'none';
-  document.removeEventListener('keydown', ShowHideSideBarEvent);
-
-  // Wrapper to adapt selectObjectHandler's callback signature to anchorShape(expected: targetShape, movingShape)
-  const handleAnchorSelection = (selectedTargets, movingShape /* comes from options param */) => {
-    if (!selectedTargets || selectedTargets.length === 0) return; // nothing selected
-
-    // Use first selected object as target (shape1). selectObjectHandler returns an array.
-    const targetShape = Array.isArray(selectedTargets) ? selectedTargets[0] : selectedTargets;
-
-    // Prevent anchoring an object to itself.
-    if (targetShape === movingShape) {
-      // Simply re-enable sidebar key listener and exit; could add user feedback if desired.
-      document.addEventListener('keydown', ShowHideSideBarEvent);
-      return;
-    }
-
-    // Call original anchorShape with (targetShape, movingShape)
-    anchorShape(targetShape, movingShape)
-  };
-
-  // Invoke selection flow. selectObjectHandler will pass (successSelectedArray, optionsSelectedArrow, ...)
-  // First clear any existing active selection so user makes a fresh target choice.
-    canvas.discardActiveObject();
-  selectObjectHandler('Select shape to anchor to', handleAnchorSelection, selectedArrow);
-});
+}
 
 // Parent "Pivot Anchor" acts only as hover target to open submenu; no click action
 
@@ -600,12 +603,12 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
 
   const vertexIndex1 = options.vertexIndex1 ? options.vertexIndex1 : await showTextBox('Enter vertex index for First Polygon:', 'E1')
   if (!vertexIndex1) {
-    document.addEventListener('keydown', ShowHideSideBarEvent);
+    window.dispatchEvent(new CustomEvent('toggle-sidebar'));
     return Promise.reject('anchor_cancelled_vertex1');
   }
   const vertexIndex2 = options.vertexIndex2 ? options.vertexIndex2 : await showTextBox('Enter vertex index for Second Polygon:', 'E1')
   if (!vertexIndex2) {
-    document.addEventListener('keydown', ShowHideSideBarEvent);
+    window.dispatchEvent(new CustomEvent('toggle-sidebar'));
     return Promise.reject('anchor_cancelled_vertex2');
   }
 
@@ -629,24 +632,24 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
 
   const spacingX = options.spacingX != null ? options.spacingX :
     (isAlreadyAnchoredInX ? '' : await showTextBox('Enter spacing in X \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight));
-  if (spacingX == null) { document.addEventListener('keydown', ShowHideSideBarEvent); return Promise.reject('anchor_cancelled_spacingX'); }
+  if (spacingX == null) { window.dispatchEvent(new CustomEvent('toggle-sidebar')); return Promise.reject('anchor_cancelled_spacingX'); }
 
   // Check if object is already anchored in Y axis
   const spacingY = options.spacingY != null ? options.spacingY :
     (isAlreadyAnchoredInY ? '' : await showTextBox('Enter spacing in Y \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight));
-  if (spacingY == null) { document.addEventListener('keydown', ShowHideSideBarEvent); return Promise.reject('anchor_cancelled_spacingY'); }
+  if (spacingY == null) { window.dispatchEvent(new CustomEvent('toggle-sidebar')); return Promise.reject('anchor_cancelled_spacingY'); }
 
   const movingPoint = shape2.getBasePolygonVertex(vertexIndex1.toUpperCase())
   const targetPoint = shape1.getBasePolygonVertex(vertexIndex2.toUpperCase())
 
   if (!movingPoint) {
     console.log(`Vertex ${vertexIndex1.toUpperCase()} not found in shape to be moved (ID: ${shape2._showName})`);
-    document.addEventListener('keydown', ShowHideSideBarEvent);
+    window.dispatchEvent(new CustomEvent('toggle-sidebar'));
     //return Promise.reject($`anchor_invalid_vertex1, Shape ID: ${shape2._showName}, Vertex: ${vertexIndex1.toUpperCase()}`);
   }
   if (!targetPoint) {
     console.log(`Vertex ${vertexIndex2.toUpperCase()} not found in target shape (ID: ${shape1._showName})`);
-    document.addEventListener('keydown', ShowHideSideBarEvent);
+    window.dispatchEvent(new CustomEvent('toggle-sidebar'));
     //return Promise.reject($`anchor_invalid_vertex2, Shape ID: ${shape1._showName}, Vertex: ${vertexIndex2.toUpperCase()}`);
   }
 

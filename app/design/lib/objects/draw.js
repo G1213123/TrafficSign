@@ -9,6 +9,8 @@ import { parsedFontMedium, parsedFontHeavy, parsedFontKorean } from "./path.js";
 import { showPropertyPanel, handleClear } from "../utils/property.js";
 import { BaseGroup, canvasObject } from './BaseGroup.js';
 
+import { Group } from 'fabric';
+
 const canvas = CanvasGlobals.canvas; // Assuming canvas is a global variable in canvas.js
 
 const deleteIcon =
@@ -23,7 +25,7 @@ const deleteIcon =
 //}
 
 
-class GlyphPath extends fabric.Group {
+class GlyphPath extends Group {
   constructor(options) {
     super([], options); // Call the parent class constructor first
 

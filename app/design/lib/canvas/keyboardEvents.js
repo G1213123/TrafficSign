@@ -9,7 +9,7 @@ import { buildObjectsFromJSON } from "../objects/build.js";
 function ShowHideSideBarEvent(e) {
   switch (e.keyCode) {
     case 27: // esc
-      GeneralHandler.ShowHideSideBar(e);
+      window.dispatchEvent(new CustomEvent('toggle-sidebar'));
       break;
   }
 }

@@ -73,7 +73,7 @@ export default function DrawSymbolPanel({ canvas }) {
               onClick={() => handleAddSymbol(symbolType)}
               title={symbolType}
             >
-              <Road size={20} />
+              
             </div>
           );
         })}

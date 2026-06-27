@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { CanvasGlobals } from '../../lib/canvas/canvas.js';
 import {
     Road,
     Type,
@@ -49,6 +50,15 @@ export default function Sidebar() {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
+    useEffect(() => {
+        const handleToggle = () => {
+            setIsOpen(prev => !prev);
+        };
+
+        window.addEventListener('toggle-sidebar', handleToggle);
+        return () => window.removeEventListener('toggle-sidebar', handleToggle);
+    }, []);
+
     return (
         <div className="side-panel-container">
             {/* Main Side Panel */}
@@ -67,7 +77,7 @@ export default function Sidebar() {
                         </h2>
 
                         {activeTab === 'btn_draw' && (
-                            <DrawSymbolPanel canvas={canvas} />
+                            <DrawSymbolPanel canvas={CanvasGlobals.canvas} />
                         )}
 
                         {activeTab !== 'btn_draw' && (

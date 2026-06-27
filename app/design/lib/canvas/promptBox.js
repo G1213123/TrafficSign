@@ -1,5 +1,4 @@
 import { CanvasGlobals } from "./canvas.js";
-import { ShowHideSideBarEvent } from "./keyboardEvents.js";
 import { cursorClickMode } from "./contexMenu.js";
 import { i18n } from '../i18n/i18n.js';
 
@@ -46,6 +45,8 @@ function updatePosition(event) {
   const promptText = document.getElementById('cursorTextBox');
   const answerBox = document.getElementById('cursorAnswerBox');
 
+  if (!promptBox || !promptText || !answerBox) return;
+
   // Get viewport dimensions
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
@@ -79,6 +80,7 @@ document.addEventListener('mousemove', updatePosition);
 
 function answerBoxFocus(event) {
   const answerBox = document.getElementById('cursorAnswerBox');
+  if (!answerBox) return;
   if (answerBox.style.display === 'block') {
     answerBox.focus();
   }
@@ -97,7 +99,7 @@ function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = n
   // Emphasize configured keywords (defaults to WIDTH/HEIGHT)
   promptBox.innerHTML = emphasizePromptText(i18n.t(text));
   promptBox.style.display = 'block';
-  document.removeEventListener('keydown', ShowHideSideBarEvent);
+  // Sidebar toggle is handled by React state; no need to remove listener here
 
   // Unit handling variables
   let currentUnit = unit;
@@ -252,7 +254,7 @@ function hideTextBox() {
     unitDisplay.style.display = 'none';
   }
   setTimeout(() => {
-    document.addEventListener('keydown', ShowHideSideBarEvent);
+    // Sidebar toggle is handled by React state; no need to add listener here
   }, 1000); // Delay in milliseconds (e.g., 1000ms = 1 second)
 }
 
@@ -279,8 +281,7 @@ function selectObjectHandler(text, callback, options = null, xHeight = null, uni
     if (answerBoxEl) answerBoxEl.style.display = 'none';
     if (enterBtn) enterBtn.style.display = 'none';
     if (cancelBtn) cancelBtn.style.display = 'none';
-    // Pause sidebar toggle while prompt is visible
-    document.removeEventListener('keydown', ShowHideSideBarEvent);
+    // Sidebar toggle is handled by React state; no need to remove listener here
   } catch (e) {
     // Non-fatal if UI elements are missing
   }
