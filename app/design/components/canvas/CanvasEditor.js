@@ -5,6 +5,7 @@ import { Canvas, Line, Group, Text } from 'fabric'
 import { initCanvasGlobals } from '../../lib/canvas/canvas';
 import { setupContextMenu } from '../../lib/canvas/contexMenu';
 import { initializePropertyPanel } from '../../lib/utils/property';
+import { parseFont } from '../../lib/objects/path';
 
 export default function CanvasEditor({ canvasInstance }) {
   const canvasRef = useRef(null);
@@ -21,6 +22,15 @@ export default function CanvasEditor({ canvasInstance }) {
     initCanvasGlobals(canvas);
     setupContextMenu(canvas);
     initializePropertyPanel(canvas);
+    
+    // Wait for fonts to be parsed before proceeding
+    parseFont().then(() => {
+        console.log("Fonts parsed, initializing editor components...");
+        // If there are components that depend on parsed fonts, 
+        // you can initialize them here or trigger a re-render.
+    }).catch(err => {
+        console.error("Font parsing failed:", err);
+    });
     
     // ...existing code...
 

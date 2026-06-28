@@ -5,6 +5,7 @@
  */
 
 import { FontPriorityManager } from '../modal/md-font.js';
+import { parse } from 'opentype.js'; // Ensure opentype.js is available in the global scope
 
 // Store parsed fonts (assuming opentype.js objects)
 let parsedFontMedium = null;
@@ -567,7 +568,7 @@ function convertVertexToPathCommands(path, isClosed = true) {
  * Should be called once during application initialization.
  * @returns {Promise<void>} A promise that resolves when all fonts are fetched and parsed.
  */
-function parseFont() {
+export function parseFont() {
   // If already parsing or parsed, return the existing promise
   if (fontParsingPromise) {
     return fontParsingPromise;
@@ -577,8 +578,8 @@ function parseFont() {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     const buffer = await res.arrayBuffer();
-    if (typeof opentype !== 'undefined') {
-      const font = opentype.parse(buffer);
+    if (typeof parse !== 'undefined') {
+      const font = parse(buffer);
       assignFn(font);
     } else {
       throw new Error(`opentype.js not loaded. Cannot parse ${name} font.`);
@@ -586,16 +587,16 @@ function parseFont() {
   };
 
   const assetBase = (typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/design'))
-    ? '/design/'
+    ? '/'
     : '/';
 
   const localAsset = (relativePath) => `${assetBase}${relativePath.replace(/^\/+/, '')}`;
 
   // Critical fonts: TransportMedium, TransportHeavy, NotoSansHK
   const criticalFonts = [
-    loadFont(localAsset('css/font/TransportMedium.woff'), 'TransportMedium', (f) => parsedFontMedium = f)
+    loadFont(localAsset('font/TransportMedium.woff'), 'TransportMedium', (f) => parsedFontMedium = f)
       .catch(e => { console.error("Error fetching/parsing TransportMedium:", e); throw e; }),
-    loadFont(localAsset('css/font/TransportHeavy.woff'), 'TransportHeavy', (f) => parsedFontHeavy = f)
+    loadFont(localAsset('font/TransportHeavy.woff'), 'TransportHeavy', (f) => parsedFontHeavy = f)
       .catch(e => { console.error("Error fetching/parsing TransportHeavy:", e); throw e; }),
     loadFont('https://fonts.gstatic.com/s/notosanskr/v36/PbyxFmXiEBPT4ITbgNA5Cgms3VYcOA-vvnIzztgyeLTq8H4hfeE.ttf', 'NotoSansKR-Medium', (f) => parsedFontKorean = f)
       .catch(e => { console.error("Error fetching/parsing NotoSansKR-Medium:", e); throw e; })

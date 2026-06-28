@@ -2,10 +2,140 @@
 
 import React, { useState } from 'react';
 
-import { fabric } from 'fabric';
+import { StaticCanvas, Path, Group } from 'fabric';
 import { symbolsTemplate } from '../../lib/objects/template';
 import { calcSymbol, SymbolObject } from '../../lib/objects/symbols';
+import { convertVertexToPathCommands, convertFontPathToFabricPath, getFontPath } from '../../lib/objects/path.js';
+import { parsedFontMedium, parsedFontHeavy, parsedFontKorean } from "../../lib/objects/path.js";
 import './sidebar.css';
+
+const createButtonSVG =  (symbolType, length, color = 'white') => {
+    const symbolData = calcSymbol(symbolType, length, color);
+
+    // Define SVG dimensions for the button
+    const svgWidth = 100;
+    const svgHeight = 100;
+    // Create a temporary canvas to measure and render the symbol
+    const tempCanvas = new StaticCanvas(null, {
+      width: svgWidth,
+      height: svgHeight,
+      enableRetinaScaling: false
+    });
+
+    // Create temporary path objects for each path in the symbol
+    const pathObjects = [];
+
+    // Process each path in the symbol data
+    symbolData.path.forEach(path => {
+      // Convert vertex data to path commands
+      const pathCommands = convertVertexToPathCommands(path);
+
+      // Create a Path object
+      const pathObj = new Path(pathCommands, {
+        fill: path.fill || color.toLowerCase(),
+        stroke: 'none',
+        strokeWidth: 0
+      });
+
+      pathObjects.push(pathObj);
+    });
+
+    // Process text elements if present
+    if (symbolData.text && symbolData.text.length > 0) {
+      symbolData.text.forEach(textElem => {
+        let fontGlyphs;
+        switch (textElem.fontFamily) {
+          case 'TransportMedium':
+            fontGlyphs = parsedFontMedium;
+            break;
+          case 'TransportHeavy':
+            fontGlyphs = parsedFontHeavy;
+            break;
+          default:
+            fontGlyphs = parsedFontKorean;
+        }
+        // Access font metrics
+        const fontMetrics = {
+          unitsPerEm: fontGlyphs.unitsPerEm,
+          ascender: fontGlyphs.ascender,
+          descender: fontGlyphs.descender,
+        };
+
+        // Scale metrics to desired font size
+        const fontScale = textElem.fontSize / fontMetrics.unitsPerEm;
+        const scaledAscender = (fontMetrics.unitsPerEm - fontMetrics.ascender) * fontScale;
+
+        const yOffset = scaledAscender;
+        textElem.y = textElem.y - yOffset;
+        // Check for font path
+        const charPath = getFontPath(textElem);
+        if (charPath && charPath.commands) {
+          // Convert font path commands to Path format
+          const pathCommands = convertFontPathToFabricPath(charPath.commands, textElem);
+          const textPathObj = new Path(pathCommands, {
+            fill: textElem.fill || color.toLowerCase(),
+            stroke: 'none',
+            strokeWidth: 0
+          });
+
+          pathObjects.push(textPathObj);
+        }
+      });
+    }
+
+    // Create a group with all paths
+    const group = new Group(pathObjects, {
+      left: 0,
+      top: 0
+    });
+    // Calculate dimensions for scaling
+    const bounds = group.getBoundingRect();
+
+    // Special case handling for specific symbols
+    let symbolWidth = bounds.width;
+    let symbolHeight = bounds.height;
+
+    if (symbolType === 'MTR') {
+      symbolWidth = 130;
+    }
+    if (symbolType === 'Hospital') {
+      symbolWidth = color == 'White' ? 80 : 90;
+    }
+
+    // Scale to fit within SVG dimensions
+    const scaleX = svgWidth / symbolWidth;
+    const scaleY = svgHeight / symbolHeight;
+    const scale = Math.min(scaleX, scaleY);
+
+    // Set the group's properties for centering and scaling
+    group.set({
+      left: (svgWidth - symbolWidth * scale) / 2,
+      top: (svgHeight - symbolHeight * scale) / 2,
+      scaleX: scale,
+      scaleY: scale
+    });
+
+    // Add the group to the canvas
+    tempCanvas.add(group);
+    tempCanvas.renderAll();
+
+    // Export as SVG string
+    const svgString = tempCanvas.toSVG({
+      width: svgWidth,
+      height: svgHeight,
+      viewBox: {
+        x: 0,
+        y: 0,
+        width: svgWidth,
+        height: svgHeight
+      }
+    });
+
+    // Cleanup
+    tempCanvas.dispose();
+
+    return svgString;
+  }
 
 export default function DrawSymbolPanel({ canvas }) {
   const [xHeight, setXHeight] = useState(100);
@@ -26,7 +156,7 @@ export default function DrawSymbolPanel({ canvas }) {
     };
 
     // Use the migrated legacy logic to create the object
-    // Note: SymbolObject extends fabric.Group (via BaseGroup)
+    // Note: SymbolObject extends Group (via BaseGroup)
     const symbol = new SymbolObject({
       symbolType: symbolType,
       ...options
@@ -73,7 +203,7 @@ export default function DrawSymbolPanel({ canvas }) {
               onClick={() => handleAddSymbol(symbolType)}
               title={symbolType}
             >
-              
+            <img src={createButtonSVG(symbolType, xHeight, color)} alt={symbolType} />
             </div>
           );
         })}
