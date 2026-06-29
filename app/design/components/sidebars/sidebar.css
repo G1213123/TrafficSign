@@ -101,17 +101,29 @@
   background-color: #444;
   border-radius: 4px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: background-color 0.2s;
   border: 1px solid #555;
   color: white;
+  padding: 8px;
 }
 
 .symbol-item:hover {
-  background-color: #555;
+  background-color: #8d8d8d;
 }
+
+
+.symbol-separator {
+    background-color: #fff;
+    border: 0;
+    height: 4px;
+    margin: 4px 0;
+    width: 100%;
+}
+
 
 .object-list-section {
   margin-top: 24px;

@@ -1,4 +1,5 @@
 import { showPropertyPanel } from './property.js'; // Import showPropertyPanel
+import { CanvasGlobals } from "../canvas/canvas.js"; // Import CanvasGlobals
 
 // Context menu
 let cursorClickMode = 'normal'; // Default click mode
@@ -43,9 +44,9 @@ export function setupContextMenu(canvas) {
 }
 
 
-document.addEventListener('contextmenu', function (event) {
-  event.preventDefault();
-});
+//document.addEventListener('contextmenu', function (event) {
+//  event.preventDefault();
+//});
 
 
 // Add handlers for context-menu actions

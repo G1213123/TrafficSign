@@ -145,7 +145,7 @@ export default function CanvasEditor() {
         else if (currentZoom < 5) gridDistance = 10;
         else gridDistance = 5;
 
-        const gridColor = '#888888'; // Darker for the dark theme
+        const gridColor = '#FFF'; // Darker for the dark theme
         const strokeWidth = 0.1 / currentZoom;
 
         const gridLines = [];

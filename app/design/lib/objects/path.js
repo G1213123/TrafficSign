@@ -619,7 +619,7 @@ export function parseFont() {
         if (typeof window !== 'undefined') window.parsedFontHK = parsedFontHK;
         window.dispatchEvent(new CustomEvent('fontLoaded', { detail: { fontName: 'parsedFontHK' } }));
       }),
-      () => loadFont(localAsset('css/font/TW-MOE-Std-Kai-compact.ttf'), 'TW-MOE-Std-Kai-compact', (f) => {
+      () => loadFont(localAsset('font/TW-MOE-Std-Kai-compact.ttf'), 'TW-MOE-Std-Kai-compact', (f) => {
          parsedFontKai = f
          window.dispatchEvent(new CustomEvent('fontLoaded', { detail: { fontName: 'TW-MOE-Std-Kai' } }));
       }),

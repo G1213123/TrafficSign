@@ -9,17 +9,17 @@ import { i18n } from '../i18n/i18n.js';
 import { calculateMainRoadBottomY } from '../objects/mainRoute.js';
 
 // Add handler for 'Property' context-menu action
-const propertyMenuItem = document.getElementById('property');
-const contextMenu = document.getElementById('context-menu');
+//const propertyMenuItem = document.getElementById('property');
+//const contextMenu = document.getElementById('context-menu');//
 
-if (propertyMenuItem) {
-  propertyMenuItem.addEventListener('click', function (e) {
-    e.preventDefault();
-    contextMenu.style.display = 'none';
-    const obj = contextMenu.selectedArrow;
-    showPropertyPanel(obj);
-  });
-}
+//if (propertyMenuItem) {
+//  propertyMenuItem.addEventListener('click', function (e) {
+//    e.preventDefault();
+//    contextMenu.style.display = 'none';
+//    const obj = contextMenu.selectedArrow;
+//    showPropertyPanel(obj);
+//  });
+//}
 
 // Initialize property panel based on canvas selection events
 export function initializePropertyPanel(canvas) {

@@ -9,7 +9,7 @@ import { parsedFontMedium, parsedFontHeavy, parsedFontKorean } from "./path.js";
 import { showPropertyPanel, handleClear } from "../utils/property.js";
 import { BaseGroup, canvasObject } from './BaseGroup.js';
 
-import { Group } from 'fabric';
+import { Group, Path } from 'fabric';
 
 const canvas = CanvasGlobals.canvas; // Assuming canvas is a global variable in canvas.js
 
@@ -69,7 +69,7 @@ class GlyphPath extends Group {
     // Create fabric.Path objects directly from vertex data
     shapeMeta.path.forEach(path => {
       const pathCommands = convertVertexToPathCommands(path);
-      const pathObj = new fabric.Path(pathCommands, {
+      const pathObj = new Path(pathCommands, {
         fill: path.fill || options.fill || 'white',
         stroke: options.stroke || 'none',
         strokeWidth: options.strokeWidth || 0,
@@ -111,7 +111,7 @@ class GlyphPath extends Group {
         if (charPath && charPath.commands) {
           // Convert font path commands to fabric.Path format
           const pathCommands = convertFontPathToFabricPath(charPath.commands, textElem);
-          const textPathObj = new fabric.Path(pathCommands, {
+          const textPathObj = new Path(pathCommands, {
             fill: textElem.fill || options.fill || 'black',
             stroke: 'none',
             strokeWidth: 0,
