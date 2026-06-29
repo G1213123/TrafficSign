@@ -29,8 +29,8 @@ export default function DesignPage() {
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-[#2f2f2f]">
-      <Sidebar />
       <CanvasEditor />
+      <Sidebar />
     </div>
   );
 }

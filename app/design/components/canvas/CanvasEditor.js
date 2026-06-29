@@ -3,36 +3,41 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Canvas, Line, Group, Text } from 'fabric'
 import { initCanvasGlobals } from '../../lib/canvas/canvas';
-import { setupContextMenu } from '../../lib/canvas/contexMenu';
+import { setupContextMenu } from '../../lib/utils/contexMenu';
 import { initializePropertyPanel } from '../../lib/utils/property';
 import { parseFont } from '../../lib/objects/path';
 
-export default function CanvasEditor({ canvasInstance }) {
-  const canvasRef = useRef(null);
-  const fabricCanvas = useRef(null);
-  const [zoom, setZoom] = useState(0.2);
+export default function CanvasEditor() {
+    const canvasRef = useRef(null);
+    const fabricCanvas = useRef(null);
+    const [zoom, setZoom] = useState(0.2);
 
-  useEffect(() => {
-    if (!canvasInstance) return;
-    
-    const canvas = canvasInstance;
-    canvas.setZoom(zoom);
-    
-    // Initialize global canvas access for lib scripts
-    initCanvasGlobals(canvas);
-    setupContextMenu(canvas);
-    initializePropertyPanel(canvas);
-    
-    // Wait for fonts to be parsed before proceeding
-    parseFont().then(() => {
-        console.log("Fonts parsed, initializing editor components...");
-        // If there are components that depend on parsed fonts, 
-        // you can initialize them here or trigger a re-render.
-    }).catch(err => {
-        console.error("Font parsing failed:", err);
-    });
-    
-    // ...existing code...
+    useEffect(() => {
+        const canvas = new Canvas('canvas', {
+            fireMiddleClick: true,
+            fireRightClick: true,
+            preserveObjectStacking: true,
+            enableRetinaScaling: true,
+        });
+        
+        fabricCanvas.current = canvas;
+        canvas.setZoom(zoom);
+
+        // Initialize global canvas access for lib scripts
+        initCanvasGlobals(canvas);
+        setupContextMenu(canvas);
+        initializePropertyPanel(canvas);
+
+        // Wait for fonts to be parsed before proceeding
+        parseFont().then(() => {
+            console.log("Fonts parsed, initializing editor components...");
+            // If there are components that depend on parsed fonts, 
+            // you can initialize them here or trigger a re-render.
+        }).catch(err => {
+            console.error("Font parsing failed:", err);
+        });
+
+        // ...existing code...
 
         // Initial resize and center
         resizeCanvas(canvas);

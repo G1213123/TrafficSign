@@ -301,6 +301,6 @@ class CanvasTracker {
 }
 
 const canvasTracker = new CanvasTracker();
-window.canvasTracker = canvasTracker;
+//window.canvasTracker = canvasTracker;
 
 export { canvasTracker };

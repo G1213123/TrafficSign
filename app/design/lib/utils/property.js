@@ -874,6 +874,22 @@ function showPropertyPanel(object) {
   try { i18n.applyTranslations(panel); } catch (_) { }
 }
 
+export default function PropertyPanel() {
+  return (
+    <div id="property-panel" class="property-panel">
+      <div id="cursorBoxContainer" class="cursor-box-contained">
+        <div id="cursorTextBox" class="cursor-box" data-i18n="Follow the cursor">Follow the cursor</div>
+        <div id="cursorAnswerWrapper" class="unit-wrapper" style="display:none;">
+          <input type="text" id="cursorAnswerBox" class="cursor-box" value="0" />
+          <span id="unit-display" class="unit-display" style="display:none;"></span>
+        </div>
+        <button id="cursorEnterButton" class="cursor-box-button mobile-only" data-i18n="Enter">Enter</button>
+        <button id="cursorCancelButton" class="cursor-box-button mobile-only" data-i18n="Cancel">Cancel</button>
+      </div>
+    </div>
+  )
+};
+
 
 
 // Export showPropertyPanel for context menu

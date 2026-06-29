@@ -725,10 +725,7 @@ function getFontPath(t) {
       return null;
     }
   }
-  // Check if opentype.js is available and the font object has getPath
-  if (typeof opentype === 'undefined' || typeof font.getPath !== 'function') {
-    console.error("opentype.js not loaded or font object is invalid."); return null;
-  }  // Define font priority list for fallback
+
   let fontPriorityList = [];
   // Get user-configured font priority list
   const getUserFontPriority = () => {

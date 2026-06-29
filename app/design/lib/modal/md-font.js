@@ -359,7 +359,7 @@ const FontPriorityManager = {
    * Load font priority from localStorage
    */
   loadFontPriorityFromStorage: function () {
-    const stored = localStorage.getItem('fontPriorityList');
+    const stored = typeof window !== 'undefined' ?  localStorage.getItem('fontPriorityList') : null;
     if (stored) {
       try {
         FontPriorityManager.fontPriorityList = JSON.parse(stored);

@@ -1,8 +1,6 @@
-import { CanvasGlobals } from "./canvas.js";
-import { showPropertyPanel } from '../utils/property.js'; // Import showPropertyPanel
+import { showPropertyPanel } from './property.js'; // Import showPropertyPanel
 
 // Context menu
-const contextMenu = document.getElementById('context-menu');
 let cursorClickMode = 'normal'; // Default click mode
 
 function clickModelHandler(event) {
@@ -98,5 +96,25 @@ if (pivotMenuItem) {
     });
   });
 }
+
+export default function contextMenu() {
+  return (
+    <div id="context-menu">
+      <ul>
+        <li id="set-anchor" data-i18n="Set Anchor">Set Anchor</li>
+        <li id="pivot-anchor"><span data-i18n="Pivot Anchor">Pivot Anchor</span>
+          <ul class="context-submenu">
+            <li id="pivot-anchor-x" data-i18n="X-axis">X-axis</li>
+            <li id="pivot-anchor-y" data-i18n="Y-axis">Y-axis</li>
+            <li id="pivot-anchor-both" data-i18n="Both">Both</li>
+          </ul>
+        </li>
+        <li id="edit-object" data-i18n="Edit">Edit</li>
+        <li id="delete-object" data-i18n="Delete">Delete</li>
+        <li id="property" data-i18n="Property">Property</li>
+      </ul>
+    </div>
+  )
+};
 
 export { cursorClickMode }

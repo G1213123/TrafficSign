@@ -10,7 +10,7 @@ import { parsedFontMedium, parsedFontHeavy, parsedFontKorean } from "../../lib/o
 import './sidebar.css';
 
 const createButtonSVG =  (symbolType, length, color = 'white') => {
-    const symbolData = calcSymbol(symbolType, length, color);
+    const symbolData =  calcSymbol(symbolType, length, color);
 
     // Define SVG dimensions for the button
     const svgWidth = 100;
@@ -53,6 +53,10 @@ const createButtonSVG =  (symbolType, length, color = 'white') => {
             break;
           default:
             fontGlyphs = parsedFontKorean;
+        }
+        if (!fontGlyphs) {
+          console.error(`Font glyphs not found for font family: ${textElem.fontFamily}`);
+          return;
         }
         // Access font metrics
         const fontMetrics = {
