@@ -1,6 +1,37 @@
+import React, { useState, useRef, useEffect } from 'react';
 import { CanvasGlobals } from "../canvas/canvas.js";
 import { cursorClickMode } from "./contexMenu.js";
 import { i18n } from '../i18n/i18n.js';
+
+// Global state for PromptBox to allow non-React calls to trigger it
+export const promptBoxState = {
+  isVisible: false,
+  text: '',
+  withAnswerBox: null,
+  unit: 'sw',
+  xHeight: null,
+  position: { x: 0, y: 0 },
+  resolve: null,
+  reject: null,
+  
+  show(text, withAnswerBox, unit, xHeight, resolve, reject) {
+    this.text = text;
+    this.withAnswerBox = withAnswerBox;
+    this.unit = unit;
+    this.xHeight = xHeight;
+    this.resolve = resolve;
+    this.reject = reject;
+    this.isVisible = true;
+  },
+  
+  hide() {
+    this.isVisible = false;
+  },
+  
+  setPosition(x, y) {
+    this.position = { x, y };
+  }
+};
 
 const canvas = CanvasGlobals.canvas; // Access the global canvas object
 
@@ -37,336 +68,128 @@ function emphasizePromptText(s) {
     .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
     .join("|");
   const regex = new RegExp(pattern, "gi");
-  return escaped.replace(escaped.match(regex), (m) => `<span class="prompt-keyword">${m.toUpperCase()}</span>`);
+  const match = escaped.match(regex);
+  return match ? escaped.replace(match[0], (m) => `<span class="prompt-keyword">${m.toUpperCase()}</span>`) : escaped;
 }
 
-function updatePosition(event) {
-  const promptBox = document.getElementById('cursorBoxContainer');
-  const promptText = document.getElementById('cursorTextBox');
-  const answerBox = document.getElementById('cursorAnswerBox');
-
-  if (!promptBox || !promptText || !answerBox) return;
-
-  // Get viewport dimensions
-  const viewportWidth = window.innerWidth;
-  const viewportHeight = window.innerHeight;
-
-  // Get cursor box dimensions
-  const boxWidth = promptBox.offsetWidth;
-  const boxHeight = promptBox.offsetHeight;
-
-  // Default offset
-  let xOffset = 10;
-  let yOffset = 10;
-
-  // Check if box would overflow right edge
-  if (event.clientX + xOffset + boxWidth > viewportWidth) {
-    // Position to the left of cursor instead
-    xOffset = -boxWidth - 10;
-  }
-
-  // Check if box would overflow bottom edge
-  if (event.clientY + yOffset + boxHeight > viewportHeight) {
-    // Position above cursor instead
-    yOffset = -boxHeight - 10;
-  }
-
-  // Apply the position
-  promptBox.style.left = `${event.clientX + xOffset}px`;
-  promptBox.style.top = `${event.clientY + yOffset}px`;
+export function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = null, xHeight = null, unit = 'sw') {
+  return new Promise((resolve, reject) => {
+    promptBoxState.show(text, withAnswerBox, unit, xHeight, resolve, reject);
+  });
 }
 
-document.addEventListener('mousemove', updatePosition);
+export default function PromptBox() {
+  const [visible, setVisible] = useState(promptBoxState.isVisible);
+  const [pos, setPos] = useState(promptBoxState.position);
+  const [inputValue, setInputValue] = useState('');
+  const boxRef = useRef(null);
+  const inputRef = useRef(null);
 
-function answerBoxFocus(event) {
-  const answerBox = document.getElementById('cursorAnswerBox');
-  if (!answerBox) return;
-  if (answerBox.style.display === 'block') {
-    answerBox.focus();
-  }
-}
-
-document.addEventListener('mouseup', answerBoxFocus);
-
-
-function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = null, xHeight = null, unit = 'sw') {
-  const promptBox = document.getElementById('cursorTextBox');
-  const answerBox = document.getElementById('cursorAnswerBox');
-  const answerWrapper = document.getElementById('cursorAnswerWrapper');
-  const enterButton = document.getElementById('cursorEnterButton');
-  const cancelButton = document.getElementById('cursorCancelButton');
-
-  // Emphasize configured keywords (defaults to WIDTH/HEIGHT)
-  promptBox.innerHTML = emphasizePromptText(i18n.t(text));
-  promptBox.style.display = 'block';
-  // Sidebar toggle is handled by React state; no need to remove listener here
-
-  // Unit handling variables
-  let currentUnit = unit;
-  let unitDisplay = null;
-  let inputValue = '';
-
-  if (withAnswerBox !== null) {
-    if (answerWrapper) answerWrapper.style.display = 'inline-flex';
-    answerBox.style.display = 'block';
-    if (enterButton && cancelButton) {
-      if (window.innerWidth <= 600) { // Check for mobile screen width
-        enterButton.style.display = 'block';
-        cancelButton.style.display = 'block';
-      } else {
-        enterButton.style.display = 'none';
-        cancelButton.style.display = 'none';
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (visible !== promptBoxState.isVisible) setVisible(promptBoxState.isVisible);
+      if (pos.x !== promptBoxState.position.x || pos.y !== promptBoxState.position.y) {
+        setPos(promptBoxState.position);
       }
-    }
-    answerBox.value = withAnswerBox;
-    answerBox.focus();
-    answerBox.select();
+    }, 16);
+    return () => clearInterval(interval);
+  }, [visible, pos]);
 
-    // Set up unit display if xHeight is provided
-    if (xHeight !== null) {
-      unitDisplay = document.getElementById('unit-display');
-      if (unitDisplay) {
-        unitDisplay.textContent = currentUnit;
-        unitDisplay.style.display = 'inline-block';
+  useEffect(() => {
+    if (visible && promptBoxState.withAnswerBox !== null) {
+      setInputValue(promptBoxState.withAnswerBox);
+      setTimeout(() => inputRef.current?.focus(), 0);
+    }
+  }, [visible]);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!visible || !boxRef.current) return;
+      
+      const boxWidth = boxRef.current.offsetWidth;
+      const boxHeight = boxRef.current.offsetHeight;
+      let xOffset = 10;
+      let yOffset = 10;
+
+      if (e.clientX + xOffset + boxWidth > window.innerWidth) {
+        xOffset = -boxWidth - 10;
       }
-      // Initial setup
-      inputValue = withAnswerBox;
-    }
-
-    // Handle user input and resolve the answer
-    return new Promise((resolve) => {
-      const enterButton = document.getElementById('cursorEnterButton'); // Get buttons inside promise
-      const cancelButton = document.getElementById('cursorCancelButton');
-
-      const cleanupListeners = () => {
-        answerBox.removeEventListener('keydown', handleKeyDown);
-        if (enterButton) {
-          enterButton.removeEventListener('click', handleEnterClick);
-        }
-        if (cancelButton) {
-          cancelButton.removeEventListener('click', handleCancelClick);
-        }
-      };
-
-      const handleEnterClick = () => {
-        let result = answerBox.value;
-        if (xHeight !== null && unitDisplay && !isNaN(parseFloat(result))) {
-          if (currentUnit === 'sw') {
-            result = String(parseFloat(result) * xHeight / 4);
-          }
-        }
-        if (unitDisplay) {
-          unitDisplay.style.display = 'none';
-        }
-        resolve(result);
-        hideTextBox();
-        cleanupListeners();
-      };
-
-      const handleCancelClick = () => {
-        if (unitDisplay) {
-          unitDisplay.style.display = 'none';
-        }
-        resolve(null);
-        hideTextBox();
-        cleanupListeners();
-      };
-
-      const handleKeyDown = function (event) {
-        if (event.key === 'Enter' || event.key === ' ') {
-          let result = answerBox.value;
-          // Convert units if in unit mode
-          if (xHeight !== null && unitDisplay && !isNaN(parseFloat(result))) {
-            if (currentUnit === 'sw') {
-              // Convert from sw to mm (1 mm = 1 sw * xHeight / 4)
-              result = String(parseFloat(result) * xHeight / 4);
-            }
-          }
-          if (unitDisplay) {
-            unitDisplay.style.display = 'none';
-          }
-          resolve(result);
-          hideTextBox();
-          cleanupListeners();
-        } else if (event.key === 'Escape') {
-          if (unitDisplay) {
-            unitDisplay.style.display = 'none';
-          }
-          resolve(null);
-          hideTextBox();
-          cleanupListeners();
-        } else if (event.key === 'Tab' && xHeight !== null && unitDisplay) {
-          // Switch between mm and sw units on Tab key press
-          event.preventDefault();
-          currentUnit = currentUnit === 'mm' ? 'sw' : 'mm';
-
-          // Convert the current value between units
-          if (!isNaN(parseFloat(answerBox.value))) {
-            if (currentUnit === 'sw') {
-              // Convert from mm to sw
-              answerBox.value = String(parseFloat(answerBox.value) * 4 / xHeight);
-            } else {
-              // Convert from sw to mm
-              answerBox.value = String(parseFloat(answerBox.value) * xHeight / 4);
-            }
-          }
-
-          unitDisplay.innerText = currentUnit;
-        }
-      };
-
-      answerBox.addEventListener('keydown', handleKeyDown);
-      if (enterButton && window.innerWidth <= 600) { // Check for mobile here as well for adding listener
-        enterButton.addEventListener('click', handleEnterClick);
+      if (e.clientY + yOffset + boxHeight > window.innerHeight) {
+        yOffset = -boxHeight - 10;
       }
-      if (cancelButton && window.innerWidth <= 600) { // Check for mobile here as well for adding listener
-        cancelButton.addEventListener('click', handleCancelClick);
-      }
-    });
-  } else {
-    if (answerWrapper) answerWrapper.style.display = 'none';
-    answerBox.style.display = 'none';
-    if (enterButton && cancelButton) {
-      enterButton.style.display = 'none';
-      cancelButton.style.display = 'none';
+      
+      promptBoxState.setPosition(e.clientX + xOffset, e.clientY + yOffset);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [visible]);
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      promptBoxState.resolve(inputValue);
+      promptBoxState.hide();
+    } else if (e.key === 'Escape') {
+      promptBoxState.reject(new Error('Cancelled'));
+      promptBoxState.hide();
     }
-    document.addEventListener(event, callback);
-  }
+  };
+
+  const handleEnterClick = () => {
+    promptBoxState.resolve(inputValue);
+    promptBoxState.hide();
+  };
+
+  const handleCancelClick = () => {
+    promptBoxState.reject(new Error('Cancelled'));
+    promptBoxState.hide();
+  };
+
+  if (!visible) return null;
+
+  return (
+    <div 
+      ref={boxRef}
+      id="cursorBoxContainer" 
+      style={{ 
+        position: 'absolute', 
+        top: pos.y, 
+        left: pos.x, 
+        zIndex: 2000,
+        background: 'white',
+        border: '1px solid black',
+        padding: '5px',
+        borderRadius: '4px',
+        boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+      }}
+    >
+      <div 
+        id="cursorTextBox" 
+        dangerouslySetInnerHTML={{ __html: emphasizePromptText(promptBoxState.text) }}
+        style={{ marginBottom: '5px' }}
+      />
+      
+      {promptBoxState.withAnswerBox !== null && (
+        <div id="cursorAnswerWrapper" style={{ display: 'inline-flex', alignItems: 'center' }}>
+          <input 
+            ref={inputRef}
+            id="cursorAnswerBox"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            style={{ display: 'block' }}
+          />
+          {promptBoxState.xHeight !== null && (
+            <span id="unit-display" style={{ marginLeft: '5px' }}>{promptBoxState.unit}</span>
+          )}
+          {window.innerWidth <= 600 && (
+            <>
+              <button onClick={handleEnterClick} id="cursorEnterButton">Enter</button>
+              <button onClick={handleCancelClick} id="cursorCancelButton">Cancel</button>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
-
-function hideTextBox() {
-  const promptBox = document.getElementById('cursorTextBox');
-  const answerBox = document.getElementById('cursorAnswerBox');
-  const answerWrapper = document.getElementById('cursorAnswerWrapper');
-  const enterButton = document.getElementById('cursorEnterButton');
-  const cancelButton = document.getElementById('cursorCancelButton');
-  const unitDisplay = document.getElementById('unit-display');
-
-  promptBox.style.display = 'none';
-  answerBox.style.display = 'none';
-  if (answerWrapper) answerWrapper.style.display = 'none';
-  if (enterButton && cancelButton) {
-    enterButton.style.display = 'none';
-    cancelButton.style.display = 'none';
-  }
-  // Hide unit display badge if present
-  if (unitDisplay) {
-    unitDisplay.style.display = 'none';
-  }
-  setTimeout(() => {
-    // Sidebar toggle is handled by React state; no need to add listener here
-  }, 1000); // Delay in milliseconds (e.g., 1000ms = 1 second)
-}
-
-function selectObjectHandler(text, callback, options = null, xHeight = null, unit = 'mm',
-  skipTextBox = true, requiredTypes = null) {
-  /*
-    Simplified behavior:
-      - Do not wait for Enter/textbox input.
-      - When there are active objects, wait for the user to release any dragging,
-        then pass the active objects to the callback.
-      - Filter by requiredTypes if provided (all active objects must match).
-  */
-
-  // Show prompt message near cursor without answer box
-  try {
-    const promptTextEl = document.getElementById('cursorTextBox');
-    const answerBoxEl = document.getElementById('cursorAnswerBox');
-    const enterBtn = document.getElementById('cursorEnterButton');
-    const cancelBtn = document.getElementById('cursorCancelButton');
-    if (promptTextEl) {
-      promptTextEl.innerHTML = emphasizePromptText(text || 'Select object(s)');
-      promptTextEl.style.display = 'block';
-    }
-    if (answerBoxEl) answerBoxEl.style.display = 'none';
-    if (enterBtn) enterBtn.style.display = 'none';
-    if (cancelBtn) cancelBtn.style.display = 'none';
-    // Sidebar toggle is handled by React state; no need to remove listener here
-  } catch (e) {
-    // Non-fatal if UI elements are missing
-  }
-
-  const matchesRequiredType = (obj) => {
-    if (!requiredTypes) return true;
-    if (Array.isArray(requiredTypes)) return requiredTypes.includes(obj.functionalType);
-    return obj.functionalType === requiredTypes;
-  };
-
-  let isDragging = false;
-  let processed = false;
-  let dragDebounceTimer = null;
-  let checkInterval = null;
-
-  const cleanup = () => {
-    if (processed) return;
-    // no-op; actual cleanup happens after processing
-  };
-
-  const removeListeners = () => {
-    canvas.off('object:moving', onObjectMoving);
-    canvas.off('mouse:up', onMouseUp);
-    document.removeEventListener('keydown', onKeyDown);
-    if (dragDebounceTimer) {
-      clearTimeout(dragDebounceTimer);
-      dragDebounceTimer = null;
-    }
-    if (checkInterval) {
-      clearInterval(checkInterval);
-    }
-  };
-
-  const processSelection = () => {
-    if (processed) return;
-    const active = canvas.getActiveObjects();
-    if (active && active.length > 0 && active.every(matchesRequiredType)) {
-      processed = true;
-      removeListeners();
-      hideTextBox();
-      const successSelected = [...active];
-      canvas.discardActiveObject();
-      CanvasGlobals.scheduleRender();
-      // response is not used anymore; pass null for backward compatibility
-      callback(successSelected, options, null, xHeight);
-    }
-  };
-
-  const onObjectMoving = () => {
-    isDragging = true;
-    if (dragDebounceTimer) {
-      clearTimeout(dragDebounceTimer);
-      dragDebounceTimer = null;
-    }
-  };
-
-  const onMouseUp = () => {
-    isDragging = false;
-    // Small delay to allow fabric to finalize selection geometry
-    dragDebounceTimer = setTimeout(processSelection, 80);
-  };
-
-  // Attach listeners
-  canvas.on('object:moving', onObjectMoving);
-  canvas.on('mouse:up', onMouseUp);
-  const onKeyDown = (e) => {
-    if (e.key === 'Escape') {
-      processed = true;
-      removeListeners();
-      hideTextBox();
-      // Do not invoke callback; ESC acts as cancel
-    }
-  };
-  document.addEventListener('keydown', onKeyDown);
-
-  // If there is already an active selection and user isn't dragging,
-  // process it after a brief idle delay as a fallback.
-  checkInterval = setInterval(() => {
-    if (!isDragging) {
-      processSelection();
-    }
-  }, 150);
-}
-
-export { showTextBox, hideTextBox, selectObjectHandler };
-// Optional API to configure emphasized terms at runtime
-export const setPromptHighlightTerms = (terms) => PromptHighlight.set(terms);
-export const addPromptHighlightTerms = (...terms) => PromptHighlight.add(...terms);
