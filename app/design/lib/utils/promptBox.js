@@ -1,5 +1,5 @@
-import { CanvasGlobals } from "./canvas.js";
-import { cursorClickMode } from "../utils/contexMenu.js";
+import { CanvasGlobals } from "../canvas/canvas.js";
+import { cursorClickMode } from "./contexMenu.js";
 import { i18n } from '../i18n/i18n.js';
 
 const canvas = CanvasGlobals.canvas; // Access the global canvas object

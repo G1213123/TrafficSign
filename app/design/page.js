@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Sidebar from './components/sidebars/Sidebar';
 import CanvasEditor from './components/canvas/CanvasEditor';
 import { parseFont } from './lib/objects/path';
+import ContextMenu from './lib/utils/contexMenu';
 
 export default function DesignPage() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
@@ -31,6 +32,7 @@ export default function DesignPage() {
     <div className="relative h-screen w-full overflow-hidden bg-[#2f2f2f]">
       <CanvasEditor />
       <Sidebar />
+      <ContextMenu />
     </div>
   );
 }

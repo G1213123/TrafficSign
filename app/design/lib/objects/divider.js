@@ -4,7 +4,7 @@ import { CanvasGlobals } from '../canvas/canvas.js';
 import { DividerScheme, BorderColorScheme, DividerMargin } from './template.js';
 import { BorderUtilities } from './border.js';
 import { anchorShape } from './anchor.js';
-import { showTextBox } from '../canvas/promptBox.js';
+import { showTextBox } from '../utils/promptBox.js';
 
 const canvas = CanvasGlobals.canvas; // Access the global canvas object
 

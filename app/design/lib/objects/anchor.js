@@ -2,7 +2,7 @@
 // AnchorTree class to manage anchoring relationships between objects
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { canvasTracker } from '../utils/Tracker.js'; // Import canvasTracker for tracking changes
-import { showTextBox, hideTextBox, selectObjectHandler } from '../canvas/promptBox.js'; // Import selectObjectHandler for object selection
+import { showTextBox, hideTextBox, selectObjectHandler } from '../utils/promptBox.js'; // Import selectObjectHandler for object selection
 
 class AnchorTree {
   constructor() {
