@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { showPropertyPanel } from './property.js'; // Import showPropertyPanel
 import { CanvasGlobals } from "../canvas/canvas.js"; // Import CanvasGlobals
+import { startSetAnchorFlow, revertPivot } from '../objects/anchor.js';
 
 // Context menu state management
 export const menuState = {
@@ -50,9 +51,15 @@ function clickModelHandler(event) {
 
 export function setupContextMenu(canvas) {
 
-  canvas.on('mouse:down', function (event) {
+  const handleMouseDown = function (event) {
     clickModelHandler(event);
-  });
+  };
+
+  canvas.on('mouse:down', handleMouseDown);
+
+  return () => {
+    canvas.off('mouse:down', handleMouseDown);
+  };
 
 }
 
@@ -77,6 +84,14 @@ function handleEditObject() {
   if (obj) {
     showPropertyPanel(obj);
   }
+}
+
+function handleSetAnchor() {
+  startSetAnchorFlow(menuState.selectedArrow, () => menuState.setVisible(false));
+}
+
+function handlePivot(axis) {
+  revertPivot(menuState.selectedArrow, axis, () => menuState.setVisible(false));
 }
 
 export default function ContextMenu() {
@@ -130,7 +145,7 @@ export default function ContextMenu() {
       }}
     >
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, background: 'white', border: '1px solid black' }}>
-        <li id="set-anchor" data-i18n="Set Anchor">Set Anchor</li>
+        <li id="set-anchor" data-i18n="Set Anchor" onClick={handleSetAnchor} style={{ cursor: 'pointer' }}>Set Anchor</li>
         <li 
           id="pivot-anchor" 
           ref={pivotRef} 
@@ -139,9 +154,9 @@ export default function ContextMenu() {
         >
           <span data-i18n="Pivot Anchor">Pivot Anchor</span>
           <ul className="context-submenu">
-            <li id="pivot-anchor-x" data-i18n="X-axis">X-axis</li>
-            <li id="pivot-anchor-y" data-i18n="Y-axis">Y-axis</li>
-            <li id="pivot-anchor-both" data-i18n="Both">Both</li>
+            <li id="pivot-anchor-x" data-i18n="X-axis" onClick={() => handlePivot('x')}>X-axis</li>
+            <li id="pivot-anchor-y" data-i18n="Y-axis" onClick={() => handlePivot('y')}>Y-axis</li>
+            <li id="pivot-anchor-both" data-i18n="Both" onClick={() => handlePivot('both')}>Both</li>
           </ul>
         </li>
         <li id="edit-object" data-i18n="Edit" onClick={handleEditObject} style={{ cursor: 'pointer' }}>Edit</li>

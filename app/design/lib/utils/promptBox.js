@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CanvasGlobals } from "../canvas/canvas.js";
 import { cursorClickMode } from "./contexMenu.js";
+import { ShowHideSideBarEvent } from "../canvas/keyboardEvents.js";
 import { i18n } from '../i18n/i18n.js';
 
 // Global state for PromptBox to allow non-React calls to trigger it
@@ -82,11 +83,7 @@ export function hideTextBox() {
   promptBoxState.hide();
   // Restore sidebar toggle event after a delay as per original implementation
   setTimeout(() => {
-    // Note: ShowHideSideBarEvent needs to be imported or available in this scope
-    // If it's not imported, this might need a fix, but I'm restoring original logic.
-    if (typeof ShowHideSideBarEvent !== 'undefined') {
-      document.addEventListener('keydown', ShowHideSideBarEvent);
-    }
+    document.addEventListener('keydown', ShowHideSideBarEvent);
   }, 1000);
 }
 
@@ -97,9 +94,7 @@ export function selectObjectHandler(text, callback, options = null, xHeight = nu
   promptBoxState.show(text || 'Select object(s)', null, unit, xHeight, () => {}, () => {});
   
   // Pause sidebar toggle while prompt is visible
-  if (typeof ShowHideSideBarEvent !== 'undefined') {
-    document.removeEventListener('keydown', ShowHideSideBarEvent);
-  }
+  document.removeEventListener('keydown', ShowHideSideBarEvent);
 
   const matchesRequiredType = (obj) => {
     if (!requiredTypes) return true;
@@ -115,9 +110,7 @@ export function selectObjectHandler(text, callback, options = null, xHeight = nu
     if (processed) return;
     processed = true;
     promptBoxState.hide();
-    if (typeof ShowHideSideBarEvent !== 'undefined') {
-      document.addEventListener('keydown', ShowHideSideBarEvent);
-    }
+    document.addEventListener('keydown', ShowHideSideBarEvent);
     if (dragDebounceTimer) clearTimeout(dragDebounceTimer);
   };
 

@@ -1,22 +1,24 @@
-import { CanvasGlobals } from "./canvas.js";
-//import { FormSettingsComponent } from "../sidebar/sb-settings.js";
+import { ActiveSelection } from 'fabric';
+import { CanvasGlobals } from './canvas.js';
 import { GeneralSettings } from '../../lib/sidebar/general';
-import { canvasTracker } from "../utils/Tracker.js";
-import { showPropertyPanel } from "../utils/property.js";
-import { buildObjectsFromJSON } from "../objects/build.js";
+import { canvasTracker } from '../utils/Tracker.js';
 
-// Keyboard shortcut for showing/hiding sidebar
-function ShowHideSideBarEvent(e) {
-  switch (e.keyCode) {
-    case 27: // esc
-      window.dispatchEvent(new CustomEvent('toggle-sidebar'));
-      break;
+function isTextInputFocused() {
+  const activeElement = document.activeElement;
+  return !!activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA');
+}
+
+export function ShowHideSideBarEvent(event) {
+  if (event.key === 'Escape' || event.keyCode === 27) {
+    window.dispatchEvent(new CustomEvent('toggle-sidebar'));
   }
 }
 
-// Method to handle arrow key presses for all active objects
-function handleArrowKeys(event) {
-  const activeObjects = CanvasGlobals.canvas.getActiveObjects();
+export function handleArrowKeys(event) {
+  const canvas = CanvasGlobals.canvas;
+  if (!canvas) return false;
+
+  const activeObjects = canvas.getActiveObjects?.() || [];
   let moved = false;
   let deltaX = 0;
   let deltaY = 0;
@@ -52,102 +54,50 @@ function handleArrowKeys(event) {
         }
         break;
       case 'Delete':
-        // Check if user is currently inputting something - if so, don't delete objects
-        if (document.activeElement.tagName === 'INPUT' ||
-          document.activeElement.tagName === 'TEXTAREA') {
-          return; // Exit early if user is typing in an input field
+        if (isTextInputFocused()) {
+          return;
         }
 
         if (obj.deleteObject) {
-          CanvasGlobals.canvas.discardActiveObject(obj)
-          CanvasGlobals.canvas.fire('object:deselected', { target: obj });
-          obj.deleteObject(null, obj)
+          canvas.discardActiveObject(obj);
+          canvas.fire('object:deselected', { target: obj });
+          obj.deleteObject(null, obj);
+          moved = true;
         }
         break;
-    }    
+    }
+
     if (moved) {
       obj.updateAllCoord();
       obj.setCoords();
       obj.fire('moving');
-      // Notify listeners (e.g., property panel) that object was modified
-      CanvasGlobals.canvas.fire('object:modified', { target: obj });
+      canvas.fire('object:modified', { target: obj });
 
-      // Track the movement for undo/redo
       canvasTracker.track('modifyObject', [{
         type: 'BaseGroup',
         id: obj.canvasID,
         functionalType: obj.functionalType,
         deltaX: deltaX,
         deltaY: deltaY,
-        isInitialMover:  true,
+        isInitialMover: true,
       }], 'Object moved with arrow keys');
     }
   });
 
   if (moved) {
-  CanvasGlobals.scheduleRender();
+    CanvasGlobals.scheduleRender();
   }
+
+  return moved;
 }
 
-// Add event listener for arrow keys to the canvas
-document.addEventListener('keydown', handleArrowKeys);
-
-// Add event listener for Ctrl+S to save canvas state
-//document.addEventListener('keydown', function (event) {
-//  if (event.ctrlKey && event.key === 's') {
-//    event.preventDefault(); // Prevent the browser's default save action
-//    FormSettingsComponent.saveCanvasState();
-//    // Optionally, provide some feedback to the user, e.g., a console log or a small notification
-//    console.log('Canvas state saved (Ctrl+S)');
-//  }
-//});
-//
-//// Add event listeners for undo/redo functionality
-//document.addEventListener('keydown', function (event) {
-//  // Check if user is currently inputting something - if so, don't trigger undo/redo
-//  if (document.activeElement.tagName === 'INPUT' ||
-//    document.activeElement.tagName === 'TEXTAREA') {
-//    return; // Exit early if user is typing in an input field
-//  }
-//  // Ctrl+Z for undo (try state-based first, fallback to original)
-//  if (event.ctrlKey && event.key === 'z' && !event.shiftKey) {
-//    event.preventDefault();
-//    if (typeof canvasTracker.undo === 'function') {
-//        canvasTracker.undo().then(success => {
-//            if (success) console.log('Undo performed');
-//            else console.log('Nothing to undo');
-//        });
-//    }
-//  }
-//
-//  // Ctrl+Y or Ctrl+Shift+Z for redo (try state-based first, fallback to original)
-//  if ((event.ctrlKey && event.key === 'y') ||
-//    (event.ctrlKey && event.shiftKey && event.key === 'Z')) {
-//    event.preventDefault();
-//    if (typeof canvasTracker.redo === 'function') {
-//        canvasTracker.redo().then(success => {
-//            if (success) console.log('Redo performed');
-//            else console.log('Nothing to redo');
-//        });
-//    }
-//  }
-//
-//  // Refresh property panel when arrow keys are pressed
-//    const panel = document.getElementById('property-panel');
-//    if (panel.style.display !== 'block') return;
-//    const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
-//    if (arrowKeys.includes(event.key)) {
-//      // Update content based on current active object
-//      const obj = CanvasGlobals.canvas.getActiveObject();
-//      if (obj) showPropertyPanel(obj);
-//    }
-//});
-
-// Clipboard for copy/paste
 let _clipboard = null;
 
 function copy() {
-  const activeObjects = CanvasGlobals.canvas.getActiveObjects();
+  const canvas = CanvasGlobals.canvas;
+  if (!canvas) return;
+
+  const activeObjects = canvas.getActiveObjects?.() || [];
   if (activeObjects.length > 0) {
     _clipboard = [];
     activeObjects.forEach(obj => {
@@ -159,89 +109,196 @@ function copy() {
 }
 
 async function paste() {
-  if (!_clipboard || _clipboard.length === 0) return;
-  
-  // Deep copy the clipboard data to avoid modifying the original clipboard
+  const canvas = CanvasGlobals.canvas;
+  if (!canvas || !_clipboard || _clipboard.length === 0) return;
+
   const dataToPaste = JSON.parse(JSON.stringify(_clipboard));
-  
-  // Offset the objects
+
   dataToPaste.forEach(data => {
     if (data.left !== undefined) data.left += 20;
     if (data.top !== undefined) data.top += 20;
-    // Also offset fixedWidthCoords/fixedHeightCoords if they exist (for BorderGroup)
     if (data.fixedWidthCoords) {
-        data.fixedWidthCoords.x += 20;
-        data.fixedWidthCoords.y += 20;
+      data.fixedWidthCoords.x += 20;
+      data.fixedWidthCoords.y += 20;
     }
     if (data.fixedHeightCoords) {
-        data.fixedHeightCoords.x += 20;
-        data.fixedHeightCoords.y += 20;
+      data.fixedHeightCoords.x += 20;
+      data.fixedHeightCoords.y += 20;
     }
   });
 
-  CanvasGlobals.canvas.discardActiveObject();
-  
+  canvas.discardActiveObject();
+
   try {
+    const { buildObjectsFromJSON } = await import('../objects/build.js');
     const newObjects = await buildObjectsFromJSON(dataToPaste);
-    
+
     if (newObjects && newObjects.length > 0) {
-      const selection = new fabric.ActiveSelection(newObjects, {
-        canvas: CanvasGlobals.canvas,
+      const selection = new ActiveSelection(newObjects, {
+        canvas,
       });
-      CanvasGlobals.canvas.setActiveObject(selection);
-      CanvasGlobals.canvas.requestRenderAll();
+      canvas.setActiveObject(selection);
+      canvas.requestRenderAll();
     }
   } catch (error) {
-    console.error("Error pasting objects:", error);
+    console.error('Error pasting objects:', error);
   }
 }
 
-document.addEventListener('keydown', function(e) {
-    // Ctrl+C
-    if (e.ctrlKey && (e.key === 'c' || e.key === 'C')) {
-        // Check if input is focused
-        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
-        copy();
-    }
-    // Ctrl+V
-    if (e.ctrlKey && (e.key === 'v' || e.key === 'V')) {
-        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
-        paste();
-    }
-    
-    // F3 - Toggle Text Border
-    if (e.key === 'F3') {
-        e.preventDefault();
-        GeneralSettings.showTextBorders = !GeneralSettings.showTextBorders;
-        FormSettingsComponent.applyTextBorderSettings();
-        FormSettingsComponent.updateSettingsUI();
-        FormSettingsComponent.saveSettings();
-    }
-    // F4 - Toggle Grid
-    if (e.key === 'F4') {
-        e.preventDefault();
-        GeneralSettings.showGrid = !GeneralSettings.showGrid;
-        FormSettingsComponent.applyGridSettings();
-        FormSettingsComponent.updateSettingsUI();
-        FormSettingsComponent.saveSettings();
-    }
-    // F2 - Toggle Vertices
-    if (e.key === 'F2') {
-        e.preventDefault();
-        GeneralSettings.showAllVertices = !GeneralSettings.showAllVertices;
-        FormSettingsComponent.applyVertexDisplaySettings();
-        FormSettingsComponent.updateSettingsUI();
-        FormSettingsComponent.saveSettings();
-    }
-    // F8 - Toggle Dimension Unit
-    if (e.key === 'F8') {
-        e.preventDefault();
-        GeneralSettings.dimensionUnit = GeneralSettings.dimensionUnit === 'mm' ? 'sw' : 'mm';
-        FormSettingsComponent.refreshDimensionDisplays();
-        FormSettingsComponent.updateSettingsUI();
-        FormSettingsComponent.saveSettings();
-    }
-});
+function handleVertexTabCycle(event) {
+  if (event.key !== 'Tab' || !CanvasGlobals.activeVertex || isTextInputFocused()) {
+    return false;
+  }
 
+  event.preventDefault();
 
-export { ShowHideSideBarEvent, handleArrowKeys };
+  const activeVertex = CanvasGlobals.activeVertex;
+  const currentBaseGroup = activeVertex.baseGroup;
+  const currentVertex = activeVertex.vertex;
+  const eVertices = currentBaseGroup.basePolygon.vertex.filter(v => v.label.startsWith('E'));
+
+  eVertices.sort((a, b) => {
+    const aNum = parseInt(a.label.substring(1));
+    const bNum = parseInt(b.label.substring(1));
+    return aNum - bNum;
+  });
+
+  let nextVertex;
+
+  if (currentVertex.label.startsWith('V')) {
+    nextVertex = event.shiftKey ? eVertices[eVertices.length - 1] : eVertices.find(v => v.label === 'E3') || eVertices[0];
+  } else if (currentVertex.label.startsWith('E')) {
+    const currentIndex = eVertices.findIndex(v => v.label === currentVertex.label);
+    nextVertex = event.shiftKey
+      ? eVertices[(currentIndex - 1 + eVertices.length) % eVertices.length]
+      : eVertices[(currentIndex + 1) % eVertices.length];
+  } else {
+    nextVertex = event.shiftKey ? eVertices[eVertices.length - 1] : eVertices[0];
+  }
+
+  if (!nextVertex) return true;
+
+  const currentVertexPosition = { x: currentVertex.x, y: currentVertex.y };
+  if (typeof currentVertexPosition.x !== 'number' || isNaN(currentVertexPosition.x) || typeof currentVertexPosition.y !== 'number' || isNaN(currentVertexPosition.y)) {
+    return true;
+  }
+
+  activeVertex.cleanupDrag();
+
+  const nextVertexControl = currentBaseGroup.controls[nextVertex.label];
+  if (!nextVertexControl) return true;
+
+  CanvasGlobals.activeVertex = nextVertexControl;
+  CanvasGlobals.activeVertex.isDown = true;
+  CanvasGlobals.activeVertex.isDragging = true;
+  CanvasGlobals.activeVertex.originalPosition = { left: currentBaseGroup.left, top: currentBaseGroup.top };
+  CanvasGlobals.activeVertex.vertexOriginalPosition = { x: nextVertex.x, y: nextVertex.y };
+
+  const offsetX = nextVertex.x - currentBaseGroup.left;
+  const offsetY = nextVertex.y - currentBaseGroup.top;
+  CanvasGlobals.activeVertex.vertexOffset = {
+    x: isNaN(offsetX) ? 0 : offsetX,
+    y: isNaN(offsetY) ? 0 : offsetY,
+  };
+
+  const deltaX = currentVertexPosition.x - nextVertex.x;
+  const deltaY = currentVertexPosition.y - nextVertex.y;
+
+  if (!currentBaseGroup.lockMovementX && typeof deltaX === 'number' && !isNaN(deltaX)) {
+    currentBaseGroup.set({ left: currentBaseGroup.left + deltaX });
+  }
+  if (!currentBaseGroup.lockMovementY && typeof deltaY === 'number' && !isNaN(deltaY)) {
+    currentBaseGroup.set({ top: currentBaseGroup.top + deltaY });
+  }
+
+  try {
+    currentBaseGroup.setCoords();
+    currentBaseGroup.updateAllCoord();
+    document.addEventListener('keydown', CanvasGlobals.activeVertex.cancelDragRef);
+    CanvasGlobals.canvas.on('mouse:move', CanvasGlobals.activeVertex.handleMouseMoveRef);
+    CanvasGlobals.canvas.on('mouse:up', CanvasGlobals.activeVertex.handleMouseUpRef);
+    currentBaseGroup.enterFocusMode();
+    CanvasGlobals.canvas.defaultCursor = 'move';
+    CanvasGlobals.scheduleRender();
+  } catch (err) {
+    console.error('Error during vertex cycling:', err);
+
+    if (CanvasGlobals.activeVertex) {
+      CanvasGlobals.activeVertex.cleanupDrag();
+      CanvasGlobals.activeVertex = null;
+    }
+
+    CanvasGlobals.canvas.defaultCursor = 'default';
+    CanvasGlobals.scheduleRender();
+  }
+
+  return true;
+}
+
+function handleKeyboardDown(event) {
+  if (handleVertexTabCycle(event)) return;
+
+  if (event.key === 'Escape') {
+    ShowHideSideBarEvent(event);
+    return;
+  }
+
+  if (event.ctrlKey && (event.key === 'c' || event.key === 'C')) {
+    if (isTextInputFocused()) return;
+    copy();
+    return;
+  }
+
+  if (event.ctrlKey && (event.key === 'v' || event.key === 'V')) {
+    if (isTextInputFocused()) return;
+    paste();
+    return;
+  }
+
+  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Delete'].includes(event.key)) {
+    if (handleArrowKeys(event)) {
+      event.preventDefault();
+    }
+    return;
+  }
+
+  const settings = window.FormSettingsComponent;
+  if (!settings) return;
+
+  if (event.key === 'F3') {
+    event.preventDefault();
+    GeneralSettings.showTextBorders = !GeneralSettings.showTextBorders;
+    settings.applyTextBorderSettings();
+    settings.updateSettingsUI();
+    settings.saveSettings();
+  }
+
+  if (event.key === 'F4') {
+    event.preventDefault();
+    GeneralSettings.showGrid = !GeneralSettings.showGrid;
+    settings.applyGridSettings();
+    settings.updateSettingsUI();
+    settings.saveSettings();
+  }
+
+  if (event.key === 'F2') {
+    event.preventDefault();
+    GeneralSettings.showAllVertices = !GeneralSettings.showAllVertices;
+    settings.applyVertexDisplaySettings();
+    settings.updateSettingsUI();
+    settings.saveSettings();
+  }
+
+  if (event.key === 'F8') {
+    event.preventDefault();
+    GeneralSettings.dimensionUnit = GeneralSettings.dimensionUnit === 'mm' ? 'sw' : 'mm';
+    settings.refreshDimensionDisplays();
+    settings.updateSettingsUI();
+    settings.saveSettings();
+  }
+}
+
+export function setupKeyboardEvents() {
+  document.addEventListener('keydown', handleKeyboardDown);
+  return () => document.removeEventListener('keydown', handleKeyboardDown);
+}

@@ -1,6 +1,7 @@
 //TODO: check updateAllCoord for anchor object inside border / divider not working
 // AnchorTree class to manage anchoring relationships between objects
 import { CanvasGlobals } from '../canvas/canvas.js';
+import { ShowHideSideBarEvent } from '../canvas/keyboardEvents.js';
 import { canvasTracker } from '../utils/Tracker.js'; // Import canvasTracker for tracking changes
 import { showTextBox, hideTextBox, selectObjectHandler } from '../utils/promptBox.js'; // Import selectObjectHandler for object selection
 
@@ -477,48 +478,43 @@ class AnchorTree {
 // Create a global instance of the AnchorTree
 const globalAnchorTree = new AnchorTree();
 
-const set_anchor = document.getElementById('set-anchor')
-if (set_anchor){
-  set_anchor.addEventListener('click', function (event) {
-    const selectedArrow = event.target.parentElement.parentElement.selectedArrow; // The object we want to MOVE (shape2)
-    if (!selectedArrow) return;
-  
-    // Hide context menu (container is parentElement.parentElement per existing code)
-    this.parentElement.parentElement.style.display = 'none';
-    window.dispatchEvent(new CustomEvent('toggle-sidebar'));
-  
-    // Wrapper to adapt selectObjectHandler's callback signature to anchorShape(expected: targetShape, movingShape)
-    const handleAnchorSelection = (selectedTargets, movingShape /* comes from options param */) => {
-      if (!selectedTargets || selectedTargets.length === 0) return; // nothing selected
-  
-      // Use first selected object as target (shape1). selectObjectHandler returns an array.
-      const targetShape = Array.isArray(selectedTargets) ? selectedTargets[0] : selectedTargets;
-  
-      // Prevent anchoring an object to itself.
-      if (targetShape === movingShape) {
-        // Simply re-enable sidebar key listener and exit; could add user feedback if desired.
-        window.dispatchEvent(new CustomEvent('toggle-sidebar'));
-        return;
-      }
-  
-      // Call original anchorShape with (targetShape, movingShape)
-      anchorShape(targetShape, movingShape)
-    };
-  
-    // Invoke selection flow. selectObjectHandler will pass (successSelectedArray, optionsSelectedArrow, ...)
-    // First clear any existing active selection so user makes a fresh target choice.
-      canvas.discardActiveObject();
-    selectObjectHandler('Select shape to anchor to', handleAnchorSelection, selectedArrow);
-  });
+export function startSetAnchorFlow(selectedArrow, onCloseMenu = () => {}) {
+  if (!selectedArrow) return;
 
+  onCloseMenu();
+  window.dispatchEvent(new CustomEvent('toggle-sidebar'));
+
+  // Wrapper to adapt selectObjectHandler's callback signature to anchorShape(expected: targetShape, movingShape)
+  const handleAnchorSelection = (selectedTargets, movingShape /* comes from options param */) => {
+    if (!selectedTargets || selectedTargets.length === 0) return; // nothing selected
+
+    // Use first selected object as target (shape1). selectObjectHandler returns an array.
+    const targetShape = Array.isArray(selectedTargets) ? selectedTargets[0] : selectedTargets;
+
+    // Prevent anchoring an object to itself.
+    if (targetShape === movingShape) {
+      // Simply re-enable sidebar key listener and exit; could add user feedback if desired.
+      window.dispatchEvent(new CustomEvent('toggle-sidebar'));
+      return;
+    }
+
+    // Call original anchorShape with (targetShape, movingShape)
+    anchorShape(targetShape, movingShape)
+  };
+
+  // Invoke selection flow. selectObjectHandler will pass (successSelectedArray, optionsSelectedArrow, ...)
+  // First clear any existing active selection so user makes a fresh target choice.
+  CanvasGlobals.canvas?.discardActiveObject?.();
+  selectObjectHandler('Select shape to anchor to', handleAnchorSelection, selectedArrow);
 }
 
 // Parent "Pivot Anchor" acts only as hover target to open submenu; no click action
 
-function handlePivot(axis) {
-  const contextMenu = document.getElementById('context-menu');
-  contextMenu.style.display = 'none';
-  const obj = contextMenu.selectedArrow;
+export function revertPivot(selectedArrow, axis, onCloseMenu = () => {}) {
+  onCloseMenu();
+
+  const obj = selectedArrow;
+  if (!obj) return;
   if (obj && typeof globalAnchorTree !== 'undefined') {
     if (axis === 'x' || axis === 'both') {
       globalAnchorTree.reverseAnchorChain('x', obj.canvasID);
@@ -534,16 +530,6 @@ function handlePivot(axis) {
     console.warn('Pivot Anchor: Target object or canvasID not found.');
   }
 }
-
-// Submenu handlers
-const pivotX = document.getElementById('pivot-anchor-x');
-const pivotY = document.getElementById('pivot-anchor-y');
-const pivotBoth = document.getElementById('pivot-anchor-both');
-
-if (pivotX) pivotX.addEventListener('click', () => handlePivot('x'));
-if (pivotY) pivotY.addEventListener('click', () => handlePivot('y'));
-if (pivotBoth) pivotBoth.addEventListener('click', () => handlePivot('both'));
-
 
 // Helper function to process anchor updates for a specific axis
 function processUpdateCycle(direction, starterObj, updateOrder, delta, sourceList) {

@@ -3,8 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from './components/sidebars/Sidebar';
 import CanvasEditor from './components/canvas/CanvasEditor';
-import { parseFont } from './lib/objects/path';
+import PromptBox from './lib/utils/promptBox';
 import ContextMenu from './lib/utils/contexMenu';
+import { parseFont } from './lib/objects/path';
 
 export default function DesignPage() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
@@ -33,6 +34,7 @@ export default function DesignPage() {
       <CanvasEditor />
       <Sidebar />
       <ContextMenu />
+      <PromptBox />
     </div>
   );
 }
