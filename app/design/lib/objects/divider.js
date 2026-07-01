@@ -1,10 +1,10 @@
 import { GlyphPath } from './draw.js';
 import { BaseGroup } from './BaseGroup.js';
-import { CanvasGlobals } from '../canvas/canvas.js';
+import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import { DividerScheme, BorderColorScheme, DividerMargin } from './template.js';
 import { BorderUtilities } from './border.js';
 import { anchorShape } from './anchor.js';
-import { showTextBox } from '../utils/promptBox.js';
+import { showTextBox } from '../../components/presentations/promptBox.js';
 
 const canvas = CanvasGlobals.canvas; // Access the global canvas object
 

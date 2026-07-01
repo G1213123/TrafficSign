@@ -3,7 +3,7 @@ import { BaseGroup } from './BaseGroup.js';
 import { calculateTransformedPoints, convertVertexToPathCommands } from './path.js';
 import { roadMapTemplate, roundelTemplate, baseSideRoadTemplate } from './template.js';
 import { calcSymbol } from './symbols.js';
-import { CanvasGlobals } from '../canvas/canvas.js';
+import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import { assignVertexLabel, getSideRoadCoords } from './routeBase.js';
 import { SideRoadSymbol } from './sideRoute.js';
 import { anchorShape } from './anchor.js';

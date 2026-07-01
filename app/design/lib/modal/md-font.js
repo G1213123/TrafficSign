@@ -5,7 +5,7 @@
 
 import { ModalUtils } from './mdGeneral.js';
 import { GeneralSettings } from '../../lib/sidebar/general';
-import { CanvasGlobals } from '../canvas/canvas.js';
+import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import { i18n } from '../i18n/i18n.js';
 
 const FontPriorityManager = {

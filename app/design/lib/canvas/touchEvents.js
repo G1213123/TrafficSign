@@ -1,5 +1,5 @@
 import { Point } from 'fabric';
-import { CanvasGlobals, DrawGrid } from './canvas.js';
+import { CanvasGlobals } from '../../components/canvas/canvas.js';
 
 export function setupTouchEvents(canvas) {
   if (!canvas) return () => {};

@@ -10,7 +10,7 @@
 // Assumes 'canvas' and 'canvasObject' (e.g. window.canvas, window.canvasObject) are the global
 // Fabric canvas instance and the array storing canvas objects, respectively.
 
-import { CanvasGlobals } from "../canvas/canvas.js";
+import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import { BaseGroup } from "./BaseGroup.js";
 import { SymbolObject } from "./symbols.js";
 import { TextObject } from "./text.js";

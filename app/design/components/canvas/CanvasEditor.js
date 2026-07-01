@@ -2,12 +2,12 @@
 
 import React, { useEffect, useRef } from 'react';
 import { Canvas } from 'fabric';
-import { DrawGrid, initCanvasGlobals, CanvasGlobals } from '../../lib/canvas/canvas';
+import { DrawGrid, initCanvasGlobals, CanvasGlobals } from './canvas';
 import { setupKeyboardEvents } from '../../lib/canvas/keyboardEvents';
 import { setupMouseEvents } from '../../lib/canvas/mouseEvents';
 import { setupTouchEvents } from '../../lib/canvas/touchEvents';
-import { setupContextMenu } from '../../lib/utils/contexMenu';
-import { initializePropertyPanel } from '../../lib/utils/property';
+import { setupContextMenu } from '../../components/presentations/contexMenu';
+import { initializePropertyPanel } from '../../components/presentations/property';
 import { parseFont } from '../../lib/objects/path';
 
 export default function CanvasEditor({ onCanvasReady }) {

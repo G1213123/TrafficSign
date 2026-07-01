@@ -1,6 +1,8 @@
-import { CanvasGlobals } from "../canvas/canvas.js";
+import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import { GeneralSettings } from '../../lib/sidebar/general';
-const canvas = CanvasGlobals.canvas;
+import { Line, Text, Circle, Polygon } from 'fabric'
+const getCanvas = () => CanvasGlobals.canvas;
+
 
 // Class to handle engineering style dimension displays for border objects
 class BorderDimensionDisplay {
@@ -19,6 +21,7 @@ class BorderDimensionDisplay {
 
   createDimension() {
     // Scale adjustments based on zoom
+    const canvas = getCanvas();
     const zoom = canvas.getZoom();
     const lineWidth = 1 / zoom;
     const fontSize = 12 / zoom;
@@ -42,7 +45,7 @@ class BorderDimensionDisplay {
     const distance = Math.abs(this.endX - this.startX);
 
     // Extension lines
-    this.objects.push(new fabric.Line(
+    this.objects.push(new Line(
       [this.startX, this.startY, this.startX, dimLineY - extensionLength],
       {
         stroke: this.color,
@@ -52,7 +55,7 @@ class BorderDimensionDisplay {
       }
     ));
 
-    this.objects.push(new fabric.Line(
+    this.objects.push(new Line(
       [this.endX, this.startY, this.endX, dimLineY - extensionLength],
       {
         stroke: this.color,
@@ -63,7 +66,7 @@ class BorderDimensionDisplay {
     ));
 
     // Main dimension line
-    this.objects.push(new fabric.Line(
+    this.objects.push(new Line(
       [this.startX, dimLineY, this.endX, dimLineY],
       {
         stroke: this.color,
@@ -79,7 +82,7 @@ class BorderDimensionDisplay {
 
     // Add dimension text
     const midX = (this.startX + this.endX) / 2;
-    this.objects.push(new fabric.Text(
+    this.objects.push(new Text(
       GeneralSettings.formatDimension(distance, this.baseObject ? this.baseObject.xHeight : 100), // Use 100 as default xHeight for border dimensions
       {
         left: midX,
@@ -105,7 +108,7 @@ class BorderDimensionDisplay {
     const distance = Math.abs(this.endY - this.startY);
 
     // Extension lines
-    this.objects.push(new fabric.Line(
+    this.objects.push(new Line(
       [this.startX, this.startY, dimLineX - extensionLength, this.startY],
       {
         stroke: this.color,
@@ -115,7 +118,7 @@ class BorderDimensionDisplay {
       }
     ));
 
-    this.objects.push(new fabric.Line(
+    this.objects.push(new Line(
       [this.startX, this.endY, dimLineX - extensionLength, this.endY],
       {
         stroke: this.color,
@@ -126,7 +129,7 @@ class BorderDimensionDisplay {
     ));
 
     // Main dimension line
-    this.objects.push(new fabric.Line(
+    this.objects.push(new Line(
       [dimLineX, this.startY, dimLineX, this.endY],
       {
         stroke: this.color,
@@ -144,7 +147,7 @@ class BorderDimensionDisplay {
     const midY = (this.startY + this.endY) / 2;
 
     // Create text with rotation for vertical dimension
-    this.objects.push(new fabric.Text(
+    this.objects.push(new Text(
       GeneralSettings.formatDimension(distance, this.baseObject ? this.baseObject.xHeight : 100), // Use 100 as default xHeight for border dimensions
       {
         left: dimLineX - (15 / canvas.getZoom()),
@@ -198,7 +201,7 @@ class BorderDimensionDisplay {
         break;
     }
 
-    const arrow = new fabric.Polygon(points, {
+    const arrow = new  Polygon(points, {
       fill: this.color,
       stroke: this.color,
       strokeWidth: 0,
@@ -225,6 +228,7 @@ class RadiusDimensionDisplay {
 
   createRadiusDimension() {
     // Scale adjustments based on zoom
+    const canvas = getCanvas();
     const zoom = canvas.getZoom();
     const lineWidth = 1 / zoom;
     const fontSize = 12 / zoom;
@@ -238,7 +242,7 @@ class RadiusDimensionDisplay {
     const radiusEndY = this.centerY + this.radius * Math.sin(startAngleRad);
 
     // Create radius line from center to edge
-    this.objects.push(new fabric.Line(
+    this.objects.push(new Line(
       [this.centerX, this.centerY, radiusEndX, radiusEndY],
       {
         stroke: this.color,
@@ -249,7 +253,7 @@ class RadiusDimensionDisplay {
     ));
 
     // Add center point marker
-    this.objects.push(new fabric.Circle({
+    this.objects.push(new Circle({
       left: this.centerX,
       top: this.centerY,
       radius: 2 / zoom,
@@ -267,7 +271,7 @@ class RadiusDimensionDisplay {
     const textX = this.centerX - (this.radius * 0.2) * Math.cos(startAngleRad);
     const textY = this.centerY - (this.radius * 0.2) * Math.sin(startAngleRad);
     
-    this.objects.push(new fabric.Text(
+    this.objects.push(new Text(
       `R${GeneralSettings.formatDimension(this.radius, 100).replace('mm', '').replace('sw', '')}${GeneralSettings.dimensionUnit}`,
       {
         left: textX,
@@ -302,7 +306,7 @@ class RadiusDimensionDisplay {
       { x: x + size * Math.cos(arrowAngle2), y: y + size * Math.sin(arrowAngle2) }
     ];
 
-    const arrow = new fabric.Polygon(points, {
+    const arrow = new Polygon(points, {
       fill: this.color,
       stroke: this.color,
       strokeWidth: 0,
@@ -316,6 +320,7 @@ class RadiusDimensionDisplay {
 
   // Remove radius dimension from canvas
   remove() {
+    const canvas = getCanvas();
     this.objects.forEach(obj => canvas.remove(obj));
     this.objects = [];
   }

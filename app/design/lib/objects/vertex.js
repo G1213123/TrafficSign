@@ -1,7 +1,7 @@
 // This file handles VertexControl class and keyboard navigation for vertices
 // Implements Tab key cycling through vertices
 import { Control } from 'fabric'
-import { CanvasGlobals } from "../canvas/canvas.js"
+import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import { globalAnchorTree, anchorShape } from './anchor.js';
 
 const canvas = CanvasGlobals.canvas; // Fabric.js canvas instance

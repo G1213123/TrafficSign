@@ -3,7 +3,7 @@ import { BorderDimensionDisplay, RadiusDimensionDisplay } from './dimension.js';
 import { globalAnchorTree, processUpdateCycle } from './anchor.js';
 import { BorderTypeScheme, BorderColorScheme, BorderFrameWidth, BorderPaddingWidth, DividerMargin } from './template.js';
 import { vertexToPath } from './path.js';
-import { CanvasGlobals, DrawGrid } from '../canvas/canvas.js';
+import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import { drawDivider } from './divider.js';
 
 const canvas = CanvasGlobals.canvas; // Access the global canvas object

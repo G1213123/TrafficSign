@@ -1,4 +1,4 @@
-import { CanvasGlobals, DrawGrid } from './canvas.js';
+import { CanvasGlobals, DrawGrid } from '../../components/canvas/canvas.js';
 import { canvasTracker } from '../utils/Tracker.js';
 
 let currentSnapHoverObjects = [];
@@ -98,7 +98,7 @@ export function setupMouseEvents(canvas) {
     updateSnapHoverEnvelope(canvas, opt);
   };
 
-  const handleMouseUp = function () {
+  const handleMouseUp = function (opt) {
     canvas.isDragging = false;
     canvas.selection = true;
     clearSnapHoverEnvelope();

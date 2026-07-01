@@ -1,9 +1,15 @@
-import { Group } from 'fabric';
+import { Group, Control, util } from 'fabric';
 import { canvasTracker } from '../utils/Tracker.js';
-import { CanvasGlobals } from '../canvas/canvas.js';
+import { CanvasGlobals } from '../../components/canvas/canvas.js';
+import { GeneralSettings } from '../../components/sidebars/settings.js';
+import { VertexControl } from './vertex.js';
+import { CanvasObjectInspector } from '../../components/presentations/inspector.js';
+import { BorderDimensionDisplay } from './dimension.js';
+import { showPropertyPanel } from '../../components/presentations/property.js';
 
 // We define canvasObject here to avoid circular dependencies with draw.js
 export const canvasObject = [];
+const getCanvas = () => CanvasGlobals.canvas;
 
 const deleteIcon =
   "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
@@ -48,7 +54,7 @@ export class BaseGroup extends Group {
     this.canvasID = canvasObject.length - 1;
     this._showName = `<Group ${this.canvasID}> ${functionalType}`;
 
-    const canvas = CanvasGlobals.canvas;
+    const canvas = getCanvas();
     if (canvas) {
       canvas.add(this);
     }
@@ -67,6 +73,109 @@ export class BaseGroup extends Group {
     if (basePolygon) {
       this.setBasePolygon(basePolygon, options.calcVertex);
     }
+
+    // add delete control
+    this.controls.deleteControl = new Control({
+      x: 0.5,
+      y: -0.5,
+      offsetY: 40,
+      cursorStyle: 'pointer',
+      mouseUpHandler: this.deleteObject,
+      render: this.renderIcon,
+      cornerSize: 24,
+    });
+
+    CanvasObjectInspector.createObjectListPanelInit();
+
+    this.on('selected', () => {
+      const canvas = getCanvas();
+      if (!canvas) return;
+      if (canvas.getActiveObjects().length > 2) return;
+      this.drawAnchorLinkage();
+      CanvasObjectInspector.SetActiveObjectList(this);
+      this.showLockHighlights();
+
+      // Redraw vertices when selected to apply current vertex display settings
+      if (this.basePolygon && this.basePolygon.vertex) {
+        this.drawVertex(false);
+      }
+
+      // Show dimension lines when object is selected
+
+      this.showDimensions();
+
+    });
+
+    this.on('deselected', () => {
+      setTimeout(() => {
+        this.anchorageLink.forEach(obj => {
+          obj.objects.forEach(o => {
+            o.set('opacity', 0);
+          })
+        });
+        this.hideLockHighlights();
+        this.hideHoverSnapVertexEnvelope();
+
+        // Hide dimension lines when object is deselected
+        this.hideDimensions();
+      }, 0)
+      CanvasObjectInspector.SetActiveObjectList(null)
+    });
+
+    this.on('mouseover', function () {
+      this.set({
+        opacity: 0.5
+      });
+
+      const activeVertex = CanvasGlobals.activeVertex;
+      const isVertexSnappingMode = !!(activeVertex && activeVertex.isDragging);
+      const isHoveredObjectBeingSnapped = !!(isVertexSnappingMode && activeVertex.baseGroup === this);
+      if (isVertexSnappingMode && !isHoveredObjectBeingSnapped) {
+        this.showHoverSnapVertexEnvelope();
+      }
+
+      if (this.__corner) {
+        if (this.controls[this.__corner].onHover) {
+          this.controls[this.__corner].onHover()
+        } else {
+          Object.values(this.controls).forEach(control => { if (control.onMouseOut) { control.onMouseOut() } })
+        }
+      } else {
+        Object.values(this.controls).forEach(control => { if (control.onMouseOut) { control.onMouseOut() } })
+      }
+      CanvasGlobals.scheduleRender();
+    });
+
+
+    this.on('mouseout', function () {
+      this.set({
+        opacity: 1
+      });
+      //this.hideHoverSnapVertexEnvelope();
+      Object.values(this.controls).forEach(control => { if (control.onMouseOut) { control.onMouseOut() } })
+      CanvasGlobals.scheduleRender();
+    });
+
+
+    this.on('mousedblclick', (e) => {
+      canvasTracker.isDragging = false;
+      showPropertyPanel(this); //-> handled globally by object:dblclick event
+    });
+
+    this.on('modified', this.updateAllCoord.bind(this));
+    this.on('moving', this.updateAllCoord.bind(this));
+
+
+    this.on('moving', () => {
+
+      this.showDimensions();
+
+    });
+    this.on('modified', () => {
+
+      this.showDimensions();
+
+    });
   }
 
   registerMetadataKeys(...keys) {
@@ -149,6 +258,66 @@ export class BaseGroup extends Group {
     return JSON.parse(JSON.stringify(dataToSerialize, replacer));
   }
 
+  // Show border dimensions when selected
+  showDimensions() {
+    // Clean up any existing dimension annotations
+    this.hideDimensions();
+
+    // Get border coordinates
+    const borderRect = this.getBoundingRect();
+
+    // Find closest objects in each direction to show dimensions
+    if (!this.isTemporary) {
+      this.createDimensionAnnotations(borderRect);
+    }
+  }
+
+  // Hide all dimension annotations
+  hideDimensions() {
+    const canvas = getCanvas();
+    if (!canvas) return;
+    // Remove all dimension annotations from canvas
+    this.dimensionAnnotations.forEach(annotation => {
+      canvas.remove(...annotation.objects);
+    });
+    this.dimensionAnnotations = [];
+  }
+
+  // Create dimension annotations for the border and contained objects
+  createDimensionAnnotations(borderRect) {
+    const canvas = getCanvas();
+    if (!canvas) return;
+
+
+    // Create horizontal dimensions (left and right)
+    const leftDimension = new BorderDimensionDisplay({
+      direction: 'horizontal',
+      startX: borderRect.left,
+      startY: borderRect.top - 8 / canvas.getZoom(),
+      endX: borderRect.left + borderRect.width,
+      color: 'green',
+      offset: 30 / canvas.getZoom(),
+      baseObject: this
+    });
+    this.dimensionAnnotations.push(leftDimension);
+
+
+
+    // Create vertical dimensions (top and bottom)
+    const topDimension = new BorderDimensionDisplay({
+      direction: 'vertical',
+      startX: borderRect.left - 12 / canvas.getZoom(),
+      startY: borderRect.top,
+      endY: borderRect.top + borderRect.height,
+      color: 'red',
+      offset: 30 / canvas.getZoom(),
+      baseObject: this
+    });
+    this.dimensionAnnotations.push(topDimension);
+
+
+  }
+
   setBasePolygon(basePolygon, calcVertex = true) {
     this.basePolygon = basePolygon;
     if (this.basePolygon) {
@@ -178,7 +347,7 @@ export class BaseGroup extends Group {
     CanvasGlobals.scheduleRender();
   }
 
-   drawVertex(calc = true) {
+  drawVertex(calc = true) {
     // If basePolygon doesn't exist, exit early
     if (!this.basePolygon) return;
 
@@ -206,7 +375,7 @@ export class BaseGroup extends Group {
 
 
     // Always check current GeneralSettings, not just when toggled
-    const showAllVertices = GeneralSettings && GeneralSettings.showAllVertices;
+    const showAllVertices = GeneralSettings ? GeneralSettings.showAllVertices : false;
 
     // Process vertices according to hierarchy and create/update controls
     this.basePolygon.vertex.forEach(v => {
@@ -396,6 +565,8 @@ export class BaseGroup extends Group {
   }
 
   drawAnchorLinkage() {
+    const canvas = getCanvas();
+    if (!canvas) return;
     for (let i = this.anchorageLink.length - 1; i >= 0; i--) {
       const obj = this.anchorageLink[i];
 
@@ -418,7 +589,7 @@ export class BaseGroup extends Group {
       canvas.add(...lockAnno2.objects);
 
     }
-    const isActive = canvas.getActiveObject() === this;
+    const isActive = CanvasGlobals.activeObject === this;
     const opacity = isActive ? 1 : 0;
     this.anchorageLink.forEach(obj => {
       obj.objects.forEach(o => {
@@ -430,6 +601,8 @@ export class BaseGroup extends Group {
   }
   // Method to update coordinates and emit delta
   updateAllCoord(event, _sourceList = [], _selfOnly = false) {
+    const canvas = getCanvas();
+    if (!canvas) return;
     // Check for basePolygon before calculating deltas
     if (!this.basePolygon || !this.basePolygon.getCoords) {
       // If basePolygon doesn't exist yet, just return
@@ -625,6 +798,8 @@ export class BaseGroup extends Group {
   }
   // Method to delete the object
   deleteObject(_eventData, transform) {
+    const canvas = getCanvas();
+    if (!canvas) return;
     const deleteObj = transform?.target || transform || this
     if (typeof deleteObj.hideHoverSnapVertexEnvelope === 'function') {
       deleteObj.hideHoverSnapVertexEnvelope();
@@ -752,7 +927,7 @@ export class BaseGroup extends Group {
     deleteImg.src = deleteIcon;
     ctx.save();
     ctx.translate(left, top);
-    ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle));
+    ctx.rotate(util.degreesToRadians(fabricObject.angle));
     ctx.drawImage(deleteImg, -size / 2, -size / 2, size, size);
     ctx.restore();
   }
@@ -819,6 +994,8 @@ export class BaseGroup extends Group {
 
   // New method: display temporary highlight border for lock targets
   showLockHighlights() {
+    const canvas = getCanvas();
+    if (!canvas) return;
     this.hideLockHighlights()
     if (this.lockXToPolygon && Object.keys(this.lockXToPolygon).length) {
       const finalX = this.getFinalLockTarget('x');
@@ -860,6 +1037,8 @@ export class BaseGroup extends Group {
 
   // New method: remove the temporary highlight borders
   hideLockHighlights() {
+    const canvas = getCanvas();
+    if (!canvas) return;
     if (this.lockHighlightX) {
       canvas.remove(this.lockHighlightX);
       this.lockHighlightX = null;
@@ -871,6 +1050,8 @@ export class BaseGroup extends Group {
   }
 
   showHoverSnapVertexEnvelope() {
+    const canvas = getCanvas();
+    if (!canvas) return;
     this.hideHoverSnapVertexEnvelope();
 
     if (!this.basePolygon || !this.basePolygon.vertex) return;
@@ -917,6 +1098,8 @@ export class BaseGroup extends Group {
   }
 
   hideHoverSnapVertexEnvelope() {
+    const canvas = getCanvas();
+    if (!canvas) return;
     if (!this.hoverSnapEnvelopes || this.hoverSnapEnvelopes.length === 0) return;
     this.hoverSnapEnvelopes.forEach(envelope => canvas.remove(envelope));
     this.hoverSnapEnvelopes = [];

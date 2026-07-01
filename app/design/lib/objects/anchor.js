@@ -1,9 +1,9 @@
 //TODO: check updateAllCoord for anchor object inside border / divider not working
 // AnchorTree class to manage anchoring relationships between objects
-import { CanvasGlobals } from '../canvas/canvas.js';
+import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import { ShowHideSideBarEvent } from '../canvas/keyboardEvents.js';
 import { canvasTracker } from '../utils/Tracker.js'; // Import canvasTracker for tracking changes
-import { showTextBox, hideTextBox, selectObjectHandler } from '../utils/promptBox.js'; // Import selectObjectHandler for object selection
+import { showTextBox, hideTextBox, selectObjectHandler } from '../../components/presentations/promptBox.js'; // Import selectObjectHandler for object selection
 
 class AnchorTree {
   constructor() {

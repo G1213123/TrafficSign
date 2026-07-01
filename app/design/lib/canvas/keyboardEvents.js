@@ -1,6 +1,6 @@
 import { ActiveSelection } from 'fabric';
-import { CanvasGlobals } from './canvas.js';
-import { GeneralSettings } from '../../lib/sidebar/general';
+import { CanvasGlobals } from '../../components/canvas/canvas.js';
+import { GeneralSettings } from '../../components/sidebars/settings.js';
 import { canvasTracker } from '../utils/Tracker.js';
 
 function isTextInputFocused() {

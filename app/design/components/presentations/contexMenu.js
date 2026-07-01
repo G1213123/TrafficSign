@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { showPropertyPanel } from './property.js'; // Import showPropertyPanel
-import { CanvasGlobals } from "../canvas/canvas.js"; // Import CanvasGlobals
-import { startSetAnchorFlow, revertPivot } from '../objects/anchor.js';
+import { CanvasGlobals } from "../canvas/canvas.js";
+import { startSetAnchorFlow, revertPivot } from '../../lib/objects/anchor.js';
 
 // Context menu state management
 export const menuState = {
@@ -29,7 +29,6 @@ function clickModelHandler(event) {
   switch (cursorClickMode) {
     case 'normal': {
       if (event.e.button === 2 && event.target) { // Right click
-        event.e.preventDefault();
         menuState.setCordinate(event.e.clientX, event.e.clientY);
         menuState.setSelectedArrow(event.target);
         menuState.setVisible(true);
@@ -62,12 +61,6 @@ export function setupContextMenu(canvas) {
   };
 
 }
-
-
-//document.addEventListener('contextmenu', function (event) {
-//  event.preventDefault();
-//});
-
 
 // Add handlers for context-menu actions
 function handleDeleteObject() {
@@ -161,7 +154,7 @@ export default function ContextMenu() {
         </li>
         <li id="edit-object" data-i18n="Edit" onClick={handleEditObject} style={{ cursor: 'pointer' }}>Edit</li>
         <li id="delete-object" data-i18n="Delete" onClick={handleDeleteObject} style={{ cursor: 'pointer' }}>Delete</li>
-        <li id="property" data-i18n="Property">Property</li>
+        <li id="property" data-i18n="Property" onClick={showPropertyPanel} style={{ cursor: 'pointer' }}>Property</li>
       </ul>
     </div>
   )

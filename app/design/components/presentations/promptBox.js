@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CanvasGlobals } from "../canvas/canvas.js";
 import { cursorClickMode } from "./contexMenu.js";
-import { ShowHideSideBarEvent } from "../canvas/keyboardEvents.js";
-import { i18n } from '../i18n/i18n.js';
+import { ShowHideSideBarEvent } from "../../lib/canvas/keyboardEvents.js";
+import { i18n } from '../../lib/i18n/i18n.js';
 
 // Global state for PromptBox to allow non-React calls to trigger it
 export const promptBoxState = {

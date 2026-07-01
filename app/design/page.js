@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import Sidebar from './components/sidebars/Sidebar';
 import CanvasEditor from './components/canvas/CanvasEditor';
-import PromptBox from './lib/utils/promptBox';
-import ContextMenu from './lib/utils/contexMenu';
+import Sidebar from './components/sidebars/Sidebar';
+import PromptBox from './components/presentations/promptBox';
+import ContextMenu from './components/presentations/contexMenu';
+import PropertyPanel from './components/presentations/property';
 import { parseFont } from './lib/objects/path';
 
 export default function DesignPage() {
@@ -22,6 +23,25 @@ export default function DesignPage() {
       });
   }, []);
 
+  useEffect(() => {
+    // define a custom handler function
+    // for the contextmenu event
+    const handleContextMenu = (e) => {
+      // prevent the right-click menu from appearing
+      e.preventDefault()
+    }
+
+    // attach the event listener to 
+    // the document object
+    document.addEventListener("contextmenu", handleContextMenu)
+
+    // clean up the event listener when 
+    // the component unmounts
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu)
+    }
+  }, [])
+
   if (!fontsLoaded) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-[#2f2f2f] text-white">
@@ -36,6 +56,7 @@ export default function DesignPage() {
       <Sidebar canvas={canvas} />
       <ContextMenu />
       <PromptBox />
+      <PropertyPanel />
     </div>
   );
 }

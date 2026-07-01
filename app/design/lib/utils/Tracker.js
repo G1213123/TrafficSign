@@ -1,5 +1,5 @@
 // CanvasTracker utility for tracking canvas operations
-import { CanvasGlobals } from "../canvas/canvas.js";
+import { CanvasGlobals } from '../../components/canvas/canvas.js';
 
 const canvasObject = CanvasGlobals.canvasObject;
 
@@ -223,7 +223,7 @@ class CanvasTracker {
       canvas.renderAll();
       
       // Dynamic import for property panel to avoid circular dependency
-      const { showPropertyPanel } = await import("../utils/property.js");
+      const { showPropertyPanel } = await import("../../components/presentations/property.js");
 
       // Restore selection if possible
       let restored = false;
