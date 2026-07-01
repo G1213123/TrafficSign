@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { CanvasGlobals } from '../../lib/canvas/canvas.js';
 import {
     Road,
     Type,
@@ -35,7 +34,7 @@ const SIDEBAR_ITEMS = [
 ];
 
 
-export default function Sidebar() {
+export default function Sidebar({ canvas }) {
     const [isOpen, setIsOpen] = useState(true);
     const [activeTab, setActiveTab] = useState('btn_draw');
     const [isMobile, setIsMobile] = useState(false);
@@ -77,7 +76,7 @@ export default function Sidebar() {
                         </h2>
 
                         {activeTab === 'btn_draw' && (
-                            <DrawSymbolPanel canvas={CanvasGlobals.canvas} />
+                            <DrawSymbolPanel canvas={canvas} />
                         )}
 
                         {activeTab !== 'btn_draw' && (

@@ -156,8 +156,8 @@ export default function DrawSymbolPanel({ canvas }) {
       xHeight: xHeight,
       color: color,
       angle: 0,
-      x: viewportCenter.left,
-      y: viewportCenter.top
+      x: viewportCenter.x,
+      y: viewportCenter.y
     };
 
     // Use the migrated legacy logic to create the object

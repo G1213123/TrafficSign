@@ -10,7 +10,7 @@ import { setupContextMenu } from '../../lib/utils/contexMenu';
 import { initializePropertyPanel } from '../../lib/utils/property';
 import { parseFont } from '../../lib/objects/path';
 
-export default function CanvasEditor() {
+export default function CanvasEditor({ onCanvasReady }) {
     const canvasRef = useRef(null);
     const fabricCanvas = useRef(null);
 
@@ -27,6 +27,7 @@ export default function CanvasEditor() {
 
         // Initialize global canvas access for lib scripts
         initCanvasGlobals(canvas);
+        onCanvasReady?.(canvas);
         const cleanupKeyboardEvents = setupKeyboardEvents();
         const cleanupMouseEvents = setupMouseEvents(canvas);
         const cleanupTouchEvents = setupTouchEvents(canvas);
@@ -60,6 +61,7 @@ export default function CanvasEditor() {
             cleanupKeyboardEvents?.();
             cleanupMouseEvents?.();
             cleanupTouchEvents?.();
+            onCanvasReady?.(null);
             canvas.dispose();
         };
     }, []);

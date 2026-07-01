@@ -9,6 +9,7 @@ import { parseFont } from './lib/objects/path';
 
 export default function DesignPage() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [canvas, setCanvas] = useState(null);
 
   useEffect(() => {
     parseFont()
@@ -31,8 +32,8 @@ export default function DesignPage() {
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-[#2f2f2f]">
-      <CanvasEditor />
-      <Sidebar />
+      <CanvasEditor onCanvasReady={setCanvas} />
+      <Sidebar canvas={canvas} />
       <ContextMenu />
       <PromptBox />
     </div>
