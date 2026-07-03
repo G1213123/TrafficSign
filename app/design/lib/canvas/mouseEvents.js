@@ -1,6 +1,8 @@
 import { CanvasGlobals, DrawGrid } from '../../components/canvas/canvas.js';
 import { canvasTracker } from '../utils/Tracker.js';
 
+const getCanvas = () => CanvasGlobals.canvas;
+
 let currentSnapHoverObjects = [];
 
 function clearSnapHoverEnvelope() {
@@ -21,7 +23,7 @@ function updateSnapHoverEnvelope(canvas, opt) {
     return;
   }
 
-  const pointer = canvas.getPointer(opt.e);
+  const pointer = canvas.getScenePoint(opt.e);
   const activeSnapObject = activeVertex.baseGroup;
   const hoveredObjects = [];
 

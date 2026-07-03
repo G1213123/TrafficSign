@@ -1,5 +1,5 @@
 import { CanvasGlobals } from '../../components/canvas/canvas.js';
-import { GeneralSettings } from '../../lib/sidebar/general';
+import { GeneralSettings } from '../../components/sidebars/settings.js';
 import { Line, Text, Circle, Polygon } from 'fabric'
 const getCanvas = () => CanvasGlobals.canvas;
 
@@ -30,16 +30,16 @@ class BorderDimensionDisplay {
 
     // Create dimension lines based on direction
     if (this.direction === 'horizontal') {
-      this.createHorizontalDimension(lineWidth, fontSize, arrowSize, extensionLength);
+      this.createHorizontalDimension(lineWidth, fontSize, arrowSize, extensionLength, zoom);
     } else {
-      this.createVerticalDimension(lineWidth, fontSize, arrowSize, extensionLength);
+      this.createVerticalDimension(lineWidth, fontSize, arrowSize, extensionLength, zoom);
     }
 
     // Add all objects to the canvas
     canvas.add(...this.objects);
   }
 
-  createHorizontalDimension(lineWidth, fontSize, arrowSize, extensionLength) {
+  createHorizontalDimension(lineWidth, fontSize, arrowSize, extensionLength, zoom) {
     // Position of the dimension line
     const dimLineY = this.startY - this.offset;
     const distance = Math.abs(this.endX - this.startX);
@@ -86,7 +86,7 @@ class BorderDimensionDisplay {
       GeneralSettings.formatDimension(distance, this.baseObject ? this.baseObject.xHeight : 100), // Use 100 as default xHeight for border dimensions
       {
         left: midX,
-        top: dimLineY - (8 / canvas.getZoom()),
+        top: dimLineY - (8 / zoom),
         fontSize: fontSize,
         fill: this.color,
         fontFamily: 'Arial',
@@ -96,13 +96,13 @@ class BorderDimensionDisplay {
         selectable: false,
         evented: false,
         stroke: '#fff',
-        strokeWidth: 3 / canvas.getZoom(),
+        strokeWidth: 3 / zoom,
         paintFirst: 'stroke'
       }
     ));
   }
 
-  createVerticalDimension(lineWidth, fontSize, arrowSize, extensionLength) {
+  createVerticalDimension(lineWidth, fontSize, arrowSize, extensionLength, zoom) {
     // Position of the dimension line
     const dimLineX = this.startX - this.offset;
     const distance = Math.abs(this.endY - this.startY);
@@ -150,7 +150,7 @@ class BorderDimensionDisplay {
     this.objects.push(new Text(
       GeneralSettings.formatDimension(distance, this.baseObject ? this.baseObject.xHeight : 100), // Use 100 as default xHeight for border dimensions
       {
-        left: dimLineX - (15 / canvas.getZoom()),
+        left: dimLineX - (15 / zoom),
         top: midY,
         fontSize: fontSize,
         fill: this.color,
@@ -161,7 +161,7 @@ class BorderDimensionDisplay {
         selectable: false,
         evented: false,
         stroke: '#fff',
-        strokeWidth: 3 / canvas.getZoom(),
+        strokeWidth: 3 / zoom,
         paintFirst: 'stroke'
       }
     ));

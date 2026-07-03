@@ -6,8 +6,9 @@ import { BaseGroup } from './BaseGroup.js';
 import { drawDivider } from './divider.js';
 import { textWidthMedium, textWidthHeavy, } from './template.js';
 import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontHK, parsedFontKorean, parsedFontChocolate, parsedFontKai, parsedFontSans, ensureOpenTypePatched } from './path.js';
-import { GeneralSettings } from '../../lib/sidebar/general';
+import { GeneralSettings } from '../../components/sidebars/settings.js';
 import { FontPriorityManager } from '../modal/md-font.js';
+import { Text, Group, Path, util } from 'fabric';
 
 
 // Special characters that are not available in Transport fonts and should use fallback
@@ -68,7 +69,7 @@ class TextObject extends BaseGroup {
       this.charSpacing
     );
     // Build group
-    const group = new fabric.Group([...txtCharList, ...txtFrameList], {
+    const group = new Group([...txtCharList, ...txtFrameList], {
       left: this.left,
       top: this.top
     });
@@ -120,7 +121,7 @@ class TextObject extends BaseGroup {
     // Create a new group for the updated elements
     // We must position the new group at the current absolute position of this TextObject (the parent group)
     // so that when added, its relative position becomes (0,0).
-    const group = new fabric.Group([...txtCharList, ...txtFrameList], {
+    const group = new Group([...txtCharList, ...txtFrameList], {
       left: this.left,
       top: this.top,
       angle: this.angle,
@@ -459,7 +460,7 @@ class TextObject extends BaseGroup {
     }
 
     // Create a path from the font path data
-    const txt_char = new fabric.Path(charSVG, {
+    const txt_char = new Path(charSVG, {
       left: (charParams.actualChar === '、' ? charGlyph.leftSideBearing - 800 : charGlyph.leftSideBearing) * fontScale + positioning.charLeftPos - leftAdjustment,
       top: minTop + positioning.charTopPos - (charParams.actualChar === '、' ? 600 * fontScale : 0),
       fill: color,
@@ -472,7 +473,7 @@ class TextObject extends BaseGroup {
     txt_char._textChar = charParams.actualChar; // Store the character for reference
 
     // Create the frame rectangle
-    const txt_frame = new fabric.Rect({
+    const txt_frame = new Rect({
       left: positioning.charLeftPos - charParams.leftOffset,
       top: 0,
       width: charParams.frameWidth,
@@ -597,7 +598,7 @@ class TextObject extends BaseGroup {
 
         // Transform the coordinates to the canvas coordinate system
         Object.values(aCoords).forEach(point => {
-          const absPoint = fabric.util.transformPoint(point, this.calcTransformMatrix());
+          const absPoint = util.transformPoint(point, this.calcTransformMatrix());
           combinedBBox.left = Math.min(combinedBBox.left, absPoint.x);
           combinedBBox.top = Math.min(combinedBBox.top, absPoint.y);
           combinedBBox.right = Math.max(combinedBBox.right, absPoint.x);
@@ -642,7 +643,7 @@ class TextObject extends BaseGroup {
     );
 
     // Create a new group
-    const group = new fabric.Group([...txtCharList, ...txtFrameList], {
+    const group = new Group([...txtCharList, ...txtFrameList], {
       left: this.left,
       top: this.top
     });

@@ -3,10 +3,11 @@
 import React, { useState } from 'react';
 
 import { StaticCanvas, Path, Group } from 'fabric';
-import { symbolsTemplate } from '../../lib/objects/template';
 import { calcSymbol, SymbolObject } from '../../lib/objects/symbols';
 import { convertVertexToPathCommands, convertFontPathToFabricPath, getFontPath } from '../../lib/objects/path.js';
+import { symbolsTemplate, symbolsTemplateAlt, symbolsPermittedAngle } from '../../lib/objects/template.js';
 import { parsedFontMedium, parsedFontHeavy, parsedFontKorean } from "../../lib/objects/path.js";
+import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import './sidebar.css';
 
 const createButtonSVG = (symbolType, length, color = 'white') => {
@@ -145,9 +146,41 @@ const createButtonSVG = (symbolType, length, color = 'white') => {
 export default function DrawSymbolPanel({ canvas }) {
   const [xHeight, setXHeight] = useState(100);
   const [color, setColor] = useState('white');
+  const [selectedSymbol, setSelectedSymbol] = useState(null);
+  const [angle, setAngle] = useState(0);
+
+  const handleRotate = (direction) => {
+    if (!canvas) return;
+    const activeObject = canvas.getActiveObject();
+    if (!activeObject || !activeObject.symbolType) return;
+
+    const permittedAngles = symbolsPermittedAngle[activeObject.symbolType] || [0];
+    if (permittedAngles.length <= 1) return;
+
+    const currentIndex = permittedAngles.indexOf(activeObject.angle);
+    let nextIndex;
+
+    if (direction === 'cw') {
+      nextIndex = (currentIndex + 1) % permittedAngles.length;
+    } else {
+      nextIndex = (currentIndex - 1 + permittedAngles.length) % permittedAngles.length;
+    }
+
+    const newAngle = permittedAngles[nextIndex];
+    activeObject.set('angle', newAngle);
+    setAngle(newAngle);
+    canvas.requestRenderAll();
+  };
 
   const handleAddSymbol = (symbolType) => {
     if (!canvas) return;
+
+    setSelectedSymbol(symbolType);
+    
+    // Reset angle to the first permitted value for the new symbol
+    if (symbolsPermittedAngle[symbolType]) {
+      setAngle(symbolsPermittedAngle[symbolType][0] || 0);
+    }
 
     // Calculate center of viewport for placement
     const viewportCenter = canvas.getCenterPoint();
@@ -155,7 +188,7 @@ export default function DrawSymbolPanel({ canvas }) {
     const options = {
       xHeight: xHeight,
       color: color,
-      angle: 0,
+      angle: symbolsPermittedAngle[selectedSymbol] ? (symbolsPermittedAngle[selectedSymbol].length > 1 ? angle : 0) : 0,
       x: viewportCenter.x,
       y: viewportCenter.y
     };
@@ -169,6 +202,31 @@ export default function DrawSymbolPanel({ canvas }) {
 
     canvas.add(symbol);
     canvas.setActiveObject(symbol);
+
+    // Immediate drag activation (Legacy behavior)
+    symbol.enterFocusMode();
+    
+    const v2 = symbol.getBasePolygonVertex('E2');
+    if (v2) {
+      // We need to pass the cleanup callback to the VertexControl
+      // Since VertexControl is created inside SymbolObject, we can't easily pass it to the constructor
+      // unless we modify SymbolObject. Instead, we can manually assign it to the existing control.
+      const vertexControl = symbol.controls.E2;
+      
+      if (vertexControl) {
+        vertexControl.onCleanup = () => {
+          setSelectedSymbol(null);
+        };
+
+        // Simulate a mouse click event to trigger the full VertexControl.onClick logic
+        // This handles event listeners, focus mode, and drag state initialization
+        vertexControl.onClick({
+          button: 0,
+          type: 'mousedown'
+        });
+      }
+    }
+
     canvas.requestRenderAll();
   };
 
@@ -196,6 +254,49 @@ export default function DrawSymbolPanel({ canvas }) {
           <option value="yellow">Yellow</option>
           <option value="green">Green</option>
         </select>
+      </div>
+
+      <div className="input-group">
+        {selectedSymbol && symbolsPermittedAngle[selectedSymbol] && symbolsPermittedAngle[selectedSymbol].length > 1 && (
+          <div>
+            <label className="input-label">Angle</label>
+            <select
+              className="input-field"
+              value={angle}
+              onChange={(e) => {
+                const newAngle = parseInt(e.target.value) || 0;
+                setAngle(newAngle);
+                if (canvas) {
+                  const activeObject = canvas.getActiveObject();
+                  if (activeObject) activeObject.set('angle', newAngle);
+                  canvas.requestRenderAll();
+                }
+              }}
+            >
+              {symbolsPermittedAngle[selectedSymbol].map((angleOption) => (
+                <option key={angleOption} value={angleOption}>
+                  {angleOption}°
+                </option>
+              ))}
+            </select>
+            <div className="flex gap-2 mt-2">
+              <button 
+                className="btn-small" 
+                onClick={() => handleRotate('ccw')}
+                title="Rotate Anti-Clockwise"
+              >
+                ↺
+              </button>
+              <button 
+                className="btn-small" 
+                onClick={() => handleRotate('cw')}
+                title="Rotate Clockwise"
+              >
+                ↻
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="symbol-grid">

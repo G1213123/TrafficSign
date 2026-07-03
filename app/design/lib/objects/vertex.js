@@ -1,15 +1,15 @@
 // This file handles VertexControl class and keyboard navigation for vertices
 // Implements Tab key cycling through vertices
-import { Control } from 'fabric'
+import { Control, Circle } from 'fabric'
 import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import { globalAnchorTree, anchorShape } from './anchor.js';
 
-const canvas = CanvasGlobals.canvas; // Fabric.js canvas instance
+const getCanvas = () => CanvasGlobals.canvas; // Fabric.js canvas instance
 const canvasObject = CanvasGlobals.canvasObject; // All objects on the canvas
 let vertexSnapInProgress = false; // Flag to indicate if a snap operation is in progress
 
 class VertexControl extends Control {
-    constructor(vertex, baseGroup) {
+    constructor(vertex, baseGroup, onCleanup = null) {
         const width = baseGroup.width || baseGroup.tempWidth
         const height = baseGroup.height || baseGroup.tempHeight
         const left = baseGroup.left
@@ -22,6 +22,7 @@ class VertexControl extends Control {
             cursorStyle: 'pointer',
             cornerSize: 20,
         });
+        this.onCleanup = onCleanup;
         this.hover = false;
         this.isDragging = false; // New flag to indicate active dragging
         this.mouseUpHandler = this.onClick.bind(this);
@@ -81,6 +82,7 @@ class VertexControl extends Control {
     }
 
     onClick(eventData, transform) {
+        const canvas = getCanvas();
         // Check if it's a left-click (button 1)
         if (eventData.button !== 0 && eventData.type !== 'touchend') return;
 
@@ -123,11 +125,11 @@ class VertexControl extends Control {
             }
 
             // Set cursor style for canvas
-            canvas.defaultCursor = 'move';
+            getCanvas().defaultCursor = 'move';
 
             // Sidebar toggle is handled by React state; no need to remove listener here
             document.addEventListener('keydown', this.cancelDragRef);
-            canvas.on('mouse:move', this.handleMouseMoveRef);
+            getCanvas().on('mouse:move', this.handleMouseMoveRef);
 
             CanvasGlobals.scheduleRender();
 
@@ -139,9 +141,10 @@ class VertexControl extends Control {
     }
 
     handleMouseMove(event) {
+        const canvas = getCanvas();
         if (!this.isDown) return;
 
-        const pointer = canvas.getPointer(event.e);
+        const pointer = canvas.getScenePoint(event.e);
 
         // If Shift key is held, allow snap target detection/highlight, but don't move the group
         if (event && event.e && event.e.shiftKey) {
@@ -354,6 +357,7 @@ class VertexControl extends Control {
     }
 
     addSnapHighlight() {
+        const canvas = getCanvas();
         if (this.snapTarget) {
             // Match the circle size with the vertex control size
             const size = this.cornerSize + 5;
@@ -361,7 +365,7 @@ class VertexControl extends Control {
             const zoomFactor = canvas.getZoom() || 1; // Get the current zoom factor
 
             // Create a hollow circle to indicate snap target, centered at the vertex position
-            this.snapHighlight = new fabric.Circle({
+            this.snapHighlight = new Circle({
                 left: this.snapTarget.vertex.x,
                 top: this.snapTarget.vertex.y,
                 radius: radius / zoomFactor,
@@ -375,7 +379,7 @@ class VertexControl extends Control {
             });
 
             // Add the highlight to the canvas
-            canvas.add(this.snapHighlight);
+            getCanvas().add(this.snapHighlight);
 
             // Force a render to update vertex appearance
             CanvasGlobals.scheduleRender();
@@ -386,7 +390,7 @@ class VertexControl extends Control {
     // New method to clear snap highlight
     clearSnapHighlight() {
         if (this.snapHighlight) {
-            canvas.remove(this.snapHighlight);
+            getCanvas().remove(this.snapHighlight);
             this.snapHighlight = null;
             CanvasGlobals.scheduleRender();
         }
@@ -459,8 +463,8 @@ class VertexControl extends Control {
             return;
         }
 
-        const pointer = canvas.getPointer(event.e);
-        const targetObject = canvas.findTarget(event.e);
+        const pointer = getCanvas().getViewportPoint(event.e);
+        const targetObject = getCanvas().findTarget(event.e);
 
         // Check if we clicked on another object with vertices
         if (targetObject && targetObject !== this.baseGroup && targetObject.basePolygon && targetObject.basePolygon.vertex) {
@@ -542,8 +546,8 @@ class VertexControl extends Control {
 
     // New helper method to remove all mouse events immediately
     removeAllMouseEvents() {
-        canvas.off('mouse:move', this.handleMouseMoveRef);
-        canvas.off('mouse:up', this.handleMouseUpRef);
+        getCanvas().off('mouse:move', this.handleMouseMoveRef);
+        getCanvas().off('mouse:up', this.handleMouseUpRef);
         document.removeEventListener('keydown', this.cancelDragRef);
 
         // Clear any snap highlight before removing events
@@ -551,7 +555,7 @@ class VertexControl extends Control {
 
         // Restore default behavior
         // Sidebar toggle is handled by React state; no need to add listener here
-        canvas.defaultCursor = 'default';
+        getCanvas().defaultCursor = 'default';
 
         // Reset internal state
         this.isDown = false;
@@ -613,13 +617,18 @@ class VertexControl extends Control {
         this.isDragging = false; // Reset dragging flag
 
         // Remove event listeners using stored references
-        canvas.off('mouse:move', this.handleMouseMoveRef);
-        canvas.off('mouse:up', this.handleMouseUpRef);
+        getCanvas().off('mouse:move', this.handleMouseMoveRef);
+        getCanvas().off('mouse:up', this.handleMouseUpRef);
         document.removeEventListener('keydown', this.cancelDragRef);
 
         // Restore default behavior
         // Sidebar toggle is handled by React state; no need to add listener here
-        canvas.defaultCursor = 'default';
+        getCanvas().defaultCursor = 'default';
+
+        // Call cleanup callback if provided
+        if (this.onCleanup) {
+            this.onCleanup();
+        }
 
         // Make sure we're no longer active
         if (CanvasGlobals.activeVertex === this) {

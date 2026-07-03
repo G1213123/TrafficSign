@@ -5,8 +5,9 @@ import { BorderTypeScheme, BorderColorScheme, BorderFrameWidth, BorderPaddingWid
 import { vertexToPath } from './path.js';
 import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import { drawDivider } from './divider.js';
+import { Path, Group } from 'fabric';
 
-const canvas = CanvasGlobals.canvas; // Access the global canvas object
+const getCanvas = () => CanvasGlobals.canvas; // Access the global canvas object
 const canvasObject = CanvasGlobals.canvasObject // Get all objects on the canvas
 
 // Add function to remove anchor between objects
@@ -415,7 +416,7 @@ class BorderGroup extends BaseGroup {
       const vertextop = Math.min(...p.vertex.map(v => v.y));
 
       baseGroup.push(
-        new fabric.Path(dValue, {
+        new Path(dValue, {
           left: vertexleft,
           top: vertextop,
           fill: (p['fill'] == 'background') || (p['fill'] == 'symbol') || (p['fill'] == 'border') ? BorderColorScheme[this.color][p['fill']] : p['fill'],
@@ -425,7 +426,7 @@ class BorderGroup extends BaseGroup {
       );
     });
 
-    const GroupedBorder = new fabric.Group(baseGroup);
+    const GroupedBorder = new Group(baseGroup);
     GroupedBorder.vertex = shapeMeta.path.map(p => p.vertex).flat();
 
     return GroupedBorder;
@@ -476,15 +477,7 @@ class BorderGroup extends BaseGroup {
       height: borderRect.height - (2 * frame)
     };
 
-    const frameDimension = new BorderDimensionDisplay({
-      direction: 'vertical',
-      startX: innerBorder.left + (innerBorder.width / 3),
-      startY: innerBorder.top,
-      endY: innerBorder.top - frame,
-      color: 'red',
-      offset: 30 / canvas.getZoom(),
-      baseObject: this
-    });
+      offset: 30 / getCanvas().getZoom(),
     this.dimensionAnnotations.push(frameDimension);
 
     // Create horizontal dimensions (left and right)
@@ -494,15 +487,7 @@ class BorderGroup extends BaseGroup {
       if (leftObject) {
         const leftObjectRect = leftObject.getBoundingRect();
         // Create left dimension annotation
-        const leftDimension = new BorderDimensionDisplay({
-          direction: 'horizontal',
-          startX: innerBorder.left,
-          startY: leftObjectRect.top + (leftObjectRect.height / 2),
-          endX: leftObjectRect.left,
-          color: '#46C147',
-          offset: 30 / canvas.getZoom(),
-          baseObject: this
-        });
+          offset: 30 / getCanvas().getZoom(),
         this.dimensionAnnotations.push(leftDimension);
       }
 
@@ -511,15 +496,7 @@ class BorderGroup extends BaseGroup {
       if (rightObject) {
         const rightObjectRect = rightObject.getBoundingRect();
         // Create right dimension annotation
-        const rightDimension = new BorderDimensionDisplay({
-          direction: 'horizontal',
-          startX: rightObjectRect.left + rightObjectRect.width,
-          startY: rightObjectRect.top + (rightObjectRect.height / 2),
-          endX: innerBorder.right,
-          color: '#46C147',
-          offset: 30 / canvas.getZoom(),
-          baseObject: this
-        });
+          offset: 30 / getCanvas().getZoom(),
         this.dimensionAnnotations.push(rightDimension);
       }
     }

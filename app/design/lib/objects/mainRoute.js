@@ -8,8 +8,9 @@ import { assignVertexLabel, getSideRoadCoords } from './routeBase.js';
 import { SideRoadSymbol } from './sideRoute.js';
 import { anchorShape } from './anchor.js';
 import { remapAnchors } from '../version_upgrades/v1_3_1_roundabout.js';
+import { Path } from 'fabric';
 
-const canvas = CanvasGlobals.canvas;
+const getCanvas = () => CanvasGlobals.canvas;
 
 const calcVertexType = {
     'Main Line': (xHeight, routeList, innerCornerRadius = null, outerCornerRadius = null) => calcMainRoadVertices(xHeight, routeList, innerCornerRadius, outerCornerRadius),
@@ -685,7 +686,7 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
 
                         const centerLineCommands = convertVertexToPathCommands(centerLineData, false);
 
-                        const centerLinePath = new fabric.Path(centerLineCommands, {
+                        const centerLinePath = new Path(centerLineCommands, {
                             fill: '',
                             stroke: 'red',
                             strokeWidth: 2,

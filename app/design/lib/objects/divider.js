@@ -6,7 +6,7 @@ import { BorderUtilities } from './border.js';
 import { anchorShape } from './anchor.js';
 import { showTextBox } from '../../components/presentations/promptBox.js';
 
-const canvas = CanvasGlobals.canvas; // Access the global canvas object
+const getCanvas = () => CanvasGlobals.canvas; // Access the global canvas object
 
 function drawDivider(xHeight, color, position, size, type) {
 

@@ -1,4 +1,4 @@
-import { Group, Control, util } from 'fabric';
+import { Group, Control, util, Rect, Circle } from 'fabric';
 import { canvasTracker } from '../utils/Tracker.js';
 import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import { GeneralSettings } from '../../components/sidebars/settings.js';
@@ -6,6 +6,9 @@ import { VertexControl } from './vertex.js';
 import { CanvasObjectInspector } from '../../components/presentations/inspector.js';
 import { BorderDimensionDisplay } from './dimension.js';
 import { showPropertyPanel } from '../../components/presentations/property.js';
+import { globalAnchorTree } from './anchor.js';
+import { calculateTransformedPoints } from './path.js';
+import { handleClear } from '../../components/presentations/property.js';
 
 // We define canvasObject here to avoid circular dependencies with draw.js
 export const canvasObject = [];
@@ -28,7 +31,9 @@ export class BaseGroup extends Group {
     super([], {
       subTargetCheck: true,
       lockScalingX: true,
-      lockScalingY: true
+      lockScalingY: true,
+      originX: 'left',
+      originY: 'top',
     });
 
     this._metadataKeys = ['functionalType', 'className', 'canvasID'];
@@ -248,7 +253,7 @@ export class BaseGroup extends Group {
     delete dataToSerialize['lockXToPolygon'];
     delete dataToSerialize['lockYToPolygon'];
     const replacer = (key, value) => {
-      if (value instanceof fabric.Object && value !== this.basePolygon) {
+      if (value !== this.basePolygon) {
         if (typeof value.canvasID !== 'undefined') return `ref:${value.canvasID}`;
         return `fabricObject:${value.type}`;
       }
@@ -1001,7 +1006,7 @@ export class BaseGroup extends Group {
       const finalX = this.getFinalLockTarget('x');
       if (finalX) {
         const rect = finalX.getBoundingRect ? finalX.getBoundingRect() : finalX.getCoords();
-        this.lockHighlightX = new fabric.Rect({
+        this.lockHighlightX = new Rect({
           left: rect.left - 2,
           top: rect.top - 2,
           width: rect.width - 2,
@@ -1019,7 +1024,7 @@ export class BaseGroup extends Group {
       const finalY = this.getFinalLockTarget('y');
       if (finalY) {
         const rect = finalY.getBoundingRect ? finalY.getBoundingRect() : finalY.getCoords();
-        this.lockHighlightY = new fabric.Rect({
+        this.lockHighlightY = new Rect({
           left: rect.left - 2,
           top: rect.top - 2,
           width: rect.width - 2,
@@ -1077,7 +1082,7 @@ export class BaseGroup extends Group {
 
       if (!shouldDisplay) return;
 
-      const envelope = new fabric.Circle({
+      const envelope = new Circle({
         left: v.x,
         top: v.y,
         radius: radius,

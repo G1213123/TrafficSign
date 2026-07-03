@@ -1,8 +1,9 @@
 import { globalAnchorTree } from "./anchor.js";
 import { canvasTracker } from "../utils/Tracker.js";
 import { CanvasGlobals } from '../../components/canvas/canvas.js';
-import { GeneralSettings } from '../../lib/sidebar/general';
-const canvas = CanvasGlobals.canvas;
+import { GeneralSettings } from '../../components/sidebars/settings.js';
+import { Line, Text, Group, Polygon } from 'fabric';
+const getCanvas = () => CanvasGlobals.canvas;
 
 class LockIcon {
   constructor(baseGroup, lockParam, direction) {
@@ -42,7 +43,7 @@ class LockIcon {
     const iconOffset = 15;     // Fixed pixel offset for lock icon
 
     // Scale adjustments based on zoom
-    const zoom = canvas.getZoom();
+    const zoom = getCanvas().getZoom();
     const lineWidth = 1 / zoom;        // Thinner lines for engineering style
     const fontSize = 12 / zoom;        // Fixed 12px font size
     const arrowSize = 12 / zoom;        // Size of dimension arrows
@@ -54,7 +55,7 @@ class LockIcon {
       const dimLineY = sourcePoint.y + offsetDistance / zoom;
 
       // Extension lines (vertical lines from source and target points to dimension line)
-      this.lines.push(new fabric.Line(
+      this.lines.push(new Line(
         [sourcePoint.x, sourcePoint.y, sourcePoint.x, dimLineY + extensionLineLength],
         {
           stroke: '#46C147',
@@ -64,7 +65,7 @@ class LockIcon {
         }
       ));
 
-      this.lines.push(new fabric.Line(
+      this.lines.push(new Line(
         [targetPoint.x, targetPoint.y, targetPoint.x, dimLineY + extensionLineLength],
         {
           stroke: '#46C147',
@@ -75,7 +76,7 @@ class LockIcon {
       ));
 
       // Main dimension line
-      this.lines.push(new fabric.Line(
+      this.lines.push(new Line(
         [sourcePoint.x, dimLineY, targetPoint.x, dimLineY],
         {
           stroke: '#46C147',
@@ -94,11 +95,11 @@ class LockIcon {
       const midY = dimLineY - (iconOffset / zoom);
 
       // Dimension text
-      this.dimensionTexts.push(new fabric.Text(
+      this.dimensionTexts.push(new Text(
         GeneralSettings.formatDimension(targetPoint.x - sourcePoint.x, this.baseGroup.xHeight),
         {
           left: midX,
-          top: dimLineY + (25 / canvas.getZoom()),
+          top: dimLineY + (25 / getCanvas().getZoom()),
           fontSize: fontSize,
           fill: '#46C147',
           fontFamily: 'Arial',
@@ -114,7 +115,7 @@ class LockIcon {
       ));
 
       // Lock icon at fixed position relative to dimension line
-      this.icons.push(new fabric.Text('\uf023', {
+      this.icons.push(new Text('\uf023', {
         fontFamily: 'Font Awesome 5 Free',
         fontWeight: 900,
         left: midX,
@@ -134,7 +135,7 @@ class LockIcon {
       const dimLineX = sourcePoint.x + offsetDistance / zoom;
 
       // Extension lines (horizontal lines from source and target points to dimension line)
-      this.lines.push(new fabric.Line(
+      this.lines.push(new Line(
         [sourcePoint.x, sourcePoint.y, dimLineX + extensionLineLength, sourcePoint.y],
         {
           stroke: 'red',
@@ -144,7 +145,7 @@ class LockIcon {
         }
       ));
 
-      this.lines.push(new fabric.Line(
+      this.lines.push(new Line(
         [targetPoint.x, targetPoint.y, dimLineX + extensionLineLength, targetPoint.y],
         {
           stroke: 'red',
@@ -155,7 +156,7 @@ class LockIcon {
       ));
 
       // Main dimension line
-      this.lines.push(new fabric.Line(
+      this.lines.push(new Line(
         [dimLineX, sourcePoint.y, dimLineX, targetPoint.y],
         {
           stroke: 'red',
@@ -174,7 +175,7 @@ class LockIcon {
       const midY = (sourcePoint.y + targetPoint.y) / 2;
 
       // Dimension text
-      this.dimensionTexts.push(new fabric.Text(
+      this.dimensionTexts.push(new Text(
         GeneralSettings.formatDimension(targetPoint.y - sourcePoint.y, this.baseGroup.xHeight),
         {
           left: midX + 45 / canvas.getZoom(),
@@ -194,7 +195,7 @@ class LockIcon {
       ));
 
       // Lock icon at fixed position relative to dimension line
-      this.icons.push(new fabric.Text('\uf023', {
+      this.icons.push(new Text('\uf023', {
         fontFamily: 'Font Awesome 5 Free',
         fontWeight: 900,
         left: midX,
@@ -246,7 +247,7 @@ class LockIcon {
         break;
     }
 
-    const arrow = new fabric.Polygon(points, {
+    const arrow = new Polygon(points, {
       fill: color,
       stroke: color,
       strokeWidth: 0,

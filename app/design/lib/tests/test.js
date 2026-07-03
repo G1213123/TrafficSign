@@ -8,6 +8,7 @@ import { BorderUtilities, BorderGroup } from '../objects/border.js';
 import { MainRoadSymbol } from '../objects/mainRoute.js';
 import { SideRoadSymbol } from '../objects/sideRoute.js';
 import { FormTemplateComponent } from '../sidebar/sb-template.js';
+import { Canvas } from 'fabric';
 
 const canvasObject = CanvasGlobals.canvasObject; // Assuming canvasObject is defined in canvas.js
 const canvas = CanvasGlobals.canvas; // Assuming canvas is defined in canvas.js
@@ -18,7 +19,7 @@ const canvas = CanvasGlobals.canvas; // Assuming canvas is defined in canvas.js
 function textXHeight() {
   // Create a blank canvas (by not filling a background color).
   var canvasElement = document.getElementById('canvas2');
-  var canvas = new fabric.Canvas(canvasElement);
+  var canvas = new Canvas(canvasElement);
   var ctx = canvas.getContext('2d');
 
   // Fill it with some coloured text.. (black is default)
