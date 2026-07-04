@@ -35,6 +35,15 @@ function readConfigValue(key) {
     }
   }
 
+
+  if (localStorage.getItem('fb_config')) {
+    const config = JSON.parse(localStorage.getItem('fb_config'));
+    if (config[key]) {
+      return config[key];
+    }
+  }
+
+
   return undefined;
 }
 
@@ -54,7 +63,7 @@ function isConfigValid(config) {
   return Boolean(config.apiKey && config.authDomain && config.projectId && config.appId);
 }
 
-const firebaseConfig = buildFirebaseConfig();
+const firebaseConfig = JSON.parse(localStorage.getItem('fb_config')) || buildFirebaseConfig();
 
 
 const app = firebase.apps.length
@@ -68,6 +77,7 @@ if (!app) {
 export const auth = app ? firebase.auth() : null;
 export const db = app ? firebase.firestore() : null;
 export const storage = app ? firebase.storage() : null;
+
 
 export const FirebaseService = {
   /**
@@ -105,20 +115,25 @@ export const FirebaseService = {
       }
 
       const user = await this.getCurrentUser();
-      
+
       // Security Check: Ensure the authenticated user matches the requested userId
       if (!user) {
         throw new Error("Unauthorized: User session does not match requested userId");
       }
 
       console.log(`Fetching sign ${fileId} for user ${user.uid}...`);
-      const docRef = db.collection("signs").doc(fileId);
+
+      //const token = localStorage.getItem('fb_auth_token');
+
+      //const authSignIn = await auth.signInWithCustomToken(token)
+
+      const docRef = db.collection("designs").doc(fileId);
       const docSnap = await docRef.get();
 
       if (docSnap.exists) {
         const data = docSnap.data();
         // Assuming the sign data is stored in a field called 'objects' or as the document itself
-        return data.objects || data; 
+        return data.objects || data;
       } else {
         console.error("No such sign document found!");
         return null;

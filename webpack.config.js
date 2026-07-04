@@ -17,7 +17,7 @@ module.exports = {
     clean: true, // Clean the output directory before emit.
     publicPath: '/design/',
   },
-  mode: 'production', // Set mode to production for optimizations
+  mode: 'development', // Set mode to development for easier debugging
   module: {
     rules: [
       {
@@ -60,7 +60,7 @@ module.exports = {
     }),
   ],
   optimization: {
-    minimize: true,
+    minimize: false, // Disable minimization for development
     minimizer: [
       new TerserPlugin({
         terserOptions: {
@@ -74,5 +74,5 @@ module.exports = {
       new CssMinimizerPlugin(), // Added
     ],
   },
-  devtool: false, // Disable source maps in production for smaller bundle size
+  devtool: 'source-map', // Enable source maps in development for easier debugging
 };
