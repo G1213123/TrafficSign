@@ -39,3 +39,7 @@ source
 firebaseConfig.js
 
 secrets.yaml
+
+# next.js
+.next/
+next-env.d.ts
