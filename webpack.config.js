@@ -54,17 +54,6 @@ module.exports = {
         { from: 'app.yaml', to: '../app.yaml' }, // Ensure app.yaml is copied to root
         { from: 'dispatch.yaml', to: '../dispatch.yaml' }, // Ensure dispatch.yaml is copied to root
       ],
-    }),// Optional: If you need the version available in your JS code as well
-    new webpack.DefinePlugin({
-      'process.env.APP_VERSION': JSON.stringify(require('./package.json').version || process.env.VERSION || 'dev'),
-      'process.env.APP_TITLE': JSON.stringify('Road Sign Factory - Online Sign Creator'),
-      'process.env.NEXT_PUBLIC_FIREBASE_API_KEY': JSON.stringify(process.env.NEXT_PUBLIC_FIREBASE_API_KEY),
-      'process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN': JSON.stringify(process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN),
-      'process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID': JSON.stringify(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID),
-      'process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET': JSON.stringify(process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET),
-      'process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID': JSON.stringify(process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID),
-      'process.env.NEXT_PUBLIC_FIREBASE_APP_ID': JSON.stringify(process.env.NEXT_PUBLIC_FIREBASE_APP_ID),
-      'process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID': JSON.stringify(process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID)
     }),
     new MiniCssExtractPlugin({ // Added
       filename: 'css/[name].css', // Output CSS filename

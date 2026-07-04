@@ -3,14 +3,25 @@
  * Handles Authentication and Firestore interactions
  */
 
-// Note: You will need to install firebase via npm or include the script in your HTML
-// If using npm: import { initializeApp } from "firebase/app";
-// For this implementation, we assume the Firebase SDK is available globally or via modules.
 
-import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import {firebaseApp, auth, db} from './firebaseConfig.js';
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+};
 
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+
+export const auth = auth();
+export const db = firestore();
+export const storage = storage();
 
 export const FirebaseService = {
   /**
@@ -19,7 +30,7 @@ export const FirebaseService = {
    */
   getCurrentUser: () => {
     return new Promise((resolve) => {
-      onAuthStateChanged(auth, (user) => {
+      auth().onAuthStateChanged((user) => {
         resolve(user);
       });
     });
@@ -27,7 +38,6 @@ export const FirebaseService = {
 
   /**
    * Fetches a sign document from Firestore
-   * @param {string} userId - The ID of the user requesting the file
    * @param {string} fileId - The ID of the sign document
    * @returns {Promise<Array|null>} The sign data array or null
    */
@@ -41,10 +51,10 @@ export const FirebaseService = {
       }
 
       console.log(`Fetching sign ${fileId} for user ${user.uid}...`);
-      const docRef = doc(db, "signs", fileId);
-      const docSnap = await getDoc(docRef);
+      const docRef = db.collection("signs").doc(fileId);
+      const docSnap = await docRef.get();
 
-      if (docSnap.exists()) {
+      if (docSnap.exists) {
         const data = docSnap.data();
         // Assuming the sign data is stored in a field called 'objects' or as the document itself
         return data.objects || data; 
