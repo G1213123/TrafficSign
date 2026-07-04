@@ -7,6 +7,7 @@ import { FormTextAddComponent } from './sidebar/sb-text.js'; // Import FormTextA
 import { DrawGrid } from './canvas/canvas.js'; // Import DrawGrid if needed
 import { activatePanelFromHash } from './sidebar/sidebar.js'; // Import activatePanelFromHash if needed
 import { i18n } from './i18n/i18n.js';
+import { FirebaseService } from './services/firebase.js';
 
 
 // --- Initialization ---
@@ -21,8 +22,22 @@ async function preload() {
         console.log("Fonts parsed successfully. Application ready.");
         // Hide loading indicator here
         // Any initialization code that depends on fonts being loaded can go here.        await FormSettingsComponent.loadSettings();
-        await FormSettingsComponent.loadCanvasState();
         await FormSettingsComponent.loadSettings();
+
+        const params = new URLSearchParams(window.location.search);
+        const fileId = params.get('fileId');
+        let cloudSignData = null;
+
+        if (fileId) {
+            try {
+                console.log(`Cloud Load triggered: File ${fileId}`);
+                cloudSignData = await FirebaseService.getSign(fileId);
+            } catch (error) {
+                console.error('Failed to load sign from cloud, falling back to local canvas state:', error);
+            }
+        }
+
+        await FormSettingsComponent.loadCanvasState(cloudSignData);
 
         // Initialize i18n locale from saved settings (if available)
         try {

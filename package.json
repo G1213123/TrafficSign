@@ -26,6 +26,7 @@
   },
   "scripts": {
     "build": "webpack --mode production",
+    "build:dev": "webpack --mode development",
     "start": "npx http-server . -p 8080",
     "preview": "npx http-server dist -p 8080",
     "deploy": "npm run build && cd dist && gcloud app deploy app.yaml dispatch.yaml --no-cache --promote --version=$(node -p \"require('../package.json').version\")",

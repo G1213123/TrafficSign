@@ -391,8 +391,26 @@ let FormSettingsComponent = {
     }
   },
 
-  loadCanvasState: async function () {
+  loadCanvasState: async function (externalSignData = null) {
     try {
+      if (externalSignData) {
+        let objectsToLoad = externalSignData;
+        if (externalSignData.meta && Array.isArray(externalSignData.objects)) {
+          console.log('Importing Firebase JSON with metadata:', externalSignData.meta);
+          objectsToLoad = externalSignData.objects;
+        }
+
+        if (typeof buildObjectsFromJSON === 'function') {
+          await buildObjectsFromJSON(objectsToLoad, CanvasGlobals.canvas);
+        } else {
+          console.error('buildObjectsFromJSON function is not available.');
+        }
+
+        CanvasGlobals.scheduleRender();
+        console.log('Canvas state loaded from Firebase data');
+        return true;
+      }
+
       const savedCanvas = localStorage.getItem('canvasState');
       if (savedCanvas) {
         const parsedCanvas = JSON.parse(savedCanvas);
@@ -424,8 +442,13 @@ let FormSettingsComponent = {
               }
             } else {
               // Assume old format (array of objects) for backward compatibility
-              objectsToLoad = jsonData;
+              const objectsToLoad = jsonData;
               console.log("Importing JSON in old format (array of objects).");
+              if (typeof buildObjectsFromJSON === 'function') {
+                await buildObjectsFromJSON(objectsToLoad, CanvasGlobals.canvas);
+              } else {
+                console.error("buildObjectsFromJSON function is not available.");
+              }
             }
           } catch (e) {
             console.error('Failed to load canvas objects', e);
