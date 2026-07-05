@@ -8,6 +8,7 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin'); // Added
 require('dotenv').config(); // Load .env file
 
 module.exports = {  
+  target: ['web', 'es2020'], // Ensure the target is set to web for browser compatibility
   entry: {
     main: './js/main.js',
   },

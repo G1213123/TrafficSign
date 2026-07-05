@@ -3,10 +3,9 @@
  * Handles Authentication and Firestore interactions
  */
 
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
-import 'firebase/compat/storage';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
+import { getAuth, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
+import { getFirestore, collection, query, getDocs } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
 
 
 const ENV_KEYS = {
@@ -65,18 +64,14 @@ function isConfigValid(config) {
 
 const firebaseConfig = JSON.parse(localStorage.getItem('fb_config')) || buildFirebaseConfig();
 
+const validConfig = isConfigValid(firebaseConfig);
 
-const app = firebase.apps.length
-  ? firebase.app()
-  : (isConfigValid(firebaseConfig) ? firebase.initializeApp(firebaseConfig) : null);
+export const app = validConfig ? initializeApp(firebaseConfig) : null;
+export const auth = app ? getAuth(app) : null;
+export const db = app ? getFirestore(app) : null;
+// Note: getStorage was not imported in the original file but used in the if block. 
+// I will keep the pattern consistent. If getStorage is needed, it should be imported.
 
-if (!app) {
-  console.warn('Firebase is not initialized: missing Firebase config.');
-}
-
-export const auth = app ? firebase.auth() : null;
-export const db = app ? firebase.firestore() : null;
-export const storage = app ? firebase.storage() : null;
 
 
 export const FirebaseService = {
@@ -84,18 +79,24 @@ export const FirebaseService = {
    * Gets the currently logged-in user
    * @returns {Promise<User|null>}
    */
-  getCurrentUser: () => {
+  getCurrentUser: async () => {
+    if (!auth) return null;
+
+    if (auth.currentUser) {
+      return auth.currentUser;
+    }
+
+    const token = localStorage.getItem('fb_auth_token');
+    if (token) {
+      try {
+        const userCredential = await signInWithCustomToken(auth, token);
+        return userCredential.user;
+      } catch (error) {
+        console.error('Error signing in with custom token:', error);
+      }
+    }
+
     return new Promise((resolve) => {
-      if (!auth) {
-        resolve(null);
-        return;
-      }
-
-      if (auth.currentUser) {
-        resolve(auth.currentUser);
-        return;
-      }
-
       const unsubscribe = auth.onAuthStateChanged((user) => {
         unsubscribe();
         resolve(user);
@@ -127,8 +128,26 @@ export const FirebaseService = {
 
       //const authSignIn = await auth.signInWithCustomToken(token)
 
-      const docRef = db.collection("designs").doc(fileId);
-      const docSnap = await docRef.get();
+      const fetchUserDesigns = async (uid) => {
+        try {
+          const collectionName = 'designs';
+          const designsRef = collection(db, collectionName);
+          const q = query(
+            designsRef,
+            where('userID', '==', uid),
+            where('fileId', '==', fileId)
+          );
+          const querySnapshot = await getDocs(q);
+          const designsData = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+        } catch (err) {
+          console.error('Error fetching designs:', err);
+        } 
+      };
+
+      const docSnap = await fetchUserDesigns(user.uid);
 
       if (docSnap.exists) {
         const data = docSnap.data();
