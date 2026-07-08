@@ -5,7 +5,7 @@
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
 import { getAuth, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
-import { getFirestore, collection, query, getDocs } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
+import { getFirestore, collection, query, getDocs, doc, where } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
 
 
 const ENV_KEYS = {
@@ -83,14 +83,27 @@ export const FirebaseService = {
     if (!auth) return null;
 
     if (auth.currentUser) {
-      return auth.currentUser;
+      return {
+        uid: auth.currentUser.uid,
+        user_id: auth.currentUser.uid,
+        email: auth.currentUser.email || null,
+      };
     }
 
-    const token = localStorage.getItem('fb_auth_token');
+    const token = localStorage.getItem('fb_auth_token') || document.cookie.split('; ').find(row => row.startsWith('__session='))?.split('=')[1];
     if (token) {
       try {
-        const userCredential = await signInWithCustomToken(auth, token);
-        return userCredential.user;
+        //const userCredential = await signInWithCustomToken(auth, token);
+        //return userCredential.user;
+        const decoded = jwtDecode(token);
+        if (decoded && decoded.user_id) {
+          const user = {
+            uid: decoded.user_id,
+            user_id: decoded.user_id,
+            email: decoded.email || null,
+          };
+          return user;
+        }
       } catch (error) {
         console.error('Error signing in with custom token:', error);
       }
@@ -122,7 +135,8 @@ export const FirebaseService = {
         throw new Error("Unauthorized: User session does not match requested userId");
       }
 
-      console.log(`Fetching sign ${fileId} for user ${user.uid}...`);
+      const userId = user.uid || user.user_id;
+      console.log(`Fetching sign ${fileId} for user ${userId}...`);
 
       //const token = localStorage.getItem('fb_auth_token');
 
@@ -132,25 +146,31 @@ export const FirebaseService = {
         try {
           const collectionName = 'designs';
           const designsRef = collection(db, collectionName);
-          const q = query(
-            designsRef,
-            where('userID', '==', uid),
-            where('fileId', '==', fileId)
-          );
+          const userIdFields = 'userID';
+
+          const q = query(designsRef, where(userIdFields, '==', uid));
           const querySnapshot = await getDocs(q);
-          const designsData = querySnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
+
+          if (querySnapshot.docs.length > 0) {
+            return querySnapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data()
+            }));
+          }
+
+
+          return [];
         } catch (err) {
           console.error('Error fetching designs:', err);
-        } 
+          return null;
+        }
       };
 
-      const docSnap = await fetchUserDesigns(user.uid);
+      const designs = await fetchUserDesigns(userId);
+      const docSnap = designs?.find(design => design.id === fileId);
 
-      if (docSnap.exists) {
-        const data = docSnap.data();
+      if (docSnap) {
+        const data = docSnap;
         // Assuming the sign data is stored in a field called 'objects' or as the document itself
         return data.objects || data;
       } else {
