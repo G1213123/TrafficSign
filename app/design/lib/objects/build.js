@@ -20,6 +20,8 @@ import { BorderGroup } from "./border.js"; // Assuming this is defined in this f
 import { DividerObject } from "./divider.js";
 import { globalAnchorTree, anchorShape } from "./anchor.js"; // For registering anchor relationships and creating anchors
 
+const getCanvas = () => CanvasGlobals.canvas;
+
 const ObjectBuilderFactory = {
     creators: {},
 
@@ -169,7 +171,10 @@ async function reconstructSingleObjectInternal(data, fabricCanvas, allDeserializ
  * @returns {Promise<Array<fabric.Object>>} A promise resolving to an array of the top-level reconstructed Fabric objects.
  */
 async function buildObjectsFromJSON(jsonStringsArray) {
-    const fabricCanvas = CanvasGlobals.canvas;
+    const fabricCanvas = getCanvas();
+    if (!fabricCanvas) {
+        return [];
+    }
     // It's assumed that BaseGroup's constructor (and similar for other types)
     // adds the object to CanvasGlobals.canvasObject and the fabricCanvas.
 

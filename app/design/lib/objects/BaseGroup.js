@@ -7,11 +7,12 @@ import { CanvasObjectInspector } from '../../components/presentations/inspector.
 import { BorderDimensionDisplay } from './dimension.js';
 import { showPropertyPanel } from '../../components/presentations/property.js';
 import { globalAnchorTree } from './anchor.js';
+import { LockIcon } from './lock.js';
 import { calculateTransformedPoints } from './path.js';
 import { handleClear } from '../../components/presentations/property.js';
 
-// We define canvasObject here to avoid circular dependencies with draw.js
-export const canvasObject = [];
+// Share the same canvas object registry used by the React canvas singleton.
+export const canvasObject = CanvasGlobals.canvasObject;
 const getCanvas = () => CanvasGlobals.canvas;
 
 const deleteIcon =

@@ -1,6 +1,7 @@
 // CanvasTracker utility for tracking canvas operations
 import { CanvasGlobals } from '../../components/canvas/canvas.js';
 
+const getCanvas = () => CanvasGlobals.canvas;
 const canvasObject = CanvasGlobals.canvasObject;
 
 class CanvasTracker {
@@ -15,7 +16,7 @@ class CanvasTracker {
 
     // Initialize with empty state or current state if canvas is ready
     setTimeout(() => {
-        if (CanvasGlobals.canvas) {
+      if (getCanvas()) {
             this.saveState();
             this.setupEventListeners();
         }
@@ -23,7 +24,7 @@ class CanvasTracker {
   }
 
   setupEventListeners() {
-      const canvas = CanvasGlobals.canvas;
+      const canvas = getCanvas();
       if (!canvas) return;
 
       const saveHandler = () => {
@@ -188,7 +189,11 @@ class CanvasTracker {
 
     this.isRestoring = true;
     const stateEntry = this.history[index];
-    const canvas = CanvasGlobals.canvas;
+    const canvas = getCanvas();
+    if (!canvas) {
+      this.isRestoring = false;
+      return;
+    }
 
     // Save current active object's canvasID
     const activeObject = canvas.getActiveObject();

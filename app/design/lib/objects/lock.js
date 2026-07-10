@@ -99,7 +99,7 @@ class LockIcon {
         GeneralSettings.formatDimension(targetPoint.x - sourcePoint.x, this.baseGroup.xHeight),
         {
           left: midX,
-          top: dimLineY + (25 / getCanvas().getZoom()),
+          top: dimLineY + (25 / zoom),
           fontSize: fontSize,
           fill: '#46C147',
           fontFamily: 'Arial',
@@ -109,7 +109,7 @@ class LockIcon {
           selectable: false,
           evented: false,
           stroke: '#fff',
-          strokeWidth: 3 / canvas.getZoom(),
+          strokeWidth: 3 / zoom,
           paintFirst: 'stroke'
         }
       ));
@@ -178,8 +178,8 @@ class LockIcon {
       this.dimensionTexts.push(new Text(
         GeneralSettings.formatDimension(targetPoint.y - sourcePoint.y, this.baseGroup.xHeight),
         {
-          left: midX + 45 / canvas.getZoom(),
-          top: midY + 8 / canvas.getZoom(),
+          left: midX + 45 / zoom,
+          top: midY + 8 / zoom,
           fontSize: fontSize,
           fill: 'red',
           fontFamily: 'Arial',
@@ -189,7 +189,7 @@ class LockIcon {
           selectable: false,
           evented: false,
           stroke: '#fff',
-          strokeWidth: 3 / canvas.getZoom(),
+          strokeWidth: 3 / zoom,
           paintFirst: 'stroke'
         }
       ));

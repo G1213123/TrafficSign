@@ -10,7 +10,14 @@ import { parsedFontMedium, parsedFontHeavy, parsedFontKorean } from "../../lib/o
 import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import './sidebar.css';
 
+const buttonSvgCache = new Map();
+
 const createButtonSVG = (symbolType, length, color = 'white') => {
+  const cacheKey = `${symbolType}|${length}|${String(color).toLowerCase()}`;
+  if (buttonSvgCache.has(cacheKey)) {
+    return buttonSvgCache.get(cacheKey);
+  }
+
   const symbolData = calcSymbol(symbolType, length, color);
 
   // Define SVG dimensions for the button
@@ -139,6 +146,8 @@ const createButtonSVG = (symbolType, length, color = 'white') => {
 
   // Cleanup
   tempCanvas.dispose();
+
+  buttonSvgCache.set(cacheKey, svgString);
 
   return svgString;
 }

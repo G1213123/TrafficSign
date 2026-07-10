@@ -3,6 +3,8 @@ import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import { GeneralSettings } from '../../components/sidebars/settings.js';
 import { canvasTracker } from '../utils/Tracker.js';
 
+const getCanvas = () => CanvasGlobals.canvas;
+
 function isTextInputFocused() {
   const activeElement = document.activeElement;
   return !!activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA');
@@ -15,7 +17,7 @@ export function ShowHideSideBarEvent(event) {
 }
 
 export function handleArrowKeys(event) {
-  const canvas = CanvasGlobals.canvas;
+  const canvas = getCanvas();
   if (!canvas) return false;
 
   const activeObjects = canvas.getActiveObjects?.() || [];
@@ -94,7 +96,7 @@ export function handleArrowKeys(event) {
 let _clipboard = null;
 
 function copy() {
-  const canvas = CanvasGlobals.canvas;
+  const canvas = getCanvas();
   if (!canvas) return;
 
   const activeObjects = canvas.getActiveObjects?.() || [];
@@ -109,7 +111,7 @@ function copy() {
 }
 
 async function paste() {
-  const canvas = CanvasGlobals.canvas;
+  const canvas = getCanvas();
   if (!canvas || !_clipboard || _clipboard.length === 0) return;
 
   const dataToPaste = JSON.parse(JSON.stringify(_clipboard));

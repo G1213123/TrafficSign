@@ -5,6 +5,8 @@ import { ShowHideSideBarEvent } from '../canvas/keyboardEvents.js';
 import { canvasTracker } from '../utils/Tracker.js'; // Import canvasTracker for tracking changes
 import { showTextBox, hideTextBox, selectObjectHandler } from '../../components/presentations/promptBox.js'; // Import selectObjectHandler for object selection
 
+const getCanvas = () => CanvasGlobals.canvas;
+
 class AnchorTree {
   constructor() {
     // ...existing code...
@@ -525,7 +527,7 @@ export function revertPivot(selectedArrow, axis, onCloseMenu = () => {}) {
     if (typeof obj.updateAllCoord === 'function') obj.updateAllCoord();
     obj.setCoords();
     CanvasGlobals.scheduleRender();
-    canvas.fire('object:modified', { target: obj });
+    getCanvas()?.fire('object:modified', { target: obj });
   } else {
     console.warn('Pivot Anchor: Target object or canvasID not found.');
   }
@@ -751,7 +753,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   }
 
   if (!shape1.borderType) {
-    canvas.bringObjectToFront(shape1)
+    getCanvas()?.bringObjectToFront(shape1)
   }
 
   // Set focus mode to anchored object if applicable
