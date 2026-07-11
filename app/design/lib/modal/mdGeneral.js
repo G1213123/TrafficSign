@@ -22,10 +22,24 @@ const ModalUtils = {
     // Create modal container
     const modal = document.createElement('div');
     modal.id = modalId;
+    modal.style.position = 'fixed';
+    modal.style.inset = '0';
+    modal.style.zIndex = '9999';
+    modal.style.display = 'flex';
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+    modal.style.background = 'rgba(0, 0, 0, 0.45)';
+    modal.style.padding = '24px';
+    modal.style.boxSizing = 'border-box';
 
     // Create modal content box
     const modalContent = document.createElement('div');
     modalContent.className = 'modal-content';
+    modalContent.style.position = 'relative';
+    modalContent.style.zIndex = '10000';
+    modalContent.style.maxWidth = 'min(720px, 100%)';
+    modalContent.style.maxHeight = '100%';
+    modalContent.style.overflow = 'auto';
 
     // Modal Title
   const titleElement = document.createElement('h3');

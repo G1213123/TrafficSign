@@ -18,8 +18,9 @@ import {
     ChevronsDown
 } from 'lucide-react';
 import './sidebar.css';
-import DrawSymbolPanel from './DrawSymbolPanel';
+import DrawSymbolPanel from './SymbolPanel';
 import CanvasObjectList from './CanvasObjectList';
+import TextPanel from './TextPanel';
 
 const SIDEBAR_ITEMS = [
     { id: 'btn_draw', icon: Road, label: 'Draw Symbol', tooltip: 'Draw Symbol' },
@@ -80,7 +81,11 @@ export default function Sidebar({ canvas }) {
                             <DrawSymbolPanel canvas={canvas} />
                         )}
 
-                        {activeTab !== 'btn_draw' && (
+                        {activeTab === 'btn_text' && (
+                            <TextPanel canvas={canvas} />
+                        )}
+
+                        {activeTab !== 'btn_draw' && activeTab !== 'btn_text' && (
                             <div style={{ color: '#aaa', fontStyle: 'italic' }}>
                                 Content for {SIDEBAR_ITEMS.find(item => item.id === activeTab)?.label} is under construction...
                             </div>

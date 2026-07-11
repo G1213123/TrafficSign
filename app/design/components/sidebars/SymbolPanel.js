@@ -3,11 +3,12 @@
 import React, { useState } from 'react';
 
 import { StaticCanvas, Path, Group } from 'fabric';
-import { calcSymbol, SymbolObject } from '../../lib/objects/symbols';
+import { calcSymbol, SymbolObject } from '../../lib/objects/symbols.js';
 import { convertVertexToPathCommands, convertFontPathToFabricPath, getFontPath } from '../../lib/objects/path.js';
 import { symbolsTemplate, symbolsTemplateAlt, symbolsPermittedAngle } from '../../lib/objects/template.js';
 import { parsedFontMedium, parsedFontHeavy, parsedFontKorean } from "../../lib/objects/path.js";
-import { CanvasGlobals } from '../../components/canvas/canvas.js';
+import { CanvasGlobals } from '../canvas/canvas.js';
+import { GeneralDrawSettings, useGeneralDrawSettings} from './DrawSettings.js';
 import './sidebar.css';
 
 const buttonSvgCache = new Map();
@@ -153,8 +154,7 @@ const createButtonSVG = (symbolType, length, color = 'white') => {
 }
 
 export default function DrawSymbolPanel({ canvas }) {
-  const [xHeight, setXHeight] = useState(100);
-  const [color, setColor] = useState('white');
+  const { xHeight, setXHeight, color, setColor } = useGeneralDrawSettings();
   const [selectedSymbol, setSelectedSymbol] = useState(null);
   const [angle, setAngle] = useState(0);
 
@@ -240,29 +240,12 @@ export default function DrawSymbolPanel({ canvas }) {
 
   return (
     <div className="space-y-4">
-      <div className="input-group">
-        <label className="input-label">X-Height</label>
-        <input
-          type="number"
-          className="input-field"
-          value={xHeight}
-          onChange={(e) => setXHeight(parseInt(e.target.value) || 0)}
-        />
-      </div>
-
-      <div className="input-group">
-        <label className="input-label">Color</label>
-        <select
-          className="input-field"
-          value={color}
-          onChange={(e) => setColor(e.target.value)}
-        >
-          <option value="white">White</option>
-          <option value="black">Black</option>
-          <option value="yellow">Yellow</option>
-          <option value="green">Green</option>
-        </select>
-      </div>
+      <GeneralDrawSettings
+        xHeight={xHeight}
+        onXHeightChange={setXHeight}
+        color={color}
+        onColorChange={setColor}
+      />
 
       <div className="input-group">
         {selectedSymbol && symbolsPermittedAngle[selectedSymbol] && symbolsPermittedAngle[selectedSymbol].length > 1 && (

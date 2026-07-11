@@ -8,7 +8,7 @@ import { textWidthMedium, textWidthHeavy, } from './template.js';
 import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontHK, parsedFontKorean, parsedFontChocolate, parsedFontKai, parsedFontSans, ensureOpenTypePatched } from './path.js';
 import { GeneralSettings } from '../../components/sidebars/settings.js';
 import { FontPriorityManager } from '../modal/md-font.js';
-import { Text, Group, Path, util } from 'fabric';
+import { Text, Group, Path, util, Rect } from 'fabric';
 
 
 // Special characters that are not available in Transport fonts and should use fallback
@@ -482,6 +482,8 @@ class TextObject extends BaseGroup {
       stroke: GeneralSettings.showTextBorders ? color : 'rgba(0,0,0,0)',
       strokeWidth: 2,
       strokeDashArray: [xHeight / 10, xHeight / 10],
+      originX: 'left',
+      originY: 'top'
     });
 
     return {
