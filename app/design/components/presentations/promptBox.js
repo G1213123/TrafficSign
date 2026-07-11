@@ -74,6 +74,7 @@ function emphasizePromptText(s) {
 }
 
 export function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = null, xHeight = null, unit = 'sw') {
+  document.removeEventListener('keydown', ShowHideSideBarEvent);
   return new Promise((resolve, reject) => {
     promptBoxState.show(text, withAnswerBox, unit, xHeight, resolve, reject);
   });
@@ -200,21 +201,21 @@ export default function PromptBox() {
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       promptBoxState.resolve(inputValue);
-      promptBoxState.hide();
+      hideTextBox();
     } else if (e.key === 'Escape') {
       promptBoxState.reject(new Error('Cancelled'));
-      promptBoxState.hide();
+      hideTextBox();
     }
   };
 
   const handleEnterClick = () => {
     promptBoxState.resolve(inputValue);
-    promptBoxState.hide();
+    hideTextBox();
   };
 
   const handleCancelClick = () => {
     promptBoxState.reject(new Error('Cancelled'));
-    promptBoxState.hide();
+    hideTextBox();
   };
 
   if (!visible) return null;

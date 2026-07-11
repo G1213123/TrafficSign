@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import './sidebar.css';
 import DrawSymbolPanel from './DrawSymbolPanel';
+import CanvasObjectList from './CanvasObjectList';
 
 const SIDEBAR_ITEMS = [
     { id: 'btn_draw', icon: Road, label: 'Draw Symbol', tooltip: 'Draw Symbol' },
@@ -92,7 +93,7 @@ export default function Sidebar({ canvas }) {
                             <span className="text-sm font-medium">Canvas Objects</span>
                             <ChevronsRight style={{ transform: 'rotate(90deg)', width: '16px', height: '16px' }} />
                         </div>
-                        <div className="object-list-empty">No objects on canvas</div>
+                        <CanvasObjectList canvas={canvas} />
                     </div>
                 </div>
             </div>

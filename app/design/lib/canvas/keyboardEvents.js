@@ -240,11 +240,6 @@ function handleVertexTabCycle(event) {
 function handleKeyboardDown(event) {
   if (handleVertexTabCycle(event)) return;
 
-  if (event.key === 'Escape') {
-    ShowHideSideBarEvent(event);
-    return;
-  }
-
   if (event.ctrlKey && (event.key === 'c' || event.key === 'C')) {
     if (isTextInputFocused()) return;
     copy();
@@ -302,5 +297,9 @@ function handleKeyboardDown(event) {
 
 export function setupKeyboardEvents() {
   document.addEventListener('keydown', handleKeyboardDown);
-  return () => document.removeEventListener('keydown', handleKeyboardDown);
+  document.addEventListener('keydown', ShowHideSideBarEvent);
+  return () => {
+    document.removeEventListener('keydown', handleKeyboardDown);
+    document.removeEventListener('keydown', ShowHideSideBarEvent);
+  };
 }

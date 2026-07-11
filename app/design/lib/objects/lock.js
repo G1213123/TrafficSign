@@ -282,7 +282,7 @@ class LockIcon {
 
   onClick() {
     // Remove lock lines and lock icon from the canvas and baseGroup
-    canvas.remove(...this.objects);
+    getCanvas().remove(...this.objects);
 
     // Remove this lock icon from the baseGroup's anchorageLink list
     const anchorageIndex = this.baseGroup.anchorageLink.indexOf(this);

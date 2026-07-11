@@ -595,8 +595,7 @@ export class BaseGroup extends Group {
       canvas.add(...lockAnno2.objects);
 
     }
-    const isActive = CanvasGlobals.activeObject === this;
-    const opacity = isActive ? 1 : 0;
+    const opacity = (Object.keys(this.lockXToPolygon).length || Object.keys(this.lockYToPolygon).length) ? 1 : 0;
     this.anchorageLink.forEach(obj => {
       obj.objects.forEach(o => {
         o.set('opacity', opacity);
@@ -821,15 +820,6 @@ export class BaseGroup extends Group {
     // Close property panel if it is open for the object being deleted
     handleClear(null);
 
-    // Delete Side road first as they affects the canvasID numbering
-    if (deleteObj.sideRoad) {
-      const sideRoad = deleteObj.sideRoad
-      sideRoad.forEach(side => {
-        side.mainRoad = null
-        side.deleteObject()
-      })
-    }
-
     // Store the original canvasID before removing the object
     const originalCanvasID = deleteObj.canvasID;
 
@@ -865,6 +855,15 @@ export class BaseGroup extends Group {
         mainRoad.basePolygon.vertex = mainRoad.basePolygon.vertex.filter(vertex =>
           !vertexLabels.includes(vertex.label)
         );
+      }
+
+      // Delete Side road first as they affects the canvasID numbering
+      if (deleteObj.sideRoad) {
+        const sideRoad = deleteObj.sideRoad
+        sideRoad.forEach(side => {
+          side.mainRoad = null
+          side.deleteObject()
+        })
       }
 
       mainRoad.receiveNewRoute()
@@ -1017,6 +1016,8 @@ export class BaseGroup extends Group {
           strokeWidth: 4,
           selectable: false,
           evented: false,
+          originX: 'left',
+          originY: 'top'
         });
         canvas.add(this.lockHighlightX);
       }
@@ -1035,6 +1036,8 @@ export class BaseGroup extends Group {
           strokeWidth: 4,
           selectable: false,
           evented: false,
+          originX: 'left',
+          originY: 'top'
         });
         canvas.add(this.lockHighlightY);
       }
