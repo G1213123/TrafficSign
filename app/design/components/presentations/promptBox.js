@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useSyncExternalStore } from 'react';
 import { CanvasGlobals } from "../canvas/canvas.js";
 import { cursorClickMode } from "./contexMenu.js";
 import { ShowHideSideBarEvent } from "../../lib/canvas/keyboardEvents.js";
@@ -14,6 +14,22 @@ export const promptBoxState = {
   position: { x: 0, y: 0 },
   resolve: null,
   reject: null,
+  version: 0,
+  listeners: new Set(),
+
+  notify() {
+    this.version += 1;
+    this.listeners.forEach((listener) => listener());
+  },
+
+  subscribe(listener) {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  },
+
+  getSnapshot() {
+    return this.version;
+  },
   
   show(text, withAnswerBox, unit, xHeight, resolve, reject) {
     this.text = text;
@@ -23,14 +39,17 @@ export const promptBoxState = {
     this.resolve = resolve;
     this.reject = reject;
     this.isVisible = true;
+    this.notify();
   },
   
   hide() {
     this.isVisible = false;
+    this.notify();
   },
   
   setPosition(x, y) {
     this.position = { x, y };
+    this.notify();
   }
 };
 
@@ -152,43 +171,41 @@ export function selectObjectHandler(text, callback, options = null, xHeight = nu
 }
 
 export default function PromptBox() {
-  const [visible, setVisible] = useState(promptBoxState.isVisible);
-  const [pos, setPos] = useState(promptBoxState.position);
+  useSyncExternalStore(
+    (listener) => promptBoxState.subscribe(listener),
+    () => promptBoxState.getSnapshot(),
+    () => promptBoxState.getSnapshot()
+  );
   const [inputValue, setInputValue] = useState('');
   const boxRef = useRef(null);
   const inputRef = useRef(null);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (visible !== promptBoxState.isVisible) setVisible(promptBoxState.isVisible);
-      if (pos.x !== promptBoxState.position.x || pos.y !== promptBoxState.position.y) {
-        setPos(promptBoxState.position);
-      }
-    }, 16);
-    return () => clearInterval(interval);
-  }, [visible, pos]);
+  const visible = promptBoxState.isVisible;
+  const pos = promptBoxState.position;
 
   useEffect(() => {
     if (visible && promptBoxState.withAnswerBox !== null) {
       setInputValue(promptBoxState.withAnswerBox);
       setTimeout(() => inputRef.current?.focus(), 0);
+      setTimeout(() => inputRef.current?.select(), 0);
     }
   }, [visible]);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
-      if (!visible || !boxRef.current) return;
-      
-      const boxWidth = boxRef.current.offsetWidth;
-      const boxHeight = boxRef.current.offsetHeight;
       let xOffset = 10;
       let yOffset = 10;
 
-      if (e.clientX + xOffset + boxWidth > window.innerWidth) {
-        xOffset = -boxWidth - 10;
-      }
-      if (e.clientY + yOffset + boxHeight > window.innerHeight) {
-        yOffset = -boxHeight - 10;
+      if (visible && boxRef.current) {
+        const boxWidth = boxRef.current.offsetWidth;
+        const boxHeight = boxRef.current.offsetHeight;
+
+        if (e.clientX + xOffset + boxWidth > window.innerWidth) {
+          xOffset = -boxWidth - 10;
+        }
+        if (e.clientY + yOffset + boxHeight > window.innerHeight) {
+          yOffset = -boxHeight - 10;
+        }
       }
       
       promptBoxState.setPosition(e.clientX + xOffset, e.clientY + yOffset);
@@ -206,6 +223,11 @@ export default function PromptBox() {
       promptBoxState.reject(new Error('Cancelled'));
       hideTextBox();
     }
+  };
+
+  const handleInputBlur = () => {
+    if (!visible || promptBoxState.withAnswerBox === null) return;
+    setTimeout(() => inputRef.current?.focus(), 0);
   };
 
   const handleEnterClick = () => {
@@ -250,6 +272,8 @@ export default function PromptBox() {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
+            onBlur={handleInputBlur}
+            onFocus={() => inputRef.current?.select()}
             style={{ display: 'block' }}
           />
           {promptBoxState.xHeight !== null && (

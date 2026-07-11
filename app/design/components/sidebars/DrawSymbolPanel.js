@@ -209,7 +209,6 @@ export default function DrawSymbolPanel({ canvas }) {
       ...options
     });
 
-    canvas.add(symbol);
     canvas.setActiveObject(symbol);
 
     // Immediate drag activation (Legacy behavior)
