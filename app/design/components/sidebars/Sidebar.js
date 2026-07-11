@@ -21,6 +21,14 @@ import './sidebar.css';
 import DrawSymbolPanel from './SymbolPanel';
 import CanvasObjectList from './CanvasObjectList';
 import TextPanel from './TextPanel';
+import BorderPanel from './BorderPanel';
+import RouteMapPanel from './RouteMapPanel';
+import MeasurePanel from './MeasurePanel';
+import TemplatePanel from './TemplatePanel';
+import ExportPanel from './ExportPanel';
+import TrackerPanel from './TrackerPanel';
+import InfoPanel from './InfoPanel';
+import SettingsPanel from './SettingsPanel';
 
 const SIDEBAR_ITEMS = [
     { id: 'btn_draw', icon: Road, label: 'Draw Symbol', tooltip: 'Draw Symbol' },
@@ -85,7 +93,39 @@ export default function Sidebar({ canvas }) {
                             <TextPanel canvas={canvas} />
                         )}
 
-                        {activeTab !== 'btn_draw' && activeTab !== 'btn_text' && (
+                        {activeTab === 'btn_border' && (
+                            <BorderPanel canvas={canvas} />
+                        )}
+
+                        {activeTab === 'btn_map' && (
+                            <RouteMapPanel canvas={canvas} />
+                        )}
+
+                        {activeTab === 'btn_measure' && (
+                            <MeasurePanel canvas={canvas} />
+                        )}
+
+                        {activeTab === 'btn_template' && (
+                            <TemplatePanel canvas={canvas} />
+                        )}
+
+                        {activeTab === 'btn_export' && (
+                            <ExportPanel canvas={canvas} />
+                        )}
+
+                        {activeTab === 'btn_tracker' && (
+                            <TrackerPanel canvas={canvas} />
+                        )}
+
+                        {activeTab === 'btn_info' && (
+                            <InfoPanel canvas={canvas} />
+                        )}
+
+                        {activeTab === 'btn_settings' && (
+                            <SettingsPanel canvas={canvas} />
+                        )}
+
+                        {activeTab !== 'btn_draw' && activeTab !== 'btn_text' && activeTab !== 'btn_border' && activeTab !== 'btn_map' && activeTab !== 'btn_measure' && activeTab !== 'btn_template' && activeTab !== 'btn_export' && activeTab !== 'btn_tracker' && activeTab !== 'btn_info' && activeTab !== 'btn_settings' && (
                             <div style={{ color: '#aaa', fontStyle: 'italic' }}>
                                 Content for {SIDEBAR_ITEMS.find(item => item.id === activeTab)?.label} is under construction...
                             </div>

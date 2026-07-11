@@ -9,16 +9,12 @@ import { anchorShape } from '../../lib/objects/anchor.js';
 import { FontPriorityManager } from '../../lib/modal/md-font.js';
 import { EngDestinations, ChtDestinations } from '../../lib/objects/template.js';
 import { GeneralDrawSettings, useGeneralDrawSettings } from './DrawSettings.js';
+import SidebarToggleGroup from './SidebarToggleGroup.js';
 import './sidebar.css';
 
 const FONT_OPTIONS = [
     { value: 'TransportMedium', label: 'Transport Medium' },
     { value: 'TransportHeavy', label: 'Transport Heavy' },
-];
-
-const COLOR_OPTIONS = [
-    { value: 'White', label: 'White' },
-    { value: 'Black', label: 'Black' },
 ];
 
 const LANGUAGE_OPTIONS = ['2Liner', 'English', 'Chinese'];
@@ -138,6 +134,9 @@ export default function TextPanel({ canvas }) {
     const [regionName, setRegionName] = useState(getRegionNames('English')[0] || '');
     const [locationValue, setLocationValue] = useState('');
     const [justification, setJustification] = useState('Left');
+    const fallbackLanguage = language === '2Liner' ? 'English' : language;
+    const regionNames = getRegionNames(fallbackLanguage);
+    const locationOptions = getLocationsForRegion(regionName, fallbackLanguage);
 
     useEffect(() => {
         if (!canvas) return undefined;
@@ -161,11 +160,23 @@ export default function TextPanel({ canvas }) {
                     setLanguage('2Liner');
                     setJustification(resolvedActiveTextObject.twoLinerJustification || 'Left');
                     setLocationValue(resolvedActiveTextObject.twoLinerTop.text || resolvedActiveTextObject.text || '');
+                    const matchedRegion = getRegionNames('English').find((region) =>
+                        getLocationsForRegion(region, 'English').includes(resolvedActiveTextObject.twoLinerTop.text || resolvedActiveTextObject.text || '')
+                    );
+                    if (matchedRegion) {
+                        setRegionName(matchedRegion);
+                    }
                     return;
                 }
 
                 setLanguage('English');
                 setLocationValue(resolvedActiveTextObject.text || '');
+                const matchedRegion = getRegionNames('English').find((region) =>
+                    getLocationsForRegion(region, 'English').includes(resolvedActiveTextObject.text || '')
+                );
+                if (matchedRegion) {
+                    setRegionName(matchedRegion);
+                }
             } else {
                 setActiveTextObject(null);
             }
@@ -187,7 +198,6 @@ export default function TextPanel({ canvas }) {
     }, [canvas, setColor, setXHeight]);
 
     useEffect(() => {
-        const fallbackLanguage = language === '2Liner' ? 'English' : language;
         const availableRegions = getRegionNames(fallbackLanguage);
 
         if (!availableRegions.includes(regionName)) {
@@ -355,72 +365,39 @@ export default function TextPanel({ canvas }) {
                 onColorChange={setColor}
             />
 
-            <div>
-                <div className="input-group">
-                    <label className="input-label">Font</label>
-                    <select
-                        className="input-field"
-                        value={FONT_OPTIONS.some((option) => option.value === font) ? font : 'TransportMedium'}
-                        onChange={(e) => setFont(e.target.value)}
-                    >
-                        {FONT_OPTIONS.map((option) => (
-                            <option key={option.value} value={option.value}>
-                                {option.label}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-            </div>
+            <SidebarToggleGroup
+                label="Font"
+                options={FONT_OPTIONS}
+                value={FONT_OPTIONS.some((option) => option.value === font) ? font : 'TransportMedium'}
+                onChange={setFont}
+            />
 
             <div>
                 <h2 className="tab-title">Destination Settings</h2>
 
-                <div className="input-group">
-                    <label className="input-label">Language</label>
-                    <select
-                        className="input-field"
-                        value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
-                    >
-                        {LANGUAGE_OPTIONS.map((option) => (
-                            <option key={option} value={option}>
-                                {option}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                <SidebarToggleGroup
+                    label="Language"
+                    options={LANGUAGE_OPTIONS}
+                    value={language}
+                    onChange={setLanguage}
+                />
 
                 {language === '2Liner' && (
-                    <div className="input-group">
-                        <label className="input-label">Justification</label>
-                        <select
-                            className="input-field"
-                            value={justification}
-                            onChange={(e) => setJustification(e.target.value)}
-                        >
-                            {JUSTIFICATION_OPTIONS.map((option) => (
-                                <option key={option} value={option}>
-                                    {option}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    <SidebarToggleGroup
+                        label="Justification"
+                        options={JUSTIFICATION_OPTIONS}
+                        value={justification}
+                        onChange={setJustification}
+                    />
                 )}
 
-                <div className="input-group">
-                    <label className="input-label">Region</label>
-                    <select
-                        className="input-field"
-                        value={regionName}
-                        onChange={(e) => setRegionName(e.target.value)}
-                    >
-                        {getRegionNames(language === '2Liner' ? 'English' : language).map((region) => (
-                            <option key={region} value={region}>
-                                {region}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                <SidebarToggleGroup
+                    label="Region"
+                    options={regionNames}
+                    value={regionName}
+                    onChange={setRegionName}
+                    className="toggle-group-wrap"
+                />
 
                 <div className="input-group">
                     <label className="input-label">Location</label>
@@ -433,7 +410,7 @@ export default function TextPanel({ canvas }) {
                             setText(nextLocation);
                         }}
                     >
-                        {getLocationsForRegion(regionName, language === '2Liner' ? 'English' : language).map((location) => (
+                        {locationOptions.map((location) => (
                             <option key={location} value={location}>
                                 {location}
                             </option>
@@ -462,17 +439,12 @@ export default function TextPanel({ canvas }) {
                     />
                 </div>
 
-                <div className="input-group">
-                    <label className="input-label">
-                        <input
-                            type="checkbox"
-                            checked={underline}
-                            onChange={(e) => setUnderline(e.target.checked)}
-                            style={{ marginRight: '8px' }}
-                        />
-                        Underline
-                    </label>
-                </div>
+                <SidebarToggleGroup
+                    label="Underline"
+                    options={['No', 'Yes']}
+                    value={underline ? 'Yes' : 'No'}
+                    onChange={(nextValue) => setUnderline(nextValue === 'Yes')}
+                />
 
                 <button className="btn-small" onClick={handleSubmit}>
                     {activeTextObject && language !== '2Liner' ? 'Update Text' : 'Add Text'}

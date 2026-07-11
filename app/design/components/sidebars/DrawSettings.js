@@ -1,5 +1,7 @@
 'use client';
 
+import SidebarToggleGroup from './SidebarToggleGroup.js';
+
 const DEFAULT_COLOR_OPTIONS = [
     { value: 'White', label: 'White' },
     { value: 'Black', label: 'Black' },
@@ -78,20 +80,12 @@ export function GeneralDrawSettings({
                 />
             </div>
 
-            <div className="input-group">
-                <label className="input-label">Color</label>
-                <select
-                    className="input-field"
-                    value={color}
-                    onChange={(e) => onColorChange(e.target.value)}
-                >
-                    {colorOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                            {option.label}
-                        </option>
-                    ))}
-                </select>
-            </div>
+            <SidebarToggleGroup
+                label="Color"
+                options={colorOptions}
+                value={color}
+                onChange={onColorChange}
+            />
         </div>
     );
 }
