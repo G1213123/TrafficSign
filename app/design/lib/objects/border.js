@@ -371,7 +371,7 @@ class BorderGroup extends BaseGroup {
 
     //this.RoundingToDivider()
     this.assignWidthToDivider();
-    canvas.sendObjectToBack(this);
+    getCanvas().sendObjectToBack?.(this);
     //DrawGrid();
 
     this.widthObjects.forEach(obj => {
@@ -422,6 +422,8 @@ class BorderGroup extends BaseGroup {
           fill: (p['fill'] == 'background') || (p['fill'] == 'symbol') || (p['fill'] == 'border') ? BorderColorScheme[this.color][p['fill']] : p['fill'],
           objectCaching: false,
           strokeWidth: 0,
+          originX: 'left',
+          originY: 'top',
         })
       );
     });
@@ -459,7 +461,7 @@ class BorderGroup extends BaseGroup {
         annotation.remove();
       } else if (annotation.objects && Array.isArray(annotation.objects)) {
         // For BorderDimensionDisplay which has objects array
-        canvas.remove(...annotation.objects);
+        getCanvas()?.remove?.(...annotation.objects);
       }
     });
     this.dimensionAnnotations = [];
@@ -467,6 +469,9 @@ class BorderGroup extends BaseGroup {
 
   // Create dimension annotations for the border and contained objects
   createBorderDimensionAnnotations(borderRect, frame) {
+    const canvas = getCanvas();
+    if (!canvas) return;
+
     // Calculate inner content area of border (accounting for frame)
     const innerBorder = {
       left: borderRect.left + frame,
@@ -477,7 +482,15 @@ class BorderGroup extends BaseGroup {
       height: borderRect.height - (2 * frame)
     };
 
-      offset: 30 / getCanvas().getZoom(),
+    const frameDimension = new BorderDimensionDisplay({
+      direction: 'vertical',
+      startX: innerBorder.left + (innerBorder.width / 3),
+      startY: innerBorder.top,
+      endY: innerBorder.top - frame,
+      color: 'red',
+      offset: 30 / canvas.getZoom(),
+      baseObject: this
+    });
     this.dimensionAnnotations.push(frameDimension);
 
     // Create horizontal dimensions (left and right)
@@ -487,7 +500,15 @@ class BorderGroup extends BaseGroup {
       if (leftObject) {
         const leftObjectRect = leftObject.getBoundingRect();
         // Create left dimension annotation
-          offset: 30 / getCanvas().getZoom(),
+        const leftDimension = new BorderDimensionDisplay({
+          direction: 'horizontal',
+          startX: innerBorder.left,
+          startY: leftObjectRect.top + (leftObjectRect.height / 2),
+          endX: leftObjectRect.left,
+          color: '#46C147',
+          offset: 30 / canvas.getZoom(),
+          baseObject: this
+        });
         this.dimensionAnnotations.push(leftDimension);
       }
 
@@ -496,7 +517,15 @@ class BorderGroup extends BaseGroup {
       if (rightObject) {
         const rightObjectRect = rightObject.getBoundingRect();
         // Create right dimension annotation
-          offset: 30 / getCanvas().getZoom(),
+        const rightDimension = new BorderDimensionDisplay({
+          direction: 'horizontal',
+          startX: rightObjectRect.left + rightObjectRect.width,
+          startY: rightObjectRect.top + (rightObjectRect.height / 2),
+          endX: innerBorder.right,
+          color: '#46C147',
+          offset: 30 / canvas.getZoom(),
+          baseObject: this
+        });
         this.dimensionAnnotations.push(rightDimension);
       }
     }
@@ -848,7 +877,7 @@ class BorderGroup extends BaseGroup {
       if (!this.fixedWidthCoords) {
         // Calculate fixed width coordinates only during initialization or if not cached
         if (this.widthObjects.length === 0) {
-          const borderCoords = canvas.calcViewportBoundaries();
+          const borderCoords = getCanvas()?.calcViewportBoundaries?.();
 
           if (!borderCoords || !borderCoords.tl || !borderCoords.br) {
             console.error('calcfixedBboxes: Invalid borderCoords:', borderCoords);
@@ -892,7 +921,7 @@ class BorderGroup extends BaseGroup {
       if (!this.fixedHeightCoords) {
         // Calculate fixed height coordinates only during initialization or if not cached
         if (this.heightObjects.length === 0) {
-          const borderCoords = canvas.calcViewportBoundaries();
+          const borderCoords = getCanvas()?.calcViewportBoundaries?.();
 
           if (!borderCoords || !borderCoords.tl || !borderCoords.br) {
             console.error('calcfixedBboxes: Invalid borderCoords:', borderCoords);

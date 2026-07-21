@@ -90,8 +90,7 @@ class VertexControl extends Control {
         if (vertexSnapInProgress) return;
 
         // Prevent vertex activation if measure mode is active
-          if (CanvasGlobals.activeMeasurement) {
-        }
+                if (CanvasGlobals.activeMeasurement) return;
 
         const vertexX = this.vertex.x;
         const vertexY = this.vertex.y;

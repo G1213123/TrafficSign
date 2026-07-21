@@ -791,7 +791,7 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
     function roadMapOnSelect(event) {
         const panel = document.getElementById("button-DrawMap");
         const parent = document.getElementById("input-form");
-        const existingRoute = canvas.getActiveObjects()
+        const existingRoute = getCanvas()?.getActiveObjects?.() || [];
         if (panel && parent && existingRoute.length == 1 && existingRoute[0].functionalType === 'MainRoad') {
             //GeneralHandler.createButton('button-addRoute', '+ Another Route Destination', parent, 'input', FormDrawMapComponent.addRouteInput, 'click')
         }

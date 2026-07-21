@@ -2,18 +2,57 @@
 
 import React, { useState } from 'react';
 
+import { CanvasGlobals } from '../canvas/canvas.js';
+import { buildObjectsFromJSON } from '../../lib/objects/build.js';
+
+import flagTemplate from '../../../../legacy/llm_templates/Flag.json';
+import stackTemplate from '../../../../legacy/llm_templates/Stack.json';
+import laneTemplate from '../../../../legacy/llm_templates/Lane.json';
+import conventionalRoundaboutTemplate from '../../../../legacy/llm_templates/Conventional_Roundabout.json';
+import spiralRoundaboutTemplate from '../../../../legacy/llm_templates/Spiral_Roundabout.json';
+import gantryTemplate from '../../../../legacy/llm_templates/Gantry.json';
+import divergeTemplate from '../../../../legacy/llm_templates/Diverge.json';
+
 const TEMPLATES = [
-    { name: 'Flag Sign', description: 'Standard flag-type sign with destinations and chevron.' },
-    { name: 'Stack Sign', description: 'Stacked road sign with multiple destinations.' },
-    { name: 'Lane Sign', description: 'Exit sign showing multiple lanes and directions.' },
-    { name: 'Roundabout Sign', description: 'Directions at a conventional roundabout.' },
-    { name: 'Spiral Roundabout Sign', description: 'Directions at a spiral roundabout.' },
-    { name: 'Gantry Sign', description: 'Overhead gantry sign with multiple compartments.' },
-    { name: 'Diverge Sign', description: 'Complex interchange direction sign.' },
+    { name: 'Flag Sign', description: 'Standard flag-type sign with destinations and chevron.', data: flagTemplate },
+    { name: 'Stack Sign', description: 'Stacked road sign with multiple destinations.', data: stackTemplate },
+    { name: 'Lane Sign', description: 'Exit sign showing multiple lanes and directions.', data: laneTemplate },
+    { name: 'Roundabout Sign', description: 'Directions at a conventional roundabout.', data: conventionalRoundaboutTemplate },
+    { name: 'Spiral Roundabout Sign', description: 'Directions at a spiral roundabout.', data: spiralRoundaboutTemplate },
+    { name: 'Gantry Sign', description: 'Overhead gantry sign with multiple compartments.', data: gantryTemplate },
+    { name: 'Diverge Sign', description: 'Complex interchange direction sign.', data: divergeTemplate },
 ];
 
 export default function TemplatePanel() {
     const [selectedTemplate, setSelectedTemplate] = useState(null);
+    const [statusText, setStatusText] = useState('');
+
+    const getCanvas = () => CanvasGlobals.canvas;
+
+    const insertTemplate = async () => {
+        const canvas = getCanvas();
+        const template = TEMPLATES.find((item) => item.name === selectedTemplate);
+
+        if (!canvas) {
+            setStatusText('Canvas is not ready yet.');
+            return;
+        }
+
+        if (!template) {
+            setStatusText('Select a template first.');
+            return;
+        }
+
+        try {
+            canvas.discardActiveObject?.();
+            await buildObjectsFromJSON(template.data.objects);
+            canvas.requestRenderAll?.();
+            setStatusText(`${template.name} inserted.`);
+        } catch (error) {
+            console.error(`Error inserting template ${template.name}:`, error);
+            setStatusText(`Failed to insert ${template.name}.`);
+        }
+    };
 
     return (
         <div className="space-y-4">
@@ -46,9 +85,15 @@ export default function TemplatePanel() {
                 </div>
             </div>
 
-            <button type="button" className="btn-small" disabled={!selectedTemplate}>
+            <button type="button" className="btn-small" disabled={!selectedTemplate} onClick={insertTemplate}>
                 Insert Template
             </button>
+
+            {statusText ? (
+                <p style={{ fontSize: '12px', color: '#aaa', fontStyle: 'italic' }}>
+                    {statusText}
+                </p>
+            ) : null}
         </div>
     );
 }

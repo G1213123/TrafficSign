@@ -7,6 +7,7 @@ import { BorderGroup } from '../../lib/objects/border.js';
 import { DividerObject } from '../../lib/objects/divider.js';
 import { convertVertexToPathCommands } from '../../lib/objects/path.js';
 import { BorderColorScheme, BorderFrameWidth, BorderTypeScheme } from '../../lib/objects/template.js';
+import { CanvasGlobals } from '../canvas/canvas.js';
 import { useGeneralDrawSettings } from './DrawSettings.js';
 import { selectObjectHandler } from '../presentations/promptBox.js';
 import './sidebar.css';
@@ -88,14 +89,14 @@ const formatBorderTypeLabel = (value) => value
     .replace(/([a-z])([A-Z])/g, '$1 $2')
     .replace(/^./, (letter) => letter.toUpperCase());
 
-export default function BorderPanel({ canvas }) {
+export default function BorderPanel() {
     const { xHeight, setXHeight } = useGeneralDrawSettings();
     const [colorScheme, setColorScheme] = useState('Blue Background');
     const [fixedWidth, setFixedWidth] = useState('');
     const [fixedHeight, setFixedHeight] = useState('');
     const [selectedBorderType, setSelectedBorderType] = useState('stack');
 
-    const currentCanvas = canvas;
+    const getCanvas = () => CanvasGlobals.canvas;
 
     const createBorderFromSelection = (borderType, selectedObjects) => {
         const objects = (selectedObjects || []).filter((object) => object && object.functionalType !== 'Border');
@@ -114,7 +115,7 @@ export default function BorderPanel({ canvas }) {
             color: colorScheme,
         });
 
-        currentCanvas?.requestRenderAll?.();
+        getCanvas()?.requestRenderAll?.();
     };
 
     const createBorder = (borderType) => {
@@ -144,7 +145,7 @@ export default function BorderPanel({ canvas }) {
                     colorType: colorScheme,
                 });
 
-                currentCanvas?.requestRenderAll?.();
+                getCanvas()?.requestRenderAll?.();
             },
             null,
             xHeight,

@@ -126,9 +126,21 @@ export function selectObjectHandler(text, callback, options = null, xHeight = nu
   let processed = false;
   let dragDebounceTimer = null;
 
+  const onMouseUp = () => {
+    isDragging = false;
+    if (dragDebounceTimer) clearTimeout(dragDebounceTimer);
+    dragDebounceTimer = setTimeout(checkSelection, 100);
+  };
+
+  const onMouseDown = () => {
+    isDragging = true;
+  };
+
   const cleanup = () => {
     if (processed) return;
     processed = true;
+    document.removeEventListener('mousedown', onMouseDown);
+    document.removeEventListener('mouseup', onMouseUp);
     promptBoxState.hide();
     document.addEventListener('keydown', ShowHideSideBarEvent);
     if (dragDebounceTimer) clearTimeout(dragDebounceTimer);
@@ -147,16 +159,6 @@ export function selectObjectHandler(text, callback, options = null, xHeight = nu
       callback(filtered, options);
       cleanup();
     }
-  };
-
-  const onMouseUp = () => {
-    isDragging = false;
-    if (dragDebounceTimer) clearTimeout(dragDebounceTimer);
-    dragDebounceTimer = setTimeout(checkSelection, 100);
-  };
-
-  const onMouseDown = () => {
-    isDragging = true;
   };
 
   document.addEventListener('mousedown', onMouseDown);
