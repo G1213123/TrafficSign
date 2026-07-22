@@ -1,7 +1,7 @@
 import { globalAnchorTree } from "./anchor.js";
 import { canvasTracker } from "../utils/Tracker.js";
 import { CanvasGlobals } from '../../components/canvas/canvas.js';
-import { GeneralSettings } from '../../components/sidebars/settings.js';
+import { GeneralSettings } from '../utils/settings.js';
 import { Line, Text, Group, Polygon } from 'fabric';
 const getCanvas = () => CanvasGlobals.canvas;
 

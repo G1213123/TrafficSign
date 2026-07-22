@@ -1,7 +1,7 @@
 import { Group, Control, util, Rect, Circle } from 'fabric';
 import { canvasTracker } from '../utils/Tracker.js';
 import { CanvasGlobals } from '../../components/canvas/canvas.js';
-import { GeneralSettings } from '../../components/sidebars/settings.js';
+import { GeneralSettings } from '../utils/settings.js';
 import { VertexControl } from './vertex.js';
 import { CanvasObjectInspector } from '../../components/presentations/inspector.js';
 import { BorderDimensionDisplay } from './dimension.js';
@@ -261,7 +261,7 @@ export class BaseGroup extends Group {
       return value;
     };
 
-    return JSON.parse(JSON.stringify(dataToSerialize, replacer));
+    return JSON.parse(JSON.stringify(dataToSerialize));
   }
 
   // Show border dimensions when selected

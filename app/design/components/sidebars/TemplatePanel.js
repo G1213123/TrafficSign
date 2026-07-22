@@ -13,7 +13,7 @@ import spiralRoundaboutTemplate from '../../../../legacy/llm_templates/Spiral_Ro
 import gantryTemplate from '../../../../legacy/llm_templates/Gantry.json';
 import divergeTemplate from '../../../../legacy/llm_templates/Diverge.json';
 
-const TEMPLATES = [
+export const TEMPLATES = [
     { name: 'Flag Sign', description: 'Standard flag-type sign with destinations and chevron.', data: flagTemplate },
     { name: 'Stack Sign', description: 'Stacked road sign with multiple destinations.', data: stackTemplate },
     { name: 'Lane Sign', description: 'Exit sign showing multiple lanes and directions.', data: laneTemplate },
@@ -22,6 +22,29 @@ const TEMPLATES = [
     { name: 'Gantry Sign', description: 'Overhead gantry sign with multiple compartments.', data: gantryTemplate },
     { name: 'Diverge Sign', description: 'Complex interchange direction sign.', data: divergeTemplate },
 ];
+
+export async function createTemplateSign(templateName) {
+    const template = TEMPLATES.find((item) => item.name === templateName);
+    const canvas = CanvasGlobals.canvas;
+
+    if (!template || !canvas) {
+        return null;
+    }
+
+    const startIndex = canvas.getObjects().length;
+
+    await buildObjectsFromJSON(template.data.objects);
+
+    const createdObjects = canvas.getObjects().slice(startIndex);
+    const borderObject = [...createdObjects].reverse().find((object) => object.functionalType === 'Border' || object.objectType === 'BorderGroup') || createdObjects.at(-1);
+
+    return borderObject ? {
+        width: borderObject.width,
+        height: borderObject.height,
+        left: borderObject.left,
+        top: borderObject.top,
+    } : null;
+}
 
 export default function TemplatePanel() {
     const [selectedTemplate, setSelectedTemplate] = useState(null);

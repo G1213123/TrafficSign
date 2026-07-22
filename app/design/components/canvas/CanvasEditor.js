@@ -9,6 +9,7 @@ import { setupTouchEvents } from '../../lib/canvas/touchEvents';
 import { setupContextMenu } from '../../components/presentations/contexMenu';
 import { initializePropertyPanel } from '../../components/presentations/property';
 import { parseFont } from '../../lib/objects/path';
+import { GeneralSettings } from '../../lib/utils/settings.js';
 
 export default function CanvasEditor({ onCanvasReady }) {
     const canvasRef = useRef(null);
@@ -28,6 +29,7 @@ export default function CanvasEditor({ onCanvasReady }) {
         // Initialize global canvas access for lib scripts
         initCanvasGlobals(canvas);
         onCanvasReady?.(canvas);
+        GeneralSettings.loadSettings();
         const cleanupKeyboardEvents = setupKeyboardEvents();
         const cleanupMouseEvents = setupMouseEvents(canvas);
         const cleanupTouchEvents = setupTouchEvents(canvas);
@@ -86,7 +88,7 @@ export default function CanvasEditor({ onCanvasReady }) {
     };
 
     return (
-        <div id="canvas-container" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+        <div id="canvas-container" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0, overflow: 'hidden' }}>
             <canvas id="canvas" />
         </div>
     );

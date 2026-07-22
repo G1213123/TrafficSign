@@ -9,7 +9,7 @@ const DEFAULT_COLOR_OPTIONS = [
 
 import { useEffect, useState } from 'react';
 
-import { GeneralSettings } from './settings.js';
+import { GeneralSettings } from '../../lib/utils/settings.js';
 
 const resolveSetting = (setting, fallback) => {
     return GeneralSettings.hasOwnProperty(setting) ? GeneralSettings[setting] : fallback;

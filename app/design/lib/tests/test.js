@@ -2,16 +2,20 @@ import { TextObject } from '../objects/text.js';
 import { SymbolObject } from '../objects/symbols.js';
 import { anchorShape, globalAnchorTree } from '../objects/anchor.js';
 import { LockIcon } from '../objects/lock.js';
-import { CanvasGlobals } from '../canvas/canvas.js';
+import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import { DividerObject } from '../objects/divider.js';
 import { BorderUtilities, BorderGroup } from '../objects/border.js';
 import { MainRoadSymbol } from '../objects/mainRoute.js';
 import { SideRoadSymbol } from '../objects/sideRoute.js';
-import { FormTemplateComponent } from '../sidebar/sb-template.js';
+import { TEMPLATES, createTemplateSign } from '../../components/sidebars/TemplatePanel.js';
 import { Canvas } from 'fabric';
 
 const canvasObject = CanvasGlobals.canvasObject; // Assuming canvasObject is defined in canvas.js
-const canvas = CanvasGlobals.canvas; // Assuming canvas is defined in canvas.js
+const getCanvas = () => CanvasGlobals.canvas;
+const FormTemplateComponent = {
+  templates: Object.fromEntries(TEMPLATES.map((template) => [template.name, { description: template.description }])),
+  createTemplateSign,
+};
 
 
 // MIT http://rem.mit-license.org
@@ -735,7 +739,7 @@ const AnchorTest = {
     );
 
     // Delink first pair by calling onClick of LockIcon
-    canvas.setActiveObject(TestTracker.get("airport1"));
+    getCanvas()?.setActiveObject(TestTracker.get("airport1"));
     const lockIcon1 = TestTracker.get("airport1").anchorageLink[0]
     lockIcon1.onClick();
 
@@ -1543,7 +1547,7 @@ const RoundaboutTest = {
     );
 
     // Set the roundabout as active object to add a side road
-    canvas.setActiveObject(roundabout);
+    getCanvas()?.setActiveObject(roundabout);
 
     // Create a side road on the roundabout
     const sideRoadParams = {
@@ -1581,7 +1585,7 @@ const RoundaboutTest = {
     };
 
     // Set the roundabout as active object to add a side road
-    canvas.setActiveObject(roundabout);
+    getCanvas()?.setActiveObject(roundabout);
 
     // Draw and finalize the second side road
     new SideRoadSymbol(sideRoadParams2);
@@ -1676,7 +1680,7 @@ const RoundaboutTest = {
 
     // Add three arms to the roundabout in different quadrants
     const center = spiralRoundabout.routeList[1];
-    canvas.setActiveObject(spiralRoundabout);
+    getCanvas()?.setActiveObject(spiralRoundabout);
 
     // Add arm in first quadrant (top-right)
     this.addArmAtAngle(center, 300, -90, "arm1");
@@ -1694,7 +1698,7 @@ const RoundaboutTest = {
 
     // Test dragging the first arm
     const firstArm = spiralRoundabout.sideRoad[0];
-    canvas.setActiveObject(firstArm);
+    getCanvas()?.setActiveObject(firstArm);
 
     // Record initial position
     const initialPos = {
@@ -1750,7 +1754,7 @@ const RoundaboutTest = {
     const y = center.y + radius * Math.sin(angleRadians);
 
     const roundabout = TestTracker.get("spiralRoundabout", "SpiralRoundabout");
-    canvas.setActiveObject(roundabout);
+    getCanvas()?.setActiveObject(roundabout);
 
     // Create options for the arm
     const options = {
@@ -2356,8 +2360,8 @@ function testTextObjectDXFExport() {
   });
 
   // Add text to canvas temporarily
-  canvas.add(testText);
-  canvas.renderAll();
+  getCanvas()?.add(testText);
+  getCanvas()?.renderAll();
 
   // Export to DXF using the existing FormExportComponent.exportToDXF function
   // This is hronous since the exportToDXF function creates a blob and triggers a download

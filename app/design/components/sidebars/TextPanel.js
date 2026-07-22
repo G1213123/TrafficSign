@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 
-import { GeneralSettings } from './settings.js';
+import { GeneralSettings } from '../../lib/utils/settings.js';
 import { TextObject } from '../../lib/objects/text.js';
 import { DividerObject } from '../../lib/objects/divider.js';
 import { anchorShape } from '../../lib/objects/anchor.js';

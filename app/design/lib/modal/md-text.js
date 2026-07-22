@@ -2,7 +2,7 @@
 
 import { ModalUtils } from './mdGeneral.js';
 import { CanvasGlobals } from '../../components/canvas/canvas.js';
-import { GeneralSettings } from '../../components/sidebars/settings.js';
+import { GeneralSettings } from '../utils/settings.js';
 import { TextObject } from '../objects/text.js';
 import { DividerObject } from '../objects/divider.js';
 import { anchorShape } from '../objects/anchor.js';

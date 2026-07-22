@@ -1,5 +1,5 @@
 import { CanvasGlobals } from '../../components/canvas/canvas.js';
-import { GeneralSettings } from '../../components/sidebars/settings.js';
+import { GeneralSettings } from '../utils/settings.js';
 import { Line, Text, Circle, Polygon } from 'fabric'
 const getCanvas = () => CanvasGlobals.canvas;
 

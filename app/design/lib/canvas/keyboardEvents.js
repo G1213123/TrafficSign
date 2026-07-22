@@ -1,6 +1,6 @@
 import { ActiveSelection } from 'fabric';
 import { CanvasGlobals } from '../../components/canvas/canvas.js';
-import { GeneralSettings } from '../../components/sidebars/settings.js';
+import { GeneralSettings } from '../utils/settings.js';
 import { canvasTracker } from '../utils/Tracker.js';
 
 const getCanvas = () => CanvasGlobals.canvas;
@@ -264,34 +264,30 @@ function handleKeyboardDown(event) {
 
   if (event.key === 'F3') {
     event.preventDefault();
-    GeneralSettings.showTextBorders = !GeneralSettings.showTextBorders;
+    settings.updateSetting('showTextBorders', !GeneralSettings.showTextBorders);
     settings.applyTextBorderSettings();
     settings.updateSettingsUI();
-    settings.saveSettings();
   }
 
   if (event.key === 'F4') {
     event.preventDefault();
-    GeneralSettings.showGrid = !GeneralSettings.showGrid;
+    settings.updateSetting('showGrid', !GeneralSettings.showGrid);
     settings.applyGridSettings();
     settings.updateSettingsUI();
-    settings.saveSettings();
   }
 
   if (event.key === 'F2') {
     event.preventDefault();
-    GeneralSettings.showAllVertices = !GeneralSettings.showAllVertices;
+    settings.updateSetting('showAllVertices', !GeneralSettings.showAllVertices);
     settings.applyVertexDisplaySettings();
     settings.updateSettingsUI();
-    settings.saveSettings();
   }
 
   if (event.key === 'F8') {
     event.preventDefault();
-    GeneralSettings.dimensionUnit = GeneralSettings.dimensionUnit === 'mm' ? 'sw' : 'mm';
+    settings.updateSetting('dimensionUnit', GeneralSettings.dimensionUnit === 'mm' ? 'sw' : 'mm');
     settings.refreshDimensionDisplays();
     settings.updateSettingsUI();
-    settings.saveSettings();
   }
 }
 

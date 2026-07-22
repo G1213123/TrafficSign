@@ -4,7 +4,7 @@
  */
 
 import { ModalUtils } from './mdGeneral.js';
-import { GeneralSettings } from '../../components/sidebars/settings.js';
+import { GeneralSettings } from '../utils/settings.js';
 import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import { i18n } from '../i18n/i18n.js';
 

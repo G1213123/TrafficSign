@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 
 import SidebarToggleGroup from './SidebarToggleGroup.js';
-import { GeneralSettings } from './settings.js';
+import { GeneralSettings } from '../../lib/utils/settings.js';
+import { i18n } from '../../lib/i18n/i18n.js';
 
 const readSetting = (key, fallback) => (Object.prototype.hasOwnProperty.call(GeneralSettings, key) ? GeneralSettings[key] : fallback);
 
@@ -21,7 +22,7 @@ export default function SettingsPanel() {
 
     useEffect(() => {
         const sync = (setting) => {
-            if (setting === 'settingsReset') {
+            if (setting === 'settingsReset' || setting === 'settingsUpdated' || setting === 'locale') {
                 setLocale(readSetting('locale', 'en'));
                 setShowTextBorders(readSetting('showTextBorders', true) ? 'Yes' : 'No');
                 setShowGrid(readSetting('showGrid', true) ? 'Yes' : 'No');
@@ -31,6 +32,43 @@ export default function SettingsPanel() {
                 setRunTestsOnStart(readSetting('runTestsOnStart', false) ? 'Yes' : 'No');
                 setGridSize(String(readSetting('gridSize', 20)));
                 setAutoSaveInterval(String(readSetting('autoSaveInterval', 300)));
+                setDefaultExportScale(String(readSetting('defaultExportScale', 2)));
+                return;
+            }
+
+            if (setting === 'showTextBorders') {
+                setShowTextBorders(readSetting('showTextBorders', true) ? 'Yes' : 'No');
+            }
+
+            if (setting === 'showGrid') {
+                setShowGrid(readSetting('showGrid', true) ? 'Yes' : 'No');
+            }
+
+            if (setting === 'showAllVertices') {
+                setShowAllVertices(readSetting('showAllVertices', false) ? 'Yes' : 'No');
+            }
+
+            if (setting === 'dimensionUnit') {
+                setDimensionUnit(readSetting('dimensionUnit', 'mm'));
+            }
+
+            if (setting === 'autoSave') {
+                setAutoSave(readSetting('autoSave', true) ? 'Yes' : 'No');
+            }
+
+            if (setting === 'runTestsOnStart') {
+                setRunTestsOnStart(readSetting('runTestsOnStart', false) ? 'Yes' : 'No');
+            }
+
+            if (setting === 'gridSize') {
+                setGridSize(String(readSetting('gridSize', 20)));
+            }
+
+            if (setting === 'autoSaveInterval') {
+                setAutoSaveInterval(String(readSetting('autoSaveInterval', 300)));
+            }
+
+            if (setting === 'defaultExportScale') {
                 setDefaultExportScale(String(readSetting('defaultExportScale', 2)));
             }
         };
@@ -46,9 +84,19 @@ export default function SettingsPanel() {
         GeneralSettings.updateSetting(key, value === 'Yes');
     };
 
+    const updateLocale = (value) => {
+        setLocale(value);
+        GeneralSettings.updateSetting('locale', value);
+        try {
+            i18n.setLocale(value);
+        } catch (_) {
+            // Ignore translation setup failures in non-DOM contexts.
+        }
+    };
+
     return (
         <div className="space-y-4">
-            <SidebarToggleGroup label="App Language" options={[{ value: 'en', label: 'English' }, { value: 'zh', label: 'Chinese' }]} value={locale} onChange={(value) => { setLocale(value); GeneralSettings.updateSetting('locale', value); }} />
+            <SidebarToggleGroup label="App Language" options={[{ value: 'en', label: 'English' }, { value: 'zh', label: 'Chinese' }]} value={locale} onChange={updateLocale} />
             <SidebarToggleGroup label="Show Text Borders" options={['No', 'Yes']} value={showTextBorders} onChange={(value) => { setShowTextBorders(value); updateBoolean('showTextBorders', value); }} />
             <SidebarToggleGroup label="Show Grid" options={['No', 'Yes']} value={showGrid} onChange={(value) => { setShowGrid(value); updateBoolean('showGrid', value); }} />
             <SidebarToggleGroup label="Show All Vertices" options={['No', 'Yes']} value={showAllVertices} onChange={(value) => { setShowAllVertices(value); updateBoolean('showAllVertices', value); }} />
@@ -71,6 +119,18 @@ export default function SettingsPanel() {
             </div>
 
             <SidebarToggleGroup label="Run Tests on Start" options={['No', 'Yes']} value={runTestsOnStart} onChange={(value) => { setRunTestsOnStart(value); updateBoolean('runTestsOnStart', value); }} />
+
+            <div className="toggle-container">
+                <button type="button" className="toggle-button" onClick={() => GeneralSettings.saveCanvasState()}>
+                    Save Canvas
+                </button>
+                <button type="button" className="toggle-button" onClick={() => GeneralSettings.clearSavedCanvas()}>
+                    Clear Saved Canvas
+                </button>
+                <button type="button" className="toggle-button" onClick={() => GeneralSettings.runTests()}>
+                    Run Tests
+                </button>
+            </div>
 
             <div className="toggle-container">
                 <button type="button" className="toggle-button" onClick={() => GeneralSettings.resetSetting()}>
