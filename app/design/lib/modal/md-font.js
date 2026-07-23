@@ -7,6 +7,7 @@ import { ModalUtils } from './mdGeneral.js';
 import { GeneralSettings } from '../utils/settings.js';
 import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import { i18n } from '../i18n/i18n.js';
+import { showToast } from '../../components/presentations/ToastBox.js';
 
 const FontPriorityManager = {
   fontPriorityList: ['parsedFontKorean', 'parsedFontChinese', 'parsedFontChocolate', 'parsedFontHK'], // Default priority
@@ -309,15 +310,11 @@ const FontPriorityManager = {
 
       } catch (error) {
         console.error('Error parsing font:', error);
-        if (GeneralHandler && GeneralHandler.showToast) {
-          GeneralHandler.showToast(
-            'Failed to parse font file. Please ensure it\'s a valid font file.',
-            'warning',
-            4000
-          );
-        } else {
-          alert('Failed to parse font file. Please ensure it\'s a valid font file.');
-        }
+        showToast(
+          'Failed to parse font file. Please ensure it\'s a valid font file.',
+          'warning',
+          4000
+        );
       }
     };
     reader.readAsArrayBuffer(file);
@@ -592,8 +589,8 @@ const FontPriorityManager = {
       }
     });
 
-    if (missingFonts.length > 0 && GeneralHandler && GeneralHandler.showToast) {
-      GeneralHandler.showToast(
+    if (missingFonts.length > 0) {
+      showToast(
         `Warning: ${missingFonts.length} font(s) not found: ${missingFonts.join(', ')}. Please upload or remove them from the priority list.`,
         'warning',
         7000
@@ -716,13 +713,11 @@ const FontPriorityManager = {
     const updatedCount = FontPriorityManager.updateAllTextObjectsFont(missingFontName, fallbackFont);
 
     // Show toast message instead of console warning
-    if (GeneralHandler && GeneralHandler.showToast) {
-      GeneralHandler.showToast(
-        `Font "${missingFontName}" not found. ${updatedCount} text object(s) updated to use "${fallbackFont}".`,
-        'warning',
-        5000
-      );
-    }
+    showToast(
+      `Font "${missingFontName}" not found. ${updatedCount} text object(s) updated to use "${fallbackFont}".`,
+      'warning',
+      5000
+    );
     return fallbackFont;
   },
   /**
@@ -758,22 +753,18 @@ const FontPriorityManager = {
     if (updatedCount > 0) {
 
       // Show success toast
-      if (GeneralHandler && GeneralHandler.showToast) {
-        GeneralHandler.showToast(
-          `Font "${originalFontName}" uploaded successfully! ${updatedCount} text object(s) updated to use the new font.`,
-          'success',
-          4000
-        );
-      }
+      showToast(
+        `Font "${originalFontName}" uploaded successfully! ${updatedCount} text object(s) updated to use the new font.`,
+        'success',
+        4000
+      );
     } else {
       // Show info toast even if no objects were updated
-      if (GeneralHandler && GeneralHandler.showToast) {
-        GeneralHandler.showToast(
-          `Font "${originalFontName}" uploaded successfully and added to priority list.`,
-          'success',
-          3000
-        );
-      }
+      showToast(
+        `Font "${originalFontName}" uploaded successfully and added to priority list.`,
+        'success',
+        3000
+      );
     }
     return updatedCount;
   },

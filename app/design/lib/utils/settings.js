@@ -101,6 +101,20 @@ const applyLocale = (locale) => {
   }
 };
 
+const parseStoredJson = (storageKey) => {
+  const storedValue = localStorage.getItem(storageKey);
+  if (!storedValue) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(storedValue);
+  } catch (error) {
+    console.error(`Failed to parse ${storageKey} from localStorage`, error);
+    return null;
+  }
+};
+
 const applyAllCanvasSettings = () => {
   GeneralSettings.applyTextBorderSettings();
   GeneralSettings.applyGridSettings();
@@ -196,14 +210,16 @@ export const GeneralSettings = {
     applyLocale(this.locale);
     this.notifyListeners('settingsReset', null);
     applyAllCanvasSettings();
-    this.saveSettings();
+    return this.saveSettings();
   },
 
   saveSettings() {
     try {
       persistSettings(this);
+      return true;
     } catch (error) {
       console.error('Failed to save settings', error);
+      return false;
     }
   },
 
@@ -322,7 +338,7 @@ export const GeneralSettings = {
 
   saveCanvasState() {
     const canvas = getCanvas();
-    if (!canvas) return;
+    if (!canvas) return false;
 
     try {
       localStorage.setItem(CANVAS_STATE_KEY, simpleStringify(canvas));
@@ -330,8 +346,10 @@ export const GeneralSettings = {
       if (exportedCanvas) {
         localStorage.setItem(CANVAS_OBJECTS_KEY, exportedCanvas);
       }
+      return true;
     } catch (error) {
       console.error('Failed to save canvas state', error);
+      return false;
     }
   },
 
@@ -339,8 +357,48 @@ export const GeneralSettings = {
     try {
       localStorage.removeItem(CANVAS_STATE_KEY);
       localStorage.removeItem(CANVAS_OBJECTS_KEY);
+      return true;
     } catch (error) {
       console.error('Failed to clear saved canvas state', error);
+      return false;
+    }
+  },
+
+  async loadCanvasState() {
+    const canvas = getCanvas();
+    if (!canvas) {
+      return false;
+    }
+
+    try {
+      const savedCanvasState = parseStoredJson(CANVAS_STATE_KEY);
+      if (savedCanvasState && typeof savedCanvasState === 'object') {
+        if (Object.prototype.hasOwnProperty.call(savedCanvasState, 'backgroundColor')) {
+          canvas.backgroundColor = savedCanvasState.backgroundColor;
+        }
+      }
+
+      const savedCanvasObjects = parseStoredJson(CANVAS_OBJECTS_KEY);
+      const objectsToLoad = Array.isArray(savedCanvasObjects)
+        ? savedCanvasObjects
+        : Array.isArray(savedCanvasObjects?.objects)
+          ? savedCanvasObjects.objects
+          : [];
+
+      if (objectsToLoad.length === 0) {
+        if (savedCanvasState) {
+          canvas.requestRenderAll?.();
+        }
+        return false;
+      }
+
+      const { buildObjectsFromJSON } = await import('../objects/build.js');
+      await buildObjectsFromJSON(objectsToLoad);
+      canvas.requestRenderAll?.();
+      return true;
+    } catch (error) {
+      console.error('Failed to load canvas state', error);
+      return false;
     }
   },
 

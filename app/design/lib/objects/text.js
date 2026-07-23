@@ -126,7 +126,9 @@ class TextObject extends BaseGroup {
       top: this.top,
       angle: this.angle,
       scaleX: this.scaleX,
-      scaleY: this.scaleY
+      scaleY: this.scaleY,
+      originX: 'left',
+      originY: 'top'
     });
 
     group.setCoords();

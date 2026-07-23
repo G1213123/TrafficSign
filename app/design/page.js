@@ -6,6 +6,7 @@ import Sidebar from './components/sidebars/Sidebar';
 import PromptBox from './components/presentations/promptBox';
 import ContextMenu from './components/presentations/contexMenu';
 import PropertyPanel from './components/presentations/property';
+import ToastBox from './components/presentations/ToastBox';
 import { parseFont } from './lib/objects/path';
 
 export default function DesignPage() {
@@ -57,6 +58,7 @@ export default function DesignPage() {
       <ContextMenu />
       <PromptBox />
       <PropertyPanel />
+      <ToastBox />
     </div>
   );
 }

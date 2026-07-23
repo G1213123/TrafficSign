@@ -29,23 +29,30 @@ export default function CanvasEditor({ onCanvasReady }) {
         // Initialize global canvas access for lib scripts
         initCanvasGlobals(canvas);
         onCanvasReady?.(canvas);
-        GeneralSettings.loadSettings();
         const cleanupKeyboardEvents = setupKeyboardEvents();
         const cleanupMouseEvents = setupMouseEvents(canvas);
         const cleanupTouchEvents = setupTouchEvents(canvas);
         const cleanupContextMenu = setupContextMenu(canvas);
         initializePropertyPanel(canvas);
 
-        // Wait for fonts to be parsed before proceeding
-        parseFont().then(() => {
-            console.log("Fonts parsed, initializing editor components...");
-            // If there are components that depend on parsed fonts, 
-            // you can initialize them here or trigger a re-render.
-        }).catch(err => {
-            console.error("Font parsing failed:", err);
-        });
+        let isDisposed = false;
 
-        // ...existing code...
+        const initializeCanvas = async () => {
+            try {
+                await parseFont();
+                if (isDisposed) {
+                    return;
+                }
+
+                GeneralSettings.loadSettings();
+                await GeneralSettings.loadCanvasState();
+                canvas.requestRenderAll();
+            } catch (error) {
+                console.error('Failed to initialize canvas from saved state', error);
+            }
+        };
+
+        initializeCanvas();
 
         // Initial resize and center
         resizeCanvas(canvas);
@@ -58,6 +65,7 @@ export default function CanvasEditor({ onCanvasReady }) {
         DrawGrid();
 
         return () => {
+            isDisposed = true;
             window.removeEventListener('resize', handleResize);
             cleanupContextMenu?.();
             cleanupKeyboardEvents?.();

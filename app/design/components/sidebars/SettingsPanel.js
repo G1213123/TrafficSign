@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import SidebarToggleGroup from './SidebarToggleGroup.js';
 import { GeneralSettings } from '../../lib/utils/settings.js';
 import { i18n } from '../../lib/i18n/i18n.js';
+import { showToast } from '../presentations/ToastBox.js';
 
 const readSetting = (key, fallback) => (Object.prototype.hasOwnProperty.call(GeneralSettings, key) ? GeneralSettings[key] : fallback);
 
@@ -94,6 +95,21 @@ export default function SettingsPanel() {
         }
     };
 
+    const handleSaveCanvas = () => {
+        const saved = GeneralSettings.saveCanvasState();
+        showToast(saved ? 'Canvas state saved!' : 'Error saving canvas state.', saved ? 'success' : 'error');
+    };
+
+    const handleClearSavedCanvas = () => {
+        const cleared = GeneralSettings.clearSavedCanvas();
+        showToast(cleared ? 'Cleared saved canvas data!' : 'Error clearing saved canvas data.', cleared ? 'success' : 'error');
+    };
+
+    const handleResetSettings = () => {
+        const reset = GeneralSettings.resetSetting();
+        showToast(reset ? 'Settings reset to defaults!' : 'Error resetting settings.', reset ? 'success' : 'error');
+    };
+
     return (
         <div className="space-y-4">
             <SidebarToggleGroup label="App Language" options={[{ value: 'en', label: 'English' }, { value: 'zh', label: 'Chinese' }]} value={locale} onChange={updateLocale} />
@@ -121,10 +137,10 @@ export default function SettingsPanel() {
             <SidebarToggleGroup label="Run Tests on Start" options={['No', 'Yes']} value={runTestsOnStart} onChange={(value) => { setRunTestsOnStart(value); updateBoolean('runTestsOnStart', value); }} />
 
             <div className="toggle-container">
-                <button type="button" className="toggle-button" onClick={() => GeneralSettings.saveCanvasState()}>
+                <button type="button" className="toggle-button" onClick={handleSaveCanvas}>
                     Save Canvas
                 </button>
-                <button type="button" className="toggle-button" onClick={() => GeneralSettings.clearSavedCanvas()}>
+                <button type="button" className="toggle-button" onClick={handleClearSavedCanvas}>
                     Clear Saved Canvas
                 </button>
                 <button type="button" className="toggle-button" onClick={() => GeneralSettings.runTests()}>
@@ -133,7 +149,7 @@ export default function SettingsPanel() {
             </div>
 
             <div className="toggle-container">
-                <button type="button" className="toggle-button" onClick={() => GeneralSettings.resetSetting()}>
+                <button type="button" className="toggle-button" onClick={handleResetSettings}>
                     Reset Settings
                 </button>
             </div>
