@@ -7,7 +7,8 @@ import { DividerObject } from '../objects/divider.js';
 import { BorderUtilities, BorderGroup } from '../objects/border.js';
 import { MainRoadSymbol } from '../objects/mainRoute.js';
 import { SideRoadSymbol } from '../objects/sideRoute.js';
-import { TEMPLATES, createTemplateSign } from '../../components/sidebars/TemplatePanel.js';
+import { TEMPLATES } from '../../components/sidebars/TemplatePanel.js';
+import { createTemplateSign } from '../objects/template.js';
 import { Canvas } from 'fabric';
 
 const canvasObject = CanvasGlobals.canvasObject; // Assuming canvasObject is defined in canvas.js

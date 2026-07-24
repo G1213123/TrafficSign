@@ -5,46 +5,18 @@ import React, { useState } from 'react';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { buildObjectsFromJSON } from '../../lib/objects/build.js';
 
-import flagTemplate from '../../../../legacy/llm_templates/Flag.json';
-import stackTemplate from '../../../../legacy/llm_templates/Stack.json';
-import laneTemplate from '../../../../legacy/llm_templates/Lane.json';
-import conventionalRoundaboutTemplate from '../../../../legacy/llm_templates/Conventional_Roundabout.json';
-import spiralRoundaboutTemplate from '../../../../legacy/llm_templates/Spiral_Roundabout.json';
-import gantryTemplate from '../../../../legacy/llm_templates/Gantry.json';
-import divergeTemplate from '../../../../legacy/llm_templates/Diverge.json';
+import {createTemplateSign} from '../../lib/objects/template.js';
 
 export const TEMPLATES = [
-    { name: 'Flag Sign', description: 'Standard flag-type sign with destinations and chevron.', data: flagTemplate },
-    { name: 'Stack Sign', description: 'Stacked road sign with multiple destinations.', data: stackTemplate },
-    { name: 'Lane Sign', description: 'Exit sign showing multiple lanes and directions.', data: laneTemplate },
-    { name: 'Roundabout Sign', description: 'Directions at a conventional roundabout.', data: conventionalRoundaboutTemplate },
-    { name: 'Spiral Roundabout Sign', description: 'Directions at a spiral roundabout.', data: spiralRoundaboutTemplate },
-    { name: 'Gantry Sign', description: 'Overhead gantry sign with multiple compartments.', data: gantryTemplate },
-    { name: 'Diverge Sign', description: 'Complex interchange direction sign.', data: divergeTemplate },
+    { name: 'Flag Sign', description: 'Standard flag-type sign with destinations and chevron.',  },
+    { name: 'Stack Sign', description: 'Stacked road sign with multiple destinations.',  },
+    { name: 'Lane Sign', description: 'Exit sign showing multiple lanes and directions.',  },
+    { name: 'Roundabout Sign', description: 'Directions at a conventional roundabout.',  },
+    { name: 'Spiral Roundabout Sign', description: 'Directions at a spiral roundabout.',  },
+    { name: 'Gantry Sign', description: 'Overhead gantry sign with multiple compartments.',  },
+    { name: 'Diverge Sign', description: 'Complex interchange direction sign.',  },
 ];
 
-export async function createTemplateSign(templateName) {
-    const template = TEMPLATES.find((item) => item.name === templateName);
-    const canvas = CanvasGlobals.canvas;
-
-    if (!template || !canvas) {
-        return null;
-    }
-
-    const startIndex = canvas.getObjects().length;
-
-    await buildObjectsFromJSON(template.data.objects);
-
-    const createdObjects = canvas.getObjects().slice(startIndex);
-    const borderObject = [...createdObjects].reverse().find((object) => object.functionalType === 'Border' || object.objectType === 'BorderGroup') || createdObjects.at(-1);
-
-    return borderObject ? {
-        width: borderObject.width,
-        height: borderObject.height,
-        left: borderObject.left,
-        top: borderObject.top,
-    } : null;
-}
 
 export default function TemplatePanel() {
     const [selectedTemplate, setSelectedTemplate] = useState(null);
@@ -68,7 +40,7 @@ export default function TemplatePanel() {
 
         try {
             canvas.discardActiveObject?.();
-            await buildObjectsFromJSON(template.data.objects);
+            await buildObjectsFromJSON(createTemplateSign(template.name));
             canvas.requestRenderAll?.();
             setStatusText(`${template.name} inserted.`);
         } catch (error) {
