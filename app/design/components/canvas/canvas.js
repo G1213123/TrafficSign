@@ -1,4 +1,4 @@
-import { Line, Group, Text } from 'fabric';
+import { Line, Group, Text, util } from 'fabric';
 
 export const CanvasGlobals = {
   canvas: null,
@@ -18,8 +18,8 @@ export function initCanvasGlobals(fabricCanvas) {
     const zoom = fabricCanvas.getZoom();
     const vpt = fabricCanvas.viewportTransform;
     return {
-      x: fabric.util.invertTransform(vpt)[4] + (fabricCanvas.width / zoom) / 2,
-      y: fabric.util.invertTransform(vpt)[5] + (fabricCanvas.height / zoom) / 2
+      x: util.invertTransform(vpt)[4] + (fabricCanvas.width / zoom) / 2,
+      y: util.invertTransform(vpt)[5] + (fabricCanvas.height / zoom) / 2
     };
   };
 }

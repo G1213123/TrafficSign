@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { CanvasGlobals } from "../canvas/canvas.js";
-import { symbolsPermittedAngle, routePermittedAngle, BorderColorScheme } from '../../lib/objects/template.js';
+import { symbolsPermittedAngle } from '../../lib/templates/symbolTemplate.js';
+import { routePermittedAngle } from '../../lib/templates/mapTemplate.js';
+import { BorderColorScheme } from '../../lib/templates/borderTemplate.js';
 import { FontPriorityManager } from '../../lib/modal/md-font.js';
 import { containsNonEnglishCharacters } from '../../lib/objects/text.js';
 import { canvasTracker } from '../../lib/utils/Tracker.js';

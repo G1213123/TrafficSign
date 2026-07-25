@@ -5,7 +5,7 @@
 
 import { GlyphPath } from './draw.js';
 import { BaseGroup } from './BaseGroup.js';
-import { symbolsTemplate, symbolsTemplateAlt } from './template.js';
+import { symbolsTemplate, symbolsTemplateAlt } from '../templates/symbolTemplate.js';
 import { calculateTransformedPoints } from './path.js';
 
 function calcSymbol(type, length, color = 'white') {

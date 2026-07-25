@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { StaticCanvas, Path, Group } from 'fabric';
 import { calcSymbol, SymbolObject } from '../../lib/objects/symbols.js';
 import { convertVertexToPathCommands, convertFontPathToFabricPath, getFontPath } from '../../lib/objects/path.js';
-import { symbolsTemplate, symbolsTemplateAlt, symbolsPermittedAngle } from '../../lib/objects/template.js';
+import { symbolsTemplate, symbolsTemplateAlt, symbolsPermittedAngle } from '../../lib/templates/symbolTemplate.js';
 import { parsedFontMedium, parsedFontHeavy, parsedFontKorean } from "../../lib/objects/path.js";
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { GeneralDrawSettings, useGeneralDrawSettings} from './DrawSettings.js';

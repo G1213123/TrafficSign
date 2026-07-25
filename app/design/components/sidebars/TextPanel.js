@@ -7,7 +7,7 @@ import { TextObject } from '../../lib/objects/text.js';
 import { DividerObject } from '../../lib/objects/divider.js';
 import { anchorShape } from '../../lib/objects/anchor.js';
 import { FontPriorityManager } from '../../lib/modal/md-font.js';
-import { EngDestinations, ChtDestinations } from '../../lib/objects/template.js';
+import { EngDestinations, ChtDestinations } from '../../lib/templates/destinationTemplate.js';
 import { GeneralDrawSettings, useGeneralDrawSettings } from './DrawSettings.js';
 import SidebarToggleGroup from './SidebarToggleGroup.js';
 import './sidebar.css';

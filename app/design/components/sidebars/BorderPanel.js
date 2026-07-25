@@ -6,7 +6,7 @@ import { StaticCanvas, Path, Group } from 'fabric';
 import { BorderGroup } from '../../lib/objects/border.js';
 import { DividerObject } from '../../lib/objects/divider.js';
 import { convertVertexToPathCommands } from '../../lib/objects/path.js';
-import { BorderColorScheme, BorderFrameWidth, BorderTypeScheme } from '../../lib/objects/template.js';
+import { BorderColorScheme, BorderFrameWidth, BorderTypeScheme } from '../../lib/templates/borderTemplate.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { useGeneralDrawSettings } from './DrawSettings.js';
 import { selectObjectHandler } from '../presentations/promptBox.js';

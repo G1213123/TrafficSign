@@ -122,7 +122,7 @@
 }
 
 .toggle-button.active {
-  background-color: #6761A8;
+  background-color: #3498db;
   border-color: #8d86d8;
 }
 
@@ -227,7 +227,7 @@
 }
 
 .object-list-button-active {
-  background-color: #6761A8;
+  background-color: #3498db;
   border-color: #8d86d8;
 }
 
@@ -285,7 +285,7 @@
 }
 
 .sidebar-item-active {
-  background-color: #6761A8;
+  background-color: #3498db;
 }
 
 .tooltip {

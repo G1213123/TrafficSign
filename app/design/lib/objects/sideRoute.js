@@ -1,7 +1,7 @@
 import { GlyphPath } from './draw.js';
 import { BaseGroup } from './BaseGroup.js';
 import { calculateTransformedPoints, getInsertOffset } from './path.js';
-import { roadMapTemplate, baseSideRoadTemplate } from './template.js';
+import { roadMapTemplate, baseSideRoadTemplate } from '../templates/mapTemplate.js';
 import { calcSymbol } from './symbols.js';
 import { assignVertexLabel, getSideRoadCoords } from './routeBase.js';
 

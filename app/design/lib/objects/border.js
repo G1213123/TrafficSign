@@ -1,7 +1,8 @@
 import { BaseGroup } from './BaseGroup.js';
 import { BorderDimensionDisplay, RadiusDimensionDisplay } from './dimension.js';
 import { globalAnchorTree, processUpdateCycle } from './anchor.js';
-import { BorderTypeScheme, BorderColorScheme, BorderFrameWidth, BorderPaddingWidth, DividerMargin } from './template.js';
+import { BorderTypeScheme, BorderColorScheme, BorderFrameWidth, BorderPaddingWidth } from '../templates/borderTemplate.js';
+import { DividerMargin } from '../templates/dividerTemplate.js';
 import { vertexToPath } from './path.js';
 import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import { drawDivider } from './divider.js';

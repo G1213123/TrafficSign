@@ -1,7 +1,8 @@
 import { GlyphPath } from './draw.js';
 import { BaseGroup } from './BaseGroup.js';
 import { CanvasGlobals } from '../../components/canvas/canvas.js';
-import { DividerScheme, BorderColorScheme, DividerMargin } from './template.js';
+import { DividerScheme, DividerMargin } from '../templates/dividerTemplate.js';
+import { BorderColorScheme } from '../templates/borderTemplate.js';
 import { BorderUtilities } from './border.js';
 import { anchorShape } from './anchor.js';
 import { showTextBox } from '../../components/presentations/promptBox.js';

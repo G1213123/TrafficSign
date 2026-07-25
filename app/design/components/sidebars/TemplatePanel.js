@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { buildObjectsFromJSON } from '../../lib/objects/build.js';
 
-import {createTemplateSign} from '../../lib/objects/template.js';
+import {createTemplateSign} from '../../lib/templates/signTemplate.js';
 
 export const TEMPLATES = [
     { name: 'Flag Sign', description: 'Standard flag-type sign with destinations and chevron.',  },
@@ -18,14 +18,11 @@ export const TEMPLATES = [
 ];
 
 
-export default function TemplatePanel() {
+export default function TemplatePanel({canvas}) {
     const [selectedTemplate, setSelectedTemplate] = useState(null);
     const [statusText, setStatusText] = useState('');
 
-    const getCanvas = () => CanvasGlobals.canvas;
-
     const insertTemplate = async () => {
-        const canvas = getCanvas();
         const template = TEMPLATES.find((item) => item.name === selectedTemplate);
 
         if (!canvas) {
@@ -40,7 +37,14 @@ export default function TemplatePanel() {
 
         try {
             canvas.discardActiveObject?.();
-            await buildObjectsFromJSON(createTemplateSign(template.name));
+            const getCenterCoord = () => {
+                return {
+                    x: CanvasGlobals.CenterCoord().x,
+                    y: CanvasGlobals.CenterCoord().y
+                };
+            }
+            const vpt = getCenterCoord();
+            await buildObjectsFromJSON(createTemplateSign(template.name, vpt.x, vpt.y));
             canvas.requestRenderAll?.();
             setStatusText(`${template.name} inserted.`);
         } catch (error) {

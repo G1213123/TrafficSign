@@ -1,4 +1,4 @@
-import { roadMapTemplate } from './template.js';
+import { roadMapTemplate } from '../templates/mapTemplate.js';
 import { calcSymbol } from './symbols.js';
 import { calculateTransformedPoints } from './path.js';
 
