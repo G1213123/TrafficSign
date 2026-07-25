@@ -12,6 +12,9 @@ import { BorderUtilities } from '../objects/border.js';
 import { DividerObject, DividerMargin } from '../objects/divider.js';
 import { anchorShape } from '../objects/anchor.js';
 
+const canvasObject = CanvasGlobals.canvasObject; // Assuming canvasObject is defined in canvas.js
+const getCanvas = () => CanvasGlobals.canvas; // Function to get the current canvas instance
+
 export function createTemplateSign(templateName, x = 0, y = 0) {
     // Each template will specify its own xHeight and color
     console.log(`Creating template: ${templateName}`);
@@ -201,7 +204,7 @@ function createBasicGantry(centerX, centerY, xHeight, color) {
             { xHeight: xHeight, borderType: 'flag', colorType: 'Blue Background' }
         );
 
-        getCanvasGlobals().scheduleRender?.();
+        //canvasGlobals.scheduleRender;
         console.log('Basic Gantry template created successfully');
 
         // Return dimensions and position
@@ -440,7 +443,7 @@ function createGantrySign(centerX, centerY, xHeight, color) {
         );
 
         //
-        getCanvasGlobals().scheduleRender?.();
+        //canvasGlobals.scheduleRender;
         console.log('Gantry Sign template created successfully');
 
         // Return dimensions and position of the main border group
@@ -720,7 +723,7 @@ function createStackSign(centerX, centerY, xHeight, color) {
         });
 
 
-        getCanvasGlobals().scheduleRender?.();
+        //canvasGlobals.scheduleRender;
         console.log('Stack Sign template created successfully');
 
         // Since there are two main border groups, we might return info about both,
@@ -1198,7 +1201,7 @@ function createRoundaboutDirections(centerX, centerY, xHeight, color) {
             { xHeight: xHeight, borderType: 'stack', colorType: 'Blue Background' }
         );
 
-        getCanvasGlobals().scheduleRender?.();
+        //canvasGlobals.scheduleRender;
         console.log('Roundabout Directions template created successfully');
 
         // Return dimensions and position of the final border group
@@ -1441,7 +1444,7 @@ function createInterchangeDirections(centerX, centerY, xHeight, color) {
         });
 
         // Create side road at 60 degrees angle pointing to lower destination
-        canvas.setActiveObject(mainRoad);
+        getCanvas().setActiveObject(mainRoad);
         const sideRoadParams = {
             xHeight: xHeight,
             color: color,
@@ -1491,7 +1494,7 @@ function createInterchangeDirections(centerX, centerY, xHeight, color) {
             { xHeight: xHeight, borderType: 'stack', colorType: 'Green Background' }
         );
 
-        getCanvasGlobals().scheduleRender?.();
+        //canvasGlobals.scheduleRender;
         console.log('Interchange Directions template created successfully');
 
         // Return dimensions and position of the final border group
@@ -1774,7 +1777,7 @@ function createMultiLaneExit(centerX, centerY, xHeight, color) {
         });
 
 
-        getCanvasGlobals().scheduleRender?.();
+        //canvasGlobals.scheduleRender;
         console.log('Multi-Lane Exit template created successfully');
 
         // Return dimensions and position of the final border group
@@ -1817,7 +1820,7 @@ function createSpiralRoundaboutSign(centerX, centerY, xHeight, color) {
         const baseSideRoute = roundabout.sideRoad[0];
 
         // Create side roads at top-left, top-right, left and right positions
-        canvas.setActiveObject(roundabout);
+        getCanvas().setActiveObject(roundabout);
 
         // Left side road
 
@@ -1839,7 +1842,7 @@ function createSpiralRoundaboutSign(centerX, centerY, xHeight, color) {
         const topRoad = new SideRoadSymbol(topSideRoadParams);
 
         // Set the roundabout as active object to add a side road
-        canvas.setActiveObject(roundabout);
+        getCanvas().setActiveObject(roundabout);
 
         // Right side road
         const rightSideRoadParams = {
@@ -2243,7 +2246,7 @@ function createSpiralRoundaboutSign(centerX, centerY, xHeight, color) {
             { xHeight: xHeight, borderType: 'stack', colorType: 'Blue Background' }
         );
 
-        getCanvasGlobals().scheduleRender?.();
+            //canvasGlobals.scheduleRender;
         console.log('Spiral Roundabout Sign template created successfully');
 
         return {

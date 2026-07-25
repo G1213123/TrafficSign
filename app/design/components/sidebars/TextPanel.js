@@ -283,6 +283,26 @@ export default function TextPanel({ canvas }) {
         return topObject;
     };
 
+    const activateTextVertexControl = (textObject) => {
+        if (!textObject) return;
+
+        const v2 = textObject.getBasePolygonVertex('E2');
+        if (v2) {
+            const vertexControl = textObject.controls.E2;
+
+            if (vertexControl) {
+                vertexControl.onCleanup = () => {
+                    setActiveTextObject(null);
+                };
+
+                vertexControl.onClick({
+                    button: 0,
+                    type: 'mousedown'
+                });
+            }
+        }
+    }
+
     const handleSubmit = () => {
         if (!canvas) return;
 
@@ -303,6 +323,7 @@ export default function TextPanel({ canvas }) {
             if (activePairTop && activePairBottom && activePairTop.functionalType === 'Text' && activePairBottom.functionalType === 'Text') {
                 syncTwoLinerPair(activePairTop, activePairBottom, trimmedText, findCorrespondingLocation(trimmedText, 'English', 'Chinese') || trimmedText, resolvedFont, resolvedColor);
                 canvas.setActiveObject(activePairTop);
+                activateTextVertexControl(activePairTop);
                 setActiveTextObject(activePairTop);
                 canvas.requestRenderAll();
                 return;
@@ -310,6 +331,7 @@ export default function TextPanel({ canvas }) {
 
             targetObject = createTwoLinerPair(trimmedText, resolvedFont, resolvedColor);
             canvas.setActiveObject(targetObject);
+            activateTextVertexControl(targetObject);
             setActiveTextObject(targetObject);
             canvas.requestRenderAll();
             return;
@@ -341,7 +363,6 @@ export default function TextPanel({ canvas }) {
                 top: viewportCenter.y,
                 underline: null,
             });
-            canvas.setActiveObject(targetObject);
         }
 
         if (underline) {
@@ -352,6 +373,7 @@ export default function TextPanel({ canvas }) {
 
         targetObject.setCoords?.();
         canvas.setActiveObject(targetObject);
+        activateTextVertexControl(targetObject);
         canvas.requestRenderAll();
         setActiveTextObject(targetObject);
     };

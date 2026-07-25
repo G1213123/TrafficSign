@@ -171,6 +171,27 @@ export default function RouteMapPanel() {
         };
     };
 
+    const activateMapVertexControl = (mapObject) => {
+        if (!mapObject || !mapObject.routeList) return;
+
+        const vertexName = mapObject.roadType?.includes('Roundabout') ? 'C1' : 'V1';
+        const v2 = mapObject.getBasePolygonVertex(vertexName);
+        if (v2) {
+            const vertexControl = mapObject.roadType?.includes('Roundabout') ? mapObject.controls.C1 : mapObject.controls.V1;
+
+            if (vertexControl) {
+                vertexControl.onCleanup = () => {
+                    setSelectedMainRoad(null);
+                };
+
+                vertexControl.onClick({
+                    button: 0,
+                    type: 'mousedown'
+                });
+            }
+        }
+    }
+
     const prepareRouteMap = () => {
         const canvas = getCanvas();
         if (!canvas) {
@@ -188,6 +209,7 @@ export default function RouteMapPanel() {
 
         canvas.setActiveObject?.(routeObject);
         canvas.requestRenderAll?.();
+        activateMapVertexControl(routeObject);
         setStatusText('Main road created.');
     };
 
@@ -230,6 +252,7 @@ export default function RouteMapPanel() {
 
         canvas.setActiveObject?.(sideRoad);
         canvas.requestRenderAll?.();
+        activateMapVertexControl(sideRoad);
         setStatusText('Side road created.');
     };
 

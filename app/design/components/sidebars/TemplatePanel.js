@@ -44,7 +44,7 @@ export default function TemplatePanel({canvas}) {
                 };
             }
             const vpt = getCenterCoord();
-            await buildObjectsFromJSON(createTemplateSign(template.name, vpt.x, vpt.y));
+            createTemplateSign(template.name, vpt.x, vpt.y);
             canvas.requestRenderAll?.();
             setStatusText(`${template.name} inserted.`);
         } catch (error) {

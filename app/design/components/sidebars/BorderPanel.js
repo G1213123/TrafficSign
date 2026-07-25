@@ -98,6 +98,21 @@ export default function BorderPanel() {
 
     const getCanvas = () => CanvasGlobals.canvas;
 
+    const addEscapeToCancelSelection = (cancelSelection) => {
+        const handleEscape = (event) => {
+            if (event.key !== 'Escape') return;
+
+            event.preventDefault();
+            event.stopPropagation();
+            document.removeEventListener('keydown', handleEscape, true);
+            cancelSelection?.();
+        };
+
+        document.addEventListener('keydown', handleEscape, true);
+
+        return () => document.removeEventListener('keydown', handleEscape, true);
+    };
+
     const createBorderFromSelection = (borderType, selectedObjects) => {
         const objects = (selectedObjects || []).filter((object) => object && object.functionalType !== 'Border');
         if (!objects.length) return;
@@ -121,20 +136,28 @@ export default function BorderPanel() {
     const createBorder = (borderType) => {
         setSelectedBorderType(borderType);
 
-        selectObjectHandler(
+        let cleanupEscape = () => {};
+        const cancelSelection = selectObjectHandler(
             'Select shape(s) to contain inside the border',
-            (selectedObjects) => createBorderFromSelection(borderType, selectedObjects),
+            (selectedObjects) => {
+                cleanupEscape();
+                createBorderFromSelection(borderType, selectedObjects);
+            },
             null,
             xHeight,
             'mm',
             true
         );
+
+        cleanupEscape = addEscapeToCancelSelection(cancelSelection);
     };
 
     const createDivider = (dividerType) => {
-        selectObjectHandler(
+        let cleanupEscape = () => {};
+        const cancelSelection = selectObjectHandler(
             'Select border to place divider inside',
             (selectedObjects) => {
+                cleanupEscape();
                 const border = (selectedObjects || []).find((object) => object?.functionalType === 'Border');
                 if (!border) return;
 
@@ -153,6 +176,8 @@ export default function BorderPanel() {
             true,
             'Border'
         );
+
+        cleanupEscape = addEscapeToCancelSelection(cancelSelection);
     };
 
     return (
