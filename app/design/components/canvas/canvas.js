@@ -1,4 +1,5 @@
 import { Line, Group, Text, util } from 'fabric';
+import { GeneralSettings } from '../../lib/utils/settings.js';
 
 export const CanvasGlobals = {
   canvas: null,
@@ -25,6 +26,7 @@ export function initCanvasGlobals(fabricCanvas) {
 }
 
 export function DrawGrid() {
+  if (!GeneralSettings.showGrid) return;
   const canvas = CanvasGlobals.canvas;
   if (!canvas || typeof canvas.calcViewportBoundaries !== 'function') return;
 

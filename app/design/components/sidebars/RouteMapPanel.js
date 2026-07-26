@@ -7,9 +7,17 @@ import { MainRoadSymbol } from '../../lib/objects/mainRoute.js';
 import { SideRoadSymbol } from '../../lib/objects/sideRoute.js';
 import SidebarToggleGroup from './SidebarToggleGroup.js';
 import { useGeneralDrawSettings } from './DrawSettings.js';
+import { routePermittedAngle } from '../../lib/templates/mapTemplate.js';
 
-const ROUTE_TYPES = ['Main Line', 'Roundabout', 'Spiral Roundabout', 'Diverge'];
-const ROUNDABOUT_TYPES = ['Conventional', 'Spiral'];
+const ROUTE_TYPES = ['Main Line', 'Roundabout'];
+const MAIN_LINE_SUBTYPES = ['Arrow', 'Stub', 'RedBar', 'LaneDrop', 'T-Junction', 'Y-Junction'];
+const ROUNDABOUT_SUBTYPES = ['Conventional', 'Spiral', 'Oval', 'Double'];
+const ROUNDABOUT_FEATURES = {
+    'Conventional': ['Normal', 'Auxiliary', 'U-turn'],
+    'Spiral': ['Normal', 'Auxiliary', 'U-turn'],
+    'Oval': ['Normal'],
+    'Double': ['Conventional', 'Spiral'],
+};
 const OVAL_POSITIONS = ['Left', 'Middle'];
 const SIDE_SHAPES = ['Arrow', 'Stub', 'RedBar', 'Circular Sign', 'Circular Sign (with Arrow)'];
 const SIDE_DIRECTIONS = ['Right', 'Left'];
@@ -18,6 +26,7 @@ const SIDE_ANGLES = ['45', '60', '90'];
 export default function RouteMapPanel() {
     const { xHeight, color } = useGeneralDrawSettings();
     const [routeType, setRouteType] = useState('Main Line');
+    const [subType, setSubType] = useState('Arrow');
     const [roundaboutType, setRoundaboutType] = useState('Conventional');
     const [ovalPosition, setOvalPosition] = useState('Left');
     const [mainWidth, setMainWidth] = useState('6');
@@ -29,6 +38,7 @@ export default function RouteMapPanel() {
     const [sideShape, setSideShape] = useState('Arrow');
     const [sideWidth, setSideWidth] = useState('4');
     const [sideAngle, setSideAngle] = useState('45');
+    const [mainAngle, setMainAngle] = useState('0');
     const [statusText, setStatusText] = useState('');
     const [selectedMainRoad, setSelectedMainRoad] = useState(null);
 
@@ -95,10 +105,11 @@ export default function RouteMapPanel() {
         const parsedTipLength = resolveNumber(tipLength, 12);
         const parsedInnerCornerRadius = resolveNumber(innerCornerRadius, 1);
         const parsedOuterCornerRadius = resolveNumber(outerCornerRadius, 4);
+        const resolvedMainAngle = resolveNumber(mainAngle, 0);
 
-        if (routeType === 'Roundabout' || routeType === 'Spiral Roundabout') {
-            const isSpiral = routeType === 'Spiral Roundabout' || roundaboutType === 'Spiral';
-            const roadTypeValue = isSpiral ? 'Spiral Roundabout' : 'Conventional Roundabout';
+        if (routeType === 'Roundabout') {
+            const isSpiral = subType === 'Spiral';
+            const roadTypeValue = subType === 'Spiral' ? 'Spiral Roundabout' : (subType === 'Oval' ? 'Oval Roundabout' : (subType === 'Double' ? 'Double Roundabout' : 'Conventional Roundabout'));
             const computedRootLength = parsedRootLength;
             const computedTipLength = parsedTipLength;
             const baseShape = isSpiral ? 'Auxiliary' : 'Normal';
@@ -129,15 +140,16 @@ export default function RouteMapPanel() {
                 color: normalizedColor,
                 roadType: roadTypeValue,
                 RAfeature: roundaboutFeature,
+                mainAngle: resolvedMainAngle,
                 left: centerPoint.x - (width * xHeight / 8),
                 top: centerPoint.y,
             };
         }
 
-        const isDiverge = routeType === 'Diverge';
+        const isDiverge = subType === 'LaneDrop';
         const computedRootLength = parsedRootLength;
         const computedTipLength = parsedTipLength;
-        const topShape = isDiverge ? 'LaneDrop' : 'Arrow';
+        const topShape = subType;
 
         return {
             routeList: [
@@ -166,6 +178,7 @@ export default function RouteMapPanel() {
             roadType: 'Main Line',
             innerCornerRadius: isDiverge ? parsedInnerCornerRadius : null,
             outerCornerRadius: isDiverge ? parsedOuterCornerRadius : null,
+            mainAngle: resolvedMainAngle,
             left: centerPoint.x - (width * xHeight / 8),
             top: centerPoint.y,
         };
@@ -262,26 +275,51 @@ export default function RouteMapPanel() {
                 label="Main Road Type"
                 options={ROUTE_TYPES}
                 value={routeType}
-                onChange={setRouteType}
+                onChange={(val) => {
+                    setRouteType(val);
+                    if (val === 'Main Line') setSubType('Arrow');
+                    else if (val === 'Roundabout') setSubType('Conventional');
+                }}
             />
 
-            {routeType === 'Roundabout' || routeType === 'Spiral Roundabout' ? (
+            {routeType === 'Main Line' && (
+                <SidebarToggleGroup
+                    label="Main Road Sub-type"
+                    options={MAIN_LINE_SUBTYPES}
+                    value={subType}
+                    onChange={setSubType}
+                />
+            )}
+
+            {routeType === 'Roundabout' && (
+                <SidebarToggleGroup
+                    label="Roundabout Sub-type"
+                    options={ROUNDABOUT_SUBTYPES}
+                    value={subType}
+                    onChange={(val) => {
+                        setSubType(val);
+                        setRoundaboutType(val);
+                    }}
+                />
+            )}
+
+            {routeType === 'Roundabout' && (
                 <SidebarToggleGroup
                     label="Roundel Shape"
-                    options={ROUNDABOUT_TYPES}
+                    options={ROUNDABOUT_FEATURES[subType] || []}
                     value={roundaboutType}
                     onChange={setRoundaboutType}
                 />
-            ) : null}
+            )}
 
-            {routeType === 'Roundabout' || routeType === 'Spiral Roundabout' ? (
+            {routeType === 'Roundabout' && (
                 <SidebarToggleGroup
                     label="Oval Position"
                     options={OVAL_POSITIONS}
                     value={ovalPosition}
                     onChange={setOvalPosition}
                 />
-            ) : null}
+            )}
 
             <div className="input-group">
                 <label className="input-label">Main Road Width</label>
@@ -316,7 +354,7 @@ export default function RouteMapPanel() {
                 />
             </div>
 
-            {routeType === 'Diverge' ? (
+            {routeType === 'Main Line' && subType === 'LaneDrop' ? (
                 <>
                     <div className="input-group">
                         <label className="input-label">Inner Corner Radius</label>
@@ -341,6 +379,15 @@ export default function RouteMapPanel() {
                     </div>
                 </>
             ) : null}
+
+            <div className="input-group">
+                <label className="input-label">Main Road Angle</label>
+                <SidebarToggleGroup
+                    options={['0', '45', '60', '90', '135', '180', '225', '270', '315']}
+                    value={mainAngle}
+                    onChange={setMainAngle}
+                />
+            </div>
 
             <div className="input-group">
                 <label className="input-label">Route Layout</label>

@@ -97,17 +97,14 @@ export default function SettingsPanel() {
 
     const handleSaveCanvas = () => {
         const saved = GeneralSettings.saveCanvasState();
-        showToast(saved ? 'Canvas state saved!' : 'Error saving canvas state.', saved ? 'success' : 'error');
     };
 
     const handleClearSavedCanvas = () => {
         const cleared = GeneralSettings.clearSavedCanvas();
-        showToast(cleared ? 'Cleared saved canvas data!' : 'Error clearing saved canvas data.', cleared ? 'success' : 'error');
     };
 
     const handleResetSettings = () => {
         const reset = GeneralSettings.resetSetting();
-        showToast(reset ? 'Settings reset to defaults!' : 'Error resetting settings.', reset ? 'success' : 'error');
     };
 
     return (

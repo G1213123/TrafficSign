@@ -1,5 +1,6 @@
 import { CanvasGlobals, DrawGrid } from '../../components/canvas/canvas.js';
 import { i18n } from '../i18n/i18n.js';
+import { showToast } from '../../components/presentations/ToastBox.js';
 
 const STORAGE_KEY = 'appSettings';
 const CANVAS_STATE_KEY = 'canvasState';
@@ -210,7 +211,9 @@ export const GeneralSettings = {
     applyLocale(this.locale);
     this.notifyListeners('settingsReset', null);
     applyAllCanvasSettings();
-    return this.saveSettings();
+    const reset = this.saveSettings();
+    showToast(reset ? 'Settings reset to defaults!' : 'Error resetting settings.', reset ? 'success' : 'error');
+    return reset;
   },
 
   saveSettings() {
@@ -346,9 +349,11 @@ export const GeneralSettings = {
       if (exportedCanvas) {
         localStorage.setItem(CANVAS_OBJECTS_KEY, exportedCanvas);
       }
+      showToast('Canvas state saved!', 'success');
       return true;
     } catch (error) {
       console.error('Failed to save canvas state', error);
+      showToast('Error saving canvas state.', 'error');
       return false;
     }
   },
@@ -357,9 +362,11 @@ export const GeneralSettings = {
     try {
       localStorage.removeItem(CANVAS_STATE_KEY);
       localStorage.removeItem(CANVAS_OBJECTS_KEY);
+      showToast('Cleared saved canvas data!', 'success');
       return true;
     } catch (error) {
       console.error('Failed to clear saved canvas state', error);
+      showToast('Error clearing saved canvas data.', 'error');
       return false;
     }
   },

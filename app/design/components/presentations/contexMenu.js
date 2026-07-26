@@ -91,6 +91,7 @@ export default function ContextMenu() {
   const [visible, setVisible] = useState(menuState.isVisible);
   const [pos, setPos] = useState(menuState.position);
   const [openLeft, setOpenLeft] = useState(false);
+  const [showSubmenu, setShowSubmenu] = useState(false);
   const menuRef = useRef(null);
   const pivotRef = useRef(null);
 
@@ -107,6 +108,7 @@ export default function ContextMenu() {
   }, [visible, pos]);
 
   const handlePivotMouseEnter = () => {
+    setShowSubmenu(true);
     if (!pivotRef.current) return;
     
     // Use requestAnimationFrame to ensure the submenu is rendered/visible if CSS handles it
@@ -143,13 +145,38 @@ export default function ContextMenu() {
           id="pivot-anchor" 
           ref={pivotRef} 
           onMouseEnter={handlePivotMouseEnter}
+          onMouseLeave={() => setShowSubmenu(false)}
+          style={{ 
+            cursor: 'pointer', 
+            position: 'relative', 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center' 
+          }}
           className={openLeft ? 'open-left' : ''}
         >
           <span data-i18n="Pivot Anchor">Pivot Anchor</span>
-          <ul className="context-submenu">
-            <li id="pivot-anchor-x" data-i18n="X-axis" onClick={() => handlePivot('x')}>X-axis</li>
-            <li id="pivot-anchor-y" data-i18n="Y-axis" onClick={() => handlePivot('y')}>Y-axis</li>
-            <li id="pivot-anchor-both" data-i18n="Both" onClick={() => handlePivot('both')}>Both</li>
+          <span style={{ 
+            fontSize: '8px', 
+            marginLeft: '8px', 
+            transform: openLeft ? 'rotate(180deg)' : 'none',
+            display: 'inline-block'
+          }}>▶</span>
+          <ul className="context-submenu" style={{ 
+            position: 'absolute', 
+            top: 0, 
+            [openLeft ? 'right' : 'left']: '100%', 
+            listStyle: 'none', 
+            padding: 0, 
+            margin: 0, 
+            background: 'white', 
+            border: '1px solid black',
+            zIndex: 1001,
+            display: showSubmenu ? 'block' : 'none'
+          }}>
+            <li id="pivot-anchor-x" data-i18n="X-axis" onClick={() => handlePivot('x')} style={{ cursor: 'pointer' }}>X-axis</li>
+            <li id="pivot-anchor-y" data-i18n="Y-axis" onClick={() => handlePivot('y')} style={{ cursor: 'pointer' }}>Y-axis</li>
+            <li id="pivot-anchor-both" data-i18n="Both" onClick={() => handlePivot('both')} style={{ cursor: 'pointer' }}>Both</li>
           </ul>
         </li>
         <li id="edit-object" data-i18n="Edit" onClick={handleEditObject} style={{ cursor: 'pointer' }}>Edit</li>

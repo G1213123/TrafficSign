@@ -27,8 +27,8 @@ const createBorderButtonSVG = (borderType, xHeight, colorScheme) => {
 
     const scheme = BorderColorScheme[colorScheme] || BorderColorScheme['Blue Background'];
     const previewWidth = 220;
-    const previewHeight = 120;
-    const block = { width: 1000, height: 400 };
+    const previewHeight = 220;
+    const block = { width: borderType === 'exit'? 1000 : 3200, height: 2000  };
     const rounding = { x: 0, y: 0 };
     const shapeMeta = BorderTypeScheme[borderType]?.(xHeight, block, rounding);
 
