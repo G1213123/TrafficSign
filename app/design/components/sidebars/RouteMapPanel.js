@@ -6,8 +6,8 @@ import { CanvasGlobals } from '../canvas/canvas.js';
 import { MainRoadSymbol } from '../../lib/objects/mainRoute.js';
 import { SideRoadSymbol } from '../../lib/objects/sideRoute.js';
 import SidebarToggleGroup from './SidebarToggleGroup.js';
-import { useGeneralDrawSettings } from './DrawSettings.js';
 import { routePermittedAngle } from '../../lib/templates/mapTemplate.js';
+import { GeneralDrawSettings, useGeneralDrawSettings } from './DrawSettings.js';
 
 const ROUTE_TYPES = ['Main Line', 'Roundabout'];
 const MAIN_LINE_SUBTYPES = ['Arrow', 'Stub', 'RedBar', 'LaneDrop', 'T-Junction', 'Y-Junction'];
@@ -23,23 +23,23 @@ const SIDE_DIRECTIONS = ['Right', 'Left'];
 const SIDE_ANGLES = ['45', '60', '90'];
 
 export default function RouteMapPanel() {
-    const { xHeight, color } = useGeneralDrawSettings();
+    const { xHeight, setXHeight, color, setColor } = useGeneralDrawSettings();
     const [routeType, setRouteType] = useState('Main Line');
     const [subType, setSubType] = useState('Arrow');
     const [roundaboutType, setRoundaboutType] = useState('Normal');
     const [mainWidth, setMainWidth] = useState('6');
-    const [rootLength, setRootLength] = useState('7');
-    const [tipLength, setTipLength] = useState('12');
+    const [rootLength, setRootLength] = useState('12');
+    const [tipLength, setTipLength] = useState('7');
     const [innerCornerRadius, setInnerCornerRadius] = useState('1');
     const [outerCornerRadius, setOuterCornerRadius] = useState('4');
     const [sideDirection, setSideDirection] = useState('Right');
     const [sideShape, setSideShape] = useState('Arrow');
     const [sideWidth, setSideWidth] = useState('4');
     const [sideAngle, setSideAngle] = useState('45');
-    const [mainAngle, setMainAngle] = useState('0');
+    const [mainAngle, setMainAngle] = useState(0);
     const [statusText, setStatusText] = useState('');
     const [selectedMainRoad, setSelectedMainRoad] = useState(null);
-    const [permittedAngles, setPermittedAngles] = useState(routePermittedAngle[routeType]);
+    const [permittedAngles, setPermittedAngles] = useState([-90, -60, -45, -30, 0, 30, 45, 60, 90]);
 
     const getCanvas = () => CanvasGlobals.canvas;
 
@@ -108,10 +108,10 @@ export default function RouteMapPanel() {
 
         if (routeType === 'Roundabout') {
             const roadTypeValue = subType === 'Spiral' ? 'Spiral Roundabout' : (subType === 'Oval' ? 'Oval Roundabout' : (subType === 'Double' ? 'Double Roundabout' : 'Conventional Roundabout'));
-            
+
             let computedRootLength = parsedRootLength;
             let computedTipLength = parsedTipLength;
-            
+
             // Legacy logic for specific roundabout types
             if (subType === 'Oval') {
                 computedTipLength = 24;
@@ -122,7 +122,7 @@ export default function RouteMapPanel() {
             const angleRad = resolvedMainAngle * Math.PI / 180;
             const cosA = Math.cos(angleRad);
             const sinA = Math.sin(angleRad);
-            const baseShape = roundaboutType + (subType === 'Oval' ? ' ' + resolvedMainAngle : ''); 
+            const baseShape = roundaboutType + (subType === 'Oval' ? ' ' + resolvedMainAngle : '');
 
             return {
                 routeList: [
@@ -156,10 +156,9 @@ export default function RouteMapPanel() {
             };
         }
 
-        const isDiverge = subType === 'LaneDrop';
+        const isDiverge = subType === 'LaneDrop'
         const isTJunction = subType === 'T-Junction';
         const isYJunction = subType === 'Y-Junction';
-        const computedRootLength = isDiverge ? resolveNumber(rootLength, 12) : parsedRootLength;
         const computedTipLength = parsedTipLength;
         const topShape = subType;
 
@@ -170,18 +169,10 @@ export default function RouteMapPanel() {
 
         const routeList = [
             {
-                x: centerPoint.x,
-                y: centerPoint.y,
-                angle: resolvedMainAngle,
-                length: computedTipLength,
-                width,
-                shape: topShape,
-            },
-            {
-                x: centerPoint.x  - Math.sin(angleRad) * tipLength * xHeight / 4 + computedRootLength,
-                y: centerPoint.y  + (Math.cos(angleRad) * tipLength + (width / 2 * (1 - Math.cos(angleRad)) + computedRootLength)) * xHeight / 4,
+                x: centerPoint.x - Math.sin(angleRad) * tipLength * xHeight / 4,
+                y: centerPoint.y + (Math.cos(angleRad) * tipLength + (width / 2 * (1 - Math.cos(angleRad)))) * xHeight / 4,
                 angle: 180,
-                length: computedRootLength,
+                length: parsedRootLength,
                 width,
                 shape: 'Stub',
             },
@@ -192,21 +183,39 @@ export default function RouteMapPanel() {
             const absoluteAngle = resolvedMainAngle + relativeAngle;
             const absAngleRad = absoluteAngle * Math.PI / 180;
             const widthMod = isYJunction ? (width * 2) / 3 : width;
-            
+
+            routeList.push({
+                x: centerPoint.x + 2 * Math.sin(absAngleRad) * computedTipLength * xHeight / 4,
+                y: centerPoint.y - 2 * Math.cos(absAngleRad) * computedTipLength * xHeight / 4, // Adjusted for rotation
+                angle: absoluteAngle,
+                length: computedTipLength,
+                width: widthMod,
+                shape: topShape,
+            });
+
             routeList.push({
                 x: centerPoint.x - 2 * Math.sin(absAngleRad) * computedTipLength * xHeight / 4,
-                y: centerPoint.y + 2 * Math.cos(absAngleRad) * computedTipLength * xHeight / 4, // Adjusted for rotation
+                y: centerPoint.y - 2 * Math.cos(absAngleRad) * computedTipLength * xHeight / 4, // Adjusted for rotation
                 angle: -absoluteAngle,
                 length: computedTipLength,
                 width: widthMod,
                 shape: topShape,
             });
+        } else {
+            routeList.push({
+                x: centerPoint.x,
+                y: centerPoint.y,
+                angle: resolvedMainAngle,
+                length: computedTipLength,
+                width,
+                shape: topShape,
+            },)
         }
 
         return {
             routeList: routeList,
             xHeight,
-            rootLength: computedRootLength,
+            rootLength: parsedRootLength,
             tipLength: computedTipLength,
             routeWidth: width,
             color: normalizedColor,
@@ -306,6 +315,13 @@ export default function RouteMapPanel() {
 
     return (
         <div className="space-y-4">
+            <GeneralDrawSettings
+                xHeight={xHeight}
+                onXHeightChange={setXHeight}
+                color={color}
+                onColorChange={setColor}
+            />
+
             <SidebarToggleGroup
                 label="Main Road Type"
                 options={ROUTE_TYPES}
@@ -314,10 +330,8 @@ export default function RouteMapPanel() {
                     setRouteType(val);
                     if (val === 'Main Line') setSubType('Arrow');
                     else if (val === 'Roundabout') setSubType('Conventional');
-                    
-                    const angleKey = val === 'Roundabout' ? 
-                        (subType === 'Spiral' ? 'Spiral Roundabout' : (subType === 'Oval' ? 'Oval Roundabout' : (subType === 'Double' ? 'Double Roundabout' : 'Conventional Roundabout'))) 
-                        : val;
+
+                    const angleKey = subType + ' ' + val;
                     setPermittedAngles(routePermittedAngle[angleKey] || routePermittedAngle[val] || []);
                 }}
             />
@@ -327,7 +341,24 @@ export default function RouteMapPanel() {
                     label="Main Road Sub-type"
                     options={MAIN_LINE_SUBTYPES}
                     value={subType}
-                    onChange={setSubType}
+                    onChange={
+                        (val) => {
+                            setSubType(val);
+                            const angleKey = val + ' ' + routeType;
+                            setPermittedAngles(routePermittedAngle[angleKey] || routePermittedAngle[routeType] || []);
+                            if (['Arrow', 'Stub', 'RedBar'].includes(val)) {
+                                setTipLength(12);
+                            } else if (val === 'LaneDrop') {
+                                setTipLength(18.45);
+                                setInnerCornerRadius(1);
+                                setOuterCornerRadius(4);
+                                setMainAngle(-60);
+                            } else if (val === 'T-Junction' || val === 'Y-Junction') {
+                                setTipLength(12);
+                                setMainAngle(0);
+                            }
+                        }
+                    }
                 />
             )}
 
@@ -338,7 +369,7 @@ export default function RouteMapPanel() {
                     value={subType}
                     onChange={(val) => {
                         setSubType(val);
-                        setRoundaboutType(val === 'Double'?'Conventional':'Normal');
+                        setRoundaboutType(val === 'Double' ? 'Conventional' : 'Normal');
                         setMainAngle(0);
                         const angleKey = val === 'Spiral' ? 'Spiral Roundabout' : (val === 'Oval' ? 'Oval Roundabout' : (val === 'Double' ? 'Double Roundabout' : 'Conventional Roundabout'));
                         setPermittedAngles(routePermittedAngle[angleKey] || []);

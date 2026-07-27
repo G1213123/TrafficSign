@@ -1,5 +1,7 @@
 export const routePermittedAngle = {
-    'Main Line': [-90, -60, -45, -30, 0, 30, 45, 60, 90],
+    'Arrow Main Line': [-90, -60, -45, -30, 0, 30, 45, 60, 90],
+    'Stub Main Line': [-90, -60, -45, -30, 0, 30, 45, 60, 90],
+    'RedBar Main Line': [-90, -60, -45, -30, 0, 30, 45, 60, 90],
     'Oval Roundabout': [-90, -60, -30, 0, 30, 60, 90],
     'Double Roundabout': [-90, -60, -30, 0, 30, 60, 90]
 };
