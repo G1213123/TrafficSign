@@ -63,7 +63,7 @@ const simpleStringify = (object) => {
   return JSON.stringify(simpleObject);
 };
 
-const exportCanvasToJSON = () => {
+export const exportCanvasToJSON = () => {
   const canvas = getCanvas();
   if (!canvas) {
     return null;

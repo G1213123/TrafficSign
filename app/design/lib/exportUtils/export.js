@@ -1,3 +1,5 @@
+import paper from 'paper';
+
 const SPECIAL_EXPORT_CHAR = '九炮功勁勞勢磡婆支波飛肉內';
 
 function collectPathObjects(obj, pathObjects) {
@@ -712,6 +714,9 @@ function splitToChunkedPaths(pathObjects) {
 }
 
 function calculatePathUnion(pathObjects, char) {
+  if (!paper.project) {
+    paper.setup([1000, 1000]);
+  }
   let pathData;
 
   // Process each subpath and determine if it should be united or subtracted
