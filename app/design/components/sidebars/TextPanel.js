@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { GeneralSettings } from '../../lib/utils/settings.js';
 import { TextObject } from '../../lib/objects/text.js';
@@ -130,6 +130,7 @@ export default function TextPanel({ canvas }) {
     const [font, setFont] = useState('TransportMedium');
     const [underline, setUnderline] = useState(false);
     const [activeTextObject, setActiveTextObject] = useState(null);
+    const lastSyncedTextObjectIdRef = useRef(null);
     const [language, setLanguage] = useState('English');
     const [regionName, setRegionName] = useState(getRegionNames('English')[0] || '');
     const [locationValue, setLocationValue] = useState('');
@@ -144,8 +145,14 @@ export default function TextPanel({ canvas }) {
         const syncSelectedTextObject = () => {
             const activeObject = canvas.getActiveObject?.();
             const resolvedActiveTextObject = activeObject?.twoLinerTop || activeObject;
+            const activeObjectId = resolvedActiveTextObject?.canvasID ?? null;
+
+            if (activeObjectId !== null && lastSyncedTextObjectIdRef.current === activeObjectId) {
+                return;
+            }
 
             if (resolvedActiveTextObject && resolvedActiveTextObject.functionalType === 'Text') {
+                lastSyncedTextObjectIdRef.current = activeObjectId;
                 setActiveTextObject(resolvedActiveTextObject);
                 setText(resolvedActiveTextObject.text || '');
                 setXHeight(Math.round(resolvedActiveTextObject.xHeight || GeneralSettings.xHeight || 100));
@@ -178,6 +185,7 @@ export default function TextPanel({ canvas }) {
                     setRegionName(matchedRegion);
                 }
             } else {
+                lastSyncedTextObjectIdRef.current = null;
                 setActiveTextObject(null);
             }
         };
@@ -187,13 +195,11 @@ export default function TextPanel({ canvas }) {
         canvas.on('selection:created', syncSelectedTextObject);
         canvas.on('selection:updated', syncSelectedTextObject);
         canvas.on('selection:cleared', syncSelectedTextObject);
-        canvas.on('object:modified', syncSelectedTextObject);
 
         return () => {
             canvas.off('selection:created', syncSelectedTextObject);
             canvas.off('selection:updated', syncSelectedTextObject);
             canvas.off('selection:cleared', syncSelectedTextObject);
-            canvas.off('object:modified', syncSelectedTextObject);
         };
     }, [canvas, setColor, setXHeight]);
 
@@ -205,10 +211,9 @@ export default function TextPanel({ canvas }) {
             setRegionName(nextRegion);
 
             const locations = getLocationsForRegion(nextRegion, fallbackLanguage);
-            setLocationValue(locations[0] || '');
-            if (language === '2Liner') {
-                setText(locations[0] || '');
-            }
+            const nextLocation = locations[0] || '';
+            setLocationValue(nextLocation);
+            setText(nextLocation);
             return;
         }
 
@@ -216,10 +221,11 @@ export default function TextPanel({ canvas }) {
         if (!locations.includes(locationValue)) {
             const nextLocation = locations[0] || '';
             setLocationValue(nextLocation);
-            if (language === '2Liner') {
-                setText(nextLocation);
-            }
+            setText(nextLocation);
+            return;
         }
+
+        setText(locationValue);
     }, [language, regionName, locationValue]);
 
     const syncTwoLinerPair = (topObject, bottomObject, pairText, translatedText, resolvedFont, resolvedColor) => {
@@ -323,7 +329,6 @@ export default function TextPanel({ canvas }) {
             if (activePairTop && activePairBottom && activePairTop.functionalType === 'Text' && activePairBottom.functionalType === 'Text') {
                 syncTwoLinerPair(activePairTop, activePairBottom, trimmedText, findCorrespondingLocation(trimmedText, 'English', 'Chinese') || trimmedText, resolvedFont, resolvedColor);
                 canvas.setActiveObject(activePairTop);
-                activateTextVertexControl(activePairTop);
                 setActiveTextObject(activePairTop);
                 canvas.requestRenderAll();
                 return;
@@ -363,6 +368,8 @@ export default function TextPanel({ canvas }) {
                 top: viewportCenter.y,
                 underline: null,
             });
+
+            activateTextVertexControl(targetObject);
         }
 
         if (underline) {
@@ -373,7 +380,6 @@ export default function TextPanel({ canvas }) {
 
         targetObject.setCoords?.();
         canvas.setActiveObject(targetObject);
-        activateTextVertexControl(targetObject);
         canvas.requestRenderAll();
         setActiveTextObject(targetObject);
     };
@@ -468,11 +474,11 @@ export default function TextPanel({ canvas }) {
                     onChange={(nextValue) => setUnderline(nextValue === 'Yes')}
                 />
 
-                <button className="btn-small" onClick={handleSubmit}>
+                <button className="toggle-button" onClick={handleSubmit}>
                     {activeTextObject && language !== '2Liner' ? 'Update Text' : 'Add Text'}
                 </button>
 
-                <button className="btn-small" onClick={() => FontPriorityManager.showModal()}>
+                <button className="toggle-button" onClick={() => FontPriorityManager.showModal()}>
                     Open Font Settings
                 </button>
 

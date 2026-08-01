@@ -10,6 +10,7 @@ import { DividerObject } from '../../lib/objects/divider.js';
 import { anchorShape } from '../../lib/objects/anchor.js';
 import { i18n } from '../../lib/i18n/i18n.js';
 import { calculateMainRoadBottomY } from '../../lib/objects/mainRoute.js';
+import './property.css';
 
 // Add handler for 'Property' context-menu action
 //const propertyMenuItem = document.getElementById('property');
@@ -566,10 +567,10 @@ function renderInput(prop, targetObject, isGroup) {
       return (
         <input
           type="number"
+          className="property-input-field property-input-number"
           value={prop.key === 'xHeight' ? (targetObject[prop.key] !== undefined ? parseFloat(targetObject[prop.key]) : 0).toFixed(0) : Math.round(targetObject[prop.key] !== undefined ? parseFloat(targetObject[prop.key]) : 0)}
           step={prop.step || (prop.key === 'xHeight' ? '5' : '1')}
           onChange={(e) => handleNumericInputChange(e, prop, targetObject)}
-          style={{ width: '80px', maxWidth: '100%', justifySelf: 'end' }}
         />
       );
     }
@@ -577,9 +578,9 @@ function renderInput(prop, targetObject, isGroup) {
       return (
         <input
           type="text"
+          className="property-input-field property-input-text"
           value={targetObject[prop.key] || ''}
           onChange={(e) => handleTextInputChange(e, prop, targetObject)}
-          style={{ width: '200px', maxWidth: '100%', justifySelf: 'end' }}
         />
       );
     }
@@ -590,9 +591,9 @@ function renderInput(prop, targetObject, isGroup) {
         : currentValue;
       return (
         <select
+          className="property-input-field property-input-select"
           value={valueToSet}
           onChange={(e) => handleSelectInputChange(e, prop, targetObject)}
-          style={{ width: '200px', maxWidth: '100%', justifySelf: 'end' }}
         >
           {(prop.options || []).map((opt) => {
             const optionValue = typeof opt === 'object' && opt.value !== undefined ? opt.value : opt;
@@ -613,11 +614,11 @@ function renderInput(prop, targetObject, isGroup) {
       return (
         <input
           type="number"
+          className="property-input-field property-input-number"
           placeholder={prop.value === 'varies' ? i18n.t('varies') : undefined}
           value={prop.value !== 'varies' && prop.value !== undefined ? parseFloat(prop.value).toFixed(0) : ''}
           step={prop.step || '1'}
           onChange={(e) => handleGroupNumericChange(e, prop, targetObject)}
-          style={{ width: '80px', maxWidth: '100%', justifySelf: 'end' }}
         />
       );
     }
@@ -625,9 +626,9 @@ function renderInput(prop, targetObject, isGroup) {
       const hasVaries = prop.value === 'varies';
       return (
         <select
+          className="property-input-field property-input-select"
           defaultValue={hasVaries ? '' : prop.value}
           onChange={(e) => handleGroupSelectChange(e, prop, targetObject)}
-          style={{ width: '200px', maxWidth: '100%', justifySelf: 'end' }}
         >
           {hasVaries ? <option value="" disabled data-i18n="varies">{i18n.t('varies')}</option> : null}
           {(prop.options || []).map((opt) => (
@@ -659,15 +660,15 @@ function PropertySection({ name, props, targetObject, isGroup }) {
 
   return (
     <section className="input-group-container">
-      <div className="property-title" data-i18n={name}>{i18n.t(name)}</div>
+      <div className="property-section-title" data-i18n={name}>{i18n.t(name)}</div>
       <table className="property-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
         <tbody>
           {props.map((prop) => (
             <tr key={`${name}-${prop.label}-${prop.key || prop.value}`} className="property-item">
-              <td style={{ minWidth: 0, textAlign: 'left', paddingRight: '8px' }}>
+              <td style={{ minWidth: 0, textAlign: 'left', paddingRight: '8px', overflowWrap: 'anywhere' }}>
                 <span data-i18n={prop.label}>{i18n.t(prop.label)}</span>:
               </td>
-              <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+              <td style={{ textAlign: 'right', whiteSpace: 'normal', overflow: 'hidden' }}>
                 {renderInput(prop, targetObject, isGroup)}
               </td>
             </tr>
@@ -729,12 +730,12 @@ export default function PropertyPanel() {
   };
 
   return (
-    <div id="property-panel" style={{ display: 'block', position: 'fixed', right: 0, top: 0, bottom: 0, width: '300px', background: 'white', borderLeft: '1px solid black', zIndex: 1000, overflowY: 'auto' }}>
-      <button className="property-close" onClick={handleClose} style={{ position: 'absolute', right: '5px', top: '5px', cursor: 'pointer' }}>×</button>
+    <div id="property-panel" className="property-panel-container property-panel-open" style={{ display: 'block' }}>
+      <button className="property-close-btn" onClick={handleClose} style={{ position: 'absolute', right: '5px', top: '5px', cursor: 'pointer' }}>×</button>
 
-      <div className="property-title">
+      <div className="property-panel-title">
         {isMulti ? (
-          <select className="property-title-select" style={{ maxWidth: '80%' }} value="group" onChange={handleTitleChange}>
+          <select className="property-title-select property-input-field" value="group" onChange={handleTitleChange}>
             <option value="group">{i18n.t('Group')} ({activeObject.length})</option>
             {activeObject.map((obj, idx) => (
               <option key={obj?.canvasID || idx} value={obj?.canvasID != null ? String(obj.canvasID) : `idx:${idx}`}>
@@ -747,7 +748,7 @@ export default function PropertyPanel() {
         )}
       </div>
 
-      <div className="property-content">
+      <div className="property-panel-content">
         {model.sections.map((section) => (
           <PropertySection
             key={section.name}

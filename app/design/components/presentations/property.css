@@ -1,0 +1,176 @@
+/* Property Panel Styles - Dark Theme */
+
+.property-panel-container {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 320px;
+  background-color: #222;
+  color: white;
+  font-family: Arial, sans-serif;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s ease-in-out;
+}
+
+.property-panel-open {
+  transform: translateX(0);
+}
+
+.property-panel-closed {
+  transform: translateX(100%);
+}
+
+.property-panel-header {
+  height: 44px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #333;
+  font-size: 18px;
+  font-weight: bold;
+  border-bottom: 1px solid #444;
+}
+
+.property-panel-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 14px 14px 18px;
+}
+
+.property-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.property-input-label {
+  font-size: 13px;
+  color: #aaa;
+}
+
+.property-input-field {
+  width: 100%;
+  max-width: 100%;
+  background-color: #121212;
+  border: 1px solid #4a4a4a;
+  padding: 8px 10px;
+  border-radius: 6px;
+  color: #f2f2f2;
+  font-size: 14px;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.property-input-field:focus {
+  border-color: #7b7b7b;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.06);
+}
+
+.property-input-number {
+  width: 92px;
+  text-align: right;
+}
+
+.property-input-text,
+.property-input-select {
+  min-width: 0;
+}
+
+.property-input-select {
+  padding-right: 34px;
+  background-image: linear-gradient(45deg, transparent 50%, #c7c7c7 50%), linear-gradient(135deg, #c7c7c7 50%, transparent 50%);
+  background-position: calc(100% - 18px) calc(50% + 2px), calc(100% - 12px) calc(50% + 2px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+.property-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 14px 0 10px;
+  padding-top: 12px;
+  padding-bottom: 8px;
+  border-top: 1px solid #3b3b3b;
+  border-bottom: 1px solid #3b3b3b;
+  color: #bdbdbd;
+}
+
+.input-group-container:first-of-type .property-section-title {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.property-panel-title {
+  padding: 14px 16px 12px;
+  margin: 44px 0 0;
+  border-top: 1px solid #3a3a3a;
+  border-bottom: 1px solid #3a3a3a;
+  color: #f3f3f3;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: linear-gradient(180deg, #292929 0%, #232323 100%);
+}
+
+.property-panel-title .property-title-select {
+  width: 100%;
+}
+
+.property-table {
+  color: #e2e2e2;
+  table-layout: fixed;
+}
+
+.property-table td {
+  padding: 5px 0;
+  vertical-align: middle;
+}
+
+.property-table td:first-child {
+  width: 48%;
+}
+
+.property-table td:last-child {
+  width: 52%;
+  overflow: hidden;
+}
+
+.property-item {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.property-item:last-child {
+  border-bottom: none;
+}
+
+.input-group-container {
+  margin-bottom: 18px;
+}
+
+.property-close-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #aaa;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.property-close-btn:hover {
+  color: white;
+}

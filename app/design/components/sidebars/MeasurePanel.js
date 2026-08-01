@@ -292,7 +292,7 @@ export default function MeasurePanel() {
 
             <div className="input-group">
                 <label className="input-label">Measurement Control</label>
-                <button type="button" className={`btn-small ${activeMeasurement ? 'object-list-button-active' : ''}`} onClick={toggleMeasurement}>
+                <button type="button" className={`toggle-button ${activeMeasurement ? 'object-list-button-active' : ''}`} onClick={toggleMeasurement}>
                     {activeMeasurement ? 'Stop Measuring' : 'Start Measuring'}
                 </button>
             </div>

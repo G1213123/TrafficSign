@@ -55,6 +55,53 @@ export const promptBoxState = {
 
 const canvas = CanvasGlobals.canvas; // Access the global canvas object
 
+const promptBoxStyles = {
+  container: {
+    position: 'absolute',
+    zIndex: 2000,
+    background: '#f5e9ad',
+    border: '2px solid #000',
+    color: '#000',
+    padding: '8px 10px',
+    borderRadius: '4px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
+    maxWidth: '320px',
+  },
+  textBox: {
+    marginBottom: '6px',
+    color: '#000',
+    lineHeight: 1.35,
+  },
+  answerWrapper: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '8px',
+    flexWrap: 'wrap',
+  },
+  input: {
+    display: 'block',
+    background: '#f8efbf',
+    color: '#000',
+    border: '1px solid #000',
+    borderRadius: '3px',
+    padding: '6px 8px',
+    minWidth: '160px',
+    boxSizing: 'border-box',
+  },
+  unit: {
+    marginLeft: '5px',
+    color: '#000',
+  },
+  actionButton: {
+    background: '#f8efbf',
+    color: '#000',
+    border: '1px solid #000',
+    borderRadius: '3px',
+    padding: '6px 10px',
+    cursor: 'pointer',
+  },
+};
+
 // Configurable prompt keyword emphasis
 const PromptHighlight = {
   terms: new Set(["width", "height", "寬度", "高度"]),
@@ -248,26 +295,16 @@ export default function PromptBox() {
     <div 
       ref={boxRef}
       id="cursorBoxContainer" 
-      style={{ 
-        position: 'absolute', 
-        top: pos.y, 
-        left: pos.x, 
-        zIndex: 2000,
-        background: 'white',
-        border: '1px solid black',
-        padding: '5px',
-        borderRadius: '4px',
-        boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
-      }}
+      style={{ ...promptBoxStyles.container, top: pos.y, left: pos.x }}
     >
       <div 
         id="cursorTextBox" 
         dangerouslySetInnerHTML={{ __html: emphasizePromptText(promptBoxState.text) }}
-        style={{ marginBottom: '5px' }}
+        style={promptBoxStyles.textBox}
       />
       
       {promptBoxState.withAnswerBox !== null && (
-        <div id="cursorAnswerWrapper" style={{ display: 'inline-flex', alignItems: 'center' }}>
+        <div id="cursorAnswerWrapper" style={promptBoxStyles.answerWrapper}>
           <input 
             ref={inputRef}
             id="cursorAnswerBox"
@@ -276,15 +313,15 @@ export default function PromptBox() {
             onKeyDown={handleKeyDown}
             onBlur={handleInputBlur}
             onFocus={() => inputRef.current?.select()}
-            style={{ display: 'block' }}
+            style={promptBoxStyles.input}
           />
           {promptBoxState.xHeight !== null && (
-            <span id="unit-display" style={{ marginLeft: '5px' }}>{promptBoxState.unit}</span>
+            <span id="unit-display" style={promptBoxStyles.unit}>{promptBoxState.unit}</span>
           )}
           {window.innerWidth <= 600 && (
             <>
-              <button onClick={handleEnterClick} id="cursorEnterButton">Enter</button>
-              <button onClick={handleCancelClick} id="cursorCancelButton">Cancel</button>
+              <button onClick={handleEnterClick} id="cursorEnterButton" style={promptBoxStyles.actionButton}>Enter</button>
+              <button onClick={handleCancelClick} id="cursorCancelButton" style={promptBoxStyles.actionButton}>Cancel</button>
             </>
           )}
         </div>
