@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { CanvasGlobals } from "../canvas/canvas.js";
 import { symbolsPermittedAngle } from '../../lib/templates/symbolTemplate.js';
 import { routePermittedAngle } from '../../lib/templates/mapTemplate.js';
@@ -561,7 +561,11 @@ function buildPropertyModel(object) {
   };
 }
 
-function renderInput(prop, targetObject, isGroup) {
+function PropertyFieldInput({ prop, targetObject, isGroup, value, onValueChange }) {
+  const handleInputChange = (nextValue) => {
+    onValueChange?.(prop, nextValue);
+  };
+
   if (prop.editable && targetObject && !Array.isArray(targetObject)) {
     if (prop.type === 'number') {
       return (
@@ -585,7 +589,7 @@ function renderInput(prop, targetObject, isGroup) {
       );
     }
     if (prop.type === 'select') {
-      const currentValue = prop.value;
+      const currentValue = value ?? prop.value;
       const valueToSet = typeof currentValue === 'string' && Array.isArray(prop.options)
         ? (prop.options.find((opt) => typeof opt === 'string' && opt.toLowerCase() === currentValue.toLowerCase()) ?? currentValue)
         : currentValue;
@@ -616,7 +620,7 @@ function renderInput(prop, targetObject, isGroup) {
           type="number"
           className="property-input-field property-input-number"
           placeholder={prop.value === 'varies' ? i18n.t('varies') : undefined}
-          value={prop.value !== 'varies' && prop.value !== undefined ? parseFloat(prop.value).toFixed(0) : ''}
+          value={value ?? ''}
           step={prop.step || '1'}
           onChange={(e) => handleGroupNumericChange(e, prop, targetObject)}
         />
@@ -655,7 +659,20 @@ function renderInput(prop, targetObject, isGroup) {
     : <span>{String(displayValue)}</span>;
 }
 
-function PropertySection({ name, props, targetObject, isGroup }) {
+function PropertyRow({ prop, targetObject, isGroup, value, onValueChange }) {
+  return (
+    <tr key={`${prop.label}-${prop.key || prop.value}`} className="property-item">
+      <td style={{ minWidth: 0, textAlign: 'left', paddingRight: '8px' }}>
+        <span data-i18n={prop.label}>{i18n.t(prop.label)}</span>:
+      </td>
+      <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+        <PropertyFieldInput prop={prop} targetObject={targetObject} isGroup={isGroup} value={value} onValueChange={onValueChange} />
+      </td>
+    </tr>
+  );
+}
+
+function PropertySection({ name, props, targetObject, isGroup, values, onValueChange }) {
   if (!props.length) return null;
 
   return (
@@ -679,11 +696,57 @@ function PropertySection({ name, props, targetObject, isGroup }) {
   );
 }
 
+function PropertyPanelHeader({ activeObject, onTitleChange, onClose }) {
+  const isMulti = Array.isArray(activeObject) && activeObject.length > 1;
+  const titleText = !Array.isArray(activeObject)
+    ? (activeObject?._showName || activeObject?.type || i18n.t('Object Properties'))
+    : null;
+
+  return (
+    <>
+      <button className="property-close" onClick={onClose} style={{ position: 'absolute', right: '5px', top: '5px', cursor: 'pointer' }}>×</button>
+      <div className="property-title">
+        {isMulti ? (
+          <select className="property-title-select" style={{ maxWidth: '80%' }} value="group" onChange={onTitleChange}>
+            <option value="group">{i18n.t('Group')} ({activeObject.length})</option>
+            {activeObject.map((obj, idx) => (
+              <option key={obj?.canvasID || idx} value={obj?.canvasID != null ? String(obj.canvasID) : `idx:${idx}`}>
+                {getObjDisplayName(obj, idx)}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <span data-i18n={titleText}>{titleText}</span>
+        )}
+      </div>
+    </>
+  );
+}
+
 export default function PropertyPanel() {
   const [visible, setVisible] = useState(propertyPanelState.isVisible);
   const [activeObject, setActiveObject] = useState(propertyPanelState.activeObject);
+  const [inputValues, setInputValues] = useState({});
 
   useEffect(() => {
+    const nextValues = {};
+    if (Array.isArray(activeObject)) {
+      activeObject.forEach((obj, idx) => {
+        if (obj?.canvasID != null) nextValues[`group:${obj.canvasID}`] = obj?.type || idx;
+      });
+    } else if (activeObject) {
+      const model = buildPropertyModel(activeObject);
+      model.sections.forEach((section) => {
+        section.props.forEach((prop) => {
+          const key = prop.key || prop.label;
+          if (prop.type === 'number' || prop.type === 'text' || prop.type === 'select') {
+            nextValues[key] = prop.value;
+          }
+        });
+      });
+    }
+    setInputValues(nextValues);
+
     const interval = setInterval(() => {
       if (visible !== propertyPanelState.isVisible) setVisible(propertyPanelState.isVisible);
       if (activeObject !== propertyPanelState.activeObject) setActiveObject(propertyPanelState.activeObject);
@@ -694,10 +757,6 @@ export default function PropertyPanel() {
   if (!visible) return null;
 
   const model = buildPropertyModel(activeObject);
-  const isMulti = model.isMultiSelect;
-  const titleText = !Array.isArray(activeObject)
-    ? (activeObject?._showName || activeObject?.type || i18n.t('Object Properties'))
-    : null;
 
   const handleTitleChange = (e) => {
     const v = e.target.value;
@@ -729,6 +788,24 @@ export default function PropertyPanel() {
     setVisible(false);
   };
 
+  const handleValueChange = (prop, nextValue) => {
+    setInputValues((prev) => ({ ...prev, [prop.key || prop.label]: nextValue }));
+
+    if (Array.isArray(activeObject)) {
+      return;
+    }
+
+    if (!activeObject) return;
+
+    if (prop.type === 'number') {
+      handleNumericInputChange({ target: { value: nextValue } }, prop, activeObject);
+    } else if (prop.type === 'text') {
+      handleTextInputChange({ target: { value: nextValue } }, prop, activeObject);
+    } else if (prop.type === 'select') {
+      handleSelectInputChange({ target: { value: nextValue } }, prop, activeObject);
+    }
+  };
+
   return (
     <div id="property-panel" className="property-panel-container property-panel-open" style={{ display: 'block' }}>
       <button className="property-close-btn" onClick={handleClose} style={{ position: 'absolute', right: '5px', top: '5px', cursor: 'pointer' }}>×</button>
@@ -754,8 +831,10 @@ export default function PropertyPanel() {
             key={section.name}
             name={section.name}
             props={section.props}
-            targetObject={section.props.some((prop) => prop.editable) ? activeObject : activeObject}
+            targetObject={activeObject}
             isGroup={model.isMultiSelect}
+            values={inputValues}
+            onValueChange={handleValueChange}
           />
         ))}
       </div>

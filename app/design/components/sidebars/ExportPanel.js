@@ -3,6 +3,8 @@
 import React, { useRef, useState } from 'react';
 
 import { CanvasGlobals } from '../canvas/canvas.js';
+import { exportCanvasToJSON } from '../../lib/utils/settings.js';
+import { exportToPDF, exportToDXF } from '../../lib/exportUtils/index.js';
 import SidebarToggleGroup from './SidebarToggleGroup.js';
 
 const QUALITY_OPTIONS = ['1.0', '0.9', '0.8', '0.7', '0.5'];
@@ -56,7 +58,28 @@ export default function ExportPanel() {
         const canvas = getCanvas();
         if (!canvas) return;
 
-        downloadText(`${filename}.json`, JSON.stringify(canvas.toJSON(), null, 2), 'application/json');
+        // Use the custom serialization logic from GeneralSettings
+        // This matches how the app saves state to local storage
+        const json = exportCanvasToJSON();
+        
+        if (!json) {
+            alert('Failed to export canvas data.');
+            return;
+        }
+
+         downloadText(`${filename}.json`, json, 'application/json');
+    };
+
+    const exportPDF = () => {
+        const canvas = getCanvas();
+        if (!canvas) return;
+        exportToPDF(canvas, filename, paperSize);
+    };
+
+    const exportDXF = () => {
+        const canvas = getCanvas();
+        if (!canvas) return;
+        exportToDXF(canvas, filename);
     };
 
     const triggerImport = () => {
@@ -111,8 +134,8 @@ export default function ExportPanel() {
                     <button type="button" className="toggle-button" onClick={exportPNG}>Export as PNG</button>
                     <button type="button" className="toggle-button" onClick={exportSVG}>Export as SVG</button>
                     <button type="button" className="toggle-button" onClick={exportJSON}>Export as JSON</button>
-                    <button type="button" className="toggle-button" disabled title="PDF export wiring next">Export as PDF</button>
-                    <button type="button" className="toggle-button" disabled title="DXF export wiring next">Export as DXF</button>
+                    <button type="button" className="toggle-button" onClick={exportPDF}>Export as PDF</button>
+                    <button type="button" className="toggle-button" onClick={exportDXF}>Export as DXF</button>
                 </div>
             </div>
 

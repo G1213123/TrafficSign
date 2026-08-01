@@ -252,6 +252,32 @@ function handleKeyboardDown(event) {
     return;
   }
 
+  if (event.ctrlKey && (event.key === 's' || event.key === 'S')) {
+    if (isTextInputFocused()) return;
+    event.preventDefault();
+    GeneralSettings.saveCanvasState();
+    return;
+  }
+
+  if (event.ctrlKey && (event.key === 'z' || event.key === 'Z') && !event.shiftKey) {
+    if (isTextInputFocused()) return;
+    event.preventDefault();
+    if (typeof canvasTracker.undo === 'function') {
+      canvasTracker.undo();
+    }
+    return;
+  }
+
+  if ((event.ctrlKey && (event.key === 'y' || event.key === 'Y')) ||
+    (event.ctrlKey && event.shiftKey && (event.key === 'z' || event.key === 'Z'))) {
+    if (isTextInputFocused()) return;
+    event.preventDefault();
+    if (typeof canvasTracker.redo === 'function') {
+      canvasTracker.redo();
+    }
+    return;
+  }
+
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Delete'].includes(event.key)) {
     if (handleArrowKeys(event)) {
       event.preventDefault();
@@ -259,37 +285,35 @@ function handleKeyboardDown(event) {
     return;
   }
 
-  const settings = window.FormSettingsComponent;
-  if (!settings) return;
-
   if (event.key === 'F3') {
     event.preventDefault();
-    settings.updateSetting('showTextBorders', !GeneralSettings.showTextBorders);
-    settings.applyTextBorderSettings();
-    settings.updateSettingsUI();
+    GeneralSettings.updateSetting('showTextBorders', !GeneralSettings.showTextBorders);
+    return;
   }
 
   if (event.key === 'F4') {
     event.preventDefault();
-    settings.updateSetting('showGrid', !GeneralSettings.showGrid);
-    settings.applyGridSettings();
-    settings.updateSettingsUI();
+    GeneralSettings.updateSetting('showGrid', !GeneralSettings.showGrid);
+    return;
   }
 
   if (event.key === 'F2') {
     event.preventDefault();
-    settings.updateSetting('showAllVertices', !GeneralSettings.showAllVertices);
-    settings.applyVertexDisplaySettings();
-    settings.updateSettingsUI();
+    GeneralSettings.updateSetting('showAllVertices', !GeneralSettings.showAllVertices);
+    return;
   }
 
   if (event.key === 'F8') {
     event.preventDefault();
-    settings.updateSetting('dimensionUnit', GeneralSettings.dimensionUnit === 'mm' ? 'sw' : 'mm');
-    settings.refreshDimensionDisplays();
-    settings.updateSettingsUI();
+    GeneralSettings.updateSetting('dimensionUnit', GeneralSettings.dimensionUnit === 'mm' ? 'sw' : 'mm');
+    return;
   }
+  // Apply the updated grid settings
+  GeneralSettings.applyGridSettings();
+  GeneralSettings.updateSettingsUI();
 }
+
+
 
 export function setupKeyboardEvents() {
   document.addEventListener('keydown', handleKeyboardDown);
