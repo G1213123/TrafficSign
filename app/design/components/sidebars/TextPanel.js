@@ -348,11 +348,24 @@ export default function TextPanel({ canvas }) {
                 : trimmedText;
             const finalText = effectiveLanguage === 'Chinese' ? translatedText : trimmedText;
 
+            const preservedOriginX = targetObject.originX || 'left';
+            const preservedOriginY = targetObject.originY || 'top';
+            const preservedOriginPoint = targetObject.getPointByOrigin
+                ? targetObject.getPointByOrigin(preservedOriginX, preservedOriginY)
+                : { x: targetObject.left, y: targetObject.top };
+
             targetObject.updateText(finalText, resolvedXHeight, resolvedFont, resolvedColor, targetObject.charSpacing || 0);
-            targetObject.set({
-                left: targetObject.left,
-                top: targetObject.top,
-            });
+
+            if (targetObject.setPositionByOrigin) {
+                targetObject.setPositionByOrigin(preservedOriginPoint, preservedOriginX, preservedOriginY);
+            } else {
+                targetObject.set({
+                    left: preservedOriginPoint.x,
+                    top: preservedOriginPoint.y,
+                    originX: preservedOriginX,
+                    originY: preservedOriginY,
+                });
+            }
         } else {
             const viewportCenter = canvas.getCenterPoint();
             const finalText = effectiveLanguage === 'Chinese'

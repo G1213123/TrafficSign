@@ -6,15 +6,16 @@ import { CanvasGlobals } from '../canvas/canvas.js';
 import { buildObjectsFromJSON } from '../../lib/objects/build.js';
 
 import {createTemplateSign} from '../../lib/templates/signTemplate.js';
+import './sidebar.css';
 
 export const TEMPLATES = [
-    { name: 'Flag Sign', description: 'Standard flag-type sign with destinations and chevron.',  },
-    { name: 'Stack Sign', description: 'Stacked road sign with multiple destinations.',  },
-    { name: 'Lane Sign', description: 'Exit sign showing multiple lanes and directions.',  },
-    { name: 'Roundabout Sign', description: 'Directions at a conventional roundabout.',  },
-    { name: 'Spiral Roundabout Sign', description: 'Directions at a spiral roundabout.',  },
-    { name: 'Gantry Sign', description: 'Overhead gantry sign with multiple compartments.',  },
-    { name: 'Diverge Sign', description: 'Complex interchange direction sign.',  },
+    { name: 'Flag Sign', description: 'Standard flag-type sign with destinations and chevron.', image: '/images/flag.svg' },
+    { name: 'Stack Sign', description: 'Stacked road sign with multiple destinations.', image: '/images/stack.svg' },
+    { name: 'Lane Sign', description: 'Exit sign showing multiple lanes and directions.', image: '/images/lane.svg' },
+    { name: 'Roundabout Sign', description: 'Directions at a conventional roundabout.', image: '/images/roundabout.svg' },
+    { name: 'Spiral Roundabout Sign', description: 'Directions at a spiral roundabout.', image: '/images/spiral.svg' },
+    { name: 'Gantry Sign', description: 'Overhead gantry sign with multiple compartments.', image: '/images/gantry.svg' },
+    { name: 'Diverge Sign', description: 'Complex interchange direction sign.', image: '/images/diverge.svg' },
 ];
 
 
@@ -57,7 +58,7 @@ export default function TemplatePanel({canvas}) {
         <div className="space-y-4">
             <div className="input-group">
                 <label className="input-label">Template Gallery</label>
-                <div className="symbol-grid" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
+                <div className="symbol-grid template-grid">
                     {TEMPLATES.map((template) => {
                         const isSelected = selectedTemplate === template.name;
 
@@ -65,12 +66,17 @@ export default function TemplatePanel({canvas}) {
                             <button
                                 key={template.name}
                                 type="button"
-                                className={`symbol-item ${isSelected ? 'object-list-button-active' : ''}`}
-                                style={{ aspectRatio: 'auto', minHeight: '128px', textAlign: 'left', justifyContent: 'flex-start', alignItems: 'flex-start' }}
+                                className={`symbol-item template-item ${isSelected ? 'object-list-button-active' : ''}`}
                                 onClick={() => setSelectedTemplate(template.name)}
                             >
-                                <strong style={{ display: 'block', marginBottom: '6px' }}>{template.name}</strong>
-                                <span style={{ fontSize: '12px', color: '#d0d0d0', lineHeight: 1.4 }}>{template.description}</span>
+                                <strong className="template-item-title">{template.name}</strong>
+                                <div className="template-preview">
+                                    <img
+                                        src={template.image}
+                                        alt={`${template.name} preview`}
+                                        className="template-preview-image"
+                                    />
+                                </div>
                             </button>
                         );
                     })}

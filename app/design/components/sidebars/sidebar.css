@@ -157,6 +157,48 @@
   background-color: #8d8d8d;
 }
 
+.template-preview {
+  width: 100%;
+  min-height: 120px;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+}
+
+.template-preview img,
+.template-preview svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.template-grid {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.template-item {
+  height: 210px;
+  aspect-ratio: auto;
+  align-items: stretch;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.template-item-title {
+  display: block;
+  margin-bottom: 8px;
+  min-height: 32px;
+}
+
+.template-item .template-preview {
+  flex: 1;
+}
+
+.template-preview-image {
+  object-fit: contain;
+  object-position: center;
+}
+
 
 .symbol-separator {
     background-color: #fff;

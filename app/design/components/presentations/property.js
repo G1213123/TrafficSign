@@ -377,6 +377,13 @@ const normColor = (val, isBorderRel) => {
 
 const PREDEFINED_COLORS = ['black', 'white'];
 
+const formatNumericDisplayValue = (rawValue) => {
+  const numeric = Number(rawValue);
+  if (!Number.isFinite(numeric)) return '';
+  const rounded = Math.round(numeric * 10) / 10;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+};
+
 const getObjDisplayName = (obj, idx) => {
   const base = obj?._showName || obj?.type || `#${idx + 1}`;
   const idHint = obj?.canvasID != null ? ` (${obj.canvasID})` : '';
@@ -572,7 +579,7 @@ function PropertyFieldInput({ prop, targetObject, isGroup, value, onValueChange 
         <input
           type="number"
           className="property-input-field property-input-number"
-          value={value ?? ''}
+          value={value === '' || value === null || value === undefined ? '' : formatNumericDisplayValue(value)}
           step={prop.step || (prop.key === 'xHeight' ? '5' : '1')}
           onChange={(e) => handleInputChange(e.target.value)}
         />
@@ -620,7 +627,7 @@ function PropertyFieldInput({ prop, targetObject, isGroup, value, onValueChange 
           type="number"
           className="property-input-field property-input-number"
           placeholder={prop.value === 'varies' ? i18n.t('varies') : undefined}
-          value={value ?? ''}
+          value={value === '' || value === null || value === undefined ? '' : formatNumericDisplayValue(value)}
           step={prop.step || '1'}
           onChange={(e) => handleInputChange(e.target.value)}
         />

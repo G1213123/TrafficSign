@@ -649,7 +649,9 @@ class TextObject extends BaseGroup {
     // Create a new group
     const group = new Group([...txtCharList, ...txtFrameList], {
       left: this.left,
-      top: this.top
+      top: this.top,
+      originX: 'left',
+      originY: 'top'
     });
 
 
