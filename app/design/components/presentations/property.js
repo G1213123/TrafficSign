@@ -572,9 +572,9 @@ function PropertyFieldInput({ prop, targetObject, isGroup, value, onValueChange 
         <input
           type="number"
           className="property-input-field property-input-number"
-          value={prop.key === 'xHeight' ? (targetObject[prop.key] !== undefined ? parseFloat(targetObject[prop.key]) : 0).toFixed(0) : Math.round(targetObject[prop.key] !== undefined ? parseFloat(targetObject[prop.key]) : 0)}
+          value={value ?? ''}
           step={prop.step || (prop.key === 'xHeight' ? '5' : '1')}
-          onChange={(e) => handleNumericInputChange(e, prop, targetObject)}
+          onChange={(e) => handleInputChange(e.target.value)}
         />
       );
     }
@@ -583,8 +583,8 @@ function PropertyFieldInput({ prop, targetObject, isGroup, value, onValueChange 
         <input
           type="text"
           className="property-input-field property-input-text"
-          value={targetObject[prop.key] || ''}
-          onChange={(e) => handleTextInputChange(e, prop, targetObject)}
+          value={value ?? ''}
+          onChange={(e) => handleInputChange(e.target.value)}
         />
       );
     }
@@ -597,7 +597,7 @@ function PropertyFieldInput({ prop, targetObject, isGroup, value, onValueChange 
         <select
           className="property-input-field property-input-select"
           value={valueToSet}
-          onChange={(e) => handleSelectInputChange(e, prop, targetObject)}
+          onChange={(e) => handleInputChange(e.target.value)}
         >
           {(prop.options || []).map((opt) => {
             const optionValue = typeof opt === 'object' && opt.value !== undefined ? opt.value : opt;
@@ -622,7 +622,7 @@ function PropertyFieldInput({ prop, targetObject, isGroup, value, onValueChange 
           placeholder={prop.value === 'varies' ? i18n.t('varies') : undefined}
           value={value ?? ''}
           step={prop.step || '1'}
-          onChange={(e) => handleGroupNumericChange(e, prop, targetObject)}
+          onChange={(e) => handleInputChange(e.target.value)}
         />
       );
     }
@@ -631,8 +631,8 @@ function PropertyFieldInput({ prop, targetObject, isGroup, value, onValueChange 
       return (
         <select
           className="property-input-field property-input-select"
-          defaultValue={hasVaries ? '' : prop.value}
-          onChange={(e) => handleGroupSelectChange(e, prop, targetObject)}
+          value={value ?? (hasVaries ? '' : prop.value)}
+          onChange={(e) => handleInputChange(e.target.value)}
         >
           {hasVaries ? <option value="" disabled data-i18n="varies">{i18n.t('varies')}</option> : null}
           {(prop.options || []).map((opt) => (
@@ -662,10 +662,10 @@ function PropertyFieldInput({ prop, targetObject, isGroup, value, onValueChange 
 function PropertyRow({ prop, targetObject, isGroup, value, onValueChange }) {
   return (
     <tr key={`${prop.label}-${prop.key || prop.value}`} className="property-item">
-      <td style={{ minWidth: 0, textAlign: 'left', paddingRight: '8px' }}>
+      <td className="property-label-cell">
         <span data-i18n={prop.label}>{i18n.t(prop.label)}</span>:
       </td>
-      <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+      <td className="property-value-cell">
         <PropertyFieldInput prop={prop} targetObject={targetObject} isGroup={isGroup} value={value} onValueChange={onValueChange} />
       </td>
     </tr>
@@ -678,17 +678,17 @@ function PropertySection({ name, props, targetObject, isGroup, values, onValueCh
   return (
     <section className="input-group-container">
       <div className="property-section-title" data-i18n={name}>{i18n.t(name)}</div>
-      <table className="property-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <table className="property-table">
         <tbody>
           {props.map((prop) => (
-            <tr key={`${name}-${prop.label}-${prop.key || prop.value}`} className="property-item">
-              <td style={{ minWidth: 0, textAlign: 'left', paddingRight: '8px', overflowWrap: 'anywhere' }}>
-                <span data-i18n={prop.label}>{i18n.t(prop.label)}</span>:
-              </td>
-              <td style={{ textAlign: 'right', whiteSpace: 'normal', overflow: 'hidden' }}>
-                {renderInput(prop, targetObject, isGroup)}
-              </td>
-            </tr>
+            <PropertyRow
+              key={`${name}-${prop.label}-${prop.key || prop.value}`}
+              prop={prop}
+              targetObject={targetObject}
+              isGroup={isGroup}
+              value={values?.[prop.key || prop.label]}
+              onValueChange={onValueChange}
+            />
           ))}
         </tbody>
       </table>
@@ -704,20 +704,22 @@ function PropertyPanelHeader({ activeObject, onTitleChange, onClose }) {
 
   return (
     <>
-      <button className="property-close" onClick={onClose} style={{ position: 'absolute', right: '5px', top: '5px', cursor: 'pointer' }}>×</button>
-      <div className="property-title">
-        {isMulti ? (
-          <select className="property-title-select" style={{ maxWidth: '80%' }} value="group" onChange={onTitleChange}>
-            <option value="group">{i18n.t('Group')} ({activeObject.length})</option>
-            {activeObject.map((obj, idx) => (
-              <option key={obj?.canvasID || idx} value={obj?.canvasID != null ? String(obj.canvasID) : `idx:${idx}`}>
-                {getObjDisplayName(obj, idx)}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <span data-i18n={titleText}>{titleText}</span>
-        )}
+      <div className="property-panel-title property-title">
+        <div className="property-panel-title-content">
+          {isMulti ? (
+            <select className="property-title-select property-input-field" value="group" onChange={onTitleChange}>
+              <option value="group">{i18n.t('Group')} ({activeObject.length})</option>
+              {activeObject.map((obj, idx) => (
+                <option key={obj?.canvasID || idx} value={obj?.canvasID != null ? String(obj.canvasID) : `idx:${idx}`}>
+                  {getObjDisplayName(obj, idx)}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span data-i18n={titleText}>{titleText}</span>
+          )}
+        </div>
+        <button className="property-close-btn property-close" onClick={onClose}>×</button>
       </div>
     </>
   );
@@ -808,22 +810,7 @@ export default function PropertyPanel() {
 
   return (
     <div id="property-panel" className="property-panel-container property-panel-open" style={{ display: 'block' }}>
-      <button className="property-close-btn" onClick={handleClose} style={{ position: 'absolute', right: '5px', top: '5px', cursor: 'pointer' }}>×</button>
-
-      <div className="property-panel-title">
-        {isMulti ? (
-          <select className="property-title-select property-input-field" value="group" onChange={handleTitleChange}>
-            <option value="group">{i18n.t('Group')} ({activeObject.length})</option>
-            {activeObject.map((obj, idx) => (
-              <option key={obj?.canvasID || idx} value={obj?.canvasID != null ? String(obj.canvasID) : `idx:${idx}`}>
-                {getObjDisplayName(obj, idx)}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <span data-i18n={titleText}>{titleText}</span>
-        )}
-      </div>
+      <PropertyPanelHeader activeObject={activeObject} onTitleChange={handleTitleChange} onClose={handleClose} />
 
       <div className="property-panel-content">
         {model.sections.map((section) => (

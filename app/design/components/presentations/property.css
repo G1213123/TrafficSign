@@ -114,7 +114,9 @@
 
 .property-panel-title {
   padding: 14px 16px 12px;
-  margin: 44px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   border-top: 1px solid #3a3a3a;
   border-bottom: 1px solid #3a3a3a;
   color: #f3f3f3;
@@ -122,6 +124,11 @@
   font-weight: 700;
   letter-spacing: 0.02em;
   background: linear-gradient(180deg, #292929 0%, #232323 100%);
+}
+
+.property-panel-title-content {
+  flex: 1;
+  min-width: 0;
 }
 
 .property-panel-title .property-title-select {
