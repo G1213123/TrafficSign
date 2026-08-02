@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import { showPropertyPanel } from '../presentations/property';
 
-export default function CanvasObjectList({ canvas }) {
+export default function CanvasObjectList({ canvas, isVisible = true }) {
     const [canvasObjects, setCanvasObjects] = useState([]);
     const [activeObject, setActiveObject] = useState(null);
 
@@ -55,7 +55,7 @@ export default function CanvasObjectList({ canvas }) {
         if (!activeObject?.canvasID) return;
 
         const activeButton = document.querySelector(`[data-object-id="${activeObject.canvasID}"]`);
-        activeButton?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        //activeButton?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, [activeObject, canvasObjects]);
 
     const handleObjectSelect = (object) => {
@@ -73,7 +73,7 @@ export default function CanvasObjectList({ canvas }) {
     };
 
     return (
-        <div className="object-list-panel">
+        <div className={`object-list-panel ${isVisible ? 'object-list-panel-open' : 'object-list-panel-closed'}`} aria-hidden={!isVisible}>
             {canvasObjects.length === 0 ? (
                 <div className="object-list-empty">No objects on canvas</div>
             ) : (

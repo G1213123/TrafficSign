@@ -9,7 +9,7 @@ import { anchorShape } from '../../lib/objects/anchor.js';
 import { FontPriorityManager } from '../../lib/modal/md-font.js';
 import { EngDestinations, ChtDestinations } from '../../lib/templates/destinationTemplate.js';
 import { GeneralDrawSettings, useGeneralDrawSettings } from './DrawSettings.js';
-import SidebarToggleGroup from './SidebarToggleGroup.js';
+import SidebarToggleGroup from '../shared/SidebarToggleGroup.js';
 import './sidebar.css';
 
 const FONT_OPTIONS = [

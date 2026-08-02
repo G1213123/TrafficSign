@@ -10,6 +10,7 @@ import { DividerObject } from '../../lib/objects/divider.js';
 import { anchorShape } from '../../lib/objects/anchor.js';
 import { i18n } from '../../lib/i18n/i18n.js';
 import { calculateMainRoadBottomY } from '../../lib/objects/mainRoute.js';
+import AngleSelector, { getNextAngle } from '../shared/AngleSelector.js';
 import './property.css';
 
 // Add handler for 'Property' context-menu action
@@ -596,6 +597,27 @@ function PropertyFieldInput({ prop, targetObject, isGroup, value, onValueChange 
       );
     }
     if (prop.type === 'select') {
+      const isAngleControl = prop.key === 'symbolAngle' || prop.key === 'mainAngle' || (targetObject.functionalType === 'SideRoad' && prop.key === 'angle');
+      if (isAngleControl) {
+        const currentAngle = value ?? prop.value ?? 0;
+        const permittedAngles = Array.isArray(prop.options) ? prop.options : [];
+        const rotateAngle = (direction) => {
+          if (permittedAngles.length <= 1) return;
+          handleInputChange(getNextAngle(permittedAngles, currentAngle, direction));
+        };
+
+        return (
+          <AngleSelector
+            value={currentAngle}
+            options={permittedAngles}
+            label={prop.label}
+            onChange={(nextAngle) => handleInputChange(nextAngle)}
+            onRotateLeft={() => rotateAngle('left')}
+            onRotateRight={() => rotateAngle('right')}
+          />
+        );
+      }
+
       const currentValue = value ?? prop.value;
       const valueToSet = typeof currentValue === 'string' && Array.isArray(prop.options)
         ? (prop.options.find((opt) => typeof opt === 'string' && opt.toLowerCase() === currentValue.toLowerCase()) ?? currentValue)

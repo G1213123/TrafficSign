@@ -1,6 +1,6 @@
 'use client';
 
-import SidebarToggleGroup from './SidebarToggleGroup.js';
+import SidebarToggleGroup from '../shared/SidebarToggleGroup.js';
 
 const DEFAULT_COLOR_OPTIONS = [
     { value: 'White', label: 'White' },

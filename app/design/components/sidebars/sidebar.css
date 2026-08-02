@@ -50,16 +50,25 @@
 
 .panel-content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
   padding: 16px;
+}
+
+.sidebar-main-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .tab-container {
   background-color: #333;
   border-radius: 8px;
   padding: 16px;
-  min-height: 200px;
   border: 1px solid #444;
+  flex: 1 1 auto;
 }
 
 .tab-title {
@@ -210,7 +219,8 @@
 
 
 .object-list-section {
-  margin-top: 24px;
+  margin-top: auto;
+  flex-shrink: 0;
 }
 
 .object-list-panel {
@@ -221,6 +231,21 @@
   max-height: 260px;
   overflow-y: auto;
   padding-right: 4px;
+  padding-bottom: 4px;
+  transition: max-height 0.25s ease, opacity 0.2s ease, transform 0.25s ease, margin-top 0.25s ease, padding-top 0.25s ease;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.object-list-panel-closed {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-4px);
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .object-list-header {
@@ -228,10 +253,11 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px;
+  border-top: 4px solid #222;
   background-color: #333;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 18px;
 }
 
 .object-list-header:hover {

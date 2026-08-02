@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 
-import SidebarToggleGroup from './SidebarToggleGroup.js';
+import SidebarToggleGroup from '../shared/SidebarToggleGroup.js';
 import { GeneralSettings } from '../../lib/utils/settings.js';
 import { i18n } from '../../lib/i18n/i18n.js';
 import { showToast } from '../presentations/ToastBox.js';

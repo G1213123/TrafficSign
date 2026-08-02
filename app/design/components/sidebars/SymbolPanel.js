@@ -9,6 +9,7 @@ import { symbolsTemplate, symbolsTemplateAlt, symbolsPermittedAngle } from '../.
 import { parsedFontMedium, parsedFontHeavy, parsedFontKorean } from "../../lib/objects/path.js";
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { GeneralDrawSettings, useGeneralDrawSettings} from './DrawSettings.js';
+import AngleSelector, { getNextAngle } from '../shared/AngleSelector.js';
 import './sidebar.css';
 
 const buttonSvgCache = new Map();
@@ -161,24 +162,19 @@ export default function DrawSymbolPanel({ canvas }) {
   const handleRotate = (direction) => {
     if (!canvas) return;
     const activeObject = canvas.getActiveObject();
-    if (!activeObject || !activeObject.symbolType) return;
-
-    const permittedAngles = symbolsPermittedAngle[activeObject.symbolType] || [0];
+    const symbolType = selectedSymbol || activeObject?.symbolType;
+    const permittedAngles = symbolsPermittedAngle[symbolType] || [0];
     if (permittedAngles.length <= 1) return;
 
-    const currentIndex = permittedAngles.indexOf(activeObject.angle);
-    let nextIndex;
+    const currentAngle = activeObject?.symbolType === symbolType ? activeObject.angle : angle;
+    const newAngle = getNextAngle(permittedAngles, currentAngle, direction === 'ccw' ? 'left' : 'right');
 
-    if (direction === 'cw') {
-      nextIndex = (currentIndex + 1) % permittedAngles.length;
-    } else {
-      nextIndex = (currentIndex - 1 + permittedAngles.length) % permittedAngles.length;
+    if (activeObject && activeObject.symbolType === symbolType) {
+      activeObject.set('angle', newAngle);
+      canvas.requestRenderAll();
     }
 
-    const newAngle = permittedAngles[nextIndex];
-    activeObject.set('angle', newAngle);
     setAngle(newAngle);
-    canvas.requestRenderAll();
   };
 
   const handleAddSymbol = (symbolType) => {
@@ -187,9 +183,8 @@ export default function DrawSymbolPanel({ canvas }) {
     setSelectedSymbol(symbolType);
     
     // Reset angle to the first permitted value for the new symbol
-    if (symbolsPermittedAngle[symbolType]) {
-      setAngle(symbolsPermittedAngle[symbolType][0] || 0);
-    }
+    const initialAngle = symbolsPermittedAngle[symbolType]?.[0] || 0;
+    setAngle(initialAngle);
 
     // Calculate center of viewport for placement
     const viewportCenter = canvas.getCenterPoint();
@@ -197,7 +192,7 @@ export default function DrawSymbolPanel({ canvas }) {
     const options = {
       xHeight: xHeight,
       color: color,
-      angle: symbolsPermittedAngle[selectedSymbol] ? (symbolsPermittedAngle[selectedSymbol].length > 1 ? angle : 0) : 0,
+      angle: symbolsPermittedAngle[symbolType] ? (symbolsPermittedAngle[symbolType].length > 1 ? initialAngle : 0) : 0,
       x: viewportCenter.x,
       y: viewportCenter.y
     };
@@ -248,44 +243,24 @@ export default function DrawSymbolPanel({ canvas }) {
       />
 
       <div className="input-group">
-        {selectedSymbol && symbolsPermittedAngle[selectedSymbol] && symbolsPermittedAngle[selectedSymbol].length > 1 && (
+        {selectedSymbol && symbolsPermittedAngle[selectedSymbol] && symbolsPermittedAngle[selectedSymbol].length > 0 && (
           <div>
             <label className="input-label">Angle</label>
-            <select
-              className="input-field"
+            <AngleSelector
               value={angle}
-              onChange={(e) => {
-                const newAngle = parseInt(e.target.value) || 0;
-                setAngle(newAngle);
+              options={symbolsPermittedAngle[selectedSymbol]}
+              label="Angle"
+              onChange={(nextAngle) => {
+                setAngle(nextAngle);
                 if (canvas) {
                   const activeObject = canvas.getActiveObject();
-                  if (activeObject) activeObject.set('angle', newAngle);
+                  if (activeObject) activeObject.set('angle', nextAngle);
                   canvas.requestRenderAll();
                 }
               }}
-            >
-              {symbolsPermittedAngle[selectedSymbol].map((angleOption) => (
-                <option key={angleOption} value={angleOption}>
-                  {angleOption}°
-                </option>
-              ))}
-            </select>
-            <div className="flex gap-2 mt-2">
-              <button 
-                className="btn-small" 
-                onClick={() => handleRotate('ccw')}
-                title="Rotate Anti-Clockwise"
-              >
-                ↺
-              </button>
-              <button 
-                className="btn-small" 
-                onClick={() => handleRotate('cw')}
-                title="Rotate Clockwise"
-              >
-                ↻
-              </button>
-            </div>
+              onRotateLeft={() => handleRotate('ccw')}
+              onRotateRight={() => handleRotate('cw')}
+            />
           </div>
         )}
       </div>

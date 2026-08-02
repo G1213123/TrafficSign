@@ -5,7 +5,7 @@ import React, { useRef, useState } from 'react';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { exportCanvasToJSON } from '../../lib/utils/settings.js';
 import { exportToPDF, exportToDXF } from '../../lib/exportUtils/index.js';
-import SidebarToggleGroup from './SidebarToggleGroup.js';
+import SidebarToggleGroup from '../shared/SidebarToggleGroup.js';
 
 const QUALITY_OPTIONS = ['1.0', '0.9', '0.8', '0.7', '0.5'];
 const PAPER_SIZES = ['A3', 'A4', 'A5', 'Letter', 'Legal', 'Tabloid'];

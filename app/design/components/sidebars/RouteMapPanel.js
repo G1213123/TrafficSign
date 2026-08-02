@@ -5,9 +5,10 @@ import React, { useEffect, useState } from 'react';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { MainRoadSymbol } from '../../lib/objects/mainRoute.js';
 import { SideRoadSymbol } from '../../lib/objects/sideRoute.js';
-import SidebarToggleGroup from './SidebarToggleGroup.js';
+import SidebarToggleGroup from '../shared/SidebarToggleGroup.js';
 import { routePermittedAngle } from '../../lib/templates/mapTemplate.js';
 import { GeneralDrawSettings, useGeneralDrawSettings } from './DrawSettings.js';
+import AngleSelector, { getNextAngle } from '../shared/AngleSelector.js';
 
 const ROUTE_TYPES = ['Main Line', 'Roundabout'];
 const MAIN_LINE_SUBTYPES = ['Arrow', 'Stub', 'RedBar', 'LaneDrop', 'T-Junction', 'Y-Junction'];
@@ -389,10 +390,13 @@ export default function RouteMapPanel() {
             <div className="input-group">
                 <label className="input-label">Main Road Angle</label>
                 {permittedAngles.length > 0 ? (
-                    <SidebarToggleGroup
-                        options={permittedAngles}
+                    <AngleSelector
                         value={mainAngle}
-                        onChange={setMainAngle}
+                        options={permittedAngles}
+                        label="Main Road Angle"
+                        onChange={(nextAngle) => setMainAngle(nextAngle)}
+                        onRotateLeft={() => setMainAngle(getNextAngle(permittedAngles, mainAngle, 'left'))}
+                        onRotateRight={() => setMainAngle(getNextAngle(permittedAngles, mainAngle, 'right'))}
                     />
                 ) : null}
             </div>

@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react';
 import {
     Road,
     Type,
-    SquareDashed ,
-    Waypoints ,
+    SquareDashed,
+    Waypoints,
     Ruler,
     Signpost,
     FolderInput,
@@ -33,8 +33,8 @@ import SettingsPanel from './SettingsPanel';
 const SIDEBAR_ITEMS = [
     { id: 'btn_draw', icon: Road, label: 'Draw Symbol', tooltip: 'Draw Symbol' },
     { id: 'btn_text', icon: Type, label: 'Add Text', tooltip: 'Add Text' },
-    { id: 'btn_border', icon: SquareDashed , label: 'Add Border', tooltip: 'Add Border' },
-    { id: 'btn_map', icon: Waypoints , label: 'Add Route Map', tooltip: 'Add Route Map' },
+    { id: 'btn_border', icon: SquareDashed, label: 'Add Border', tooltip: 'Add Border' },
+    { id: 'btn_map', icon: Waypoints, label: 'Add Route Map', tooltip: 'Add Route Map' },
     { id: 'btn_measure', icon: Ruler, label: 'Measure Tool', tooltip: 'Measure Tool' },
     { id: 'btn_template', icon: Signpost, label: 'Template Signs', tooltip: 'Template Signs' },
     { id: 'btn_export', icon: FolderInput, label: 'Import/Export', tooltip: 'Import/Export' },
@@ -43,11 +43,11 @@ const SIDEBAR_ITEMS = [
     { id: 'btn_settings', icon: Settings, label: 'Settings', tooltip: 'Settings' },
 ];
 
-
 export default function Sidebar({ canvas }) {
     const [isOpen, setIsOpen] = useState(true);
     const [activeTab, setActiveTab] = useState('btn_draw');
     const [isMobile, setIsMobile] = useState(false);
+    const [objectListVisible, setObjectListVisible] = useState(false);
 
     useEffect(() => {
         const checkMobile = () => {
@@ -61,7 +61,7 @@ export default function Sidebar({ canvas }) {
 
     useEffect(() => {
         const handleToggle = () => {
-            setIsOpen(prev => !prev);
+            setIsOpen((prev) => !prev);
         };
 
         window.addEventListener('toggle-sidebar', handleToggle);
@@ -70,83 +70,55 @@ export default function Sidebar({ canvas }) {
 
     return (
         <div className="side-panel-container">
-            {/* Main Side Panel */}
-            <div
-                className={`main-panel ${isOpen ? 'main-panel-open' : 'main-panel-closed'}`}
-            >
+            <div className={`main-panel ${isOpen ? 'main-panel-open' : 'main-panel-closed'}`}>
                 <header className="panel-header">
                     <a href="/" className="hover:text-gray-300 transition-colors">Road Sign Factory</a>
                 </header>
 
                 <div className="panel-content">
-                    {/* Dynamic Content Area */}
-                    <div className="tab-container">
-                        <h2 className="tab-title">
-                            {SIDEBAR_ITEMS.find(item => item.id === activeTab)?.label}
-                        </h2>
+                    <div className="sidebar-main-content">
+                        <div className="tab-container">
+                            <h2 className="tab-title">
+                                {SIDEBAR_ITEMS.find((item) => item.id === activeTab)?.label}
+                            </h2>
 
-                        {activeTab === 'btn_draw' && (
-                            <DrawSymbolPanel canvas={canvas} />
-                        )}
+                            {activeTab === 'btn_draw' && <DrawSymbolPanel canvas={canvas} />}
+                            {activeTab === 'btn_text' && <TextPanel canvas={canvas} />}
+                            {activeTab === 'btn_border' && <BorderPanel canvas={canvas} />}
+                            {activeTab === 'btn_map' && <RouteMapPanel canvas={canvas} />}
+                            {activeTab === 'btn_measure' && <MeasurePanel canvas={canvas} />}
+                            {activeTab === 'btn_template' && <TemplatePanel canvas={canvas} />}
+                            {activeTab === 'btn_export' && <ExportPanel canvas={canvas} />}
+                            {activeTab === 'btn_tracker' && <TrackerPanel canvas={canvas} />}
+                            {activeTab === 'btn_info' && <InfoPanel canvas={canvas} />}
+                            {activeTab === 'btn_settings' && <SettingsPanel canvas={canvas} />}
 
-                        {activeTab === 'btn_text' && (
-                            <TextPanel canvas={canvas} />
-                        )}
-
-                        {activeTab === 'btn_border' && (
-                            <BorderPanel canvas={canvas} />
-                        )}
-
-                        {activeTab === 'btn_map' && (
-                            <RouteMapPanel canvas={canvas} />
-                        )}
-
-                        {activeTab === 'btn_measure' && (
-                            <MeasurePanel canvas={canvas} />
-                        )}
-
-                        {activeTab === 'btn_template' && (
-                            <TemplatePanel canvas={canvas} />
-                        )}
-
-                        {activeTab === 'btn_export' && (
-                            <ExportPanel canvas={canvas} />
-                        )}
-
-                        {activeTab === 'btn_tracker' && (
-                            <TrackerPanel canvas={canvas} />
-                        )}
-
-                        {activeTab === 'btn_info' && (
-                            <InfoPanel canvas={canvas} />
-                        )}
-
-                        {activeTab === 'btn_settings' && (
-                            <SettingsPanel canvas={canvas} />
-                        )}
-
-                        {activeTab !== 'btn_draw' && activeTab !== 'btn_text' && activeTab !== 'btn_border' && activeTab !== 'btn_map' && activeTab !== 'btn_measure' && activeTab !== 'btn_template' && activeTab !== 'btn_export' && activeTab !== 'btn_tracker' && activeTab !== 'btn_info' && activeTab !== 'btn_settings' && (
-                            <div style={{ color: '#aaa', fontStyle: 'italic' }}>
-                                Content for {SIDEBAR_ITEMS.find(item => item.id === activeTab)?.label} is under construction...
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Object List Mock */}
-                    <div className="object-list-section">
-                        <div className="object-list-header">
-                            <span className="text-sm font-medium">Canvas Objects</span>
-                            <ChevronsRight style={{ transform: 'rotate(90deg)', width: '16px', height: '16px' }} />
+                            {activeTab !== 'btn_draw' && activeTab !== 'btn_text' && activeTab !== 'btn_border' && activeTab !== 'btn_map' && activeTab !== 'btn_measure' && activeTab !== 'btn_template' && activeTab !== 'btn_export' && activeTab !== 'btn_tracker' && activeTab !== 'btn_info' && activeTab !== 'btn_settings' && (
+                                <div style={{ color: '#aaa', fontStyle: 'italic' }}>
+                                    Content for {SIDEBAR_ITEMS.find((item) => item.id === activeTab)?.label} is under construction...
+                                </div>
+                            )}
                         </div>
-                        <CanvasObjectList canvas={canvas} />
                     </div>
+                </div>
+
+                <div className="object-list-section">
+                    <div
+                        className="object-list-header"
+                        onClick={() => setObjectListVisible(!objectListVisible)}
+                    >
+                        <span className="text-sm font-medium">Canvas Objects</span>
+                        {objectListVisible ? (
+                            <ChevronsDown size={16} onClick={() => setObjectListVisible(false)} className="cursor-pointer" />
+                        ) : (
+                            <ChevronsUp size={16} onClick={() => setObjectListVisible(true)} className="cursor-pointer" />
+                        )}
+                    </div>
+                    <CanvasObjectList canvas={canvas} isVisible={objectListVisible} />
                 </div>
             </div>
 
-            {/* Slim Icon Bar */}
-            <div
-                className={`slim-bar ${isOpen ? 'slim-bar-left-open' : 'slim-bar-left-closed'}`}
-            >
+            <div className={`slim-bar ${isOpen ? 'slim-bar-left-open' : 'slim-bar-left-closed'}`}>
                 {SIDEBAR_ITEMS.map((item) => (
                     <div
                         key={item.id}
@@ -154,9 +126,7 @@ export default function Sidebar({ canvas }) {
                         className={`sidebar-item ${activeTab === item.id ? 'sidebar-item-active' : 'sidebar-item-inactive'}`}
                     >
                         <item.icon size={24} />
-                        <div className="tooltip">
-                            {item.tooltip}
-                        </div>
+                        <div className="tooltip">{item.tooltip}</div>
                     </div>
                 ))}
 
@@ -164,14 +134,8 @@ export default function Sidebar({ canvas }) {
                     onClick={() => setIsOpen(!isOpen)}
                     className="sidebar-item sidebar-item-inactive sidebar-item-bottom"
                 >
-                    {isMobile ? (
-                        isOpen ? <ChevronsDown size={24} /> : <ChevronsUp size={24} />
-                    ) : (
-                        isOpen ? <ChevronsLeft size={24} /> : <ChevronsRight size={24} />
-                    )}
-                    <div className="tooltip">
-                        Toggle Sidebar
-                    </div>
+                    {isMobile ? (isOpen ? <ChevronsDown size={24} /> : <ChevronsUp size={24} />) : (isOpen ? <ChevronsLeft size={24} /> : <ChevronsRight size={24} />)}
+                    <div className="tooltip">Toggle Sidebar</div>
                 </div>
             </div>
         </div>
