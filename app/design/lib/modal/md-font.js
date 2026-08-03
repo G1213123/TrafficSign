@@ -9,6 +9,8 @@ import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import { i18n } from '../i18n/i18n.js';
 import { showToast } from '../../components/presentations/ToastBox.js';
 
+import { parse } from 'opentype.js'; // Ensure opentype.js is available in your project
+
 const FontPriorityManager = {
   fontPriorityList: ['parsedFontKorean', 'parsedFontChinese', 'parsedFontChocolate', 'parsedFontHK'], // Default priority
   /**
@@ -50,10 +52,10 @@ const FontPriorityManager = {
     uploadInput.className = 'font-upload-input';
     uploadInput.onchange = FontPriorityManager.handleFontUpload;
 
-  const uploadButton = ModalUtils.createButton('Choose Font File', 'upload-button', () => uploadInput.click());
+  //const uploadButton = ModalUtils.createButton('Choose Font File', 'upload-button', () => uploadInput.click());
 
     uploadSection.appendChild(uploadTitle);
-    uploadSection.appendChild(uploadButton);
+    //uploadSection.appendChild(uploadButton);
     uploadSection.appendChild(uploadInput);
 
     // Character Override section
@@ -290,7 +292,7 @@ const FontPriorityManager = {
     reader.onload = function (e) {
       try {
         // Parse the font using opentype.js
-        const font = opentype.parse(e.target.result);
+        const font = parse(e.target.result);
         const customFontName = `custom_${file.name.replace(/\.[^/.]+$/, "")}`;
 
         // Store the font globally (you might want to add this to your font storage system)

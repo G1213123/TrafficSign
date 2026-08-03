@@ -2,6 +2,7 @@
 
 import React, { useRef, useState } from 'react';
 
+import { useI18n } from '../../lib/i18n/I18nProvider.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { exportCanvasToJSON } from '../../lib/utils/settings.js';
 import { exportToPDF, exportToDXF } from '../../lib/exportUtils/index.js';
@@ -28,6 +29,7 @@ const downloadHref = (filename, href) => {
 };
 
 export default function ExportPanel() {
+    const { t } = useI18n();
     const fileInputRef = useRef(null);
     const [filename, setFilename] = useState('traffic-sign-export');
     const [quality, setQuality] = useState('1.0');
@@ -98,12 +100,12 @@ export default function ExportPanel() {
     return (
         <div className="space-y-4">
             <div className="input-group">
-                <label className="input-label">Filename</label>
+                <label className="input-label">{t('filename')}</label>
                 <input className="input-field" value={filename} onChange={(e) => setFilename(e.target.value)} />
             </div>
 
             <div className="input-group">
-                <label className="input-label">Quality</label>
+                <label className="input-label">{t('quality')}</label>
                 <select className="input-field" value={quality} onChange={(e) => setQuality(e.target.value)}>
                     {QUALITY_OPTIONS.map((option) => (
                         <option key={option} value={option}>{option}</option>
@@ -112,7 +114,7 @@ export default function ExportPanel() {
             </div>
 
             <div className="input-group">
-                <label className="input-label">PDF Paper Size</label>
+                <label className="input-label">{t('pdf_paper_size')}</label>
                 <select className="input-field" value={paperSize} onChange={(e) => setPaperSize(e.target.value)}>
                     {PAPER_SIZES.map((option) => (
                         <option key={option} value={option}>{option}</option>
@@ -121,29 +123,29 @@ export default function ExportPanel() {
             </div>
 
             <div className="input-group">
-                <label className="input-label">Scale Multiplier (PNG/SVG)</label>
+                <label className="input-label">{t('scale_multiplier_png_svg')}</label>
                 <input className="input-field" value={scaleMultiplier} onChange={(e) => setScaleMultiplier(e.target.value)} />
             </div>
 
-            <SidebarToggleGroup label="Include Grid" options={['No', 'Yes']} value={includeGrid} onChange={setIncludeGrid} />
-            <SidebarToggleGroup label="Include Background" options={['No', 'Yes']} value={includeBackground} onChange={setIncludeBackground} />
+            <SidebarToggleGroup label={t('include_grid')} options={['No', 'Yes']} value={includeGrid} onChange={setIncludeGrid} />
+            <SidebarToggleGroup label={t('include_background')} options={['No', 'Yes']} value={includeBackground} onChange={setIncludeBackground} />
 
             <div className="input-group">
-                <label className="input-label">Export</label>
+                <label className="input-label">{t('export')}</label>
                 <div className="toggle-container">
-                    <button type="button" className="toggle-button" onClick={exportPNG}>Export as PNG</button>
-                    <button type="button" className="toggle-button" onClick={exportSVG}>Export as SVG</button>
-                    <button type="button" className="toggle-button" onClick={exportJSON}>Export as JSON</button>
-                    <button type="button" className="toggle-button" onClick={exportPDF}>Export as PDF</button>
-                    <button type="button" className="toggle-button" onClick={exportDXF}>Export as DXF</button>
+                    <button type="button" className="toggle-button" onClick={exportPNG}>{t('Export as png')}</button>
+                    <button type="button" className="toggle-button" onClick={exportSVG}>{t('Export as svg')}</button>
+                    <button type="button" className="toggle-button" onClick={exportJSON}>{t('Export as json')}</button>
+                    <button type="button" className="toggle-button" onClick={exportPDF}>{t('Export as pdf')}</button>
+                    <button type="button" className="toggle-button" onClick={exportDXF}>{t('Export as dxf')}</button>
                 </div>
             </div>
 
             <div className="input-group">
-                <label className="input-label">Import</label>
+                <label className="input-label">{t('import')}</label>
                 <div className="toggle-container">
-                    <button type="button" className="toggle-button" onClick={triggerImport}>Import JSON file</button>
-                    <button type="button" className="toggle-button" disabled title="Text import wiring next">Import JSON text</button>
+                    <button type="button" className="toggle-button" onClick={triggerImport}>{t('Import json file')}</button>
+                    <button type="button" className="toggle-button" disabled title={t('text_import_wiring_next')}>{t('Import json text')}</button>
                 </div>
                 <input ref={fileInputRef} type="file" accept="application/json,.json" style={{ display: 'none' }} onChange={handleImportFile} />
             </div>

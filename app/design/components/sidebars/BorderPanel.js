@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { StaticCanvas, Path, Group } from 'fabric';
 
+import { useI18n } from '../../lib/i18n/I18nProvider.js';
 import { BorderGroup } from '../../lib/objects/border.js';
 import { DividerObject } from '../../lib/objects/divider.js';
 import { convertVertexToPathCommands } from '../../lib/objects/path.js';
@@ -90,6 +91,7 @@ const formatBorderTypeLabel = (value) => value
     .replace(/^./, (letter) => letter.toUpperCase());
 
 export default function BorderPanel() {
+    const { t } = useI18n();
     const { xHeight, setXHeight } = useGeneralDrawSettings();
     const [colorScheme, setColorScheme] = useState('Blue Background');
     const [fixedWidth, setFixedWidth] = useState('');
@@ -138,7 +140,7 @@ export default function BorderPanel() {
 
         let cleanupEscape = () => {};
         const cancelSelection = selectObjectHandler(
-            'Select shape(s) to contain inside the border',
+            t('select_shapes_to_contain_inside_the_border'),
             (selectedObjects) => {
                 cleanupEscape();
                 createBorderFromSelection(borderType, selectedObjects);
@@ -155,7 +157,7 @@ export default function BorderPanel() {
     const createDivider = (dividerType) => {
         let cleanupEscape = () => {};
         const cancelSelection = selectObjectHandler(
-            'Select border to place divider inside',
+            t('select_border_to_place_divider_inside'),
             (selectedObjects) => {
                 cleanupEscape();
                 const border = (selectedObjects || []).find((object) => object?.functionalType === 'Border');
@@ -183,7 +185,7 @@ export default function BorderPanel() {
     return (
         <div className="space-y-4">
             <div className="input-group">
-                <label className="input-label">X-Height</label>
+                <label className="input-label">{t('x Height')}</label>
                 <input
                     type="number"
                     className="input-field"
@@ -194,7 +196,7 @@ export default function BorderPanel() {
             </div>
 
             <div className="input-group">
-                <label className="input-label">Color Scheme</label>
+                <label className="input-label">{t('Color Scheme')}</label>
                 <select
                     className="input-field"
                     value={colorScheme}
@@ -209,31 +211,31 @@ export default function BorderPanel() {
             </div>
 
             <div className="input-group">
-                <label className="input-label">Fixed Width</label>
+                <label className="input-label">{t('Fixed Width')}</label>
                 <input
                     type="number"
                     className="input-field"
                     value={fixedWidth}
                     step="1"
                     onChange={(e) => setFixedWidth(e.target.value)}
-                    placeholder="Optional"
+                    placeholder={t('Optional')}
                 />
             </div>
 
             <div className="input-group">
-                <label className="input-label">Fixed Height</label>
+                <label className="input-label">{t('Fixed Height')}</label>
                 <input
                     type="number"
                     className="input-field"
                     value={fixedHeight}
                     step="1"
                     onChange={(e) => setFixedHeight(e.target.value)}
-                    placeholder="Optional"
+                    placeholder={t('Optional')}
                 />
             </div>
 
             <div className="input-group">
-                <label className="input-label">Border Type</label>
+                <label className="input-label">{t('Border Type')}</label>
                 <div className="symbol-grid-border">
                     {BORDER_TYPE_OPTIONS.map((borderType) => {
                         const preview = createBorderButtonSVG(borderType, xHeight, colorScheme);
@@ -252,7 +254,7 @@ export default function BorderPanel() {
                                 />
                                 <hr className="symbol-separator" />
                                 <span className="symbol-label">
-                                    {formatBorderTypeLabel(borderType)}
+                                    {t(formatBorderTypeLabel(borderType))}
                                 </span>
                             </button>
                         );
@@ -261,22 +263,22 @@ export default function BorderPanel() {
             </div>
 
             <div className="input-group">
-                <label className="input-label">Divider Tools</label>
+                <label className="input-label">{t('Add Divider to Border')}</label>
                 <div className="toggle-container">
                     <button type="button" className="toggle-button" onClick={() => createDivider('HDivider')}>
-                        Stack Divider
+                        {t('Stack Divider')}
                     </button>
                     <button type="button" className="toggle-button" onClick={() => createDivider('VDivider')}>
-                        Gantry Divider
+                        {t('Gantry Divider')}
                     </button>
                     <button type="button" className="toggle-button" onClick={() => createDivider('VLane')}>
-                        Lane Line
+                        {t('Lane Line')}
                     </button>
                 </div>
             </div>
 
             <p style={{ fontSize: '12px', color: '#888', fontStyle: 'italic' }}>
-                Select canvas objects, then pick a border type to wrap them.
+                {t('Select canvas objects, then pick a border type to wrap them.')}
             </p>
         </div>
     );

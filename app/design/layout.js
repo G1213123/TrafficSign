@@ -1,9 +1,12 @@
 import "../globals.css";
+import { I18nProvider } from './lib/i18n/I18nProvider.js';
 
 export default function DesignLayout({ children }) {
   return (
-    <div>
-        {children}
-    </div>
+    <I18nProvider>
+        <div>
+            {children}
+        </div>
+    </I18nProvider>
   );
 }

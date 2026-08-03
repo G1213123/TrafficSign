@@ -1,13 +1,14 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 import SidebarToggleGroup from '../shared/SidebarToggleGroup.js';
+import { useI18n } from '../../lib/i18n/I18nProvider.js';
 
 const DEFAULT_COLOR_OPTIONS = [
     { value: 'White', label: 'White' },
     { value: 'Black', label: 'Black' },
 ];
-
-import { useEffect, useState } from 'react';
 
 import { GeneralSettings } from '../../lib/utils/settings.js';
 
@@ -67,10 +68,19 @@ export function GeneralDrawSettings({
     onColorChange,
     colorOptions = DEFAULT_COLOR_OPTIONS,
 }) {
+    const { t } = useI18n();
+    const resolvedColorOptions = colorOptions.map((option) => {
+        if (typeof option === 'object') {
+            return { ...option, label: t(option.label) };
+        }
+
+        return { value: option, label: t(option) };
+    });
+
     return (
         <div>
             <div className="input-group">
-                <label className="input-label">X-Height</label>
+                <label className="input-label">{t('x Height')}</label>
                 <input
                     type="number"
                     className="input-field"
@@ -81,8 +91,8 @@ export function GeneralDrawSettings({
             </div>
 
             <SidebarToggleGroup
-                label="Color"
-                options={colorOptions}
+                label={t('Color')}
+                options={resolvedColorOptions}
                 value={color}
                 onChange={onColorChange}
             />

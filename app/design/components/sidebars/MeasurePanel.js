@@ -4,10 +4,12 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { Circle, Line } from 'fabric';
 
+import { useI18n } from '../../lib/i18n/I18nProvider.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { showTextBox, hideTextBox } from '../presentations/promptBox.js';
 
 export default function MeasurePanel() {
+    const { t } = useI18n();
     const [activeMeasurement, setActiveMeasurement] = useState(false);
     const snapHighlightRef = useRef(null);
     const firstVertexHighlightRef = useRef(null);
@@ -204,13 +206,13 @@ export default function MeasurePanel() {
         const deltaY = Math.round(secondVertex.y - firstVertexRef.current.y);
         const distance = Math.round(Math.sqrt(deltaX * deltaX + deltaY * deltaY));
 
-        const measurementText = ` Measurement Results:\n` +
+        const measurementText = `${t('Measurement Results')}:\n` +
             `ΔX: ${deltaX}\n` +
             `ΔY: ${deltaY}\n` +
-            `Distance: ${distance}\n\n` +
-            `From: ${firstVertexRef.current.label} (Object #${firstVertexRef.current.objectId})\n` +
-            `To: ${secondVertex.label} (Object #${secondVertex.objectId})\n\n` +
-            `(Press Enter to continue)`;
+            `${t('Distance')}: ${distance}\n\n` +
+            `${t('From')}: ${firstVertexRef.current.label} (Object #${firstVertexRef.current.objectId})\n` +
+            `${t('To')}: ${secondVertex.label} (Object #${secondVertex.objectId})\n\n` +
+            `(${t('Press Enter to continue')})`;
 
         firstVertexRef.current = null;
         clearDynamicLine();
@@ -284,16 +286,16 @@ export default function MeasurePanel() {
     return (
         <div className="space-y-4">
             <div className="input-group">
-                <label className="input-label">Instructions</label>
+                <label className="input-label">{t('Instructions')}</label>
                 <div style={{ color: '#aaa', fontSize: '12px', lineHeight: 1.5 }}>
-                    Click vertices to measure distance. When measuring is active, vertex dragging is disabled and the cursor switches to a crosshair.
+                    {t('Click vertices to measure distance. When measuring is active, vertex dragging is disabled and the cursor switches to a crosshair.')}
                 </div>
             </div>
 
             <div className="input-group">
-                <label className="input-label">Measurement Control</label>
+                <label className="input-label">{t('Measurement Control')}</label>
                 <button type="button" className={`toggle-button ${activeMeasurement ? 'object-list-button-active' : ''}`} onClick={toggleMeasurement}>
-                    {activeMeasurement ? 'Stop Measuring' : 'Start Measuring'}
+                    {activeMeasurement ? t('Stop Measuring') : t('Start Measuring')}
                 </button>
             </div>
         </div>

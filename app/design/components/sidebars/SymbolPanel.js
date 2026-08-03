@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 
+import { useI18n } from '../../lib/i18n/I18nProvider.js';
 import { StaticCanvas, Path, Group } from 'fabric';
 import { calcSymbol, SymbolObject } from '../../lib/objects/symbols.js';
 import { convertVertexToPathCommands, convertFontPathToFabricPath, getFontPath } from '../../lib/objects/path.js';
@@ -155,6 +156,7 @@ const createButtonSVG = (symbolType, length, color = 'white') => {
 }
 
 export default function DrawSymbolPanel({ canvas }) {
+  const { t } = useI18n();
   const { xHeight, setXHeight, color, setColor } = useGeneralDrawSettings();
   const [selectedSymbol, setSelectedSymbol] = useState(null);
   const [angle, setAngle] = useState(0);
@@ -245,11 +247,11 @@ export default function DrawSymbolPanel({ canvas }) {
       <div className="input-group">
         {selectedSymbol && symbolsPermittedAngle[selectedSymbol] && symbolsPermittedAngle[selectedSymbol].length > 0 && (
           <div>
-            <label className="input-label">Angle</label>
+            <label className="input-label">{t('Angle')}</label>
             <AngleSelector
               value={angle}
               options={symbolsPermittedAngle[selectedSymbol]}
-              label="Angle"
+              label={t('Angle')}
               onChange={(nextAngle) => {
                 setAngle(nextAngle);
                 if (canvas) {
@@ -281,7 +283,7 @@ export default function DrawSymbolPanel({ canvas }) {
               />
               <hr className="symbol-separator" />
               <span className="symbol-label" data-i18n={symbolType}>
-                {symbolType}
+                {t(symbolType)}
               </span>
             </div>
           );

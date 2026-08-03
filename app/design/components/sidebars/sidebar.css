@@ -102,23 +102,28 @@
 .toggle-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  flex-direction: row;
+  border-radius: 4px;
+  justify-content: flex-start;
+  margin: 8px 0 0;
+  overflow: hidden;
+  width: 100%;
 }
 
-.toggle-group-wrap .toggle-container {
-  gap: 6px;
-}
 
 .toggle-button {
   appearance: none;
+  flex: 1 1 auto;
   border: 1px solid #555;
-  border-radius: 999px;
+  border: none;
   background-color: #2a2a2a;
   color: #f0f0f0;
   padding: 8px 12px;
   min-height: 38px;
   cursor: pointer;
   transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .toggle-button:hover {
@@ -130,9 +135,21 @@
   transform: translateY(1px);
 }
 
+.toggle-button.active:after {
+    background-color: #3498db;
+    bottom: 0;
+    content: "";
+    height: 3px;
+    left: 0;
+    position: absolute;
+    width: 100%;
+    opacity: 1;
+}
+
 .toggle-button.active {
-  background-color: #3498db;
-  border-color: #8d86d8;
+  background-color: hsla(0, 0%, 100%, .2);
+  border-color: #3498db;
+  color: #ffffff;
 }
 
 .symbol-grid {
@@ -210,11 +227,11 @@
 
 
 .symbol-separator {
-    background-color: #fff;
-    border: 0;
-    height: 4px;
-    margin: 4px 0;
-    width: 100%;
+  background-color: #fff;
+  border: 0;
+  height: 4px;
+  margin: 4px 0;
+  width: 100%;
 }
 
 
@@ -340,8 +357,8 @@
 }
 
 .sidebar-item-bottom {
-    bottom: 0;
-    position: absolute;
+  bottom: 0;
+  position: absolute;
 }
 
 .sidebar-item-inactive {
@@ -382,7 +399,8 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 30vh; /* Take up half the screen on mobile */
+    height: 30vh;
+    /* Take up half the screen on mobile */
     transform: translateY(100%);
     transition: transform 0.3s ease-in-out;
     border-top-left-radius: 16px;
@@ -421,6 +439,7 @@
   }
 
   .tooltip {
-    display: none; /* Hide tooltips on mobile to avoid clutter */
+    display: none;
+    /* Hide tooltips on mobile to avoid clutter */
   }
 }

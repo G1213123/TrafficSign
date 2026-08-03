@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 
+import { useI18n } from '../../lib/i18n/I18nProvider.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { MainRoadSymbol } from '../../lib/objects/mainRoute.js';
 import { SideRoadSymbol } from '../../lib/objects/sideRoute.js';
@@ -24,6 +25,7 @@ const SIDE_DIRECTIONS = ['Right', 'Left'];
 const SIDE_ANGLES = ['45', '60', '90'];
 
 export default function RouteMapPanel() {
+    const { t } = useI18n();
     const { xHeight, setXHeight, color, setColor } = useGeneralDrawSettings();
     const [routeType, setRouteType] = useState('Main Line');
     const [subType, setSubType] = useState('Arrow');
@@ -43,6 +45,7 @@ export default function RouteMapPanel() {
     const [permittedAngles, setPermittedAngles] = useState([-90, -60, -45, -30, 0, 30, 45, 60, 90]);
 
     const getCanvas = () => CanvasGlobals.canvas;
+    const translateOptions = (options) => options.map((option) => ({ value: option, label: t(option) }));
 
     useEffect(() => {
         const syncSelectedMainRoad = () => {
@@ -253,7 +256,7 @@ export default function RouteMapPanel() {
     const prepareRouteMap = () => {
         const canvas = getCanvas();
         if (!canvas) {
-            setStatusText('Canvas is not ready yet.');
+            setStatusText(t('Canvas is not ready yet.'));
             return;
         }
 
@@ -268,19 +271,19 @@ export default function RouteMapPanel() {
         canvas.setActiveObject?.(routeObject);
         canvas.requestRenderAll?.();
         activateMapVertexControl(routeObject);
-        setStatusText('Main road created.');
+        setStatusText(t('Main road created.'));
     };
 
     const addSideRoad = () => {
         const canvas = getCanvas();
         if (!canvas) {
-            setStatusText('Canvas is not ready yet.');
+            setStatusText(t('Canvas is not ready yet.'));
             return;
         }
 
         const mainRoad = resolveActiveMainRoad(canvas);
         if (!mainRoad) {
-            setStatusText('Select a main road first.');
+            setStatusText(t('Select a main road first.'));
             return;
         }
 
@@ -311,7 +314,7 @@ export default function RouteMapPanel() {
         canvas.setActiveObject?.(sideRoad);
         canvas.requestRenderAll?.();
         activateMapVertexControl(sideRoad);
-        setStatusText('Side road created.');
+        setStatusText(t('Side road created.'));
     };
 
     return (
@@ -324,8 +327,8 @@ export default function RouteMapPanel() {
             />
 
             <SidebarToggleGroup
-                label="Main Road Type"
-                options={ROUTE_TYPES}
+                label={t('Main Road Type')}
+                options={translateOptions(ROUTE_TYPES)}
                 value={routeType}
                 onChange={(val) => {
                     setRouteType(val);
@@ -339,8 +342,8 @@ export default function RouteMapPanel() {
 
             {routeType === 'Main Line' && (
                 <SidebarToggleGroup
-                    label="Main Road Sub-type"
-                    options={MAIN_LINE_SUBTYPES}
+                    label={t('Main Road Sub-type')}
+                    options={translateOptions(MAIN_LINE_SUBTYPES)}
                     value={subType}
                     onChange={
                         (val) => {
@@ -365,8 +368,8 @@ export default function RouteMapPanel() {
 
             {routeType === 'Roundabout' && (
                 <SidebarToggleGroup
-                    label="Roundabout Sub-type"
-                    options={ROUNDABOUT_SUBTYPES}
+                    label={t('Roundabout Sub-type')}
+                    options={translateOptions(ROUNDABOUT_SUBTYPES)}
                     value={subType}
                     onChange={(val) => {
                         setSubType(val);
@@ -380,20 +383,20 @@ export default function RouteMapPanel() {
 
             {routeType === 'Roundabout' && subType !== 'Oval' && (
                 <SidebarToggleGroup
-                    label="Roundel Shape"
-                    options={ROUNDABOUT_FEATURES[subType] || []}
+                    label={t('Roundel Shape')}
+                    options={translateOptions(ROUNDABOUT_FEATURES[subType] || [])}
                     value={roundaboutType}
                     onChange={setRoundaboutType}
                 />
             )}
 
             <div className="input-group">
-                <label className="input-label">Main Road Angle</label>
+                <label className="input-label">{t('Main Road Angle')}</label>
                 {permittedAngles.length > 0 ? (
                     <AngleSelector
                         value={mainAngle}
                         options={permittedAngles}
-                        label="Main Road Angle"
+                        label={t('Main Road Angle')}
                         onChange={(nextAngle) => setMainAngle(nextAngle)}
                         onRotateLeft={() => setMainAngle(getNextAngle(permittedAngles, mainAngle, 'left'))}
                         onRotateRight={() => setMainAngle(getNextAngle(permittedAngles, mainAngle, 'right'))}
@@ -402,7 +405,7 @@ export default function RouteMapPanel() {
             </div>
 
             <div className="input-group">
-                <label className="input-label">Approach Length</label>
+                <label className="input-label">{t('Approach Length')}</label>
                 <input
                     type="number"
                     className="input-field"
@@ -413,7 +416,7 @@ export default function RouteMapPanel() {
             </div>
 
             <div className="input-group">
-                <label className="input-label">Exit Length</label>
+                <label className="input-label">{t('Exit Length')}</label>
                 <input
                     type="number"
                     className="input-field"
@@ -426,7 +429,7 @@ export default function RouteMapPanel() {
             {routeType === 'Main Line' && subType === 'LaneDrop' ? (
                 <>
                     <div className="input-group">
-                        <label className="input-label">Inner Corner Radius</label>
+                        <label className="input-label">{t('Inner Corner Radius')}</label>
                         <input
                             type="number"
                             className="input-field"
@@ -437,7 +440,7 @@ export default function RouteMapPanel() {
                     </div>
 
                     <div className="input-group">
-                        <label className="input-label">Outer Corner Radius</label>
+                        <label className="input-label">{t('Outer Corner Radius')}</label>
                         <input
                             type="number"
                             className="input-field"
@@ -451,16 +454,16 @@ export default function RouteMapPanel() {
 
 
             <div className="input-group">
-                <label className="input-label">Route Layout</label>
+                <label className="input-label">{t('Route Layout')}</label>
                 <div style={{ color: '#aaa', fontSize: '12px', lineHeight: 1.5 }}>
-                    Main-road creation is now wired. Select a main road and use side-road controls below to add branches.
+                    {t('Main-road creation is now wired. Select a main road and use side-road controls below to add branches.')}
                 </div>
             </div>
 
             <div className="input-group">
                 <div className="toggle-container">
                     <button type="button" className="toggle-button" onClick={prepareRouteMap}>
-                        Prepare Route Map
+                        {t('Add Main Road')}
                     </button>
                 </div>
             </div>
@@ -468,26 +471,20 @@ export default function RouteMapPanel() {
             {selectedMainRoad ? (
                 <>
                     <div className="input-group">
-                        <label className="input-label">Side Road</label>
+                        <label className="input-label">{t('Side Road')}</label>
                         <SidebarToggleGroup
-                            label="Direction"
-                            options={SIDE_DIRECTIONS}
-                            value={sideDirection}
-                            onChange={setSideDirection}
-                        />
-                        <SidebarToggleGroup
-                            label="Shape"
-                            options={SIDE_SHAPES}
+                            label={t('Shape')}
+                            options={translateOptions(SIDE_SHAPES)}
                             value={sideShape}
                             onChange={setSideShape}
                         />
                         <SidebarToggleGroup
-                            label="Angle"
-                            options={SIDE_ANGLES}
+                            label={t('Angle')}
+                            options={translateOptions(SIDE_ANGLES)}
                             value={sideAngle}
                             onChange={setSideAngle}
                         />
-                        <label className="input-label">Side Road Width</label>
+                        <label className="input-label">{t('Side Road Width')}</label>
                         <input
                             type="number"
                             className="input-field"
@@ -500,7 +497,7 @@ export default function RouteMapPanel() {
                     <div className="input-group">
                         <div className="toggle-container">
                             <button type="button" className="toggle-button" onClick={addSideRoad}>
-                                Add Side Road
+                                {t('Add Side Road')}
                             </button>
                         </div>
                     </div>

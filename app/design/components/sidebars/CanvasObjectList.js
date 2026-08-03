@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useI18n } from '../../lib/i18n/I18nProvider.js';
 import { CanvasGlobals } from '../../components/canvas/canvas.js';
 import { showPropertyPanel } from '../presentations/property';
 
 export default function CanvasObjectList({ canvas, isVisible = true }) {
+    const { t } = useI18n();
     const [canvasObjects, setCanvasObjects] = useState([]);
     const [activeObject, setActiveObject] = useState(null);
 
@@ -75,7 +77,7 @@ export default function CanvasObjectList({ canvas, isVisible = true }) {
     return (
         <div className={`object-list-panel ${isVisible ? 'object-list-panel-open' : 'object-list-panel-closed'}`} aria-hidden={!isVisible}>
             {canvasObjects.length === 0 ? (
-                <div className="object-list-empty">No objects on canvas</div>
+                <div className="object-list-empty">{t('no_objects_on_canvas')}</div>
             ) : (
                 canvasObjects.map((object, index) => {
                     const isSelected = activeObject

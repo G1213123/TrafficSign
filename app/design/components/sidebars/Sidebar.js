@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useI18n } from '../../lib/i18n/I18nProvider.js';
 import {
     Road,
     Type,
@@ -44,6 +45,7 @@ const SIDEBAR_ITEMS = [
 ];
 
 export default function Sidebar({ canvas }) {
+    const { t } = useI18n();
     const [isOpen, setIsOpen] = useState(true);
     const [activeTab, setActiveTab] = useState('btn_draw');
     const [isMobile, setIsMobile] = useState(false);
@@ -72,14 +74,14 @@ export default function Sidebar({ canvas }) {
         <div className="side-panel-container">
             <div className={`main-panel ${isOpen ? 'main-panel-open' : 'main-panel-closed'}`}>
                 <header className="panel-header">
-                    <a href="/" className="hover:text-gray-300 transition-colors">Road Sign Factory</a>
+                    <a href="/" className="hover:text-gray-300 transition-colors">{t('Road Sign Factory')}</a>
                 </header>
 
                 <div className="panel-content">
                     <div className="sidebar-main-content">
                         <div className="tab-container">
                             <h2 className="tab-title">
-                                {SIDEBAR_ITEMS.find((item) => item.id === activeTab)?.label}
+                                {t(SIDEBAR_ITEMS.find((item) => item.id === activeTab)?.label)}
                             </h2>
 
                             {activeTab === 'btn_draw' && <DrawSymbolPanel canvas={canvas} />}
@@ -107,7 +109,7 @@ export default function Sidebar({ canvas }) {
                         className="object-list-header"
                         onClick={() => setObjectListVisible(!objectListVisible)}
                     >
-                        <span className="text-sm font-medium">Canvas Objects</span>
+                        <span className="text-sm font-medium">{t('Canvas Objects')}</span>
                         {objectListVisible ? (
                             <ChevronsDown size={16} onClick={() => setObjectListVisible(false)} className="cursor-pointer" />
                         ) : (
@@ -126,7 +128,7 @@ export default function Sidebar({ canvas }) {
                         className={`sidebar-item ${activeTab === item.id ? 'sidebar-item-active' : 'sidebar-item-inactive'}`}
                     >
                         <item.icon size={24} />
-                        <div className="tooltip">{item.tooltip}</div>
+                        <div className="tooltip">{t(item.tooltip)}</div>
                     </div>
                 ))}
 
@@ -135,7 +137,7 @@ export default function Sidebar({ canvas }) {
                     className="sidebar-item sidebar-item-inactive sidebar-item-bottom"
                 >
                     {isMobile ? (isOpen ? <ChevronsDown size={24} /> : <ChevronsUp size={24} />) : (isOpen ? <ChevronsLeft size={24} /> : <ChevronsRight size={24} />)}
-                    <div className="tooltip">Toggle Sidebar</div>
+                    <div className="tooltip">{t('Toggle Sidebar')}</div>
                 </div>
             </div>
         </div>

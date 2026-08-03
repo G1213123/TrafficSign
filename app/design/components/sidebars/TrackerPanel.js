@@ -2,9 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 
+import { useI18n } from '../../lib/i18n/I18nProvider.js';
 import { canvasTracker } from '../../lib/utils/Tracker.js';
 
 export default function TrackerPanel() {
+    const { t } = useI18n();
     const [history, setHistory] = useState([...canvasTracker.history]);
     const [historyIndex, setHistoryIndex] = useState(canvasTracker.historyIndex);
 
@@ -25,19 +27,19 @@ export default function TrackerPanel() {
     return (
         <div className="space-y-4">
             <div className="input-group">
-                <label className="input-label">History Controls</label>
+                <label className="input-label">{t('History Controls')}</label>
                 <div className="toggle-container">
-                    <button type="button" className="toggle-button" onClick={() => canvasTracker.clearHistory()}>Clear</button>
-                    <button type="button" className="toggle-button" onClick={() => canvasTracker.undo()}>Undo</button>
-                    <button type="button" className="toggle-button" onClick={() => canvasTracker.redo()}>Redo</button>
+                    <button type="button" className="toggle-button" onClick={() => canvasTracker.clearHistory()}>{t('clear')}</button>
+                    <button type="button" className="toggle-button" onClick={() => canvasTracker.undo()}>{t('undo')}</button>
+                    <button type="button" className="toggle-button" onClick={() => canvasTracker.redo()}>{t('redo')}</button>
                 </div>
             </div>
 
             <div className="input-group">
-                <label className="input-label">Timeline</label>
+                <label className="input-label">{t('Timeline')}</label>
                 <div className="object-list-panel" style={{ maxHeight: '320px' }}>
                     {history.length === 0 ? (
-                        <div className="object-list-empty">No history</div>
+                        <div className="object-list-empty">{t('No history available')}</div>
                     ) : (
                         history.map((entry, index) => {
                             const isCurrent = index === historyIndex;

@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { buildObjectsFromJSON } from '../../lib/objects/build.js';
 
+import { useI18n } from '../../lib/i18n/I18nProvider.js';
 import {createTemplateSign} from '../../lib/templates/signTemplate.js';
 import './sidebar.css';
 
@@ -20,6 +21,7 @@ export const TEMPLATES = [
 
 
 export default function TemplatePanel({canvas}) {
+    const { t } = useI18n();
     const [selectedTemplate, setSelectedTemplate] = useState(null);
     const [statusText, setStatusText] = useState('');
 
@@ -27,12 +29,12 @@ export default function TemplatePanel({canvas}) {
         const template = TEMPLATES.find((item) => item.name === selectedTemplate);
 
         if (!canvas) {
-            setStatusText('Canvas is not ready yet.');
+            setStatusText(t('canvas_not_ready'));
             return;
         }
 
         if (!template) {
-            setStatusText('Select a template first.');
+            setStatusText(t('select_template_first'));
             return;
         }
 
@@ -47,17 +49,17 @@ export default function TemplatePanel({canvas}) {
             const vpt = getCenterCoord();
             createTemplateSign(template.name, vpt.x, vpt.y);
             canvas.requestRenderAll?.();
-            setStatusText(`${template.name} inserted.`);
+            setStatusText(`${template.name} ${t('inserted')}`);
         } catch (error) {
             console.error(`Error inserting template ${template.name}:`, error);
-            setStatusText(`Failed to insert ${template.name}.`);
+            setStatusText(t('failed_to_insert', { templateName: template.name }));
         }
     };
 
     return (
         <div className="space-y-4">
             <div className="input-group">
-                <label className="input-label">Template Gallery</label>
+                <label className="input-label">{t('template_gallery')}</label>
                 <div className="symbol-grid template-grid">
                     {TEMPLATES.map((template) => {
                         const isSelected = selectedTemplate === template.name;
@@ -84,14 +86,14 @@ export default function TemplatePanel({canvas}) {
             </div>
 
             <div className="input-group">
-                <label className="input-label">Selection</label>
+                <label className="input-label">{t('selection')}</label>
                 <div style={{ color: '#aaa', fontSize: '12px' }}>
-                    {selectedTemplate ? `Selected template: ${selectedTemplate}` : 'Select a template to prepare it for insertion.'}
+                    {selectedTemplate ? t('selected_template', { template: selectedTemplate }) : t('select_template_to_prepare')}
                 </div>
             </div>
 
-            <button type="button" className="btn-small" disabled={!selectedTemplate} onClick={insertTemplate}>
-                Insert Template
+            <button type="button" className="toggle-button" disabled={!selectedTemplate} onClick={insertTemplate}>
+                {t('insert_template')}
             </button>
 
             {statusText ? (

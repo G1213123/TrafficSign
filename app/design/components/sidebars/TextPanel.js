@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 
+import { useI18n } from '../../lib/i18n/I18nProvider.js';
 import { GeneralSettings } from '../../lib/utils/settings.js';
 import { TextObject } from '../../lib/objects/text.js';
 import { DividerObject } from '../../lib/objects/divider.js';
@@ -11,14 +12,6 @@ import { EngDestinations, ChtDestinations } from '../../lib/templates/destinatio
 import { GeneralDrawSettings, useGeneralDrawSettings } from './DrawSettings.js';
 import SidebarToggleGroup from '../shared/SidebarToggleGroup.js';
 import './sidebar.css';
-
-const FONT_OPTIONS = [
-    { value: 'TransportMedium', label: 'Transport Medium' },
-    { value: 'TransportHeavy', label: 'Transport Heavy' },
-];
-
-const LANGUAGE_OPTIONS = ['2Liner', 'English', 'Chinese'];
-const JUSTIFICATION_OPTIONS = ['Left', 'Middle', 'Right'];
 
 const getDestinationCatalog = (language) => (language === 'Chinese' ? ChtDestinations : EngDestinations);
 
@@ -125,6 +118,7 @@ const removeUnderline = (textObject) => {
 };
 
 export default function TextPanel({ canvas }) {
+    const { t } = useI18n();
     const [text, setText] = useState('');
     const { xHeight, setXHeight, color, setColor } = useGeneralDrawSettings();
     const [font, setFont] = useState('TransportMedium');
@@ -138,6 +132,13 @@ export default function TextPanel({ canvas }) {
     const fallbackLanguage = language === '2Liner' ? 'English' : language;
     const regionNames = getRegionNames(fallbackLanguage);
     const locationOptions = getLocationsForRegion(regionName, fallbackLanguage);
+    const fontOptions = [
+        { value: 'TransportMedium', label: t('Transport Medium') },
+        { value: 'TransportHeavy', label: t('Transport Heavy') },
+    ];
+    const regionOptions = regionNames.map((region) => ({ value: region, label: t(region) }));
+    const languageOptions = ['2Liner', 'English', 'Chinese'].map((option) => ({ value: option, label: t(option) }));
+    const justificationOptions = ['Left', 'Middle', 'Right'].map((option) => ({ value: option, label: t(option) }));
 
     useEffect(() => {
         if (!canvas) return undefined;
@@ -156,7 +157,7 @@ export default function TextPanel({ canvas }) {
                 setActiveTextObject(resolvedActiveTextObject);
                 setText(resolvedActiveTextObject.text || '');
                 setXHeight(Math.round(resolvedActiveTextObject.xHeight || GeneralSettings.xHeight || 100));
-                const nextFont = FONT_OPTIONS.some((option) => option.value === resolvedActiveTextObject.font)
+                const nextFont = fontOptions.some((option) => option.value === resolvedActiveTextObject.font)
                     ? resolvedActiveTextObject.font
                     : 'TransportMedium';
                 setFont(nextFont);
@@ -317,7 +318,7 @@ export default function TextPanel({ canvas }) {
 
         const resolvedXHeight = Number(xHeight) || GeneralSettings.xHeight || 100;
         const effectiveLanguage = normalizeLanguage(language);
-        const resolvedFont = FONT_OPTIONS.some((option) => option.value === font) ? font : 'TransportMedium';
+        const resolvedFont = fontOptions.some((option) => option.value === font) ? font : 'TransportMedium';
         const resolvedColor = color || 'White';
 
         let targetObject = activeTextObject;
@@ -406,42 +407,42 @@ export default function TextPanel({ canvas }) {
                 onColorChange={setColor}
             />
 
-            <SidebarToggleGroup
-                label="Font"
-                options={FONT_OPTIONS}
-                value={FONT_OPTIONS.some((option) => option.value === font) ? font : 'TransportMedium'}
+                <SidebarToggleGroup
+                    label={t('Font')}
+                    options={fontOptions}
+                value={fontOptions.some((option) => option.value === font) ? font : 'TransportMedium'}
                 onChange={setFont}
             />
 
             <div>
-                <h2 className="tab-title">Destination Settings</h2>
+                <h2 className="tab-title">{t('Destination Settings')}</h2>
 
                 <SidebarToggleGroup
-                    label="Language"
-                    options={LANGUAGE_OPTIONS}
+                    label={t('Language')}
+                    options={languageOptions}
                     value={language}
                     onChange={setLanguage}
                 />
 
                 {language === '2Liner' && (
                     <SidebarToggleGroup
-                        label="Justification"
-                        options={JUSTIFICATION_OPTIONS}
+                        label={t('Justification')}
+                        options={justificationOptions}
                         value={justification}
                         onChange={setJustification}
                     />
                 )}
 
                 <SidebarToggleGroup
-                    label="Region"
-                    options={regionNames}
+                    label={t('Region')}
+                    options={regionOptions}
                     value={regionName}
                     onChange={setRegionName}
                     className="toggle-group-wrap"
                 />
 
                 <div className="input-group">
-                    <label className="input-label">Location</label>
+                    <label className="input-label">{t('Location')}</label>
                     <select
                         className="input-field"
                         value={locationValue}
@@ -462,13 +463,13 @@ export default function TextPanel({ canvas }) {
                 {language === '2Liner' && (
                     <div className="input-group">
                         <div className="info-text">
-                            Text input is disabled in 2Liner mode. Select the location in the destination panel.
+                            {t('Text input is disabled in 2Liner mode. Select the location in the destination panel.')}
                         </div>
                     </div>
                 )}
 
                 <div className="input-group">
-                    <label className="input-label">Text</label>
+                    <label className="input-label">{t('Text')}</label>
                     <input
                         type="text"
                         className="input-field"
@@ -476,27 +477,27 @@ export default function TextPanel({ canvas }) {
                         onChange={(e) => setText(e.target.value)}
                         onFocus={(e) => e.target.select()}
                         disabled={language === '2Liner'}
-                        placeholder="Enter text to place on canvas"
+                        placeholder={t('Enter text to place on canvas')}
                     />
                 </div>
 
                 <SidebarToggleGroup
-                    label="Underline"
-                    options={['No', 'Yes']}
+                    label={t('Underline')}
+                    options={['No', 'Yes'].map((option) => ({ value: option, label: t(option) }))}
                     value={underline ? 'Yes' : 'No'}
                     onChange={(nextValue) => setUnderline(nextValue === 'Yes')}
                 />
 
                 <button className="toggle-button" onClick={handleSubmit}>
-                    {activeTextObject && language !== '2Liner' ? 'Update Text' : 'Add Text'}
+                    {activeTextObject && language !== '2Liner' ? t('Update Text') : t('Add Text')}
                 </button>
 
                 <button className="toggle-button" onClick={() => FontPriorityManager.showModal()}>
-                    Open Font Settings
+                    {t('Open Font Settings')}
                 </button>
 
                 <p style={{ fontSize: '12px', color: '#888', fontStyle: 'italic' }}>
-                    Click the canvas to position the text after adding it.
+                    {t('Click the canvas to position the text after adding it.')}
                 </p>
             </div>
         </div>
