@@ -6,7 +6,7 @@ import { CanvasGlobals } from '../canvas/canvas.js';
 import { buildObjectsFromJSON } from '../../lib/objects/build.js';
 
 import { useI18n } from '../../lib/i18n/I18nProvider.js';
-import {createTemplateSign} from '../../lib/templates/signTemplate.js';
+import { createTemplateSign } from '../../lib/templates/signTemplate.js';
 import './sidebar.css';
 
 export const TEMPLATES = [
@@ -20,13 +20,13 @@ export const TEMPLATES = [
 ];
 
 
-export default function TemplatePanel({canvas}) {
+export default function TemplatePanel({ canvas }) {
     const { t } = useI18n();
     const [selectedTemplate, setSelectedTemplate] = useState(null);
     const [statusText, setStatusText] = useState('');
 
-    const insertTemplate = async () => {
-        const template = TEMPLATES.find((item) => item.name === selectedTemplate);
+    const insertTemplate = async (templateName) => {
+        const template = TEMPLATES.find((item) => item.name === templateName);
 
         if (!canvas) {
             setStatusText(t('canvas_not_ready'));
@@ -69,7 +69,10 @@ export default function TemplatePanel({canvas}) {
                                 key={template.name}
                                 type="button"
                                 className={`symbol-item template-item ${isSelected ? 'object-list-button-active' : ''}`}
-                                onClick={() => setSelectedTemplate(template.name)}
+                                onClick={() => {
+                                    setSelectedTemplate(template.name);
+                                    insertTemplate(template.name);
+                                }}
                             >
                                 <strong className="template-item-title">{template.name}</strong>
                                 <div className="template-preview">
@@ -91,10 +94,6 @@ export default function TemplatePanel({canvas}) {
                     {selectedTemplate ? t('selected_template', { template: selectedTemplate }) : t('select_template_to_prepare')}
                 </div>
             </div>
-
-            <button type="button" className="toggle-button" disabled={!selectedTemplate} onClick={insertTemplate}>
-                {t('insert_template')}
-            </button>
 
             {statusText ? (
                 <p style={{ fontSize: '12px', color: '#aaa', fontStyle: 'italic' }}>

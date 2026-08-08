@@ -15,6 +15,23 @@ import './sidebar.css';
 
 const BORDER_TYPE_OPTIONS = Object.keys(BorderFrameWidth);
 const COLOR_OPTIONS = Object.keys(BorderColorScheme);
+const DIVIDER_OPTIONS = [
+    {
+        type: 'HDivider',
+        label: 'Stack Divider',
+        imageSrc: '/images/divider%20stack.svg',
+    },
+    {
+        type: 'VDivider',
+        label: 'Gantry Divider',
+        imageSrc: '/images/divider%20gantry.svg',
+    },
+    {
+        type: 'VLane',
+        label: 'Lane Line',
+        imageSrc: '/images/divider%20lane.svg',
+    },
+];
 
 const buttonSvgCache = new Map();
 
@@ -264,16 +281,24 @@ export default function BorderPanel() {
 
             <div className="input-group">
                 <label className="input-label">{t('Add Divider to Border')}</label>
-                <div className="toggle-container">
-                    <button type="button" className="toggle-button" onClick={() => createDivider('HDivider')}>
-                        {t('Stack Divider')}
-                    </button>
-                    <button type="button" className="toggle-button" onClick={() => createDivider('VDivider')}>
-                        {t('Gantry Divider')}
-                    </button>
-                    <button type="button" className="toggle-button" onClick={() => createDivider('VLane')}>
-                        {t('Lane Line')}
-                    </button>
+                <div className="divider-grid">
+                    {DIVIDER_OPTIONS.map((divider) => (
+                        <button
+                            key={divider.type}
+                            type="button"
+                            className="symbol-item divider-item"
+                            onClick={() => createDivider(divider.type)}
+                            title={t(divider.label)}
+                        >
+                            <img
+                                className="divider-item-image"
+                                src={divider.imageSrc}
+                                alt={t(divider.label)}
+                            />
+                            <hr className="symbol-separator" />
+                            <span className="symbol-label">{t(divider.label)}</span>
+                        </button>
+                    ))}
                 </div>
             </div>
 

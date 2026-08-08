@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { StaticCanvas } from 'fabric';
 
 import { useI18n } from '../../lib/i18n/I18nProvider.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
-import { MainRoadSymbol } from '../../lib/objects/mainRoute.js';
+import { MainRoadSymbol, calcVertexType } from '../../lib/objects/mainRoute.js';
 import { SideRoadSymbol } from '../../lib/objects/sideRoute.js';
+import { GlyphPath } from '../../lib/objects/draw.js';
 import SidebarToggleGroup from '../shared/SidebarToggleGroup.js';
 import { routePermittedAngle } from '../../lib/templates/mapTemplate.js';
 import { GeneralDrawSettings, useGeneralDrawSettings } from './DrawSettings.js';
@@ -43,6 +45,7 @@ export default function RouteMapPanel() {
     const [statusText, setStatusText] = useState('');
     const [selectedMainRoad, setSelectedMainRoad] = useState(null);
     const [permittedAngles, setPermittedAngles] = useState([-90, -60, -45, -30, 0, 30, 45, 60, 90]);
+    const [routePreviewSvg, setRoutePreviewSvg] = useState('');
 
     const getCanvas = () => CanvasGlobals.canvas;
     const translateOptions = (options) => options.map((option) => ({ value: option, label: t(option) }));
@@ -232,6 +235,108 @@ export default function RouteMapPanel() {
         };
     };
 
+    const buildRoutePreviewSvg = () => {
+        const previewWidth = 360;
+        const previewHeight = 220;
+        const previewCanvas = new StaticCanvas(null, {
+            width: previewWidth,
+            height: previewHeight,
+            enableRetinaScaling: false,
+        });
+
+        try {
+            const routeOptions = buildRouteOptions({ x: 0, y: 0 });
+            const calcVertex = calcVertexType[routeOptions.roadType];
+            if (!calcVertex) {
+                return '';
+            }
+
+            const previewVertex = calcVertex(
+                routeOptions.xHeight,
+                routeOptions.routeList,
+                routeOptions.innerCornerRadius,
+                routeOptions.outerCornerRadius,
+            );
+
+            const previewRoute = new GlyphPath();
+            previewRoute.initialize(previewVertex, {
+                left: 0,
+                top: 0,
+                angle: 0,
+                fill: routeOptions.color,
+                objectCaching: false,
+                dirty: true,
+                strokeWidth: 0,
+            });
+
+            previewCanvas.add(previewRoute);
+
+            const bounds = previewRoute.getBoundingRect();
+            const scaleX = (previewWidth * 0.88) / Math.max(bounds.width, 1);
+            const scaleY = (previewHeight * 0.88) / Math.max(bounds.height, 1);
+            const previewScale = Math.min(scaleX, scaleY);
+
+            previewRoute.set({
+                originX: 'center',
+                originY: 'center',
+                left: previewWidth / 2,
+                top: previewHeight / 2,
+                scaleX: previewScale,
+                scaleY: previewScale,
+                selectable: false,
+                evented: false,
+            });
+
+            previewCanvas.requestRenderAll?.();
+
+            const svgText = previewCanvas.toSVG({
+                suppressPreamble: true,
+                width: previewWidth,
+                height: previewHeight,
+                viewBox: {
+                    x: 0,
+                    y: 0,
+                    width: previewWidth,
+                    height: previewHeight,
+                },
+            });
+
+            const parser = new DOMParser();
+            const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+            const svgElement = svgDoc.querySelector('svg');
+            if (!svgElement) {
+                return '';
+            }
+
+            svgElement.setAttribute('width', '100%');
+            svgElement.setAttribute('height', '100%');
+            svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+            return svgElement.outerHTML;
+        } catch (error) {
+            console.error('Failed to build route preview SVG:', error);
+            return '';
+        } finally {
+            previewCanvas.dispose();
+        }
+    };
+
+    useEffect(() => {
+        setRoutePreviewSvg(buildRoutePreviewSvg());
+    }, [
+        routeType,
+        subType,
+        roundaboutType,
+        mainWidth,
+        rootLength,
+        tipLength,
+        innerCornerRadius,
+        outerCornerRadius,
+        mainAngle,
+        xHeight,
+        color,
+    ]);
+
     const activateMapVertexControl = (mapObject) => {
         if (!mapObject || !mapObject.routeList) return;
 
@@ -390,9 +495,10 @@ export default function RouteMapPanel() {
                 />
             )}
 
-            <div className="input-group">
-                <label className="input-label">{t('Main Road Angle')}</label>
-                {permittedAngles.length > 0 ? (
+            {permittedAngles.length > 0 ? (
+                <div className="input-group">
+                    <label className="input-label">{t('Main Road Angle')}</label>
+
                     <AngleSelector
                         value={mainAngle}
                         options={permittedAngles}
@@ -401,8 +507,8 @@ export default function RouteMapPanel() {
                         onRotateLeft={() => setMainAngle(getNextAngle(permittedAngles, mainAngle, 'left'))}
                         onRotateRight={() => setMainAngle(getNextAngle(permittedAngles, mainAngle, 'right'))}
                     />
-                ) : null}
-            </div>
+                </div>) : null}
+
 
             <div className="input-group">
                 <label className="input-label">{t('Approach Length')}</label>
@@ -457,6 +563,16 @@ export default function RouteMapPanel() {
                 <label className="input-label">{t('Route Layout')}</label>
                 <div style={{ color: '#aaa', fontSize: '12px', lineHeight: 1.5 }}>
                     {t('Main-road creation is now wired. Select a main road and use side-road controls below to add branches.')}
+                </div>
+            </div>
+
+            <div className="input-group">
+                <label className="input-label">{t('Route Preview')}</label>
+                <div className="route-preview-shell">
+                    <div
+                        className="route-preview-canvas"
+                        dangerouslySetInnerHTML={{ __html: routePreviewSvg || `<div class="route-preview-placeholder">${t('Preview unavailable')}</div>` }}
+                    />
                 </div>
             </div>
 
