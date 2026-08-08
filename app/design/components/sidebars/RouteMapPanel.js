@@ -33,8 +33,8 @@ export default function RouteMapPanel() {
     const [subType, setSubType] = useState('Arrow');
     const [roundaboutType, setRoundaboutType] = useState('Normal');
     const [mainWidth, setMainWidth] = useState('6');
-    const [rootLength, setRootLength] = useState('12');
-    const [tipLength, setTipLength] = useState('7');
+    const [rootLength, setRootLength] = useState('7');
+    const [tipLength, setTipLength] = useState('12');
     const [innerCornerRadius, setInnerCornerRadius] = useState('1');
     const [outerCornerRadius, setOuterCornerRadius] = useState('4');
     const [sideDirection, setSideDirection] = useState('Right');
@@ -174,16 +174,7 @@ export default function RouteMapPanel() {
         const cosA = Math.cos(angleRad);
         const sinA = Math.sin(angleRad);
 
-        const routeList = [
-            {
-                x: centerPoint.x - Math.sin(angleRad) * tipLength * xHeight / 4,
-                y: centerPoint.y + (Math.cos(angleRad) * tipLength + (width / 2 * (1 - Math.cos(angleRad)))) * xHeight / 4,
-                angle: 180,
-                length: parsedRootLength,
-                width,
-                shape: 'Stub',
-            },
-        ];
+        const routeList = [];
 
         if (isTJunction || isYJunction) {
             const relativeAngle = isTJunction ? -90 : -30;
@@ -192,15 +183,20 @@ export default function RouteMapPanel() {
             const widthMod = isYJunction ? (width * 2) / 3 : width;
 
             routeList.push({
+                x: centerPoint.x,
+                y: centerPoint.y + (parsedRootLength + (width / 2 * (1 - Math.cos(absAngleRad)))) * xHeight / 4,
+                angle: 180,
+                length: parsedRootLength,
+                width,
+                shape: 'Stub',
+            }, {
                 x: centerPoint.x + 2 * Math.sin(absAngleRad) * computedTipLength * xHeight / 4,
                 y: centerPoint.y - 2 * Math.cos(absAngleRad) * computedTipLength * xHeight / 4, // Adjusted for rotation
                 angle: absoluteAngle,
                 length: computedTipLength,
                 width: widthMod,
                 shape: topShape,
-            });
-
-            routeList.push({
+            }, {
                 x: centerPoint.x - 2 * Math.sin(absAngleRad) * computedTipLength * xHeight / 4,
                 y: centerPoint.y - 2 * Math.cos(absAngleRad) * computedTipLength * xHeight / 4, // Adjusted for rotation
                 angle: -absoluteAngle,
@@ -210,13 +206,21 @@ export default function RouteMapPanel() {
             });
         } else {
             routeList.push({
-                x: centerPoint.x,
-                y: centerPoint.y,
-                angle: resolvedMainAngle,
-                length: computedTipLength,
+                x: centerPoint.x - Math.sin(angleRad) * tipLength * xHeight / 4,
+                y: centerPoint.y + (parsedRootLength + Math.cos(angleRad) * tipLength + (width / 2 * (1 - Math.cos(angleRad)))) * xHeight / 4,
+                angle: 180,
+                length: parsedRootLength,
                 width,
-                shape: topShape,
-            },)
+                shape: 'Stub',
+            },
+                {
+                    x: centerPoint.x,
+                    y: centerPoint.y,
+                    angle: resolvedMainAngle,
+                    length: computedTipLength,
+                    width,
+                    shape: topShape,
+                },)
         }
 
         return {
