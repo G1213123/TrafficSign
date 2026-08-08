@@ -41,6 +41,55 @@ const getCanvasObjects = () => {
   return canvas?.getObjects?.() || [];
 };
 
+const parseImportedCanvasData = (importedData) => {
+  if (typeof importedData === 'string') {
+    return parseImportedCanvasData(JSON.parse(importedData));
+  }
+
+  if (Array.isArray(importedData)) {
+    return { objects: importedData, version: null };
+  }
+
+  if (importedData && Array.isArray(importedData.objects)) {
+    return {
+      objects: importedData.objects,
+      version: importedData.meta?.version ?? null,
+    };
+  }
+
+  if (importedData && typeof importedData === 'object') {
+    return {
+      objects: [importedData],
+      version: importedData.meta?.version ?? null,
+    };
+  }
+
+  return { objects: [], version: null };
+};
+
+const clearCanvasForImport = async () => {
+  const canvas = getCanvas();
+  if (!canvas) {
+    throw new Error('Canvas is not ready.');
+  }
+
+  const objects = canvas.getObjects?.() || [];
+  objects
+    .filter((object) => object.id !== 'grid')
+    .forEach((object) => canvas.remove(object));
+
+  if (Array.isArray(CanvasGlobals.canvasObject)) {
+    CanvasGlobals.canvasObject.length = 0;
+  }
+
+  CanvasGlobals.activeObject = null;
+  CanvasGlobals.activeVertex = null;
+  canvas.discardActiveObject?.();
+
+  const { globalAnchorTree } = await import('../objects/anchor.js');
+  globalAnchorTree?.clear?.();
+};
+
 const simpleStringify = (object) => {
   const simpleObject = {};
 
@@ -91,6 +140,39 @@ export const exportCanvasToJSON = () => {
   };
 
   return JSON.stringify(exportData, null, 2);
+};
+
+export const importCanvasFromJSON = async (importedData, options = {}) => {
+  const canvas = getCanvas();
+  if (!canvas) {
+    throw new Error('Canvas is not ready.');
+  }
+
+  const { showSuccessToast = true } = options;
+  const { objects, version } = parseImportedCanvasData(importedData);
+
+  if (objects.length === 0) {
+    throw new Error('No canvas objects were found in the imported JSON.');
+  }
+
+  await clearCanvasForImport();
+
+  const { buildObjectsFromJSON } = await import('../objects/build.js');
+  await buildObjectsFromJSON(objects);
+
+  if (version) {
+    const { UpgradeManager } = await import('../version_upgrades/UpgradeManager.js');
+    UpgradeManager.processUpgrades(version);
+  }
+
+  DrawGrid();
+  canvas.requestRenderAll?.();
+
+  if (showSuccessToast) {
+    showToast('Canvas imported successfully!', 'success');
+  }
+
+  return true;
 };
 
 const applyLocale = (locale) => {
@@ -399,9 +481,7 @@ export const GeneralSettings = {
         return false;
       }
 
-      const { buildObjectsFromJSON } = await import('../objects/build.js');
-      await buildObjectsFromJSON(objectsToLoad);
-      canvas.requestRenderAll?.();
+      await importCanvasFromJSON(savedCanvasObjects, { showSuccessToast: false });
       return true;
     } catch (error) {
       console.error('Failed to load canvas state', error);

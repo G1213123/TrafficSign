@@ -4,8 +4,10 @@ import React, { useRef, useState } from 'react';
 
 import { useI18n } from '../../lib/i18n/I18nProvider.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
-import { exportCanvasToJSON } from '../../lib/utils/settings.js';
+import { exportCanvasToJSON, importCanvasFromJSON } from '../../lib/utils/settings.js';
 import { exportToPDF, exportToDXF } from '../../lib/exportUtils/index.js';
+import { ImportManager } from '../../lib/modal/md-import.js';
+import { showToast } from '../../components/presentations/ToastBox.js';
 import SidebarToggleGroup from '../shared/SidebarToggleGroup.js';
 
 const QUALITY_OPTIONS = ['1.0', '0.9', '0.8', '0.7', '0.5'];
@@ -90,11 +92,47 @@ export default function ExportPanel() {
 
     const handleImportFile = async (event) => {
         const file = event.target.files?.[0];
+        event.target.value = '';
         if (!file) return;
 
-        const text = await file.text();
-        downloadText(`${file.name}.copy.txt`, text, 'text/plain');
-        event.target.value = '';
+        const confirmed = window.confirm(
+            'Warning: Importing a JSON file will clear the current canvas and replace it with the imported content. All current work will be lost.\n\nDo you want to proceed?'
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            const text = await file.text();
+            await importCanvasFromJSON(text);
+        } catch (error) {
+            console.error('Failed to import canvas from file:', error);
+            showToast(error?.message || 'Failed to import canvas data.', 'error');
+        }
+    };
+
+    const handleImportJSONText = async (jsonText) => {
+        const confirmed = window.confirm(
+            'Warning: Importing JSON text will clear the current canvas and replace it with the imported content. All current work will be lost.\n\nDo you want to proceed?'
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            await importCanvasFromJSON(jsonText);
+            ImportManager.closeImportModal();
+        } catch (error) {
+            console.error('Failed to import canvas from text:', error);
+            showToast(error?.message || 'Failed to import canvas data.', 'error');
+            throw error;
+        }
+    };
+
+    const triggerTextImport = () => {
+        ImportManager.showImportJSONTextModal(handleImportJSONText);
     };
 
     return (
@@ -145,7 +183,7 @@ export default function ExportPanel() {
                 <label className="input-label">{t('import')}</label>
                 <div className="toggle-container">
                     <button type="button" className="toggle-button" onClick={triggerImport}>{t('Import json file')}</button>
-                    <button type="button" className="toggle-button" disabled title={t('text_import_wiring_next')}>{t('Import json text')}</button>
+                    <button type="button" className="toggle-button" onClick={triggerTextImport}>{t('Import json text')}</button>
                 </div>
                 <input ref={fileInputRef} type="file" accept="application/json,.json" style={{ display: 'none' }} onChange={handleImportFile} />
             </div>

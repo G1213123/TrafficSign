@@ -1,4 +1,4 @@
-import { CanvasGlobals } from '../canvas/canvas.js';
+import { CanvasGlobals } from '../../components/canvas/canvas.js';
 
 export const UpgradeManager = {
     upgrades: [
