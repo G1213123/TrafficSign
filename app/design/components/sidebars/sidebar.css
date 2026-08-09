@@ -136,14 +136,14 @@
 }
 
 .toggle-button.active:after {
-    background-color: #3498db;
-    bottom: 0;
-    content: "";
-    height: 3px;
-    left: 0;
-    position: absolute;
-    width: 100%;
-    opacity: 1;
+  background-color: #3498db;
+  bottom: 0;
+  content: "";
+  height: 3px;
+  left: 0;
+  position: absolute;
+  width: 100%;
+  opacity: 1;
 }
 
 .toggle-button.active {
@@ -482,6 +482,10 @@
     width: auto;
     height: 100%;
     flex: 1;
+  }
+
+  .sidebar-item-bottom {
+    position: relative !important;
   }
 
   .tooltip {

@@ -5,9 +5,13 @@ import { StaticCanvas } from 'fabric';
 
 import { useI18n } from '../../lib/i18n/I18nProvider.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
-import { MainRoadSymbol, calcVertexType } from '../../lib/objects/mainRoute.js';
+import { MainRoadSymbol, calcVertexType, addUTurnToMainRoad } from '../../lib/objects/mainRoute.js';
 import { SideRoadSymbol } from '../../lib/objects/sideRoute.js';
 import { GlyphPath } from '../../lib/objects/draw.js';
+import { calcSymbol } from '../../lib/objects/symbols.js';
+import { baseSideRoadTemplate } from '../../lib/templates/mapTemplate.js';
+import { assignVertexLabel } from '../../lib/objects/routeBase.js';
+import { calculateTransformedPoints } from '../../lib/objects/path.js';
 import SidebarToggleGroup from '../shared/SidebarToggleGroup.js';
 import { routePermittedAngle } from '../../lib/templates/mapTemplate.js';
 import { GeneralDrawSettings, useGeneralDrawSettings } from './DrawSettings.js';
@@ -262,6 +266,25 @@ export default function RouteMapPanel() {
                 routeOptions.outerCornerRadius,
             );
 
+            if (routeOptions.roadType.includes('Roundabout')) {
+                const baseShapeName = `Base ${routeOptions.roadType.split(' ')[0]} ${routeOptions.RAfeature}`;
+                const roundaboutCenter =  routeOptions.routeList[0];
+                const baseShape = calcSymbol(baseSideRoadTemplate(baseShapeName, routeOptions.rootLength), routeOptions.xHeight / 4);
+
+                if (baseShape?.path?.length) {
+                    baseShape.path.forEach((path) => {
+                        path.vertex = calculateTransformedPoints(path.vertex, {
+                            x: roundaboutCenter.x,
+                            y: -roundaboutCenter.y*2,
+                            angle: 180,
+                        });
+                        assignVertexLabel(path.vertex);
+                    });
+
+                    previewVertex.path.push(...baseShape.path);
+                }
+            }
+
             const previewRoute = new GlyphPath();
             previewRoute.initialize(previewVertex, {
                 left: 0,
@@ -441,8 +464,14 @@ export default function RouteMapPanel() {
                 value={routeType}
                 onChange={(val) => {
                     setRouteType(val);
-                    if (val === 'Main Line') setSubType('Arrow');
-                    else if (val === 'Roundabout') setSubType('Conventional');
+                    if (val === 'Main Line') {
+                        setSubType('Arrow');
+                        setRootLength(7);
+                    }
+                    else if (val === 'Roundabout') {
+                        setSubType('Conventional');
+                        setRootLength(22.9);
+                    }
 
                     const angleKey = subType + ' ' + val;
                     setPermittedAngles(routePermittedAngle[angleKey] || routePermittedAngle[val] || []);
@@ -484,6 +513,7 @@ export default function RouteMapPanel() {
                         setSubType(val);
                         setRoundaboutType(val === 'Double' ? 'Conventional' : 'Normal');
                         setMainAngle(0);
+                        setRootLength(22.9);
                         const angleKey = val === 'Spiral' ? 'Spiral Roundabout' : (val === 'Oval' ? 'Oval Roundabout' : (val === 'Double' ? 'Double Roundabout' : 'Conventional Roundabout'));
                         setPermittedAngles(routePermittedAngle[angleKey] || []);
                     }}

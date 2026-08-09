@@ -845,4 +845,6 @@ function calcRoundaboutVertices(type, xHeight, routeList) {
         roadMapOnSelect,
         roadMapOnDeselect,
         calculateMainRoadBottomY,
+        addBaseToRoundabout,
+        addUTurnToMainRoad
     };
