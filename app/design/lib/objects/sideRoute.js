@@ -39,7 +39,7 @@ function calcSideRoadVertices(xHeight, mainRouteList, routeList) {
  * @param {string} excludeShape - Shape name to exclude from standard rotation
  * @return {Object} Transformed path
  */
-function transformRoundaboutPath(arrowTipPath, route, length, angle, center, excludeShape) {
+export function transformRoundaboutPath(arrowTipPath, route, length, angle, center, excludeShape) {
     arrowTipPath = calcSymbol(arrowTipPath, length);
     const transform = route.shape !== excludeShape ? {
         x: route.x,

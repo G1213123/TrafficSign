@@ -11,6 +11,7 @@ import { GlyphPath } from '../../lib/objects/draw.js';
 import { calcSymbol } from '../../lib/objects/symbols.js';
 import { baseSideRoadTemplate } from '../../lib/templates/mapTemplate.js';
 import { assignVertexLabel } from '../../lib/objects/routeBase.js';
+import { transformRoundaboutPath } from '../../lib/objects/sideRoute.js';
 import { calculateTransformedPoints } from '../../lib/objects/path.js';
 import SidebarToggleGroup from '../shared/SidebarToggleGroup.js';
 import { routePermittedAngle } from '../../lib/templates/mapTemplate.js';
@@ -116,6 +117,8 @@ export default function RouteMapPanel() {
         const parsedInnerCornerRadius = resolveNumber(innerCornerRadius, 1);
         const parsedOuterCornerRadius = resolveNumber(outerCornerRadius, 4);
         const resolvedMainAngle = resolveNumber(mainAngle, 0);
+        const cosA = Math.cos(resolvedMainAngle * Math.PI / 180);
+        const sinA = Math.sin(resolvedMainAngle * Math.PI / 180);
 
         if (routeType === 'Roundabout') {
             const roadTypeValue = subType === 'Spiral' ? 'Spiral Roundabout' : (subType === 'Oval' ? 'Oval Roundabout' : (subType === 'Double' ? 'Double Roundabout' : 'Conventional Roundabout'));
@@ -124,35 +127,35 @@ export default function RouteMapPanel() {
             let computedTipLength = parsedTipLength;
 
             // Legacy logic for specific roundabout types
-            if (subType === 'Oval') {
-                computedTipLength = 24;
-            } else if (subType === 'Double') {
-                computedTipLength = roundaboutType === 'Spiral' ? 38 : 28;
+            if (roundaboutType === 'Auxiliary') {
+                computedRootLength = 30;
+            } else if (roundaboutType === 'U-turn') {
+                computedRootLength = 45;
             }
 
-            const angleRad = resolvedMainAngle * Math.PI / 180;
-            const cosA = Math.cos(angleRad);
-            const sinA = Math.sin(angleRad);
             const baseShape = roundaboutType + (subType === 'Oval' ? ' ' + resolvedMainAngle : '');
 
             return {
                 routeList: [
+                    // bottom
                     {
-                        x: centerPoint.x + (computedTipLength * sinA * xHeight / 4),
-                        y: centerPoint.y - (computedTipLength * cosA * xHeight / 4),
+                        x: centerPoint.x - sinA * computedTipLength * xHeight / 4,//+ addRootwidth,
+                        y: centerPoint.y - (cosA * computedTipLength + (width / 2 * (1 - cosA) + parsedRootLength)) * xHeight / 4,
                         angle: resolvedMainAngle,
                         width,
-                        length: computedTipLength,
+                        length: (subType === 'Double' && roundaboutType === 'Conventional') ? 28 : (subType === 'Double' && roundaboutType === 'Spiral') ? 38 : 0,
                         shape: baseShape,
                     },
+                    // tip
                     {
                         x: centerPoint.x,
                         y: centerPoint.y,
-                        angle: 180 + resolvedMainAngle,
+                        angle: 0,
                         width,
                         length: computedRootLength,
                         shape: baseShape,
                     },
+
                 ],
                 xHeight,
                 rootLength: computedRootLength,
@@ -173,17 +176,14 @@ export default function RouteMapPanel() {
         const computedTipLength = parsedTipLength;
         const topShape = subType;
 
-        // Calculate rotation for the whole route
-        const angleRad = resolvedMainAngle * Math.PI / 180;
-        const cosA = Math.cos(angleRad);
-        const sinA = Math.sin(angleRad);
-
         const routeList = [];
 
         if (isTJunction || isYJunction) {
             const relativeAngle = isTJunction ? -90 : -30;
             const absoluteAngle = resolvedMainAngle + relativeAngle;
             const absAngleRad = absoluteAngle * Math.PI / 180;
+            const absSinA = Math.sin(absAngleRad);
+            const absCosA = Math.cos(absAngleRad);
             const widthMod = isYJunction ? (width * 2) / 3 : width;
 
             routeList.push({
@@ -194,15 +194,15 @@ export default function RouteMapPanel() {
                 width,
                 shape: 'Stub',
             }, {
-                x: centerPoint.x + 2 * Math.sin(absAngleRad) * computedTipLength * xHeight / 4,
-                y: centerPoint.y - 2 * Math.cos(absAngleRad) * computedTipLength * xHeight / 4, // Adjusted for rotation
+                x: centerPoint.x + 2 * absSinA * computedTipLength * xHeight / 4,
+                y: centerPoint.y - 2 * absCosA * computedTipLength * xHeight / 4, // Adjusted for rotation
                 angle: absoluteAngle,
                 length: computedTipLength,
                 width: widthMod,
                 shape: topShape,
             }, {
-                x: centerPoint.x - 2 * Math.sin(absAngleRad) * computedTipLength * xHeight / 4,
-                y: centerPoint.y - 2 * Math.cos(absAngleRad) * computedTipLength * xHeight / 4, // Adjusted for rotation
+                x: centerPoint.x - 2 * absSinA * computedTipLength * xHeight / 4,
+                y: centerPoint.y - 2 * absCosA * computedTipLength * xHeight / 4, // Adjusted for rotation
                 angle: -absoluteAngle,
                 length: computedTipLength,
                 width: widthMod,
@@ -210,8 +210,8 @@ export default function RouteMapPanel() {
             });
         } else {
             routeList.push({
-                x: centerPoint.x - Math.sin(angleRad) * tipLength * xHeight / 4,
-                y: centerPoint.y + (parsedRootLength + Math.cos(angleRad) * tipLength + (width / 2 * (1 - Math.cos(angleRad)))) * xHeight / 4,
+                x: centerPoint.x - sinA * tipLength * xHeight / 4,
+                y: centerPoint.y + (parsedRootLength + cosA * tipLength + (width / 2 * (1 - cosA))) * xHeight / 4,
                 angle: 180,
                 length: parsedRootLength,
                 width,
@@ -268,25 +268,65 @@ export default function RouteMapPanel() {
 
             if (routeOptions.roadType.includes('Roundabout')) {
                 const baseShapeName = `Base ${routeOptions.roadType.split(' ')[0]} ${routeOptions.RAfeature}`;
-                const roundaboutCenter =  routeOptions.routeList[0];
-                const baseShape = calcSymbol(baseSideRoadTemplate(baseShapeName, routeOptions.rootLength), routeOptions.xHeight / 4);
-
-                if (baseShape?.path?.length) {
-                    baseShape.path.forEach((path) => {
-                        path.vertex = calculateTransformedPoints(path.vertex, {
-                            x: roundaboutCenter.x,
-                            y: -roundaboutCenter.y*2,
-                            angle: 180,
-                        });
-                        assignVertexLabel(path.vertex);
-                    });
-
-                    previewVertex.path.push(...baseShape.path);
+                const baseRoute = routeOptions.routeList[1];
+                const baseShape = baseSideRoadTemplate(baseShapeName, routeOptions.rootLength);
+                const arrowTipPath = calcSymbol(baseShape, routeOptions.xHeight / 4);
+                const transform = {
+                    x: baseRoute.x,
+                    y: baseRoute.y + (routeOptions.rootLength) * routeOptions.xHeight / 4,
+                    angle: 180
                 }
+                // Apply transform to all paths
+                arrowTipPath.path.forEach((p) => {
+                    p.vertex = calculateTransformedPoints(p.vertex, transform);
+                });
+
+                previewVertex.path.push(...arrowTipPath.path);
             }
 
-            const previewRoute = new GlyphPath();
-            previewRoute.initialize(previewVertex, {
+            const testVertex = {
+                path: [
+                    {
+                        vertex: [
+                            {
+                                x: 0,
+                                y: -10,
+                                label: "V1",
+                                start: 1,
+                                display: 1,
+                            },
+                            {
+                                x: 0,
+                                y: 10,
+                                label: "V2",
+                                start: 0,
+                                display: 1,
+                            },
+                        ],
+                        arcs: [
+                            {
+                                start: "V1",
+                                end: "V2",
+                                radius: 5,
+                                direction: 0,
+                                sweep: 0,
+                            },
+                            {
+                                start: "V2",
+                                end: "V1",
+                                radius: 5,
+                                direction: 0,
+                                sweep: 0,
+                            },
+                        ],
+                    },
+                ],
+            }
+
+            previewVertex.path.push(...testVertex.path)
+
+            const previewMainRoute = new GlyphPath();
+            previewMainRoute.initialize(previewVertex, {
                 left: 0,
                 top: 0,
                 angle: 0,
@@ -296,14 +336,14 @@ export default function RouteMapPanel() {
                 strokeWidth: 0,
             });
 
-            previewCanvas.add(previewRoute);
+            previewCanvas.add(previewMainRoute);
 
-            const bounds = previewRoute.getBoundingRect();
+            const bounds = previewMainRoute.getBoundingRect();
             const scaleX = (previewWidth * 0.88) / Math.max(bounds.width, 1);
             const scaleY = (previewHeight * 0.88) / Math.max(bounds.height, 1);
             const previewScale = Math.min(scaleX, scaleY);
 
-            previewRoute.set({
+            previewMainRoute.set({
                 originX: 'center',
                 originY: 'center',
                 left: previewWidth / 2,
@@ -555,16 +595,18 @@ export default function RouteMapPanel() {
                 />
             </div>
 
-            <div className="input-group">
-                <label className="input-label">{t('Exit Length')}</label>
-                <input
-                    type="number"
-                    className="input-field"
-                    value={tipLength}
-                    step="0.1"
-                    onChange={(e) => setTipLength(e.target.value)}
-                />
-            </div>
+            {routeType !== 'Roundabout' && (
+                <div className="input-group">
+                    <label className="input-label">{t('Exit Length')}</label>
+                    <input
+                        type="number"
+                        className="input-field"
+                        value={tipLength}
+                        step="0.1"
+                        onChange={(e) => setTipLength(e.target.value)}
+                    />
+                </div>
+            )}
 
             {routeType === 'Main Line' && subType === 'LaneDrop' ? (
                 <>
