@@ -14,7 +14,7 @@ export const CanvasGlobals = {
 export function initCanvasGlobals(fabricCanvas) {
   CanvasGlobals.canvas = fabricCanvas;
   CanvasGlobals.ctx = fabricCanvas.getContext("2d");
-  
+
   CanvasGlobals.CenterCoord = () => {
     const zoom = fabricCanvas.getZoom();
     const vpt = fabricCanvas.viewportTransform;
@@ -47,7 +47,7 @@ export function DrawGrid() {
   else if (currentZoom < 5) gridDistance = 10;
   else gridDistance = 5;
 
-  const gridColor = '#FFF';
+  const gridColor = GeneralSettings.gridColor || '#FFF';
   const strokeWidth = 0.1 / currentZoom;
   const gridLines = [];
   const constantFontSize = 12;
@@ -55,13 +55,6 @@ export function DrawGrid() {
   const showLabels = currentZoom > 0.08;
 
   for (let x = Math.floor(xmin / gridDistance) * gridDistance; x <= xmax; x += gridDistance) {
-    gridLines.push(new Line([x, ymin, x, ymax], {
-      stroke: gridColor,
-      strokeWidth,
-      selectable: false,
-      evented: false
-    }));
-
     if (showLabels && Math.abs(x % (5 * gridDistance)) < 1e-6) {
       gridLines.push(new Text(String(x), {
         left: x + 2 / currentZoom,
@@ -73,17 +66,23 @@ export function DrawGrid() {
         originX: 'left',
         originY: 'top'
       }));
+      gridLines.push(new Line([x, ymin, x, ymax], {
+        stroke: gridColor,
+        strokeWidth: strokeWidth * 2,
+        selectable: false,
+        evented: false
+      }));
+    } else {
+      gridLines.push(new Line([x, ymin, x, ymax], {
+        stroke: gridColor,
+        strokeWidth,
+        selectable: false,
+        evented: false
+      }));
     }
   }
 
   for (let y = Math.floor(ymin / gridDistance) * gridDistance; y <= ymax; y += gridDistance) {
-    gridLines.push(new Line([xmin, y, xmax, y], {
-      stroke: gridColor,
-      strokeWidth,
-      selectable: false,
-      evented: false,
-    }));
-
     if (showLabels && Math.abs(y % (5 * gridDistance)) < 1e-6) {
       gridLines.push(new Text(String(y), {
         left: 2 / currentZoom,
@@ -94,6 +93,19 @@ export function DrawGrid() {
         fontSize: scaledFontSize,
         originY: 'top',
         originX: 'left'
+      }));
+      gridLines.push(new Line([xmin, y, xmax, y], {
+        stroke: gridColor,
+        strokeWidth: strokeWidth * 2,
+        selectable: false,
+        evented: false,
+      }));
+    } else {
+      gridLines.push(new Line([xmin, y, xmax, y], {
+        stroke: gridColor,
+        strokeWidth,
+        selectable: false,
+        evented: false,
       }));
     }
   }
@@ -112,10 +124,10 @@ export function DrawGrid() {
 
 CanvasGlobals.scheduleRender = () => {
   requestAnimationFrame(() => {
-    if ( CanvasGlobals.canvas && typeof  CanvasGlobals.canvas.requestRenderAll === 'function') {
+    if (CanvasGlobals.canvas && typeof CanvasGlobals.canvas.requestRenderAll === 'function') {
       CanvasGlobals.canvas.requestRenderAll();
-    } else if (fabricCanvas && typeof  CanvasGlobals.canvas.renderAll === 'function') {
-       CanvasGlobals.canvas.renderAll();
+    } else if (fabricCanvas && typeof CanvasGlobals.canvas.renderAll === 'function') {
+      CanvasGlobals.canvas.renderAll();
     }
   });
 }

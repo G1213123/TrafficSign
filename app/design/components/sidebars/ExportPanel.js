@@ -8,6 +8,7 @@ import { exportCanvasToJSON, importCanvasFromJSON } from '../../lib/utils/settin
 import { exportToPDF, exportToDXF } from '../../lib/exportUtils/index.js';
 import { ImportManager } from '../../lib/modal/md-import.js';
 import { showToast } from '../../components/presentations/ToastBox.js';
+import { GeneralSettings } from '../../lib/utils/settings.js';
 import SidebarToggleGroup from '../shared/SidebarToggleGroup.js';
 
 const QUALITY_OPTIONS = ['1.0', '0.9', '0.8', '0.7', '0.5'];
@@ -37,8 +38,9 @@ export default function ExportPanel() {
     const [quality, setQuality] = useState('1.0');
     const [paperSize, setPaperSize] = useState('A3');
     const [scaleMultiplier, setScaleMultiplier] = useState('2');
-    const [includeGrid, setIncludeGrid] = useState('No');
-    const [includeBackground, setIncludeBackground] = useState('No');
+    const [includeGrid, setIncludeGrid] = useState('Yes');
+    const [includeBackground, setIncludeBackground] = useState('Yes');
+    const [exportFormat, setExportFormat] = useState('png');
 
     const getCanvas = () => CanvasGlobals.canvas;
 
@@ -46,7 +48,31 @@ export default function ExportPanel() {
         const canvas = getCanvas();
         if (!canvas) return;
 
+        const originalShowGrid = GeneralSettings.showGrid;
+        const originalBgColor = GeneralSettings.backgroundColor;
+
+        if (includeGrid === 'Yes') {
+            GeneralSettings.showGrid = true;
+            GeneralSettings.applyGridSettings();
+        } else {
+            GeneralSettings.showGrid = false;
+            GeneralSettings.applyGridSettings();
+        }
+
+        if (includeBackground === 'Yes') {
+            canvas.backgroundColor = originalBgColor;
+        } else {
+            canvas.backgroundColor = null;
+        }
+
         const dataUrl = canvas.toDataURL({ format: 'png', multiplier: parseFloat(scaleMultiplier) || 1 });
+        
+        // Restore original settings
+        GeneralSettings.showGrid = originalShowGrid;
+        GeneralSettings.applyGridSettings();
+        canvas.backgroundColor = originalBgColor;
+        canvas.requestRenderAll?.();
+
         downloadHref(`${filename}.png`, dataUrl);
     };
 
@@ -54,7 +80,35 @@ export default function ExportPanel() {
         const canvas = getCanvas();
         if (!canvas) return;
 
+        const originalShowGrid = GeneralSettings.showGrid;
+        const originalBgColor = GeneralSettings.backgroundColor;
+
+        if (includeGrid === 'Yes') {
+            GeneralSettings.showGrid = true;
+            GeneralSettings.applyGridSettings();
+        } else {
+            GeneralSettings.showGrid = false;
+            GeneralSettings.applyGridSettings();
+        }
+
+        if (includeBackground === 'Yes') {
+            canvas.backgroundColor = originalBgColor;
+        } else {
+            canvas.backgroundColor = null;
+        }
+
+        // For SVG, to ensure the background covers the visible area correctly, 
+        // we can use toSVG() but we must ensure the canvas background is set.
+        // If the background is still not covering the full area, it's because toSVG 
+        // exports the canvas dimensions, not the viewport.
         const svg = canvas.toSVG();
+        
+        // Restore original settings
+        GeneralSettings.showGrid = originalShowGrid;
+        GeneralSettings.applyGridSettings();
+        canvas.backgroundColor = originalBgColor;
+        canvas.requestRenderAll?.();
+
         downloadText(`${filename}.svg`, svg, 'image/svg+xml');
     };
 
@@ -77,13 +131,48 @@ export default function ExportPanel() {
     const exportPDF = () => {
         const canvas = getCanvas();
         if (!canvas) return;
+
+        const originalShowGrid = GeneralSettings.showGrid;
+        const originalBgColor = GeneralSettings.backgroundColor;
+
+        if (includeGrid === 'Yes') {
+            GeneralSettings.showGrid = true;
+            GeneralSettings.applyGridSettings();
+        } else {
+            GeneralSettings.showGrid = false;
+            GeneralSettings.applyGridSettings();
+        }
+
+        if (includeBackground === 'Yes') {
+            canvas.backgroundColor = originalBgColor;
+        } else {
+            canvas.backgroundColor = null;
+        }
+
         exportToPDF(canvas, filename, paperSize);
+
+        // Restore original settings
+        GeneralSettings.showGrid = originalShowGrid;
+        GeneralSettings.applyGridSettings();
+        canvas.backgroundColor = originalBgColor;
+        canvas.requestRenderAll?.();
     };
 
     const exportDXF = () => {
         const canvas = getCanvas();
         if (!canvas) return;
         exportToDXF(canvas, filename);
+    };
+
+    const handleExecuteExport = () => {
+        switch (exportFormat) {
+            case 'png': exportPNG(); break;
+            case 'svg': exportSVG(); break;
+            case 'json': exportJSON(); break;
+            case 'pdf': exportPDF(); break;
+            case 'dxf': exportDXF(); break;
+            default: showToast(t('Please select an export format'), 'error');
+        }
     };
 
     const triggerImport = () => {
@@ -142,41 +231,54 @@ export default function ExportPanel() {
                 <input className="input-field" value={filename} onChange={(e) => setFilename(e.target.value)} />
             </div>
 
-            <div className="input-group">
-                <label className="input-label">{t('quality')}</label>
-                <select className="input-field" value={quality} onChange={(e) => setQuality(e.target.value)}>
-                    {QUALITY_OPTIONS.map((option) => (
-                        <option key={option} value={option}>{option}</option>
-                    ))}
-                </select>
-            </div>
+            {exportFormat === 'png' && (
+                <div className="input-group">
+                    <label className="input-label">{t('quality')}</label>
+                    <select className="input-field" value={quality} onChange={(e) => setQuality(e.target.value)}>
+                        {QUALITY_OPTIONS.map((option) => (
+                            <option key={option} value={option}>{option}</option>
+                        ))}
+                    </select>
+                </div>
+            )}
 
-            <div className="input-group">
-                <label className="input-label">{t('pdf_paper_size')}</label>
-                <select className="input-field" value={paperSize} onChange={(e) => setPaperSize(e.target.value)}>
-                    {PAPER_SIZES.map((option) => (
-                        <option key={option} value={option}>{option}</option>
-                    ))}
-                </select>
-            </div>
+            {exportFormat === 'pdf' && (
+                <div className="input-group">
+                    <label className="input-label">{t('pdf_paper_size')}</label>
+                    <select className="input-field" value={paperSize} onChange={(e) => setPaperSize(e.target.value)}>
+                        {PAPER_SIZES.map((option) => (
+                            <option key={option} value={option}>{option}</option>
+                        ))}
+                    </select>
+                </div>
+            )}
 
-            <div className="input-group">
-                <label className="input-label">{t('scale_multiplier_png_svg')}</label>
-                <input className="input-field" value={scaleMultiplier} onChange={(e) => setScaleMultiplier(e.target.value)} />
-            </div>
+            {(exportFormat === 'png' || exportFormat === 'svg' || exportFormat === 'pdf') && (
+                <>
+                    {(exportFormat === 'png' || exportFormat === 'svg') && (
+                        <div className="input-group">
+                            <label className="input-label">{t('scale_multiplier_png_svg')}</label>
+                            <input className="input-field" value={scaleMultiplier} onChange={(e) => setScaleMultiplier(e.target.value)} />
+                        </div>
+                    )}
 
-            <SidebarToggleGroup label={t('include_grid')} options={['No', 'Yes']} value={includeGrid} onChange={setIncludeGrid} />
-            <SidebarToggleGroup label={t('include_background')} options={['No', 'Yes']} value={includeBackground} onChange={setIncludeBackground} />
+                    <SidebarToggleGroup label={t('include_grid')} options={['No', 'Yes']} value={includeGrid} onChange={setIncludeGrid} />
+                    <SidebarToggleGroup label={t('include_background')} options={['No', 'Yes']} value={includeBackground} onChange={setIncludeBackground} />
+                </>
+            )}
 
             <div className="input-group">
                 <label className="input-label">{t('export')}</label>
                 <div className="toggle-container">
-                    <button type="button" className="toggle-button" onClick={exportPNG}>{t('Export as png')}</button>
-                    <button type="button" className="toggle-button" onClick={exportSVG}>{t('Export as svg')}</button>
-                    <button type="button" className="toggle-button" onClick={exportJSON}>{t('Export as json')}</button>
-                    <button type="button" className="toggle-button" onClick={exportPDF}>{t('Export as pdf')}</button>
-                    <button type="button" className="toggle-button" onClick={exportDXF}>{t('Export as dxf')}</button>
+                    <button type="button" className={`toggle-button ${exportFormat === 'png' ? 'active' : ''}`} onClick={() => setExportFormat('png')}>{t('Export as png')}</button>
+                    <button type="button" className={`toggle-button ${exportFormat === 'svg' ? 'active' : ''}`} onClick={() => setExportFormat('svg')}>{t('Export as svg')}</button>
+                    <button type="button" className={`toggle-button ${exportFormat === 'json' ? 'active' : ''}`} onClick={() => setExportFormat('json')}>{t('Export as json')}</button>
+                    <button type="button" className={`toggle-button ${exportFormat === 'pdf' ? 'active' : ''}`} onClick={() => setExportFormat('pdf')}>{t('Export as pdf')}</button>
+                    <button type="button" className={`toggle-button ${exportFormat === 'dxf' ? 'active' : ''}`} onClick={() => setExportFormat('dxf')}>{t('Export as dxf')}</button>
                 </div>
+                <button type="button" className="toggle-button" onClick={handleExecuteExport}>
+                    {t('Execute Export')}
+                </button>
             </div>
 
             <div className="input-group">

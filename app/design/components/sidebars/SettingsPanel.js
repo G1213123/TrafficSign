@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 
 import SidebarToggleGroup from '../shared/SidebarToggleGroup.js';
 import { GeneralSettings } from '../../lib/utils/settings.js';
+import { CanvasGlobals } from '../canvas/canvas.js';
 import { useI18n } from '../../lib/i18n/I18nProvider.js';
 import { showToast } from '../presentations/ToastBox.js';
 
@@ -19,6 +20,8 @@ export default function SettingsPanel() {
     const [autoSave, setAutoSave] = useState(readSetting('autoSave', true) ? 'Yes' : 'No');
     const [runTestsOnStart, setRunTestsOnStart] = useState(readSetting('runTestsOnStart', false) ? 'Yes' : 'No');
     const [autoSaveInterval, setAutoSaveInterval] = useState(String(readSetting('autoSaveInterval', 300)));
+    const [bgColor, setBgColor] = useState(readSetting('backgroundColor', '#2f2f2f'));
+    const [gridColor, setGridColor] = useState(readSetting('gridColor', '#ffffff'));
 
     useEffect(() => {
         const sync = (setting) => {
@@ -31,6 +34,8 @@ export default function SettingsPanel() {
                 setAutoSave(readSetting('autoSave', true) ? 'Yes' : 'No');
                 setRunTestsOnStart(readSetting('runTestsOnStart', false) ? 'Yes' : 'No');
                 setAutoSaveInterval(String(readSetting('autoSaveInterval', 300)));
+                setBgColor(readSetting('backgroundColor', '#2f2f2f'));
+                setGridColor(readSetting('gridColor', '#ffffff'));
                 return;
             }
 
@@ -60,6 +65,14 @@ export default function SettingsPanel() {
 
             if (setting === 'autoSaveInterval') {
                 setAutoSaveInterval(String(readSetting('autoSaveInterval', 300)));
+            }
+
+            if (setting === 'backgroundColor') {
+                setBgColor(readSetting('backgroundColor', '#2f2f2f'));
+            }
+
+            if (setting === 'gridColor') {
+                setGridColor(readSetting('gridColor', '#ffffff'));
             }
         };
 
@@ -104,6 +117,38 @@ export default function SettingsPanel() {
             <SidebarToggleGroup label={t('Show All Vertices')} options={['No', 'Yes']} value={showAllVertices} onChange={(value) => { setShowAllVertices(value); updateBoolean('showAllVertices', value); }} />
             <SidebarToggleGroup label={t('Dimension Unit')} options={['mm', 'sw']} value={dimensionUnit} onChange={(value) => { setDimensionUnit(value); GeneralSettings.updateSetting('dimensionUnit', value); }} />
             <SidebarToggleGroup label={t('Auto Save')} options={['No', 'Yes']} value={autoSave} onChange={(value) => { setAutoSave(value); updateBoolean('autoSave', value); }} />
+
+            <div className="input-group">
+                <label className="input-label">{t('background_color')}</label>
+                <input 
+                    type="color" 
+                    value={bgColor} 
+                    onChange={(e) => {
+                        const color = e.target.value;
+                        setBgColor(color);
+                        GeneralSettings.updateSetting('backgroundColor', color);
+                        const canvas = CanvasGlobals.canvas;
+                        if (canvas) {
+                            canvas.backgroundColor = color;
+                            canvas.requestRenderAll?.();
+                        }
+                    }} 
+                />
+            </div>
+
+            <div className="input-group">
+                <label className="input-label">{t('grid_color')}</label>
+                <input 
+                    type="color" 
+                    value={gridColor} 
+                    onChange={(e) => {
+                        const color = e.target.value;
+                        setGridColor(color);
+                        GeneralSettings.updateSetting('gridColor', color);
+                        GeneralSettings.applyGridSettings();
+                    }} 
+                />
+            </div>
 
             { autoSave === 'Yes' && (
                 <div className="input-group">

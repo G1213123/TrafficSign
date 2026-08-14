@@ -27,6 +27,7 @@ const ROUNDABOUT_FEATURES = {
     'Oval': ['Normal'],
     'Double': ['Conventional', 'Spiral'],
 };
+const OVAL_POSITIONS = ['Left', 'Middle'];
 const SIDE_SHAPES = ['Arrow', 'Stub', 'RedBar', 'Circular Sign', 'Circular Sign (with Arrow)'];
 const SIDE_DIRECTIONS = ['Right', 'Left'];
 const SIDE_ANGLES = ['45', '60', '90'];
@@ -47,6 +48,7 @@ export default function RouteMapPanel() {
     const [sideWidth, setSideWidth] = useState('4');
     const [sideAngle, setSideAngle] = useState('45');
     const [mainAngle, setMainAngle] = useState(0);
+    const [ovalPosition, setOvalPosition] = useState('Left');
     const [statusText, setStatusText] = useState('');
     const [selectedMainRoad, setSelectedMainRoad] = useState(null);
     const [permittedAngles, setPermittedAngles] = useState([-90, -60, -45, -30, 0, 30, 45, 60, 90]);
@@ -133,7 +135,7 @@ export default function RouteMapPanel() {
                 computedRootLength = 45;
             }
 
-            const baseShape = roundaboutType + (subType === 'Oval' ? ' ' + resolvedMainAngle : '');
+            const baseShape = roundaboutType + (subType === 'Oval' ? ' ' + resolvedMainAngle : '') + (subType === 'Oval' && resolvedMainAngle === 90 ? ' ' + ovalPosition : '');
 
             return {
                 routeList: [
@@ -323,7 +325,7 @@ export default function RouteMapPanel() {
                 ],
             }
 
-            previewVertex.path.push(...testVertex.path)
+            // previewVertex.path.push(...testVertex.path)
 
             const previewMainRoute = new GlyphPath();
             previewMainRoute.initialize(previewVertex, {
@@ -400,6 +402,7 @@ export default function RouteMapPanel() {
         innerCornerRadius,
         outerCornerRadius,
         mainAngle,
+        ovalPosition,
         xHeight,
         color,
     ]);
@@ -582,6 +585,15 @@ export default function RouteMapPanel() {
                         onRotateRight={() => setMainAngle(getNextAngle(permittedAngles, mainAngle, 'right'))}
                     />
                 </div>) : null}
+
+            {subType === 'Oval' && mainAngle === 90 ? (
+                <SidebarToggleGroup
+                    label={t('Oval Position')}
+                    options={translateOptions(OVAL_POSITIONS)}
+                    value={ovalPosition}
+                    onChange={setOvalPosition}
+                />
+            ) : null}
 
 
             <div className="input-group">
