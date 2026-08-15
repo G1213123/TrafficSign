@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
+import { Rect } from 'fabric';
 
 import { useI18n } from '../../lib/i18n/I18nProvider.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
@@ -91,18 +92,41 @@ export default function ExportPanel() {
             GeneralSettings.applyGridSettings();
         }
 
+        let tempBgRect = null;
         if (includeBackground === 'Yes') {
-            canvas.backgroundColor = originalBgColor;
+            // Create a mock background rectangle to ensure it's exported in SVG
+            // Calculate bounds based on current viewport to cover the visible area
+            const vpt = canvas.viewportTransform;
+            const zoom = canvas.getZoom();
+            const canvasScale = parseFloat(scaleMultiplier) || 1;
+            
+            const bounds = {
+                left: -vpt[4] / zoom,
+                top: -vpt[5] / zoom,
+                width: canvas.width / zoom * 2,
+                height: canvas.height / zoom * 2
+            };
+            tempBgRect = new Rect({
+                left: bounds.left,
+                top: bounds.top,
+                width: bounds.width,
+                height: bounds.height,
+                fill: originalBgColor,
+                selectable: false,
+                evented: false,
+                id: 'temp-export-bg'
+            });
+            canvas.insertAt(0, tempBgRect);
         } else {
             canvas.backgroundColor = null;
         }
 
-        // For SVG, to ensure the background covers the visible area correctly, 
-        // we can use toSVG() but we must ensure the canvas background is set.
-        // If the background is still not covering the full area, it's because toSVG 
-        // exports the canvas dimensions, not the viewport.
         const svg = canvas.toSVG();
         
+        if (tempBgRect) {
+            canvas.remove(tempBgRect);
+        }
+
         // Restore original settings
         GeneralSettings.showGrid = originalShowGrid;
         GeneralSettings.applyGridSettings();
