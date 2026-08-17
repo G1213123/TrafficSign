@@ -9,9 +9,9 @@ export class HintLoader {
   static buttonHintMap = new Map(); // Map button names to hint paths
 
   /**
-   * Map base url suffix for resolving hint paths, useful for development environments where the app might be served from a subdirectory
+   * Static assets live under the public root, so resolve them from /hints rather than the current route.
    */
-  static baseUrlSuffix = window.location.pathname ;;
+  static baseUrlSuffix = '';
 
 
   /**
@@ -66,13 +66,15 @@ export class HintLoader {
    * @return {string} Resolved hint path
    */
   static resolveHintPath(buttonNameOrPath) {
-    // Check if it's a mapped button name
-    const path = this.buttonHintMap.has(buttonNameOrPath)
+    const rawPath = this.buttonHintMap.has(buttonNameOrPath)
       ? this.buttonHintMap.get(buttonNameOrPath)
       : buttonNameOrPath;
 
-    // Return absolute URL with base origin
-    return `${this.baseUrlSuffix + '/hints/' + path + '.html'}`;
+    const normalizedPath = String(rawPath || '')
+      .replace(/^\/+/, '')
+      .replace(/\.html$/i, '');
+
+    return `${this.baseUrlSuffix}/hints/${normalizedPath}.html`.replace(/\/\/{2,}/g, '/');
   }
 
   /**
@@ -98,7 +100,7 @@ export class HintLoader {
    * @return {Promise<void>}
    */
   static async _loadCSS() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       // Check if CSS is already loaded
       const existingLink = document.querySelector('link[href*="hints/hints.css"]');
       if (existingLink) {

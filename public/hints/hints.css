@@ -1,0 +1,497 @@
+/* Hints CSS - Extracted from inline styles for better maintainability */
+/* All class names prefixed with 'hint-' to avoid conflicts with main style.css */
+
+/* Unified tooltip and hints styling */
+.hints {
+  position: fixed; /* Changed from absolute to fixed for better positioning outside sidebar */
+  background-color: rgba(45, 45, 45, 0.8);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  z-index: 10000; /* Increased z-index to ensure it appears above sidebar */
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  /* Added backdrop blur for modern glass effect */
+  visibility: hidden; /* Start hidden */
+  line-height: 1.3;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* width and height attribute refer to sbGeneral.js*/
+}
+
+/* Allow text wrapping for longer hints and make scrollable */
+.hints:not(.nowrap) {
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+/* When tooltip is shown, enable pointer events for hover */
+.hints[style*="opacity: 1"] {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Extra padding when close button is present */
+.hints.with-close-button {
+  padding-top: 28px;   /* space for close button */
+  padding-right: 36px; /* avoid overlap at top-right */
+}
+
+/* Close button for hints */
+.hints-close-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  z-index: 10001;
+  pointer-events: auto;
+  line-height: 1;
+}
+
+.hints-close-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.hints-close-button:active {
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(0.95);
+}
+
+
+/* Custom scrollbar for hints */
+.hints::-webkit-scrollbar {
+  width: 6px;
+}
+
+.hints::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.hints::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+.hints::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Firefox scrollbar styling */
+.hints {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1);
+}
+
+/* Hover state for tooltip content */
+.hints:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Mobile responsive hints styling */
+@media (max-width: 768px) {
+  .hints {
+    white-space: normal; /* Allow text wrapping on mobile */
+    padding: 12px 16px; /* Larger padding for touch devices */
+    font-size: 14px; /* Slightly smaller font for mobile */
+    line-height: 1.4; /* Better line spacing */
+    border-radius: 8px; /* Larger border radius for mobile */
+    overflow-y: auto; /* Allow scrolling if content is too long */
+  }
+  
+}
+
+/* Arrow styling for tooltips */
+.hints.tooltip-arrow-top::before,
+.hints.hints-arrow-top::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent rgba(255, 255, 255, 0.15) transparent;
+}
+
+.hints.tooltip-arrow-top::after,
+.hints.hints-arrow-top::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -4px;
+  margin-bottom: -1px;
+  border-width: 4px;
+  border-style: solid;
+  border-color: transparent transparent rgba(45, 45, 45, 0.95) transparent;
+}
+
+.hints.tooltip-arrow-bottom::before,
+.hints.hints-arrow-bottom::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: rgba(255, 255, 255, 0.15) transparent transparent transparent;
+}
+
+.hints.tooltip-arrow-bottom::after,
+.hints.hints-arrow-bottom::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -4px;
+  margin-top: -1px;
+  border-width: 4px;
+  border-style: solid;
+  border-color: rgba(45, 45, 45, 0.95) transparent transparent transparent;
+}
+
+.hints.tooltip-arrow-left::before,
+.hints.hints-arrow-left::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent rgba(255, 255, 255, 0.15) transparent transparent;
+}
+
+.hints.tooltip-arrow-left::after,
+.hints.hints-arrow-left::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  margin-top: -4px;
+  margin-right: -1px;
+  border-width: 4px;
+  border-style: solid;
+  border-color: transparent rgba(45, 45, 45, 0.95) transparent transparent;
+}
+
+.hints.tooltip-arrow-right::before,
+.hints.hints-arrow-right::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent transparent rgba(255, 255, 255, 0.15);
+}
+
+.hints.tooltip-arrow-right::after,
+.hints.hints-arrow-right::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  margin-top: -4px;
+  margin-left: -1px;
+  border-width: 4px;
+  border-style: solid;
+  border-color: transparent transparent transparent rgba(45, 45, 45, 0.95);
+}
+
+/* Mobile hints arrows - make them more prominent */
+@media (max-width: 768px) {
+  .hints.hints-arrow-bottom::before {
+    border-width: 8px; /* Larger arrow for mobile */
+    margin-left: -8px;
+  }
+  
+  .hints.hints-arrow-bottom::after {
+    border-width: 7px; /* Larger inner arrow for mobile */
+    margin-left: -7px;
+    margin-top: -2px;
+  }
+}
+
+/* Content styling within hints */
+.hints h4 {
+  margin: 0 0 8px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #f0f0f0;
+}
+
+.hints h5,
+.hints h6 {
+  margin: 6px 0 4px 0;
+  font-weight: 500;
+  color: #e8e8e8;
+}
+
+.hints p {
+  margin: 0 0 8px 0;
+  color: #e0e0e0;
+}
+
+.hints ul,
+.hints ol {
+  margin: 4px 0 8px 0;
+  padding-left: 16px;
+}
+
+.hints li {
+  margin: 2px 0;
+  color: #d0d0d0;
+}
+
+.hints strong {
+  color: #f5f5f5;
+  font-weight: 600;
+}
+
+.hints em {
+  color: #cccccc;
+  font-style: italic;
+}
+
+/* Ensure hints content is readable on mobile */
+@media (max-width: 768px) {
+  .hints h4 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 16px;
+  }
+  
+  .hints p {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  
+  .hints ul {
+    padding-left: 18px;
+  }
+  
+  .hints li {
+    margin-bottom: 4px;
+  }
+}
+
+.hints img {
+  max-width: 100%;
+  border-radius: 4px;
+  margin: 8px 0;
+}
+
+
+/* Mobile specific scrollable styles */
+@media (max-width: 768px) {
+  
+  .hints.scrollable::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .hints.scrollable::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+  
+  .hints.scrollable::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+  }
+  
+  .hints.scrollable::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+  
+  .hints.scrollable {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Original hint container styles for hint content */
+
+/* Main heading styles */
+.hint-container h4 {
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 8px;
+    border-bottom: 2px solid white;
+    padding-bottom: 4px;
+}
+
+/* Subtitle/reference styles */
+.hint-reference {
+    color: white;
+    font-size: 14px;
+    margin-bottom: 16px;
+    font-style: italic;
+}
+
+/* Section container */
+.hint-section {
+    margin-bottom: 20px;
+}
+
+/* Section headings */
+.hint-container h5 {
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+
+/* Default text styles for hint content */
+.hint-container {
+    color: white;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+  padding: 4px 2px; /* ensure content not flush to tooltip edge */
+}
+
+.hint-container p {
+    color: white;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.hint-container ul {
+    color: white;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.hint-container li {
+    margin-bottom: 4px;
+}
+
+.hint-features ul {
+    padding-left: 20px;
+}
+
+/* Table styling for hint content */
+.hint-container .font-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.hint-container .font-table th,
+.hint-container .font-table td {
+    padding: 10px 10px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 13px;
+}
+
+.hint-container .font-table th {
+    background: rgba(255, 255, 255, 0.1);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 12px;
+}
+
+/* Add vertical separators between header columns for readability */
+.hint-container .font-table th:not(:last-child) {
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.hint-container .font-table tr:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.hint-container .font-table tr:last-child td {
+    border-bottom: none;
+}
+
+.hint-container .font-table strong {
+    color: #f5f5f5;
+    font-weight: 600;
+}
+
+.hint-container .font-table em {
+    color: #cccccc;
+    font-style: italic;
+    font-size: 12px;
+    display: block;
+    margin-top: 2px;
+}
+
+/* Mobile table responsiveness */
+@media (max-width: 768px) {
+    .hint-container .font-table {
+        font-size: 12px;
+    }
+    
+    .hint-container .font-table th,
+    .hint-container .font-table td {
+        padding: 8px 6px;
+    }
+    
+    .hint-container .font-table th {
+        font-size: 11px;
+    }
+}
+
+/* Color block styling for showing background colors */
+.hint-container .color-item {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 8px;
+    margin-bottom: 2px;
+}
+
+.hint-container .color-block {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    margin-right: 4px;
+    vertical-align: middle;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+    .hint-container .color-item {
+        margin-right: 6px;
+    }
+    
+    .hint-container .color-block {
+        width: 12px;
+        height: 12px;
+        margin-right: 3px;
+    }
+}

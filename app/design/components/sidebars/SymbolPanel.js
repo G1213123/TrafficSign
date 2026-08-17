@@ -1,17 +1,80 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 import { useI18n } from '../../lib/i18n/I18nProvider.js';
 import { StaticCanvas, Path, Group } from 'fabric';
 import { calcSymbol, SymbolObject } from '../../lib/objects/symbols.js';
 import { convertVertexToPathCommands, convertFontPathToFabricPath, getFontPath } from '../../lib/objects/path.js';
-import { symbolsTemplate, symbolsTemplateAlt, symbolsPermittedAngle } from '../../lib/templates/symbolTemplate.js';
+import { symbolsTemplate, symbolsPermittedAngle } from '../../lib/templates/symbolTemplate.js';
 import { parsedFontMedium, parsedFontHeavy, parsedFontKorean } from "../../lib/objects/path.js";
-import { CanvasGlobals } from '../canvas/canvas.js';
-import { GeneralDrawSettings, useGeneralDrawSettings} from './DrawSettings.js';
+import { GeneralDrawSettings, useGeneralDrawSettings } from './DrawSettings.js';
 import AngleSelector, { getNextAngle } from '../shared/AngleSelector.js';
+import { HintModal } from '../../lib/modal/md-hint.js';
+import { HintLoader } from '../presentations/hintLoader.js';
 import './sidebar.css';
+
+const symbolHintMapping = {
+  Route1: 'symbols/Route',
+  Route2: 'symbols/Route',
+  Route3: 'symbols/Route',
+  Route4: 'symbols/Route',
+  Route5: 'symbols/Route',
+  Route6: 'symbols/Route',
+  Route7: 'symbols/Route',
+  Route8: 'symbols/Route',
+  Route9: 'symbols/Route',
+  Route10: 'symbols/Route',
+  Route11: 'symbols/Route',
+  Route12: 'symbols/Route',
+  CHT: 'symbols/Tunnel',
+  EHC: 'symbols/Tunnel',
+  WHC: 'symbols/Tunnel',
+  JTIS: 'symbols/Tunnel',
+  'JTIS-CHT': 'symbols/Tunnel',
+  'JTIS-EHC': 'symbols/Tunnel',
+  'JTIS-WHC': 'symbols/Tunnel',
+  MTR: 'symbols/Tunnel',
+  Hospital: 'symbols/Tunnel',
+  Disney: 'symbols/Tunnel',
+  Parking: 'symbols/Tunnel',
+  TunnelClosed: 'symbols/TunnelClosed',
+  TunnelOpen: 'symbols/TunnelClosed',
+  AmberLightAbove: 'symbols/TunnelClosed',
+  AmberLightBack: 'symbols/TunnelClosed',
+  LeftArrow: 'symbols/LaneArrow',
+  RightArrow: 'symbols/LaneArrow',
+  LeftStraightArrow: 'symbols/LaneArrow',
+  RightStraightArrow: 'symbols/LaneArrow',
+  RightPedestrian: 'symbols/LeftPedestrian',
+  LeftDisabled: 'symbols/LeftPedestrian',
+  RightDisabled: 'symbols/LeftPedestrian',
+  LeftBike: 'symbols/LeftPedestrian',
+  RightBike: 'symbols/LeftPedestrian',
+  NoEntry: 'symbols/Regulatory',
+  AllVehProhibited: 'symbols/Regulatory',
+  NoLeftTurn: 'symbols/Regulatory',
+  NoRightTurn: 'symbols/Regulatory',
+  NoUTurn: 'symbols/Regulatory',
+  '2.3WidthLimit': 'symbols/Regulatory',
+  '2.5WidthLimit': 'symbols/Regulatory',
+  '2.7WidthLimit': 'symbols/Regulatory',
+  '2.9WidthLimit': 'symbols/Regulatory',
+  '2HeightLimit': 'symbols/Regulatory',
+  '3HeightLimit': 'symbols/Regulatory',
+  '3.5HeightLimit': 'symbols/Regulatory',
+  '4HeightLimit': 'symbols/Regulatory',
+  '4.1HeightLimit': 'symbols/Regulatory',
+  '4.2HeightLimit': 'symbols/Regulatory',
+  '4.3HeightLimit': 'symbols/Regulatory',
+  '4.4HeightLimit': 'symbols/Regulatory',
+  '4.5HeightLimit': 'symbols/Regulatory',
+  '4.6HeightLimit': 'symbols/Regulatory',
+  '4.7HeightLimit': 'symbols/Regulatory',
+  '4.8HeightLimit': 'symbols/Regulatory',
+};
+
+HintLoader.setButtonHintMappings(symbolHintMapping);
 
 const buttonSvgCache = new Map();
 
@@ -155,11 +218,85 @@ const createButtonSVG = (symbolType, length, color = 'white') => {
   return svgString;
 }
 
+const SymbolItem = ({ symbolType, onAdd, onOpenHint, onScheduleClose, xHeight, color, t }) => {
+  const ref = useRef(null);
+  const hintTimerRef = useRef(null);
+
+  const handleEnter = () => {
+    if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+    hintTimerRef.current = setTimeout(() => onOpenHint(symbolType, ref.current), 250);
+  };
+
+  const handleLeave = () => {
+    clearTimeout(hintTimerRef.current);
+    onScheduleClose();
+  };
+
+  return (
+    <div
+      ref={ref}
+      className="symbol-item"
+      onClick={(e) => {
+        e.stopPropagation();
+        onAdd(symbolType);
+        //onCloseHint();
+      }}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+      title={symbolType}
+      tabIndex={0}
+    >
+      <div
+        className="symbol-svg-container"
+        dangerouslySetInnerHTML={{ __html: createButtonSVG(symbolType, xHeight, color) }}
+      />
+      <hr className="symbol-separator" />
+      <span className="symbol-label" data-i18n={symbolType}>
+        {t(symbolType)}
+      </span>
+    </div>
+  );
+};
+
 export default function DrawSymbolPanel({ canvas }) {
   const { t } = useI18n();
   const { xHeight, setXHeight, color, setColor } = useGeneralDrawSettings();
   const [selectedSymbol, setSelectedSymbol] = useState(null);
   const [angle, setAngle] = useState(0);
+  const [hintModalState, setHintModalState] = useState({ isOpen: false, hintPath: null });
+  const modalHoverRef = useRef(false);
+  const closeTimerRef = useRef(null);
+
+  const clearCloseTimer = () => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
+
+  const openHintModal = (symbolType, element) => {
+    clearCloseTimer();
+    modalHoverRef.current = false;
+    const mappedHint = symbolHintMapping[symbolType];
+    const hintPath = mappedHint || `symbols/${symbolType}`;
+    const anchorRect = element?.getBoundingClientRect?.() || null;
+    setHintModalState({ isOpen: true, hintPath, anchorRect });
+  };
+
+  const closeHintModal = () => {
+    clearCloseTimer();
+    modalHoverRef.current = false;
+    setHintModalState({ isOpen: false, hintPath: null, anchorRect: null });
+  };
+
+  const scheduleCloseHint = () => {
+    clearCloseTimer();
+    closeTimerRef.current = setTimeout(() => {
+      if (modalHoverRef.current) return;
+      closeHintModal();
+    }, 500);
+  };
+
 
   const handleRotate = (direction) => {
     if (!canvas) return;
@@ -183,7 +320,7 @@ export default function DrawSymbolPanel({ canvas }) {
     if (!canvas) return;
 
     setSelectedSymbol(symbolType);
-    
+
     // Reset angle to the first permitted value for the new symbol
     const initialAngle = symbolsPermittedAngle[symbolType]?.[0] || 0;
     setAngle(initialAngle);
@@ -210,14 +347,14 @@ export default function DrawSymbolPanel({ canvas }) {
 
     // Immediate drag activation (Legacy behavior)
     symbol.enterFocusMode();
-    
+
     const v2 = symbol.getBasePolygonVertex('E2');
     if (v2) {
       // We need to pass the cleanup callback to the VertexControl
       // Since VertexControl is created inside SymbolObject, we can't easily pass it to the constructor
       // unless we modify SymbolObject. Instead, we can manually assign it to the existing control.
       const vertexControl = symbol.controls.E2;
-      
+
       if (vertexControl) {
         vertexControl.onCleanup = () => {
           setSelectedSymbol(null);
@@ -271,27 +408,38 @@ export default function DrawSymbolPanel({ canvas }) {
         {Object.keys(symbolsTemplate).map((symbolType) => {
           if (symbolType === 'Lozenge') return null;
           return (
-            <div
+            <SymbolItem
               key={symbolType}
-              className="symbol-item"
-              onClick={() => handleAddSymbol(symbolType)}
-              title={symbolType}
-            >
-              <div 
-                className="symbol-svg-container" 
-                dangerouslySetInnerHTML={{ __html: createButtonSVG(symbolType, xHeight, color) }} 
-              />
-              <hr className="symbol-separator" />
-              <span className="symbol-label" data-i18n={symbolType}>
-                {t(symbolType)}
-              </span>
-            </div>
+              symbolType={symbolType}
+              onAdd={handleAddSymbol}
+              onOpenHint={openHintModal}
+              onCloseHint={closeHintModal}
+              onScheduleClose={scheduleCloseHint}
+              xHeight={xHeight}
+              color={color}
+              t={t}
+            />
           );
         })}
       </div>
       <p style={{ fontSize: '12px', color: '#888', fontStyle: 'italic' }}>
         Click a symbol to add it to the canvas
       </p>
+
+      <HintModal
+        isOpen={hintModalState.isOpen}
+        onClose={closeHintModal}
+        hintPath={hintModalState.hintPath}
+        anchorRect={hintModalState.anchorRect}
+        onMouseEnter={() => {
+          modalHoverRef.current = true;
+          clearCloseTimer();
+        }}
+        onMouseLeave={() => {
+          modalHoverRef.current = false;
+          scheduleCloseHint();
+        }}
+      />
     </div>
   );
 }
