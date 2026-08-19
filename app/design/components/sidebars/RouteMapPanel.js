@@ -526,6 +526,7 @@ export default function RouteMapPanel() {
                     label={t('Main Road Sub-type')}
                     options={translateOptions(MAIN_LINE_SUBTYPES)}
                     value={subType}
+                    hintPath="route/MainRoadShape"
                     onChange={
                         (val) => {
                             setSubType(val);
@@ -552,6 +553,7 @@ export default function RouteMapPanel() {
                     label={t('Roundabout Sub-type')}
                     options={translateOptions(ROUNDABOUT_SUBTYPES)}
                     value={subType}
+                    hintPath="route/Roundabout"
                     onChange={(val) => {
                         setSubType(val);
                         setRoundaboutType(val === 'Double' ? 'Conventional' : 'Normal');

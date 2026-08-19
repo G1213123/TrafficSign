@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import SidebarToggleGroup from '../shared/SidebarToggleGroup.js';
+import HintButton from '../shared/HintButton.js';
 import { useI18n } from '../../lib/i18n/I18nProvider.js';
 
 const DEFAULT_COLOR_OPTIONS = [
@@ -80,7 +81,10 @@ export function GeneralDrawSettings({
     return (
         <div>
             <div className="input-group">
-                <label className="input-label">{t('x Height')}</label>
+                <label className="input-label">
+                    <span>{t('x Height')}</span>
+                    <HintButton hintPath="text/XHeight" label={`${t('x Height')} help`} />
+                </label>
                 <input
                     type="number"
                     className="input-field"
@@ -95,6 +99,7 @@ export function GeneralDrawSettings({
                 options={resolvedColorOptions}
                 value={color}
                 onChange={onColorChange}
+                hintPath="text/MessageColor"
             />
         </div>
     );

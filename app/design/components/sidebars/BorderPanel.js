@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { StaticCanvas, Path, Group } from 'fabric';
 
 import { useI18n } from '../../lib/i18n/I18nProvider.js';
@@ -11,25 +11,38 @@ import { BorderColorScheme, BorderFrameWidth, BorderTypeScheme } from '../../lib
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { useGeneralDrawSettings } from './DrawSettings.js';
 import { selectObjectHandler } from '../presentations/promptBox.js';
+import { HintModal } from '../../lib/modal/md-hint.js';
+import HintButton from '../shared/HintButton.js';
 import './sidebar.css';
 
 const BORDER_TYPE_OPTIONS = Object.keys(BorderFrameWidth);
 const COLOR_OPTIONS = Object.keys(BorderColorScheme);
+const BORDER_HINTS = {
+    panel: 'border/Panel',
+    greenPanel: 'border/GreenPanel',
+    stack: 'border/StackBorder',
+    flagLeft: 'border/FlagBorder',
+    flagRight: 'border/FlagBorder',
+    exit: 'border/ExitBorder',
+};
 const DIVIDER_OPTIONS = [
     {
         type: 'HDivider',
         label: 'Stack Divider',
         imageSrc: '/images/divider%20stack.svg',
+        hintPath: 'divider/StackDivider',
     },
     {
         type: 'VDivider',
         label: 'Gantry Divider',
         imageSrc: '/images/divider%20gantry.svg',
+        hintPath: 'divider/GantryDivider',
     },
     {
         type: 'VLane',
         label: 'Lane Line',
         imageSrc: '/images/divider%20lane.svg',
+        hintPath: 'divider/LaneLine',
     },
 ];
 
@@ -106,6 +119,76 @@ const createBorderButtonSVG = (borderType, xHeight, colorScheme) => {
 const formatBorderTypeLabel = (value) => value
     .replace(/([a-z])([A-Z])/g, '$1 $2')
     .replace(/^./, (letter) => letter.toUpperCase());
+
+const HintableBorderItem = ({ hintPath, className, onClick, title, children }) => {
+    const itemRef = useRef(null);
+    const hintTimerRef = useRef(null);
+    const closeTimerRef = useRef(null);
+    const modalHoverRef = useRef(false);
+    const [hintModalState, setHintModalState] = useState({ isOpen: false, anchorRect: null });
+
+    const clearTimers = () => {
+        clearTimeout(hintTimerRef.current);
+        clearTimeout(closeTimerRef.current);
+    };
+
+    const openHint = () => {
+        clearTimeout(closeTimerRef.current);
+        clearTimeout(hintTimerRef.current);
+        hintTimerRef.current = setTimeout(() => {
+            modalHoverRef.current = false;
+            setHintModalState({
+                isOpen: true,
+                anchorRect: itemRef.current?.getBoundingClientRect?.() || null,
+            });
+        }, 250);
+    };
+
+    const scheduleCloseHint = () => {
+        clearTimeout(hintTimerRef.current);
+        clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = setTimeout(() => {
+            if (!modalHoverRef.current) {
+                setHintModalState({ isOpen: false, anchorRect: null });
+            }
+        }, 500);
+    };
+
+    const closeHint = () => {
+        clearTimers();
+        modalHoverRef.current = false;
+        setHintModalState({ isOpen: false, anchorRect: null });
+    };
+
+    return (
+        <div
+            ref={itemRef}
+            className="hintable-symbol-item"
+            onMouseEnter={openHint}
+            onMouseLeave={scheduleCloseHint}
+            onFocus={openHint}
+            onBlur={scheduleCloseHint}
+        >
+            <button type="button" className={className} onClick={onClick} title={title}>
+                {children}
+            </button>
+            <HintModal
+                isOpen={hintModalState.isOpen}
+                onClose={closeHint}
+                hintPath={hintPath}
+                anchorRect={hintModalState.anchorRect}
+                onMouseEnter={() => {
+                    clearTimeout(closeTimerRef.current);
+                    modalHoverRef.current = true;
+                }}
+                onMouseLeave={() => {
+                    modalHoverRef.current = false;
+                    scheduleCloseHint();
+                }}
+            />
+        </div>
+    );
+};
 
 export default function BorderPanel() {
     const { t } = useI18n();
@@ -202,7 +285,10 @@ export default function BorderPanel() {
     return (
         <div className="space-y-4">
             <div className="input-group">
-                <label className="input-label">{t('x Height')}</label>
+                <label className="input-label">
+                    <span>{t('x Height')}</span>
+                    <HintButton hintPath="text/XHeight" label={`${t('x Height')} help`} />
+                </label>
                 <input
                     type="number"
                     className="input-field"
@@ -213,7 +299,10 @@ export default function BorderPanel() {
             </div>
 
             <div className="input-group">
-                <label className="input-label">{t('Color Scheme')}</label>
+                <label className="input-label">
+                    <span>{t('Color Scheme')}</span>
+                    <HintButton hintPath="border/ColorPurpose" label={`${t('Color Scheme')} help`} />
+                </label>
                 <select
                     className="input-field"
                     value={colorScheme}
@@ -256,24 +345,25 @@ export default function BorderPanel() {
                 <div className="symbol-grid-border">
                     {BORDER_TYPE_OPTIONS.map((borderType) => {
                         const preview = createBorderButtonSVG(borderType, xHeight, colorScheme);
+                        const hintPath = BORDER_HINTS[borderType];
 
                         return (
-                            <button
+                            <HintableBorderItem
                                 key={borderType}
-                                type="button"
+                                hintPath={hintPath}
                                 className={`symbol-item ${selectedBorderType === borderType ? 'object-list-button-active' : ''}`}
                                 onClick={() => createBorder(borderType)}
                                 title={borderType}
                             >
-                                <div
-                                    className="symbol-svg-container"
-                                    dangerouslySetInnerHTML={{ __html: preview }}
-                                />
-                                <hr className="symbol-separator" />
-                                <span className="symbol-label">
-                                    {t(formatBorderTypeLabel(borderType))}
-                                </span>
-                            </button>
+                                    <div
+                                        className="symbol-svg-container"
+                                        dangerouslySetInnerHTML={{ __html: preview }}
+                                    />
+                                    <hr className="symbol-separator" />
+                                    <span className="symbol-label">
+                                        {t(formatBorderTypeLabel(borderType))}
+                                    </span>
+                            </HintableBorderItem>
                         );
                     })}
                 </div>
@@ -283,21 +373,21 @@ export default function BorderPanel() {
                 <label className="input-label">{t('Add Divider to Border')}</label>
                 <div className="divider-grid">
                     {DIVIDER_OPTIONS.map((divider) => (
-                        <button
+                        <HintableBorderItem
                             key={divider.type}
-                            type="button"
+                            hintPath={divider.hintPath}
                             className="symbol-item divider-item"
                             onClick={() => createDivider(divider.type)}
                             title={t(divider.label)}
                         >
-                            <img
-                                className="divider-item-image"
-                                src={divider.imageSrc}
-                                alt={t(divider.label)}
-                            />
-                            <hr className="symbol-separator" />
-                            <span className="symbol-label">{t(divider.label)}</span>
-                        </button>
+                                <img
+                                    className="divider-item-image"
+                                    src={divider.imageSrc}
+                                    alt={t(divider.label)}
+                                />
+                                <hr className="symbol-separator" />
+                                <span className="symbol-label">{t(divider.label)}</span>
+                        </HintableBorderItem>
                     ))}
                 </div>
             </div>

@@ -164,6 +164,11 @@
   gap: 8px;
 }
 
+.hintable-symbol-item {
+  position: relative;
+  min-width: 0;
+}
+
 .symbol-item {
   aspect-ratio: 1 / 1;
   background-color: #444;
@@ -177,6 +182,17 @@
   border: 1px solid #555;
   color: white;
   padding: 8px;
+}
+
+.hintable-symbol-item > .symbol-item {
+  width: 100%;
+}
+
+.hintable-symbol-item > .help-icon {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
 }
 
 .symbol-item:hover {
@@ -201,11 +217,15 @@
 .hint-modal-shell {
   position: fixed;
   z-index: 2000;
+  overflow: hidden;
 }
 
 .hint-modal-panel {
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
+  height: 100%;
   max-width: calc(100vw - 24px);
   border-radius: 12px;
   overflow: hidden;
@@ -251,9 +271,21 @@
 }
 
 .hint-modal-body {
+  box-sizing: border-box;
+  min-height: 0;
+  flex: 1 1 auto;
   overflow-y: auto;
-  max-height: calc(100vh - 48px);
   padding: 16px;
+}
+
+.hint-modal-content img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  margin: 10px 0;
+  border-radius: 8px;
+  background: transparent;
 }
 
 .hint-modal-loading,
@@ -287,18 +319,39 @@
 
 .hint-modal-content p,
 .hint-modal-content li {
-  color: #374151;
+  color: #f7f7f8;
 }
 
-.hint-modal-content img {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  margin: 10px 0;
-  border-radius: 8px;
-  background: #f8fafc;
+.input-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
+
+.help-icon {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  padding: 0;
+  border: 1px solid #777;
+  border-radius: 50%;
+  background: #555;
+  color: #fff;
+  cursor: help;
+  font: 700 11px Arial, sans-serif;
+  line-height: 16px;
+  text-align: center;
+}
+
+.help-icon:hover,
+.help-icon:focus-visible {
+  background: #6761a8;
+  border-color: #8f8f8f;
+  outline: none;
+}
+
 
 @keyframes hint-modal-spin {
   to {

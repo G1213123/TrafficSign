@@ -11,6 +11,7 @@ import { FontPriorityManager } from '../../lib/modal/md-font.js';
 import { EngDestinations, ChtDestinations } from '../../lib/templates/destinationTemplate.js';
 import { GeneralDrawSettings, useGeneralDrawSettings } from './DrawSettings.js';
 import SidebarToggleGroup from '../shared/SidebarToggleGroup.js';
+import HintButton from '../shared/HintButton.js';
 import './sidebar.css';
 
 const getDestinationCatalog = (language) => (language === 'Chinese' ? ChtDestinations : EngDestinations);
@@ -412,6 +413,7 @@ export default function TextPanel({ canvas }) {
                     options={fontOptions}
                 value={fontOptions.some((option) => option.value === font) ? font : 'TransportMedium'}
                 onChange={setFont}
+                    hintPath="text/TextFont"
             />
 
             <div>
@@ -469,7 +471,10 @@ export default function TextPanel({ canvas }) {
                 )}
 
                 <div className="input-group">
-                    <label className="input-label">{t('Text')}</label>
+                    <label className="input-label">
+                        <span>{t('Text')}</span>
+                        <HintButton hintPath="text/Text" label={`${t('Text')} help`} />
+                    </label>
                     <input
                         type="text"
                         className="input-field"
@@ -486,6 +491,7 @@ export default function TextPanel({ canvas }) {
                     options={['No', 'Yes'].map((option) => ({ value: option, label: t(option) }))}
                     value={underline ? 'Yes' : 'No'}
                     onChange={(nextValue) => setUnderline(nextValue === 'Yes')}
+                    hintPath="divider/GantryLine"
                 />
 
                 <button className="toggle-button" onClick={handleSubmit}>

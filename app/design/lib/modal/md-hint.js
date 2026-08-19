@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { HintLoader } from '../../components/presentations/hintLoader.js';
 
-const HINT_WIDTH = 420;
-const HINT_MARGIN = 200;
+const HINT_WIDTH = 600;
+const HINT_MARGIN = 40;
 
 
 export const HintModal = ({ isOpen, onClose, hintPath, anchorRect, onMouseEnter, onMouseLeave }) => {
@@ -23,7 +23,7 @@ export const HintModal = ({ isOpen, onClose, hintPath, anchorRect, onMouseEnter,
     const viewportHeight = window.innerHeight;
     const top = anchorRect.top;
     const left = Math.max(sidebarRight + 16, Math.min(sidebarRight + 16, viewportWidth - HINT_WIDTH - HINT_MARGIN));
-    const estimatedHeight = Math.min(240, viewportHeight - HINT_MARGIN);
+    const estimatedHeight = Math.max(0, Math.min(480, viewportHeight - HINT_MARGIN));
     const overflowingBottom = top + estimatedHeight > viewportHeight - HINT_MARGIN;
 
     return {
@@ -33,6 +33,7 @@ export const HintModal = ({ isOpen, onClose, hintPath, anchorRect, onMouseEnter,
       bottom: overflowingBottom ? `${HINT_MARGIN}px` : 'auto',
       width: `${HINT_WIDTH}px`,
       maxWidth: `calc(100vw - ${HINT_MARGIN * 2}px)`,
+      height: `${estimatedHeight}px`,
       maxHeight: `${estimatedHeight}px`,
       zIndex: 2000,
     };
