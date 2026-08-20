@@ -57,6 +57,27 @@ export default function RouteMapPanel() {
     const getCanvas = () => CanvasGlobals.canvas;
     const translateOptions = (options) => options.map((option) => ({ value: option, label: t(option) }));
 
+    const resolveMainRoadFromCanvas = (canvas) => {
+        if (!canvas) return null;
+
+        const selectedObjects = canvas.getActiveObjects?.() || [];
+        const selectedMainRoad = selectedObjects.find((object) => object?.functionalType === 'MainRoad');
+        if (selectedMainRoad) return selectedMainRoad;
+
+        const activeObject = canvas.getActiveObject?.() || null;
+        if (activeObject?.functionalType === 'MainRoad') return activeObject;
+        if (activeObject?.functionalType === 'SideRoad' && activeObject?.mainRoad) return activeObject.mainRoad;
+
+        const objects = canvas.getObjects?.() || [];
+        for (let index = objects.length - 1; index >= 0; index -= 1) {
+            if (objects[index]?.functionalType === 'MainRoad') {
+                return objects[index];
+            }
+        }
+
+        return null;
+    };
+
     useEffect(() => {
         const syncSelectedMainRoad = () => {
             const canvas = getCanvas();
@@ -65,8 +86,7 @@ export default function RouteMapPanel() {
                 return;
             }
 
-            const activeObject = canvas.getActiveObject?.() || null;
-            setSelectedMainRoad(activeObject?.functionalType === 'MainRoad' ? activeObject : null);
+            setSelectedMainRoad(resolveMainRoadFromCanvas(canvas));
         };
 
         syncSelectedMainRoad();
@@ -92,24 +112,7 @@ export default function RouteMapPanel() {
         return Number.isFinite(parsed) ? parsed : fallback;
     };
 
-    const resolveActiveMainRoad = (canvas) => {
-        const selectedObjects = canvas.getActiveObjects?.() || [];
-        const selectedMainRoad = selectedObjects.find((object) => object?.functionalType === 'MainRoad');
-        if (selectedMainRoad) return selectedMainRoad;
-
-        const activeObject = canvas.getActiveObject?.();
-        if (activeObject?.functionalType === 'MainRoad') return activeObject;
-        if (activeObject?.functionalType === 'SideRoad' && activeObject?.mainRoad) return activeObject.mainRoad;
-
-        const objects = canvas.getObjects?.() || [];
-        for (let index = objects.length - 1; index >= 0; index -= 1) {
-            if (objects[index]?.functionalType === 'MainRoad') {
-                return objects[index];
-            }
-        }
-
-        return null;
-    };
+    const resolveActiveMainRoad = (canvas) => resolveMainRoadFromCanvas(canvas);
 
     const buildRouteOptions = (centerPoint) => {
         const width = resolveNumber(mainWidth, 6);
@@ -417,7 +420,8 @@ export default function RouteMapPanel() {
 
             if (vertexControl) {
                 vertexControl.onCleanup = () => {
-                    setSelectedMainRoad(null);
+                    const canvas = getCanvas();
+                    setSelectedMainRoad(resolveMainRoadFromCanvas(canvas));
                 };
 
                 vertexControl.onClick({
@@ -444,6 +448,7 @@ export default function RouteMapPanel() {
         const routeObject = new MainRoadSymbol(routeOptions);
 
         canvas.setActiveObject?.(routeObject);
+        setSelectedMainRoad(routeObject);
         canvas.requestRenderAll?.();
         activateMapVertexControl(routeObject);
         setStatusText(t('Main road created.'));
@@ -487,6 +492,7 @@ export default function RouteMapPanel() {
         });
 
         canvas.setActiveObject?.(sideRoad);
+        setSelectedMainRoad(mainRoad);
         canvas.requestRenderAll?.();
         activateMapVertexControl(sideRoad);
         setStatusText(t('Side road created.'));
@@ -668,7 +674,7 @@ export default function RouteMapPanel() {
 
             <div className="input-group">
                 <div className="toggle-container">
-                    <button type="button" className="toggle-button" onClick={prepareRouteMap}>
+                    <button type="button" className="panel-action-button" onClick={prepareRouteMap}>
                         {t('Add Main Road')}
                     </button>
                 </div>
@@ -702,7 +708,7 @@ export default function RouteMapPanel() {
 
                     <div className="input-group">
                         <div className="toggle-container">
-                            <button type="button" className="toggle-button" onClick={addSideRoad}>
+                            <button type="button" className="panel-action-button" onClick={addSideRoad}>
                                 {t('Add Side Road')}
                             </button>
                         </div>

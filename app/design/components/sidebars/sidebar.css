@@ -152,6 +152,62 @@
   color: #ffffff;
 }
 
+.panel-action-button {
+  appearance: none;
+  width: 100%;
+  border: 1px solid #2b8fd6;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1f6fa5 0%, #2f9ae6 100%);
+  color: #f8fbff;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  padding: 10px 12px;
+  min-height: 40px;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 6px 16px rgba(0, 0, 0, 0.28);
+  transition: transform 0.15s ease, filter 0.2s ease, box-shadow 0.2s ease;
+}
+
+.panel-action-button:hover {
+  filter: brightness(1.07);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.16) inset, 0 8px 20px rgba(0, 0, 0, 0.34);
+}
+
+.panel-action-button:focus-visible {
+  outline: 2px solid #79c6ff;
+  outline-offset: 2px;
+}
+
+.panel-action-button:active {
+  transform: translateY(1px);
+  filter: brightness(0.97);
+}
+
+.panel-action-tile {
+  border-color: #3a77a5;
+  background: linear-gradient(180deg, #414141 0%, #363636 100%);
+  box-shadow: 0 0 0 0 rgba(46, 159, 236, 0);
+}
+
+.panel-action-tile:hover {
+  background: linear-gradient(180deg, #4a4a4a 0%, #3d3d3d 100%);
+  border-color: #4ca6eb;
+  box-shadow: 0 0 0 1px rgba(76, 166, 235, 0.35);
+}
+
+.panel-action-tile-selected {
+  border-color: #63c0ff;
+  box-shadow: 0 0 0 2px rgba(99, 192, 255, 0.45);
+}
+
+@media (prefers-color-scheme: dark) {
+  .panel-action-button {
+    border-color: #4ca6eb;
+    background: linear-gradient(135deg, #2577af 0%, #3cacef 100%);
+    color: #f5fbff;
+  }
+}
+
 .symbol-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -415,6 +471,250 @@
   object-position: center;
 }
 
+.info-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.info-panel-body {
+  color: #ddd;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.info-panel-body p {
+  margin: 0 0 10px;
+}
+
+.info-panel-subheading {
+  margin: 6px 0 8px;
+  color: #e2e2e2;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.info-panel-feature-list {
+  margin: 0 0 10px;
+  padding-left: 18px;
+  color: #d7d7d7;
+}
+
+.info-panel-feature-list li {
+  margin: 0 0 4px;
+}
+
+.info-panel-version {
+  margin: 8px 0 0;
+  color: #b9b9b9;
+}
+
+.info-panel-link {
+  color: #88cdfd;
+  text-decoration: none;
+}
+
+.info-panel-link:hover {
+  color: #b3e2ff;
+  text-decoration: underline;
+}
+
+.info-panel-beta {
+  border: 1px solid #8a641b;
+  border-radius: 8px;
+  background: #3f3316;
+  padding: 12px;
+}
+
+.info-panel-beta-title {
+  margin: 0 0 6px;
+  color: #ffd27d;
+  font-weight: 700;
+}
+
+.info-panel-beta-body {
+  margin: 0;
+  color: #f1d39b;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.info-panel-support {
+  color: #d4d4d4;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.info-panel-quote {
+  margin: 0;
+  text-align: center;
+  color: #e3e3e3;
+  font-style: italic;
+}
+
+.info-panel-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid #4ca6eb;
+  background: linear-gradient(135deg, #246d9e 0%, #2f8fce 100%);
+  color: #f5fbff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.info-panel-cta:hover {
+  filter: brightness(1.06);
+}
+
+.info-panel-coffee-image-link {
+  display: inline-block;
+  width: fit-content;
+}
+
+.info-panel-coffee-image {
+  display: block;
+  width: 174px;
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+.info-panel-contact {
+  color: #d6d6d6;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.info-panel-link-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.info-panel-link-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  border: 1px solid #525252;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #e2e2e2;
+  background: #2f2f2f;
+}
+
+.info-panel-social-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.info-panel-link-chip:hover {
+  background: #3b3b3b;
+  border-color: #676767;
+}
+
+.info-panel-disclaimer {
+  margin-top: 6px;
+  border-top: 1px solid #4a4a4a;
+  padding-top: 10px;
+  color: #aaaaaa;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.info-panel-disclaimer h4 {
+  margin: 0 0 8px;
+  color: #d7d7d7;
+  font-size: inherit;
+}
+
+.info-panel-disclaimer p {
+  margin: 0 0 6px;
+}
+
+.settings-shortcuts-group {
+  margin-bottom: 4px;
+}
+
+.settings-shortcuts-details {
+  border: 1px solid #454545;
+  border-radius: 8px;
+  background: #2d2d2d;
+  overflow: hidden;
+}
+
+.settings-shortcuts-summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  color: #e4e4e4;
+  font-weight: 600;
+  border-bottom: 1px solid transparent;
+}
+
+.settings-shortcuts-summary::after {
+  content: "\25BE";
+  color: #bfbfbf;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.settings-shortcuts-details[open] .settings-shortcuts-summary {
+  border-bottom-color: #404040;
+}
+
+.settings-shortcuts-details[open] .settings-shortcuts-summary::after {
+  content: "\25B4";
+}
+
+.settings-shortcuts-summary::-webkit-details-marker {
+  display: none;
+}
+
+.settings-shortcut-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.settings-shortcut-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #383838;
+  font-size: 13px;
+}
+
+.settings-shortcut-item:last-child {
+  border-bottom: 0;
+}
+
+.settings-shortcut-key {
+  background-color: #4a4a4a;
+  color: #eee;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.settings-shortcut-description {
+  color: #ccc;
+  text-align: right;
+}
+
 
 .symbol-separator {
   background-color: #fff;
@@ -606,7 +906,7 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 30vh;
+    height: 50vh;
     /* Take up half the screen on mobile */
     transform: translateY(100%);
     transition: transform 0.3s ease-in-out;
@@ -624,7 +924,7 @@
 
   .slim-bar {
     top: auto;
-    bottom: 30vh;
+    bottom: 50vh;
     left: 0 !important;
     right: 0;
     width: 100%;

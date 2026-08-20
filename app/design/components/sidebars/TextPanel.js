@@ -494,7 +494,7 @@ export default function TextPanel({ canvas }) {
                     hintPath="divider/GantryLine"
                 />
 
-                <button className="toggle-button" onClick={handleSubmit}>
+                <button className="panel-action-button" onClick={handleSubmit}>
                     {activeTextObject && language !== '2Liner' ? t('Update Text') : t('Add Text')}
                 </button>
 

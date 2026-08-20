@@ -218,7 +218,7 @@ const createButtonSVG = (symbolType, length, color = 'white') => {
   return svgString;
 }
 
-const SymbolItem = ({ symbolType, onAdd, onOpenHint, onScheduleClose, xHeight, color, t }) => {
+const SymbolItem = ({ symbolType, onAdd, onOpenHint, onScheduleClose, xHeight, color, t, isSelected }) => {
   const ref = useRef(null);
   const hintTimerRef = useRef(null);
 
@@ -418,6 +418,7 @@ export default function DrawSymbolPanel({ canvas }) {
               xHeight={xHeight}
               color={color}
               t={t}
+              isSelected={selectedSymbol === symbolType}
             />
           );
         })}

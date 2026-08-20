@@ -10,6 +10,22 @@ import { showToast } from '../presentations/ToastBox.js';
 
 const readSetting = (key, fallback) => (Object.prototype.hasOwnProperty.call(GeneralSettings, key) ? GeneralSettings[key] : fallback);
 
+const KEYBOARD_SHORTCUTS = [
+    { key: 'Arrow Keys', description: 'Nudge Selected Object' },
+    { key: 'Delete', description: 'Delete Selected Object' },
+    { key: 'Escape', description: 'Cancel Action / Toggle / Close Panel' },
+    { key: 'Enter', description: 'Confirm Input' },
+    { key: 'Tab', description: 'Switch Vertex / Unit' },
+    { key: 'Ctrl + C', description: 'Copy Selected Object' },
+    { key: 'Ctrl + V', description: 'Paste Object' },
+    { key: 'Ctrl + Z', description: 'Undo' },
+    { key: 'Ctrl + S', description: 'Save' },
+    { key: 'F3', description: 'Toggle Text Border' },
+    { key: 'F4', description: 'Toggle Grid' },
+    { key: 'F2', description: 'Toggle Vertices' },
+    { key: 'F8', description: 'Toggle Dimension Unit' },
+];
+
 export default function SettingsPanel() {
     const { t } = useI18n();
     const [locale, setLocale] = useState(readSetting('locale', 'en'));
@@ -111,6 +127,20 @@ export default function SettingsPanel() {
 
     return (
         <div className="space-y-4">
+            <div className="input-group settings-shortcuts-group">
+                <details className="settings-shortcuts-details">
+                    <summary className="settings-shortcuts-summary">{t('Keyboard Shortcuts')}</summary>
+                    <ul className="settings-shortcut-list">
+                        {KEYBOARD_SHORTCUTS.map((shortcut) => (
+                            <li key={shortcut.key} className="settings-shortcut-item">
+                                <span className="settings-shortcut-key">{shortcut.key}</span>
+                                <span className="settings-shortcut-description">{t(shortcut.description)}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </details>
+            </div>
+
             <SidebarToggleGroup label={t('App Language')} options={[{ value: 'en', label: t('English') }, { value: 'zh', label: t('Chinese') }]} value={locale} onChange={updateLocale} />
             <SidebarToggleGroup label={t('Show Text Borders')} options={['No', 'Yes']} value={showTextBorders} onChange={(value) => { setShowTextBorders(value); updateBoolean('showTextBorders', value); }} />
             <SidebarToggleGroup label={t('Show Grid')} options={['No', 'Yes']} value={showGrid} onChange={(value) => { setShowGrid(value); updateBoolean('showGrid', value); }} />
