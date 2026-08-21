@@ -13,6 +13,7 @@ import { useGeneralDrawSettings } from './DrawSettings.js';
 import { selectObjectHandler } from '../presentations/promptBox.js';
 import { HintModal } from '../../lib/modal/md-hint.js';
 import HintButton from '../shared/HintButton.js';
+import { useTouchLongPress } from '../../lib/canvas/touchEvents.js';
 import './sidebar.css';
 
 const BORDER_TYPE_OPTIONS = Object.keys(BorderFrameWidth);
@@ -160,6 +161,17 @@ const HintableBorderItem = ({ hintPath, className, onClick, title, children }) =
         setHintModalState({ isOpen: false, anchorRect: null });
     };
 
+    const { touchHandlers, shouldSuppressClick } = useTouchLongPress(
+        () => {
+            modalHoverRef.current = false;
+            setHintModalState({
+                isOpen: true,
+                anchorRect: itemRef.current?.getBoundingClientRect?.() || null,
+            });
+        },
+        { onLongPressEnd: () => scheduleCloseHint(2500) }
+    );
+
     return (
         <div
             ref={itemRef}
@@ -168,8 +180,19 @@ const HintableBorderItem = ({ hintPath, className, onClick, title, children }) =
             onMouseLeave={scheduleCloseHint}
             onFocus={openHint}
             onBlur={scheduleCloseHint}
+            {...touchHandlers}
         >
-            <button type="button" className={className} onClick={onClick} title={title}>
+            <button
+                type="button"
+                className={className}
+                onClick={(event) => {
+                    if (shouldSuppressClick()) {
+                        return;
+                    }
+                    onClick(event);
+                }}
+                title={title}
+            >
                 {children}
             </button>
             <HintModal

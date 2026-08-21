@@ -65,12 +65,17 @@ const promptBoxStyles = {
     padding: '8px 10px',
     borderRadius: '4px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
+    width: 'min(320px, calc(100vw - 20px))',
     maxWidth: '320px',
+    boxSizing: 'border-box',
   },
   textBox: {
     marginBottom: '6px',
     color: '#000',
     lineHeight: 1.35,
+    maxWidth: '100%',
+    overflowWrap: 'anywhere',
+    wordBreak: 'break-word',
   },
   answerWrapper: {
     display: 'inline-flex',

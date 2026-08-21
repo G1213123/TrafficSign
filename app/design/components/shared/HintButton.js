@@ -1,13 +1,18 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { HintModal } from '../../lib/modal/md-hint.js';
+import { useTouchLongPress } from '../../lib/canvas/touchEvents.js';
 
 export default function HintButton({ hintPath, label }) {
     const [hintModalState, setHintModalState] = useState({ isOpen: false, anchorRect: null });
     const closeTimerRef = useRef(null);
     const modalHoverRef = useRef(false);
+
+    useEffect(() => () => {
+        clearTimeout(closeTimerRef.current);
+    }, []);
 
     const clearCloseTimer = () => {
         if (closeTimerRef.current) {
@@ -37,6 +42,16 @@ export default function HintButton({ hintPath, label }) {
         setHintModalState({ isOpen: false, anchorRect: null });
     };
 
+    const { touchHandlers, shouldSuppressClick } = useTouchLongPress(
+        (event) => openHint(event.currentTarget),
+        {
+            onLongPressEnd: () => {
+                clearCloseTimer();
+                closeTimerRef.current = setTimeout(closeHint, 2500);
+            },
+        }
+    );
+
     return (
         <>
             <button
@@ -45,6 +60,9 @@ export default function HintButton({ hintPath, label }) {
                 aria-label={label}
                 title={label}
                 onClick={(event) => {
+                    if (shouldSuppressClick()) {
+                        return;
+                    }
                     if (hintModalState.isOpen) {
                         closeHint();
                     } else {
@@ -55,6 +73,7 @@ export default function HintButton({ hintPath, label }) {
                 onMouseLeave={scheduleCloseHint}
                 onFocus={(event) => openHint(event.currentTarget)}
                 onBlur={scheduleCloseHint}
+                {...touchHandlers}
             >
                 ?
             </button>

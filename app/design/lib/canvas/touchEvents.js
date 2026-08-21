@@ -1,5 +1,54 @@
 import { Point } from 'fabric';
-import { CanvasGlobals } from '../../components/canvas/canvas.js';
+import { useEffect, useRef } from 'react';
+import { CanvasGlobals, DrawGrid } from '../../components/canvas/canvas.js';
+
+export function useTouchLongPress(onLongPress, { delay = 500, moveThreshold = 10, onLongPressEnd } = {}) {
+  const timerRef = useRef(null);
+  const startYRef = useRef(0);
+  const suppressClickRef = useRef(false);
+
+  const clearTimer = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  useEffect(() => () => clearTimer(), []);
+
+  const touchHandlers = {
+    onTouchStart: (event) => {
+      clearTimer();
+      startYRef.current = event.touches[0]?.clientY ?? 0;
+      suppressClickRef.current = false;
+      timerRef.current = setTimeout(() => {
+        suppressClickRef.current = true;
+        onLongPress(event);
+        timerRef.current = null;
+      }, delay);
+    },
+    onTouchMove: (event) => {
+      const touchMoveY = event.touches[0]?.clientY ?? startYRef.current;
+      if (Math.abs(touchMoveY - startYRef.current) > moveThreshold) {
+        clearTimer();
+      }
+    },
+    onTouchEnd: () => {
+      clearTimer();
+      if (suppressClickRef.current) {
+        onLongPressEnd?.();
+      }
+    },
+  };
+
+  const shouldSuppressClick = () => {
+    if (!suppressClickRef.current) return false;
+    suppressClickRef.current = false;
+    return true;
+  };
+
+  return { touchHandlers, shouldSuppressClick };
+}
 
 export function setupTouchEvents(canvas) {
   if (!canvas) return () => {};

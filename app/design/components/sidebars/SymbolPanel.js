@@ -12,6 +12,7 @@ import { GeneralDrawSettings, useGeneralDrawSettings } from './DrawSettings.js';
 import AngleSelector, { getNextAngle } from '../shared/AngleSelector.js';
 import { HintModal } from '../../lib/modal/md-hint.js';
 import { HintLoader } from '../presentations/hintLoader.js';
+import { useTouchLongPress } from '../../lib/canvas/touchEvents.js';
 import './sidebar.css';
 
 const symbolHintMapping = {
@@ -232,17 +233,26 @@ const SymbolItem = ({ symbolType, onAdd, onOpenHint, onScheduleClose, xHeight, c
     onScheduleClose();
   };
 
+  const { touchHandlers, shouldSuppressClick } = useTouchLongPress(
+    () => onOpenHint(symbolType, ref.current),
+    { onLongPressEnd: () => onScheduleClose(2500) }
+  );
+
   return (
     <div
       ref={ref}
       className="symbol-item"
       onClick={(e) => {
         e.stopPropagation();
+        if (shouldSuppressClick()) {
+          return;
+        }
         onAdd(symbolType);
         //onCloseHint();
       }}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
+      {...touchHandlers}
       title={symbolType}
       tabIndex={0}
     >
@@ -289,12 +299,12 @@ export default function DrawSymbolPanel({ canvas }) {
     setHintModalState({ isOpen: false, hintPath: null, anchorRect: null });
   };
 
-  const scheduleCloseHint = () => {
+  const scheduleCloseHint = (delay = 500) => {
     clearCloseTimer();
     closeTimerRef.current = setTimeout(() => {
       if (modalHoverRef.current) return;
       closeHintModal();
-    }, 500);
+    }, delay);
   };
 
 
