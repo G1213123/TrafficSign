@@ -45,8 +45,9 @@ export default function DesignPage() {
 
   if (!fontsLoaded) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-[#2f2f2f] text-white">
-        <p>Loading fonts...</p>
+      <div id="loading-overlay" role="status" aria-live="polite">
+        <div className="spinner" aria-hidden="true" />
+        <div className="loading-text">Loading resources...</div>
       </div>
     );
   }
