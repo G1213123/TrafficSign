@@ -300,7 +300,7 @@ export default function ExportPanel() {
                     <button type="button" className={`toggle-button ${exportFormat === 'pdf' ? 'active' : ''}`} onClick={() => setExportFormat('pdf')}>{t('Export as pdf')}</button>
                     <button type="button" className={`toggle-button ${exportFormat === 'dxf' ? 'active' : ''}`} onClick={() => setExportFormat('dxf')}>{t('Export as dxf')}</button>
                 </div>
-                <button type="button" className="toggle-button" onClick={handleExecuteExport}>
+                <button type="button" className="panel-action-button" onClick={handleExecuteExport}>
                     {t('Execute Export')}
                 </button>
             </div>

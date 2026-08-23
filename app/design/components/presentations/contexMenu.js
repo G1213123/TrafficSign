@@ -90,6 +90,7 @@ function handlePivot(axis) {
 export default function ContextMenu() {
   const [visible, setVisible] = useState(menuState.isVisible);
   const [pos, setPos] = useState(menuState.position);
+  const [menuAlignLeft, setMenuAlignLeft] = useState(false);
   const [openLeft, setOpenLeft] = useState(false);
   const [showSubmenu, setShowSubmenu] = useState(false);
   const menuRef = useRef(null);
@@ -107,22 +108,42 @@ export default function ContextMenu() {
     return () => clearInterval(interval);
   }, [visible, pos]);
 
-  const handlePivotMouseEnter = () => {
-    setShowSubmenu(true);
-    if (!pivotRef.current) return;
-    
-    // Use requestAnimationFrame to ensure the submenu is rendered/visible if CSS handles it
-    requestAnimationFrame(() => {
-      const submenu = pivotRef.current.querySelector('.context-submenu');
-      if (submenu) {
-        const rect = submenu.getBoundingClientRect();
-        if (rect.right > window.innerWidth - 4) {
-          setOpenLeft(true);
-        } else {
-          setOpenLeft(false);
-        }
+  useEffect(() => {
+    if (!visible || !menuRef.current) return undefined;
+
+    const updateMenuAlignment = () => {
+      const menuWidth = menuRef.current?.offsetWidth || 0;
+      setMenuAlignLeft(pos.x + menuWidth > window.innerWidth - 4);
+    };
+
+    const frame = requestAnimationFrame(updateMenuAlignment);
+    window.addEventListener('resize', updateMenuAlignment);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('resize', updateMenuAlignment);
+    };
+  }, [visible, pos]);
+
+  useEffect(() => {
+    if (!showSubmenu || !pivotRef.current) return undefined;
+
+    const frame = requestAnimationFrame(() => {
+      const submenu = pivotRef.current?.querySelector('.context-submenu');
+      if (!submenu) return;
+
+      const rect = submenu.getBoundingClientRect();
+      if (!openLeft && rect.right > window.innerWidth - 4) {
+        setOpenLeft(true);
+      } else if (openLeft && rect.left < 4) {
+        setOpenLeft(false);
       }
     });
+
+    return () => cancelAnimationFrame(frame);
+  }, [showSubmenu, openLeft, menuAlignLeft]);
+
+  const handlePivotMouseEnter = () => {
+    setShowSubmenu(true);
   };
 
   if (!visible) return null;
@@ -131,6 +152,7 @@ export default function ContextMenu() {
     <div 
       ref={menuRef}
       id="context-menu" 
+      className={menuAlignLeft ? 'align-left' : ''}
       style={{ 
         position: 'absolute', 
         top: pos.y, 
@@ -139,49 +161,26 @@ export default function ContextMenu() {
         zIndex: 1000 
       }}
     >
-      <ul style={{ listStyle: 'none', padding: 0, margin: 0, background: 'white', border: '1px solid black' }}>
-        <li id="set-anchor" data-i18n="Set Anchor" onClick={handleSetAnchor} style={{ cursor: 'pointer' }}>Set Anchor</li>
+      <ul className="context-menu-list">
+        <li id="set-anchor" data-i18n="Set Anchor" onClick={handleSetAnchor}>Set Anchor</li>
         <li 
           id="pivot-anchor" 
           ref={pivotRef} 
           onMouseEnter={handlePivotMouseEnter}
           onMouseLeave={() => setShowSubmenu(false)}
-          style={{ 
-            cursor: 'pointer', 
-            position: 'relative', 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center' 
-          }}
           className={openLeft ? 'open-left' : ''}
         >
           <span data-i18n="Pivot Anchor">Pivot Anchor</span>
-          <span style={{ 
-            fontSize: '8px', 
-            marginLeft: '8px', 
-            transform: openLeft ? 'rotate(180deg)' : 'none',
-            display: 'inline-block'
-          }}>▶</span>
-          <ul className="context-submenu" style={{ 
-            position: 'absolute', 
-            top: 0, 
-            [openLeft ? 'right' : 'left']: '100%', 
-            listStyle: 'none', 
-            padding: 0, 
-            margin: 0, 
-            background: 'white', 
-            border: '1px solid black',
-            zIndex: 1001,
-            display: showSubmenu ? 'block' : 'none'
-          }}>
-            <li id="pivot-anchor-x" data-i18n="X-axis" onClick={() => handlePivot('x')} style={{ cursor: 'pointer' }}>X-axis</li>
-            <li id="pivot-anchor-y" data-i18n="Y-axis" onClick={() => handlePivot('y')} style={{ cursor: 'pointer' }}>Y-axis</li>
-            <li id="pivot-anchor-both" data-i18n="Both" onClick={() => handlePivot('both')} style={{ cursor: 'pointer' }}>Both</li>
+          <span className={`context-menu-arrow${openLeft ? ' open-left' : ''}`}>▶</span>
+          <ul className={`context-submenu${showSubmenu ? ' is-visible' : ''}`}>
+            <li id="pivot-anchor-x" data-i18n="X-axis" onClick={() => handlePivot('x')}>X-axis</li>
+            <li id="pivot-anchor-y" data-i18n="Y-axis" onClick={() => handlePivot('y')}>Y-axis</li>
+            <li id="pivot-anchor-both" data-i18n="Both" onClick={() => handlePivot('both')}>Both</li>
           </ul>
         </li>
-        <li id="edit-object" data-i18n="Edit" onClick={handleEditObject} style={{ cursor: 'pointer' }}>Edit</li>
-        <li id="delete-object" data-i18n="Delete" onClick={handleDeleteObject} style={{ cursor: 'pointer' }}>Delete</li>
-        <li id="property" data-i18n="Property" onClick={showPropertyPanel} style={{ cursor: 'pointer' }}>Property</li>
+        <li id="edit-object" data-i18n="Edit" onClick={handleEditObject}>Edit</li>
+        <li id="delete-object" data-i18n="Delete" onClick={handleDeleteObject}>Delete</li>
+        <li id="property" data-i18n="Property" onClick={showPropertyPanel}>Property</li>
       </ul>
     </div>
   )
