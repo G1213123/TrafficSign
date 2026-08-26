@@ -2,6 +2,8 @@ import { Point } from 'fabric';
 import { useEffect, useRef } from 'react';
 import { CanvasGlobals, DrawGrid } from '../../components/canvas/canvas.js';
 
+let touchEventController = null;
+
 export function useTouchLongPress(onLongPress, { delay = 500, moveThreshold = 10, onLongPressEnd } = {}) {
   const timerRef = useRef(null);
   const startYRef = useRef(0);
@@ -96,7 +98,9 @@ export function setupTouchEvents(canvas) {
   const handleMouseUp = function () {
     if (isNativeTouching) {
       isNativeTouching = false;
-      canvas.selection = true;
+      if (!CanvasGlobals.canvasInteractionLocked) {
+        canvas.selection = true;
+      }
     }
   };
 
@@ -104,9 +108,36 @@ export function setupTouchEvents(canvas) {
   canvas.on('mouse:move', handleMouseMove);
   canvas.on('mouse:up', handleMouseUp);
 
+  let isPaused = false;
+  touchEventController = {
+    pause() {
+      if (isPaused) return;
+      isPaused = true;
+      canvas.off('mouse:down', handleMouseDown);
+      canvas.off('mouse:move', handleMouseMove);
+      canvas.off('mouse:up', handleMouseUp);
+    },
+    resume() {
+      if (!isPaused) return;
+      isPaused = false;
+      canvas.on('mouse:down', handleMouseDown);
+      canvas.on('mouse:move', handleMouseMove);
+      canvas.on('mouse:up', handleMouseUp);
+    },
+  };
+
   return () => {
+    if (touchEventController) touchEventController = null;
     canvas.off('mouse:down', handleMouseDown);
     canvas.off('mouse:move', handleMouseMove);
     canvas.off('mouse:up', handleMouseUp);
   };
+}
+
+export function pauseTouchEvents() {
+  touchEventController?.pause();
+}
+
+export function resumeTouchEvents() {
+  touchEventController?.resume();
 }

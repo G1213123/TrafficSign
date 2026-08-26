@@ -239,7 +239,7 @@ export default function BorderPanel() {
     };
 
     const createBorderFromSelection = (borderType, selectedObjects) => {
-        const objects = (selectedObjects || []).filter((object) => object && object.functionalType !== 'Border');
+        const objects = (selectedObjects || [])//.filter((object) => object && object.functionalType !== 'Border');
         if (!objects.length) return;
 
         const resolvedFixedWidth = fixedWidth.trim() !== '' ? parseFloat(fixedWidth) : null;

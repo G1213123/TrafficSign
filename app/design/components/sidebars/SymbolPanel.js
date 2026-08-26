@@ -250,9 +250,22 @@ const SymbolItem = ({ symbolType, onAdd, onOpenHint, onScheduleClose, xHeight, c
         onAdd(symbolType);
         //onCloseHint();
       }}
+      onPointerDown={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
-      {...touchHandlers}
+      onTouchStart={(e) => {
+        e.stopPropagation();
+        touchHandlers.onTouchStart(e);
+      }}
+      onTouchMove={(e) => {
+        e.stopPropagation();
+        touchHandlers.onTouchMove(e);
+      }}
+      onTouchEnd={(e) => {
+        e.stopPropagation();
+        touchHandlers.onTouchEnd(e);
+      }}
       title={symbolType}
       tabIndex={0}
     >

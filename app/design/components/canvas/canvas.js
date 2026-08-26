@@ -7,6 +7,7 @@ export const CanvasGlobals = {
   activeObject: null,
   activeVertex: null,
   canvasObject: [],
+  canvasInteractionLocked: false,
   CenterCoord: null,
   scheduleRender: null,
 };

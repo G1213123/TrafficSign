@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useSyncExternalStore } from 'react'
 import { CanvasGlobals } from "../canvas/canvas.js";
 import { cursorClickMode } from "./contexMenu.js";
 import { ShowHideSideBarEvent } from "../../lib/canvas/keyboardEvents.js";
+import { pauseTouchEvents, resumeTouchEvents } from '../../lib/canvas/touchEvents.js';
 import { i18n } from '../../lib/i18n/i18n.js';
 
 // Global state for PromptBox to allow non-React calls to trigger it
@@ -146,13 +147,20 @@ function emphasizePromptText(s) {
 
 export function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = null, xHeight = null, unit = 'sw') {
   document.removeEventListener('keydown', ShowHideSideBarEvent);
+  if (withAnswerBox !== null) {
+    pauseTouchEvents();
+  }
   return new Promise((resolve, reject) => {
     promptBoxState.show(text, withAnswerBox, unit, xHeight, resolve, reject);
   });
 }
 
 export function hideTextBox() {
+  const hasAnswerBox = promptBoxState.withAnswerBox !== null;
   promptBoxState.hide();
+  if (hasAnswerBox) {
+    resumeTouchEvents();
+  }
   // Restore sidebar toggle event after a delay as per original implementation
   setTimeout(() => {
     document.addEventListener('keydown', ShowHideSideBarEvent);
@@ -188,11 +196,22 @@ export function selectObjectHandler(text, callback, options = null, xHeight = nu
     isDragging = true;
   };
 
+  const onTouchStart = () => {
+    isDragging = true;
+  };
+
+  const onCanvasMouseUp = () => {
+    onMouseUp();
+  };
+
   const cleanup = () => {
     if (processed) return;
     processed = true;
     document.removeEventListener('mousedown', onMouseDown);
     document.removeEventListener('mouseup', onMouseUp);
+    document.removeEventListener('touchstart', onTouchStart);
+    document.removeEventListener('touchend', onMouseUp);
+    CanvasGlobals.canvas?.off('mouse:up', onCanvasMouseUp);
     promptBoxState.hide();
     document.addEventListener('keydown', ShowHideSideBarEvent);
     if (dragDebounceTimer) clearTimeout(dragDebounceTimer);
@@ -215,11 +234,17 @@ export function selectObjectHandler(text, callback, options = null, xHeight = nu
 
   document.addEventListener('mousedown', onMouseDown);
   document.addEventListener('mouseup', onMouseUp);
+  document.addEventListener('touchstart', onTouchStart, { passive: true });
+  document.addEventListener('touchend', onMouseUp, { passive: true });
+  CanvasGlobals.canvas?.on('mouse:up', onCanvasMouseUp);
 
   // Return a way to cancel this handler if needed
   return () => {
     document.removeEventListener('mousedown', onMouseDown);
     document.removeEventListener('mouseup', onMouseUp);
+    document.removeEventListener('touchstart', onTouchStart);
+    document.removeEventListener('touchend', onMouseUp);
+    CanvasGlobals.canvas?.off('mouse:up', onCanvasMouseUp);
     cleanup();
   };
 }
@@ -236,6 +261,7 @@ export default function PromptBox() {
 
   const visible = promptBoxState.isVisible;
   const pos = promptBoxState.position;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 600;
 
   useEffect(() => {
     if (visible && promptBoxState.withAnswerBox !== null) {
@@ -300,7 +326,12 @@ export default function PromptBox() {
     <div 
       ref={boxRef}
       id="cursorBoxContainer" 
-      style={{ ...promptBoxStyles.container, top: pos.y, left: pos.x }}
+      style={{
+        ...promptBoxStyles.container,
+        position: isMobile ? 'fixed' : promptBoxStyles.container.position,
+        top: isMobile ? 10 : pos.y,
+        left: isMobile ? 10 : pos.x,
+      }}
     >
       <div 
         id="cursorTextBox" 
@@ -325,8 +356,8 @@ export default function PromptBox() {
           )}
           {window.innerWidth <= 600 && (
             <>
-              <button onClick={handleEnterClick} id="cursorEnterButton" style={promptBoxStyles.actionButton}>Enter</button>
-              <button onClick={handleCancelClick} id="cursorCancelButton" style={promptBoxStyles.actionButton}>Cancel</button>
+              <button onClick={handleEnterClick} onPointerDown={(event) => event.stopPropagation()} id="cursorEnterButton" style={promptBoxStyles.actionButton}>Enter</button>
+              <button onClick={handleCancelClick} onPointerDown={(event) => event.stopPropagation()} id="cursorCancelButton" style={promptBoxStyles.actionButton}>Cancel</button>
             </>
           )}
         </div>

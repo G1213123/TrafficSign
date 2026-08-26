@@ -102,7 +102,9 @@ export function setupMouseEvents(canvas) {
 
   const handleMouseUp = function (opt) {
     canvas.isDragging = false;
-    canvas.selection = true;
+    if (!CanvasGlobals.canvasInteractionLocked) {
+      canvas.selection = true;
+    }
     clearSnapHoverEnvelope();
   };
 
