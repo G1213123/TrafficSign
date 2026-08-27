@@ -59,7 +59,6 @@ export default function TemplatePanel({ canvas }) {
     return (
         <div className="space-y-4">
             <div className="input-group">
-                <label className="input-label">{t('template_gallery')}</label>
                 <div className="symbol-grid template-grid">
                     {TEMPLATES.map((template) => {
                         const isSelected = selectedTemplate === template.name;
@@ -85,13 +84,6 @@ export default function TemplatePanel({ canvas }) {
                             </button>
                         );
                     })}
-                </div>
-            </div>
-
-            <div className="input-group">
-                <label className="input-label">{t('selection')}</label>
-                <div style={{ color: '#aaa', fontSize: '12px' }}>
-                    {selectedTemplate ? t('selected_template', { template: selectedTemplate }) : t('select_template_to_prepare')}
                 </div>
             </div>
 

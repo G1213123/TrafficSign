@@ -9,6 +9,117 @@ body {
     color: #eee;
 }
 
+.modal-content button:not(.close-button) {
+    appearance: none;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background-color: #333;
+    color: #eee;
+    padding: 8px 14px;
+    font: inherit;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.modal-content button:not(.close-button):hover {
+    background-color: #444;
+    border-color: #777;
+}
+
+.modal-content button:not(.close-button):focus-visible,
+.modal-content input:focus-visible,
+.modal-content select:focus-visible,
+.modal-content textarea:focus-visible {
+    outline: 2px solid #79c6ff;
+    outline-offset: 2px;
+}
+
+.modal-content .apply-button {
+    border-color: #2b8fd6;
+    background-color: #2577af;
+    color: #fff;
+}
+
+.modal-content .apply-button:hover {
+    background-color: #2f9ae6;
+}
+
+.modal-content .cancel-button {
+    background-color: #2a2a2a;
+}
+
+.modal-content .close-button {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    border: 0;
+    background: transparent;
+    color: #aaa;
+    font-size: 24px;
+    line-height: 1;
+    padding: 2px 6px;
+    cursor: pointer;
+}
+
+.modal-content .close-button:hover {
+    background: transparent;
+    border-color: transparent;
+    color: #fff;
+}
+
+.modal-content input:not([type='checkbox']):not([type='radio']),
+.modal-content select,
+.modal-content textarea {
+    box-sizing: border-box;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background-color: #1a1a1a;
+    color: #eee;
+    padding: 8px;
+    font: inherit;
+}
+
+.modal-content input::placeholder,
+.modal-content textarea::placeholder {
+    color: #888;
+}
+
+.modal-content input[type='file'] {
+    padding: 4px;
+}
+
+.modal-content input[type='file']::file-selector-button {
+    margin-right: 8px;
+    border: 1px solid #666;
+    border-radius: 3px;
+    background-color: #333;
+    color: #eee;
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+.modal-content input[type='checkbox'],
+.modal-content input[type='radio'] {
+    accent-color: #3498db;
+}
+
+#import-json-text-modal .modal-content textarea {
+    width: 720px;
+    min-height: 300px;
+    height: min(55vh, 520px);
+    resize: vertical;
+    font-family: 'Consolas', 'Monaco', monospace;
+    line-height: 1.45;
+}
+
+@media (max-width: 600px) {
+    #import-json-text-modal .modal-content textarea {
+        min-height: 240px;
+        height: 45vh;
+        width: 70vw;
+    }
+}
+
 #loading-overlay {
     position: fixed;
     inset: 0;

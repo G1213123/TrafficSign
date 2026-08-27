@@ -251,13 +251,13 @@ export default function ExportPanel() {
     return (
         <div className="space-y-4">
             <div className="input-group">
-                <label className="input-label">{t('filename')}</label>
+                <label className="input-label">{t('Filename')}</label>
                 <input className="input-field" value={filename} onChange={(e) => setFilename(e.target.value)} />
             </div>
 
             {exportFormat === 'png' && (
                 <div className="input-group">
-                    <label className="input-label">{t('quality')}</label>
+                    <label className="input-label">{t('Quality')}</label>
                     <select className="input-field" value={quality} onChange={(e) => setQuality(e.target.value)}>
                         {QUALITY_OPTIONS.map((option) => (
                             <option key={option} value={option}>{option}</option>
@@ -268,7 +268,7 @@ export default function ExportPanel() {
 
             {exportFormat === 'pdf' && (
                 <div className="input-group">
-                    <label className="input-label">{t('pdf_paper_size')}</label>
+                    <label className="input-label">{t('PDF Paper Size')}</label>
                     <select className="input-field" value={paperSize} onChange={(e) => setPaperSize(e.target.value)}>
                         {PAPER_SIZES.map((option) => (
                             <option key={option} value={option}>{option}</option>
@@ -281,24 +281,24 @@ export default function ExportPanel() {
                 <>
                     {(exportFormat === 'png' || exportFormat === 'svg') && (
                         <div className="input-group">
-                            <label className="input-label">{t('scale_multiplier_png_svg')}</label>
+                            <label className="input-label">{t('Scale Multiplier (PNG/SVG)')}</label>
                             <input className="input-field" value={scaleMultiplier} onChange={(e) => setScaleMultiplier(e.target.value)} />
                         </div>
                     )}
 
-                    <SidebarToggleGroup label={t('include_grid')} options={['No', 'Yes']} value={includeGrid} onChange={setIncludeGrid} />
-                    <SidebarToggleGroup label={t('include_background')} options={['No', 'Yes']} value={includeBackground} onChange={setIncludeBackground} />
+                    <SidebarToggleGroup label={t('Include Grid')} options={['No', 'Yes'].map((option) => ({ value: option, label: t(option) }))} value={includeGrid} onChange={setIncludeGrid} />
+                    <SidebarToggleGroup label={t('Include Background')} options={['No', 'Yes'].map((option) => ({ value: option, label: t(option) }))} value={includeBackground} onChange={setIncludeBackground} />
                 </>
             )}
 
             <div className="input-group">
-                <label className="input-label">{t('export')}</label>
+                <label className="input-label">{t('Export')}</label>
                 <div className="toggle-container">
-                    <button type="button" className={`toggle-button ${exportFormat === 'png' ? 'active' : ''}`} onClick={() => setExportFormat('png')}>{t('Export as png')}</button>
-                    <button type="button" className={`toggle-button ${exportFormat === 'svg' ? 'active' : ''}`} onClick={() => setExportFormat('svg')}>{t('Export as svg')}</button>
-                    <button type="button" className={`toggle-button ${exportFormat === 'json' ? 'active' : ''}`} onClick={() => setExportFormat('json')}>{t('Export as json')}</button>
-                    <button type="button" className={`toggle-button ${exportFormat === 'pdf' ? 'active' : ''}`} onClick={() => setExportFormat('pdf')}>{t('Export as pdf')}</button>
-                    <button type="button" className={`toggle-button ${exportFormat === 'dxf' ? 'active' : ''}`} onClick={() => setExportFormat('dxf')}>{t('Export as dxf')}</button>
+                    <button type="button" className={`toggle-button ${exportFormat === 'png' ? 'active' : ''}`} onClick={() => setExportFormat('png')}>{t('Export as PNG')}</button>
+                    <button type="button" className={`toggle-button ${exportFormat === 'svg' ? 'active' : ''}`} onClick={() => setExportFormat('svg')}>{t('Export as SVG')}</button>
+                    <button type="button" className={`toggle-button ${exportFormat === 'json' ? 'active' : ''}`} onClick={() => setExportFormat('json')}>{t('Export as JSON')}</button>
+                    <button type="button" className={`toggle-button ${exportFormat === 'pdf' ? 'active' : ''}`} onClick={() => setExportFormat('pdf')}>{t('Export as PDF')}</button>
+                    <button type="button" className={`toggle-button ${exportFormat === 'dxf' ? 'active' : ''}`} onClick={() => setExportFormat('dxf')}>{t('Export as DXF (Outline Only)')}</button>
                 </div>
                 <button type="button" className="panel-action-button" onClick={handleExecuteExport}>
                     {t('Execute Export')}
@@ -306,10 +306,10 @@ export default function ExportPanel() {
             </div>
 
             <div className="input-group">
-                <label className="input-label">{t('import')}</label>
+                <label className="input-label">{t('Import')}</label>
                 <div className="toggle-container">
-                    <button type="button" className="toggle-button" onClick={triggerImport}>{t('Import json file')}</button>
-                    <button type="button" className="toggle-button" onClick={triggerTextImport}>{t('Import json text')}</button>
+                    <button type="button" className="toggle-button" onClick={triggerImport}>{t('Import JSON file')}</button>
+                    <button type="button" className="toggle-button" onClick={triggerTextImport}>{t('Import JSON text')}</button>
                 </div>
                 <input ref={fileInputRef} type="file" accept="application/json,.json" style={{ display: 'none' }} onChange={handleImportFile} />
             </div>

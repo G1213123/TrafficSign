@@ -142,14 +142,14 @@ export default function SettingsPanel() {
             </div>
 
             <SidebarToggleGroup label={t('App Language')} options={[{ value: 'en', label: t('English') }, { value: 'zh', label: t('Chinese') }]} value={locale} onChange={updateLocale} />
-            <SidebarToggleGroup label={t('Show Text Borders')} options={['No', 'Yes']} value={showTextBorders} onChange={(value) => { setShowTextBorders(value); updateBoolean('showTextBorders', value); }} />
-            <SidebarToggleGroup label={t('Show Grid')} options={['No', 'Yes']} value={showGrid} onChange={(value) => { setShowGrid(value); updateBoolean('showGrid', value); }} />
-            <SidebarToggleGroup label={t('Show All Vertices')} options={['No', 'Yes']} value={showAllVertices} onChange={(value) => { setShowAllVertices(value); updateBoolean('showAllVertices', value); }} />
-            <SidebarToggleGroup label={t('Dimension Unit')} options={['mm', 'sw']} value={dimensionUnit} onChange={(value) => { setDimensionUnit(value); GeneralSettings.updateSetting('dimensionUnit', value); }} />
-            <SidebarToggleGroup label={t('Auto Save')} options={['No', 'Yes']} value={autoSave} onChange={(value) => { setAutoSave(value); updateBoolean('autoSave', value); }} />
+            <SidebarToggleGroup label={t('Show Text Borders')} options={['No', 'Yes'].map((option) => ({ value: option, label: t(option) }))} value={showTextBorders} onChange={(value) => { setShowTextBorders(value); updateBoolean('showTextBorders', value); }} />
+            <SidebarToggleGroup label={t('Show Grid')} options={['No', 'Yes'].map((option) => ({ value: option, label: t(option) }))} value={showGrid} onChange={(value) => { setShowGrid(value); updateBoolean('showGrid', value); }} />
+            <SidebarToggleGroup label={t('Show All Vertices')} options={['No', 'Yes'].map((option) => ({ value: option, label: t(option) }))} value={showAllVertices} onChange={(value) => { setShowAllVertices(value); updateBoolean('showAllVertices', value); }} />
+            <SidebarToggleGroup label={t('Dimension Unit')} options={['mm', 'sw'].map((option) => ({ value: option, label: t(option) }))} value={dimensionUnit} onChange={(value) => { setDimensionUnit(value); GeneralSettings.updateSetting('dimensionUnit', value); }} />
+            <SidebarToggleGroup label={t('Auto Save')} options={['No', 'Yes'].map((option) => ({ value: option, label: t(option) }))} value={autoSave} onChange={(value) => { setAutoSave(value); updateBoolean('autoSave', value); }} />
 
             <div className="input-group">
-                <label className="input-label">{t('background_color')}</label>
+                <label className="input-label">{t('Background Color')}</label>
                 <input 
                     type="color" 
                     value={bgColor} 
@@ -167,7 +167,7 @@ export default function SettingsPanel() {
             </div>
 
             <div className="input-group">
-                <label className="input-label">{t('grid_color')}</label>
+                <label className="input-label">{t('Grid Color')}</label>
                 <input 
                     type="color" 
                     value={gridColor} 
@@ -182,12 +182,12 @@ export default function SettingsPanel() {
 
             { autoSave === 'Yes' && (
                 <div className="input-group">
-                    <label className="input-label">{t('Auto Save Interval')}</label>
+                    <label className="input-label">{t('Auto Save Interval (seconds)')}</label>
                     <input className="input-field" type="number" value={autoSaveInterval} onChange={(e) => { setAutoSaveInterval(e.target.value); GeneralSettings.updateSetting('autoSaveInterval', parseInt(e.target.value, 10) || 0); }} />
                 </div>
             )}
 
-            <SidebarToggleGroup label={t('Run Tests on Start')} options={['No', 'Yes']} value={runTestsOnStart} onChange={(value) => { setRunTestsOnStart(value); updateBoolean('runTestsOnStart', value); }} />
+            <SidebarToggleGroup label={t('Run Tests on Start')} options={['No', 'Yes'].map((option) => ({ value: option, label: t(option) }))} value={runTestsOnStart} onChange={(value) => { setRunTestsOnStart(value); updateBoolean('runTestsOnStart', value); }} />
 
             <div className="toggle-container">
                 <button type="button" className="toggle-button" onClick={handleSaveCanvas}>

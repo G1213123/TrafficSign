@@ -654,14 +654,6 @@ export default function RouteMapPanel() {
                 </>
             ) : null}
 
-
-            <div className="input-group">
-                <label className="input-label">{t('Route Layout')}</label>
-                <div style={{ color: '#aaa', fontSize: '12px', lineHeight: 1.5 }}>
-                    {t('Main-road creation is now wired. Select a main road and use side-road controls below to add branches.')}
-                </div>
-            </div>
-
             <div className="input-group">
                 <label className="input-label">{t('Route Preview')}</label>
                 <div className="route-preview-shell">
