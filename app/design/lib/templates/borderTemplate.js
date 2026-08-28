@@ -69,6 +69,9 @@ export const BorderFrameWidth = {
     'panel': 0,
     'greenPanel': 0.5,
     'rectangle': 0,
+    'StreetName2Way': 0,
+    'StreetNameLeft': 0,
+    'StreetNameRight': 0,
 }
 
 export const BorderPaddingWidth = {

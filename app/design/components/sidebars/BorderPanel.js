@@ -7,7 +7,7 @@ import { useI18n } from '../../lib/i18n/I18nProvider.js';
 import { BorderGroup } from '../../lib/objects/border.js';
 import { DividerObject } from '../../lib/objects/divider.js';
 import { convertVertexToPathCommands } from '../../lib/objects/path.js';
-import { BorderColorScheme, BorderFrameWidth, BorderTypeScheme } from '../../lib/templates/borderTemplate.js';
+import { BorderColorScheme, BorderTypeScheme } from '../../lib/templates/borderTemplate.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { useGeneralDrawSettings } from './DrawSettings.js';
 import { selectObjectHandler } from '../presentations/promptBox.js';
@@ -16,7 +16,7 @@ import HintButton from '../shared/HintButton.js';
 import { useTouchLongPress } from '../../lib/canvas/touchEvents.js';
 import './sidebar.css';
 
-const BORDER_TYPE_OPTIONS = Object.keys(BorderFrameWidth);
+const BORDER_TYPE_OPTIONS = Object.keys(BorderTypeScheme);
 const COLOR_OPTIONS = Object.keys(BorderColorScheme);
 const BORDER_HINTS = {
     panel: 'border/Panel',
@@ -60,7 +60,10 @@ const createBorderButtonSVG = (borderType, xHeight, colorScheme) => {
     const scheme = BorderColorScheme[colorScheme] || BorderColorScheme['Blue Background'];
     const previewWidth = 220;
     const previewHeight = 220;
-    const block = { width: borderType === 'exit'? 1000 : 3200, height: 2000  };
+    const block = {
+        width: borderType === 'exit' ? 1000 : borderType.includes('Street') ? 400 : 3200,
+        height: borderType.includes('Street') ? 100 : 2000,
+    };
     const rounding = { x: 0, y: 0 };
     const shapeMeta = BorderTypeScheme[borderType]?.(xHeight, block, rounding);
 

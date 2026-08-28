@@ -9,6 +9,8 @@ import { DividerObject } from '../../lib/objects/divider.js';
 import { anchorShape } from '../../lib/objects/anchor.js';
 import { FontPriorityManager } from '../../lib/modal/md-font.js';
 import { EngDestinations, ChtDestinations } from '../../lib/templates/destinationTemplate.js';
+import { SymbolObject } from '../../lib/objects/symbols.js';
+import { CanvasGlobals } from '../canvas/canvas.js';
 import { GeneralDrawSettings, useGeneralDrawSettings } from './DrawSettings.js';
 import SidebarToggleGroup from '../shared/SidebarToggleGroup.js';
 import HintButton from '../shared/HintButton.js';
@@ -130,6 +132,14 @@ export default function TextPanel({ canvas }) {
     const [regionName, setRegionName] = useState(getRegionNames('English')[0] || '');
     const [locationValue, setLocationValue] = useState('');
     const [justification, setJustification] = useState('Left');
+    const [streetName, setStreetName] = useState({
+        english: '',
+        chinese: '',
+        leftNumber1: '',
+        leftNumber2: '',
+        rightNumber1: '',
+        rightNumber2: '',
+    });
     const fallbackLanguage = language === '2Liner' ? 'English' : language;
     const regionNames = getRegionNames(fallbackLanguage);
     const locationOptions = getLocationsForRegion(regionName, fallbackLanguage);
@@ -310,6 +320,109 @@ export default function TextPanel({ canvas }) {
             }
         }
     }
+
+    const createStreetNamePlate = () => {
+        if (!canvas) return;
+
+        const values = Object.fromEntries(
+            Object.entries(streetName).map(([key, value]) => [key, value.trim()])
+        );
+        if (!Object.values(values).some(Boolean)) return;
+
+        let chineseFont = 'TW-MOE-Std-Kai';
+        try {
+            const priorityFont = FontPriorityManager.getFontPriorityList()?.[0];
+            if (priorityFont === 'parsedFontMedium') chineseFont = 'TransportMedium';
+            if (priorityFont === 'parsedFontHeavy') chineseFont = 'TransportHeavy';
+        } catch {
+            chineseFont = 'TW-MOE-Std-Kai';
+        }
+
+        const position = CanvasGlobals.CenterCoord?.() || canvas.getCenterPoint();
+        let yOffset = 0;
+        const objects = {};
+
+        const createText = (value, textXHeight, textFont = font, charSpacing = 0) => {
+            if (!value) return null;
+            const textObject = new TextObject({
+                text: value,
+                xHeight: textXHeight,
+                font: textFont,
+                color: 'black',
+                left: position.x,
+                top: position.y + yOffset,
+                charSpacing,
+            });
+            textObject.isTemporary = true;
+            yOffset += 10;
+            return textObject;
+        };
+
+        objects.english = createText(values.english, 50);
+        objects.chinese = createText(values.chinese, 43.5, chineseFont, 18.25);
+        objects.leftNumber1 = createText(values.leftNumber1, 35);
+        objects.leftNumber2 = createText(values.leftNumber2, 35);
+        objects.rightNumber1 = createText(values.rightNumber1, 35);
+        objects.rightNumber2 = createText(values.rightNumber2, 35);
+
+        const leftNumberWidth = (objects.leftNumber2?.width || 0) + (objects.leftNumber1?.width || 0);
+        const rightNumberWidth = (objects.rightNumber1?.width || 0) + (objects.rightNumber2?.width || 0);
+        const leftEqualization = leftNumberWidth > rightNumberWidth ? 0 : 0.5 * (leftNumberWidth - rightNumberWidth);
+        const rightEqualization = rightNumberWidth > leftNumberWidth ? 0 : 0.5 * (rightNumberWidth - leftNumberWidth);
+
+        const createLozenge = () => {
+            const lozenge = new SymbolObject({
+                symbolType: 'Lozenge',
+                xHeight: 35,
+                color: 'black',
+                left: position.x,
+                top: position.y + yOffset,
+            });
+            lozenge.isTemporary = true;
+            yOffset += 10;
+            return lozenge;
+        };
+
+        if (objects.english && objects.chinese) {
+            anchorShape(objects.english, objects.chinese, {
+                vertexIndex1: 'E2',
+                vertexIndex2: 'E6',
+                spacingX: 0,
+                spacingY: 56 - 50 * 0.5 - 43.5 * 0.1,
+            });
+        }
+        if (objects.chinese && (objects.leftNumber1 || objects.leftNumber2)) {
+            anchorShape(objects.chinese, objects.leftNumber2 || objects.leftNumber1, {
+                vertexIndex1: 'E4',
+                vertexIndex2: 'E8',
+                spacingX: -35 + leftEqualization + 43.5 * 0.25,
+                spacingY: 0,
+            });
+        }
+        if (objects.leftNumber1 && objects.leftNumber2) {
+            const lozenge = createLozenge();
+            anchorShape(objects.leftNumber2, lozenge, { vertexIndex1: 'E4', vertexIndex2: 'E8', spacingX: -10, spacingY: -7 });
+            anchorShape(lozenge, objects.leftNumber1, { vertexIndex1: 'E4', vertexIndex2: 'E8', spacingX: -10, spacingY: 7 });
+        }
+        if (objects.chinese && (objects.rightNumber1 || objects.rightNumber2)) {
+            anchorShape(objects.chinese, objects.rightNumber1 || objects.rightNumber2, {
+                vertexIndex1: 'E8',
+                vertexIndex2: 'E4',
+                spacingX: 35 - rightEqualization - 43.5 * 0.25,
+                spacingY: 0,
+            });
+        }
+        if (objects.rightNumber1 && objects.rightNumber2) {
+            const lozenge = createLozenge();
+            anchorShape(objects.rightNumber1, lozenge, { vertexIndex1: 'E8', vertexIndex2: 'E4', spacingX: 10, spacingY: -7 });
+            anchorShape(lozenge, objects.rightNumber2, { vertexIndex1: 'E8', vertexIndex2: 'E4', spacingX: 10, spacingY: 7 });
+        }
+
+        const firstText = objects.english || objects.chinese || objects.leftNumber1 || objects.rightNumber1;
+        activateTextVertexControl(firstText);
+        canvas.setActiveObject(firstText);
+        canvas.requestRenderAll();
+    };
 
     const handleSubmit = () => {
         if (!canvas) return;
@@ -501,6 +614,43 @@ export default function TextPanel({ canvas }) {
                 <button className="toggle-button" onClick={() => FontPriorityManager.showModal()}>
                     {t('Open Font Settings')}
                 </button>
+
+                <div className="input-group">
+                    <h2 className="tab-title">{t('Street Name Plate')}</h2>
+                    {[
+                        ['english', 'Eng St Name'],
+                        ['chinese', 'Chin St Name'],
+                    ].map(([key, label]) => (
+                        <input
+                            key={key}
+                            type="text"
+                            className="input-field"
+                            value={streetName[key]}
+                            placeholder={t(label)}
+                            onChange={(event) => setStreetName((current) => ({ ...current, [key]: event.target.value }))}
+                        />
+                    ))}
+                    {[
+                        [['leftNumber1', 'Left Num 1'], ['leftNumber2', 'Left Num 2']],
+                        [['rightNumber1', 'Right Num 1'], ['rightNumber2', 'Right Num 2']],
+                    ].map((row) => (
+                        <div className="street-number-row" key={row[0][0]}>
+                            {row.map(([key, label]) => (
+                                <input
+                                    key={key}
+                                    type="text"
+                                    className="input-field street-number-input"
+                                    value={streetName[key]}
+                                    placeholder={t(label)}
+                                    onChange={(event) => setStreetName((current) => ({ ...current, [key]: event.target.value }))}
+                                />
+                            ))}
+                        </div>
+                    ))}
+                    <button className="panel-action-button" onClick={createStreetNamePlate}>
+                        {t('Add Street Name Plate Text')}
+                    </button>
+                </div>
 
                 <p style={{ fontSize: '12px', color: '#888', fontStyle: 'italic' }}>
                     {t('Click the canvas to position the text after adding it.')}
