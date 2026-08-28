@@ -17,12 +17,36 @@ export function initCanvasGlobals(fabricCanvas) {
   CanvasGlobals.ctx = fabricCanvas.getContext("2d");
 
   CanvasGlobals.CenterCoord = () => {
-    const zoom = fabricCanvas.getZoom();
-    const vpt = fabricCanvas.viewportTransform;
-    return {
-      x: util.invertTransform(vpt)[4] + (fabricCanvas.width / zoom) / 2,
-      y: util.invertTransform(vpt)[5] + (fabricCanvas.height / zoom) / 2
-    };
+    const viewportWidth = fabricCanvas.getWidth();
+    const viewportHeight = fabricCanvas.getHeight();
+    const sidebarRects = [...document.querySelectorAll('.main-panel, .slim-bar')]
+      .map((element) => element.getBoundingClientRect());
+    const isMobile = window.innerWidth <= 768;
+
+    let screenCenter;
+    if (isMobile) {
+      const unobscuredBottom = sidebarRects.reduce((bottom, rect) => {
+        const intersectsViewport = rect.right > 0 && rect.left < viewportWidth && rect.bottom > 0;
+        return intersectsViewport ? Math.min(bottom, Math.max(0, rect.top)) : bottom;
+      }, viewportHeight);
+
+      screenCenter = {
+        x: viewportWidth / 2,
+        y: unobscuredBottom / 2
+      };
+    } else {
+      const obscuredRight = sidebarRects.reduce((right, rect) => {
+        const intersectsViewport = rect.bottom > 0 && rect.top < viewportHeight && rect.right > 0;
+        return intersectsViewport ? Math.max(right, Math.min(viewportWidth, rect.right)) : right;
+      }, 0);
+
+      screenCenter = {
+        x: (obscuredRight + viewportWidth) / 2,
+        y: viewportHeight / 2
+      };
+    }
+
+    return util.transformPoint(screenCenter, util.invertTransform(fabricCanvas.viewportTransform));
   };
 }
 

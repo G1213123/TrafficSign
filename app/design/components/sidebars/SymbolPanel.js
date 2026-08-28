@@ -13,6 +13,7 @@ import AngleSelector, { getNextAngle } from '../shared/AngleSelector.js';
 import { HintModal } from '../../lib/modal/md-hint.js';
 import { HintLoader } from '../presentations/hintLoader.js';
 import { useTouchLongPress } from '../../lib/canvas/touchEvents.js';
+import { CanvasGlobals } from '../canvas/canvas.js';
 import './sidebar.css';
 
 const symbolHintMapping = {
@@ -349,14 +350,14 @@ export default function DrawSymbolPanel({ canvas }) {
     setAngle(initialAngle);
 
     // Calculate center of viewport for placement
-    const viewportCenter = canvas.getCenterPoint();
+    const viewportCenter = CanvasGlobals.CenterCoord?.() || canvas.getCenterPoint();
 
     const options = {
       xHeight: xHeight,
       color: color,
-      angle: symbolsPermittedAngle[symbolType] ? (symbolsPermittedAngle[symbolType].length > 1 ? initialAngle : 0) : 0,
-      x: viewportCenter.x,
-      y: viewportCenter.y
+      symbolAngle: symbolsPermittedAngle[symbolType] ? (symbolsPermittedAngle[symbolType].length > 1 ? initialAngle : 0) : 0,
+      left: viewportCenter.x,
+      top: viewportCenter.y
     };
 
     // Use the migrated legacy logic to create the object
