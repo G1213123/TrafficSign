@@ -5,8 +5,8 @@ import { BorderTypeScheme, BorderColorScheme, BorderFrameWidth, BorderPaddingWid
 import { DividerMargin } from '../templates/dividerTemplate.js';
 import { vertexToPath } from './path.js';
 import { CanvasGlobals } from '../../components/canvas/canvas.js';
-import { drawDivider } from './divider.js';
-import { Path, Group } from 'fabric';
+import { drawDivider, DividerObject } from './divider.js';
+import { Path, Group, Rect, Polygon } from 'fabric';
 
 const getCanvas = () => CanvasGlobals.canvas; // Access the global canvas object
 const canvasObject = CanvasGlobals.canvasObject // Get all objects on the canvas
@@ -181,7 +181,8 @@ const BorderUtilities = {
         maxY = Math.max(maxY, vertex.y);
       });
     });
-    let borderWidth = maxX - minX;
+    const flagCornerCorrection = borderType.includes('flag') ? (1.5 * xHeight / 4) * (1 - Math.cos(Math.PI / 6)) : 0;
+    let borderWidth = maxX - minX - flagCornerCorrection;
     let borderHeight = maxY - minY;
 
     if (borderWidth > 2000 || borderHeight > 2000) {

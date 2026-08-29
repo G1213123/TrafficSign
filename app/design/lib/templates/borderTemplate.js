@@ -367,7 +367,7 @@ function FlagLeftBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
     const padding = {
         left: v.D + (block.height / length + v.E + rounding.y / 2 - v.D) / 2 / Math.tan(Math.PI / 3) + (v.A + v.B + v.C) / Math.cos(Math.PI / 6),
         top: v.E + rounding.y,
-        right: v.E,
+        right: v.E + rounding.x * 2,
         bottom: v.D + rounding.y,
     };
 
@@ -439,7 +439,7 @@ function FlagRightBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
     const v = block.height > 4.85 * xHeight ? variables['4Lines'] : variables['2Lines'];
 
     const padding = {
-        left: v.E,
+        left: v.E + rounding.x * 2,
         top: v.E + rounding.y,
         right: v.D + (block.height / length + v.E + rounding.y / 2 - v.D) / 2 / Math.tan(Math.PI / 3) + (v.A + v.B + v.C) / Math.cos(Math.PI / 6),
         bottom: v.D + rounding.y,
