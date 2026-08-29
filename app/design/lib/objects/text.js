@@ -71,7 +71,9 @@ class TextObject extends BaseGroup {
     // Build group
     const group = new Group([...txtCharList, ...txtFrameList], {
       left: this.left,
-      top: this.top
+      top: this.top,
+      originX: 'left',
+      originY: 'top'
     });
     // Custom bounding box calculation
     group.setCoords();
