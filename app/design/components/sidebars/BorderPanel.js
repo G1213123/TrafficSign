@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { StaticCanvas, Path, Group } from 'fabric';
+import { StaticCanvas, Path, Group, Rect } from 'fabric';
 
 import { useI18n } from '../../lib/i18n/I18nProvider.js';
 import { BorderGroup } from '../../lib/objects/border.js';
@@ -10,7 +10,7 @@ import { convertVertexToPathCommands } from '../../lib/objects/path.js';
 import { BorderColorScheme, BorderTypeScheme } from '../../lib/templates/borderTemplate.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { useGeneralDrawSettings } from './DrawSettings.js';
-import { selectObjectHandler } from '../presentations/promptBox.js';
+import { selectObjectHandler, showTextBox, hideTextBox } from '../presentations/promptBox.js';
 import { HintModal } from '../../lib/modal/md-hint.js';
 import HintButton from '../shared/HintButton.js';
 import { useTouchLongPress } from '../../lib/canvas/touchEvents.js';
@@ -281,31 +281,235 @@ export default function BorderPanel() {
     };
 
     const createDivider = (dividerType) => {
-        let cleanupEscape = () => {};
-        const cancelSelection = selectObjectHandler(
-            t('select_border_to_place_divider_inside'),
-            (selectedObjects) => {
-                cleanupEscape();
-                const border = (selectedObjects || []).find((object) => object?.functionalType === 'Border');
-                if (!border) return;
+        const canvas = getCanvas();
+        if (!canvas) return;
 
-                new DividerObject({
+        const activeBorder = { current: null };
+        const hoverOverlay = { current: null };
+        const compartmentOverlay = { current: null };
+
+        const getCanvasPointer = (event) => {
+            if (typeof canvas.getPointer === 'function') {
+                return canvas.getPointer(event);
+            }
+
+            const source = event?.e || event || {};
+            const rect = canvas?.lowerCanvasEl?.getBoundingClientRect?.() || { left: 0, top: 0 };
+            return {
+                x: (source.clientX ?? source.offsetX ?? 0) - rect.left,
+                y: (source.clientY ?? source.offsetY ?? 0) - rect.top,
+            };
+        };
+
+        const handleEscape = (event) => {
+            if (event.key === 'Escape') {
+                cleanup();
+                hideTextBox();
+            }
+        };
+
+        const cleanup = () => {
+            if (hoverOverlay.current) {
+                canvas.remove(hoverOverlay.current);
+                hoverOverlay.current = null;
+            }
+            if (compartmentOverlay.current) {
+                compartmentOverlay.current.overlays.forEach((overlay) => canvas.remove(overlay));
+                canvas.off('mouse:move', compartmentOverlay.current.onMouseMove);
+                canvas.off('mouse:down', compartmentOverlay.current.onClick);
+                compartmentOverlay.current = null;
+            }
+            canvas.off('mouse:move', handlePointerMove);
+            canvas.off('mouse:down', handleCanvasClick);
+            document.removeEventListener('keydown', handleEscape);
+            hideTextBox();
+            canvas.requestRenderAll?.();
+        };
+
+        const showBorderHoverOverlay = (border) => {
+            if (!border?.inbbox) {
+                border?.updateBboxes?.();
+            }
+            if (!border?.inbbox) return;
+            if (hoverOverlay.current) {
+                canvas.remove(hoverOverlay.current);
+            }
+
+            const bbox = border.inbbox;
+            hoverOverlay.current = new Rect({
+                left: bbox.left,
+                top: bbox.top,
+                width: bbox.right - bbox.left,
+                height: bbox.bottom - bbox.top,
+                fill: 'rgba(238, 255, 0, 0.6)',
+                stroke: 'rgba(0,150,255,0.35)',
+                strokeWidth: 1 / (canvas.getZoom?.() || 1),
+                selectable: false,
+                evented: false,
+                objectCaching: false,
+                originX: 'left',
+                originY: 'top',
+            });
+            canvas.add(hoverOverlay.current);
+            canvas.requestRenderAll?.();
+        };
+
+        const hideBorderHoverOverlay = () => {
+            if (hoverOverlay.current) {
+                canvas.remove(hoverOverlay.current);
+                hoverOverlay.current = null;
+            }
+        };
+
+        const placeDivider = (border, chosenBox, pointer) => {
+            const finalBox = chosenBox || border?.compartmentBboxes?.find((box) => {
+                if (!pointer) return false;
+                return pointer.x >= box.left && pointer.x <= box.right && pointer.y >= box.top && pointer.y <= box.bottom;
+            }) || null;
+
+            if (!border) return;
+            const divider = (() => {
+                const existing = new DividerObject({
                     dividerType,
                     borderGroup: border,
                     xHeight,
                     colorType: colorScheme,
+                    compartmentBox: finalBox || border.inbbox,
+                    left: pointer?.x ?? border.inbbox.left,
+                    top: pointer?.y ?? border.inbbox.top,
                 });
 
-                getCanvas()?.requestRenderAll?.();
-            },
-            null,
-            xHeight,
-            'mm',
-            true,
-            'Border'
-        );
+                if (pointer && existing) {
+                    if (dividerType === 'HDivider' || dividerType === 'HLine') {
+                        existing.set({ left: pointer.x, top: pointer.y - existing.height / 2 });
+                    } else {
+                        existing.set({ left: pointer.x - existing.width / 2, top: pointer.y });
+                    }
+                    existing.setCoords();
+                    border.assignWidthToDivider?.();
+                }
 
-        cleanupEscape = addEscapeToCancelSelection(cancelSelection);
+                return existing;
+            })();
+
+            cleanup();
+
+            if (divider) {
+                canvas.requestRenderAll?.();
+            }
+        };
+
+        const showCompartmentOverlay = (border) => {
+            if (!border?.compartmentBboxes?.length) {
+                border?.updateBboxes?.();
+            }
+            if (!border?.compartmentBboxes?.length) return;
+
+            if (compartmentOverlay.current) {
+                compartmentOverlay.current.overlays.forEach((overlay) => canvas.remove(overlay));
+                canvas.off('mouse:move', compartmentOverlay.current.onMouseMove);
+                canvas.off('mouse:down', compartmentOverlay.current.onClick);
+            }
+
+            const overlays = [];
+            const dimColor = 'rgba(0,150,255,0.08)';
+            const majorColor = 'rgba(0,150,255,0.25)';
+            const strokeColor = 'rgba(0,150,255,0.5)';
+            const zoom = canvas.getZoom?.() || 1;
+            const strokeWidth = 1 / zoom;
+
+            const onMouseMove = (opt) => {
+                const pointer = canvas.getScenePoint?.(opt.e) || getCanvasPointer(opt);
+                overlays.forEach((overlay) => {
+                    const box = overlay._metaBox;
+                    const inside = box && pointer.x >= box.left && pointer.x <= box.right && pointer.y >= box.top && pointer.y <= box.bottom;
+                    overlay.set('fill', inside ? majorColor : dimColor);
+                });
+                canvas.requestRenderAll?.();
+            };
+
+            const onClick = (opt) => {
+                const pointer = canvas.getScenePoint?.(opt.e) || getCanvasPointer(opt);
+                let chosenBox = null;
+                overlays.forEach((overlay) => {
+                    const box = overlay._metaBox;
+                    if (box && pointer.x >= box.left && pointer.x <= box.right && pointer.y >= box.top && pointer.y <= box.bottom) {
+                        chosenBox = box;
+                    }
+                });
+
+                if (!chosenBox) return;
+                placeDivider(border, chosenBox, pointer);
+            };
+
+            border.compartmentBboxes.forEach((box) => {
+                const rect = new Rect({
+                    left: box.left,
+                    top: box.top,
+                    width: box.right - box.left,
+                    height: box.bottom - box.top,
+                    fill: dimColor,
+                    stroke: strokeColor,
+                    strokeWidth,
+                    selectable: false,
+                    evented: false,
+                    objectCaching: false,
+                    originX: 'left',
+                    originY: 'top',
+                });
+                rect._metaBox = box;
+                overlays.push(rect);
+                canvas.add(rect);
+            });
+
+            compartmentOverlay.current = { overlays, onMouseMove, onClick };
+            canvas.on('mouse:move', onMouseMove);
+            canvas.on('mouse:down', onClick);
+            canvas.requestRenderAll?.();
+        };
+
+        const handlePointerMove = (opt) => {
+            const target = opt.target;
+            const border = target && target.functionalType === 'Border' ? target : null;
+            if (border) {
+                activeBorder.current = border;
+                showBorderHoverOverlay(border);
+            } else {
+                hideBorderHoverOverlay();
+                activeBorder.current = null;
+            }
+        };
+
+        const handleCanvasClick = (opt) => {
+            const target = opt.target;
+            const border = target && target.functionalType === 'Border' ? target : activeBorder.current;
+            if (!border) return;
+            border.updateBboxes?.();
+
+            const pointer = canvas.getScenePoint?.(opt.e) || getCanvasPointer(opt);
+            const chosenBox = border.compartmentBboxes?.find((box) => {
+                return pointer.x >= box.left && pointer.x <= box.right && pointer.y >= box.top && pointer.y <= box.bottom;
+            }) || null;
+
+            if (chosenBox || !border.compartmentBboxes?.length) {
+                placeDivider(border, chosenBox, pointer);
+                return;
+            }
+
+            showCompartmentOverlay(border);
+        };
+
+        showTextBox(t('Click inside the border to place divider'), null, 'keydown', (event) => {
+            if (event?.key === 'Escape') {
+                cleanup();
+                hideTextBox();
+            }
+        });
+
+        document.addEventListener('keydown', handleEscape);
+        canvas.on('mouse:move', handlePointerMove);
+        canvas.on('mouse:down', handleCanvasClick);
+        canvas.requestRenderAll?.();
     };
 
     return (

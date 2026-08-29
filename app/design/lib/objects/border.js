@@ -1096,6 +1096,14 @@ class BorderGroup extends BaseGroup {
     // Always rebuild bboxes and compartments first
     this.updateBboxes();
 
+    const getCompartmentBounds = (divider) => {
+      const compartmentBox = divider?.compartmentBox;
+      if (compartmentBox && compartmentBox.left != null && compartmentBox.right != null && compartmentBox.top != null && compartmentBox.bottom != null) {
+        return compartmentBox;
+      }
+      return null;
+    };
+
     // Vertical dividers
     for (const d of this.VDivider) {
       const initialLeft = d.getEffectiveCoords()[0].x;
@@ -1110,8 +1118,9 @@ class BorderGroup extends BaseGroup {
       d.set({
         top: this.inbbox.bottom - d.height - DividerMargin[d.functionalType]['bottom'] * d.xHeight / 4,
       });
-      const minLeft = this.inbbox.left + (this.frame) * d.xHeight / 4;
-      const maxLeft = this.inbbox.right - (this.frame) * d.xHeight / 4 - d.width;
+      const compartmentBounds = getCompartmentBounds(d);
+      const minLeft = compartmentBounds ? compartmentBounds.left : this.inbbox.left + (this.frame) * d.xHeight / 4;
+      const maxLeft = compartmentBounds ? compartmentBounds.right - d.width : this.inbbox.right - (this.frame) * d.xHeight / 4 - d.width;
       const clampedLeft = maxLeft >= minLeft ? Math.min(Math.max(initialLeft, minLeft), maxLeft) : minLeft;
       d.set({ left: clampedLeft });
       d.lockMovementY = true;
@@ -1129,11 +1138,12 @@ class BorderGroup extends BaseGroup {
           d.functionalType
         );
         d.replaceBasePolygon(res, false);
+        const compartmentBounds = getCompartmentBounds(d);
         d.set({
-          left: this.inbbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4
+          left: compartmentBounds ? compartmentBounds.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4 : this.inbbox.left + DividerMargin[d.functionalType]['left'] * d.xHeight / 4
         });
-        const minTop = this.inbbox.top + (this.frame) * d.xHeight / 4;
-        const maxTop = this.inbbox.bottom - (this.frame) * d.xHeight / 4 - d.height;
+        const minTop = compartmentBounds ? compartmentBounds.top : this.inbbox.top + (this.frame) * d.xHeight / 4;
+        const maxTop = compartmentBounds ? compartmentBounds.bottom - d.height : this.inbbox.bottom - (this.frame) * d.xHeight / 4 - d.height;
         const clampedTop = maxTop >= minTop ? Math.min(Math.max(initialTop, minTop), maxTop) : minTop;
         d.set({ top: clampedTop });
         d.lockMovementX = true;
