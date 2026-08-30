@@ -22,6 +22,41 @@ import { globalAnchorTree, anchorShape } from "./anchor.js"; // For registering 
 
 const getCanvas = () => CanvasGlobals.canvas;
 
+const singleRefProperties = ['borderGroup', 'mainRoad', 'textObject', 'underline'];
+const arrayRefProperties = ['anchoredPolygon', 'sideRoad', 'widthObjects', 'heightObjects', 'leftObjects', 'aboveObjects', 'rightObjects', 'belowObjects', 'VDivider', 'HDivider'];
+
+function remapSerializedReferences(data, allDeserializedObjectsMap) {
+    if (!data || typeof data !== 'object') return data;
+
+    const resolved = { ...data };
+
+    singleRefProperties.forEach(propName => {
+        if (resolved[propName] === undefined || resolved[propName] === null) return;
+
+        const mappedObject = typeof resolved[propName] === 'object'
+            ? resolved[propName]
+            : allDeserializedObjectsMap[resolved[propName]];
+
+        if (mappedObject) {
+            resolved[propName] = mappedObject;
+        }
+    });
+
+    arrayRefProperties.forEach(propName => {
+        if (!Array.isArray(resolved[propName])) return;
+
+        resolved[propName] = resolved[propName]
+            .map(item => {
+                if (!item) return null;
+                if (typeof item === 'object') return item;
+                return allDeserializedObjectsMap[item] || null;
+            })
+            .filter(Boolean);
+    });
+
+    return resolved;
+}
+
 const ObjectBuilderFactory = {
     creators: {},
 
@@ -200,34 +235,13 @@ async function buildObjectsFromJSON(jsonStringsArray) {
     const allDeserializedObjectsMap = {}; // Maps originalID -> new FabricObject
     const finalReconstructedObjects = []; // Stores the fabric objects in the order they are fully processed
 
-    const propertiesToRemapById = ['borderGroup', 'mainRoad', 'textObject', 'underline'];
-    const arrayPropertiesToRemapItemsById = ['anchoredPolygon', 'sideRoad', 'widthObjects', 'heightObjects',  'leftObjects', 'aboveObjects', 'rightObjects', 'belowObjects', 'VDivider', 'HDivider'];
-
     // First pass: Create all objects and store them in the map
     for (const data of allDeserializedData) {
         const originalID = data.canvasID;
         // Create the object using the existing internal function.
         // reconstructSingleObjectInternal will add the created object to allDeserializedObjectsMap.
         // We pass a clean copy of data for object creation, separate from linking data.
-        const creationData = { ...data };
-
-
-        // Link direct dependencies that are needed for constructor or initial setup
-        // Remap single ID references to objects
-        propertiesToRemapById.forEach(propName => {
-            if (creationData[propName] !== undefined && allDeserializedObjectsMap[creationData[propName]]) {
-                creationData[propName] = allDeserializedObjectsMap[creationData[propName]];
-            }
-        });
-
-        // Remap arrays of IDs to arrays of objects
-        arrayPropertiesToRemapItemsById.forEach(propName => {
-            if (Array.isArray(creationData[propName])) {
-                creationData[propName] = creationData[propName]
-                    .map(id => allDeserializedObjectsMap[id])
-                    .filter(Boolean); // Filter out any undefined if an ID wasn't found
-            }
-        });
+        const creationData = remapSerializedReferences({ ...data }, allDeserializedObjectsMap);
 
         const fabricObject = await reconstructSingleObjectInternal(creationData, fabricCanvas, allDeserializedObjectsMap);
 
@@ -238,7 +252,27 @@ async function buildObjectsFromJSON(jsonStringsArray) {
         finalReconstructedObjects.push(fabricObject);
     }
 
-    // Second pass: Link anchors using anchorShape
+    // Second pass: finish wiring object references that may not have existed when each object was created
+    for (const data of allDeserializedData) {
+        const fabricObject = allDeserializedObjectsMap[data.canvasID];
+        if (!fabricObject) continue;
+
+        const resolvedData = remapSerializedReferences(data, allDeserializedObjectsMap);
+
+        singleRefProperties.forEach(propName => {
+            if (resolvedData[propName] !== undefined) {
+                fabricObject[propName] = resolvedData[propName];
+            }
+        });
+
+        arrayRefProperties.forEach(propName => {
+            if (Array.isArray(resolvedData[propName])) {
+                fabricObject[propName] = resolvedData[propName];
+            }
+        });
+    }
+
+    // Third pass: Link anchors using anchorShape
     for (const data of allDeserializedData) {
         const fabricObject = allDeserializedObjectsMap[data.canvasID];
         if (!fabricObject) continue;
