@@ -74,7 +74,9 @@ class DividerObject extends BaseGroup {
     initialize() {
         if (this.dividerType !== 'HLine') {
             // placeholder meta, resize later in border assignWidthToDivider; if compartmentBox supplied, seed with its center
-            if (this.compartmentBox) {
+            const hasExplicitLeft = Number.isFinite(Number(this.leftValue));
+            const hasExplicitTop = Number.isFinite(Number(this.aboveValue));
+            if (this.compartmentBox && !(hasExplicitLeft && hasExplicitTop)) {
                 const centerX = (this.compartmentBox.left + this.compartmentBox.right) / 2;
                 const centerY = (this.compartmentBox.top + this.compartmentBox.bottom) / 2;
                 if (this.dividerType === 'HDivider' || this.dividerType === 'HLine') {

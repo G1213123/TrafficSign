@@ -367,6 +367,15 @@ export default function BorderPanel() {
                 return pointer.x >= box.left && pointer.x <= box.right && pointer.y >= box.top && pointer.y <= box.bottom;
             }) || null;
 
+            const columns = border?.compartmentBboxes?.length
+                ? [...new Set(border.compartmentBboxes.map((box) => box.left))].sort((a, b) => a - b)
+                : [];
+            const rows = border?.compartmentBboxes?.length
+                ? [...new Set(border.compartmentBboxes.map((box) => box.top))].sort((a, b) => a - b)
+                : [];
+            const compartmentColumn = finalBox ? columns.indexOf(finalBox.left) : null;
+            const compartmentRow = finalBox ? rows.indexOf(finalBox.top) : null;
+
             if (!border) return;
             const divider = (() => {
                 const existing = new DividerObject({
@@ -375,6 +384,8 @@ export default function BorderPanel() {
                     xHeight,
                     colorType: colorScheme,
                     compartmentBox: finalBox || border.inbbox,
+                    compartmentColumn,
+                    compartmentRow,
                     left: pointer?.x ?? border.inbbox.left,
                     top: pointer?.y ?? border.inbbox.top,
                 });

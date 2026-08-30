@@ -897,7 +897,9 @@ export class BaseGroup extends Group {
           if (idx > -1) arr.splice(idx, 1);
         }
       });
-      if (deleteObj.functionalType !== 'HDivider' && deleteObj.functionalType !== 'VDivider') {
+      if (deleteObj.functionalType === 'HDivider' || deleteObj.functionalType === 'VDivider' || deleteObj.functionalType === 'VLane' || deleteObj.functionalType === 'HLine') {
+        deleteObj.borderGroup.assignWidthToDivider?.();
+      } else {
         deleteObj.borderResize();
       }
     }
