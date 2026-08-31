@@ -554,6 +554,15 @@ const dictionaries = {
 
 let currentLocale = 'en';
 
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 const i18n = {
   t(key) {
     if (!key) return '';
@@ -582,7 +591,7 @@ const i18n = {
     // HTML content
     root.querySelectorAll('[data-i18n-html]')?.forEach(el => {
       const key = el.getAttribute('data-i18n-html');
-      if (key) el.innerHTML = i18n.t(key);
+      if (key) el.innerHTML = escapeHtml(i18n.t(key));
     });
     // Placeholders
     root.querySelectorAll('[data-i18n-placeholder]')?.forEach(el => {
