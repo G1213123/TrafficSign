@@ -1,0 +1,69 @@
+#context-menu {
+  background: #f5e9ad;
+  border: 2px solid #000;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  color: #000;
+  font-size: 14px;
+  overflow: visible;
+}
+
+#context-menu.align-left {
+  transform: translateX(-100%);
+}
+
+#context-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#context-menu li {
+  cursor: pointer;
+  padding: 8px 10px;
+  position: relative;
+  white-space: nowrap;
+}
+
+#context-menu li:hover {
+  background: #f8efbf;
+}
+
+#context-menu #pivot-anchor {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding-right: 10px;
+}
+
+.context-menu-arrow {
+  display: inline-block;
+  font-size: 8px;
+  margin-left: 12px;
+}
+
+.context-menu-arrow.open-left {
+  transform: rotate(180deg);
+}
+
+#context-menu .context-submenu {
+  background: #f5e9ad;
+  border: 2px solid #000;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  display: none;
+  left: 100%;
+  min-width: max-content;
+  position: absolute;
+  top: -2px;
+  z-index: 1001;
+}
+
+#context-menu .context-submenu.is-visible {
+  display: block;
+}
+
+#context-menu #pivot-anchor.open-left > .context-submenu {
+  left: auto;
+  right: 100%;
+}

@@ -41,7 +41,7 @@
             "request": "launch",
             "url": "http://localhost:8080",
             "file": "${workspaceFolder}/design.html",
-             "skipFiles": [
+            "skipFiles": [
                 // Existing pattern
                 "**VM**",
                 // Local dependencies
@@ -59,6 +59,23 @@
                 // Specific VM eval chunks (e.g. <eval>/VM46947695)
                 "<eval>/VM**",
                 "<anonymous>/**"
+            ]
+        },
+        {
+            "name": "Next.js: debug server-side",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "npm run dev -- --inspect",
+            "serverReadyAction": {
+                "action": "debugWithChrome",
+                "killOnServerStop": false,
+                "pattern": "- Local:.+(https?://.+)",
+                "uriFormat": "%s",
+                "webRoot": "${workspaceFolder}"
+            },
+            "skipFiles": [
+                "<node_internals>/**",
+                "${workspaceFolder}/node_modules/**"
             ]
         },
     ]
