@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Road Sign Factory
+ > *"That's the way it is."*
+ 
+## About
 
-## Getting Started
+Road Sign Factory is a professional web-based application for designing, customizing, and exporting traffic signs. Built with modern web technologies and following Hong Kong TPDM standards, it provides engineers and designers with powerful tools for creating compliant road signage.
 
-First, run the development server:
+🌐 **Website:** [roadsignfactory.hk](https://roadsignfactory.hk/)  
+🚀 **Launch App:** [roadsignfactory.hk/design.html](https://roadsignfactory.hk/design.html)  
+📖 **Documentation:** [GitHub Repository](https://github.com/G1213123/TrafficSign)
+
+## ⚠️ Development Status
+
+**This is an experimental beta version currently under active development.**
+
+## ✨ Key Features
+
+- 🎨 **Vector Graphics**: Professional scalable sign design
+- 📝 **Typography**: Transport fonts with TPDM compliance
+- 🔧 **Symbol Library**: Comprehensive traffic symbol collection
+- 📐 **Precision Tools**: Built-in measurement and grid systems
+- 📤 **Multi-Format Export**: SVG, DXF, and PDF support
+- �️ **Posters Gallery**: Download high-quality traffic sign posters
+- �📱 **Cross-Platform**: Works on desktop, tablet, and mobile
+- 🎯 **Standards Compliant**: Hong Kong TPDM guidelines
+
+## 🏗️ Project Structure
+
+This project is a Next.js application for the Traffic Sign Designer, with the main editor mounted under the app route.
+
+- **`app/page.tsx`** - Landing route that redirects to the design editor
+- **`app/design/page.js`** - Main sign design interface
+- **`app/design/components/`** - Canvas, sidebars, inspector panels, menus, and UI overlays
+- **`app/design/lib/`** - Drawing logic, export utilities, fonts, object definitions, and event handling
+- **`public/`** - Static assets, web manifest, and hint/reference HTML files
+- **`docs/`** - Design specs and project notes
+- **`package.json`** - Project scripts and dependency configuration
+- **`next.config.ts`**, **`tsconfig.json`**, **`eslint.config.mjs`** - Next.js and TypeScript configuration
+
+## Local Development
+
+Run the app from the project root:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open the app in a browser:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+If port `3000` is already in use, Next.js will automatically select the next available port, such as `3001`.
 
-## Learn More
+## Features
 
-To learn more about Next.js, take a look at the following resources:
+ #### TODO: 
+- [x] Unify input value of xheight and color in all panel
+- [x] Professional homepage for better SEO
+- [x] support touch screen gesture
+- [x] Adding loading and save function to localStorage
+- [x] Hints for user inputs
+- [ ] Chinese Readme file and description for site
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📱 Mobile Support
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The application includes responsive design and touch support:
+- Touch-friendly interface for tablets and mobile devices
+- Gesture support for drawing and manipulation
+- Adaptive layout for different screen sizes
 
-## Deploy on Vercel
+## Contact
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+For any questions or feedback, please contact us at [GitHub Repository](https://github.com/G1213123/TrafficSign/tree/master).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Legal Disclaimer
+
+### Font Usage
+- Font Transport Medium and Transport Heavy is subject to Crown Copyright, and contains public sector information licensed under the Open Government Licence v1.0.
+- NotoSansHK fonts are licensed under the SIL Open Font License.
+- Kai font (edukai) is licensed under its respective license terms.
+
+### Usage Limitations
+- This application is provided for personal, educational, and non-commercial use only.
+- Commercial use of this application or any of its components is strictly prohibited without prior written permission.
+
+### Liability Disclaimer
+- This software is provided "as is", without warranty of any kind, express or implied.
+- The authors or copyright holders shall not be liable for any claim, damages, or other liability arising from the use of the software or any outputs generated by it.
+- Users are solely responsible for verifying the accuracy and compliance of any signs created using this tool with relevant local regulations and standards.
+- By using this application, you acknowledge and accept these terms and limitations.

@@ -5,63 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug with Server",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceFolder}/scripts/debug-server.js",
-            "skipFiles": [
-                // Existing pattern
-                "**VM**",
-                // Local dependencies
-                "${workspaceFolder}/node_modules/**",
-                // Paper.js (local copy if ever added) and CDN version
-                "**/paper-full.min.js",
-                "https://cdnjs.cloudflare.com/ajax/libs/paper.js/**",
-                // All Google ads / tag / measurement / quality helper scripts (consolidated)
-                "**/sodar2.js",
-                "**/adsbygoogle.js**",
-                "**/show_ads_**",
-                "*googlesyndication*",
-                // Eval / anonymous script frames
-                "<eval>/**",
-                // Specific VM eval chunks (e.g. <eval>/VM46947695)
-                "<eval>/VM**",
-                "<anonymous>/**"
-            ],
-            "serverReadyAction": {
-                "action": "debugWithChrome",
-                "killOnServerStop": false,
-                "pattern": "Server running at (https?://.+)",
-                "uriFormat": "%s",
-            }
-        },
-        {
-            "name": "Open Design in Chrome",
-            "type": "chrome",
-            "request": "launch",
-            "url": "http://localhost:8080",
-            "file": "${workspaceFolder}/design.html",
-            "skipFiles": [
-                // Existing pattern
-                "**VM**",
-                // Local dependencies
-                "${workspaceFolder}/node_modules/**",
-                // Paper.js (local copy if ever added) and CDN version
-                "**/paper-full.min.js",
-                "https://cdnjs.cloudflare.com/ajax/libs/paper.js/**",
-                // All Google ads / tag / measurement / quality helper scripts (consolidated)
-                "**/sodar2.js",
-                "**/adsbygoogle.js",
-                "**/show_ads_**",
-                "*googlesyndication*",
-                // Eval / anonymous script frames
-                "<eval>/**",
-                // Specific VM eval chunks (e.g. <eval>/VM46947695)
-                "<eval>/VM**",
-                "<anonymous>/**"
-            ]
-        },
-        {
             "name": "Next.js: debug server-side",
             "type": "node-terminal",
             "request": "launch",
