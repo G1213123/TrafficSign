@@ -11,7 +11,7 @@ import { BorderColorScheme, BorderTypeScheme } from '../../lib/templates/borderT
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { useGeneralDrawSettings } from './DrawSettings.js';
 import { selectObjectHandler, showTextBox, hideTextBox } from '../presentations/promptBox.js';
-import { HintModal } from '../../lib/modal/md-hint.js';
+import { HintModal } from '../modal/md-hint.js';
 import HintButton from '../shared/HintButton.js';
 import { useTouchLongPress } from '../../lib/canvas/touchEvents.js';
 import './sidebar.css';

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { HintModal } from '../../lib/modal/md-hint.js';
+import { HintModal } from '../modal/md-hint.js';
 import { useTouchLongPress } from '../../lib/canvas/touchEvents.js';
 
 export default function HintButton({ hintPath, label }) {

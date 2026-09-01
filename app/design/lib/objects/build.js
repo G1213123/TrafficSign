@@ -114,7 +114,7 @@ for (const [key, value] of Object.entries(ObjectType)) {
  * @param {Object.<string, fabric.Object>} allDeserializedObjectsMap - Map to store/retrieve objects by their original canvasID.
  * @returns {Promise<fabric.Object|null>} A promise that resolves to the reconstructed Fabric object or null.
  */
-async function reconstructSingleObjectInternal(data, fabricCanvas, allDeserializedObjectsMap) {
+async function reconstructSingleObjectInternal(data, fabricCanvas, allDeserializedObjectsMap, customSymbols = {}) {
     if (!data || !data.objectType) {
         console.error("Invalid data or missing objectType for reconstruction", data);
         return null;
@@ -126,6 +126,9 @@ async function reconstructSingleObjectInternal(data, fabricCanvas, allDeserializ
 
     // 2. Prepare constructor options
     const constructorOptions = { ...data };
+    if (data.objectType === 'SymbolObject' && customSymbols[data.symbolType]) {
+        constructorOptions.symbolData = customSymbols[data.symbolType];
+    }
     constructorOptions.isLoading = true;
     // Ensure functionalType is preserved in options
     if (data.functionalType) {
@@ -205,8 +208,9 @@ async function reconstructSingleObjectInternal(data, fabricCanvas, allDeserializ
  *   MUST BE IN DEPENDENCY ORDER.
  * @returns {Promise<Array<fabric.Object>>} A promise resolving to an array of the top-level reconstructed Fabric objects.
  */
-async function buildObjectsFromJSON(jsonStringsArray) {
+async function buildObjectsFromJSON(jsonStringsArray, options = {}) {
     const fabricCanvas = getCanvas();
+    const customSymbols = options.customSymbols || {};
     if (!fabricCanvas) {
         return [];
     }
@@ -243,7 +247,7 @@ async function buildObjectsFromJSON(jsonStringsArray) {
         // We pass a clean copy of data for object creation, separate from linking data.
         const creationData = remapSerializedReferences({ ...data }, allDeserializedObjectsMap);
 
-        const fabricObject = await reconstructSingleObjectInternal(creationData, fabricCanvas, allDeserializedObjectsMap);
+        const fabricObject = await reconstructSingleObjectInternal(creationData, fabricCanvas, allDeserializedObjectsMap, customSymbols);
 
         if (!fabricObject) {
             console.warn(`Failed to reconstruct object for data (originalID: ${originalID}):`, data);

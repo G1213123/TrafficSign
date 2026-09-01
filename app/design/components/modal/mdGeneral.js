@@ -3,7 +3,7 @@
  * This module provides shared functions for modal creation and management
  */
 
-import { i18n } from '../i18n/i18n.js';
+import { i18n } from '../../lib/i18n/i18n.js';
 
 const ModalUtils = {
   /**

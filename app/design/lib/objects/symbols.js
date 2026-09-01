@@ -67,6 +67,14 @@ class SymbolObject extends BaseGroup {
 
     // Store shapeMeta properties
     this.symbolType = shapeMeta.symbolType;
+    this.customSymbol = shapeMeta.customSymbol;
+    this.symbolData = shapeMeta.symbolData || (shapeMeta.customSymbol ? {
+      path: [{
+        vertex: shapeMeta.customSymbol.vertex,
+        arcs: shapeMeta.customSymbol.curves || []
+      }]
+    } : undefined);
+    this.isCustomSymbol = !!this.symbolData;
     this.xHeight = shapeMeta.xHeight || 100;
     this.color = shapeMeta.color || 'White';
     this.symbolAngle = shapeMeta.symbolAngle || 0;
@@ -109,7 +117,7 @@ class SymbolObject extends BaseGroup {
 
   drawSymbol() {
     // Calculate symbol data
-    const symbolData = calcSymbol(this.symbolType, this.xHeight / 4, this.color);
+    const symbolData = calcSymbol(this.symbolData || this.symbolType, this.xHeight / 4, this.color);
 
     // Create symbol options
     const symbolOptions = {
@@ -136,6 +144,13 @@ class SymbolObject extends BaseGroup {
     symbolPath.symbol = this.symbolType; // Keep track of the symbol type
 
     return symbolPath;
+  }
+
+  serializeToJSON() {
+    const serialized = super.serializeToJSON();
+    delete serialized.symbolData;
+    delete serialized.customSymbol;
+    return serialized;
   }
 }
 

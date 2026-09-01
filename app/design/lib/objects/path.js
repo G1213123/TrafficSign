@@ -4,7 +4,7 @@
  * draw.js and symbols.js files.
  */
 
-import { FontPriorityManager } from '../modal/md-font.js';
+import { FontPriorityManager } from '../../components/modal/md-font.js';
 import { parse } from 'opentype.js'; // Ensure opentype.js is available in the global scope
 
 // Store parsed fonts (assuming opentype.js objects)

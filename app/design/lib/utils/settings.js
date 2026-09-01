@@ -54,6 +54,7 @@ const parseImportedCanvasData = (importedData) => {
     return {
       objects: importedData.objects,
       version: importedData.meta?.version ?? null,
+      customSymbols: importedData.customSymbols || {},
     };
   }
 
@@ -120,10 +121,14 @@ export const exportCanvasToJSON = () => {
 
   const objectsToSerialize = CanvasGlobals.canvasObject || getCanvasObjects();
   const serializedObjectsArray = [];
+  const customSymbols = {};
 
   for (const object of objectsToSerialize) {
     if (typeof object?.serializeToJSON === 'function') {
       serializedObjectsArray.push(object.serializeToJSON());
+      if (object.isCustomSymbol && object.symbolType && object.symbolData) {
+        customSymbols[object.symbolType] = JSON.parse(JSON.stringify(object.symbolData));
+      }
     }
   }
 
@@ -139,6 +144,10 @@ export const exportCanvasToJSON = () => {
     objects: serializedObjectsArray,
   };
 
+  if (Object.keys(customSymbols).length > 0) {
+    exportData.customSymbols = customSymbols;
+  }
+
   return JSON.stringify(exportData, null, 2);
 };
 
@@ -149,7 +158,7 @@ export const importCanvasFromJSON = async (importedData, options = {}) => {
   }
 
   const { showSuccessToast = true } = options;
-  const { objects, version } = parseImportedCanvasData(importedData);
+  const { objects, version, customSymbols } = parseImportedCanvasData(importedData);
 
   if (objects.length === 0) {
     throw new Error('No canvas objects were found in the imported JSON.');
@@ -158,7 +167,7 @@ export const importCanvasFromJSON = async (importedData, options = {}) => {
   await clearCanvasForImport();
 
   const { buildObjectsFromJSON } = await import('../objects/build.js');
-  await buildObjectsFromJSON(objects);
+  await buildObjectsFromJSON(objects, { customSymbols });
 
   if (version) {
     const { UpgradeManager } = await import('../version_upgrades/UpgradeManager.js');

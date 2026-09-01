@@ -4,10 +4,10 @@
  */
 
 import { ModalUtils } from './mdGeneral.js';
-import { GeneralSettings } from '../utils/settings.js';
-import { CanvasGlobals } from '../../components/canvas/canvas.js';
-import { i18n } from '../i18n/i18n.js';
-import { showToast } from '../../components/presentations/ToastBox.js';
+import { GeneralSettings } from '../../lib/utils/settings.js';
+import { CanvasGlobals } from '../canvas/canvas.js';
+import { i18n } from '../../lib/i18n/i18n.js';
+import { showToast } from '../presentations/ToastBox.js';
 
 import { parse } from 'opentype.js'; // Ensure opentype.js is available in your project
 

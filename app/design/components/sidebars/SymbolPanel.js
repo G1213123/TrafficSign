@@ -10,10 +10,11 @@ import { symbolsTemplate, symbolsPermittedAngle } from '../../lib/templates/symb
 import { parsedFontMedium, parsedFontHeavy, parsedFontKorean } from "../../lib/objects/path.js";
 import { GeneralDrawSettings, useGeneralDrawSettings } from './DrawSettings.js';
 import AngleSelector, { getNextAngle } from '../shared/AngleSelector.js';
-import { HintModal } from '../../lib/modal/md-hint.js';
+import { HintModal } from '../modal/md-hint.js';
 import { HintLoader } from '../presentations/hintLoader.js';
 import { useTouchLongPress } from '../../lib/canvas/touchEvents.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
+import CustomSymbolModal from '../modal/CustomSymbolModal.js';
 import './sidebar.css';
 
 const symbolHintMapping = {
@@ -288,6 +289,8 @@ export default function DrawSymbolPanel({ canvas }) {
   const [selectedSymbol, setSelectedSymbol] = useState(null);
   const [angle, setAngle] = useState(0);
   const [hintModalState, setHintModalState] = useState({ isOpen: false, hintPath: null });
+  const [customSymbolOpen, setCustomSymbolOpen] = useState(false);
+  const [customSymbolInitialName, setCustomSymbolInitialName] = useState('CustomSymbol');
   const modalHoverRef = useRef(false);
   const closeTimerRef = useRef(null);
 
@@ -340,7 +343,24 @@ export default function DrawSymbolPanel({ canvas }) {
     setAngle(newAngle);
   };
 
-  const handleAddSymbol = (symbolType) => {
+  const getUniqueCustomSymbolName = (requestedName) => {
+    const baseName = requestedName.trim() || 'CustomSymbol';
+    const usedNames = new Set(
+      (CanvasGlobals.canvasObject || [])
+        .map(object => object?.symbolType)
+        .filter(Boolean)
+    );
+
+    if (!usedNames.has(baseName)) return baseName;
+
+    let suffix = 2;
+    while (usedNames.has(`${baseName}${suffix}`)) {
+      suffix += 1;
+    }
+    return `${baseName}${suffix}`;
+  };
+
+  const handleAddSymbol = (symbolType, symbolData = null, symbolColor = color) => {
     if (!canvas) return;
 
     setSelectedSymbol(symbolType);
@@ -354,7 +374,7 @@ export default function DrawSymbolPanel({ canvas }) {
 
     const options = {
       xHeight: xHeight,
-      color: color,
+      color: symbolColor,
       symbolAngle: symbolsPermittedAngle[symbolType] ? (symbolsPermittedAngle[symbolType].length > 1 ? initialAngle : 0) : 0,
       left: viewportCenter.x,
       top: viewportCenter.y
@@ -364,6 +384,7 @@ export default function DrawSymbolPanel({ canvas }) {
     // Note: SymbolObject extends Group (via BaseGroup)
     const symbol = new SymbolObject({
       symbolType: symbolType,
+      symbolData,
       ...options
     });
 
@@ -429,6 +450,12 @@ export default function DrawSymbolPanel({ canvas }) {
       </div>
 
       <div className="symbol-grid">
+        <button type="button" className="panel-action-button custom-symbol-button" onClick={() => {
+          setCustomSymbolInitialName(getUniqueCustomSymbolName('CustomSymbol'));
+          setCustomSymbolOpen(true);
+        }}>
+          + Create custom symbol
+        </button>
         {Object.keys(symbolsTemplate).map((symbolType) => {
           if (symbolType === 'Lozenge') return null;
           return (
@@ -464,6 +491,16 @@ export default function DrawSymbolPanel({ canvas }) {
           modalHoverRef.current = false;
           scheduleCloseHint();
         }}
+      />
+      <CustomSymbolModal
+        isOpen={customSymbolOpen}
+        initialName={customSymbolInitialName}
+        existingNames={[
+          ...Object.keys(symbolsTemplate),
+          ...(CanvasGlobals.canvasObject || []).map(object => object?.symbolType).filter(Boolean)
+        ]}
+        onClose={() => setCustomSymbolOpen(false)}
+        onCreate={(symbolData, symbolName, symbolColor) => handleAddSymbol(symbolName, symbolData, symbolColor)}
       />
     </div>
   );

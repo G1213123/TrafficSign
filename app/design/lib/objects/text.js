@@ -7,7 +7,7 @@ import { drawDivider } from './divider.js';
 import { textWidthMedium, textWidthHeavy, } from '../templates/textTemplate.js';
 import { getFontPath, parsedFontMedium, parsedFontHeavy, parsedFontChinese, parsedFontHK, parsedFontKorean, parsedFontChocolate, parsedFontKai, parsedFontSans, ensureOpenTypePatched } from './path.js';
 import { GeneralSettings } from '../utils/settings.js';
-import { FontPriorityManager } from '../modal/md-font.js';
+import { FontPriorityManager } from '../../components/modal/md-font.js';
 import { Text, Group, Path, util, Rect } from 'fabric';
 
 

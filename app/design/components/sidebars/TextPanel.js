@@ -7,7 +7,7 @@ import { GeneralSettings } from '../../lib/utils/settings.js';
 import { TextObject } from '../../lib/objects/text.js';
 import { DividerObject } from '../../lib/objects/divider.js';
 import { anchorShape } from '../../lib/objects/anchor.js';
-import { FontPriorityManager } from '../../lib/modal/md-font.js';
+import { FontPriorityManager } from '../modal/md-font.js';
 import { EngDestinations, ChtDestinations } from '../../lib/templates/destinationTemplate.js';
 import { SymbolObject } from '../../lib/objects/symbols.js';
 import { CanvasGlobals } from '../canvas/canvas.js';

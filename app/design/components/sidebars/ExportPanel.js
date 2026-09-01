@@ -7,7 +7,7 @@ import { useI18n } from '../../lib/i18n/I18nProvider.js';
 import { CanvasGlobals } from '../canvas/canvas.js';
 import { exportCanvasToJSON, importCanvasFromJSON } from '../../lib/utils/settings.js';
 import { exportToPDF, exportToDXF } from '../../lib/exportUtils/index.js';
-import { ImportManager } from '../../lib/modal/md-import.js';
+import { ImportManager } from '../modal/md-import.js';
 import { showToast } from '../../components/presentations/ToastBox.js';
 import { GeneralSettings } from '../../lib/utils/settings.js';
 import SidebarToggleGroup from '../shared/SidebarToggleGroup.js';
