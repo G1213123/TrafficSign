@@ -986,7 +986,7 @@
   height: min(820px, 92vh);
   max-height: 92vh;
   max-width: min(1200px, 92vw) !important;
-  overflow: hidden;
+  overflow-y: scroll; ;
   padding: 20px;
   color: #eee;
   background: #24282c;
@@ -1059,6 +1059,30 @@
   flex: 0 1 110px;
 }
 
+.custom-symbol-arc-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.custom-symbol-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #c4cdd1;
+  font-size: 13px;
+}
+
+.custom-symbol-arc-inputs {
+  display: flex;
+  gap: 8px;
+}
+
+.custom-symbol-arc-inputs .custom-symbol-coordinate {
+  flex: 1 1 0;
+}
+
 .custom-symbol-coordinates {
   display: flex;
   align-items: end;
@@ -1116,4 +1140,8 @@
   margin: 6px 0 0;
   color: #ff8585;
   font-size: 12px;
+}
+
+.custom-symbol-control-hidden {
+  display: none !important;
 }

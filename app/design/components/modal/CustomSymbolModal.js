@@ -24,6 +24,55 @@ function getCircleThroughPoints(first, middle, last) {
   return { center, radius: Math.hypot(first.x - center.x, first.y - center.y) };
 }
 
+function getCircleWithRadius(first, last, radius, tangentStart, tangent) {
+  const chordX = last.x - first.x;
+  const chordY = last.y - first.y;
+  const chordLength = Math.hypot(chordX, chordY);
+  if (!Number.isFinite(radius) || radius <= 0 || chordLength === 0 || chordLength > radius * 2) return null;
+
+  const midpoint = { x: (first.x + last.x) / 2, y: (first.y + last.y) / 2 };
+  const offset = Math.sqrt(Math.max(0, radius * radius - (chordLength / 2) ** 2));
+  const normal = { x: -chordY / chordLength, y: chordX / chordLength };
+  const candidates = [
+    { x: midpoint.x + normal.x * offset, y: midpoint.y + normal.y * offset },
+    { x: midpoint.x - normal.x * offset, y: midpoint.y - normal.y * offset }
+  ];
+
+  if (tangent && tangentStart) {
+    const direction = { x: first.x - tangentStart.x, y: first.y - tangentStart.y };
+    const center = candidates.sort((left, right) => {
+      const leftSide = direction.x * (left.y - first.y) - direction.y * (left.x - first.x);
+      const rightSide = direction.x * (right.y - first.y) - direction.y * (right.x - first.x);
+      return Math.abs(rightSide) - Math.abs(leftSide);
+    })[0];
+    return { center, radius };
+  }
+  return { center: candidates[0], radius };
+}
+
+function getArcDefinitionFromCircle(first, last, circle, tangentStart, tangent) {
+  const startAngle = Math.atan2(first.y - circle.center.y, first.x - circle.center.x);
+  const endAngle = Math.atan2(last.y - circle.center.y, last.x - circle.center.x);
+  const fullTurn = Math.PI * 2;
+  const tangentVector = tangentStart
+    ? { x: first.x - tangentStart.x, y: first.y - tangentStart.y }
+    : null;
+  const radiusVector = { x: first.x - circle.center.x, y: first.y - circle.center.y };
+  const clockwiseTangent = { x: radiusVector.y, y: -radiusVector.x };
+  const counterClockwiseTangent = { x: -radiusVector.y, y: radiusVector.x };
+  const clockwise = tangent && tangentVector
+    ? (clockwiseTangent.x * tangentVector.x + clockwiseTangent.y * tangentVector.y) > (counterClockwiseTangent.x * tangentVector.x + counterClockwiseTangent.y * tangentVector.y)
+    : false;
+  const delta = clockwise ? startAngle - endAngle : endAngle - startAngle;
+  const angle = delta < 0 ? delta + fullTurn : delta;
+  const largeArc = tangent ? angle > Math.PI : angle > Math.PI;
+  return {
+    direction: clockwise ? 0 : 1,
+    sweep: largeArc ? 1 : 0,
+    path: `M ${first.x} ${first.y} A ${circle.radius} ${circle.radius} 0 ${largeArc ? 1 : 0} ${clockwise ? 0 : 1} ${last.x} ${last.y}`
+  };
+}
+
 function getArcDefinition(first, middle, last, circle) {
   const cross = (middle.x - first.x) * (last.y - middle.y) - (middle.y - first.y) * (last.x - middle.x);
   const direction = cross < 0 ? 0 : 1;
@@ -102,6 +151,12 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
   const [pointerValues, setPointerValues] = useState({ x: '0', y: '0', length: '0', angle: '0' });
   const [coordinateMode, setCoordinateMode] = useState('cartesian');
   const coordinateModeRef = useRef('cartesian');
+  const [arcMode, setArcMode] = useState('two-points');
+  const arcModeRef = useRef('two-points');
+  const [tangentToLast, setTangentToLast] = useState(false);
+  const tangentToLastRef = useRef(false);
+  const [arcInputs, setArcInputs] = useState({ radius: '50', length: '', angle: '' });
+  const arcInputsRef = useRef({ radius: '50', length: '', angle: '' });
 
   useEffect(() => {
     if (!isOpen || !canvasElementRef.current) return undefined;
@@ -140,6 +195,10 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     setPointerValues(initialPointerValues);
     coordinateModeRef.current = 'cartesian';
     setCoordinateMode('cartesian');
+    arcModeRef.current = 'two-points';
+    setArcMode('two-points');
+    tangentToLastRef.current = false;
+    setTangentToLast(false);
 
     const clearActivePoints = () => {
       fabricCanvas.getObjects().filter(object => object.isEditorGuide).forEach(object => fabricCanvas.remove(object));
@@ -237,6 +296,42 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       fabricCanvas.requestRenderAll();
     };
     addNextVertexRef.current = addNextVertex;
+    const getRadiusArcCandidate = (first, last) => {
+      const previous = shapeRef.current.vertex.at(-2);
+      const radius = Number(arcInputsRef.current.radius);
+      const arcAngle = Number(arcInputsRef.current.angle);
+      const arcLength = Number(arcInputsRef.current.length);
+      const hasArcAngle = Number.isFinite(arcAngle) && arcAngle !== 0;
+      const hasArcLength = Number.isFinite(arcLength) && arcLength !== 0 && radius > 0;
+      const arcExtent = hasArcAngle ? Math.abs(arcAngle) : (hasArcLength ? Math.abs(arcLength / radius * 180 / Math.PI) : 0);
+      const pointerSide = previous && last
+        ? (first.x - previous.x) * (last.y - first.y) - (first.y - previous.y) * (last.x - first.x)
+        : 1;
+      const side = pointerSide < 0 ? -1 : 1;
+      const signedAngle = arcExtent * side;
+      const tangentArc = tangentToLastRef.current && previous
+        ? getTangentArc(first, previous, radius, last, signedAngle)
+        : null;
+      const endpoint = tangentArc?.endpoint || last;
+      const circle = tangentArc || getCircleWithRadius(first, endpoint, radius, previous, false);
+      if (!circle) return null;
+      const definition = getArcDefinitionFromCircle(first, endpoint, circle, previous, !!tangentArc);
+      return { endpoint, circle, definition };
+    };
+    const showRadiusArcPreview = point => {
+      if (arcModeRef.current !== 'radius-point' || closedRef.current) return;
+      const vertices = shapeRef.current.vertex;
+      const first = vertices.at(-1) || activePointsRef.current[0];
+      if (!first) return;
+      const candidate = getRadiusArcCandidate(first, point);
+      if (guidanceLineRef.current) fabricCanvas.remove(guidanceLineRef.current);
+      if (!candidate) return;
+      guidanceLineRef.current = new Path(candidate.definition.path, {
+        stroke: '#91a8b0', fill: '', strokeWidth: 1, strokeDashArray: [6, 6], selectable: false, evented: false, isEditorGuide: true
+      });
+      fabricCanvas.add(guidanceLineRef.current);
+      fabricCanvas.requestRenderAll();
+    };
     const handleMouseDown = event => {
       if (event.e.button === 1 || event.e.altKey) {
         isPanningRef.current = true;
@@ -245,9 +340,12 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       }
       if (closedRef.current) return;
       const point = fabricCanvas.getScenePoint(event.e);
-      if (toolRef.current === 'arc' && shapeRef.current.vertex.length > 0 && activePointsRef.current.length === 0) {
+      if (toolRef.current === 'arc' && arcModeRef.current === 'two-points' && shapeRef.current.vertex.length > 0 && activePointsRef.current.length === 0) {
         const previous = shapeRef.current.vertex.at(-1);
         activePointsRef.current.push(previous);
+      }
+      if (toolRef.current === 'arc' && arcModeRef.current === 'radius-point' && shapeRef.current.vertex.length > 0 && activePointsRef.current.length === 0) {
+        activePointsRef.current.push(shapeRef.current.vertex.at(-1));
       }
       activePointsRef.current.push(point);
       fabricCanvas.add(new Circle({ left: point.x, top: point.y, radius: 4, fill: '#55d6be', selectable: false, evented: false, isEditorGuide: true,  }));
@@ -279,25 +377,37 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
         clearActivePoints();
       }
 
-      if (toolRef.current === 'arc' && activePointsRef.current.length === 3) {
-        const [first, middle, last] = activePointsRef.current;
-        const circle = getCircleThroughPoints(first, middle, last);
+      const arcPointCount = arcModeRef.current === 'two-points' ? 3 : (shapeRef.current.vertex.length > 0 ? 2 : 2);
+      if (toolRef.current === 'arc' && activePointsRef.current.length === arcPointCount) {
+        const [first, middle, selectedLast] = activePointsRef.current;
+        const last = arcModeRef.current === 'two-points' ? selectedLast : middle;
+        const radiusCandidate = arcModeRef.current === 'radius-point' ? getRadiusArcCandidate(first, last) : null;
+        if (arcModeRef.current === 'radius-point' && !radiusCandidate) {
+          clearActivePoints();
+          return;
+        }
+        const arcLast = radiusCandidate?.endpoint || last;
+        const circle = arcModeRef.current === 'two-points'
+          ? getCircleThroughPoints(first, middle, last)
+          : radiusCandidate?.circle;
         if (circle) {
           const previous = shapeRef.current.vertex.at(-1);
           const arcStart = previous || first;
-          const arcDefinition = getArcDefinition(first, middle, last, circle);
+          const arcDefinition = arcModeRef.current === 'two-points'
+            ? getArcDefinition(first, middle, last, circle)
+            : radiusCandidate.definition;
           const markers = [
             ...(!previous ? addVertexMarker(first, 'V1') : []),
-            ...addVertexMarker(middle)
+            ...(arcModeRef.current === 'two-points' ? addVertexMarker(middle) : [])
           ];
           if (!previous) shapeRef.current.vertex.push(first);
-          shapeRef.current.vertex.push(last);
-          shapeRef.current.arcs.push({ startPoint: arcStart, endPoint: last, radius: circle.radius, direction: arcDefinition.direction, sweep: arcDefinition.sweep });
+          shapeRef.current.vertex.push(arcLast);
+          shapeRef.current.arcs.push({ startPoint: arcStart, endPoint: arcLast, radius: circle.radius, direction: arcDefinition.direction, sweep: arcDefinition.sweep });
           setVertexCount(shapeRef.current.vertex.length);
-          markers.push(...addVertexMarker(last, `V${shapeRef.current.vertex.length}`));
+          markers.push(...addVertexMarker(arcLast, `V${shapeRef.current.vertex.length}`));
           const preview = new Path(arcDefinition.path, { stroke: '#f5f0df', fill: '', strokeWidth: 3, selectable: false, evented: false });
           fabricCanvas.add(preview);
-          segmentHistoryRef.current.push({ vertex: last, arc: shapeRef.current.arcs.at(-1), preview, markers });
+          segmentHistoryRef.current.push({ vertex: arcLast, arc: shapeRef.current.arcs.at(-1), preview, markers });
           setSegmentCount(segmentHistoryRef.current.length);
         }
         clearActivePoints();
@@ -316,7 +426,9 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
 
       updatePointerValues(fabricCanvas.getScenePoint(event.e));
 
-      if (!closedRef.current && shapeRef.current.vertex.length > 0 && activePointsRef.current.length === 0) {
+      if (!closedRef.current && arcModeRef.current === 'radius-point' && toolRef.current === 'arc') {
+        showRadiusArcPreview(fabricCanvas.getScenePoint(event.e));
+      } else if (!closedRef.current && shapeRef.current.vertex.length > 0 && activePointsRef.current.length === 0) {
         const lastVertex = shapeRef.current.vertex.at(-1);
         const pointer = fabricCanvas.getScenePoint(event.e);
         if (guidanceLineRef.current) fabricCanvas.remove(guidanceLineRef.current);
@@ -420,6 +532,23 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     }
   };
 
+  const updateArcInput = (key, value) => {
+    const nextInputs = { ...arcInputsRef.current, [key]: value };
+    arcInputsRef.current = nextInputs;
+    setArcInputs(nextInputs);
+  };
+
+  const selectArcMode = event => {
+    const nextMode = event.target.value;
+    arcModeRef.current = nextMode;
+    setArcMode(nextMode);
+  };
+
+  const toggleTangent = event => {
+    tangentToLastRef.current = event.target.checked;
+    setTangentToLast(event.target.checked);
+  };
+
   return createPortal(
     (
     <div className="custom-symbol-modal" role="dialog" aria-modal="true" aria-labelledby="custom-symbol-title" onMouseDown={event => { if (event.target === event.currentTarget) onClose(); }}>
@@ -437,11 +566,36 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
           <button type="button" className={`toggle-button ${tool === 'line' ? 'active' : ''}`} onClick={() => selectTool('line')}>Line</button>
           <button type="button" className={`toggle-button ${tool === 'arc' ? 'active' : ''}`} onClick={() => selectTool('arc')}>Arc</button>
         </div>
+        <div className={`custom-symbol-arc-settings ${tool !== 'arc' ? 'custom-symbol-control-hidden' : ''}`} aria-hidden={tool !== 'arc'}>
+            <label className="input-label" htmlFor="custom-symbol-arc-mode">Arc construction</label>
+            <select id="custom-symbol-arc-mode" className="input-field" value={arcMode} onChange={selectArcMode}>
+              <option value="two-points">2 points</option>
+              <option value="radius-point">Radius and point</option>
+            </select>
+            <label className="custom-symbol-check">
+              <input type="checkbox" checked={tangentToLast} onChange={toggleTangent} />
+              Tangent to last line/curve
+            </label>
+            {arcMode === 'radius-point' && (
+              <div className="custom-symbol-arc-inputs">
+                {[
+                  ['radius', 'Radius'],
+                  ['length', 'Arc length'],
+                  ['angle', 'Arc angle']
+                ].map(([key, label]) => (
+                  <label key={key} className="custom-symbol-coordinate">
+                    <span>{label}</span>
+                    <input className="input-field" type="number" step="0.1" value={arcInputs[key]} onChange={event => updateArcInput(key, event.target.value)} />
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
         <div className="custom-symbol-toolbar">
           <span>{tool === 'line' ? 'Click points in sequence' : 'Click the arc middle, then its end point'}</span>
           <span>{pointCount} pending points</span>
         </div>
-        <div className="custom-symbol-coordinates" role="group" aria-label="Next vertex coordinates">
+        <div className={`custom-symbol-coordinates ${tool !== 'line' ? 'custom-symbol-control-hidden' : ''}`} role="group" aria-label="Next vertex coordinates" aria-hidden={tool !== 'line'}>
           {[
             ['x', 'X'],
             ['y', 'Y'],
@@ -483,4 +637,27 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     ),
     document.body
   );
+}
+
+function getTangentArc(first, tangentStart, radius, endpoint, angleDegrees) {
+  if (!tangentStart || !Number.isFinite(radius) || radius <= 0) return null;
+  const tangentLength = Math.hypot(first.x - tangentStart.x, first.y - tangentStart.y) || 1;
+  const tangentVector = { x: (first.x - tangentStart.x) / tangentLength, y: (first.y - tangentStart.y) / tangentLength };
+  const inputAngle = Number.isFinite(angleDegrees) ? angleDegrees * Math.PI / 180 : 0;
+  const pointerSide = endpoint
+    ? tangentVector.x * (endpoint.y - first.y) - tangentVector.y * (endpoint.x - first.x)
+    : 1;
+  const side = inputAngle !== 0 ? (inputAngle < 0 ? -1 : 1) : (pointerSide < 0 ? -1 : 1);
+  const normal = { x: -tangentVector.y, y: tangentVector.x };
+  const center = { x: first.x + normal.x * radius * side, y: first.y + normal.y * radius * side };
+  const startAngle = Math.atan2(first.y - center.y, first.x - center.x);
+  const signedAngle = inputAngle !== 0
+    ? inputAngle
+    : Math.atan2(endpoint.y - center.y, endpoint.x - center.x) - startAngle;
+  const endAngle = startAngle + signedAngle;
+  return {
+    center,
+    radius,
+    endpoint: { x: center.x + radius * Math.cos(endAngle), y: center.y + radius * Math.sin(endAngle) }
+  };
 }
