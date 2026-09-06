@@ -88,6 +88,7 @@ function handleNumericInputChange(e, prop, targetObject) {
   let valueChanged = false;
   let numValue;
   let oldValue; // Track old value for undo
+  let requestedGeometryPosition;
 
   const isBorder = targetObject.functionalType === 'Border';
   if (prop.key === 'xHeight') {
@@ -125,10 +126,24 @@ function handleNumericInputChange(e, prop, targetObject) {
     } else if (prop.key === 'top' && targetObject.lockMovementY && !targetObject.hasOwnProperty('fixedHeight')) {
       // Do not change value if movement is locked
     }
-    else if (!isNaN(numValue) && targetObject[prop.key] !== numValue) {
-      oldValue = targetObject[prop.key]; // Store old value
-      targetObject.set(prop.key, numValue);
-      valueChanged = true;
+    else if (!isNaN(numValue)) {
+      if (prop.key === 'left' || prop.key === 'top') {
+        const bounds = getBounds(targetObject);
+        const currentValue = prop.key === 'left' ? bounds.left : bounds.top;
+        if (currentValue !== numValue) {
+          oldValue = currentValue;
+          requestedGeometryPosition = {
+            left: prop.key === 'left' ? numValue : bounds.left,
+            top: prop.key === 'top' ? numValue : bounds.top,
+          };
+          setGeometryPosition(targetObject, requestedGeometryPosition);
+          valueChanged = true;
+        }
+      } else if (targetObject[prop.key] !== numValue) {
+        oldValue = targetObject[prop.key]; // Store old value
+        targetObject.set(prop.key, numValue);
+        valueChanged = true;
+      }
     }
   }
 
@@ -158,6 +173,9 @@ function handleNumericInputChange(e, prop, targetObject) {
         targetObject.updateAllCoord();
         if (targetObject.functionalType === 'Border') {
           targetObject.processResize();
+        }
+        if (requestedGeometryPosition) {
+          setGeometryPosition(targetObject, requestedGeometryPosition);
         }
       } catch (initError) {
         console.error(`Error calling ${targetObject.type}.initialize() for ${prop.key} change:`, initError);
@@ -360,11 +378,20 @@ function handleSelectInputChange(e, prop, targetObject) {
 
 // Helpers for bounds and common/basic comparisons
 const getBounds = (obj) => {
-  const left = obj.left || 0;
-  const top = obj.top || 0;
-  const w = Math.round((obj.width || 0) * (obj.scaleX || 1));
-  const h = Math.round((obj.height || 0) * (obj.scaleY || 1));
+  const bounds = typeof obj.getBoundingRect === 'function' ? obj.getBoundingRect() : null;
+  const left = bounds?.left ?? obj.left ?? 0;
+  const top = bounds?.top ?? obj.top ?? 0;
+  const w = bounds?.width ?? ((obj.width || 0) * (obj.scaleX || 1));
+  const h = bounds?.height ?? ((obj.height || 0) * (obj.scaleY || 1));
   return { left, top, right: left + w, bottom: top + h, width: w, height: h };
+};
+const setGeometryPosition = (obj, position) => {
+  const bounds = getBounds(obj);
+  obj.set({
+    left: (obj.left ?? 0) + position.left - bounds.left,
+    top: (obj.top ?? 0) + position.top - bounds.top,
+  });
+  obj.setCoords?.();
 };
 const normColor = (val, isBorderRel) => {
   if (!val) return val;
@@ -444,7 +471,7 @@ function buildPropertyModel(object) {
       type: 'number',
       editable: (hasEditableFixedWidth && !obj.lockMovementX) || (!isNonMovable && !obj.lockMovementX),
       step: 1,
-      value: obj.left
+      value: getBounds(obj).left
     });
     geometryProps.push({
       label: 'Top (geom)',
@@ -452,16 +479,17 @@ function buildPropertyModel(object) {
       type: 'number',
       editable: (hasEditableFixedHeight && !obj.lockMovementY) || (!isNonMovable && !obj.lockMovementY),
       step: 1,
-      value: obj.top
+      value: getBounds(obj).top
     });
-    geometryProps.push({ label: 'Right (geom)', value: Math.round(obj.left + (obj.width * (obj.scaleX || 1))) });
-    geometryProps.push({ label: 'Bottom (geom)', value: Math.round(obj.top + (obj.height * (obj.scaleY || 1))) });
+    const bounds = getBounds(obj);
+    geometryProps.push({ label: 'Right (geom)', value: Math.round(bounds.right) });
+    geometryProps.push({ label: 'Bottom (geom)', value: Math.round(bounds.bottom) });
     geometryProps.push(hasEditableFixedWidth
       ? { label: 'Width (geom)', key: 'fixedWidth', type: 'number', editable: true, step: 1, value: obj.fixedWidth }
-      : { label: 'Width (geom)', value: Math.round((obj.width || 0) * (obj.scaleX || 1)) });
+      : { label: 'Width (geom)', value: Math.round(bounds.width) });
     geometryProps.push(hasEditableFixedHeight
       ? { label: 'Height (geom)', key: 'fixedHeight', type: 'number', editable: true, step: 1, value: obj.fixedHeight }
-      : { label: 'Height (geom)', value: Math.round((obj.height || 0) * (obj.scaleY || 1)) });
+      : { label: 'Height (geom)', value: Math.round(bounds.height) });
 
     const isBorderRelatedType = obj.functionalType === 'Border' ||
       obj.functionalType === 'HDivider' ||

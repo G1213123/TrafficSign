@@ -521,13 +521,17 @@ export default function TextPanel({ canvas }) {
                 onColorChange={setColor}
             />
 
-                <SidebarToggleGroup
-                    label={t('Font')}
-                    options={fontOptions}
+            <SidebarToggleGroup
+                label={t('Font')}
+                options={fontOptions}
                 value={fontOptions.some((option) => option.value === font) ? font : 'TransportMedium'}
                 onChange={setFont}
-                    hintPath="text/TextFont"
+                hintPath="text/TextFont"
             />
+
+            <button className="panel-button" onClick={() => FontPriorityManager.showModal()}>
+                {t('Open Font Settings')}
+            </button>
 
             <div>
                 <h2 className="tab-title">{t('Destination Settings')}</h2>
@@ -609,10 +613,6 @@ export default function TextPanel({ canvas }) {
 
                 <button className="panel-action-button" onClick={handleSubmit}>
                     {activeTextObject && language !== '2Liner' ? t('Update Text') : t('Add Text')}
-                </button>
-
-                <button className="toggle-button" onClick={() => FontPriorityManager.showModal()}>
-                    {t('Open Font Settings')}
                 </button>
 
                 <div className="input-group">
