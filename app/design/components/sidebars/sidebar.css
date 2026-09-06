@@ -79,6 +79,10 @@
   border-bottom: 1px solid #555;
 }
 
+.tab-title:not(:first-of-type) {
+  margin-top: 16px;
+}
+
 .input-group {
   display: flex;
   flex-direction: column;
