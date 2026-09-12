@@ -450,14 +450,14 @@ export default function DrawSymbolPanel({ canvas }) {
       </div>
 
       <div className="symbol-grid">
-        {/*
+        {
         <button type="button" className="panel-button custom-symbol-button" onClick={() => {
           setCustomSymbolInitialName(getUniqueCustomSymbolName('CustomSymbol'));
           setCustomSymbolOpen(true);
         }}>
           + Create custom symbol
         </button>
-        */}
+        }
 
         {Object.keys(symbolsTemplate).map((symbolType) => {
           if (symbolType === 'Lozenge') return null;
