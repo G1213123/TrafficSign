@@ -51,6 +51,14 @@ function getCircleWithRadius(first, last, radius, tangentStart, tangent) {
   return { center: candidates[0], radius };
 }
 
+function getArcTravel(first, last, center, clockwise) {
+  const startAngle = Math.atan2(first.y - center.y, first.x - center.x);
+  const endAngle = Math.atan2(last.y - center.y, last.x - center.x);
+  const fullTurn = Math.PI * 2;
+  const delta = clockwise ? startAngle - endAngle : endAngle - startAngle;
+  return delta < 0 ? delta + fullTurn : delta;
+}
+
 function getArcDefinitionFromCircle(first, last, circle, tangentVector, tangent, clockwiseHint = false) {
   const startAngle = Math.atan2(first.y - circle.center.y, first.x - circle.center.x);
   const endAngle = Math.atan2(last.y - circle.center.y, last.x - circle.center.x);
@@ -119,6 +127,35 @@ function normalizeShapes(shapes) {
   };
 }
 
+function getEditorListData(completedShapes, activeShape) {
+  const shapes = [...completedShapes, ...(activeShape.vertex.length ? [activeShape] : [])];
+  const vertices = shapes.flatMap(shape => shape.vertex).map((vertex, index) => ({ ...vertex, label: `V${index + 1}` }));
+  const segments = [];
+  let vertexOffset = 0;
+  shapes.forEach((shape, shapeIndex) => {
+    shape.vertex.slice(0, -1).forEach((startVertex, index) => {
+      const endVertex = shape.vertex[index + 1];
+      segments.push({
+        key: `S${shapeIndex}-${index}`,
+        startLabel: vertices[vertexOffset + index].label,
+        endLabel: vertices[vertexOffset + index + 1].label,
+        arc: shape.arcs.find(candidate => candidate.endPoint === endVertex)
+      });
+    });
+    if (completedShapes.includes(shape) && shape.vertex.length > 2) {
+      const lastIndex = shape.vertex.length - 1;
+      segments.push({
+        key: `S${shapeIndex}-close`,
+        startLabel: vertices[vertexOffset + lastIndex].label,
+        endLabel: vertices[vertexOffset].label,
+        arc: shape.arcs.find(candidate => candidate.endPoint === shape.vertex[0])
+      });
+    }
+    vertexOffset += shape.vertex.length;
+  });
+  return { vertices, segments };
+}
+
 export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialName = 'CustomSymbol', existingNames = [] }) {
   const canvasElementRef = useRef(null);
   const dialogElementRef = useRef(null);
@@ -155,12 +192,21 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
   const arcModeRef = useRef('radius-point');
   const [tangentToLast, setTangentToLast] = useState(false);
   const tangentToLastRef = useRef(false);
+  const [arcDirection, setArcDirection] = useState('auto');
+  const arcDirectionRef = useRef('auto');
+  const [arcSize, setArcSize] = useState('small');
+  const arcSizeRef = useRef('small');
   const [arcInputs, setArcInputs] = useState({ radius: '2', length: '', angle: '' });
   const arcInputsRef = useRef({ radius: '2', length: '', angle: '' });
-  const snapEnabledRef = useRef(false);
+  const snapEnabledRef = useRef(true);
   const snapHintRef = useRef(null);
-  const [snapEnabled, setSnapEnabled] = useState(false);
+  const updateVertexRef = useRef(null);
+  const updateSegmentRef = useRef(null);
+  const [snapEnabled, setSnapEnabled] = useState(true);
   const [vertexCoordinates, setVertexCoordinates] = useState([]);
+  const [selectedVertexLabel, setSelectedVertexLabel] = useState(null);
+  const [segmentEntries, setSegmentEntries] = useState([]);
+  const [selectedSegmentKey, setSelectedSegmentKey] = useState(null);
 
   useEffect(() => {
     if (!isOpen || !canvasElementRef.current) return undefined;
@@ -174,7 +220,10 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     fabricCanvasRef.current = fabricCanvas;
     fabricCanvas.setZoom(INITIAL_ZOOM);
     const resizeCanvas = () => {
-      const availableWidth = Math.max(320, Math.min(EDITOR_WIDTH, (dialogElementRef.current?.clientWidth || EDITOR_WIDTH) - 40));
+      const canvasRatio = EDITOR_WIDTH / EDITOR_HEIGHT;
+      const dialogWidth = dialogElementRef.current?.clientWidth || EDITOR_WIDTH;
+      const maxCanvasHeight = Math.max(220, Math.min(EDITOR_HEIGHT, window.innerHeight * 0.58));
+      const availableWidth = Math.max(320, Math.min(EDITOR_WIDTH, dialogWidth - 40, maxCanvasHeight * canvasRatio));
       const availableHeight = availableWidth * EDITOR_HEIGHT / EDITOR_WIDTH;
       fabricCanvas.setDimensions({ width: availableWidth, height: availableHeight });
       fabricCanvas.absolutePan({ x: -availableWidth / 2, y: -availableHeight / 2 });
@@ -198,8 +247,11 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     setVertexCount(0);
     setSegmentCount(0);
     setVertexCoordinates([]);
-    snapEnabledRef.current = false;
-    setSnapEnabled(false);
+    setSelectedVertexLabel(null);
+    setSegmentEntries([]);
+    setSelectedSegmentKey(null);
+    snapEnabledRef.current = true;
+    setSnapEnabled(true);
     setNameError('');
     fillModeRef.current = 'default';
     setFillMode('default');
@@ -214,6 +266,10 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     setArcMode('radius-point');
     tangentToLastRef.current = false;
     setTangentToLast(false);
+    arcDirectionRef.current = 'auto';
+    setArcDirection('auto');
+    arcSizeRef.current = 'small';
+    setArcSize('small');
     arcInputsRef.current = { radius: '2', length: '', angle: '' };
     setArcInputs(arcInputsRef.current);
 
@@ -341,11 +397,64 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       setPointerValues(nextValues);
     };
     const syncVertexCoordinates = () => {
-      const vertices = [
-        ...completedShapesRef.current.flatMap(shape => shape.vertex),
-        ...shapeRef.current.vertex
-      ];
-      setVertexCoordinates(vertices.map((vertex, index) => ({ ...vertex, label: `V${index + 1}` })));
+      const listData = getEditorListData(completedShapesRef.current, shapeRef.current);
+      setVertexCoordinates(listData.vertices);
+      setSegmentEntries(listData.segments);
+    };
+    const redrawShapes = () => {
+      fabricCanvas.getObjects().filter(object => !object.isEditorGrid && !object.isEditorGuide).forEach(object => fabricCanvas.remove(object));
+      const shapes = [...completedShapesRef.current, ...(shapeRef.current.vertex.length ? [shapeRef.current] : [])];
+      shapes.forEach(shape => {
+        shape.vertex.forEach((vertex, index) => {
+          addVertexMarker(vertex, `V${index + 1}`).forEach(object => { object.isEditorShape = true; });
+        });
+        shape.vertex.forEach((vertex, index) => {
+          const nextVertex = shape.vertex[index + 1];
+          if (!nextVertex) return;
+          const arc = shape.arcs.find(candidate => candidate.endPoint === nextVertex);
+          if (arc) {
+            const circle = getCircleWithRadius(vertex, nextVertex, arc.radius, null, false);
+            if (circle) {
+              arc.center = circle.center;
+              const path = `M ${vertex.x} ${vertex.y} A ${arc.radius} ${arc.radius} 0 ${arc.sweep ? 1 : 0} ${arc.direction === 0 ? 0 : 1} ${nextVertex.x} ${nextVertex.y}`;
+              fabricCanvas.add(new Path(path, { stroke: '#f5f0df', fill: '', strokeWidth: 0.06, selectable: false, evented: false, isEditorShape: true }));
+              return;
+            }
+          }
+          fabricCanvas.add(new Line([vertex.x, vertex.y, nextVertex.x, nextVertex.y], { stroke: '#f5f0df', strokeWidth: 0.06, selectable: false, evented: false, isEditorShape: true }));
+        });
+        if (completedShapesRef.current.includes(shape) && shape.vertex.length > 2) {
+          const first = shape.vertex[0];
+          const last = shape.vertex.at(-1);
+          fabricCanvas.add(new Line([last.x, last.y, first.x, first.y], { stroke: '#55d6be', strokeWidth: 0.06, selectable: false, evented: false, isEditorShape: true }));
+        }
+      });
+      fabricCanvas.requestRenderAll();
+    };
+    updateVertexRef.current = (label, key, value) => {
+      const numericValue = Number(value);
+      if (!Number.isFinite(numericValue)) return;
+      const vertexIndex = Number(label.slice(1)) - 1;
+      const vertices = [...completedShapesRef.current.flatMap(shape => shape.vertex), ...shapeRef.current.vertex];
+      const vertex = vertices[vertexIndex];
+      if (!vertex) return;
+      vertex[key] = Math.round(numericValue * 1000) / 1000;
+      syncVertexCoordinates();
+      redrawShapes();
+    };
+    updateSegmentRef.current = (segment, key, value) => {
+      if (!segment.arc) return;
+      if (key === 'radius') {
+        const radius = Number(value);
+        if (!Number.isFinite(radius) || radius <= 0) return;
+        segment.arc.radius = Math.round(radius * 1000) / 1000;
+      } else if (key === 'direction') {
+        segment.arc.direction = value === 'clockwise' ? 0 : 1;
+      } else if (key === 'size') {
+        segment.arc.sweep = value === 'large' ? 1 : 0;
+      }
+      syncVertexCoordinates();
+      redrawShapes();
     };
     const prepareShapeForFill = shape => {
       if (fillModeRef.current !== 'negative' || completedShapesRef.current.length === 0) return shape;
@@ -451,14 +560,24 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       const hasArcAngle = Number.isFinite(arcAngle) && arcAngle !== 0;
       const hasArcLength = Number.isFinite(arcLength) && arcLength !== 0 && radius > 0;
       const arcExtent = hasArcAngle ? Math.abs(arcAngle) : (hasArcLength ? Math.abs(arcLength / radius * 180 / Math.PI) : 0);
-      const requestedAngle = hasArcAngle
+      const requestedAngleValue = hasArcAngle
         ? arcAngle * Math.PI / 180
         : (hasArcLength ? arcLength / radius : 0);
+      const hasRequestedAngle = hasArcAngle || hasArcLength;
+      const requestedDirection = arcDirectionRef.current === 'clockwise' ? -1 : 1;
+      const requestedExtent = arcSizeRef.current === 'large'
+        ? Math.max(0.001, Math.PI * 2 - arcExtent * Math.PI / 180)
+        : arcExtent * Math.PI / 180;
+      const requestedAngle = hasRequestedAngle
+        ? requestedDirection * requestedExtent
+        : requestedAngleValue;
       const pointerSide = tangentDirection && last
         ? tangentDirection.x * (last.y - first.y) - tangentDirection.y * (last.x - first.x)
         : 1;
       const side = pointerSide < 0 ? -1 : 1;
-      const signedAngle = arcExtent * side;
+      const signedAngle = hasRequestedAngle
+        ? requestedAngle
+        : arcExtent * side;
       const tangentArc = tangentToLastRef.current && tangentDirection
         ? getTangentArc(first, tangentDirection, radius, last, signedAngle)
         : null;
@@ -482,9 +601,55 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
         endpoint = { x: first.x + direction.x * chordLength, y: first.y + direction.y * chordLength };
         clockwiseHint = angle < 0;
       }
-      circle = circle || getCircleWithRadius(first, endpoint, radius, null, false);
+      if (!circle) {
+        const chordX = endpoint.x - first.x;
+        const chordY = endpoint.y - first.y;
+        const chordLength = Math.hypot(chordX, chordY);
+        if (!Number.isFinite(radius) || radius <= 0 || chordLength === 0 || chordLength > radius * 2) return null;
+        const midpoint = { x: (first.x + endpoint.x) / 2, y: (first.y + endpoint.y) / 2 };
+        const offset = Math.sqrt(Math.max(0, radius * radius - (chordLength / 2) ** 2));
+        const normal = { x: -chordY / chordLength, y: chordX / chordLength };
+        const candidates = [
+          { x: midpoint.x + normal.x * offset, y: midpoint.y + normal.y * offset },
+          { x: midpoint.x - normal.x * offset, y: midpoint.y - normal.y * offset }
+        ].map(center => ({ center, radius }));
+        const direction = arcDirectionRef.current;
+        const size = arcSizeRef.current;
+        if (direction !== 'auto' || size !== 'small') {
+          const matches = candidates.filter(candidate => {
+            const clockwiseTravel = getArcTravel(first, endpoint, candidate.center, true);
+            const clockwise = direction === 'clockwise'
+              ? true
+              : direction === 'counterclockwise'
+                ? false
+                : size === 'large' ? clockwiseTravel > Math.PI : clockwiseTravel <= Math.PI;
+            const travel = getArcTravel(first, endpoint, candidate.center, clockwise);
+            return size === 'large' ? travel > Math.PI : travel <= Math.PI;
+          });
+          circle = matches[0] || candidates[0];
+          clockwiseHint = direction === 'clockwise'
+            ? true
+            : direction === 'counterclockwise'
+              ? false
+              : getArcTravel(first, endpoint, circle.center, true) > Math.PI;
+        } else {
+          circle = getCircleWithRadius(first, endpoint, radius, null, false);
+        }
+      }
       if (!circle) return null;
-      const definition = getArcDefinitionFromCircle(first, endpoint, circle, tangentDirection, !!tangentArc, clockwiseHint);
+      const explicitDirection = arcDirectionRef.current !== 'auto' && !tangentArc;
+      const directionHint = explicitDirection
+        ? arcDirectionRef.current === 'clockwise'
+        : clockwiseHint;
+      const definition = getArcDefinitionFromCircle(first, endpoint, circle, tangentDirection, !!tangentArc, directionHint);
+      if (!tangentArc && arcSizeRef.current === 'large') {
+        const clockwise = arcDirectionRef.current === 'clockwise' || (arcDirectionRef.current === 'auto' && clockwiseHint);
+        const travel = getArcTravel(first, endpoint, circle.center, clockwise);
+        if (travel <= Math.PI) {
+          definition.sweep = 1;
+          definition.path = `M ${first.x} ${first.y} A ${circle.radius} ${circle.radius} 0 1 ${clockwise ? 0 : 1} ${endpoint.x} ${endpoint.y}`;
+        }
+      }
       return { endpoint, circle, definition };
     };
     const showRadiusArcPreview = point => {
@@ -501,6 +666,41 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       fabricCanvas.add(guidanceLineRef.current);
       fabricCanvas.requestRenderAll();
     };
+    const showTwoPointArcPreview = point => {
+      if (arcModeRef.current !== 'two-points' || closedRef.current || activePointsRef.current.length < 2) return;
+      const [first, middle] = activePointsRef.current;
+      const circle = getCircleThroughPoints(first, middle, point);
+      if (guidanceLineRef.current) fabricCanvas.remove(guidanceLineRef.current);
+      if (!circle) {
+        guidanceLineRef.current = null;
+        fabricCanvas.requestRenderAll();
+        return;
+      }
+      const definition = getArcDefinition(first, middle, point, circle);
+      guidanceLineRef.current = new Path(definition.path, {
+        stroke: '#91a8b0', fill: '', strokeWidth: 0.03, strokeDashArray: [0.12, 0.12], selectable: false, evented: false, isEditorGuide: true
+      });
+      fabricCanvas.add(guidanceLineRef.current);
+      fabricCanvas.requestRenderAll();
+    };
+    const closeCurrentShape = () => {
+      const vertices = shapeRef.current.vertex;
+      if (vertices.length < 3) return false;
+      if (Math.hypot(vertices.at(-1).x - vertices[0].x, vertices.at(-1).y - vertices[0].y) >= 0.32) {
+        fabricCanvas.add(new Line([vertices.at(-1).x, vertices.at(-1).y, vertices[0].x, vertices[0].y], { stroke: '#55d6be', strokeWidth: 0.06, selectable: false, evented: false }));
+      }
+      completeActiveShape();
+      clearGuides();
+      shapeRef.current = { vertex: [], arcs: [] };
+      segmentHistoryRef.current = [];
+      closedRef.current = false;
+      setIsClosed(false);
+      setVertexCount(0);
+      setSegmentCount(0);
+      syncVertexCoordinates();
+      fabricCanvas.requestRenderAll();
+      return true;
+    };
     const handleMouseDown = event => {
       if (event.e.button === 1 || event.e.altKey) {
         isPanningRef.current = true;
@@ -515,6 +715,16 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
         setSegmentCount(0);
       }
       const point = getSnapPoint(fabricCanvas.getScenePoint(event.e));
+      const vertices = shapeRef.current.vertex;
+      const closeAfterArc = toolRef.current === 'arc'
+        && arcModeRef.current === 'radius-point'
+        && activePointsRef.current.length === 0
+        && vertices.length >= 3
+        && Math.hypot(point.x - vertices[0].x, point.y - vertices[0].y) < 0.32;
+      if (!closeAfterArc && activePointsRef.current.length === 0 && vertices.length >= 3 && Math.hypot(point.x - vertices[0].x, point.y - vertices[0].y) < 0.32) {
+        closeCurrentShape();
+        return;
+      }
       if (toolRef.current === 'arc' && arcModeRef.current === 'two-points' && shapeRef.current.vertex.length > 0 && activePointsRef.current.length === 0) {
         const previous = shapeRef.current.vertex.at(-1);
         activePointsRef.current.push(previous);
@@ -533,19 +743,6 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
           addVertexMarker(point, `V${vertices.length}`);
           setVertexCount(vertices.length);
           syncVertexCoordinates();
-        } else if (vertices.length >= 3 && Math.hypot(point.x - vertices[0].x, point.y - vertices[0].y) < 0.32) {
-          fabricCanvas.add(new Line([vertices.at(-1).x, vertices.at(-1).y, vertices[0].x, vertices[0].y], { stroke: '#55d6be', strokeWidth: 0.06, selectable: false, evented: false }));
-          completeActiveShape();
-          clearGuides();
-          shapeRef.current = { vertex: [], arcs: [] };
-          segmentHistoryRef.current = [];
-          closedRef.current = false;
-          setIsClosed(false);
-          setVertexCount(0);
-          setSegmentCount(0);
-          syncVertexCoordinates();
-          fabricCanvas.requestRenderAll();
-          return;
         } else {
           const previous = vertices.at(-1);
           vertices.push(point);
@@ -566,6 +763,18 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
         const last = arcModeRef.current === 'two-points' ? selectedLast : middle;
         const radiusCandidate = arcModeRef.current === 'radius-point' ? getRadiusArcCandidate(first, last) : null;
         if (arcModeRef.current === 'radius-point' && !radiusCandidate) {
+          const previous = shapeRef.current.vertex.at(-1);
+          if (previous && Math.hypot(last.x - previous.x, last.y - previous.y) < 0.32) {
+            shapeRef.current.vertex.push({ x: last.x, y: last.y });
+            const newVertex = shapeRef.current.vertex.at(-1);
+            const markers = addVertexMarker(newVertex, `V${shapeRef.current.vertex.length}`);
+            const preview = new Line([previous.x, previous.y, newVertex.x, newVertex.y], { stroke: '#f5f0df', strokeWidth: 0.06, selectable: false, evented: false });
+            fabricCanvas.add(preview);
+            segmentHistoryRef.current.push({ vertex: newVertex, preview, markers });
+            setVertexCount(shapeRef.current.vertex.length);
+            setSegmentCount(segmentHistoryRef.current.length);
+            syncVertexCoordinates();
+          }
           clearActivePoints();
           return;
         }
@@ -596,6 +805,10 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
         }
         clearActivePoints();
       }
+      if (closeAfterArc && activePointsRef.current.length === 0) {
+        closeCurrentShape();
+        return;
+      }
       fabricCanvas.requestRenderAll();
     };
     const handleMouseMove = event => {
@@ -614,6 +827,8 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
 
       if (!closedRef.current && arcModeRef.current === 'radius-point' && toolRef.current === 'arc') {
         showRadiusArcPreview(pointer);
+      } else if (!closedRef.current && arcModeRef.current === 'two-points' && toolRef.current === 'arc' && activePointsRef.current.length >= 2) {
+        showTwoPointArcPreview(pointer);
       } else if (!closedRef.current && shapeRef.current.vertex.length > 0 && activePointsRef.current.length === 0) {
         const lastVertex = shapeRef.current.vertex.at(-1);
         if (guidanceLineRef.current) fabricCanvas.remove(guidanceLineRef.current);
@@ -656,6 +871,8 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       fabricCanvas.dispose();
       fabricCanvasRef.current = null;
       addNextVertexRef.current = null;
+      updateVertexRef.current = null;
+      updateSegmentRef.current = null;
     };
   }, [initialName, isOpen]);
 
@@ -692,7 +909,9 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     setVertexCount(0);
     setPointCount(0);
     setSegmentCount(0);
-    setVertexCoordinates(completedShapesRef.current.flatMap(shape => shape.vertex).map((vertex, index) => ({ ...vertex, label: `V${index + 1}` })));
+    const listData = getEditorListData(completedShapesRef.current, shapeRef.current);
+    setVertexCoordinates(listData.vertices);
+    setSegmentEntries(listData.segments);
     fabricCanvasRef.current?.requestRenderAll();
   };
 
@@ -705,10 +924,9 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     fabricCanvasRef.current?.remove(segment.preview);
     segment.markers?.forEach(marker => fabricCanvasRef.current?.remove(marker));
     setVertexCount(vertices.length);
-    setVertexCoordinates([
-      ...completedShapesRef.current.flatMap(shape => shape.vertex),
-      ...vertices
-    ].map((vertex, index) => ({ ...vertex, label: `V${index + 1}` })));
+    const listData = getEditorListData(completedShapesRef.current, shapeRef.current);
+    setVertexCoordinates(listData.vertices);
+    setSegmentEntries(listData.segments);
     setSegmentCount(segmentHistoryRef.current.length);
     fabricCanvasRef.current?.requestRenderAll();
   };
@@ -762,6 +980,16 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     setTangentToLast(event.target.checked);
   };
 
+  const selectArcDirection = event => {
+    arcDirectionRef.current = event.target.value;
+    setArcDirection(event.target.value);
+  };
+
+  const selectArcSize = event => {
+    arcSizeRef.current = event.target.value;
+    setArcSize(event.target.value);
+  };
+
   const toggleSnap = event => {
     snapEnabledRef.current = event.target.checked;
     setSnapEnabled(event.target.checked);
@@ -770,6 +998,14 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       snapHintRef.current = null;
       fabricCanvasRef.current.requestRenderAll();
     }
+  };
+
+  const updateVertexCoordinate = (vertex, key, value) => {
+    updateVertexRef.current?.(vertex.label, key, value);
+  };
+
+  const updateSegmentInput = (segment, key, value) => {
+    updateSegmentRef.current?.(segment, key, value);
   };
 
   return createPortal(
@@ -831,6 +1067,21 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
                     <input className="input-field" type="number" step="0.1" value={arcInputs[key]} onChange={event => updateArcInput(key, event.target.value)} />
                   </label>
                 ))}
+                <label className="custom-symbol-coordinate">
+                  <span>Direction</span>
+                  <select className="input-field" value={arcDirection} onChange={selectArcDirection}>
+                    <option value="auto">Auto</option>
+                    <option value="clockwise">Clockwise</option>
+                    <option value="counterclockwise">Counterclockwise</option>
+                  </select>
+                </label>
+                <label className="custom-symbol-coordinate">
+                  <span>Arc size</span>
+                  <select className="input-field" value={arcSize} onChange={selectArcSize}>
+                    <option value="small">Small (&lt;= 180 deg)</option>
+                    <option value="large">Large (&gt; 180 deg)</option>
+                  </select>
+                </label>
               </div>
             )}
           </div>
@@ -872,13 +1123,44 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
           <canvas ref={canvasElementRef} className="custom-symbol-canvas" aria-label="Custom symbol drawing canvas" />
           <aside className="custom-symbol-vertex-list" aria-label="Added vertex coordinates">
             <div className="custom-symbol-vertex-heading">Vertices <span>{vertexCoordinates.length}</span></div>
-            {vertexCoordinates.length === 0 ? <span className="custom-symbol-empty-list">No vertices yet</span> : vertexCoordinates.map(vertex => (
-              <div className="custom-symbol-vertex" key={vertex.label}>
-                <strong>{vertex.label}</strong>
-                <span>X {vertex.x.toFixed(1)}</span>
-                <span>Y {vertex.y.toFixed(1)}</span>
-              </div>
-            ))}
+            {vertexCoordinates.length === 0 ? <span className="custom-symbol-empty-list">No vertices yet</span> : vertexCoordinates.map(vertex => {
+              const segment = segmentEntries.find(entry => entry.startLabel === vertex.label);
+              return (
+                <React.Fragment key={vertex.label}>
+                  <div className={`custom-symbol-vertex ${selectedVertexLabel === vertex.label ? 'active' : ''}`} key={vertex.label} role="button" tabIndex={0} onClick={() => setSelectedVertexLabel(vertex.label)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') setSelectedVertexLabel(vertex.label); }}>
+                    <strong>{vertex.label}</strong>
+                    {selectedVertexLabel === vertex.label ? (
+                      <>
+                        <label>X <input className="input-field" type="number" step="0.001" value={vertex.x.toFixed(3)} onClick={event => event.stopPropagation()} onChange={event => updateVertexCoordinate(vertex, 'x', event.target.value)} /></label>
+                        <label>Y <input className="input-field" type="number" step="0.001" value={vertex.y.toFixed(3)} onClick={event => event.stopPropagation()} onChange={event => updateVertexCoordinate(vertex, 'y', event.target.value)} /></label>
+                      </>
+                    ) : (
+                      <><span>X {vertex.x.toFixed(1)}</span><span>Y {vertex.y.toFixed(1)}</span></>
+                    )}
+                  </div>
+                  {segment && (
+                    <div className={`custom-symbol-segment ${segment.arc && selectedSegmentKey === segment.key ? 'active' : ''}`}>
+                      {segment.arc ? (
+                        <>
+                          <button type="button" className="custom-symbol-segment-label" aria-expanded={selectedSegmentKey === segment.key} onClick={() => setSelectedSegmentKey(selectedSegmentKey === segment.key ? null : segment.key)}>
+                            {segment.startLabel} to {segment.endLabel} Arc
+                          </button>
+                          {selectedSegmentKey === segment.key && (
+                            <div className="custom-symbol-segment-inputs">
+                              <label>Radius <input className="input-field" type="number" min="0.001" step="0.001" value={segment.arc.radius.toFixed(3)} onChange={event => updateSegmentInput(segment, 'radius', event.target.value)} /></label>
+                              <label>Direction <select className="input-field" value={segment.arc.direction === 0 ? 'clockwise' : 'counterclockwise'} onChange={event => updateSegmentInput(segment, 'direction', event.target.value)}><option value="clockwise">Clockwise</option><option value="counterclockwise">Counterclockwise</option></select></label>
+                              <label>Arc size <select className="input-field" value={segment.arc.sweep ? 'large' : 'small'} onChange={event => updateSegmentInput(segment, 'size', event.target.value)}><option value="small">Small</option><option value="large">Large</option></select></label>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <span>{segment.startLabel} to {segment.endLabel} Line</span>
+                      )}
+                    </div>
+                  )}
+                </React.Fragment>
+              );
+            })}
           </aside>
         </div>
         <div className="custom-symbol-actions">
