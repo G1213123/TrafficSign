@@ -156,6 +156,15 @@ function getEditorListData(completedShapes, activeShape) {
   return { vertices, segments };
 }
 
+function pointsAreNear(first, second, tolerance = 0.32) {
+  return Math.hypot(first.x - second.x, first.y - second.y) < tolerance;
+}
+
+function roundCoordinate(value, decimals = 3) {
+  const factor = 10 ** decimals;
+  return Math.round(value * factor) / factor;
+}
+
 export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialName = 'CustomSymbol', existingNames = [] }) {
   const canvasElementRef = useRef(null);
   const dialogElementRef = useRef(null);
@@ -273,16 +282,10 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     arcInputsRef.current = { radius: '2', length: '', angle: '' };
     setArcInputs(arcInputsRef.current);
 
-    const clearActivePoints = () => {
+    const clearEditorGuides = ({ clearSnapHint = false } = {}) => {
       fabricCanvas.getObjects().filter(object => object.isEditorGuide).forEach(object => fabricCanvas.remove(object));
       guidanceLineRef.current = null;
-      activePointsRef.current = [];
-      setPointCount(0);
-    };
-    const clearGuides = () => {
-      fabricCanvas.getObjects().filter(object => object.isEditorGuide).forEach(object => fabricCanvas.remove(object));
-      guidanceLineRef.current = null;
-      snapHintRef.current = null;
+      if (clearSnapHint) snapHintRef.current = null;
       activePointsRef.current = [];
       setPointCount(0);
     };
@@ -382,6 +385,23 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       fabricCanvas.add(...markers);
       return markers;
     };
+    const appendLineVertex = (point, { recordInitialHistory = false } = {}) => {
+      const vertices = shapeRef.current.vertex;
+      const previous = vertices.at(-1);
+      vertices.push(point);
+      const markers = addVertexMarker(point, `V${vertices.length}`);
+      if (previous) {
+        const preview = new Line([previous.x, previous.y, point.x, point.y], { stroke: '#f5f0df', strokeWidth: 0.06, selectable: false, evented: false });
+        fabricCanvas.add(preview);
+        segmentHistoryRef.current.push({ vertex: point, preview, markers });
+      } else if (recordInitialHistory) {
+        segmentHistoryRef.current.push({ vertex: point, markers });
+      }
+      setVertexCount(vertices.length);
+      syncVertexCoordinates();
+      setSegmentCount(segmentHistoryRef.current.length);
+      return { markers, preview: previous ? fabricCanvas.getObjects().at(-1) : null };
+    };
     const updatePointerValues = point => {
       const lastVertex = shapeRef.current.vertex.at(-1);
       const deltaX = lastVertex ? point.x - lastVertex.x : point.x;
@@ -438,7 +458,7 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       const vertices = [...completedShapesRef.current.flatMap(shape => shape.vertex), ...shapeRef.current.vertex];
       const vertex = vertices[vertexIndex];
       if (!vertex) return;
-      vertex[key] = Math.round(numericValue * 1000) / 1000;
+      vertex[key] = roundCoordinate(numericValue);
       syncVertexCoordinates();
       redrawShapes();
     };
@@ -520,20 +540,7 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       const y = coordinateModeRef.current === 'cartesian' ? enteredY : enteredLength * Math.sin(enteredAngle);
       if (![x, y].every(Number.isFinite)) return;
       const point = lastVertex ? { x: lastVertex.x + x, y: lastVertex.y + y } : { x, y };
-      if (!lastVertex) {
-        shapeRef.current.vertex.push(point);
-        const markers = addVertexMarker(point, 'V1');
-        segmentHistoryRef.current.push({ vertex: point, markers });
-      } else {
-        shapeRef.current.vertex.push(point);
-        const markers = addVertexMarker(point, `V${shapeRef.current.vertex.length}`);
-        const preview = new Line([lastVertex.x, lastVertex.y, point.x, point.y], { stroke: '#f5f0df', strokeWidth: 0.06, selectable: false, evented: false });
-        fabricCanvas.add(preview);
-        segmentHistoryRef.current.push({ vertex: point, preview, markers });
-      }
-      setVertexCount(shapeRef.current.vertex.length);
-      syncVertexCoordinates();
-      setSegmentCount(segmentHistoryRef.current.length);
+      appendLineVertex(point, { recordInitialHistory: !lastVertex });
       fabricCanvas.requestRenderAll();
     };
     addNextVertexRef.current = addNextVertex;
@@ -652,36 +659,40 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       }
       return { endpoint, circle, definition };
     };
+    const showArcPreview = path => {
+      if (guidanceLineRef.current) fabricCanvas.remove(guidanceLineRef.current);
+      guidanceLineRef.current = path
+        ? new Path(path, {
+          stroke: '#91a8b0',
+          fill: '',
+          strokeWidth: 0.03,
+          strokeDashArray: [0.12, 0.12],
+          selectable: false,
+          evented: false,
+          isEditorGuide: true
+        })
+        : null;
+      if (guidanceLineRef.current) fabricCanvas.add(guidanceLineRef.current);
+      fabricCanvas.requestRenderAll();
+    };
     const showRadiusArcPreview = point => {
       if (arcModeRef.current !== 'radius-point' || closedRef.current) return;
       const vertices = shapeRef.current.vertex;
       const first = vertices.at(-1) || activePointsRef.current[0];
       if (!first) return;
       const candidate = getRadiusArcCandidate(first, point);
-      if (guidanceLineRef.current) fabricCanvas.remove(guidanceLineRef.current);
-      if (!candidate) return;
-      guidanceLineRef.current = new Path(candidate.definition.path, {
-        stroke: '#91a8b0', fill: '', strokeWidth: 0.03, strokeDashArray: [0.12, 0.12], selectable: false, evented: false, isEditorGuide: true
-      });
-      fabricCanvas.add(guidanceLineRef.current);
-      fabricCanvas.requestRenderAll();
+      showArcPreview(candidate?.definition.path);
     };
     const showTwoPointArcPreview = point => {
       if (arcModeRef.current !== 'two-points' || closedRef.current || activePointsRef.current.length < 2) return;
       const [first, middle] = activePointsRef.current;
       const circle = getCircleThroughPoints(first, middle, point);
-      if (guidanceLineRef.current) fabricCanvas.remove(guidanceLineRef.current);
       if (!circle) {
-        guidanceLineRef.current = null;
-        fabricCanvas.requestRenderAll();
+        showArcPreview(null);
         return;
       }
       const definition = getArcDefinition(first, middle, point, circle);
-      guidanceLineRef.current = new Path(definition.path, {
-        stroke: '#91a8b0', fill: '', strokeWidth: 0.03, strokeDashArray: [0.12, 0.12], selectable: false, evented: false, isEditorGuide: true
-      });
-      fabricCanvas.add(guidanceLineRef.current);
-      fabricCanvas.requestRenderAll();
+      showArcPreview(definition.path);
     };
     const closeCurrentShape = () => {
       const vertices = shapeRef.current.vertex;
@@ -690,7 +701,7 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
         fabricCanvas.add(new Line([vertices.at(-1).x, vertices.at(-1).y, vertices[0].x, vertices[0].y], { stroke: '#55d6be', strokeWidth: 0.06, selectable: false, evented: false }));
       }
       completeActiveShape();
-      clearGuides();
+      clearEditorGuides({ clearSnapHint: true });
       shapeRef.current = { vertex: [], arcs: [] };
       segmentHistoryRef.current = [];
       closedRef.current = false;
@@ -720,8 +731,8 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
         && arcModeRef.current === 'radius-point'
         && activePointsRef.current.length === 0
         && vertices.length >= 3
-        && Math.hypot(point.x - vertices[0].x, point.y - vertices[0].y) < 0.32;
-      if (!closeAfterArc && activePointsRef.current.length === 0 && vertices.length >= 3 && Math.hypot(point.x - vertices[0].x, point.y - vertices[0].y) < 0.32) {
+        && pointsAreNear(point, vertices[0]);
+      if (!closeAfterArc && activePointsRef.current.length === 0 && vertices.length >= 3 && pointsAreNear(point, vertices[0])) {
         closeCurrentShape();
         return;
       }
@@ -739,22 +750,11 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       if (toolRef.current === 'line') {
         const vertices = shapeRef.current.vertex;
         if (vertices.length === 0) {
-          vertices.push(point);
-          addVertexMarker(point, `V${vertices.length}`);
-          setVertexCount(vertices.length);
-          syncVertexCoordinates();
+          appendLineVertex(point);
         } else {
-          const previous = vertices.at(-1);
-          vertices.push(point);
-          setVertexCount(vertices.length);
-          syncVertexCoordinates();
-          const markers = addVertexMarker(point, `V${vertices.length}`);
-          const preview = new Line([previous.x, previous.y, point.x, point.y], { stroke: '#f5f0df', strokeWidth: 0.06, selectable: false, evented: false });
-          fabricCanvas.add(preview);
-          segmentHistoryRef.current.push({ vertex: point, preview, markers });
-          setSegmentCount(segmentHistoryRef.current.length);
+          appendLineVertex(point);
         }
-        clearActivePoints();
+        clearEditorGuides();
       }
 
       const arcPointCount = arcModeRef.current === 'two-points' ? 3 : (shapeRef.current.vertex.length > 0 ? 2 : 2);
@@ -764,18 +764,10 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
         const radiusCandidate = arcModeRef.current === 'radius-point' ? getRadiusArcCandidate(first, last) : null;
         if (arcModeRef.current === 'radius-point' && !radiusCandidate) {
           const previous = shapeRef.current.vertex.at(-1);
-          if (previous && Math.hypot(last.x - previous.x, last.y - previous.y) < 0.32) {
-            shapeRef.current.vertex.push({ x: last.x, y: last.y });
-            const newVertex = shapeRef.current.vertex.at(-1);
-            const markers = addVertexMarker(newVertex, `V${shapeRef.current.vertex.length}`);
-            const preview = new Line([previous.x, previous.y, newVertex.x, newVertex.y], { stroke: '#f5f0df', strokeWidth: 0.06, selectable: false, evented: false });
-            fabricCanvas.add(preview);
-            segmentHistoryRef.current.push({ vertex: newVertex, preview, markers });
-            setVertexCount(shapeRef.current.vertex.length);
-            setSegmentCount(segmentHistoryRef.current.length);
-            syncVertexCoordinates();
+          if (previous && pointsAreNear(last, previous)) {
+            appendLineVertex({ x: last.x, y: last.y });
           }
-          clearActivePoints();
+          clearEditorGuides();
           return;
         }
         const arcLast = radiusCandidate?.endpoint || last;
@@ -803,7 +795,7 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
           segmentHistoryRef.current.push({ vertex: arcLast, arc: shapeRef.current.arcs.at(-1), preview, markers });
           setSegmentCount(segmentHistoryRef.current.length);
         }
-        clearActivePoints();
+        clearEditorGuides();
       }
       if (closeAfterArc && activePointsRef.current.length === 0) {
         closeCurrentShape();
