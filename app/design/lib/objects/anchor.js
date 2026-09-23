@@ -533,6 +533,12 @@ export function revertPivot(selectedArrow, axis, onCloseMenu = () => {}) {
   }
 }
 
+function parseAnchorSpacing(value, unit, xHeight) {
+  const numericValue = Number.parseFloat(value);
+  if (!Number.isFinite(numericValue)) return Number.NaN;
+  return unit === 'sw' ? numericValue * xHeight / 4 : numericValue;
+}
+
 // Helper function to process anchor updates for a specific axis
 function processUpdateCycle(direction, starterObj, updateOrder, delta, sourceList) {
   if (updateOrder.length === 0 || isNaN(delta)) {
@@ -618,13 +624,15 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
     isAlreadyAnchoredInY = true;
   }
 
-  const spacingX = options.spacingX != null ? options.spacingX :
-    (isAlreadyAnchoredInX ? '' : await showTextBox('Enter spacing in X \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight));
+  const spacingXResult = options.spacingX != null ? { value: options.spacingX, unit: 'mm' } :
+    (isAlreadyAnchoredInX ? { value: '', unit: 'mm' } : await showTextBox('Enter spacing in X \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight, 'sw', true));
+  const spacingX = spacingXResult.value;
   if (spacingX == null) { window.dispatchEvent(new CustomEvent('toggle-sidebar')); return Promise.reject('anchor_cancelled_spacingX'); }
 
   // Check if object is already anchored in Y axis
-  const spacingY = options.spacingY != null ? options.spacingY :
-    (isAlreadyAnchoredInY ? '' : await showTextBox('Enter spacing in Y \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight));
+  const spacingYResult = options.spacingY != null ? { value: options.spacingY, unit: 'mm' } :
+    (isAlreadyAnchoredInY ? { value: '', unit: 'mm' } : await showTextBox('Enter spacing in Y \n (Leave empty if no need for axis):', 0, 'keydown', null, xHeight, 'sw', true));
+  const spacingY = spacingYResult.value;
   if (spacingY == null) { window.dispatchEvent(new CustomEvent('toggle-sidebar')); return Promise.reject('anchor_cancelled_spacingY'); }
 
   const movingPoint = shape2.getBasePolygonVertex(vertexIndex1.toUpperCase())
@@ -658,8 +666,8 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
     spacingY: spacingY
   };
 
-  const parsedSpacingX = isNaN(parseInt(spacingX)) ? 0 : parseInt(spacingX);
-  const parsedSpacingY = isNaN(parseInt(spacingY)) ? 0 : parseInt(spacingY);
+  const parsedSpacingX = parseAnchorSpacing(spacingX, spacingXResult.unit, xHeight);
+  const parsedSpacingY = parseAnchorSpacing(spacingY, spacingYResult.unit, xHeight);
 
   const deltaX = targetPoint.x - movingPoint.x + parsedSpacingX;
   const deltaY = targetPoint.y - movingPoint.y + parsedSpacingY;
@@ -668,7 +676,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   let appliedDeltaY = false;
 
   // Add X axis anchoring
-  if (!isNaN(parseInt(spacingX)) && spacingX !== '' && !isHorizontalDivider) { // Skip X anchoring for horizontal dividers
+  if (Number.isFinite(parsedSpacingX) && spacingX !== '' && !isHorizontalDivider) { // Skip X anchoring for horizontal dividers
     if (globalAnchorTree.hasCircularDependency('x', shape2.canvasID, shape1.canvasID)) {
       alert("Cannot create anchor: would create a circular dependency in X axis");
     } else {
@@ -678,7 +686,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
         lockMovementX: true,
       });
       appliedDeltaX = true; // Mark that deltaX was applied
-      const anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1, spacing: parseInt(spacingX) }
+      const anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1, spacing: parsedSpacingX }
       shape2.lockXToPolygon = anchor
 
       // Add to the anchor tree
@@ -693,7 +701,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
   }
 
   // Add Y axis anchoring
-  if (!isNaN(parseInt(spacingY)) && spacingY !== '' && !isVerticalDivider) { // Skip Y anchoring for vertical dividers
+  if (Number.isFinite(parsedSpacingY) && spacingY !== '' && !isVerticalDivider) { // Skip Y anchoring for vertical dividers
     if (globalAnchorTree.hasCircularDependency('y', shape2.canvasID, shape1.canvasID)) {
       alert("Cannot create anchor: would create a circular dependency in Y axis");
     } else {
@@ -703,7 +711,7 @@ async function anchorShape(inputShape1, inputShape2, options = {}, sourceList = 
         lockMovementY: true,
       });
       appliedDeltaY = true; // Mark that deltaY was applied
-      const anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1, spacing: parseInt(spacingY) }
+      const anchor = { sourcePoint: vertexIndex1, targetPoint: vertexIndex2, sourceObject: shape2, TargetObject: shape1, spacing: parsedSpacingY }
       shape2.lockYToPolygon = anchor
 
       // Add to the anchor tree

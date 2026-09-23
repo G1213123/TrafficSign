@@ -11,6 +11,7 @@ export const promptBoxState = {
   text: '',
   withAnswerBox: null,
   unit: 'sw',
+  returnUnit: false,
   xHeight: null,
   position: { x: 0, y: 0 },
   resolve: null,
@@ -32,10 +33,11 @@ export const promptBoxState = {
     return this.version;
   },
   
-  show(text, withAnswerBox, unit, xHeight, resolve, reject) {
+  show(text, withAnswerBox, unit, xHeight, resolve, reject, returnUnit = false) {
     this.text = text;
     this.withAnswerBox = withAnswerBox;
     this.unit = unit;
+    this.returnUnit = returnUnit;
     this.xHeight = xHeight;
     this.resolve = resolve;
     this.reject = reject;
@@ -145,13 +147,13 @@ function emphasizePromptText(s) {
   return match ? escaped.replace(match[0], (m) => `<span class="prompt-keyword">${m.toUpperCase()}</span>`) : escaped;
 }
 
-export function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = null, xHeight = null, unit = 'sw') {
+export function showTextBox(text, withAnswerBox = null, event = 'keydown', callback = null, xHeight = null, unit = 'sw', returnUnit = false) {
   document.removeEventListener('keydown', ShowHideSideBarEvent);
   if (withAnswerBox !== null) {
     pauseTouchEvents();
   }
   return new Promise((resolve, reject) => {
-    promptBoxState.show(text, withAnswerBox, unit, xHeight, resolve, reject);
+    promptBoxState.show(text, withAnswerBox, unit, xHeight, resolve, reject, returnUnit);
   });
 }
 
@@ -296,8 +298,12 @@ export default function PromptBox() {
   }, [visible]);
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      promptBoxState.resolve(inputValue);
+    if (e.key === 'Tab' && promptBoxState.xHeight !== null) {
+      e.preventDefault();
+      promptBoxState.unit = promptBoxState.unit === 'sw' ? 'mm' : 'sw';
+      promptBoxState.notify();
+    } else if (e.key === 'Enter') {
+      promptBoxState.resolve(promptBoxState.returnUnit ? { value: inputValue, unit: promptBoxState.unit } : inputValue);
       hideTextBox();
     } else if (e.key === 'Escape') {
       promptBoxState.reject(new Error('Cancelled'));
@@ -311,7 +317,7 @@ export default function PromptBox() {
   };
 
   const handleEnterClick = () => {
-    promptBoxState.resolve(inputValue);
+    promptBoxState.resolve(promptBoxState.returnUnit ? { value: inputValue, unit: promptBoxState.unit } : inputValue);
     hideTextBox();
   };
 
