@@ -3,12 +3,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Canvas, Circle, Line, Path, Text } from 'fabric';
+import { convertVertexToPathCommands } from '../../lib/objects/path.js';
 
 const EDITOR_WIDTH = 1000;
 const EDITOR_HEIGHT = 550;
 const GRID_SIZE = 1;
 const INITIAL_ZOOM = 50;
-const MIN_ZOOM = 25;
+const MIN_ZOOM = 10;
 const MAX_ZOOM = 200;
 
 function getCircleThroughPoints(first, middle, last) {
@@ -109,6 +110,7 @@ function normalizeShapes(shapes) {
         y: point.y,
         label: `V${index + 1}`,
         start: point.start ?? (index === 0 ? 1 : 0),
+        radius: point.radius ?? 0,
         display: 1
       }));
       const normalizedShape = {
@@ -235,7 +237,7 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       const availableWidth = Math.max(320, Math.min(EDITOR_WIDTH, dialogWidth - 40, maxCanvasHeight * canvasRatio));
       const availableHeight = availableWidth * EDITOR_HEIGHT / EDITOR_WIDTH;
       fabricCanvas.setDimensions({ width: availableWidth, height: availableHeight });
-      fabricCanvas.absolutePan({ x: -availableWidth / 2, y: -availableHeight / 2 });
+      //fabricCanvas.absolutePan({ x: 0, y: 0 });
       if (fabricCanvas.wrapperEl) {
         fabricCanvas.wrapperEl.style.width = `${availableWidth}px`;
         fabricCanvas.wrapperEl.style.height = `${availableHeight}px`;
@@ -304,9 +306,11 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       const firstRow = Math.floor(sceneTop / gridStep) * gridStep;
       for (let x = firstColumn; x <= sceneRight; x += gridStep) {
         fabricCanvas.add(new Line([x, sceneTop, x, sceneBottom], { stroke: '#34434a', strokeWidth: 0.02, selectable: false, evented: false, isEditorGrid: true }));
+        fabricCanvas.add(new Text(`${roundCoordinate(x, 1)}`, { left: x + 0.15, top: Math.max(sceneTop + 0.15, 0.15), fill: '#8ea3aa', fontSize: 0.25, selectable: false, evented: false, isEditorGrid: true }));
       }
       for (let y = firstRow; y <= sceneBottom; y += gridStep) {
         fabricCanvas.add(new Line([sceneLeft, y, sceneRight, y], { stroke: '#34434a', strokeWidth: 0.02, selectable: false, evented: false, isEditorGrid: true }));
+        fabricCanvas.add(new Text(`${roundCoordinate(y, 1)}`, { left: Math.max(sceneLeft + 0.15, 0.15), top: y + 0.15, fill: '#8ea3aa', fontSize: 0.25, selectable: false, evented: false, isEditorGrid: true }));
       }
       fabricCanvas.add(new Line([0, sceneTop, 0, sceneBottom], { stroke: '#6b8b95', strokeWidth: 0.04, selectable: false, evented: false, isEditorGrid: true }));
       fabricCanvas.add(new Line([sceneLeft, 0, sceneRight, 0], { stroke: '#6b8b95', strokeWidth: 0.04, selectable: false, evented: false, isEditorGrid: true }));
@@ -428,32 +432,29 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
         shape.vertex.forEach((vertex, index) => {
           addVertexMarker(vertex, `V${index + 1}`).forEach(object => { object.isEditorShape = true; });
         });
-        shape.vertex.forEach((vertex, index) => {
-          const nextVertex = shape.vertex[index + 1];
-          if (!nextVertex) return;
-          const arc = shape.arcs.find(candidate => candidate.endPoint === nextVertex);
-          if (arc) {
-            const circle = getCircleWithRadius(vertex, nextVertex, arc.radius, null, false);
-            if (circle) {
-              arc.center = circle.center;
-              const path = `M ${vertex.x} ${vertex.y} A ${arc.radius} ${arc.radius} 0 ${arc.sweep ? 1 : 0} ${arc.direction === 0 ? 0 : 1} ${nextVertex.x} ${nextVertex.y}`;
-              fabricCanvas.add(new Path(path, { stroke: '#f5f0df', fill: '', strokeWidth: 0.06, selectable: false, evented: false, isEditorShape: true }));
-              return;
-            }
-          }
-          fabricCanvas.add(new Line([vertex.x, vertex.y, nextVertex.x, nextVertex.y], { stroke: '#f5f0df', strokeWidth: 0.06, selectable: false, evented: false, isEditorShape: true }));
-        });
-        if (completedShapesRef.current.includes(shape) && shape.vertex.length > 2) {
-          const first = shape.vertex[0];
-          const last = shape.vertex.at(-1);
-          fabricCanvas.add(new Line([last.x, last.y, first.x, first.y], { stroke: '#55d6be', strokeWidth: 0.06, selectable: false, evented: false, isEditorShape: true }));
+        const isClosedShape = completedShapesRef.current.includes(shape);
+        const vertices = shape.vertex.map((vertex, index) => ({
+          ...vertex,
+          label: `V${index + 1}`,
+          radius: !isClosedShape && (index === 0 || index === shape.vertex.length - 1) ? 0 : vertex.radius
+        }));
+        const arcs = shape.arcs.map(arc => ({
+          start: vertices[shape.vertex.indexOf(arc.startPoint)]?.label,
+          end: vertices[shape.vertex.indexOf(arc.endPoint)]?.label,
+          radius: arc.radius,
+          direction: arc.direction,
+          sweep: arc.sweep
+        })).filter(arc => arc.start && arc.end);
+        const path = convertVertexToPathCommands({ vertex: vertices, arcs }, isClosedShape);
+        if (path) {
+          fabricCanvas.add(new Path(path, { stroke: '#f5f0df', fill: '', strokeWidth: 0.06, selectable: false, evented: false, isEditorShape: true }));
         }
       });
       fabricCanvas.requestRenderAll();
     };
     updateVertexRef.current = (label, key, value) => {
       const numericValue = Number(value);
-      if (!Number.isFinite(numericValue)) return;
+      if (!Number.isFinite(numericValue) || (key === 'radius' && numericValue < 0)) return;
       const vertexIndex = Number(label.slice(1)) - 1;
       const vertices = [...completedShapesRef.current.flatMap(shape => shape.vertex), ...shapeRef.current.vertex];
       const vertex = vertices[vertexIndex];
@@ -842,7 +843,11 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     };
     const handleWheel = event => {
       event.preventDefault();
-      const pointer = fabricCanvas.getScenePoint(event);
+      const canvasBounds = fabricCanvas.upperCanvasEl.getBoundingClientRect();
+      const pointer = {
+        x: event.clientX - canvasBounds.left,
+        y: event.clientY - canvasBounds.top
+      };
       const currentZoom = fabricCanvas.getZoom();
       const nextZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, currentZoom * (event.deltaY > 0 ? 0.9 : 1.1)));
       fabricCanvas.zoomToPoint(pointer, nextZoom);
@@ -1011,15 +1016,15 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
         <label className="input-label" htmlFor="custom-symbol-name">Name</label>
         <input id="custom-symbol-name" className={`input-field ${nameError ? 'input-field-error' : ''}`} value={name} onChange={event => { setName(event.target.value); setNameError(''); }} aria-invalid={!!nameError} aria-describedby={nameError ? 'custom-symbol-name-error' : undefined} />
         {nameError && <p id="custom-symbol-name-error" className="custom-symbol-error">{nameError}</p>}
-        <div className="custom-symbol-color" role="group" aria-label="Symbol color">
-        </div>
-        <div className="custom-symbol-toolbar custom-symbol-tool-row">
-          <button type="button" className={`toggle-button ${tool === 'line' ? 'active' : ''}`} onClick={() => selectTool('line')}>Line</button>
-          <button type="button" className={`toggle-button ${tool === 'arc' ? 'active' : ''}`} onClick={() => selectTool('arc')}>Arc</button>
-          <label className="custom-symbol-check custom-symbol-snap-toggle">
-            <input type="checkbox" checked={snapEnabled} onChange={toggleSnap} />
-            Snap
-          </label>
+        <div className="custom-symbol-top-controls">
+          <div className="custom-symbol-toolbar custom-symbol-tool-row">
+            <button type="button" className={`toggle-button ${tool === 'line' ? 'active' : ''}`} onClick={() => selectTool('line')}>Line</button>
+            <button type="button" className={`toggle-button ${tool === 'arc' ? 'active' : ''}`} onClick={() => selectTool('arc')}>Arc</button>
+            <label className="custom-symbol-check custom-symbol-snap-toggle">
+              <input type="checkbox" checked={snapEnabled} onChange={toggleSnap} />
+              Snap
+            </label>
+          </div>
         </div>
         <div className="custom-symbol-fill-settings">
           <label className="custom-symbol-coordinate">
@@ -1038,15 +1043,19 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
           )}
         </div>
         <div className={`custom-symbol-arc-settings ${tool !== 'arc' ? 'custom-symbol-control-hidden' : ''}`} aria-hidden={tool !== 'arc'}>
-            <label className="input-label" htmlFor="custom-symbol-arc-mode">Arc construction</label>
-            <select id="custom-symbol-arc-mode" className="input-field" value={arcMode} onChange={selectArcMode}>
-              <option value="two-points">2 points</option>
-              <option value="radius-point">Radius and point</option>
-            </select>
-            <label className="custom-symbol-check">
-              <input type="checkbox" checked={tangentToLast} onChange={toggleTangent} />
-              Tangent to last line/curve
-            </label>
+            <div className="custom-symbol-arc-construction-row">
+              <label className="custom-symbol-arc-construction" htmlFor="custom-symbol-arc-mode">
+                <span>Arc construction</span>
+                <select id="custom-symbol-arc-mode" className="input-field" value={arcMode} onChange={selectArcMode}>
+                  <option value="two-points">2 points</option>
+                  <option value="radius-point">Radius and point</option>
+                </select>
+              </label>
+              <label className="custom-symbol-check">
+                <input type="checkbox" checked={tangentToLast} onChange={toggleTangent} />
+                Tangent to last line/curve
+              </label>
+            </div>
             {arcMode === 'radius-point' && (
               <div className="custom-symbol-arc-inputs">
                 {[
@@ -1125,6 +1134,7 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
                       <>
                         <label>X <input className="input-field" type="number" step="0.001" value={vertex.x.toFixed(3)} onClick={event => event.stopPropagation()} onChange={event => updateVertexCoordinate(vertex, 'x', event.target.value)} /></label>
                         <label>Y <input className="input-field" type="number" step="0.001" value={vertex.y.toFixed(3)} onClick={event => event.stopPropagation()} onChange={event => updateVertexCoordinate(vertex, 'y', event.target.value)} /></label>
+                        <label>Radius <input className="input-field" type="number" min="0" step="0.001" value={(vertex.radius ?? 0).toFixed(3)} onClick={event => event.stopPropagation()} onChange={event => updateVertexCoordinate(vertex, 'radius', event.target.value)} /></label>
                       </>
                     ) : (
                       <><span>X {vertex.x.toFixed(1)}</span><span>Y {vertex.y.toFixed(1)}</span></>

@@ -156,7 +156,15 @@
 }
 
 .custom-symbol-tool-row {
-    min-height: 26px;
+    min-height: 30px;
+}
+
+.custom-symbol-top-controls {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: center;
+    gap: 8px;
+    margin: 5px 0;
 }
 
 .custom-symbol-toolbar span {
@@ -170,6 +178,15 @@
     min-height: 30px;
     padding: 4px 8px;
     font-size: 13px;
+    line-height: 20px;
+}
+
+.custom-symbol-dialog button:not(.close-button) {
+    box-sizing: border-box;
+    height: 30px;
+    min-height: 30px;
+    padding: 4px 8px;
+    line-height: 20px;
 }
 
 .custom-symbol-dialog .toggle-button,
@@ -185,6 +202,7 @@
 
 .custom-symbol-canvas {
     display: block;
+    box-sizing: border-box;
     width: min(100%, calc(58vh * 1.8182)) !important;
     height: auto !important;
     aspect-ratio: 1000 / 550;
@@ -199,7 +217,7 @@
     display: grid;
     grid-template-columns: minmax(0, 4fr) minmax(180px, 1fr);
     gap: 10px;
-    align-items: start;
+    align-items: stretch;
 }
 
 .custom-symbol-editor-row > .canvas-container,
@@ -216,10 +234,12 @@
 
 .custom-symbol-vertex-list {
     min-height: 150px;
-    height: 58vh;
-    max-height: 58vh;
+    height: min(58vh, 550px);
+    max-height: min(58vh, 550px);
+    align-self: start;
     width: 100%;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     padding: 8px;
     border: 1px solid #59636b;
     border-radius: 3px;
@@ -258,10 +278,12 @@
     display: flex;
     align-items: center;
     gap: 4px;
+    min-width: 0;
 }
 
 .custom-symbol-vertex input {
-    min-width: 0;
+    flex: 1 1 auto;
+    min-width: 72px;
     width: 100%;
     padding: 2px 4px !important;
     font-size: 11px !important;
@@ -343,7 +365,8 @@
 .custom-symbol-color {
     display: flex;
     gap: 5px;
-    margin-top: 5px;
+    width: 100%;
+    margin-top: 0;
 }
 
 .custom-symbol-fill-settings {
@@ -367,7 +390,7 @@
 
 .custom-symbol-color-picker input[type='color'] {
     width: 34px;
-    height: 26px;
+    height: 30px;
     padding: 1px;
     border: 1px solid #555;
     border-radius: 3px;
@@ -376,7 +399,7 @@
 }
 
 .custom-symbol-color .toggle-button {
-    flex: 0 1 90px;
+    flex: 1 1 0;
 }
 
 .custom-symbol-arc-settings {
@@ -384,21 +407,57 @@
     flex-direction: column;
     gap: 4px;
     margin: 5px 0;
+    max-height: 260px;
+    opacity: 1;
+    overflow: hidden;
+    transition: max-height .22s ease, margin .22s ease, opacity .18s ease, transform .22s ease;
+    transform: translateY(0);
+}
+
+.custom-symbol-arc-construction-row {
+    display: flex;
+    align-items: end;
+    gap: 8px;
+    width: 100%;
+}
+
+.custom-symbol-arc-construction {
+    display: flex;
+    min-width: 180px;
+    flex: 0 1 260px;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.custom-symbol-arc-construction > span {
+    color: #a9b2b9;
+    font-size: 10px;
+}
+
+.custom-symbol-arc-construction-row .custom-symbol-check {
+    flex: 0 1 300px;
 }
 
 .custom-symbol-check {
     display: flex;
     align-items: center;
     gap: 5px;
+    box-sizing: border-box;
+    min-height: 30px;
+    padding: 4px 8px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background-color: #333;
     color: #c4cdd1;
-    font-size: 11px;
+    font-size: 13px;
+    line-height: 20px;
 }
 
 .custom-symbol-check input[type='checkbox'] {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     margin: 0;
-    flex: 0 0 18px;
+    flex: 0 0 16px;
 }
 
 .custom-symbol-arc-inputs,
@@ -466,7 +525,38 @@
     display: none !important;
 }
 
+.custom-symbol-arc-settings.custom-symbol-control-hidden,
+.custom-symbol-coordinates.custom-symbol-control-hidden {
+    display: flex !important;
+    max-height: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    visibility: hidden;
+}
+
+.custom-symbol-coordinates {
+    max-height: 60px;
+    overflow: hidden;
+    transition: max-height .22s ease, margin .22s ease, opacity .18s ease, transform .22s ease;
+    opacity: 1;
+    transform: translateY(0);
+}
+
 @media (max-width: 760px) {
+    .custom-symbol-arc-construction-row {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .custom-symbol-arc-construction,
+    .custom-symbol-arc-construction-row .custom-symbol-check {
+        flex-basis: auto;
+        width: 100%;
+    }
+
     .custom-symbol-editor-row {
         grid-template-columns: 1fr;
     }
