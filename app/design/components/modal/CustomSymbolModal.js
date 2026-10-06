@@ -213,6 +213,8 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
   const snapHintRef = useRef(null);
   const updateVertexRef = useRef(null);
   const updateSegmentRef = useRef(null);
+  const redrawShapesRef = useRef(null);
+  const selectedVertexLabelRef = useRef(null);
   const [snapEnabled, setSnapEnabled] = useState(true);
   const [vertexCoordinates, setVertexCoordinates] = useState([]);
   const [selectedVertexLabel, setSelectedVertexLabel] = useState(null);
@@ -259,6 +261,7 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     setSegmentCount(0);
     setVertexCoordinates([]);
     setSelectedVertexLabel(null);
+    selectedVertexLabelRef.current = null;
     setSegmentEntries([]);
     setSelectedSegmentKey(null);
     snapEnabledRef.current = true;
@@ -364,12 +367,13 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       return Math.hypot(point.x - closest.x, point.y - closest.y) <= 14 / zoom ? { x: closest.x, y: closest.y } : point;
     };
     const addVertexMarker = (point, label) => {
+      const isSelected = label === selectedVertexLabelRef.current;
       const spot = new Circle({
         left: point.x,
         top: point.y,
         radius: 0.12,
-        fill: '#55d6be',
-        stroke: '#d9fff7',
+        fill: isSelected ? '#ff5a5f' : '#55d6be',
+        stroke: isSelected ? '#ffd7d9' : '#d9fff7',
         strokeWidth: 0.02,
         selectable: false,
         evented: false,
@@ -379,7 +383,7 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
         markers.push(new Text(label, {
           left: point.x + 0.2,
           top: point.y - 0.25,
-          fill: '#d9fff7',
+          fill: isSelected ? '#ffd7d9' : '#d9fff7',
           fontSize: 0.35,
           fontWeight: '600',
           selectable: false,
@@ -428,9 +432,10 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     const redrawShapes = () => {
       fabricCanvas.getObjects().filter(object => !object.isEditorGrid && !object.isEditorGuide).forEach(object => fabricCanvas.remove(object));
       const shapes = [...completedShapesRef.current, ...(shapeRef.current.vertex.length ? [shapeRef.current] : [])];
+      let vertexOffset = 0;
       shapes.forEach(shape => {
         shape.vertex.forEach((vertex, index) => {
-          addVertexMarker(vertex, `V${index + 1}`).forEach(object => { object.isEditorShape = true; });
+          addVertexMarker(vertex, `V${vertexOffset + index + 1}`).forEach(object => { object.isEditorShape = true; });
         });
         const isClosedShape = completedShapesRef.current.includes(shape);
         const vertices = shape.vertex.map((vertex, index) => ({
@@ -449,9 +454,11 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
         if (path) {
           fabricCanvas.add(new Path(path, { stroke: '#f5f0df', fill: '', strokeWidth: 0.06, selectable: false, evented: false, isEditorShape: true }));
         }
+        vertexOffset += shape.vertex.length;
       });
       fabricCanvas.requestRenderAll();
     };
+    redrawShapesRef.current = redrawShapes;
     updateVertexRef.current = (label, key, value) => {
       const numericValue = Number(value);
       if (!Number.isFinite(numericValue) || (key === 'radius' && numericValue < 0)) return;
@@ -870,6 +877,7 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       addNextVertexRef.current = null;
       updateVertexRef.current = null;
       updateSegmentRef.current = null;
+      redrawShapesRef.current = null;
     };
   }, [initialName, isOpen]);
 
@@ -910,6 +918,32 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     setVertexCoordinates(listData.vertices);
     setSegmentEntries(listData.segments);
     fabricCanvasRef.current?.requestRenderAll();
+  };
+
+  const clearCanvas = () => {
+    const fabricCanvas = fabricCanvasRef.current;
+    fabricCanvas?.getObjects().filter(object => !object.isEditorGrid).forEach(object => fabricCanvas.remove(object));
+    shapeRef.current = { vertex: [], arcs: [] };
+    completedShapesRef.current = [];
+    segmentHistoryRef.current = [];
+    activePointsRef.current = [];
+    guidanceLineRef.current = null;
+    snapHintRef.current = null;
+    closedRef.current = false;
+    setPointCount(0);
+    setVertexCount(0);
+    setSegmentCount(0);
+    setCompletedShapeCount(0);
+    setIsClosed(false);
+    setVertexCoordinates([]);
+    setSelectedVertexLabel(null);
+    selectedVertexLabelRef.current = null;
+    setSegmentEntries([]);
+    setSelectedSegmentKey(null);
+    const initialPointerValues = { x: '0', y: '0', length: '0', angle: '0' };
+    pointerValuesRef.current = initialPointerValues;
+    setPointerValues(initialPointerValues);
+    fabricCanvas?.requestRenderAll();
   };
 
   const undoLastSegment = () => {
@@ -999,6 +1033,12 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
 
   const updateVertexCoordinate = (vertex, key, value) => {
     updateVertexRef.current?.(vertex.label, key, value);
+  };
+
+  const selectVertex = label => {
+    selectedVertexLabelRef.current = label;
+    setSelectedVertexLabel(label);
+    redrawShapesRef.current?.();
   };
 
   const updateSegmentInput = (segment, key, value) => {
@@ -1128,7 +1168,7 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
               const segment = segmentEntries.find(entry => entry.startLabel === vertex.label);
               return (
                 <React.Fragment key={vertex.label}>
-                  <div className={`custom-symbol-vertex ${selectedVertexLabel === vertex.label ? 'active' : ''}`} key={vertex.label} role="button" tabIndex={0} onClick={() => setSelectedVertexLabel(vertex.label)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') setSelectedVertexLabel(vertex.label); }}>
+                  <div className={`custom-symbol-vertex ${selectedVertexLabel === vertex.label ? 'active' : ''}`} key={vertex.label} role="button" tabIndex={0} onClick={() => selectVertex(vertex.label)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') selectVertex(vertex.label); }}>
                     <strong>{vertex.label}</strong>
                     {selectedVertexLabel === vertex.label ? (
                       <>
@@ -1167,6 +1207,7 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
         </div>
         <div className="custom-symbol-actions">
           <button type="button" className="toggle-button" onClick={onClose}>Cancel</button>
+          <button type="button" className="toggle-button" onClick={clearCanvas}>Clear canvas</button>
           <button type="button" className="toggle-button" onClick={undoLastSegment} disabled={isClosed || !segmentCount}>Undo</button>
           <button type="button" className="toggle-button" onClick={closePolygon} disabled={isClosed || vertexCount < 3}>Close polygon</button>
           <button type="button" className="panel-action-button" onClick={handleCreate} disabled={!isClosed && !completedShapeCount}>Add symbol</button>
