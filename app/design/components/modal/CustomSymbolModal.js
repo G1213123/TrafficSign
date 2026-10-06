@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Canvas, Circle, Line, Path, Text } from 'fabric';
 import { convertVertexToPathCommands } from '../../lib/objects/path.js';
+import './modal.css';
 
 const EDITOR_WIDTH = 1000;
 const EDITOR_HEIGHT = 550;
