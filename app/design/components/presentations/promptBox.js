@@ -17,6 +17,7 @@ export const promptBoxState = {
   resolve: null,
   reject: null,
   version: 0,
+  promptVersion: 0,
   listeners: new Set(),
 
   notify() {
@@ -34,6 +35,7 @@ export const promptBoxState = {
   },
   
   show(text, withAnswerBox, unit, xHeight, resolve, reject, returnUnit = false) {
+    this.promptVersion += 1;
     this.text = text;
     this.withAnswerBox = withAnswerBox;
     this.unit = unit;
@@ -271,7 +273,7 @@ export default function PromptBox() {
       setTimeout(() => inputRef.current?.focus(), 0);
       setTimeout(() => inputRef.current?.select(), 0);
     }
-  }, [visible]);
+  }, [visible, promptBoxState.promptVersion]);
 
   useEffect(() => {
     const handleMouseMove = (e) => {

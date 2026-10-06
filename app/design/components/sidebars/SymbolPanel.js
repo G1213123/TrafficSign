@@ -332,11 +332,14 @@ export default function DrawSymbolPanel({ canvas }) {
     const permittedAngles = symbolsPermittedAngle[symbolType] || [0];
     if (permittedAngles.length <= 1) return;
 
-    const currentAngle = activeObject?.symbolType === symbolType ? activeObject.angle : angle;
+    const currentAngle = activeObject?.symbolType === symbolType ? activeObject.symbolAngle : angle;
     const newAngle = getNextAngle(permittedAngles, currentAngle, direction === 'ccw' ? 'left' : 'right');
 
     if (activeObject && activeObject.symbolType === symbolType) {
-      activeObject.set('angle', newAngle);
+      activeObject.set('symbolAngle', newAngle);
+      activeObject.removeAll();
+      activeObject.initialize();
+      activeObject.updateAllCoord();
       canvas.requestRenderAll();
     }
 
@@ -366,7 +369,8 @@ export default function DrawSymbolPanel({ canvas }) {
     setSelectedSymbol(symbolType);
 
     // Reset angle to the first permitted value for the new symbol
-    const initialAngle = symbolsPermittedAngle[symbolType]?.[0] || 0;
+    const permittedAngles = symbolsPermittedAngle[symbolType] || [0];
+    const initialAngle = permittedAngles.includes(0) ? 0 : permittedAngles[0];
     setAngle(initialAngle);
 
     // Calculate center of viewport for placement
@@ -375,7 +379,7 @@ export default function DrawSymbolPanel({ canvas }) {
     const options = {
       xHeight: xHeight,
       color: symbolColor,
-      symbolAngle: symbolsPermittedAngle[symbolType] ? (symbolsPermittedAngle[symbolType].length > 1 ? initialAngle : 0) : 0,
+      symbolAngle: initialAngle,
       left: viewportCenter.x,
       top: viewportCenter.y
     };
@@ -438,7 +442,12 @@ export default function DrawSymbolPanel({ canvas }) {
                 setAngle(nextAngle);
                 if (canvas) {
                   const activeObject = canvas.getActiveObject();
-                  if (activeObject) activeObject.set('angle', nextAngle);
+                  if (activeObject?.symbolType === selectedSymbol) {
+                    activeObject.set('symbolAngle', nextAngle);
+                    activeObject.removeAll();
+                    activeObject.initialize();
+                    activeObject.updateAllCoord();
+                  }
                   canvas.requestRenderAll();
                 }
               }}

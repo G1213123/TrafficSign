@@ -399,10 +399,10 @@ function FlagLeftBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
             'vertex': [
                 { x: 0 - v.D - v.C / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y + v.D, label: 'V11', start: 1, display: 0 },
                 { x: 0 - v.D, y: 0 - v.E - rounding.y + v.D, label: 'V12', start: 0, display: 0 },
-                { x: -padding.left + v.A + (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V13', start: 0, display: 0 },
+                { x: -padding.left + v.A / Math.cos(Math.PI / 6) + (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V13', start: 0, display: 0 },
                 { x: 0 - v.D, y: 0 + block.height / length, label: 'V14', start: 0, display: 0 },
                 { x: 0 - v.D - v.C / Math.cos(Math.PI / 6), y: 0 + block.height / length, label: 'V15', start: 0, display: 0 },
-                { x: -padding.left + v.A + v.B / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V16', start: 0, display: 0 },
+                { x: -padding.left + v.A / Math.cos(Math.PI / 6) + v.B / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V16', start: 0, display: 0 },
             ], 'arcs': [], 'fill': 'symbol'
         }];
 
@@ -473,10 +473,10 @@ function FlagRightBorderTemplate(xHeight, block, rounding = { x: 0, y: 0 }) {
             'vertex': [
                 { x: block.width / length + v.D + v.C / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y + v.D, label: 'V11', start: 1, display: 0 },
                 { x: block.width / length + v.D, y: 0 - v.E - rounding.y + v.D, label: 'V12', start: 0, display: 0 },
-                { x: block.width / length + padding.right - v.A - (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V13', start: 0, display: 0 },
+                { x: block.width / length + padding.right - v.A / Math.cos(Math.PI / 6) - (v.B + v.C) / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V13', start: 0, display: 0 },
                 { x: block.width / length + v.D, y: 0 + block.height / length, label: 'V14', start: 0, display: 0 },
                 { x: block.width / length + v.D + v.C / Math.cos(Math.PI / 6), y: 0 + block.height / length, label: 'V15', start: 0, display: 0 },
-                { x: block.width / length + padding.right - v.A - v.B / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V16', start: 0, display: 0 },
+                { x: block.width / length + padding.right - v.A / Math.cos(Math.PI / 6) - v.B / Math.cos(Math.PI / 6), y: 0 - v.E - rounding.y - v.A + (panel.height) / 2, label: 'V16', start: 0, display: 0 },
             ], 'arcs': [], 'fill': 'symbol'
         }];
 
