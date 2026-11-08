@@ -125,6 +125,16 @@ function normalizeShapes(shapes) {
         }))
       };
       if (shape.fill) normalizedShape.fill = shape.fill;
+      if (shape.centerLine) {
+        normalizedShape.centerLine = shape.centerLine.map(point => ({ x: point.x, y: point.y }));
+        normalizedShape.strokeWidth = shape.strokeWidth;
+        normalizedShape.startCap = shape.startCap || (shape.arrowEnd ? 'stub' : 'stub');
+        normalizedShape.endCap = shape.endCap || (shape.arrowEnd ? 'arrow' : 'stub');
+        normalizedShape.arrowEnd = normalizedShape.endCap === 'arrow';
+        normalizedShape.centerlineCornerMode = shape.centerlineCornerMode || 'rounded';
+        normalizedShape.outerCornerRadius = shape.outerCornerRadius ?? (shape.strokeWidth * 0.5);
+        normalizedShape.innerCornerRadius = shape.innerCornerRadius ?? (shape.strokeWidth * 1.5);
+      }
       return normalizedShape;
     })
   };
@@ -168,6 +178,136 @@ function roundCoordinate(value, decimals = 3) {
   return Math.round(value * factor) / factor;
 }
 
+function lineIntersection(first, firstDirection, second, secondDirection) {
+  const determinant = firstDirection.x * secondDirection.y - firstDirection.y * secondDirection.x;
+  if (Math.abs(determinant) < 0.0001) return null;
+  const difference = { x: second.x - first.x, y: second.y - first.y };
+  const scale = (difference.x * secondDirection.y - difference.y * secondDirection.x) / determinant;
+  return {
+    x: first.x + firstDirection.x * scale,
+    y: first.y + firstDirection.y * scale
+  };
+}
+
+function getCenterlineOutline(centerLine, strokeWidth, startCap, endCap, cornerMode = 'rounded', outerCornerRadius = 2, innerCornerRadius = 6) {
+  const halfWidth = strokeWidth / 2;
+  const useRoundedCorners = cornerMode === 'rounded';
+  const sides = { left: [], right: [] };
+  const trumpetArcs = [];
+  const segmentDirections = centerLine.slice(0, -1).map((point, index) => {
+    const next = centerLine[index + 1];
+    const length = Math.hypot(next.x - point.x, next.y - point.y) || 1;
+    return {
+      x: (next.x - point.x) / length,
+      y: (next.y - point.y) / length
+    };
+  });
+  const getOffset = (point, direction, side) => ({
+    x: point.x - direction.y * halfWidth * side,
+    y: point.y + direction.x * halfWidth * side
+  });
+
+  ['left', 'right'].forEach((sideName, sideIndex) => {
+    const side = sideIndex === 0 ? 1 : -1;
+    sides[sideName].push(getOffset(centerLine[0], segmentDirections[0], side));
+    for (let index = 1; index < centerLine.length - 1; index += 1) {
+      const previousDirection = segmentDirections[index - 1];
+      const nextDirection = segmentDirections[index];
+      const previousOffset = getOffset(centerLine[index], previousDirection, side);
+      const nextOffset = getOffset(centerLine[index], nextDirection, side);
+      const intersection = lineIntersection(previousOffset, previousDirection, nextOffset, nextDirection)
+        || { x: (previousOffset.x + nextOffset.x) / 2, y: (previousOffset.y + nextOffset.y) / 2 };
+      const turn = previousDirection.x * nextDirection.y - previousDirection.y * nextDirection.x;
+      const isOuterCorner = Math.abs(turn) > 0.0001 && side * turn > 0;
+      const requestedRadius = Number(isOuterCorner ? outerCornerRadius : innerCornerRadius);
+      const cornerRadius = useRoundedCorners
+        && Math.abs(turn) > 0.0001
+        && Number.isFinite(requestedRadius)
+        ? Math.max(0, requestedRadius)
+        : 0;
+      sides[sideName].push(
+        { ...intersection, radius: cornerRadius }
+      );
+    }
+    const lastIndex = centerLine.length - 1;
+    sides[sideName].push(getOffset(centerLine[lastIndex], segmentDirections.at(-1), side));
+  });
+
+  const applyTrumpetCap = (endIndex, direction) => {
+    const cap = endIndex === 0 ? startCap : endCap;
+    if (cap !== 'trumpet') return;
+    const outwardShift = 1;
+    [sides.left, sides.right].forEach((sidePoints, sideIndex) => {
+      const pointIndex = endIndex === 0 ? 0 : sidePoints.length - 1;
+      const point = sidePoints[pointIndex];
+      const side = sideIndex === 0 ? 1 : -1;
+      const controlPoint = {
+        ...point,
+        x: point.x - direction.x * outwardShift,
+        y: point.y - direction.y * outwardShift,
+        radius: 0
+      };
+      point.x -= direction.y * side * outwardShift;
+      point.y += direction.x * side * outwardShift;
+      point.radius = 0;
+      if (endIndex === 0) sidePoints.unshift(controlPoint);
+      else sidePoints.splice(pointIndex, 0, controlPoint);
+      trumpetArcs.push({
+        startPoint: sideIndex === 0 ? controlPoint : point,
+        endPoint: sideIndex === 0 ? point : controlPoint,
+        radius: outwardShift,
+        direction: 1,
+        sweep: 0
+      });
+    });
+  };
+  applyTrumpetCap(0, segmentDirections[0]);
+  applyTrumpetCap(centerLine.length - 1, segmentDirections.at(-1));
+
+  if (endCap === 'arrow') {
+    const lastDirection = segmentDirections.at(-1);
+    const arrowShoulder = {
+      x: centerLine.at(-1).x - lastDirection.x * halfWidth,
+      y: centerLine.at(-1).y - lastDirection.y * halfWidth
+    };
+    sides.left[sides.left.length - 1] = {
+      x: arrowShoulder.x - lastDirection.y * halfWidth,
+      y: arrowShoulder.y + lastDirection.x * halfWidth
+    };
+    sides.right[sides.right.length - 1] = {
+      x: arrowShoulder.x + lastDirection.y * halfWidth,
+      y: arrowShoulder.y - lastDirection.x * halfWidth
+    };
+    return {
+      vertex: [...sides.left, centerLine.at(-1), ...sides.right.reverse()],
+      arcs: trumpetArcs
+    };
+  }
+  if (startCap === 'arrow') {
+    const firstDirection = segmentDirections[0];
+    const arrowShoulder = {
+      x: centerLine[0].x + firstDirection.x * halfWidth,
+      y: centerLine[0].y + firstDirection.y * halfWidth
+    };
+    sides.left[0] = {
+      x: arrowShoulder.x + firstDirection.y * halfWidth,
+      y: arrowShoulder.y - firstDirection.x * halfWidth
+    };
+    sides.right[0] = {
+      x: arrowShoulder.x - firstDirection.y * halfWidth,
+      y: arrowShoulder.y + firstDirection.x * halfWidth
+    };
+    return {
+      vertex: [sides.left[0], ...sides.left.slice(1), ...sides.right.reverse()],
+      arcs: trumpetArcs
+    };
+  }
+  return {
+    vertex: [...sides.left, ...sides.right.reverse()],
+    arcs: trumpetArcs
+  };
+}
+
 export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialName = 'CustomSymbol', existingNames = [] }) {
   const canvasElementRef = useRef(null);
   const dialogElementRef = useRef(null);
@@ -185,6 +325,20 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
   const closedRef = useRef(false);
   const toolRef = useRef('line');
   const [tool, setTool] = useState('line');
+  const [drawingMode, setDrawingMode] = useState('outline');
+  const drawingModeRef = useRef('outline');
+  const [strokeWidth, setStrokeWidth] = useState('4');
+  const strokeWidthRef = useRef(4);
+  const [centerlineCornerMode, setCenterlineCornerMode] = useState('rounded');
+  const centerlineCornerModeRef = useRef('rounded');
+  const [outerCornerRadius, setOuterCornerRadius] = useState('2');
+  const outerCornerRadiusRef = useRef(2);
+  const [innerCornerRadius, setInnerCornerRadius] = useState('6');
+  const innerCornerRadiusRef = useRef(6);
+  const [startCap, setStartCap] = useState('stub');
+  const startCapRef = useRef('stub');
+  const [endCap, setEndCap] = useState('stub');
+  const endCapRef = useRef('stub');
   const [name, setName] = useState('CustomSymbol');
   const [pointCount, setPointCount] = useState(0);
   const [vertexCount, setVertexCount] = useState(0);
@@ -253,6 +407,8 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     if (dialogElementRef.current) resizeObserver.observe(dialogElementRef.current);
     shapeRef.current = { vertex: [], arcs: [] };
     completedShapesRef.current = [];
+    toolRef.current = 'line';
+    setTool('line');
     setCompletedShapeCount(0);
     segmentHistoryRef.current = [];
     activePointsRef.current = [];
@@ -272,6 +428,20 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     setFillMode('default');
     fillColorRef.current = '#ffffff';
     setFillColor('#ffffff');
+    drawingModeRef.current = 'outline';
+    setDrawingMode('outline');
+    strokeWidthRef.current = 4;
+    setStrokeWidth('4');
+    centerlineCornerModeRef.current = 'rounded';
+    setCenterlineCornerMode('rounded');
+    outerCornerRadiusRef.current = strokeWidthRef.current * 0.5;
+    setOuterCornerRadius(String(strokeWidthRef.current * 0.5));
+    innerCornerRadiusRef.current = strokeWidthRef.current * 1.5;
+    setInnerCornerRadius(String(strokeWidthRef.current * 1.5));
+    startCapRef.current = 'stub';
+    setStartCap('stub');
+    endCapRef.current = 'stub';
+    setEndCap('stub');
     const initialPointerValues = { x: '0', y: '0', length: '0', angle: '0' };
     pointerValuesRef.current = initialPointerValues;
     setPointerValues(initialPointerValues);
@@ -409,6 +579,7 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       setVertexCount(vertices.length);
       syncVertexCoordinates();
       setSegmentCount(segmentHistoryRef.current.length);
+      if (drawingModeRef.current === 'centerline') redrawShapesRef.current?.();
       return { markers, preview: previous ? fabricCanvas.getObjects().at(-1) : null };
     };
     const updatePointerValues = point => {
@@ -435,27 +606,54 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       const shapes = [...completedShapesRef.current, ...(shapeRef.current.vertex.length ? [shapeRef.current] : [])];
       let vertexOffset = 0;
       shapes.forEach(shape => {
-        shape.vertex.forEach((vertex, index) => {
+        const isCompletedShape = completedShapesRef.current.includes(shape);
+        const isCenterlineShape = !!shape.centerLine || (drawingModeRef.current === 'centerline' && !isCompletedShape);
+        const centerlineVertices = isCenterlineShape && !shape.centerLine ? shape.vertex : shape.centerLine;
+        const centerlineOutline = isCenterlineShape && centerlineVertices.length >= 2
+          ? getCenterlineOutline(
+            centerlineVertices,
+            shape.strokeWidth || strokeWidthRef.current,
+            shape.startCap || (isCompletedShape ? (shape.arrowEnd ? 'stub' : 'stub') : startCapRef.current),
+            shape.endCap || (isCompletedShape ? (shape.arrowEnd ? 'arrow' : 'stub') : endCapRef.current),
+            shape.centerlineCornerMode || centerlineCornerModeRef.current,
+            shape.outerCornerRadius ?? outerCornerRadiusRef.current,
+            shape.innerCornerRadius ?? innerCornerRadiusRef.current
+          )
+          : { vertex: shape.vertex, arcs: [] };
+        const displayVertices = centerlineOutline.vertex;
+        const markerVertices = isCenterlineShape && !isCompletedShape ? shape.vertex : displayVertices;
+        markerVertices.forEach((vertex, index) => {
           addVertexMarker(vertex, `V${vertexOffset + index + 1}`).forEach(object => { object.isEditorShape = true; });
         });
-        const isClosedShape = completedShapesRef.current.includes(shape);
-        const vertices = shape.vertex.map((vertex, index) => ({
+        const isClosedShape = isCompletedShape || isCenterlineShape;
+        const vertices = displayVertices.map((vertex, index) => ({
           ...vertex,
           label: `V${index + 1}`,
           radius: !isClosedShape && (index === 0 || index === shape.vertex.length - 1) ? 0 : vertex.radius
         }));
-        const arcs = shape.arcs.map(arc => ({
-          start: vertices[shape.vertex.indexOf(arc.startPoint)]?.label,
-          end: vertices[shape.vertex.indexOf(arc.endPoint)]?.label,
+        const arcs = [...(centerlineOutline.arcs || []), ...(shape.arcs || [])].map(arc => ({
+          start: vertices[displayVertices.indexOf(arc.startPoint)]?.label
+            || vertices[shape.vertex.indexOf(arc.startPoint)]?.label,
+          end: vertices[displayVertices.indexOf(arc.endPoint)]?.label
+            || vertices[shape.vertex.indexOf(arc.endPoint)]?.label,
           radius: arc.radius,
           direction: arc.direction,
-          sweep: arc.sweep
+          sweep: arc.sweep,
+          startPoint: arc.startPoint,
+          endPoint: arc.endPoint
         })).filter(arc => arc.start && arc.end);
         const path = convertVertexToPathCommands({ vertex: vertices, arcs }, isClosedShape);
         if (path) {
-          fabricCanvas.add(new Path(path, { stroke: '#f5f0df', fill: '', strokeWidth: 0.06, selectable: false, evented: false, isEditorShape: true }));
+          fabricCanvas.add(new Path(path, {
+            stroke: '#f5f0df',
+            fill: isCenterlineShape ? '#f5f0df' : '',
+            strokeWidth: 0.06,
+            selectable: false,
+            evented: false,
+            isEditorShape: true
+          }));
         }
-        vertexOffset += shape.vertex.length;
+        vertexOffset += displayVertices.length;
       });
       fabricCanvas.requestRenderAll();
     };
@@ -527,7 +725,34 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       return null;
     };
     const completeActiveShape = () => {
-      if (shapeRef.current.vertex.length < 3) return;
+      const minimumVertices = drawingModeRef.current === 'centerline' ? 2 : 3;
+      if (shapeRef.current.vertex.length < minimumVertices) return;
+      if (drawingModeRef.current === 'centerline') {
+        const centerLine = shapeRef.current.vertex.map(point => ({ x: point.x, y: point.y }));
+        const outline = getCenterlineOutline(
+            centerLine,
+            strokeWidthRef.current,
+            startCapRef.current,
+            endCapRef.current,
+            centerlineCornerModeRef.current,
+            outerCornerRadiusRef.current,
+            innerCornerRadiusRef.current
+          );
+        completedShapesRef.current.push({
+          vertex: outline.vertex,
+          arcs: outline.arcs,
+          centerLine,
+          strokeWidth: strokeWidthRef.current,
+          startCap: startCapRef.current,
+          endCap: endCapRef.current,
+          arrowEnd: endCapRef.current === 'arrow',
+          centerlineCornerMode: centerlineCornerModeRef.current,
+          outerCornerRadius: outerCornerRadiusRef.current,
+          innerCornerRadius: innerCornerRadiusRef.current
+        });
+        setCompletedShapeCount(completedShapesRef.current.length);
+        return;
+      }
       const completedShape = {
         vertex: [...shapeRef.current.vertex],
         arcs: [...shapeRef.current.arcs],
@@ -705,6 +930,7 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     };
     const closeCurrentShape = () => {
       const vertices = shapeRef.current.vertex;
+      if (drawingModeRef.current === 'centerline') return false;
       if (vertices.length < 3) return false;
       if (Math.hypot(vertices.at(-1).x - vertices[0].x, vertices.at(-1).y - vertices[0].y) >= 0.32) {
         fabricCanvas.add(new Line([vertices.at(-1).x, vertices.at(-1).y, vertices[0].x, vertices[0].y], { stroke: '#55d6be', strokeWidth: 0.06, selectable: false, evented: false }));
@@ -741,7 +967,11 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
         && activePointsRef.current.length === 0
         && vertices.length >= 3
         && pointsAreNear(point, vertices[0]);
-      if (!closeAfterArc && activePointsRef.current.length === 0 && vertices.length >= 3 && pointsAreNear(point, vertices[0])) {
+      if (drawingModeRef.current !== 'centerline'
+        && !closeAfterArc
+        && activePointsRef.current.length === 0
+        && vertices.length >= 3
+        && pointsAreNear(point, vertices[0])) {
         closeCurrentShape();
         return;
       }
@@ -885,16 +1115,19 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
   if (!isOpen) return null;
 
   const handleCreate = () => {
-    if (shapeRef.current.vertex.length < 3 && completedShapesRef.current.length === 0) return;
+    const minimumVertices = drawingModeRef.current === 'centerline' ? 2 : 3;
+    if (shapeRef.current.vertex.length < minimumVertices && completedShapesRef.current.length === 0) return;
     const symbolName = name.trim() || 'CustomSymbol';
     if (existingNames.includes(symbolName)) {
       setNameError('A symbol with this name already exists.');
       return;
     }
     setNameError('');
-    if (!closedRef.current) closePolygon();
+    if (drawingModeRef.current === 'centerline') {
+      if (shapeRef.current.vertex.length >= minimumVertices) completeShapeRef.current?.();
+    } else if (!closedRef.current) closePolygon();
     const shapes = [...completedShapesRef.current];
-    if (shapeRef.current.vertex.length >= 3) shapes.push(shapeRef.current);
+    if (drawingModeRef.current === 'outline' && shapeRef.current.vertex.length >= 3) shapes.push(shapeRef.current);
     onCreate(normalizeShapes(shapes), symbolName, color);
     onClose();
   };
@@ -969,6 +1202,57 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     activePointsRef.current = [];
     setPointCount(0);
     setTool(nextTool);
+  };
+
+  const selectDrawingMode = event => {
+    const nextMode = event.target.value;
+    drawingModeRef.current = nextMode;
+    setDrawingMode(nextMode);
+    if (nextMode === 'centerline') {
+      toolRef.current = 'line';
+      setTool('line');
+    }
+    redrawShapesRef.current?.();
+  };
+
+  const updateStrokeWidth = event => {
+    const value = Number(event.target.value);
+    if (!Number.isFinite(value) || value <= 0) return;
+    strokeWidthRef.current = value;
+    setStrokeWidth(event.target.value);
+    redrawShapesRef.current?.();
+  };
+
+  const selectCenterlineCornerMode = event => {
+    const nextMode = event.target.value;
+    centerlineCornerModeRef.current = nextMode;
+    setCenterlineCornerMode(nextMode);
+    redrawShapesRef.current?.();
+  };
+
+  const updateCornerRadius = (corner, value) => {
+    const numericValue = Number(value);
+    if (!Number.isFinite(numericValue) || numericValue < 0) return;
+    if (corner === 'outer') {
+      outerCornerRadiusRef.current = numericValue;
+      setOuterCornerRadius(value);
+    } else {
+      innerCornerRadiusRef.current = numericValue;
+      setInnerCornerRadius(value);
+    }
+    redrawShapesRef.current?.();
+  };
+
+  const selectCap = (capEnd, event) => {
+    const value = event.target.value;
+    if (capEnd === 'start') {
+      startCapRef.current = value;
+      setStartCap(value);
+    } else {
+      endCapRef.current = value;
+      setEndCap(value);
+    }
+    redrawShapesRef.current?.();
   };
 
   const switchCoordinateMode = () => {
@@ -1059,13 +1343,57 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
         {nameError && <p id="custom-symbol-name-error" className="custom-symbol-error">{nameError}</p>}
         <div className="custom-symbol-top-controls">
           <div className="custom-symbol-toolbar custom-symbol-tool-row">
+            <label className="custom-symbol-coordinate">
+              <span>Draw</span>
+              <select className="input-field" value={drawingMode} onChange={selectDrawingMode}>
+                <option value="outline">Outline</option>
+                <option value="centerline">Centerline stroke</option>
+              </select>
+            </label>
             <button type="button" className={`toggle-button ${tool === 'line' ? 'active' : ''}`} onClick={() => selectTool('line')}>Line</button>
-            <button type="button" className={`toggle-button ${tool === 'arc' ? 'active' : ''}`} onClick={() => selectTool('arc')}>Arc</button>
+            <button type="button" className={`toggle-button ${tool === 'arc' ? 'active' : ''}`} onClick={() => selectTool('arc')} disabled={drawingMode === 'centerline'}>Arc</button>
             <label className="custom-symbol-check custom-symbol-snap-toggle">
               <input type="checkbox" checked={snapEnabled} onChange={toggleSnap} />
               Snap
             </label>
           </div>
+        </div>
+        <div className={`custom-symbol-stroke-settings ${drawingMode !== 'centerline' ? 'custom-symbol-control-hidden' : ''}`} aria-hidden={drawingMode !== 'centerline'}>
+          <label className="custom-symbol-coordinate">
+            <span>Stroke width</span>
+            <input className="input-field" type="number" min="0.1" step="0.1" value={strokeWidth} onChange={updateStrokeWidth} />
+          </label>
+          <label className="custom-symbol-coordinate">
+            <span>Corner mode</span>
+            <select className="input-field" value={centerlineCornerMode} onChange={selectCenterlineCornerMode}>
+              <option value="rounded">Rounded</option>
+              <option value="sharp">Sharp</option>
+            </select>
+          </label>
+          <label className="custom-symbol-coordinate">
+            <span>Outer radius</span>
+            <input className="input-field" type="number" min="0" step="0.1" value={outerCornerRadius} onChange={event => updateCornerRadius('outer', event.target.value)} />
+          </label>
+          <label className="custom-symbol-coordinate">
+            <span>Inner radius</span>
+            <input className="input-field" type="number" min="0" step="0.1" value={innerCornerRadius} onChange={event => updateCornerRadius('inner', event.target.value)} />
+          </label>
+          <label className="custom-symbol-coordinate">
+            <span>Start ending</span>
+            <select className="input-field" value={startCap} onChange={event => selectCap('start', event)}>
+              <option value="stub">Stub</option>
+              <option value="arrow">Arrow</option>
+              <option value="trumpet">Trumpet</option>
+            </select>
+          </label>
+          <label className="custom-symbol-coordinate">
+            <span>End ending</span>
+            <select className="input-field" value={endCap} onChange={event => selectCap('end', event)}>
+              <option value="stub">Stub</option>
+              <option value="arrow">Arrow</option>
+              <option value="trumpet">Trumpet</option>
+            </select>
+          </label>
         </div>
         <div className="custom-symbol-fill-settings">
           <label className="custom-symbol-coordinate">
@@ -1128,7 +1456,7 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
             )}
           </div>
         <div className="custom-symbol-toolbar">
-          <span>{tool === 'line' ? 'Click points in sequence' : arcMode === 'radius-point' ? 'Click the arc end point' : 'Click the arc middle, then its end point'}</span>
+          <span>{drawingMode === 'centerline' ? 'Click the stroke centerline points in sequence' : tool === 'line' ? 'Click points in sequence' : arcMode === 'radius-point' ? 'Click the arc end point' : 'Click the arc middle, then its end point'}</span>
           <span>{pointCount} pending points</span>
         </div>
         <div className={`custom-symbol-coordinates ${tool !== 'line' ? 'custom-symbol-control-hidden' : ''}`} role="group" aria-label="Next vertex coordinates" aria-hidden={tool !== 'line'}>
@@ -1210,8 +1538,8 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
           <button type="button" className="toggle-button" onClick={onClose}>Cancel</button>
           <button type="button" className="toggle-button" onClick={clearCanvas}>Clear canvas</button>
           <button type="button" className="toggle-button" onClick={undoLastSegment} disabled={isClosed || !segmentCount}>Undo</button>
-          <button type="button" className="toggle-button" onClick={closePolygon} disabled={isClosed || vertexCount < 3}>Close polygon</button>
-          <button type="button" className="panel-action-button" onClick={handleCreate} disabled={!isClosed && !completedShapeCount}>Add symbol</button>
+          <button type="button" className="toggle-button" onClick={closePolygon} disabled={drawingMode === 'centerline' || isClosed || vertexCount < 3}>Close polygon</button>
+          <button type="button" className="panel-action-button" onClick={handleCreate} disabled={drawingMode === 'centerline' ? vertexCount < 2 && !completedShapeCount : !isClosed && !completedShapeCount}>Add symbol</button>
         </div>
       </div>
     </div>
