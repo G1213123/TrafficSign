@@ -11,7 +11,9 @@ const EDITOR_HEIGHT = 550;
 const GRID_SIZE = 1;
 const INITIAL_ZOOM = 50;
 const MIN_ZOOM = 10;
-const MAX_ZOOM = 200;
+const MAX_ZOOM = 60;
+const GRID_LABEL_FONT_SIZE = 12;
+const GRID_LABEL_OFFSET = 4;
 
 function getCircleThroughPoints(first, middle, last) {
   const denominator = 2 * (first.x * (middle.y - last.y) + middle.x * (last.y - first.y) + last.x * (first.y - middle.y));
@@ -234,27 +236,31 @@ function getCenterlineOutline(centerLine, strokeWidth, startCap, endCap, cornerM
   });
 
   const applyTrumpetCap = (endIndex, direction) => {
-    const cap = endIndex === 0 ? startCap : endCap;
+    const isStart = endIndex === 0;
+    const cap = isStart ? startCap : endCap;
     if (cap !== 'trumpet') return;
     const outwardShift = 1;
     [sides.left, sides.right].forEach((sidePoints, sideIndex) => {
-      const pointIndex = endIndex === 0 ? 0 : sidePoints.length - 1;
+      const pointIndex = isStart ? 0 : sidePoints.length - 1;
       const point = sidePoints[pointIndex];
       const side = sideIndex === 0 ? 1 : -1;
       const controlPoint = {
         ...point,
-        x: point.x - direction.x * outwardShift,
-        y: point.y - direction.y * outwardShift,
+        x: point.x + direction.x * outwardShift * (isStart ? 1 : -1),
+        y: point.y + direction.y * outwardShift * (isStart ? 1 : -1),
         radius: 0
       };
       point.x -= direction.y * side * outwardShift;
       point.y += direction.x * side * outwardShift;
       point.radius = 0;
-      if (endIndex === 0) sidePoints.unshift(controlPoint);
-      else sidePoints.splice(pointIndex, 0, controlPoint);
+      sidePoints.splice(isStart ? pointIndex + 1 : pointIndex, 0, controlPoint);
       trumpetArcs.push({
-        startPoint: sideIndex === 0 ? controlPoint : point,
-        endPoint: sideIndex === 0 ? point : controlPoint,
+        startPoint: isStart
+          ? (sideIndex === 0 ? point : controlPoint)
+          : (sideIndex === 0 ? controlPoint : point),
+        endPoint: isStart
+          ? (sideIndex === 0 ? controlPoint : point)
+          : (sideIndex === 0 ? point : controlPoint),
         radius: outwardShift,
         direction: 1,
         sweep: 0
@@ -388,19 +394,19 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     fabricCanvasRef.current = fabricCanvas;
     fabricCanvas.setZoom(INITIAL_ZOOM);
     const resizeCanvas = () => {
-      const canvasRatio = EDITOR_WIDTH / EDITOR_HEIGHT;
       const dialogWidth = dialogElementRef.current?.clientWidth || EDITOR_WIDTH;
-      const maxCanvasHeight = Math.max(220, Math.min(EDITOR_HEIGHT, window.innerHeight * 0.58));
-      const availableWidth = Math.max(320, Math.min(EDITOR_WIDTH, dialogWidth - 40, maxCanvasHeight * canvasRatio));
-      const availableHeight = availableWidth * EDITOR_HEIGHT / EDITOR_WIDTH;
-      fabricCanvas.setDimensions({ width: availableWidth, height: availableHeight });
+      const maxCanvasHeight = Math.max(300, Math.min(EDITOR_HEIGHT, window.innerHeight * 0.68));
+      const canvasColumnWidth = canvasElementRef.current?.parentElement?.clientWidth || dialogWidth - 40;
+      const canvasWidth = Math.max(320, Math.min(EDITOR_WIDTH, canvasColumnWidth));
+      const canvasHeight = Math.max(240, maxCanvasHeight);
+      fabricCanvas.setDimensions({ width: canvasWidth, height: canvasHeight });
       //fabricCanvas.absolutePan({ x: 0, y: 0 });
       if (fabricCanvas.wrapperEl) {
-        fabricCanvas.wrapperEl.style.width = `${availableWidth}px`;
-        fabricCanvas.wrapperEl.style.height = `${availableHeight}px`;
+        fabricCanvas.wrapperEl.style.width = `${canvasWidth}px`;
+        fabricCanvas.wrapperEl.style.height = `${canvasHeight}px`;
       }
-      canvasElementRef.current.style.width = `${availableWidth}px`;
-      canvasElementRef.current.style.height = `${availableHeight}px`;
+      canvasElementRef.current.style.width = `${canvasWidth}px`;
+      canvasElementRef.current.style.height = `${canvasHeight}px`;
       drawGrid();
     };
     const resizeObserver = new ResizeObserver(resizeCanvas);
@@ -476,15 +482,17 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
       const sceneRight = (width - transform[4]) / transform[0];
       const sceneBottom = (height - transform[5]) / transform[3];
       const gridStep = GRID_SIZE * (zoom < INITIAL_ZOOM * 0.75 ? 2 : zoom > INITIAL_ZOOM * 2.5 ? 0.5 : 1);
+      const labelFontSize = GRID_LABEL_FONT_SIZE / zoom;
+      const labelOffset = GRID_LABEL_OFFSET / zoom;
       const firstColumn = Math.floor(sceneLeft / gridStep) * gridStep;
       const firstRow = Math.floor(sceneTop / gridStep) * gridStep;
       for (let x = firstColumn; x <= sceneRight; x += gridStep) {
         fabricCanvas.add(new Line([x, sceneTop, x, sceneBottom], { stroke: '#34434a', strokeWidth: 0.02, selectable: false, evented: false, isEditorGrid: true }));
-        fabricCanvas.add(new Text(`${roundCoordinate(x, 1)}`, { left: x + 0.15, top: Math.max(sceneTop + 0.15, 0.15), fill: '#8ea3aa', fontSize: 0.25, selectable: false, evented: false, isEditorGrid: true }));
+        fabricCanvas.add(new Text(`${roundCoordinate(x, 1)}`, { left: x + labelOffset, top: Math.max(sceneTop + labelOffset, labelOffset), fill: '#8ea3aa', fontSize: labelFontSize, selectable: false, evented: false, isEditorGrid: true }));
       }
       for (let y = firstRow; y <= sceneBottom; y += gridStep) {
         fabricCanvas.add(new Line([sceneLeft, y, sceneRight, y], { stroke: '#34434a', strokeWidth: 0.02, selectable: false, evented: false, isEditorGrid: true }));
-        fabricCanvas.add(new Text(`${roundCoordinate(y, 1)}`, { left: Math.max(sceneLeft + 0.15, 0.15), top: y + 0.15, fill: '#8ea3aa', fontSize: 0.25, selectable: false, evented: false, isEditorGrid: true }));
+        fabricCanvas.add(new Text(`${roundCoordinate(y, 1)}`, { left: Math.max(sceneLeft + labelOffset, labelOffset), top: y + labelOffset, fill: '#8ea3aa', fontSize: labelFontSize, selectable: false, evented: false, isEditorGrid: true }));
       }
       fabricCanvas.add(new Line([0, sceneTop, 0, sceneBottom], { stroke: '#6b8b95', strokeWidth: 0.04, selectable: false, evented: false, isEditorGrid: true }));
       fabricCanvas.add(new Line([sceneLeft, 0, sceneRight, 0], { stroke: '#6b8b95', strokeWidth: 0.04, selectable: false, evented: false, isEditorGrid: true }));
@@ -1193,7 +1201,12 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     setVertexCoordinates(listData.vertices);
     setSegmentEntries(listData.segments);
     setSegmentCount(segmentHistoryRef.current.length);
-    fabricCanvasRef.current?.requestRenderAll();
+    redrawShapesRef.current?.();
+    const fabricCanvas = fabricCanvasRef.current;
+    if (fabricCanvas) {
+      fabricCanvas.requestRenderAll();
+      fabricCanvas.renderAll();
+    }
   };
 
   const selectTool = nextTool => {
@@ -1338,26 +1351,34 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
           <h2 id="custom-symbol-title">Create symbol</h2>
           <button type="button" className="close-button" onClick={onClose} aria-label="Close">x</button>
         </div>
-        <label className="input-label" htmlFor="custom-symbol-name">Name</label>
-        <input id="custom-symbol-name" className={`input-field ${nameError ? 'input-field-error' : ''}`} value={name} onChange={event => { setName(event.target.value); setNameError(''); }} aria-invalid={!!nameError} aria-describedby={nameError ? 'custom-symbol-name-error' : undefined} />
-        {nameError && <p id="custom-symbol-name-error" className="custom-symbol-error">{nameError}</p>}
-        <div className="custom-symbol-top-controls">
-          <div className="custom-symbol-toolbar custom-symbol-tool-row">
-            <label className="custom-symbol-coordinate">
-              <span>Draw</span>
-              <select className="input-field" value={drawingMode} onChange={selectDrawingMode}>
-                <option value="outline">Outline</option>
-                <option value="centerline">Centerline stroke</option>
-              </select>
-            </label>
-            <button type="button" className={`toggle-button ${tool === 'line' ? 'active' : ''}`} onClick={() => selectTool('line')}>Line</button>
-            <button type="button" className={`toggle-button ${tool === 'arc' ? 'active' : ''}`} onClick={() => selectTool('arc')} disabled={drawingMode === 'centerline'}>Arc</button>
-            <label className="custom-symbol-check custom-symbol-snap-toggle">
-              <input type="checkbox" checked={snapEnabled} onChange={toggleSnap} />
-              Snap
-            </label>
-          </div>
-        </div>
+        <div className="custom-symbol-workspace">
+          <section className="custom-symbol-controls" aria-label="Symbol controls">
+            <div className="custom-symbol-section">
+              <div className="custom-symbol-section-heading">Symbol setup</div>
+              <label className="input-label" htmlFor="custom-symbol-name">Name</label>
+              <input id="custom-symbol-name" className={`input-field ${nameError ? 'input-field-error' : ''}`} value={name} onChange={event => { setName(event.target.value); setNameError(''); }} aria-invalid={!!nameError} aria-describedby={nameError ? 'custom-symbol-name-error' : undefined} />
+              {nameError && <p id="custom-symbol-name-error" className="custom-symbol-error">{nameError}</p>}
+            </div>
+            <div className="custom-symbol-section">
+              <div className="custom-symbol-section-heading">Drawing tools</div>
+              <div className="custom-symbol-top-controls">
+                <div className="custom-symbol-toolbar custom-symbol-tool-row">
+                  <label className="custom-symbol-coordinate">
+                    <span>Draw</span>
+                    <select className="input-field" value={drawingMode} onChange={selectDrawingMode}>
+                      <option value="outline">Outline</option>
+                      <option value="centerline">Centerline stroke</option>
+                    </select>
+                  </label>
+                  <button type="button" className={`toggle-button ${tool === 'line' ? 'active' : ''}`} onClick={() => selectTool('line')}>Line</button>
+                  <button type="button" className={`toggle-button ${tool === 'arc' ? 'active' : ''}`} onClick={() => selectTool('arc')} disabled={drawingMode === 'centerline'}>Arc</button>
+                  <label className="custom-symbol-check custom-symbol-snap-toggle">
+                    <input type="checkbox" checked={snapEnabled} onChange={toggleSnap} />
+                    Snap
+                  </label>
+                </div>
+              </div>
+            </div>
         <div className={`custom-symbol-stroke-settings ${drawingMode !== 'centerline' ? 'custom-symbol-control-hidden' : ''}`} aria-hidden={drawingMode !== 'centerline'}>
           <label className="custom-symbol-coordinate">
             <span>Stroke width</span>
@@ -1459,38 +1480,41 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
           <span>{drawingMode === 'centerline' ? 'Click the stroke centerline points in sequence' : tool === 'line' ? 'Click points in sequence' : arcMode === 'radius-point' ? 'Click the arc end point' : 'Click the arc middle, then its end point'}</span>
           <span>{pointCount} pending points</span>
         </div>
-        <div className={`custom-symbol-coordinates ${tool !== 'line' ? 'custom-symbol-control-hidden' : ''}`} role="group" aria-label="Next vertex coordinates" aria-hidden={tool !== 'line'}>
-          {[
-            ['x', 'X'],
-            ['y', 'Y'],
-            ['length', 'Length'],
-            ['angle', 'Angle']
-          ].map(([key, label]) => (
-            <label key={key} className="custom-symbol-coordinate">
-              <span>{label}</span>
-              <input
-                className={`input-field ${coordinateMode === 'cartesian' ? (key === 'length' || key === 'angle' ? 'coordinate-display' : '') : (key === 'x' || key === 'y' ? 'coordinate-display' : '')}`}
-                type="number"
-                step="0.1"
-                value={pointerValues[key]}
-                readOnly={coordinateMode === 'cartesian' ? key === 'length' || key === 'angle' : key === 'x' || key === 'y'}
-                onKeyDown={handleCoordinateKeyDown}
-                onChange={event => {
-                  if (coordinateMode === 'cartesian' ? key === 'length' || key === 'angle' : key === 'x' || key === 'y') return;
-                  const nextValues = { ...pointerValuesRef.current, [key]: event.target.value };
-                  pointerValuesRef.current = nextValues;
-                  setPointerValues(nextValues);
-                }}
-              />
-            </label>
-          ))}
-          <button type="button" className="toggle-button" onClick={switchCoordinateMode}>
-            Edit {coordinateMode === 'cartesian' ? 'Length / Angle' : 'X / Y'}
-          </button>
-          <button type="button" className="toggle-button" onClick={() => addNextVertexRef.current?.()} disabled={isClosed || tool !== 'line'}>Add next vertex</button>
-        </div>
-        <div className="custom-symbol-editor-row">
-          <canvas ref={canvasElementRef} className="custom-symbol-canvas" aria-label="Custom symbol drawing canvas" />
+          </section>
+          <div className="custom-symbol-editor-row">
+          <div className="custom-symbol-canvas-column">
+            <canvas ref={canvasElementRef} className="custom-symbol-canvas" aria-label="Custom symbol drawing canvas" />
+            <div className={`custom-symbol-coordinates ${tool !== 'line' ? 'custom-symbol-control-hidden' : ''}`} role="group" aria-label="Next vertex coordinates" aria-hidden={tool !== 'line'}>
+              {[
+                ['x', 'X'],
+                ['y', 'Y'],
+                ['length', 'Length'],
+                ['angle', 'Angle']
+              ].map(([key, label]) => (
+                <label key={key} className="custom-symbol-coordinate">
+                  <span>{label}</span>
+                  <input
+                    className={`input-field ${coordinateMode === 'cartesian' ? (key === 'length' || key === 'angle' ? 'coordinate-display' : '') : (key === 'x' || key === 'y' ? 'coordinate-display' : '')}`}
+                    type="number"
+                    step="0.1"
+                    value={pointerValues[key]}
+                    readOnly={coordinateMode === 'cartesian' ? key === 'length' || key === 'angle' : key === 'x' || key === 'y'}
+                    onKeyDown={handleCoordinateKeyDown}
+                    onChange={event => {
+                      if (coordinateMode === 'cartesian' ? key === 'length' || key === 'angle' : key === 'x' || key === 'y') return;
+                      const nextValues = { ...pointerValuesRef.current, [key]: event.target.value };
+                      pointerValuesRef.current = nextValues;
+                      setPointerValues(nextValues);
+                    }}
+                  />
+                </label>
+              ))}
+              <button type="button" className="toggle-button" onClick={switchCoordinateMode}>
+                Edit {coordinateMode === 'cartesian' ? 'Length / Angle' : 'X / Y'}
+              </button>
+              <button type="button" className="toggle-button" onClick={() => addNextVertexRef.current?.()} disabled={isClosed || tool !== 'line'}>Add next vertex</button>
+            </div>
+          </div>
           <aside className="custom-symbol-vertex-list" aria-label="Added vertex coordinates">
             <div className="custom-symbol-vertex-heading">Vertices <span>{vertexCoordinates.length}</span></div>
             {vertexCoordinates.length === 0 ? <span className="custom-symbol-empty-list">No vertices yet</span> : vertexCoordinates.map(vertex => {
@@ -1508,7 +1532,7 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
                     ) : (
                       <><span>X {vertex.x.toFixed(1)}</span><span>Y {vertex.y.toFixed(1)}</span></>
                     )}
-                  </div>
+                    </div>
                   {segment && (
                     <div className={`custom-symbol-segment ${segment.arc && selectedSegmentKey === segment.key ? 'active' : ''}`}>
                       {segment.arc ? (
@@ -1533,6 +1557,7 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
               );
             })}
           </aside>
+        </div>
         </div>
         <div className="custom-symbol-actions">
           <button type="button" className="toggle-button" onClick={onClose}>Cancel</button>
