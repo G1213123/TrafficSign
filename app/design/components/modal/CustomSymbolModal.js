@@ -371,6 +371,7 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
   const [arcInputs, setArcInputs] = useState({ radius: '2', length: '', angle: '' });
   const arcInputsRef = useRef({ radius: '2', length: '', angle: '' });
   const snapEnabledRef = useRef(true);
+  const settingsInitializedRef = useRef(false);
   const snapHintRef = useRef(null);
   const updateVertexRef = useRef(null);
   const updateSegmentRef = useRef(null);
@@ -384,7 +385,44 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
 
   useEffect(() => {
     if (!isOpen || !canvasElementRef.current) return undefined;
-    setName(initialName);
+    if (!settingsInitializedRef.current) {
+      setName(initialName);
+      toolRef.current = 'line';
+      setTool('line');
+      snapEnabledRef.current = true;
+      setSnapEnabled(true);
+      fillModeRef.current = 'default';
+      setFillMode('default');
+      fillColorRef.current = '#ffffff';
+      setFillColor('#ffffff');
+      drawingModeRef.current = 'outline';
+      setDrawingMode('outline');
+      strokeWidthRef.current = 4;
+      setStrokeWidth('4');
+      centerlineCornerModeRef.current = 'rounded';
+      setCenterlineCornerMode('rounded');
+      outerCornerRadiusRef.current = 2;
+      setOuterCornerRadius('2');
+      innerCornerRadiusRef.current = 6;
+      setInnerCornerRadius('6');
+      startCapRef.current = 'stub';
+      setStartCap('stub');
+      endCapRef.current = 'stub';
+      setEndCap('stub');
+      coordinateModeRef.current = 'cartesian';
+      setCoordinateMode('cartesian');
+      arcModeRef.current = 'radius-point';
+      setArcMode('radius-point');
+      tangentToLastRef.current = false;
+      setTangentToLast(false);
+      arcDirectionRef.current = 'auto';
+      setArcDirection('auto');
+      arcSizeRef.current = 'small';
+      setArcSize('small');
+      arcInputsRef.current = { radius: '2', length: '', angle: '' };
+      setArcInputs(arcInputsRef.current);
+      settingsInitializedRef.current = true;
+    }
     const fabricCanvas = new Canvas(canvasElementRef.current, {
       width: EDITOR_WIDTH,
       height: EDITOR_HEIGHT,
@@ -413,8 +451,6 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     if (dialogElementRef.current) resizeObserver.observe(dialogElementRef.current);
     shapeRef.current = { vertex: [], arcs: [] };
     completedShapesRef.current = [];
-    toolRef.current = 'line';
-    setTool('line');
     setCompletedShapeCount(0);
     segmentHistoryRef.current = [];
     activePointsRef.current = [];
@@ -427,42 +463,10 @@ export default function CustomSymbolModal({ isOpen, onClose, onCreate, initialNa
     selectedVertexLabelRef.current = null;
     setSegmentEntries([]);
     setSelectedSegmentKey(null);
-    snapEnabledRef.current = true;
-    setSnapEnabled(true);
     setNameError('');
-    fillModeRef.current = 'default';
-    setFillMode('default');
-    fillColorRef.current = '#ffffff';
-    setFillColor('#ffffff');
-    drawingModeRef.current = 'outline';
-    setDrawingMode('outline');
-    strokeWidthRef.current = 4;
-    setStrokeWidth('4');
-    centerlineCornerModeRef.current = 'rounded';
-    setCenterlineCornerMode('rounded');
-    outerCornerRadiusRef.current = strokeWidthRef.current * 0.5;
-    setOuterCornerRadius(String(strokeWidthRef.current * 0.5));
-    innerCornerRadiusRef.current = strokeWidthRef.current * 1.5;
-    setInnerCornerRadius(String(strokeWidthRef.current * 1.5));
-    startCapRef.current = 'stub';
-    setStartCap('stub');
-    endCapRef.current = 'stub';
-    setEndCap('stub');
     const initialPointerValues = { x: '0', y: '0', length: '0', angle: '0' };
     pointerValuesRef.current = initialPointerValues;
     setPointerValues(initialPointerValues);
-    coordinateModeRef.current = 'cartesian';
-    setCoordinateMode('cartesian');
-    arcModeRef.current = 'radius-point';
-    setArcMode('radius-point');
-    tangentToLastRef.current = false;
-    setTangentToLast(false);
-    arcDirectionRef.current = 'auto';
-    setArcDirection('auto');
-    arcSizeRef.current = 'small';
-    setArcSize('small');
-    arcInputsRef.current = { radius: '2', length: '', angle: '' };
-    setArcInputs(arcInputsRef.current);
 
     const clearEditorGuides = ({ clearSnapHint = false } = {}) => {
       fabricCanvas.getObjects().filter(object => object.isEditorGuide).forEach(object => fabricCanvas.remove(object));
